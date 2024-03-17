@@ -4,32 +4,57 @@
     <title>NSO Bridge</title>
     <script src="{{url_for('static', filename='socket.io.js')}}"></script>
     <script type="text/javascript">
-        async function getEpsilon(iterations) {
-            var epsilon = 0
-            for (var i = 0; i < iterations; ++i) {
-                const start = Date.now();
-                const response = await socket.emitWithAck("sync").catch((e) => { return null; });
-                if (response == null) {
-                    return null;
-                }
-                const delay = (Date.now() - start) / 2;
-                epsilon += start - (response - delay);
-            }
-            return Math.round(epsilon / iterations);
-        }
+        
         var socket = io();
         var epsilon = null;
-        socket.on("connect", async () => {
-            const iterations = 5;
-            epsilon = await getEpsilon(iterations);
-            console.log("epsilon: " + epsilon);
-        });
 
+        async function getEpsilon(socket, iterations) {
+            var epsilon = null;
+            for (var i = 0; i < iterations; ++i) {
+                try {
+                    const start = Date.now();
+                    const response = await socket.emitWithAck("sync");
+                    const end = Date.now();
+                    const delay = (end - start) / 2;
+                    if (epsilon == null) {
+                        epsilon = 0;
+                    }
+                    epsilon += start - (response - delay);
+                } catch {
+                    continue;
+                }
+            }
+            if (epsilon != null) {
+                epsilon = Math.round(epsilon / iterations);
+            }
+            return epsilon;
+        }
+
+        socket.on("connect", async () => {
+            console.log("Connected to bout server");
+            var iterations;
+            try {
+                iterations = {{ sync_iterations }};
+                if (iterations < 1) throw RangeError;
+            } catch {
+                console.warn("Sync iterations is invalid. Setting to default value.")
+                iterations = 10;
+            }
+            console.log("Syncing time with server using " + iterations + " iterations");
+            epsilon = await getEpsilon(iterations);
+            console.log("Time sync epsilon is " + epsilon);
+            document.getElementById("epsilon").innerText = epsilon;
+        });
+        setInterval(() => {
+            document.getElementById("time").innerText = ((Date.now() - epsilon) / 1000).toFixed(2);
+        }, 5);
     </script>
 </head>
 
 <body>
-    Hello world!
+    Hello world!<br>
+    <p id="time">...</p>
+    <p id="epsilon">...</p>
 </body>
 
 </html>
