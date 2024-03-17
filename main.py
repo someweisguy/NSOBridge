@@ -7,6 +7,8 @@ from threading import Thread
 import sys
 import time
 
+DEBUG = True
+
 app = Flask(__name__)
 socketio = SocketIO(app)
 gui = QApplication(sys.argv)
@@ -14,7 +16,8 @@ gui = QApplication(sys.argv)
 
 @app.route("/")
 def index():
-    return flask.render_template('index.html')
+    return flask.render_template("index.html")
+
 
 @socketio.on("sync")
 def client_sync(*_):
@@ -24,9 +27,12 @@ def client_sync(*_):
 
 
 if __name__ == "__main__":
-    kwargs = dict()
-    Thread(target=socketio.run, args=(app, "0.0.0.0", 5000), kwargs=kwargs, daemon=True).start()
-    window = QWidget()
-    # window.show()
-
-    gui.exec()
+    if DEBUG:
+        # Debug the Flask application without the Qt GUI
+        socketio.run(app, "0.0.0.0", 5000, debug=True)
+    else:
+        # Run the Flask application and Qt GUI on separate threads
+        Thread(target=socketio.run, args=(app, "0.0.0.0", 5000), daemon=True).start()
+        window = QWidget()
+        window.show()
+        gui.exec()
