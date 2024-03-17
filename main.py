@@ -7,7 +7,7 @@ from threading import Thread
 import sys
 import time
 
-DEBUG = True
+DEBUG_FLASK = True
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -27,7 +27,7 @@ def client_sync(*_):
 
 
 if __name__ == "__main__":
-    if DEBUG:
+    if DEBUG_FLASK:
         # Debug the Flask application without the Qt GUI
         socketio.run(app, "0.0.0.0", 5000, debug=True)
     else:
