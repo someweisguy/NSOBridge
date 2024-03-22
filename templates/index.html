@@ -29,7 +29,7 @@
             var iterations;
             try {
                 iterations = {{ sync_iterations }};
-                if (iterations < 1) throw RangeError;
+                if (iterations < 0) throw RangeError;
             } catch {
                 console.warn("Sync iterations is invalid. Setting to default value.")
                 iterations = 10;
