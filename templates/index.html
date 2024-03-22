@@ -4,34 +4,28 @@
     <title>NSO Bridge</title>
     <script src="{{url_for('static', filename='socket.io.js')}}"></script>
     <script type="text/javascript">
-        
-        var socket = io();
+        const socket = io();
         var epsilon = null;
 
-        async function getEpsilon(socket, iterations) {
-            var epsilon = null;
+        async function getEpsilon(iterations) {
+            const socket = io();
+            var epsilon = 0;
             for (var i = 0; i < iterations; ++i) {
                 try {
                     const start = Date.now();
                     const response = await socket.emitWithAck("sync");
                     const end = Date.now();
                     const delay = (end - start) / 2;
-                    if (epsilon == null) {
-                        epsilon = 0;
-                    }
                     epsilon += start - (response - delay);
                 } catch {
                     continue;
                 }
             }
-            if (epsilon != null) {
-                epsilon = Math.round(epsilon / iterations);
-            }
-            return epsilon;
+            return Math.round(epsilon / iterations);
         }
 
         socket.on("connect", async () => {
-            console.log("Connected to bout server");
+            console.log("Connected to game server");
             var iterations;
             try {
                 iterations = {{ sync_iterations }};
@@ -46,15 +40,15 @@
             document.getElementById("epsilon").innerText = epsilon;
         });
         setInterval(() => {
-            document.getElementById("time").innerText = ((Date.now() - epsilon) / 1000).toFixed(2);
+            document.getElementById("time").innerText = ((Date.now() - epsilon) / 1000).toFixed(1);
         }, 5);
     </script>
 </head>
 
 <body>
-    Hello world!<br>
-    <p id="time">...</p>
-    <p id="epsilon">...</p>
+    Hello World!<br>
+    Server Time: <a id="time"></a><br>
+    Epsilon: <a id="epsilon"></a><br>
 </body>
 
 </html>
