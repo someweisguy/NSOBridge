@@ -19,11 +19,10 @@ def index():
     return render_template("index.html", **context)
 
 
-@socketio.on("sync")
-def client_sync(*_):
-    epoch = round(time.time_ns() / 1_000_000)
-    print(epoch)
-    return epoch
+@socketio.event
+def sync():
+    now = time.time_ns()
+    return round(now / 1_000_000)
 
 
 if __name__ == "__main__":
