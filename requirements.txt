@@ -4,3 +4,4 @@ gevent==24.2.1
 gevent-websocket==0.10.1
 pyinstaller==6.5.0
 pyqt6==6.6.1
+matplotlib==3.8.3
