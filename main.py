@@ -71,6 +71,9 @@ class Skater:
     number: str
     name: str
 
+    def __str__(self) -> str:
+        return f"{self.number}: {self.name}"
+
     def __hash__(self) -> int:
         return hash(self.number)
 
@@ -84,17 +87,32 @@ class Skater:
 
 class Team:
     def __init__(self, league_name: str, team_name: str) -> None:
-        self.league_name = league_name
-        self.team_name = team_name
-        self._roster = set()
+        self.league_name: str = league_name
+        self.name: str = team_name
+        self._roster: list[Skater] = list()
+
+    def __getitem__(self, key: str) -> Skater:
+        if isinstance(key, str) and key in self._roster:
+            return self._roster[self._roster.index(key)]
+        else:
+            raise ValueError(f"Team indices must be string, not {type(key).__name__}")
+    
+    def __iter__(self) -> Skater:
+        return self._roster.__iter__()
+    
+    def __next__(self) -> Skater:
+        return self._roster.__next__()
     
     def __str__(self) -> str:
-        return f"{self.league_name}, {self.team_name}: {self._roster}"
+        return f"{self.league_name}, {self.name}"
+
+    def __len__(self) -> int:
+        return len(self._roster)
     
     def add(self, skater: Skater) -> bool:
-        if skater in self._roster:
+        if not isinstance(skater, Skater) or skater in self._roster:
             return False
-        self._roster.add(skater)
+        self._roster.append(skater)
         return True
     
     def remove(self, skater: Skater | str) -> bool:
@@ -103,7 +121,7 @@ class Team:
         self._roster.remove(skater)
         return True
     
-if __name__ == "__main__":
+if __name__ == "__main__":  
     if DEBUG_FLASK:
         # Debug the Flask application without the Qt GUI
         socketio.run(app, "0.0.0.0", 5000, debug=True)
