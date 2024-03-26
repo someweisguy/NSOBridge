@@ -35,16 +35,19 @@ class Skater:
 
 
 class Team:
-    def __init__(self, league_name: str, team_name: str) -> None:
+    def __init__(self, league_name: str, team_name: str, color = None) -> None:
         self.league_name: str = league_name
         self.name: str = team_name
+        self._color = color  # TODO
         self._roster: list[Skater] = list()
 
     def __getitem__(self, key: str) -> Skater:
-        if isinstance(key, str) and key in self._roster:
-            return self._roster[self._roster.index(key)]
-        else:
+        if not isinstance(key, str):
             raise ValueError(f"Team indices must be string, not {type(key).__name__}")
+        elif key not in self._roster:
+            return None
+        else:
+            return self._roster[self._roster.index(key)]
     
     def __iter__(self) -> Skater:
         return self._roster.__iter__()
