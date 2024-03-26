@@ -22,8 +22,7 @@ def index():
 
 @socketio.event
 def sync():
-    now = time.time_ns()
-    return round(now / 1_000_000)
+    return Timer.server_time()
 
 class Timer:
     def __init__(self, value: int = 120_000):
