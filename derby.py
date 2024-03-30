@@ -272,6 +272,14 @@ class Jam:
     @property
     def away(self) -> Data:
         return self._away
+    
+    def has_started(self) -> bool:
+        """Returns True if the jam has started."""
+        return self._start is not None
+    
+    def has_ended(self) -> bool:
+        """Returns True if the jam has ended."""
+        return self._stop is not None
 
 
 """ TODO
