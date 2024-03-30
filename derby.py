@@ -79,7 +79,7 @@ class Roster(list):
 
 
 class Teams:
-    class TeamData:
+    class Data:
         def __init__(self) -> None:
             self._league: str = ""
             self._name: str = ""
@@ -106,15 +106,15 @@ class Teams:
             return self._skaters
 
     def __init__(self) -> None:
-        self._home = Teams.TeamData()
-        self._away = Teams.TeamData()
+        self._home: Teams.Data = Teams.Data()
+        self._away: Teams.Data = Teams.Data()
 
     @property
-    def home(self) -> TeamData:
+    def home(self) -> Data:
         return self._home
 
     @property
-    def away(self) -> TeamData:
+    def away(self) -> Data:
         return self._away
 
 
