@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Iterable, SupportsIndex, Iterator
+from typing import Iterator
 from datetime import datetime, timedelta
 
 
