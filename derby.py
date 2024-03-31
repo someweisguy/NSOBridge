@@ -1,9 +1,8 @@
+from datetime import datetime
 from dataclasses import dataclass
-from typing import Iterator
-from datetime import datetime, timedelta
 
 
-@dataclass()
+@dataclass
 class Skater:
     """Represents a skater and their number. Skaters can be uniquely identified by their number."""
 
@@ -37,127 +36,101 @@ class Skater:
             return False
 
     def is_sanctionable(self) -> bool:
-        """Returns True if the skater number is valid for a sanctioned WFTDA game. Valid numbers contain at least one numeral but no more than four numerals."""
+        """Returns True if the skater number is valid for a sanctioned WFTDA
+        game. Valid numbers contain at least one numeral but no more than four
+        numerals."""
         return self.number.isnumeric() and len(self.number) <= 4
 
 
+class Bout:
+    pass
+
+
 class Team:
-    class Data:
-        def __init__(self) -> None:
-            self._league: str = ""
-            self._name: str = ""
-            self._skaters: list[Skater] = []
-
-        def __iter__(self) -> Iterator[Skater]:
-            return self._skaters.__iter__()
-
-        def __next__(self) -> Skater:
-            return self._skaters.__next__()
-
-        def __getitem__(self, key: str | int) -> Skater:
-            if not isinstance(key, str) and not isinstance(key, int):
-                raise TypeError(f"key must be str or int, not f{type(key).__name__}")
-            if isinstance(key, str):
-                key = self._skaters.index(key)
-            return self._skaters[key]
-
-        @property
-        def league(self) -> str:
-            return self._league
-
-        @league.setter
-        def league(self, name: str) -> None:
-            self._league = name
-
-        @property
-        def name(self) -> str:
-            return self._name
-
-        @name.setter
-        def name(self, name: str) -> None:
-            self._name = name
-
-        @property
-        def skaters(self) -> list[Skater]:
-            return self._skaters.copy()
-
-        def add_skater(self, skater: Skater) -> None:
-            if not isinstance(skater, Skater):
-                raise TypeError(f"skater must be a Skater, not {type(skater).__name__}")
-            if skater in self._skaters:
-                raise ValueError("skater is already in roster")
-            self._skaters.append(skater)
-
-        def remove_skater(self, key: Skater | str) -> None:
-            if key not in self._skaters:
-                raise ValueError("skater is not in roster")
-            if isinstance(key, str):
-                key = self._skaters.index(key)
-            del self._skaters[key]
-
-    def __init__(self) -> None:
-        self._home: Team.Data = Team.Data()
-        self._away: Team.Data = Team.Data()
+    def __init__(self, parent_bout: Bout) -> None:
+        if not isinstance(parent_bout, Bout):
+            raise TypeError(
+                f"parent_bout must be Bout, not {type(parent_bout).__name__}"
+            )
+        self._parent_bout: Bout = parent_bout
+        self._league_name = ""
+        self._name = ""
 
     @property
-    def home(self) -> Data:
-        return self._home
+    def league(self) -> str:
+        return self._league_name
+
+    @league.setter
+    def league(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError(f"league must be str, not {type(value).__name__}")
+        self._league_name = value
 
     @property
-    def away(self) -> Data:
-        return self._away
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def league(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError(f"name must be str, not {type(value).__name__}")
+        self._name = value
 
 
 class Jam:
-    CALL_REASONS: frozenset[str] = frozenset({"Called", "Injury"})
-
     class Data:
         """A class for representing Jam data for each Team."""
 
         def __init__(self) -> None:
             self._lead: bool = False
             self._lost: bool = False
+            self._no_pivot: bool = False
             self._star_pass: None | int = None
             self._trips: list[int] = []
             self._timestamps: list[datetime] = []
 
         @property
         def lead(self) -> bool:
-            """Set to True if the Jammer Referee signals that the Jammer is Lead. During an Overtime Jam: There will be no Lead Jammer, leave False. The default is False."""
             return self._lead
 
         @property
         def lost(self) -> bool:
-            """Set to True when a Jammer loses the ability to become Lead Jammer or loses Lead Jammer status itself. Do not set to True if the Jammer is eligible but the opposing Jammer is declared Lead Jammer status first. The default is False."""
             return self._lost
 
         @property
+        def no_pivot(self) -> bool:
+            return self._no_pivot
+
+        @no_pivot.setter
+        def no_pivot(self, value: bool) -> None:
+            if not isinstance(value, bool):
+                raise TypeError(f"no_pivot must be bool, not {type(value).__name__}")
+            if self._star_pass is not None:
+                raise RuntimeError(
+                    "cannot set no_pivot, a star pass has already occurred"
+                )
+            self._no_pivot = value
+
+        @property
         def star_pass(self) -> None | int:
-            """Set to the trip number in which a star pass was successfully completed or None if a star pass did not occur. The default is None."""
             return self._star_pass
 
         @star_pass.setter
-        def star_pass(self, new_value: None | int) -> None:
-            if new_value is not None and not isinstance(new_value, int):
+        def star_pass(self, value: None | int) -> None:
+            if value is not None and not isinstance(value, int):
                 raise TypeError(
-                    f"star_pass must be None or int, not {type(new_value).__name__}"
+                    f"star_pass trip must be None or int, not {type(value).__name__}"
                 )
-            if new_value is not None and new_value > len(self._trips):
-                raise ValueError(
-                    "star_pass trip must be less than the total number of trips"
-                )
-            self._star_pass = new_value
+            if self._no_pivot:
+                raise RuntimeError("a star pass cannot occur if there is no pivot")
+            self._star_pass = value
 
         @property
         def trips(self) -> tuple[int]:
-            """A tuple of the points earned in each trip. The initial trip is index 0 and is always equal to 0. If the len() of this property is 0, no initial pass has occurred."""
-            assert len(self._trips) == len(self._timestamps)
             return tuple(self._trips)
 
         @property
         def timestamps(self) -> tuple[datetime]:
-            """A tuple of the timestamps at which each trip was completed."""
-            assert len(self._timestamps) == len(self._trips)
             return tuple(self._timestamps)
 
         def add_trip(self, timestamp: datetime, points: int) -> None:
@@ -192,85 +165,14 @@ class Jam:
             if self._star_pass is not None and self._star_pass > len(self._trips):
                 self._star_pass = None
 
-    def __init__(self) -> None:
-        self._start: None | datetime = None
-        self._stop: None | datetime = None
-        self._call_reason: str = None
+    def __init__(self, parent_bout: Bout) -> None:
+        if not isinstance(parent_bout, Bout):
+            raise TypeError(
+                f"parent_bout must be Bout, not {type(parent_bout).__name__}"
+            )
+        self._parent_bout: Bout = parent_bout
         self._home: Jam.Data = Jam.Data()
         self._away: Jam.Data = Jam.Data()
-
-    @property
-    def start(self) -> None | datetime:
-        return self._start
-
-    @start.setter
-    def start(self, new_value: None | datetime) -> None:
-        if new_value is not None and not isinstance(new_value, datetime):
-            raise TypeError(
-                f"start must be None or datetime not {type(new_value).__name__}"
-            )
-        self._start = new_value
-
-    @property
-    def stop(self) -> None | datetime:
-        return self._stop
-
-    @stop.setter
-    def stop(self, new_value: None | datetime) -> None:
-        if new_value is not None and not isinstance(new_value, datetime):
-            raise TypeError(
-                f"stop must be None or datetime not {type(new_value).__name__}"
-            )
-        self._stop = new_value
-
-    @property
-    def call_reason(self) -> None | str:
-        return self._call_reason
-
-    @call_reason.setter
-    def call_reason(self, new_value: None | str) -> None:
-        if new_value is not None and not isinstance(new_value, str):
-            raise TypeError(
-                f"call_reason must be None or str not {type(new_value).__name__}"
-            )
-        if new_value not in Jam.CALL_REASONS:
-            raise ValueError(f"call_reason must be one of {list(Jam.CALL_REASONS)}")
-        self._call_reason = new_value
-
-    @property
-    def duration(self) -> None | timedelta:
-        if self._start is None or self._stop is None:
-            return None
-        return self._stop - self._start
-    
-    @property
-    def lead(self):
-        """None, Home, Away"""
-        if not self._home._lead and not self._away._lead:
-            return None
-        if self._home._lead:
-            return self._home
-        else:
-            return self._away
-
-    @lead.setter
-    def lead(self, team) -> None:
-        pass
-
-    @property
-    def lost(self):
-        if not self._home._lost and not self._away._lost:
-            return None
-        elif self._home._lost and self._away._lost:
-            return tuple(self._home, self.away)
-        elif self._home._lost:
-            return self._home
-        else:
-            return self._away
-    
-    @lost.setter
-    def lost(self, team) -> None:
-        pass
 
     @property
     def home(self) -> Data:
@@ -280,13 +182,87 @@ class Jam:
     def away(self) -> Data:
         return self._away
 
-    def has_started(self) -> bool:
-        """Returns True if the jam has started."""
-        return self._start is not None
+    @property
+    def lead(self) -> None | Team:
+        if self._home.lead and not self._home.lost:
+            return self._parent_bout._home
+        elif self._away.lead and not self._away.lost:
+            return self._parent_bout._away
+        else:
+            return None
 
-    def has_ended(self) -> bool:
-        """Returns True if the jam has ended."""
-        return self._stop is not None
+    @lead.setter
+    def lead(self, team: Team) -> None:
+        if not isinstance(team, Team):
+            raise TypeError(f"team must be Team, not {type(team).__name__}")
+        if team not in (self._parent_bout._home, self._parent_bout._away):
+            raise ValueError("team must be playing in this Bout")
+        if self.lead is not None and self.lead is not team:
+            raise RuntimeError("there already is a lead jammer in this jam")
+        jam_team: Jam.Data = (
+            self._home if team is self._parent_bout._home else self._away
+        )
+        if jam_team.lost:
+            raise RuntimeError("this team's jammer is not eligible for lead")
+        jam_team._lead = True
+
+    def revoke_lead(self, team: Team) -> None:
+        if not isinstance(team, Team):
+            raise TypeError(f"team must be Team, not {type(team).__name__}")
+        if team not in (self._parent_bout._home, self._parent_bout._away):
+            raise ValueError("team must be playing in this Bout")
+        jam_team: Jam.Data = (
+            self._home if team is self._parent_bout._home else self._away
+        )
+        jam_team._lost = True
+
+
+class JamManager:
+    def __init__(self, parent_bout: Bout) -> None:
+        self._parent_bout: Bout = parent_bout
+        self._current_half: int = 0
+        self._jams: tuple[list[Jam]] = ([Jam(parent_bout)], [Jam(parent_bout)])
+
+    def __getitem__(self, key: tuple[int]) -> Jam:
+        half, jam = key
+        return self._jams[half][jam]
+
+    def __len__(self) -> int:
+        return len(self._jams[self._current_half])
+
+    @property
+    def current(self) -> Jam:
+        return self._jams[self._current_half][-1]
+
+    def add(self):
+        self._jams[self._current_half].append(Jam(self))
+
+    def remove(self) -> None:
+        if len(self._jams[self._current_half]) <= 1:
+            raise RuntimeError("each half must have at least one Jam")
+        del self._jams[self._current_half][-1]
+
+
+class Bout:
+    def __init__(self) -> None:
+        self._home: Team = Team(self)
+        self._away: Team = Team(self)
+        self._jams: JamManager = JamManager(self)
+
+    def __len__(self) -> int:
+        return len(self._jams[self._current_half])
+
+    @property
+    def home(self) -> Team:
+        return self._home
+
+    @property
+    def away(self) -> Team:
+        return self._away
+
+    @property
+    def jams(self) -> JamManager:
+        return self._jams
 
 
 """ TODO
@@ -296,35 +272,14 @@ class Jam:
 - game.timers
 - game.lineups.home/away   
 - game.penalties.home/away
-
-current method of dual bools for lost/lead is sufficient
-need to find a way to make that impossible to access directly for the jam
-
-jam.lost = None, Home, Away, Both
-jam.lead = None, Home, Away
-
-jam.declare_lead("home")
-jam.revoke_lead("home")
-
-jam.home.revoke_lead()
-jam.away.declare_lead()
-
-
-lead lost
-0 0  0 0 yes.
-0 0  0 1 yes.
-0 0  1 0 yes.
-0 0  1 1 yes.
-0 1  0 0 yes.
-0 1  0 1 yes.
-0 1  1 0 yes.
-0 1  1 1 yes.
-1 0  0 0 yes.
-1 0  0 1 yes.
-1 0  1 0 no.
-1 0  1 1 yes.
-1 1  0 0 yes.
-1 1  0 1 yes.
-1 1  1 0 yes.
-1 1  1 1 yes.
 """
+
+bout = Bout()
+print(bout.jams.current)
+print(bout.jams[0, 0])
+
+bout.jams.current.lead = bout.home
+bout.jams[0, 0].home.add_trip()
+bout.jams.add()
+
+print(bout.jams)
