@@ -126,22 +126,10 @@ class Jam:
             """Set to True if the Jammer Referee signals that the Jammer is Lead. During an Overtime Jam: There will be no Lead Jammer, leave False. The default is False."""
             return self._lead
 
-        @lead.setter
-        def lead(self, new_value: bool) -> None:
-            if not isinstance(new_value, bool):
-                raise TypeError(f"lead must be bool, not {type(new_value).__name__}")
-            self._lead = new_value
-
         @property
         def lost(self) -> bool:
             """Set to True when a Jammer loses the ability to become Lead Jammer or loses Lead Jammer status itself. Do not set to True if the Jammer is eligible but the opposing Jammer is declared Lead Jammer status first. The default is False."""
             return self._lost
-
-        @lost.setter
-        def lost(self, new_value: bool) -> None:
-            if not isinstance(new_value, bool):
-                raise TypeError(f"lost must be bool, not {type(new_value).__name__}")
-            self._lost = new_value
 
         @property
         def star_pass(self) -> None | int:
@@ -254,6 +242,35 @@ class Jam:
         if self._start is None or self._stop is None:
             return None
         return self._stop - self._start
+    
+    @property
+    def lead(self):
+        """None, Home, Away"""
+        if not self._home._lead and not self._away._lead:
+            return None
+        if self._home._lead:
+            return self._home
+        else:
+            return self._away
+
+    @lead.setter
+    def lead(self, team) -> None:
+        pass
+
+    @property
+    def lost(self):
+        if not self._home._lost and not self._away._lost:
+            return None
+        elif self._home._lost and self._away._lost:
+            return tuple(self._home, self.away)
+        elif self._home._lost:
+            return self._home
+        else:
+            return self._away
+    
+    @lost.setter
+    def lost(self, team) -> None:
+        pass
 
     @property
     def home(self) -> Data:
@@ -279,4 +296,35 @@ class Jam:
 - game.timers
 - game.lineups.home/away   
 - game.penalties.home/away
+
+current method of dual bools for lost/lead is sufficient
+need to find a way to make that impossible to access directly for the jam
+
+jam.lost = None, Home, Away, Both
+jam.lead = None, Home, Away
+
+jam.declare_lead("home")
+jam.revoke_lead("home")
+
+jam.home.revoke_lead()
+jam.away.declare_lead()
+
+
+lead lost
+0 0  0 0 yes.
+0 0  0 1 yes.
+0 0  1 0 yes.
+0 0  1 1 yes.
+0 1  0 0 yes.
+0 1  0 1 yes.
+0 1  1 0 yes.
+0 1  1 1 yes.
+1 0  0 0 yes.
+1 0  0 1 yes.
+1 0  1 0 no.
+1 0  1 1 yes.
+1 1  0 0 yes.
+1 1  0 1 yes.
+1 1  1 0 yes.
+1 1  1 1 yes.
 """
