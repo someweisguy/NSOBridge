@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Iterable, SupportsIndex
+from typing import Any, Iterable, SupportsIndex, Iterator
 from datetime import datetime, timedelta
 
 
@@ -41,49 +41,25 @@ class Skater:
         return self.number.isnumeric() and len(self.number) <= 4
 
 
-class Roster(list):
-    def __init__(self, *, limit: None | int = None) -> None:
-        if not isinstance(limit, int) and limit is not None:
-            raise TypeError(
-                f"limit must be None or int not type {type(limit).__name__}"
-            )
-        if isinstance(limit, int) and limit < 0:
-            raise ValueError("limit must be greater than 0")
-        self._limit: None | int = limit
-
-    @property
-    def limit(self) -> None | int:
-        return self._limit
-
-    def append(self, __object: Any) -> None:
-        if __object in self:
-            raise ValueError("Roster must not contain duplicates")
-        if self._limit is not None and len(self) + 1 > self._limit:
-            raise RuntimeError()  # TODO
-        return super().append(__object)
-
-    def extend(self, __iterable: Iterable) -> None:
-        for item in __iterable:
-            if item in self:
-                raise ValueError("Roster must not contain duplicates")
-        if self._limit is not None and len(self) + len(__iterable) > self._limit:
-            raise RuntimeError()  # TODO
-        return super().extend(__iterable)
-
-    def insert(self, __index: SupportsIndex, __object: Any) -> None:
-        if __object in self:
-            raise ValueError("Roster must not contain duplicates")
-        if self._limit is not None and len(self) + 1 > self._limit:
-            raise RuntimeError()  # TODO
-        return super().insert(__index, __object)
-
-
-class Teams:
+class Team:
     class Data:
         def __init__(self) -> None:
             self._league: str = ""
             self._name: str = ""
-            self._skaters: Roster[Skater] = Roster()
+            self._skaters: list[Skater] = []
+
+        def __iter__(self) -> Iterator[Skater]:
+            return self._skaters.__iter__()
+
+        def __next__(self) -> Skater:
+            return self._skaters.__next__()
+
+        def __getitem__(self, key: str | int) -> Skater:
+            if not isinstance(key, str) and not isinstance(key, int):
+                raise TypeError(f"key must be str or int, not f{type(key).__name__}")
+            if isinstance(key, str):
+                key = self._skaters.index(key)
+            return self._skaters[key]
 
         @property
         def league(self) -> str:
@@ -102,12 +78,26 @@ class Teams:
             self._name = name
 
         @property
-        def skaters(self) -> set[Skater]:
-            return self._skaters
+        def skaters(self) -> list[Skater]:
+            return self._skaters.copy()
+
+        def add_skater(self, skater: Skater) -> None:
+            if not isinstance(skater, Skater):
+                raise TypeError(f"skater must be a Skater, not {type(skater).__name__}")
+            if skater in self._skaters:
+                raise ValueError("skater is already in roster")
+            self._skaters.append(skater)
+
+        def remove_skater(self, key: Skater | str) -> None:
+            if key not in self._skaters:
+                raise ValueError("skater is not in roster")
+            if isinstance(key, str):
+                key = self._skaters.index(key)
+            del self._skaters[key]
 
     def __init__(self) -> None:
-        self._home: Teams.Data = Teams.Data()
-        self._away: Teams.Data = Teams.Data()
+        self._home: Team.Data = Team.Data()
+        self._away: Team.Data = Team.Data()
 
     @property
     def home(self) -> Data:
@@ -272,17 +262,18 @@ class Jam:
     @property
     def away(self) -> Data:
         return self._away
-    
+
     def has_started(self) -> bool:
         """Returns True if the jam has started."""
         return self._start is not None
-    
+
     def has_ended(self) -> bool:
         """Returns True if the jam has ended."""
         return self._stop is not None
 
 
 """ TODO
+- game.teams.home
 - game.roster.home/away    -- done
 - game.jam.home/away       -- done
 - game.timers
