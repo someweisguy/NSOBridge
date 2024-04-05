@@ -1,83 +1,9 @@
 from datetime import datetime
-from dataclasses import dataclass
-
-
-@dataclass
-class Skater:
-    """Represents a skater and their number. Skaters can be uniquely identified by their number."""
-
-    number: str
-    name: str
-    pronouns: str
-
-    def __init__(self, number: str, name: str, pronouns: str = "") -> None:
-        number = number.strip()
-        if len(number) == 0:
-            raise ValueError("Skater number must contain a value")
-        self.number = number
-        name = name.strip()
-        if len(name) == 0:
-            raise ValueError("Skater name must contain a value")
-        self.name = name
-        self.pronouns = pronouns
-
-    def __str__(self) -> str:
-        return f"{self.number}: {self.name}"
-
-    def __hash__(self) -> int:
-        return hash(self.number)
-
-    def __eq__(self, other) -> bool:
-        if isinstance(other, Skater):
-            return self.number == other.number
-        elif isinstance(other, str):
-            return self.number == other
-        else:
-            return False
-
-    def is_sanctionable(self) -> bool:
-        """Returns True if the skater number is valid for a sanctioned WFTDA
-        game. Valid numbers contain at least one numeral but no more than four
-        numerals."""
-        return self.number.isnumeric() and len(self.number) <= 4
-
-
-class Bout:
-    pass
-
-
-class Team:
-    def __init__(self, parent_bout: Bout) -> None:
-        if not isinstance(parent_bout, Bout):
-            raise TypeError(
-                f"parent_bout must be Bout, not {type(parent_bout).__name__}"
-            )
-        self._parent_bout: Bout = parent_bout
-        self._league_name = ""
-        self._name = ""
-
-    @property
-    def league(self) -> str:
-        return self._league_name
-
-    @league.setter
-    def league(self, value: str) -> None:
-        if not isinstance(value, str):
-            raise TypeError(f"league must be str, not {type(value).__name__}")
-        self._league_name = value
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def league(self, value: str) -> None:
-        if not isinstance(value, str):
-            raise TypeError(f"name must be str, not {type(value).__name__}")
-        self._name = value
 
 
 class Jam:
+    TEAMS: set[str] = frozenset({"home", "away"})
+
     class Data:
         """A class for representing Jam data for each Team."""
 
@@ -165,12 +91,7 @@ class Jam:
             if self._star_pass is not None and self._star_pass > len(self._trips):
                 self._star_pass = None
 
-    def __init__(self, parent_bout: Bout) -> None:
-        if not isinstance(parent_bout, Bout):
-            raise TypeError(
-                f"parent_bout must be Bout, not {type(parent_bout).__name__}"
-            )
-        self._parent_bout: Bout = parent_bout
+    def __init__(self) -> None:
         self._home: Jam.Data = Jam.Data()
         self._away: Jam.Data = Jam.Data()
 
@@ -183,45 +104,42 @@ class Jam:
         return self._away
 
     @property
-    def lead(self) -> None | Team:
+    def lead(self) -> None | str:
         if self._home.lead and not self._home.lost:
-            return self._parent_bout._home
+            return "home"
         elif self._away.lead and not self._away.lost:
-            return self._parent_bout._away
+            return "away"
         else:
             return None
 
     @lead.setter
-    def lead(self, team: Team) -> None:
-        if not isinstance(team, Team):
-            raise TypeError(f"team must be Team, not {type(team).__name__}")
-        if team not in (self._parent_bout._home, self._parent_bout._away):
-            raise ValueError("team must be playing in this Bout")
-        if self.lead is not None and self.lead is not team:
+    def lead(self, team: str) -> None:
+        team = team.lower()
+        if team not in Jam.TEAMS:
+            raise ValueError(f"team must be one of 'home' or 'away', not {team}")
+        if self.lead is not None and self.lead != team:
             raise RuntimeError("there already is a lead jammer in this jam")
-        jam_team: Jam.Data = (
-            self._home if team is self._parent_bout._home else self._away
-        )
+
+        # Ensure the team is eligible for lead and set the lead flag
+        jam_team: Jam.Data = self._home if team == "home" else self._away
         if jam_team.lost:
-            raise RuntimeError("this team's jammer is not eligible for lead")
+            raise RuntimeError("this team's jammer is not eligble for lead")
         jam_team._lead = True
 
-    def revoke_lead(self, team: Team) -> None:
-        if not isinstance(team, Team):
-            raise TypeError(f"team must be Team, not {type(team).__name__}")
-        if team not in (self._parent_bout._home, self._parent_bout._away):
-            raise ValueError("team must be playing in this Bout")
-        jam_team: Jam.Data = (
-            self._home if team is self._parent_bout._home else self._away
-        )
+    def revoke_lead(self, team: str) -> None:
+        team = team.lower()
+        if team not in Jam.TEAMS:
+            raise ValueError(f"team must be one of 'home' or 'away', not {team}")
+
+        # Set the lost lead flag
+        jam_team: Jam.Data = self._home if team == "home" else self._away
         jam_team._lost = True
 
 
 class JamManager:
-    def __init__(self, parent_bout: Bout) -> None:
-        self._parent_bout: Bout = parent_bout
+    def __init__(self) -> None:
         self._current_half: int = 0
-        self._jams: tuple[list[Jam]] = ([Jam(parent_bout)], [Jam(parent_bout)])
+        self._jams: tuple[list[Jam]] = ([Jam()], [Jam()])
 
     def __getitem__(self, key: tuple[int]) -> Jam:
         half, jam = key
@@ -235,51 +153,9 @@ class JamManager:
         return self._jams[self._current_half][-1]
 
     def add(self):
-        self._jams[self._current_half].append(Jam(self))
+        self._jams[self._current_half].append(Jam())
 
     def remove(self) -> None:
         if len(self._jams[self._current_half]) <= 1:
             raise RuntimeError("each half must have at least one Jam")
         del self._jams[self._current_half][-1]
-
-
-class Bout:
-    def __init__(self) -> None:
-        self._home: Team = Team(self)
-        self._away: Team = Team(self)
-        self._jams: JamManager = JamManager(self)
-
-    def __len__(self) -> int:
-        return len(self._jams[self._current_half])
-
-    @property
-    def home(self) -> Team:
-        return self._home
-
-    @property
-    def away(self) -> Team:
-        return self._away
-
-    @property
-    def jams(self) -> JamManager:
-        return self._jams
-
-
-""" TODO
-- game.teams.home
-- game.roster.home/away    -- done
-- game.jam.home/away       -- done
-- game.timers
-- game.lineups.home/away   
-- game.penalties.home/away
-"""
-
-bout = Bout()
-print(bout.jams.current)
-print(bout.jams[0, 0])
-
-bout.jams.current.lead = bout.home
-bout.jams[0, 0].home.add_trip()
-bout.jams.add()
-
-print(bout.jams)
