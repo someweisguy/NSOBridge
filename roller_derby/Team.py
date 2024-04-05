@@ -25,3 +25,17 @@ class Team:
         if not isinstance(value, str):
             raise TypeError(f"name must be str, not {type(value).__name__}")
         self._name = value
+
+
+class TeamManager:
+    def __init__(self):
+        self._home: Team = Team()
+        self._away: Team = Team()
+
+    @property
+    def home(self) -> Team:
+        return self._home
+
+    @property
+    def away(self) -> Team:
+        return self._away

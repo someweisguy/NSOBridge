@@ -1,23 +1,18 @@
 from .Jam import JamManager
-from .Team import Team
+from .Team import TeamManager
 
 
 class Bout:
     def __init__(self) -> None:
-        self._home: Team = Team()
-        self._away: Team = Team()
+        self._teams: TeamManager = TeamManager()
         self._jams: JamManager = JamManager()
 
     def __len__(self) -> int:
         return len(self._jams[self._current_half])
 
     @property
-    def home(self) -> Team:
-        return self._home
-
-    @property
-    def away(self) -> Team:
-        return self._away
+    def teams(self) -> TeamManager:
+        return self._teams
 
     @property
     def jams(self) -> JamManager:
