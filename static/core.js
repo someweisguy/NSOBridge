@@ -34,3 +34,7 @@ socket.on("connect", async () => {
     document.dispatchEvent(event)
 
 });
+
+socket.on("disconnect", (reason) => {
+    console.log("Disconnected: " + reason);
+});
