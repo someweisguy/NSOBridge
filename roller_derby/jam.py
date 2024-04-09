@@ -2,7 +2,7 @@ from datetime import datetime
 
 
 class Jam:
-    TEAMS: set[str] = frozenset({"home", "away"})
+    TEAMS: frozenset[str] = frozenset({"home", "away"})
 
     class Data:
         """A class for representing Jam data for each Team."""
@@ -52,11 +52,11 @@ class Jam:
             self._star_pass = value
 
         @property
-        def trips(self) -> tuple[int]:
+        def trips(self) -> tuple[int, ...]:
             return tuple(self._trips)
 
         @property
-        def timestamps(self) -> tuple[datetime]:
+        def timestamps(self) -> tuple[datetime, ...]:
             return tuple(self._timestamps)
 
         def add_trip(self, timestamp: datetime, points: int) -> None:
@@ -139,9 +139,9 @@ class Jam:
 class JamManager:
     def __init__(self) -> None:
         self._current_half: int = 0
-        self._jams: tuple[list[Jam]] = ([Jam()], [Jam()])
+        self._jams: tuple[list[Jam], list[Jam]] = ([Jam()], [Jam()])
 
-    def __getitem__(self, key: tuple[int]) -> Jam:
+    def __getitem__(self, key: tuple[int, int]) -> Jam:
         half, jam = key
         return self._jams[half][jam]
 

@@ -1,5 +1,5 @@
-from .Jam import JamManager
-from .Team import TeamManager
+from .jam import JamManager
+from .team import TeamManager
 
 
 class Bout:
@@ -8,7 +8,7 @@ class Bout:
         self._jams: JamManager = JamManager()
 
     def __len__(self) -> int:
-        return len(self._jams[self._current_half])
+        return 0  # TODO
 
     @property
     def teams(self) -> TeamManager:
