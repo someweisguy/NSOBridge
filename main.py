@@ -4,7 +4,7 @@ from flask_socketio import SocketIO
 from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstaller bundle
 from threading import Thread
 import sys
-from roller_derby import Bout, Timer
+from roller_derby import Timer
 
 DEBUG_FLASK = True
 
