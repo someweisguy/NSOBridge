@@ -45,6 +45,10 @@ class Timer:
         assert self._started is not None
         self._millis_remaining -= timestamp - self._started
         self._started = None
+    
+    def serialize(self) -> dict:
+        # TODO
+        return {"remaining": self._millis_remaining, "started_at": self._started}
 
 
 class TimerManager:
