@@ -17,12 +17,12 @@
 
         function startGameTimer() {
             console.log("Starting timer");
-            socket.emit("startGameTimer");
+            socket.emit("startGameTimer", getServerTime());
         }
         
         function stopGameTimer() {
             console.log("Stopping timer");
-            socket.emit("stopGameTimer");
+            socket.emit("stopGameTimer", getServerTime());
         }
 
         function renderTimer(json) {
