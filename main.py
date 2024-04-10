@@ -1,15 +1,17 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from flask import Flask, render_template
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, send
 from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstaller bundle
 from threading import Thread
 import sys
-from roller_derby import Timer
+from roller_derby import Bout, Timer
+import json
 
 DEBUG_FLASK = True
 
 server = Flask(__name__)
 socketio = SocketIO(server)
+bout = Bout()
 
 
 @server.route("/")
@@ -22,6 +24,31 @@ def index():
 def sync():
     return Timer.current_time()
 
+@socketio.event
+def getTimer():
+    payload = dict()
+    payload["remaining"] = bout.timers.game._millis_remaining
+    payload["started_at"] = bout.timers.game._started
+    return payload
+
+@socketio.event
+def startGameTimer():
+    print("Starting timer")
+    bout.timers.game.start(Timer.current_time())
+    payload = dict()
+    payload["remaining"] = bout.timers.game._millis_remaining
+    payload["started_at"] = bout.timers.game._started
+    socketio.emit("timer", payload)
+    
+@socketio.event
+def stopGameTimer():
+    print("stopping timer")
+    bout.timers.game.pause(Timer.current_time())
+    payload = dict()
+    payload["remaining"] = bout.timers.game._millis_remaining
+    payload["started_at"] = bout.timers.game._started
+    socketio.emit("timer", payload)
+    
 
 class MainWindow(QMainWindow):
     def __init__(self) -> None:

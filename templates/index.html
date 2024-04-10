@@ -5,15 +5,55 @@
     <script src="{{url_for('static', filename='socket.io.js')}}"></script>
     <script src="{{url_for('static', filename='core.js')}}"></script>
     <script type="text/javascript">
+
+        gameTimer = {"remaining": null, "started_at": null}
+
         setInterval(() => {
-            document.getElementById("time").innerText = ((Date.now() - epsilon) / 1000).toFixed(1);
+            document.getElementById("time").innerText = getServerTime();
+            if (gameTimer["remaining"] != null) {
+                document.getElementById("timer").innerText = renderTimer(gameTimer);
+            }
         }, 50);
+
+        function startGameTimer() {
+            console.log("Starting timer");
+            socket.emit("startGameTimer");
+        }
+        
+        function stopGameTimer() {
+            console.log("Stopping timer");
+            socket.emit("stopGameTimer");
+        }
+
+        function renderTimer(json) {
+            if (json["started_at"] == null) {
+                return json["remaining"];
+            } else {
+                const elapsed = getServerTime() - json["started_at"];
+                return json["remaining"] - elapsed;
+            }
+        }
+
+        socket.on("connect", async () => {
+            console.log("Getting timer");
+            payload = await socket.emitWithAck("getTimer");
+            gameTimer = payload;
+            console.log("Got timer: " + renderTimer(gameTimer));
+            document.getElementById("timer").innerText = renderTimer(gameTimer);
+        });
+
+        socket.on("timer", (json) => {
+            gameTimer = json;
+            document.getElementById("timer").innerText = renderTimer(gameTimer);
+        });
     </script>
 </head>
 
 <body>
     Hello World!<br>
     Server Time: <a id="time"></a><br>
+    Game timer: <a id="timer"></a><br>
+    <button onclick="startGameTimer()">Start</button> <button onclick="stopGameTimer()">Stop</button>
 </body>
 
 </html>

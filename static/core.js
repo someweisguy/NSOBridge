@@ -23,6 +23,10 @@ async function getEpsilon(iterations) {
     return Math.round(epsilon / successes);
 }
 
+function getServerTime() {
+    return Date.now() - epsilon;
+}
+
 socket.on("connect", async () => {
     console.log("Connected to game server");
     const iterations = 10;
