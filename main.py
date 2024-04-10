@@ -32,18 +32,25 @@ def getTimer():
     return payload
 
 @socketio.event
-def startGameTimer():
-    print("Starting timer")
-    bout.timers.game.start(Timer.current_time())
+def startGameTimer(timestamp):
+    try:
+        print("Starting timer")
+        bout.timers.game.start(timestamp)
+    except:
+        print("error")
+        pass
     payload = dict()
     payload["remaining"] = bout.timers.game._millis_remaining
     payload["started_at"] = bout.timers.game._started
     socketio.emit("timer", payload)
     
 @socketio.event
-def stopGameTimer():
-    print("stopping timer")
-    bout.timers.game.pause(Timer.current_time())
+def stopGameTimer(timestamp):
+    try:
+        print("stopping timer")
+        bout.timers.game.pause(timestamp)
+    except:
+        pass
     payload = dict()
     payload["remaining"] = bout.timers.game._millis_remaining
     payload["started_at"] = bout.timers.game._started
