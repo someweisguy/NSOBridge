@@ -1,17 +1,16 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from flask import Flask, render_template
-from flask_socketio import SocketIO, send
+from flask_socketio import SocketIO
 from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstaller bundle
 from threading import Thread
-import sys
 from roller_derby import Bout, Timer
-import json
+import sys
 
-DEBUG_FLASK = True
+DEBUG_FLASK = False
 
-server = Flask(__name__)
-socketio = SocketIO(server)
-bout = Bout()
+bout = Bout()  # model
+server = Flask(__name__)  # view
+socketio = SocketIO(server)  # controller
 
 
 @server.route("/")
@@ -24,40 +23,35 @@ def index():
 def sync():
     return Timer.current_time()
 
+
 @socketio.event
 def getTimer():
-    payload = dict()
-    payload["remaining"] = bout.timers.game._millis_remaining
-    payload["started_at"] = bout.timers.game._started
-    return payload
+    return bout.timers.game.serialize()
+
 
 @socketio.event
 def startGameTimer(timestamp):
     try:
         print("Starting timer")
         bout.timers.game.start(timestamp)
+        socketio.emit("timer", bout.timers.game.serialize())
     except:
-        print("error")
         pass
-    payload = dict()
-    payload["remaining"] = bout.timers.game._millis_remaining
-    payload["started_at"] = bout.timers.game._started
-    socketio.emit("timer", payload)
-    
+
+
 @socketio.event
 def stopGameTimer(timestamp):
     try:
-        print("stopping timer")
+        print("Stopping timer")
         bout.timers.game.pause(timestamp)
+        socketio.emit("timer", bout.timers.game.serialize())
     except:
         pass
-    payload = dict()
-    payload["remaining"] = bout.timers.game._millis_remaining
-    payload["started_at"] = bout.timers.game._started
-    socketio.emit("timer", payload)
-    
+
 
 class MainWindow(QMainWindow):
+    # TODO: server port number, logging window, new/load button, link to index page, load a demo file
+
     def __init__(self) -> None:
         super().__init__()
         serverThread = Thread(
