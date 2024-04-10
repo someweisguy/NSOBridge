@@ -1,4 +1,5 @@
 import time
+from datetime import timedelta
 
 
 class Timer:
@@ -11,6 +12,18 @@ class Timer:
     def __init__(self, duration: int) -> None:
         self._millis_remaining: int = duration
         self._started: None | int = None
+    
+    @property
+    def remaining(self) -> timedelta:
+        return timedelta(milliseconds=self._millis_remaining)
+    
+    @remaining.setter
+    def remaining(self, duration: int) -> None:
+        if not isinstance(duration, int):
+            raise TypeError()  # TODO
+        if duration < 0: 
+            raise ValueError()  # TODO
+        self._millis_remaining = duration
     
     def start(self, timestamp: int) -> None:
         if not isinstance(timestamp, int):
@@ -26,3 +39,16 @@ class Timer:
             raise RuntimeError("timer is not running")
         self._millis_remaining -= timestamp - self._started
         self._started = None
+
+class TimerManager:
+    def __init__(self) -> None:
+        self._game: Timer = Timer(30 * 60 * 1000)
+        self._jam: Timer = Timer(2 * 60 * 1000)
+    
+    @property
+    def game(self) -> Timer:
+        return self._game
+    
+    @property
+    def jam(self) -> Timer:
+        return self._jam
