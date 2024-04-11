@@ -6,7 +6,7 @@ from threading import Thread
 from roller_derby import Bout, Timer
 import sys
 
-DEBUG_FLASK = False
+DEBUG_FLASK = True
 
 bout = Bout()  # model
 server = Flask(__name__)  # view
@@ -21,7 +21,7 @@ def index():
 
 @socketio.event
 def sync():
-    return Timer.current_time()
+    return Timer.monotonic()
 
 
 @socketio.event
