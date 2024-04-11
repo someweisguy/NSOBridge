@@ -55,6 +55,7 @@ class TimerManager:
     def __init__(self) -> None:
         self._game: Timer = Timer(30 * 60 * 1000)
         self._jam: Timer = Timer(2 * 60 * 1000)
+        self._lineup: Timer = Timer(30 * 1000)
 
     @property
     def game(self) -> Timer:
@@ -63,3 +64,7 @@ class TimerManager:
     @property
     def jam(self) -> Timer:
         return self._jam
+    
+    @property
+    def lineup(self) -> Timer:
+        return self._lineup
