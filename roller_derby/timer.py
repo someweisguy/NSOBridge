@@ -148,7 +148,8 @@ class TimerManager:
     def __init__(self) -> None:
         self._game: Timer = Timer(minutes=30)
         self._jam: Timer = Timer(minutes=2)
-        self._lineup: Timer = Timer()
+        self._lineup: Timer = Timer(seconds=30)
+        self._timeout: Timer = Timer()
 
     @property
     def game(self) -> Timer:
