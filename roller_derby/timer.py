@@ -134,6 +134,15 @@ class Timer:
         assert self._started_milliseconds is not None
         self._elapsed_milliseconds += timestamp - self._started_milliseconds
         self._started_milliseconds = None
+    
+    def reset(self, timestamp: int = monotonic()) -> None:
+        """Resets the elapsed time on the Timer back to zero.
+
+        Args:
+            timestamp (int, optional): The monotonic, millisecond timerstamp at
+            which this method was called. Defaults to Timer.monotonic().
+        """
+        self._elapsed_milliseconds = Timer.monotonic() - timestamp
 
     def serialize(self) -> dict:
         # TODO: make this an interface method
