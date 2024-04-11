@@ -61,19 +61,26 @@ class Timer:
             raise ValueError("Timer alarm value must be positive")
         self._elapsed_milliseconds: int = 0
         self._started_milliseconds: None | int = None
-        self._alarm_milliseconds: int = hours * 60 * 60 * 1000
+        self._alarm_milliseconds: None | int = hours * 60 * 60 * 1000
         self._alarm_milliseconds += minutes * 60 * 1000
         self._alarm_milliseconds += seconds * 1000
         self._alarm_milliseconds += milliseconds
+        if self._alarm_milliseconds == 0:
+            self._alarm_milliseconds = None
 
     @property
-    def remaining(self) -> int:
+    def remaining(self) -> None | int:
         """Returns the number of milliseconds that is remaining on this Timer.
 
         Returns:
-            int: The number of milliseconds remaining.
+            None | int: The number of milliseconds remaining or None if an alarm
+            was not set.
         """
-        return self._alarm_milliseconds - self._elapsed_milliseconds
+        return (
+            self._alarm_milliseconds - self._elapsed_milliseconds
+            if self._alarm_milliseconds is not None
+            else None
+        )
 
     @property
     def elapsed(self) -> int:
