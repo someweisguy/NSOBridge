@@ -1,12 +1,13 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstaller bundle
 from threading import Thread
 from roller_derby import Bout, Timer
+import PySide6.QtAsyncio as QtAsyncio
 import sys
 
-DEBUG_FLASK = True
+DEBUG_FLASK = False
 
 bout = Bout()  # model
 server = Flask(__name__)  # view
@@ -54,11 +55,12 @@ class MainWindow(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
+        self.show()
+
         serverThread = Thread(
             target=socketio.run, args=(server, "0.0.0.0", 5000), daemon=True
         )
         serverThread.start()
-        self.show()
 
 
 if __name__ == "__main__":
@@ -76,4 +78,4 @@ if __name__ == "__main__":
         # Run the Flask application and Qt GUI on separate threads
         qApp = QApplication(sys.argv)
         mainWindow = MainWindow()
-        qApp.exec()
+        QtAsyncio.run()
