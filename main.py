@@ -1,69 +1,58 @@
 from PySide6.QtCore import QRunnable, QThreadPool
 from PySide6.QtWidgets import QApplication, QMainWindow
 from flask import Flask, render_template
-from flask_socketio import SocketIO
 from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstaller bundle
 from roller_derby import Bout, Timer
 import PySide6.QtAsyncio as QtAsyncio
 import sys
+from gevent import pywsgi
+import socketio
 
 
-class Controller(QRunnable):
-    socket: SocketIO = SocketIO()
-    _port: int = 8000
-    model: None | Bout = None
-    view: None | Flask = None
-
-    def __init__(self, model: Bout, view: Flask):
-        if Controller.model is not None and Controller.view is not None:
-            raise RuntimeError("only one controller can be initialized")
+class Server(QRunnable):
+    def __init__(self, sio, flsk) -> None:
         super().__init__()
-        Controller.model = model
-        Controller.view = view
+        self.app: socketio.WSGIApp = socketio.WSGIApp(sio, flsk)
 
-    @property
-    def port(self) -> int:
-        return Controller.port
-
-    @port.setter
-    def port(self, value: int) -> None:
-        if 1 > value > 65535:
-            raise ValueError("port must be between 0 and 65535")
-        Controller.port = value
-
-    def run(self):
-        Controller.socket.init_app(self.view)
-        Controller.socket.run(self.view, "0.0.0.0", Controller.port)
-
-    @socket.event
-    def sync():
-        return Timer.monotonic()
-
-    @socket.event
-    def getTimer():
-        return Controller.model.timers.game.serialize()
-
-    @socket.event
-    def startGameTimer(timestamp):
-        try:
-            print("Starting timer")
-            Controller.model.timers.game.start(timestamp)
-            Controller.socket.emit("timer", Controller.model.timers.game.serialize())
-        except:
-            pass
-
-    @socket.event
-    def stopGameTimer(timestamp):
-        try:
-            print("Stopping timer")
-            Controller.model.timers.game.pause(timestamp)
-            Controller.socket.emit("timer", Controller.model.timers.game.serialize())
-        except:
-            pass
+    def run(self) -> None:
+        wsgi = pywsgi.WSGIServer(("0.0.0.0", 8000), self.app)
+        wsgi.serve_forever()
 
 
 server = Flask(__name__)  # view
-socketio = Controller(Bout(), server)  # controller
+# socketio = Controller(Bout(), server)  # controller
+socket = socketio.AsyncServer()
+bout = Bout()
+
+
+@socket.event
+def sync():
+    return Timer.monotonic()
+
+
+@socket.event
+def getTimer():
+    return bout.timers.game.serialize()
+
+
+@socket.event
+async def startGameTimer(timestamp):
+    try:
+        print("Starting timer")
+        bout.timers.game.start(timestamp)
+        await socket.emit("timer", bout.timers.game.serialize())
+    except:
+        pass
+
+
+@socket.event
+async def stopGameTimer(timestamp):
+    try:
+        print("Stopping timer")
+        bout.timers.game.pause(timestamp)
+        await socket.emit("timer", bout.timers.game.serialize())
+    except:
+        pass
 
 
 @server.route("/")
@@ -78,7 +67,8 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.show()
-        QThreadPool.globalInstance().start(socketio)
+        serve = Server(socket, server)
+        QThreadPool.globalInstance().start(serve)
 
 
 if __name__ == "__main__":
