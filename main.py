@@ -9,48 +9,37 @@ from gevent import pywsgi
 import socketio
 
 
-class Server(QRunnable):
-    def __init__(self, sio, flsk) -> None:
-        super().__init__()
-        self.app: socketio.WSGIApp = socketio.WSGIApp(sio, flsk)
-
-    def run(self) -> None:
-        wsgi = pywsgi.WSGIServer(("0.0.0.0", 8000), self.app)
-        wsgi.serve_forever()
-
-
 server = Flask(__name__)  # view
-# socketio = Controller(Bout(), server)  # controller
-socket = socketio.AsyncServer()
+socket = socketio.Server()
 bout = Bout()
 
 
 @socket.event
-def sync():
+def sync(_):
     return Timer.monotonic()
 
 
 @socket.event
-def getTimer():
+def getTimer(_):
     return bout.timers.game.serialize()
 
 
 @socket.event
-async def startGameTimer(timestamp):
+def startGameTimer(_, timestamp):
     try:
         print("Starting timer")
         bout.timers.game.start(timestamp)
-        await socket.emit("timer", bout.timers.game.serialize())
+        socket.emit("timer", bout.timers.game.serialize())
     except:
         pass
 
 
 @socket.event
-async def stopGameTimer(timestamp):
+def stopGameTimer(_, timestamp):
     try:
         print("Stopping timer")
         bout.timers.game.pause(timestamp)
-        await socket.emit("timer", bout.timers.game.serialize())
+        socket.emit("timer", bout.timers.game.serialize())
     except:
         pass
 
@@ -61,14 +50,32 @@ def index():
     return render_template("index.html", **context)
 
 
+class WSGIServer(QRunnable):
+    def __init__(self, sio: socketio.AsyncServer, flsk: Flask) -> None:
+        super().__init__()
+        self.app: socketio.WSGIApp = socketio.WSGIApp(sio, flsk)
+
+    def run(self) -> None:
+        self._wsgi = pywsgi.WSGIServer(("0.0.0.0", 8000), self.app)
+        self._wsgi.serve_forever()
+
+    def stop(self) -> None:
+        self._wsgi.stop()
+
+
 class MainWindow(QMainWindow):
-    # TODO: server port number, logging window, new/load button, link to index page, load a demo file
+    # TODO: server port number, link to index page
 
     def __init__(self) -> None:
         super().__init__()
         self.show()
-        serve = Server(socket, server)
-        QThreadPool.globalInstance().start(serve)
+        wsgi = WSGIServer(socket, server)
+        QThreadPool.globalInstance().start(wsgi)
+        print("started")
+        # import time
+        # time.sleep(5)
+        # wsgi.stop()
+        # print("stopped")
 
 
 if __name__ == "__main__":
