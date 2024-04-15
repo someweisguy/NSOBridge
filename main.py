@@ -1,15 +1,15 @@
 from PySide6.QtCore import QRunnable, QThreadPool
 from PySide6.QtWidgets import QApplication, QMainWindow
 from flask import Flask, render_template
+from gevent import pywsgi
 from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstaller bundle
 from roller_derby import Bout, Timer
 import PySide6.QtAsyncio as QtAsyncio
 import sys
-from gevent import pywsgi
 import socketio
 
 
-server = Flask(__name__)  # view
+server = Flask(__name__)
 socket = socketio.Server()
 bout = Bout()
 
@@ -51,16 +51,26 @@ def index():
 
 
 class WSGIServer(QRunnable):
-    def __init__(self, sio: socketio.AsyncServer, flsk: Flask) -> None:
+    def __init__(self, sio: socketio.AsyncServer, flask: Flask) -> None:
         super().__init__()
-        self.app: socketio.WSGIApp = socketio.WSGIApp(sio, flsk)
+        self.app: socketio.WSGIApp = socketio.WSGIApp(sio, flask)
 
     def run(self) -> None:
-        self._wsgi = pywsgi.WSGIServer(("0.0.0.0", 8000), self.app)
-        self._wsgi.serve_forever()
+        self._server: pywsgi.WSGIServer = pywsgi.WSGIServer(("0.0.0.0", 8000), self.app)
+        self._server.serve_forever()
 
     def stop(self) -> None:
-        self._wsgi.stop()
+        self._server.stop()
+    
+    @property
+    def port(self) -> int:
+        return self._server.server_port
+    
+    @port.setter
+    def port(self, port: int) -> None:
+        if 1 > port > 65535:
+            raise ValueError()  # TODO: exception message
+        pass # TODO
 
 
 class MainWindow(QMainWindow):
@@ -70,13 +80,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.show()
         wsgi = WSGIServer(socket, server)
-        QThreadPool.globalInstance().start(wsgi)
-        print("started")
-        # import time
-        # time.sleep(5)
-        # wsgi.stop()
-        # print("stopped")
-
+        pool = QThreadPool.globalInstance()
+        pool.start(wsgi)
 
 if __name__ == "__main__":
     # Run the Flask application and Qt GUI on separate threads
