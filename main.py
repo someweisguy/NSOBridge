@@ -1,9 +1,9 @@
 from PySide6.QtCore import QThreadPool
 from PySide6.QtWidgets import QApplication, QMainWindow
+from flask import render_template
 from controller import Controller
 import sys
 
-from flask import render_template
 
 
 # @socket.event
