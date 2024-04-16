@@ -48,6 +48,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     # Run the Flask application and Qt GUI on separate threads
-    qApp = QApplication(sys.argv)
+    qt = QApplication(sys.argv)
     mainWindow = MainWindow(8000)
-    qApp.exec()
+    qt.exec()
