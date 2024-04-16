@@ -41,7 +41,9 @@ class Controller(QRunnable):
         if self.is_running:
             return  # only allow one instance to run at a time
         wsgi = socketio.WSGIApp(Controller.socket, Controller.flask)
-        self._server = WSGIServer(("0.0.0.0", self.port), wsgi)
+        self._server = WSGIServer(
+            ("0.0.0.0", self.port), wsgi, log=None, error_log=None
+        )
         try:
             self._server.serve_forever()
         except OSError:
