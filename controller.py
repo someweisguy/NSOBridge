@@ -18,7 +18,7 @@ class Controller(QRunnable):
 
     def __init__(self, port: int = 8000) -> None:
         super().__init__()
-        self.server: None | WSGIServer = None
+        self._server: None | WSGIServer = None
         self.port = port
 
     @property
@@ -27,20 +27,30 @@ class Controller(QRunnable):
 
     @port.setter
     def port(self, port: int) -> None:
-        port = int(port)
+        if not isinstance(port, int):
+            raise TypeError(f"port must be int, not {type(port).__name__}")
         if 1 > port > 65535:
             raise ValueError("port number is invalid")
-        self._port = port
+        self._port: int = port
+
+    @property
+    def is_running(self) -> bool:
+        return self._server is not None
 
     def run(self) -> None:
+        if self.is_running:
+            return  # only allow one instance to run at a time
         wsgi = socketio.WSGIApp(Controller.socket, Controller.flask)
-        self.server = WSGIServer(("0.0.0.0", self.port), wsgi)
-        self.server.serve_forever()
-        self.server = None
+        self._server = WSGIServer(("0.0.0.0", self.port), wsgi)
+        try:
+            self._server.serve_forever()
+        except OSError:
+            pass  # suppress errors outside of main thread
+        self._server = None
 
     def stop(self) -> None:
-        if self.server is not None:
-            self.server.stop()
+        if self._server is not None:
+            self._server.stop()
 
 
 @Controller.socket.event
