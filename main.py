@@ -1,9 +1,16 @@
 from PySide6.QtCore import QThreadPool
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QVBoxLayout,
+    QTextEdit,
+    QLabel,
+    QPushButton,
+    QWidget,
+)
 from flask import render_template
 from controller import Controller
 import sys
-
 
 
 # @socket.event
@@ -42,12 +49,33 @@ class MainWindow(QMainWindow):
 
     def __init__(self, port: int = 8000) -> None:
         super().__init__()
+        self.setMinimumHeight(500)
+        self.setMinimumWidth(300)
+
+        main = QWidget()
+        self.setCentralWidget(main)
+
+        vBox = QVBoxLayout(main)
+        main.setLayout(vBox)
+
+        button = QPushButton("button", main)
+        port_widget = QTextEdit("text edit", main)
+        label = QLabel("hello world", main)
+
+        for widget in (label, port_widget, button):
+            vBox.addWidget(widget, stretch=0)
+
+        self.controller = Controller(port)
+        QThreadPool.globalInstance().start(self.controller)
+        if not self.controller.is_running:
+            print("Unable to start controller")
         self.show()
-        controller = Controller(port)
-        QThreadPool.globalInstance().start(controller)
+
+    def closeEvent(self, event) -> None:
+        self.controller.stop()
+
 
 if __name__ == "__main__":
-    # Run the Flask application and Qt GUI on separate threads
     qt = QApplication(sys.argv)
     mainWindow = MainWindow(8000)
     qt.exec()
