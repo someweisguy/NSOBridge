@@ -1,4 +1,4 @@
-from PySide6.QtCore import QThreadPool
+from PySide6.QtCore import QThreadPool, Slot
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -66,13 +66,16 @@ class MainWindow(QMainWindow):
             vBox.addWidget(widget, stretch=0)
 
         self.controller = Controller(port)
+        self.controller.signals.running.connect(self.serverRunCallback)
         QThreadPool.globalInstance().start(self.controller)
-        if not self.controller.is_running:
-            print("Unable to start controller")
         self.show()
 
     def closeEvent(self, event) -> None:
         self.controller.stop()
+
+    @Slot(bool)
+    def serverRunCallback(self, state: bool):
+        print(f"WSGI server is{" " if state else " not "}running")
 
 
 if __name__ == "__main__":
