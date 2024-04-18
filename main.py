@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         # Load the main widget from the UI file
-        widget = QUiLoader().load(QFile("./NSOBridge.ui"), None)
+        widget = QUiLoader().load(QFile("./NSOBridge.ui"), self)
         if not widget:
             raise OSError("unable to load Qt widget")
         self.setWindowTitle(widget.windowTitle())
