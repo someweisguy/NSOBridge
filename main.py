@@ -44,9 +44,9 @@ class MainWindow(QMainWindow):
         # Load the main widget from the UI file
         widget = QUiLoader().load(QFile("./NSOBridge.ui"), self)
         if not widget:
-            raise OSError("unable to load Qt widget")
-        self.setWindowTitle(widget.windowTitle())
+            raise OSError("unable to load splash page")
         self.setCentralWidget(widget)
+        self.setWindowTitle(widget.windowTitle())
         self.setFixedSize(widget.size())
         self.show()
 
