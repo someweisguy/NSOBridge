@@ -1,4 +1,5 @@
-from PySide6.QtCore import QThreadPool, Slot
+from PySide6.QtCore import QThreadPool, Slot, QFile
+from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -49,8 +50,6 @@ class MainWindow(QMainWindow):
 
     def __init__(self, port: int) -> None:
         super().__init__()
-        self.setMinimumHeight(500)
-        self.setMinimumWidth(300)
 
         main = QWidget()
         self.setCentralWidget(main)
@@ -80,5 +79,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     qt = QApplication(sys.argv)
-    mainWindow = MainWindow(8000)
+    w = QUiLoader().load(QFile("./NSOBridge.ui"), None)
+    w.show()
+    # mainWindow = MainWindow(8000)
     qt.exec()
