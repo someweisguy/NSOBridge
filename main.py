@@ -79,7 +79,10 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     qt = QApplication(sys.argv)
-    w = QUiLoader().load(QFile("./NSOBridge.ui"), None)
-    w.show()
-    # mainWindow = MainWindow(8000)
-    qt.exec()
+    loader = QUiLoader()
+    window = loader.load(QFile("./NSOBridge.ui"), None)
+    if not window:
+        print(loader.errorString())
+    else: 
+        window.show()
+        qt.exec()
