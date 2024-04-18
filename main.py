@@ -48,7 +48,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(widget.windowTitle())
         self.setCentralWidget(widget)
         self.setFixedSize(widget.size())
-        self.setWindowFlags(Qt.WindowType.Dialog)
         self.show()
 
         # Start the application server
