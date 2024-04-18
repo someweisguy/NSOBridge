@@ -7,7 +7,7 @@ import time
 
 
 class Controller(QRunnable):
-    __slots__ = "_port", "_server"
+    __slots__ = "_port", "_server", "signals"
 
     flask: Flask = Flask(__name__)
     socket: socketio.Server = socketio.Server()
