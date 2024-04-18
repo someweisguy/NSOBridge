@@ -47,7 +47,7 @@ def index():
 class MainWindow(QMainWindow):
     # TODO: server port number, link to index page
 
-    def __init__(self, port: int = 8000) -> None:
+    def __init__(self, port: int) -> None:
         super().__init__()
         self.setMinimumHeight(500)
         self.setMinimumWidth(300)
