@@ -1,6 +1,13 @@
-from PySide6.QtCore import QThreadPool, Slot, QFile, Qt
+from PySide6.QtCore import QThreadPool, Slot, QFile
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+)
 from flask import render_template
 from controller import Controller
 import sys
@@ -41,13 +48,28 @@ class MainWindow(QMainWindow):
     def __init__(self, port: int) -> None:
         super().__init__()
 
+        # Validate the server port number
+        if 1 > port > 65535:
+            raise ValueError("invalid port number")
+
         # Load the main widget from the UI file
-        widget = QUiLoader().load(QFile("./NSOBridge.ui"), self)
+        widget: QWidget = QUiLoader().load(QFile("./NSOBridge.ui"), self)
         if not widget:
             raise OSError("unable to load splash page")
         self.setCentralWidget(widget)
         self.setWindowTitle(widget.windowTitle())
         self.setFixedSize(widget.size())
+        self.setFocus()
+
+        # Set the default port number and default port hint text
+        portLineEdit: QLineEdit = widget.findChild(QLineEdit, "portLineEdit")
+        portLineEdit.setText(str(port))
+        defaultPortLabel: QLabel = widget.findChild(QLabel, "defaultPortLabel")
+        defaultPortLabel.setText(f"The default port is {port}.")
+
+        # Set the update checker label
+        # TODO
+
         self.show()
 
         # Start the application server
@@ -59,8 +81,19 @@ class MainWindow(QMainWindow):
         self.controller.stop()
 
     @Slot(bool)
-    def serverRunCallback(self, state: bool):
-        print(f"WSGI server is{" " if state else " not "}running")
+    def serverRunCallback(self, running: bool):
+        # Set the start/stop button text
+        startServerButton: QPushButton = self.findChild(
+            QPushButton, "startServerButton"
+        )
+        actionText: str = "Start" if not running else "Stop"
+        startServerButton.setText(f"{actionText} Scoreboard")
+
+        # Set the state label text
+        # TODO
+
+        # Set the server link label
+        # TODO
 
 
 if __name__ == "__main__":
