@@ -254,7 +254,7 @@
        </size>
       </property>
       <property name="text">
-       <string>Scoreboard is running! Click the link below to get started.</string>
+       <string>The scoreboard is running! Click the link below to get started.</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
