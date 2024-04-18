@@ -24,6 +24,7 @@ class Controller(QRunnable):
 
     def __init__(self, port: int = 8000) -> None:
         super().__init__()
+        self.setAutoDelete(False)
         self.signals: Controller.Signals = Controller.Signals()
         self._server: None | WSGIServer = None
         self.port = port
