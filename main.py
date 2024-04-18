@@ -1,14 +1,6 @@
-from PySide6.QtCore import QThreadPool, Slot, QFile
+from PySide6.QtCore import QThreadPool, Slot, QFile, Qt
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QVBoxLayout,
-    QTextEdit,
-    QLabel,
-    QPushButton,
-    QWidget,
-)
+from PySide6.QtWidgets import QApplication, QMainWindow
 from flask import render_template
 from controller import Controller
 import sys
@@ -46,28 +38,23 @@ def index():
 
 
 class MainWindow(QMainWindow):
-    # TODO: server port number, link to index page
-
     def __init__(self, port: int) -> None:
         super().__init__()
 
-        main = QWidget()
-        self.setCentralWidget(main)
+        # Load the main widget from the UI file
+        widget = QUiLoader().load(QFile("./NSOBridge.ui"), None)
+        if not widget:
+            raise OSError("unable to load Qt widget")
+        self.setWindowTitle("NSO Bridge")
+        self.setCentralWidget(widget)
+        self.setFixedSize(widget.size())
+        self.setWindowFlags(Qt.WindowType.Dialog)
+        self.show()
 
-        vBox = QVBoxLayout(main)
-        main.setLayout(vBox)
-
-        button = QPushButton("button", main)
-        port_widget = QTextEdit("text edit", main)
-        label = QLabel("hello world", main)
-
-        for widget in (label, port_widget, button):
-            vBox.addWidget(widget, stretch=0)
-
+        # Start the application server
         self.controller = Controller(port)
         self.controller.signals.running.connect(self.serverRunCallback)
         QThreadPool.globalInstance().start(self.controller)
-        self.show()
 
     def closeEvent(self, event) -> None:
         self.controller.stop()
@@ -79,10 +66,5 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     qt = QApplication(sys.argv)
-    loader = QUiLoader()
-    window = loader.load(QFile("./NSOBridge.ui"), None)
-    if not window:
-        print(loader.errorString())
-    else: 
-        window.show()
-        qt.exec()
+    mainWindow = MainWindow(8000)
+    qt.exec()
