@@ -73,7 +73,7 @@ class MainWindow(QMainWindow):
         self.show()
 
         # Start the application server
-        self.controller = Controller(port)
+        self.controller: Controller = Controller(port)
         self.controller.signals.running.connect(self.serverRunCallback)
         QThreadPool.globalInstance().start(self.controller)
 
