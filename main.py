@@ -45,7 +45,7 @@ class MainWindow(QMainWindow):
         widget = QUiLoader().load(QFile("./NSOBridge.ui"), None)
         if not widget:
             raise OSError("unable to load Qt widget")
-        self.setWindowTitle("NSO Bridge")
+        self.setWindowTitle(widget.windowTitle())
         self.setCentralWidget(widget)
         self.setFixedSize(widget.size())
         self.setWindowFlags(Qt.WindowType.Dialog)
