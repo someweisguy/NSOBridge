@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 from flask import render_template
 from controller import Controller
+import socket
 import sys
 
 
@@ -63,24 +64,29 @@ class MainWindow(QMainWindow):
         self.setFocus()
 
         # Set the default port number and default port hint text
-        portLineEdit: QLineEdit = widget.findChild(QLineEdit, "portLineEdit")
+        portLineEdit: QLineEdit = self.findChild(QLineEdit, "portLineEdit")
         portLineEdit.setText(str(defaultPort))
-        defaultPortLabel: QLabel = widget.findChild(QLabel, "defaultPortLabel")
+        defaultPortLabel: QLabel = self.findChild(QLabel, "defaultPortLabel")
         defaultPortLabel.setText(f"The default port is {defaultPort}.")
         
         # Set the "hide when minimized" checkbox
-        hideCheckBox: QCheckBox = widget.findChild(QCheckBox, "hideCheckBox")
+        hideCheckBox: QCheckBox = self.findChild(QCheckBox, "hideCheckBox")
         hideCheckBox.setCheckState(
             Qt.CheckState.Checked if hideWhenMinimized else Qt.CheckState.Unchecked
         )
 
-        # Set the update checker label
-        # TODO
+        # Hide the update checker label
+        updatesLabel: QLabel = self.findChild(QLabel, "updatesLabel")
+        updatesLabel.hide()
+        
+        # Hide the scoreboard link label
+        serverLinkLabel: QLabel = self.findChild(QLabel, "serverLinkLabel")
+        serverLinkLabel.hide()
 
         # Start the application server
         self.controller: Controller = Controller(defaultPort)
         self.controller.signals.running.connect(self.serverRunCallback)
-        QThreadPool.globalInstance().start(self.controller)
+        self.startStopServer(True)
 
     def closeEvent(self, event) -> None:
         self.controller.stop()
@@ -95,10 +101,31 @@ class MainWindow(QMainWindow):
         startServerButton.setText(f"{actionText} Scoreboard")
 
         # Set the state label text
-        # TODO
+        stateLabel: QLabel = self.findChild(QLabel, "stateLabel")
+        stateLabelText: str = (
+            "The scoreboard is not running. Press the Start Scoreboard button above."
+            if not running
+            else "The scoreboard is running! Click the link below to get started."
+        )
+        stateLabel.setText(stateLabelText)
 
         # Set the server link label
-        # TODO
+        serverLinkLabel: QLabel = self.findChild(QLabel, "serverLinkLabel")
+        if not running:
+            serverLinkLabel.hide()
+        else:
+            serverAddress = socket.gethostbyname(socket.gethostname())
+            serverLinkLabel.setText(f"http://{serverAddress}:{self.controller.port}")
+            serverLinkLabel.show()
+            
+    def startStopServer(self, state: bool) -> None:
+        portLineEdit: QLineEdit = self.findChild(QLineEdit, "portLineEdit")
+        portLineEdit.setEnabled(not state)
+        if state:
+            QThreadPool.globalInstance().start(self.controller)
+        else:
+            self.controller.stop()
+            
 
 
 if __name__ == "__main__":
