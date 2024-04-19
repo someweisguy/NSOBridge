@@ -135,10 +135,6 @@ class MainWindow(QMainWindow):
                 self.tray.show()
 
     @Slot()
-    def portChanged(self) -> None:
-        print("changed")  # TODO
-
-    @Slot()
     def trayClicked(self) -> None:
         self.tray.hide()
         self.show()
