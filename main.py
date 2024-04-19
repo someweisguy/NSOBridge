@@ -49,6 +49,7 @@ def index():
 class MainWindow(QMainWindow):
     def __init__(self, *, defaultPort: int, hideWhenMinimized: bool) -> None:
         super().__init__()
+        self.running: bool = False
 
         # Validate the server port number
         if 1 > defaultPort > 65535:
@@ -74,6 +75,12 @@ class MainWindow(QMainWindow):
         hideCheckBox.setCheckState(
             Qt.CheckState.Checked if hideWhenMinimized else Qt.CheckState.Unchecked
         )
+        
+        # Add the button callback function
+        startServerButton: QPushButton = self.findChild(
+            QPushButton, "startServerButton"
+        )
+        startServerButton.clicked.connect(self.startStopServer)
 
         # Hide the update checker label
         updatesLabel: QLabel = self.findChild(QLabel, "updatesLabel")
@@ -86,13 +93,19 @@ class MainWindow(QMainWindow):
         # Start the application server
         self.controller: Controller = Controller(defaultPort)
         self.controller.signals.running.connect(self.serverRunCallback)
-        self.startStopServer(True)
+        self.startStopServer()
 
     def closeEvent(self, event) -> None:
         self.controller.stop()
 
     @Slot(bool)
     def serverRunCallback(self, running: bool):
+        self.running = running
+        
+        # Disable setting the port when the server is running
+        portLineEdit: QLineEdit = self.findChild(QLineEdit, "portLineEdit")
+        portLineEdit.setEnabled(not running)
+        
         # Set the start/stop button text
         startServerButton: QPushButton = self.findChild(
             QPushButton, "startServerButton"
@@ -112,17 +125,16 @@ class MainWindow(QMainWindow):
         # Set the server link label
         serverLinkLabel: QLabel = self.findChild(QLabel, "serverLinkLabel")
         if not running:
-            serverLinkLabel.hide()
+            serverLinkLabel.setText("")
         else:
             serverAddress = socket.gethostbyname(socket.gethostname())
             httpStr: str = f"http://{serverAddress}:{self.controller.port}"
             serverLinkLabel.setText(f"<a href='{httpStr}'>{httpStr}</a>")
             serverLinkLabel.show()
-            
-    def startStopServer(self, state: bool) -> None:
-        portLineEdit: QLineEdit = self.findChild(QLineEdit, "portLineEdit")
-        portLineEdit.setEnabled(not state)
-        if state:
+    
+    @Slot()   
+    def startStopServer(self) -> None:
+        if not self.running:
             QThreadPool.globalInstance().start(self.controller)
         else:
             self.controller.stop()
