@@ -149,12 +149,8 @@ class MainWindow(QMainWindow):
     def startStopServer(self) -> None:
         if not self.running:
             portSpinBox: QSpinBox = self.findChild(QSpinBox, "portSpinBox")
-            try:
-                self.controller.port = portSpinBox.value()
-                QThreadPool.globalInstance().start(self.controller)
-            except ValueError:
-                # Display an error dialog
-                return  # TODO: dialog box
+            self.controller.port = portSpinBox.value()
+            QThreadPool.globalInstance().start(self.controller)
         else:
             try:
                 self.controller.stop()
