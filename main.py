@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
         # Set the state label text
         stateLabel: QLabel = self.findChild(QLabel, "stateLabel")
         stateLabelText: str = (
-            "The scoreboard is not running. Press the Start Scoreboard button above."
+            "The scoreboard is not running. Click the Start Scoreboard button above."
             if not running
             else "The scoreboard is running! Click the link below to get started."
         )
