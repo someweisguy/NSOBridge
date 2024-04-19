@@ -76,7 +76,7 @@
          </font>
         </property>
         <property name="text">
-         <string>NSO Bridge v0.1.0</string>
+         <string>NSO Bridge</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
