@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
             warningBox: QMessageBox = QMessageBox(self)
             warningBox.setWindowTitle("Exit NSO Bridge?")
             warningBox.setText(
-                "Are you sure you want to exit NSO Bridge? Any unsaved changes will be lost."
+                "Are you sure you want to exit? Any unsaved changes will be lost."
             )
             warningBox.setStandardButtons(
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel
