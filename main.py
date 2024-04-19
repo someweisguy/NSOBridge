@@ -98,6 +98,14 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event) -> None:
         self.controller.stop()
 
+    @Slot()
+    def serverErrorCallback(self) -> None:
+        self.running = False
+        self.serverRunCallback(False)
+
+        # Display an error dialog
+        # TODO
+
     @Slot(bool)
     def serverRunCallback(self, running: bool):
         self.running = running
@@ -135,7 +143,14 @@ class MainWindow(QMainWindow):
     @Slot()   
     def startStopServer(self) -> None:
         if not self.running:
-            QThreadPool.globalInstance().start(self.controller)
+            portLineEdit: QLineEdit = self.findChild(QLineEdit, "portLineEdit")
+            port: int = int(portLineEdit.text())
+            try:
+                self.controller.port = port
+                QThreadPool.globalInstance().start(self.controller)
+            except ValueError:
+                # Display an error dialog
+                return  # TODO: dialog box
         else:
             self.controller.stop()
             
