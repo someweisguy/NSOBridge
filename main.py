@@ -63,6 +63,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(widget.windowTitle())
         self.setFixedSize(widget.size())
         self.setFocus()
+        
+        # Set the header label
+        versionStr: str = "v0.1.0"
+        headerLabel: QLabel = self.findChild(QLabel, "headerLabel")
+        headerLabel.setText(f"NSO Bridge {versionStr}")
 
         # Set the default port number and default port hint text
         portSpinBox: QSpinBox = self.findChild(QSpinBox, "portSpinBox")
@@ -153,7 +158,7 @@ class MainWindow(QMainWindow):
         else:
             try:
                 self.controller.stop()
-            except AttributeError:
+            except Exception:
                 pass # Suppress error when repeated stopping controller
             
             
