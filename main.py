@@ -54,10 +54,6 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.running: bool = False
 
-        # Validate the server port number
-        if 1 > defaultPort > 65535:
-            raise ValueError("invalid port number")
-
         # Load the main widget from the UI file
         widget: QWidget = QUiLoader().load(QFile("./NSOBridge.ui"), self)
         if not widget:
