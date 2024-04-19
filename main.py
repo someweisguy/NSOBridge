@@ -1,4 +1,4 @@
-from PySide6.QtCore import QThreadPool, Slot, QFile
+from PySide6.QtCore import QThreadPool, Slot, QFile, Qt
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (
     QApplication,
@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
+    QCheckBox
 )
 from flask import render_template
 from controller import Controller
@@ -45,11 +46,11 @@ def index():
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, port: int) -> None:
+    def __init__(self, *, defaultPort: int, hideWhenMinimized: bool) -> None:
         super().__init__()
 
         # Validate the server port number
-        if 1 > port > 65535:
+        if 1 > defaultPort > 65535:
             raise ValueError("invalid port number")
 
         # Load the main widget from the UI file
@@ -63,17 +64,21 @@ class MainWindow(QMainWindow):
 
         # Set the default port number and default port hint text
         portLineEdit: QLineEdit = widget.findChild(QLineEdit, "portLineEdit")
-        portLineEdit.setText(str(port))
+        portLineEdit.setText(str(defaultPort))
         defaultPortLabel: QLabel = widget.findChild(QLabel, "defaultPortLabel")
-        defaultPortLabel.setText(f"The default port is {port}.")
+        defaultPortLabel.setText(f"The default port is {defaultPort}.")
+        
+        # Set the "hide when minimized" checkbox
+        hideCheckBox: QCheckBox = widget.findChild(QCheckBox, "hideCheckBox")
+        hideCheckBox.setCheckState(
+            Qt.CheckState.Checked if hideWhenMinimized else Qt.CheckState.Unchecked
+        )
 
         # Set the update checker label
         # TODO
 
-        self.show()
-
         # Start the application server
-        self.controller: Controller = Controller(port)
+        self.controller: Controller = Controller(defaultPort)
         self.controller.signals.running.connect(self.serverRunCallback)
         QThreadPool.globalInstance().start(self.controller)
 
@@ -98,5 +103,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     qt = QApplication(sys.argv)
-    mainWindow = MainWindow(8000)
+    mainWindow = MainWindow(defaultPort=8000, hideWhenMinimized=True)
+    mainWindow.show()
     qt.exec()
