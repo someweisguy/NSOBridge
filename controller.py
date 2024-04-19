@@ -37,7 +37,7 @@ class Controller(QRunnable):
     def port(self, port: int) -> None:
         if not isinstance(port, int):
             raise TypeError(f"port must be int, not {type(port).__name__}")
-        if 1 > port > 65535:
+        if not 1 < port < 65535:
             raise ValueError("port number is invalid")
         self._port: int = port
 
