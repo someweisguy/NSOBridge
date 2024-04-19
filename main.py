@@ -203,6 +203,7 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+    QApplication.setAttribute(Qt.AA_ShareOpenGLContexts, True)
     qt: QApplication = QApplication(sys.argv)
     mainWindow: MainWindow = MainWindow(defaultPort=8000, hideWhenMinimized=True)
     mainWindow.show()
