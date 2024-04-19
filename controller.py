@@ -1,7 +1,7 @@
 from PySide6.QtCore import QRunnable, QObject, Signal
 from gevent.pywsgi import WSGIServer
 from roller_derby import Bout
-from flask import Flask
+from flask import Flask, render_template
 import socketio
 import time
 
@@ -63,3 +63,15 @@ class Controller(QRunnable):
 @Controller.socket.event
 def sync(_):
     return Controller.monotonic()
+
+
+@Controller.flask.route("/")
+def index():
+    context = {"sync_iterations": 10}
+    return render_template("index.html", **context)
+
+
+if __name__ == "__main__":
+    print("Running NSO Bridge controller without GUI")
+    controller: Controller = Controller(8000)
+    controller.run()

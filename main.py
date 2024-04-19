@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QSystemTrayIcon,
 )
-from flask import render_template
 from controller import Controller
 import socket
 import sys
@@ -41,12 +40,6 @@ import sys
 #         socket.emit("timer", bout.timers.game.serialize())
 #     except:
 #         pass
-
-
-@Controller.flask.route("/")
-def index():
-    context = {"sync_iterations": 10}
-    return render_template("index.html", **context)
 
 
 class MainWindow(QMainWindow):
@@ -100,7 +93,7 @@ class MainWindow(QMainWindow):
         self.tray.activated.connect(self.trayClicked)
         # TODO: self.tray.setContextMenu()
         self.tray.hide()
-        
+
         # Check for app updates on the GitHub repository
         # TODO
 
