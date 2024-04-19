@@ -199,7 +199,7 @@ class MainWindow(QMainWindow):
             try:
                 self.controller.stop()
             except Exception:
-                pass  # Suppress error when repeated stopping controller
+                pass  # Suppress error when repeatedly stopping controller
 
 
 if __name__ == "__main__":
