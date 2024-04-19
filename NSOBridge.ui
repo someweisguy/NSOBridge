@@ -199,8 +199,8 @@
           <height>16777215</height>
          </size>
         </property>
-        <property name="text">
-         <string>8000</string>
+        <property name="maxLength">
+         <number>5</number>
         </property>
        </widget>
       </item>
