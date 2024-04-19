@@ -151,7 +151,11 @@ class MainWindow(QMainWindow):
                 # Display an error dialog
                 return  # TODO: dialog box
         else:
-            self.controller.stop()
+            try:
+                self.controller.stop()
+            except AttributeError:
+                pass # Suppress error when repeated stopping controller
+            
             
 
 
