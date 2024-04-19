@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
     QLabel,
-    QLineEdit,
+    QSpinBox,
     QPushButton,
     QCheckBox
 )
@@ -65,8 +65,8 @@ class MainWindow(QMainWindow):
         self.setFocus()
 
         # Set the default port number and default port hint text
-        portLineEdit: QLineEdit = self.findChild(QLineEdit, "portLineEdit")
-        portLineEdit.setText(str(defaultPort))
+        portSpinBox: QSpinBox = self.findChild(QSpinBox, "portSpinBox")
+        portSpinBox.setValue(defaultPort)
         defaultPortLabel: QLabel = self.findChild(QLabel, "defaultPortLabel")
         defaultPortLabel.setText(f"The default port is {defaultPort}.")
         
@@ -111,8 +111,8 @@ class MainWindow(QMainWindow):
         self.running = running
         
         # Disable setting the port when the server is running
-        portLineEdit: QLineEdit = self.findChild(QLineEdit, "portLineEdit")
-        portLineEdit.setEnabled(not running)
+        portSpinBox: QSpinBox = self.findChild(QSpinBox, "portSpinBox")
+        portSpinBox.setEnabled(not running)
         
         # Set the start/stop button text
         startServerButton: QPushButton = self.findChild(
@@ -143,10 +143,9 @@ class MainWindow(QMainWindow):
     @Slot()   
     def startStopServer(self) -> None:
         if not self.running:
-            portLineEdit: QLineEdit = self.findChild(QLineEdit, "portLineEdit")
-            port: int = int(portLineEdit.text())
+            portSpinBox: QSpinBox = self.findChild(QSpinBox, "portSpinBox")
             try:
-                self.controller.port = port
+                self.controller.port = portSpinBox.value()
                 QThreadPool.globalInstance().start(self.controller)
             except ValueError:
                 # Display an error dialog
