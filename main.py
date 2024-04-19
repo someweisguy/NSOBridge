@@ -115,7 +115,8 @@ class MainWindow(QMainWindow):
             serverLinkLabel.hide()
         else:
             serverAddress = socket.gethostbyname(socket.gethostname())
-            serverLinkLabel.setText(f"http://{serverAddress}:{self.controller.port}")
+            linkAddress: str = f"http://{serverAddress}:{self.controller.port}"
+            serverLinkLabel.setText(f"<a href='{linkAddress}'>{linkAddress}</a>")
             serverLinkLabel.show()
             
     def startStopServer(self, state: bool) -> None:
