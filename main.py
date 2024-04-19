@@ -104,6 +104,9 @@ class MainWindow(QMainWindow):
         self.tray.activated.connect(self.trayClicked)
         # TODO: self.tray.setContextMenu()
         self.tray.hide()
+        
+        # Check for app updates on the GitHub repository
+        # TODO
 
         # Start the application server
         self.controller: Controller = Controller(defaultPort)
