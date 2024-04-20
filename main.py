@@ -177,7 +177,11 @@ class MainWindow(QMainWindow):
         if not running:
             serverLinkLabel.setText("")
         else:
-            serverAddress: str = socket.gethostbyname(socket.gethostname())
+            serverAddress: str = "0.0.0.0"
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+                sock.settimeout(0)
+                sock.connect(("1.1.1.1", 1))  # Doesn't actually send network data
+                serverAddress = sock.getsockname()[0]
             httpStr: str = f"http://{serverAddress}:{self.controller.port}"
             serverLinkLabel.setText(f"<a href='{httpStr}'>{httpStr}</a>")
             serverLinkLabel.show()
