@@ -1,5 +1,6 @@
 from PySide6.QtCore import QRunnable, QObject, Signal
 from gevent.pywsgi import WSGIServer
+from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstaller bundle
 from roller_derby import Bout
 from flask import Flask, render_template
 import socketio
