@@ -204,4 +204,4 @@ if __name__ == "__main__":
     qt: QApplication = QApplication(sys.argv)
     mainWindow: MainWindow = MainWindow(defaultPort=8000, hideWhenMinimized=True)
     mainWindow.show()
-    qt.exec()
+    exit(qt.exec())
