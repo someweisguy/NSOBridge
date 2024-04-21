@@ -233,7 +233,7 @@
        </font>
       </property>
       <property name="text">
-       <string>The default is port 8000. The scoreboard must be stopped to update this value.</string>
+       <string>The default is port 8000.</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
