@@ -220,6 +220,7 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     QApplication.setAttribute(Qt.AA_ShareOpenGLContexts, True)
     qt: QApplication = QApplication(sys.argv)
+    qt.setHighDpiScaleFactorRoundingPolicy(Qt.Round)  # Compensate for scaling
     mainWindow: MainWindow = MainWindow(defaultPort=8000, hideWhenMinimized=True)
     mainWindow.show()
     exit(qt.exec())
