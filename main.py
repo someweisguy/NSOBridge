@@ -98,10 +98,16 @@ class MainWindow(QMainWindow):
         # Check for app updates on the GitHub repository
         githubUser: str = "someweisguy"
         repoName: str = "NSOBridge"
-        response = requests.get(
-            f"https://api.github.com/repos/{githubUser}/{repoName}/releases/latest"
-        )
-        # TODO
+        try:
+            response = requests.get(
+                f"https://api.github.com/repos/{githubUser}/{repoName}/releases/latest"
+            )
+            response.json()["name"]
+            # TODO: get update link
+        except (KeyError, requests.ConnectionError):
+            updatesLabel.setText("Unable to check for updates.")
+        finally:
+            updatesLabel.show()
 
         # Start the application server
         self.controller: Controller = Controller(defaultPort)
