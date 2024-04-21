@@ -1,7 +1,8 @@
 from datetime import datetime
+from .encodable import Encodable
 
 
-class Jam:
+class Jam(Encodable):
     TEAMS: frozenset[str] = frozenset({"home", "away"})
 
     class Data:
@@ -134,6 +135,24 @@ class Jam:
         # Set the lost lead flag
         jam_team: Jam.Data = self._home if team == "home" else self._away
         jam_team._lost = True
+
+    def decode(json: dict) -> Encodable:
+        # TODO: cleanup
+        jam = Jam()
+        jam.home._lead = json["home"]["lead"]
+        jam.home._lost = json["home"]["lost"]
+        jam.home._no_pivot = json["home"]["no_pivot"]
+        jam.home._star_pass = json["home"]["star_pass"]
+        jam.home._trips = json["home"]["trips"]
+        jam.home._timestamps = json["home"]["timestamps"]
+
+        jam.away._lead = json["away"]["lead"]
+        jam.home._lost = json["home"]["lost"]
+        jam.home._no_pivot = json["home"]["no_pivot"]
+        jam.home._star_pass = json["home"]["star_pass"]
+        jam.home._trips = json["home"]["trips"]
+        jam.home._timestamps = json["home"]["timestamps"]
+        return jam
 
 
 class JamManager:
