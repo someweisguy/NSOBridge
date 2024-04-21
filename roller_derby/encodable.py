@@ -13,6 +13,7 @@ class Encodable(ABC):
         Returns:
             dict: A dictionary representing the Encodable.
         """
+
         def _encode(item) -> dict:
             attributes: list[tuple[str, any]] = list(item.__dict__.items())
             dictionary: dict = {}
@@ -23,9 +24,18 @@ class Encodable(ABC):
                     value = _encode(value)
                 dictionary[key] = value
             return dictionary
-        
+
         return _encode(self)
 
     @abstractmethod
     def decode(json: dict) -> Encodable:
+        """Creates a new Encodable object from a dictionary.
+
+        Args:
+            json (dict): A dictionary object created from a JSON object.
+
+        Returns:
+            Encodable: A new Encodable with the same attributes as the JSON
+            object.
+        """
         pass
