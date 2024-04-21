@@ -127,6 +127,9 @@
         <property name="text">
          <string>Hide when minimized</string>
         </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -230,10 +233,13 @@
        </font>
       </property>
       <property name="text">
-       <string>The default is port 8000.</string>
+       <string>The default is port 8000. The scoreboard must be stopped to update this value.</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -268,7 +274,10 @@
        </size>
       </property>
       <property name="text">
-       <string>Unable to check for updates.</string>
+       <string>Unable to check for updates. An unknown error occurred.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
