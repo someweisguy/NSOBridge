@@ -1,8 +1,9 @@
 from dataclasses import dataclass
+from .encodable import Encodable
 
 
 @dataclass
-class Skater:
+class Skater(Encodable):
     """Represents a skater. Skaters have a jersey number, name, and optional pronouns."""
 
     number: str
@@ -18,7 +19,7 @@ class Skater:
         if len(name) == 0:
             raise ValueError("Skater name must contain a value")
         self.name = name
-        self.pronouns = pronouns
+        self.pronouns = pronouns.strip()
 
     def __str__(self) -> str:
         return f"{self.number}: {self.name}"
@@ -37,5 +38,13 @@ class Skater:
     def is_sanctionable(self) -> bool:
         """Returns True if the skater number is valid for a sanctioned WFTDA
         game. Valid numbers contain at least one numeral but no more than four
-        numerals."""
+        numerals.
+
+        Returns:
+            bool: True if the skater number is valid for a sanctinoed WFTA game.
+        """
         return self.number.isnumeric() and len(self.number) <= 4
+    
+    def decode(json: dict) -> Encodable:
+        return Skater(json["number"], json["name"], json["pronouns"])
+        
