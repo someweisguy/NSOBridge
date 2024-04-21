@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QSystemTrayIcon,
 )
 from controller import Controller
+import requests
 import socket
 import sys
 
@@ -95,6 +96,11 @@ class MainWindow(QMainWindow):
         self.tray.hide()
 
         # Check for app updates on the GitHub repository
+        githubUser: str = "someweisguy"
+        repoName: str = "NSOBridge"
+        response = requests.get(
+            f"https://api.github.com/repos/{githubUser}/{repoName}/releases/latest"
+        )
         # TODO
 
         # Start the application server
