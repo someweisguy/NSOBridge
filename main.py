@@ -104,8 +104,13 @@ class MainWindow(QMainWindow):
             )
             response.json()["name"]
             # TODO: get update link
-        except (KeyError, requests.ConnectionError):
-            updatesLabel.setText("Unable to check for updates.")
+        except (KeyError, requests.ConnectionError) as e:
+            errorStr: str = ""
+            if isinstance(e, requests.ConnectionError):
+                errorStr = "Could not connect to the internet."
+            elif isinstance(e, KeyError):
+                errorStr = "Could not get the latest app version."
+            updatesLabel.setText(f"Unable to check for updates. {errorStr}")
         finally:
             updatesLabel.show()
 
