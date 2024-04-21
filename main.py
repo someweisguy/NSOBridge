@@ -123,7 +123,8 @@ class MainWindow(QMainWindow):
             if result == QMessageBox.StandardButton.Cancel:
                 event.ignore()
                 return
-        self.startStopServer()
+            self.startStopServer()
+        event.accept()
 
     def changeEvent(self, event: QEvent) -> None:
         if event.type() == QEvent.WindowStateChange and self.isMinimized():
