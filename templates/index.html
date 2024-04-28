@@ -2,51 +2,7 @@
 
 <head>
     <title>NSO Bridge</title>
-    <script src="{{url_for('static', filename='socket.io.js')}}"></script>
-    <script src="{{url_for('static', filename='core.js')}}"></script>
-    <script type="text/javascript">
-
-        gameTimer = {"remaining": null, "started_at": null}
-
-        setInterval(() => {
-            document.getElementById("time").innerText = getServerTime();
-            if (gameTimer["remaining"] != null) {
-                document.getElementById("timer").innerText = renderTimer(gameTimer);
-            }
-        }, 50);
-
-        function startGameTimer() {
-            console.log("Starting timer");
-            socket.emit("startGameTimer", getServerTime());
-        }
-        
-        function stopGameTimer() {
-            console.log("Stopping timer");
-            socket.emit("stopGameTimer", getServerTime());
-        }
-
-        function renderTimer(json) {
-            if (json["started_at"] == null) {
-                return json["remaining"];
-            } else {
-                const elapsed = getServerTime() - json["started_at"];
-                return json["remaining"] - elapsed;
-            }
-        }
-
-        socket.on("connect", async () => {
-            console.log("Getting timer");
-            payload = await socket.emitWithAck("getTimer");
-            gameTimer = payload;
-            console.log("Got timer: " + renderTimer(gameTimer));
-            document.getElementById("timer").innerText = renderTimer(gameTimer);
-        });
-
-        socket.on("timer", (json) => {
-            gameTimer = json;
-            document.getElementById("timer").innerText = renderTimer(gameTimer);
-        });
-    </script>
+    <script type="module" src="{{url_for('static', filename='core.js')}}"></script>
 </head>
 
 <body>

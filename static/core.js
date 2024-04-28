@@ -1,26 +1,18 @@
+import "./socket.io.js"
+
 const socket = io()
 var epsilon = 0;
 
 async function getEpsilon(iterations) {
-    const socket = io();
-    var epsilon = 0;
-    var successes = iterations;
+    var sum = 0;
+    var oldServerTime = 0;
     for (var i = 0; i < iterations; ++i) {
-        try {
-            const start = Date.now();
-            const response = await socket.emitWithAck("sync");
-            const end = Date.now();
-            const delay = (end - start) / 2;
-            epsilon += start - (response - delay);
-        } catch {
-            --successes;
-            continue;
-        }
+        const start = Date.now();
+        oldServerTime = await socket.emitWithAck("sync");
+        sum += (Date.now() - start);
     }
-    if (successes < iterations) {
-        console.log("Sync iteration failed " + (iterations - successes) + "out of " + iterations + " times");
-    }
-    return Math.round(epsilon / successes);
+    const currentServerTime = oldServerTime + Math.round((sum / 2) / iterations);
+    return Date.now() - currentServerTime;
 }
 
 function getServerTime() {
@@ -32,13 +24,13 @@ socket.on("connect", async () => {
     const iterations = 10;
     console.log("Syncing time with server using " + iterations + " iterations");
     epsilon = await getEpsilon(iterations);
+    setInterval(() => {
+        document.getElementById("time").innerText = getServerTime()
+    }, 50);
     console.log("Time sync epsilon is " + epsilon);
-
-    const event = new Event("serverSync");
-    document.dispatchEvent(event)
-
 });
 
 socket.on("disconnect", (reason) => {
     console.log("Disconnected: " + reason);
 });
+
