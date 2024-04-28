@@ -47,7 +47,7 @@ class Encodable(ABC):
         dictionary |= _encode(self)
         return dictionary
 
-    # @abstractmethod
+    # @abstractmethod  # TODO: make abstract
     def decode(json: dict) -> Encodable:
         """Creates a new Encodable object from a dictionary.
 
