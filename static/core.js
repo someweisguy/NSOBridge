@@ -7,16 +7,16 @@ export async function getEpsilon(iterations) {
     var sum = 0;
     var oldServerTime = 0;
     for (var i = 0; i < iterations; ++i) {
-        const start = Date.now();
+        const start = window.performance.now();
         oldServerTime = await socket.emitWithAck("sync");
-        sum += (Date.now() - start);
+        sum += (window.performance.now() - start);
     }
     const currentServerTime = oldServerTime + Math.round((sum / 2) / iterations);
-    return Date.now() - currentServerTime;
+    return Math.round(window.performance.now()) - currentServerTime;
 }
 
 export function getServerTime() {
-    return Date.now() - epsilon;
+    return Math.round(window.performance.now()) - epsilon;
 }
 
 socket.on("connect", async () => {
@@ -27,7 +27,6 @@ socket.on("connect", async () => {
     setInterval(() => {
         document.getElementById("time").innerText = getServerTime()
     }, 50);
-    console.log("Time sync epsilon is " + epsilon);
 });
 
 socket.on("disconnect", (reason) => {
