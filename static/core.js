@@ -1,9 +1,9 @@
 import "./socket.io.js"
 
-const socket = io()
+export const socket = io()
 var epsilon = 0;
 
-async function getEpsilon(iterations) {
+export async function getEpsilon(iterations) {
     var sum = 0;
     var oldServerTime = 0;
     for (var i = 0; i < iterations; ++i) {
@@ -15,7 +15,7 @@ async function getEpsilon(iterations) {
     return Date.now() - currentServerTime;
 }
 
-function getServerTime() {
+export function getServerTime() {
     return Date.now() - epsilon;
 }
 
