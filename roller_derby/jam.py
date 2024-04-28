@@ -162,7 +162,7 @@ class Jam(Encodable):
 
 class JamManager(Encodable):
     def __init__(self) -> None:
-        self._current_half: int = 0
+        self._period: int = 0
         self._jams: tuple[list[Jam], list[Jam]] = ([Jam()], [Jam()])
 
     def __getitem__(self, key: tuple[int, int]) -> Jam:
@@ -170,16 +170,16 @@ class JamManager(Encodable):
         return self._jams[half][jam]
 
     def __len__(self) -> int:
-        return len(self._jams[self._current_half])
+        return len(self._jams[self._period])
 
     @property
     def current(self) -> Jam:
-        return self._jams[self._current_half][-1]
+        return self._jams[self._period][-1]
 
     def add(self):
-        self._jams[self._current_half].append(Jam())
+        self._jams[self._period].append(Jam())
 
     def remove(self) -> None:
-        if len(self._jams[self._current_half]) <= 1:
+        if len(self._jams[self._period]) <= 1:
             raise RuntimeError("each half must have at least one Jam")
-        del self._jams[self._current_half][-1]
+        del self._jams[self._period][-1]
