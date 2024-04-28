@@ -181,5 +181,5 @@ class JamManager(Encodable):
 
     def remove(self) -> None:
         if len(self._jams[self._period]) <= 1:
-            raise RuntimeError("each half must have at least one Jam")
+            raise RuntimeError("each period must have at least one Jam")
         del self._jams[self._period][-1]
