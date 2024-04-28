@@ -1,9 +1,9 @@
 from .jam import JamManager
 from .team import TeamManager
 from .timer import TimerManager
+from .encodable import Encodable
 
-
-class Bout:
+class Bout(Encodable):
     def __init__(self) -> None:
         self._timers: TimerManager = TimerManager()
         self._jams: JamManager = JamManager()

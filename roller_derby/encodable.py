@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import time
 
 
 class Encodable(ABC):
@@ -13,6 +14,17 @@ class Encodable(ABC):
         Returns:
             dict: A dictionary representing the Encodable.
         """
+        
+        def _encode_list(iter: list[any] | tuple[any]) -> list:
+            new_list: list[any] = []
+            for item in iter:
+                if isinstance(item, (tuple, list)):
+                    new_list.append(_encode_list(item))
+                elif hasattr(item, "__dict__"):
+                    new_list.append(_encode(item))
+                else:
+                    new_list.append(item)
+            return new_list
 
         def _encode(item) -> dict:
             attributes: list[tuple[str, any]] = list(item.__dict__.items())
@@ -22,12 +34,20 @@ class Encodable(ABC):
                     key = key[1:]
                 if hasattr(value, "__dict__"):
                     value = _encode(value)
+                elif isinstance(value, (list, tuple)):
+                    value = _encode_list(value)
                 dictionary[key] = value
             return dictionary
+        
+        
+        now: int = time.monotonic_ns()
+        now = round(now / 1_000_000)
+    
+        dictionary: dict = {"now": now}
+        dictionary |= _encode(self)
+        return dictionary
 
-        return _encode(self)
-
-    @abstractmethod
+    # @abstractmethod
     def decode(json: dict) -> Encodable:
         """Creates a new Encodable object from a dictionary.
 

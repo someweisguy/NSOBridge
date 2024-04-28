@@ -1,20 +1,8 @@
 from datetime import datetime
-import time
+from .encodable import Encodable
 
 
-class Timer:
-    __slots__ = "_elapsed_milliseconds", "_started_milliseconds", "_alarm_milliseconds"
-
-    @staticmethod
-    def monotonic() -> int:
-        """Returns the monotonic time of the server in milliseconds.
-
-        Returns:
-            int: The monotonic time of the game server in milliseconds elapsed since an arbitrary point.
-        """
-        now = time.monotonic_ns()
-        return round(now / 1_000_000)
-
+class Timer(Encodable):
     def __init__(
         self,
         alarm: None | datetime = None,
@@ -99,11 +87,11 @@ class Timer:
         """
         return self._started_milliseconds is not None
 
-    def start(self, timestamp: int = monotonic()) -> None:
+    def start(self, timestamp: int) -> None:
         """Starts the timer at the specified monotonic, millisecond timestamp.
 
         Args:
-            timestamp (int, optional): The monotonic, millisecond timestamp at
+            timestamp (int): The monotonic, millisecond timestamp at
             which this method was called. Defaults to Timer.monotonic().
 
         Raises:
@@ -116,11 +104,11 @@ class Timer:
             raise RuntimeError("Timer is already running")
         self._started_milliseconds = timestamp
 
-    def pause(self, timestamp: int = monotonic()) -> None:
+    def pause(self, timestamp: int) -> None:
         """Pauses the timer at the specified monotonic, millisecond timestamp.
 
         Args:
-            timestamp (int, optional): The monotonic, millisecond timestamp at
+            timestamp (int): The monotonic, millisecond timestamp at
             which this method was called. Defaults to Timer.monotonic().
 
         Raises:
@@ -134,12 +122,12 @@ class Timer:
         assert self._started_milliseconds is not None
         self._elapsed_milliseconds += timestamp - self._started_milliseconds
         self._started_milliseconds = None
-    
-    def reset(self, timestamp: int = monotonic()) -> None:
+
+    def reset(self, timestamp: int) -> None:
         """Resets the elapsed time on the Timer back to zero.
 
         Args:
-            timestamp (int, optional): The monotonic, millisecond timerstamp at
+            timestamp (int): The monotonic, millisecond timerstamp at
             which this method was called. Defaults to Timer.monotonic().
         """
         self._elapsed_milliseconds = Timer.monotonic() - timestamp

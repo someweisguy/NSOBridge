@@ -1,3 +1,4 @@
+from typing import Generator
 from datetime import datetime
 from .encodable import Encodable
 
@@ -5,7 +6,7 @@ from .encodable import Encodable
 class Jam(Encodable):
     TEAMS: frozenset[str] = frozenset({"home", "away"})
 
-    class Data:
+    class Data(Encodable):
         """A class for representing Jam data for each Team."""
 
         def __init__(self) -> None:
@@ -15,6 +16,10 @@ class Jam(Encodable):
             self._star_pass: None | int = None
             self._trips: list[int] = []
             self._timestamps: list[datetime] = []
+        
+        @property
+        def score(self) -> int:
+            return sum(self._trips)
 
         @property
         def lead(self) -> bool:
@@ -155,7 +160,7 @@ class Jam(Encodable):
         return jam
 
 
-class JamManager:
+class JamManager(Encodable):
     def __init__(self) -> None:
         self._current_half: int = 0
         self._jams: tuple[list[Jam], list[Jam]] = ([Jam()], [Jam()])
