@@ -1,8 +1,55 @@
+<!doctype html>
 <html>
-
 <head>
+    <meta charset="UTF-8">
     <title>NSO Bridge</title>
     <script type="module" src="{{url_for('static', filename='core.js')}}"></script>
+    <style type="text/css">
+        .jamScoreWidget * {
+            font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+            text-align: center;
+            width: 300px;
+        }
+        .jamScoreWidget small {
+            font-display: block;
+            font-style: italic;
+            font-weight: lighter;
+            font-size: 10pt;
+        }
+        .jamScoreWidget #jamScore {
+            font-style: bold;
+            font-size: 24pt;
+        }
+        .jamScoreWidget #tripInputs button {
+            width: 50px;
+            height: 30px;
+        }
+        .jamScoreWidget #tripFeedback {
+            display: inline-block;
+            white-space: nowrap;
+            overflow-x: scroll;
+        }
+        .jamScoreWidget #tripFeedback button {
+            width: 70px;
+            font-size: 16pt;
+            border: 0pt;
+            padding-bottom: 5px;
+        }
+        .jamScoreWidget #tripFeedback {
+            font-style: normal;
+            font-weight: normal;
+            font-size: 16pt;
+        }
+        .jamScoreWidget #tripFeedback button:nth-child(odd) {
+            background: aliceblue;
+        }
+        .jamScoreWidget #tripFeedback button:nth-child(even) {
+            background: lightgray;
+        }
+        .jamScoreWidget #tripFeedback button:hover {
+            background: red;
+        } 
+    </style>
 </head>
 
 <body>
@@ -10,6 +57,44 @@
     Server Time: <span id="time"></span><br>
     Game timer: <span id="timer"></span><br>
     <button onclick="startGameTimer()">Start</button> <button onclick="stopGameTimer()">Stop</button>
-</body>
 
+    <table class="jamScoreWidget">
+    <tbody>
+        <tr>
+        <td><small>Jam Score</small><br><div id="jamScore">88</div></td>
+        </tr>
+        <tr>
+            <td>
+                <small>Trip Points</small><br>
+                <div id="tripInputs">
+                    <button name="tripButton0">0</button>
+                    <button name="tripButton1">1</button>
+                    <button name="tripButton2">2</button>
+                    <button name="tripButton3">3</button>
+                    <button name="tripButton4">4</button>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div id="jamWidgetMessage">&nbsp;</div>
+            </td>
+        </tr>	
+        <tr>
+            <td>
+                <div id="tripFeedback">
+                <button><small>Trip 1</small><br>0</button>
+                <button><small>Trip 2</small><br>4</button>
+                <button><small>Trip 3</small><br>4</button>
+                <button><small>Trip 4</small><br>4</button>
+                <button><small>Trip 5</small><br>4</button>
+                <button><small>Trip 6</small><br>4</button>
+                <button><small>Trip 7</small><br>4</button>
+                <button><small>Trip 8</small><br>&nbsp;</button>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+    </table>
+</body>
 </html>
