@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>NSO Bridge</title>
     <script type="module" src="{{url_for('static', filename='core.js')}}"></script>
+    <script src="{{url_for('static', filename='jam.js')}}"></script>
     <style type="text/css">
         .jamScoreWidget * {
             font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
@@ -57,44 +58,9 @@
     Server Time: <span id="time"></span><br>
     Game timer: <span id="timer"></span><br>
     <button onclick="startGameTimer()">Start</button> <button onclick="stopGameTimer()">Stop</button>
+    <p>
+    
+    <jam-score />
 
-    <table class="jamScoreWidget">
-    <tbody>
-        <tr>
-        <td><small>Jam Score</small><br><div id="jamScore">88</div></td>
-        </tr>
-        <tr>
-            <td>
-                <small>Trip Points</small><br>
-                <div id="tripInputs">
-                    <button name="tripButton0">0</button>
-                    <button name="tripButton1">1</button>
-                    <button name="tripButton2">2</button>
-                    <button name="tripButton3">3</button>
-                    <button name="tripButton4">4</button>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div id="jamWidgetMessage">&nbsp;</div>
-            </td>
-        </tr>	
-        <tr>
-            <td>
-                <div id="tripFeedback">
-                <button><small>Trip 1</small><br>0</button>
-                <button><small>Trip 2</small><br>4</button>
-                <button><small>Trip 3</small><br>4</button>
-                <button><small>Trip 4</small><br>4</button>
-                <button><small>Trip 5</small><br>4</button>
-                <button><small>Trip 6</small><br>4</button>
-                <button><small>Trip 7</small><br>4</button>
-                <button><small>Trip 8</small><br>&nbsp;</button>
-                </div>
-            </td>
-        </tr>
-    </tbody>
-    </table>
 </body>
 </html>
