@@ -75,4 +75,5 @@ def index():
 if __name__ == "__main__":
     print("Running NSO Bridge controller without GUI")
     controller: Controller = Controller(8000)
+    Controller.flask.debug = True
     controller.run()
