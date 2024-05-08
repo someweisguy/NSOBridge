@@ -1,6 +1,64 @@
 class JamElement extends HTMLElement {
     constructor() {
         super();
+        
+        this.jamScoreValue;
+        this.initialTripButtons;
+        this.tripPointButtons;
+        this.tripViewer;
+        this.activeTrip = 0;
+        this.trips = [];
+    }
+
+    addTrip(points) {
+        this.trips.push(points);
+        this.renderTrips();
+    }
+
+    editTrip(tripIndex, points) {
+        this.trips[tripIndex] = points;
+        this.renderTrips();
+    }
+
+    renderTrips() {
+        // Show or hide initial trip buttons
+        if (this.trips.length == 0) {
+            this.initialTripButtons.style.display = "block";
+            this.tripPointButtons.style.display = "none";
+        } else {
+            this.initialTripButtons.style.display = "none";
+            this.tripPointButtons.style.display = "block";
+        }
+
+        // Update the trip viewer cells
+        this.tripViewer.textContent = "";  // Clear the trip viewer
+        let i = 1;
+        for (let trip of this.trips) {
+            let tripView = document.createElement("button");
+            tripView.appendChild(document.createTextNode("Trip " + i));
+            tripView.appendChild(document.createElement("br"));
+            tripView.appendChild(document.createTextNode(trip))
+            this.tripViewer.appendChild(tripView);
+            i++;
+        }
+
+        // Add upcoming trip with a blank number of points
+        let tripView = document.createElement("button");
+        tripView.setAttribute("id", "tripButton" + i);
+        tripView.setAttribute("value", i);
+        tripView.appendChild(document.createTextNode("Trip " + i));
+        tripView.appendChild(document.createElement("br"));
+        tripView.appendChild(document.createTextNode("\u00A0"))  // &nbsp;
+        tripView.style.marginRight = "5px";
+        this.tripViewer.appendChild(tripView);
+        tripView.scrollIntoView({behavior: "smooth", inline: "start"});
+
+        // Update jam score
+        let jamScore = 0;
+        for (let tripPoints of this.trips) {
+            jamScore += tripPoints;
+        }
+        this.jamScoreValue.textContent = jamScore;
     }
 
     connectedCallback() {
@@ -15,7 +73,6 @@ class JamElement extends HTMLElement {
         } else {
             jamWrapper.style.width = "300px";
         }
-        jamWrapper.style.textAlign = "center";
         
         // Create the label for the jam score
         const jamScoreHeader = document.createElement("div");
@@ -24,10 +81,11 @@ class JamElement extends HTMLElement {
         jamWrapper.appendChild(jamScoreHeader);
 
         // Create the element to display the jam score
-        const jamScoreValue = document.createElement("div");
-        jamScoreValue.appendChild(document.createTextNode("88"));
-        jamScoreValue.style.fontSize = "24pt";
-        jamWrapper.appendChild(jamScoreValue);
+        this.jamScoreValue = document.createElement("div");
+        this.jamScoreValue.appendChild(document.createTextNode("88"));
+        this.jamScoreValue.style.textAlign = "center";
+        this.jamScoreValue.style.fontSize = "24pt";
+        jamWrapper.appendChild(this.jamScoreValue);
         
         // Create the label for the trip point buttons
         const tripPointButtonHeader = document.createElement("div");
@@ -35,8 +93,21 @@ class JamElement extends HTMLElement {
         tripPointButtonHeader.setAttribute("class", "label");
         jamWrapper.appendChild(tripPointButtonHeader);
 
+        // Create the initial trip points
+        this.initialTripButtons = document.createElement("div");
+        let noPassButton = document.createElement("button");
+        noPassButton.innerText = "NP/NP";
+        noPassButton.addEventListener("click", () => {this.addTrip(0)});
+        this.initialTripButtons.appendChild(noPassButton);
+        let initialPassButton = document.createElement("button");
+        initialPassButton.innerHTML = "Initial";
+        initialPassButton.addEventListener("click", () => {this.addTrip(0)});
+        this.initialTripButtons.appendChild(initialPassButton);
+        this.initialTripButtons.style.textAlign = "center";
+        jamWrapper.appendChild(this.initialTripButtons);
+
         // Create the trip points
-        const tripPointButtons = document.createElement("div");
+        this.tripPointButtons = document.createElement("div");
         let maxPoints = 4;
         if (this.hasAttribute("max-points")) {
             let maxPointsAttribute = this.getAttribute("max-points");
@@ -45,35 +116,40 @@ class JamElement extends HTMLElement {
             }
         }
         // Trip points can be a custom number depending on the game rules
-        for (let i = 0; i <= maxPoints; i++) {
+        for (let i = 0; i < maxPoints; i++) {
             let button = document.createElement("button");
             button.setAttribute("id", "pointButton" + i);
-            button.appendChild(document.createTextNode(i.toString()));
+            button.appendChild(document.createTextNode(i));
+            button.addEventListener("click", () => {this.addTrip(i)})
             button.style.width = "30px";
             button.style.height = "20px";
             button.style.marginLeft = "10px";
             button.style.marginRight = "10px";
-            tripPointButtons.appendChild(button);
+            this.tripPointButtons.appendChild(button);
         }
-        tripPointButtons.style.display = "block";
-        tripPointButtons.style.marginBottom = "10px";
-        jamWrapper.appendChild(tripPointButtons);
+        // Create the last point button a bit bigger than the rest
+        let button = document.createElement("button");
+        button.setAttribute("id", "pointButton" + maxPoints);
+        button.appendChild(document.createTextNode(maxPoints));
+        button.addEventListener("click", () => {this.addTrip(maxPoints)})
+        button.style.width = "40px";
+        button.style.height = "30px";
+        button.style.marginLeft = "10px";
+        button.style.marginRight = "10px";
+        
+        this.tripPointButtons.appendChild(button);
+        this.tripPointButtons.style.textAlign = "center";
+        this.tripPointButtons.style.display = "block";
+        this.tripPointButtons.style.marginBottom = "10px";
+        jamWrapper.appendChild(this.tripPointButtons);
 
         // Create the trip viewer
-        const tripViewer = document.createElement("div");
-        // Create example data for the trip viewer for debug purposes
-        for (let i = 1; i < 11; i++) {
-            let tripView = document.createElement("button");
-            tripView.setAttribute("id", "tripButton" + i);
-            tripView.setAttribute("value", i);
-            tripView.appendChild(document.createTextNode("Trip " + i));
-            tripView.appendChild(document.createElement("br"));
-            tripView.appendChild(document.createTextNode("0"))
-            tripViewer.appendChild(tripView);
-        }
-        tripViewer.style.whiteSpace = "nowrap";
-        tripViewer.style.overflowX = "scroll";
-        jamWrapper.appendChild(tripViewer);
+        this.tripViewer = document.createElement("div");
+        this.renderTrips();
+        this.tripViewer.textAlign = "left";
+        this.tripViewer.style.whiteSpace = "nowrap";
+        this.tripViewer.style.overflowX = "scroll";
+        jamWrapper.appendChild(this.tripViewer);
 
 
         shadow.appendChild(jamWrapper);
