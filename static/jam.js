@@ -51,7 +51,13 @@ class JamElement extends HTMLElement {
         tripView.appendChild(document.createTextNode("\u00A0"))  // &nbsp;
         tripView.style.marginRight = "5px";
         this.tripViewer.appendChild(tripView);
-        tripView.scrollIntoView({behavior: "smooth", inline: "start"});
+
+        // Get the ammount to scroll the trip viewer
+        let scrollAmount = 0;
+        for (let view of this.tripViewer.children) {
+            scrollAmount += view.offsetWidth;
+        }
+        this.tripViewer.scrollTo({behavior: "smooth", left: scrollAmount});
 
         // Update jam score
         let jamScore = 0;
