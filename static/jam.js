@@ -1,7 +1,7 @@
 class JamElement extends HTMLElement {
     constructor() {
         super();
-        
+
         this.jamScoreValue;
         this.initialTripButtons;
         this.tripPointButtons;
@@ -12,6 +12,7 @@ class JamElement extends HTMLElement {
 
     addTrip(points) {
         this.trips.push(points);
+        this.activeTrip += 1;
         this.renderTrips();
     }
 
@@ -52,7 +53,14 @@ class JamElement extends HTMLElement {
         for (let view of this.tripViewer.children) {
             scrollAmount += view.offsetWidth;
         }
-        this.tripViewer.scrollTo({behavior: "smooth", left: scrollAmount});
+        this.tripViewer.scrollTo({ behavior: "smooth", left: scrollAmount });
+
+        // Highlight the active trip view
+        let highlightColor = "red";
+        if (this.hasAttribute("active-trip-color")) {
+            highlightColor = this.getAnimations("active-trip-color")
+        }
+        this.tripViewer.children[this.activeTrip].style.backgroundColor = highlightColor;
 
         // Update jam score
         let jamScore = 0;
@@ -63,7 +71,7 @@ class JamElement extends HTMLElement {
     }
 
     connectedCallback() {
-        const shadow = this.attachShadow({mode : "open"});
+        const shadow = this.attachShadow({ mode: "open" });
 
         // Create the main span that will wrap the element
         const jamWrapper = document.createElement("span");
@@ -74,7 +82,7 @@ class JamElement extends HTMLElement {
         } else {
             jamWrapper.style.width = "300px";
         }
-        
+
         // Create the label for the jam score
         const jamScoreHeader = document.createElement("div");
         jamScoreHeader.setAttribute("class", "label");
@@ -86,7 +94,7 @@ class JamElement extends HTMLElement {
         this.jamScoreValue.style.textAlign = "center";
         this.jamScoreValue.style.fontSize = "24pt";
         jamWrapper.appendChild(this.jamScoreValue);
-        
+
         // Create the label for the trip point buttons
         const tripPointButtonHeader = document.createElement("div");
         tripPointButtonHeader.setAttribute("class", "label");
@@ -97,11 +105,11 @@ class JamElement extends HTMLElement {
         this.initialTripButtons = document.createElement("div");
         let noPassButton = document.createElement("button");
         noPassButton.innerText = "NP/NP";
-        noPassButton.addEventListener("click", () => {this.addTrip(0)});
+        noPassButton.addEventListener("click", () => { this.addTrip(0) });
         this.initialTripButtons.appendChild(noPassButton);
         let initialPassButton = document.createElement("button");
         initialPassButton.innerText = "Initial";
-        initialPassButton.addEventListener("click", () => {this.addTrip(0)});
+        initialPassButton.addEventListener("click", () => { this.addTrip(0) });
         this.initialTripButtons.appendChild(initialPassButton);
         this.initialTripButtons.style.textAlign = "center";
         jamWrapper.appendChild(this.initialTripButtons);
@@ -120,7 +128,7 @@ class JamElement extends HTMLElement {
             let button = document.createElement("button");
             button.setAttribute("id", "pointButton" + i);
             button.appendChild(document.createTextNode(i));
-            button.addEventListener("click", () => {this.addTrip(i)})
+            button.addEventListener("click", () => { this.addTrip(i) })
             button.style.width = "30px";
             button.style.height = "20px";
             button.style.marginLeft = "10px";
@@ -131,12 +139,12 @@ class JamElement extends HTMLElement {
         let button = document.createElement("button");
         button.setAttribute("id", "pointButton" + maxPoints);
         button.appendChild(document.createTextNode(maxPoints));
-        button.addEventListener("click", () => {this.addTrip(maxPoints)})
+        button.addEventListener("click", () => { this.addTrip(maxPoints) })
         button.style.width = "40px";
         button.style.height = "30px";
         button.style.marginLeft = "10px";
         button.style.marginRight = "10px";
-        
+
         this.tripPointButtons.appendChild(button);
         this.tripPointButtons.style.textAlign = "center";
         this.tripPointButtons.style.display = "block";
@@ -150,7 +158,6 @@ class JamElement extends HTMLElement {
         this.tripViewer.style.whiteSpace = "nowrap";
         this.tripViewer.style.overflowX = "scroll";
         jamWrapper.appendChild(this.tripViewer);
-
 
         shadow.appendChild(jamWrapper);
     }
