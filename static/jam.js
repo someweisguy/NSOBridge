@@ -31,13 +31,11 @@ class JamElement extends HTMLElement {
         }
 
         // Update the trip viewer cells
-        this.tripViewer.textContent = "";  // Clear the trip viewer
+        this.tripViewer.innerText = "";  // Clear the trip viewer
         let i = 1;
         for (let trip of this.trips) {
             let tripView = document.createElement("button");
-            tripView.appendChild(document.createTextNode("Trip " + i));
-            tripView.appendChild(document.createElement("br"));
-            tripView.appendChild(document.createTextNode(trip))
+            tripView.innerHTML = "Trip " + i + "<br>" + trip;
             this.tripViewer.appendChild(tripView);
             i++;
         }
@@ -45,10 +43,7 @@ class JamElement extends HTMLElement {
         // Add upcoming trip with a blank number of points
         let tripView = document.createElement("button");
         tripView.setAttribute("id", "tripButton" + i);
-        tripView.setAttribute("value", i);
-        tripView.appendChild(document.createTextNode("Trip " + i));
-        tripView.appendChild(document.createElement("br"));
-        tripView.appendChild(document.createTextNode("\u00A0"))  // &nbsp;
+        tripView.innerHTML = "Trip " + i + "<br>\u00a0";
         tripView.style.marginRight = "5px";
         this.tripViewer.appendChild(tripView);
 
@@ -64,7 +59,7 @@ class JamElement extends HTMLElement {
         for (let tripPoints of this.trips) {
             jamScore += tripPoints;
         }
-        this.jamScoreValue.textContent = jamScore;
+        this.jamScoreValue.innerText = jamScore;
     }
 
     connectedCallback() {
@@ -82,21 +77,20 @@ class JamElement extends HTMLElement {
         
         // Create the label for the jam score
         const jamScoreHeader = document.createElement("div");
-        jamScoreHeader.appendChild(document.createTextNode("Jam Score"));
         jamScoreHeader.setAttribute("class", "label");
+        jamScoreHeader.innerText = "Jam Score";
         jamWrapper.appendChild(jamScoreHeader);
 
         // Create the element to display the jam score
         this.jamScoreValue = document.createElement("div");
-        this.jamScoreValue.appendChild(document.createTextNode("88"));
         this.jamScoreValue.style.textAlign = "center";
         this.jamScoreValue.style.fontSize = "24pt";
         jamWrapper.appendChild(this.jamScoreValue);
         
         // Create the label for the trip point buttons
         const tripPointButtonHeader = document.createElement("div");
-        tripPointButtonHeader.appendChild(document.createTextNode("Trip Points"));
         tripPointButtonHeader.setAttribute("class", "label");
+        tripPointButtonHeader.innerText = "Trip Points";
         jamWrapper.appendChild(tripPointButtonHeader);
 
         // Create the initial trip points
@@ -106,7 +100,7 @@ class JamElement extends HTMLElement {
         noPassButton.addEventListener("click", () => {this.addTrip(0)});
         this.initialTripButtons.appendChild(noPassButton);
         let initialPassButton = document.createElement("button");
-        initialPassButton.innerHTML = "Initial";
+        initialPassButton.innerText = "Initial";
         initialPassButton.addEventListener("click", () => {this.addTrip(0)});
         this.initialTripButtons.appendChild(initialPassButton);
         this.initialTripButtons.style.textAlign = "center";
