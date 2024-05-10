@@ -199,8 +199,8 @@ class JamElement extends HTMLElement {
                 background-color: pink;
             }
             .tripViewer button:hover {
-      
                 border: 1px solid red;
+                cursor: pointer;
             }
         `);
         shadow.adoptedStyleSheets.push(sheet);
