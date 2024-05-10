@@ -13,15 +13,15 @@ class JamElement extends HTMLElement {
     addTrip(points) {
         this.trips.push(points);
         this.activeTrip = this.trips.length;
-        this.renderTrips();
+        this.renderElement();
     }
 
     editTrip(tripIndex, points) {
         this.trips[tripIndex] = points;
-        this.renderTrips();
+        this.renderElement();
     }
 
-    renderTrips() {
+    renderElement() {
         // Show or hide initial trip buttons
         if (this.trips.length == 0) {
             this.initialTripButtons.style.display = "block";
@@ -44,7 +44,7 @@ class JamElement extends HTMLElement {
             tripCell.innerHTML = html;
             tripCell.addEventListener("click", (event) => {
                 this.activeTrip = parseInt(event.target.getAttribute("id"));
-                this.renderTrips();
+                this.renderElement();
             })
             this.tripViewer.appendChild(tripCell);
         }
@@ -150,7 +150,7 @@ class JamElement extends HTMLElement {
         // Create the trip viewer
         this.tripViewer = document.createElement("div");
         this.tripViewer.setAttribute("class", "tripViewer");
-        this.renderTrips();
+        this.renderElement();
         jamWrapper.appendChild(this.tripViewer);
 
         // Apply the CSS
