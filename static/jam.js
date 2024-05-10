@@ -57,6 +57,11 @@ class JamElement extends HTMLElement {
         }
         this.tripViewer.scrollTo({ behavior: "smooth", left: scrollAmount });
 
+        // Disable the appropriate trip input button
+        if (this.activeTrip < this.trips.length) {
+            // TODO:
+        }
+
         // Update jam score
         let jamScore = 0;
         for (let tripPoints of this.trips) {
@@ -96,7 +101,7 @@ class JamElement extends HTMLElement {
         tripPointButtonHeader.innerText = "Trip Points";
         jamWrapper.appendChild(tripPointButtonHeader);
 
-        // Create the initial trip points
+        // Create the initial trip point buttons
         this.initialTripButtons = document.createElement("div");
         this.initialTripButtons.setAttribute("class", "inputButtons");
         this.initialTripButtons.setAttribute("id", "initialButtons");
@@ -110,7 +115,7 @@ class JamElement extends HTMLElement {
         this.initialTripButtons.appendChild(initialPassButton);
         jamWrapper.appendChild(this.initialTripButtons);
 
-        // Create the trip points
+        // Create the non-initial trip point buttons
         this.tripPointButtons = document.createElement("div");
         this.tripPointButtons.setAttribute("class", "inputButtons");
         let maxPoints = 4;
@@ -120,8 +125,8 @@ class JamElement extends HTMLElement {
                 maxPoints = parseInt(maxPointsAttribute);
             }
         }
-        // Trip points can be a custom number depending on the game rules
         for (let i = 0; i <= maxPoints; i++) {
+            // Trip points can be a custom number depending on the game rules
             let button = document.createElement("button");
             button.innerText = i;
             button.addEventListener("click", () => {
@@ -139,9 +144,6 @@ class JamElement extends HTMLElement {
         this.tripViewer = document.createElement("div");
         this.tripViewer.setAttribute("class", "tripViewer");
         this.renderTrips();
-        this.tripViewer.textAlign = "left";
-        this.tripViewer.style.whiteSpace = "nowrap";
-        this.tripViewer.style.overflowX = "scroll";
         jamWrapper.appendChild(this.tripViewer);
 
         // Apply the CSS
@@ -172,6 +174,11 @@ class JamElement extends HTMLElement {
                 height: 30px;
             }
 
+            .tripViewer {
+                text-align: left;
+                white-space: nowrap;
+                overflow-x: scroll;
+            }
             .tripViewer .activeTrip {
                 background-color: red;
             }
