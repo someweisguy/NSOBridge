@@ -34,20 +34,19 @@ class JamElement extends HTMLElement {
         // Update the trip viewer cells
         this.tripViewer.innerText = "";  // Clear the trip viewer
         for (let i = 0; i <= this.trips.length; i++) {
-            let tripView = document.createElement("button");
+            let tripCell = document.createElement("button");
             if (i == this.activeTrip) {
-                tripView.setAttribute("class", "activeTrip");
+                tripCell.setAttribute("class", "activeTrip");
             }
-            tripView.setAttribute("value", i)
+            tripCell.setAttribute("id", i)
             let html = "Trip " + (i + 1) + "<br>";
             html += i == this.trips.length ? "\xa0" : this.trips[i];
-            tripView.innerHTML = html;
-            tripView.addEventListener("click", (event) => {
-                this.activeTrip = parseInt(event.target.getAttribute("value"));
-                event.target.getAttribute("value");
+            tripCell.innerHTML = html;
+            tripCell.addEventListener("click", (event) => {
+                this.activeTrip = parseInt(event.target.getAttribute("id"));
                 this.renderTrips();
             })
-            this.tripViewer.appendChild(tripView);
+            this.tripViewer.appendChild(tripCell);
         }
 
         // Get the amount to scroll the trip viewer
