@@ -18,6 +18,7 @@ class JamElement extends HTMLElement {
 
     editTrip(tripIndex, points) {
         this.trips[tripIndex] = points;
+        this.activeTrip = this.trips.length;
         this.renderElement();
     }
 
@@ -63,11 +64,7 @@ class JamElement extends HTMLElement {
         for (let inputButton of this.tripPointButtons.children) {
             inputButton.disabled = false;
         }
-        if (this.activeTrip == 0) {
-            for (let i = 1; i <= 4; i++) {
-                this.tripPointButtons.children[i].disabled = true;
-            }
-        } else if (this.activeTrip < this.trips.length) {
+        if (this.activeTrip < this.trips.length) {
             let tripPoints = this.trips[this.activeTrip];
             this.tripPointButtons.children[tripPoints].disabled = true;
         }
