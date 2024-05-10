@@ -23,7 +23,7 @@ class JamElement extends HTMLElement {
 
     renderElement() {
         // Show or hide initial trip buttons
-        if (this.trips.length == 0) {
+        if (this.trips.length == 0 || this.activeTrip == 0) {
             this.initialTripButtons.style.display = "block";
             this.tripPointButtons.style.display = "none";
         } else {
@@ -52,6 +52,9 @@ class JamElement extends HTMLElement {
         // Get the amount to scroll the trip viewer
         let scrollAmount = 0;
         for (let view of this.tripViewer.children) {
+            if (view.getAttribute("id") == this.activeTrip) {
+                break;
+            }
             scrollAmount += view.offsetWidth;
         }
         this.tripViewer.scrollTo({ behavior: "smooth", left: scrollAmount });
