@@ -186,8 +186,21 @@ class JamElement extends HTMLElement {
                 white-space: nowrap;
                 overflow-x: scroll;
             }
-            .tripViewer .activeTrip {
-                background-color: red;
+            .tripViewer button {
+                border: 1px solid transparent;
+            }
+            .tripViewer button:nth-child(odd) {
+                background: aliceblue;
+            }
+            .tripViewer button:nth-child(even) {
+                background: lightgray;
+            }
+            .tripViewer button.activeTrip {
+                background-color: pink;
+            }
+            .tripViewer button:hover {
+      
+                border: 1px solid red;
             }
         `);
         shadow.adoptedStyleSheets.push(sheet);
