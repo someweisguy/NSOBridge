@@ -48,7 +48,7 @@ class JamElement extends HTMLElement {
         tripView.style.marginRight = "5px";
         this.tripViewer.appendChild(tripView);
 
-        // Get the ammount to scroll the trip viewer
+        // Get the amount to scroll the trip viewer
         let scrollAmount = 0;
         for (let view of this.tripViewer.children) {
             scrollAmount += view.offsetWidth;
@@ -103,6 +103,8 @@ class JamElement extends HTMLElement {
 
         // Create the initial trip points
         this.initialTripButtons = document.createElement("div");
+        this.initialTripButtons.setAttribute("class", "inputButtons");
+        this.initialTripButtons.setAttribute("id", "initialButtons");
         let noPassButton = document.createElement("button");
         noPassButton.innerText = "NP/NP";
         noPassButton.addEventListener("click", () => { this.addTrip(0) });
@@ -111,11 +113,11 @@ class JamElement extends HTMLElement {
         initialPassButton.innerText = "Initial";
         initialPassButton.addEventListener("click", () => { this.addTrip(0) });
         this.initialTripButtons.appendChild(initialPassButton);
-        this.initialTripButtons.style.textAlign = "center";
         jamWrapper.appendChild(this.initialTripButtons);
 
         // Create the trip points
         this.tripPointButtons = document.createElement("div");
+        this.tripPointButtons.setAttribute("class", "inputButtons");
         let maxPoints = 4;
         if (this.hasAttribute("max-points")) {
             let maxPointsAttribute = this.getAttribute("max-points");
@@ -124,31 +126,12 @@ class JamElement extends HTMLElement {
             }
         }
         // Trip points can be a custom number depending on the game rules
-        for (let i = 0; i < maxPoints; i++) {
+        for (let i = 0; i <= maxPoints; i++) {
             let button = document.createElement("button");
-            button.setAttribute("id", "pointButton" + i);
-            button.appendChild(document.createTextNode(i));
+            button.innerText = i;
             button.addEventListener("click", () => { this.addTrip(i) })
-            button.style.width = "30px";
-            button.style.height = "20px";
-            button.style.marginLeft = "10px";
-            button.style.marginRight = "10px";
             this.tripPointButtons.appendChild(button);
         }
-        // Create the last point button a bit bigger than the rest
-        let button = document.createElement("button");
-        button.setAttribute("id", "pointButton" + maxPoints);
-        button.appendChild(document.createTextNode(maxPoints));
-        button.addEventListener("click", () => { this.addTrip(maxPoints) })
-        button.style.width = "40px";
-        button.style.height = "30px";
-        button.style.marginLeft = "10px";
-        button.style.marginRight = "10px";
-
-        this.tripPointButtons.appendChild(button);
-        this.tripPointButtons.style.textAlign = "center";
-        this.tripPointButtons.style.display = "block";
-        this.tripPointButtons.style.marginBottom = "10px";
         jamWrapper.appendChild(this.tripPointButtons);
 
         // Create the trip viewer
@@ -158,6 +141,38 @@ class JamElement extends HTMLElement {
         this.tripViewer.style.whiteSpace = "nowrap";
         this.tripViewer.style.overflowX = "scroll";
         jamWrapper.appendChild(this.tripViewer);
+
+        // Apply the CSS
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(`
+            .label {
+                text-align: center;
+                font-size: 9pt;
+                font-style: italic;
+                font-weight: lighter;
+            }
+
+            .inputButtons {
+                text-align: center;
+                display: block;
+                margin-bottom: 10px;
+            }
+            .inputButtons button {
+                width: 30px;
+                height: 20px;
+                margin-left: 3mm;
+                margin-right: 3mm;
+            }
+            #initialButtons button {
+                width: 60px;
+            }
+            .inputButtons button:nth-last-child(1) {
+                width: 40px;
+                height: 30px;
+            }
+        `);
+        shadow.adoptedStyleSheets = [sheet];
+
 
         shadow.appendChild(jamWrapper);
     }
