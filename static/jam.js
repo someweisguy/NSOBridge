@@ -12,7 +12,7 @@ class JamElement extends HTMLElement {
 
     addTrip(points) {
         this.trips.push(points);
-        this.activeTrip += 1;
+        this.activeTrip = this.trips.length;
         this.renderTrips();
     }
 
@@ -33,20 +33,22 @@ class JamElement extends HTMLElement {
 
         // Update the trip viewer cells
         this.tripViewer.innerText = "";  // Clear the trip viewer
-        let i = 1;
-        for (let trip of this.trips) {
+        for (let i = 0; i <= this.trips.length; i++) {
             let tripView = document.createElement("button");
-            tripView.innerHTML = "Trip " + i + "<br>" + trip;
+            if (i == this.activeTrip) {
+                tripView.setAttribute("class", "activeTrip");
+            }
+            tripView.setAttribute("value", i)
+            let html = "Trip " + (i + 1) + "<br>";
+            html += i == this.trips.length ? "\xa0" : this.trips[i];
+            tripView.innerHTML = html;
+            tripView.addEventListener("click", (event) => {
+                this.activeTrip = parseInt(event.target.getAttribute("value"));
+                event.target.getAttribute("value");
+                this.renderTrips();
+            })
             this.tripViewer.appendChild(tripView);
-            i++;
         }
-
-        // Add upcoming trip with a blank number of points
-        let tripView = document.createElement("button");
-        tripView.setAttribute("id", "tripButton" + i);
-        tripView.innerHTML = "Trip " + i + "<br>\u00a0";
-        tripView.style.marginRight = "5px";
-        this.tripViewer.appendChild(tripView);
 
         // Get the amount to scroll the trip viewer
         let scrollAmount = 0;
@@ -54,13 +56,6 @@ class JamElement extends HTMLElement {
             scrollAmount += view.offsetWidth;
         }
         this.tripViewer.scrollTo({ behavior: "smooth", left: scrollAmount });
-
-        // Highlight the active trip view
-        let highlightColor = "red";
-        if (this.hasAttribute("active-trip-color")) {
-            highlightColor = this.getAnimations("active-trip-color")
-        }
-        this.tripViewer.children[this.activeTrip].style.backgroundColor = highlightColor;
 
         // Update jam score
         let jamScore = 0;
@@ -129,13 +124,20 @@ class JamElement extends HTMLElement {
         for (let i = 0; i <= maxPoints; i++) {
             let button = document.createElement("button");
             button.innerText = i;
-            button.addEventListener("click", () => { this.addTrip(i) })
+            button.addEventListener("click", () => {
+                if (this.activeTrip < this.trips.length) {
+                    this.editTrip(this.activeTrip, i);
+                } else {
+                    this.addTrip(i);
+                }
+            })
             this.tripPointButtons.appendChild(button);
         }
         jamWrapper.appendChild(this.tripPointButtons);
 
         // Create the trip viewer
         this.tripViewer = document.createElement("div");
+        this.tripViewer.setAttribute("class", "tripViewer");
         this.renderTrips();
         this.tripViewer.textAlign = "left";
         this.tripViewer.style.whiteSpace = "nowrap";
@@ -151,7 +153,6 @@ class JamElement extends HTMLElement {
                 font-style: italic;
                 font-weight: lighter;
             }
-
             .inputButtons {
                 text-align: center;
                 display: block;
@@ -170,8 +171,12 @@ class JamElement extends HTMLElement {
                 width: 40px;
                 height: 30px;
             }
+
+            .tripViewer .activeTrip {
+                background-color: red;
+            }
         `);
-        shadow.adoptedStyleSheets = [sheet];
+        shadow.adoptedStyleSheets.push(sheet);
 
 
         shadow.appendChild(jamWrapper);
