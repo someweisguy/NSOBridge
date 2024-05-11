@@ -114,11 +114,23 @@ class JamElement extends HTMLElement {
         this.initialTripButtons.setAttribute("id", "initialButtons");
         let noPassButton = document.createElement("button");
         noPassButton.innerText = "NP/NP";
-        noPassButton.addEventListener("click", () => { this.addTrip(0) });
+        noPassButton.addEventListener("click", () => { 
+            if (this.trips.length == 0) {
+                this.addTrip(0);
+            } else {
+                this.editTrip(0, 0);
+            }
+        });
         this.initialTripButtons.appendChild(noPassButton);
         let initialPassButton = document.createElement("button");
         initialPassButton.innerText = "Initial";
-        initialPassButton.addEventListener("click", () => { this.addTrip(0) });
+        initialPassButton.addEventListener("click", () => { 
+            if (this.trips.length == 0) {
+                this.addTrip(0);
+            } else {
+                this.editTrip(0, 0);
+            }
+        });
         this.initialTripButtons.appendChild(initialPassButton);
         jamWrapper.appendChild(this.initialTripButtons);
 
@@ -190,10 +202,11 @@ class JamElement extends HTMLElement {
                 border: 1px solid transparent;
             }
             .tripViewer button:nth-child(odd) {
-                background: aliceblue;
+                background: transparent;
             }
             .tripViewer button:nth-child(even) {
                 background: lightgray;
+                background-opacity: 50%;
             }
             .tripViewer button.activeTrip {
                 background-color: pink;
