@@ -3,8 +3,10 @@ from gevent.pywsgi import WSGIServer
 from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstaller bundle
 from roller_derby import Bout
 from flask import Flask, render_template
+from types import TracebackType
 import socketio
 import time
+import os
 
 
 class Controller(QRunnable):
@@ -64,6 +66,35 @@ class Controller(QRunnable):
 @Controller.socket.event
 def sync(_):
     return Controller.monotonic()
+
+
+functionDictionary = {"print": print}  # TODO: find a better scope
+
+
+@Controller.socket.on("*")
+def sboEvent(event, sid, data):
+    response: dict = {"response": None}
+    try:
+        try:
+            func = functionDictionary[event]
+        except KeyError as e:
+            raise NotImplementedError(f"Unknown command '{event}'.") from e
+        args: list = data["args"] if "args" in data else []
+        kwargs: dict = data["kwargs"] if "kwargs" in data else {}
+        response["response"] = func(*args, **kwargs)
+    except Exception as e:
+        traceback: TracebackType = e.__traceback__
+        response["error"] = {
+            "type": "Exception",
+            "name": type(e).__name__,
+            "message": str(e),
+            "file": os.path.split(traceback.tb_frame.f_code.co_filename)[-1],
+            "lineNumber": traceback.tb_lineno,
+        }
+    # TODO: add ClientException to return a warning message, not a traceback
+    finally:
+        response["tick"] = Controller.monotonic()
+    return response
 
 
 @Controller.flask.route("/")
