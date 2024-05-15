@@ -22,7 +22,7 @@ class Controller(QRunnable):
     __slots__ = "_port", "_server", "signals"
 
     flask: Flask = Flask(__name__)
-    socket: socketio.Server = socketio.Server()
+    socket: socketio.Server = socketio.Server(async_handlers=False)
     bout: Bout = Bout()
 
     class Signals(QObject):
@@ -57,7 +57,7 @@ class Controller(QRunnable):
         if self._server is not None:
             return  # only allow one instance to run at a time
         wsgi = socketio.WSGIApp(Controller.socket, Controller.flask)
-        self._server = WSGIServer(("0.0.0.0", self.port), wsgi, log=log)
+        self._server = WSGIServer(("0.0.0.0", self.port), wsgi, log=None, error_log=log)
         try:
             self._server.start()
             self.signals.running.emit(True)
