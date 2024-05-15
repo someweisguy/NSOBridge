@@ -8,6 +8,14 @@ from hashlib import md5
 import socketio
 import time
 import os
+import logging
+
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
+    level=logging.DEBUG,
+)
+log: logging.Logger = logging.getLogger(__name__)
 
 
 class Controller(QRunnable):
@@ -49,7 +57,7 @@ class Controller(QRunnable):
         if self._server is not None:
             return  # only allow one instance to run at a time
         wsgi = socketio.WSGIApp(Controller.socket, Controller.flask)
-        self._server = WSGIServer(("0.0.0.0", self.port), wsgi, log=None)
+        self._server = WSGIServer(("0.0.0.0", self.port), wsgi, log=log)
         try:
             self._server.start()
             self.signals.running.emit(True)
@@ -60,6 +68,8 @@ class Controller(QRunnable):
         self.signals.running.emit(False)
 
     def stop(self) -> None:
+        log.info("NSO Bridge is shutting down.")
+        self.socket.shutdown()
         if self._server is not None:
             self._server.stop()
 
@@ -70,6 +80,7 @@ def connect(sessionId, environ, auth):
     if userId is None:  # TODO: or userId not in users
         userId: str = md5(str(environ.items()).encode()).hexdigest()
         Controller.socket.emit("userId", userId, to=sessionId)
+    log.info(f"User '{userId}' has connected.")
 
 
 @Controller.socket.event
@@ -113,10 +124,11 @@ def index():
 
 
 if __name__ == "__main__":
-    print("Running NSO Bridge controller without GUI")
+    log.info("NSO Bridge is running in CLI mode.")
     controller: Controller = Controller(8000)
     Controller.flask.debug = True
     try:
         controller.run()
     except KeyboardInterrupt:
         controller.stop()
+    log.info("NSO Bridge has successfully shut down.")
