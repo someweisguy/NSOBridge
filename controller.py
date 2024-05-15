@@ -4,6 +4,7 @@ from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstall
 from roller_derby import Bout
 from flask import Flask, render_template
 from types import TracebackType
+from hashlib import md5
 import socketio
 import time
 import os
@@ -64,6 +65,14 @@ class Controller(QRunnable):
 
 
 @Controller.socket.event
+def connect(sessionId, environ, auth):
+    userId: str = auth["token"]
+    if userId is None:  # TODO: or userId not in users
+        userId: str = md5(str(environ.items()).encode()).hexdigest()
+        Controller.socket.emit("userId", userId, to=sessionId)
+
+
+@Controller.socket.event
 def sync(_):
     return Controller.monotonic()
 
@@ -72,7 +81,7 @@ functionDictionary = {"print": print}  # TODO: find a better scope
 
 
 @Controller.socket.on("*")
-def sboEvent(event, sid, data):
+def sboEvent(event, _, data):
     response: dict = {"response": None}
     try:
         try:

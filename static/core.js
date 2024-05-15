@@ -1,6 +1,26 @@
 import "./socket.io.js"
 
-export const socket = io()
+// Connect to the host using a userId
+var userId = localStorage.getItem("userId");
+const socket = io(window.location.host, {auth: {token: userId}})
+if (userId == null) { 
+    socket.once("userId", (userId) => {
+        console.log("Got User ID: " + userId);
+        localStorage.setItem("userId", userId);
+        userId = userId;
+    });
+}
+
+socket.on("connect", async () => {
+    console.log("Connected to game server.");
+    const iterations = 10;
+    console.log("Syncing time with server using " + iterations + " iterations");
+    epsilon = await getEpsilon(iterations);
+    setInterval(() => {
+        document.getElementById("time").innerText = getServerTime()
+    }, 50);
+});
+
 var epsilon = 0;
 
 export async function getEpsilon(iterations) {
@@ -19,17 +39,10 @@ export function getServerTime() {
     return Math.round(window.performance.now()) - epsilon;
 }
 
-socket.on("connect", async () => {
-    console.log("Connected to game server");
-    const iterations = 10;
-    console.log("Syncing time with server using " + iterations + " iterations");
-    epsilon = await getEpsilon(iterations);
-    setInterval(() => {
-        document.getElementById("time").innerText = getServerTime()
-    }, 50);
-});
 
 socket.on("disconnect", (reason) => {
+    // TODO: better disconnect handling, see socketio docs
     console.log("Disconnected: " + reason);
+    localStorage.removeItem("userId");
+    socket.close();
 });
-
