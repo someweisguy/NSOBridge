@@ -27,6 +27,7 @@ export async function getEpsilon(iterations) {
     for (var i = 0; i < iterations; ++i) {
         const start = window.performance.now();
         oldServerTime = await socket.emitWithAck("sync");
+        oldServerTime = oldServerTime.tick;
         sum += (window.performance.now() - start);
     }
     const currentServerTime = oldServerTime + Math.round((sum / 2) / iterations);
