@@ -93,14 +93,14 @@ def disconnect(sessionId: str) -> None:
 
 
 @Controller.socket.event
-def sync(sessionId: str) -> dict:
+def sync(sessionId: str, *args, **kwargs) -> dict:
     tick: int = Controller.monotonic()
     return {"data": None, "tick": tick}
 
 
 @Controller.socket.on("*")  # type: ignore
 def event(command: str, sessionId: str, *args, **kwargs) -> dict:
-    log.debug(f"Got command '{command}', {args=}, {kwargs=}")
+    log.debug(f"Got command '{command}' {args=}, {kwargs=}")
     response: dict = {"data": None}
     try:
         if command not in Controller.commandTable:
@@ -124,8 +124,10 @@ def event(command: str, sessionId: str, *args, **kwargs) -> dict:
     return response
 
 
-def register(*, name: str = "", overwrite: bool = False) -> Callable:
-    def registerDecorator(command: Callable) -> Callable:
+def register(
+    command: None | Callable = None, *, name: str = "", overwrite: bool = False
+) -> Callable:
+    def decorator(command: Callable) -> Callable:
         commandName: str = name if name != "" else command.__name__
         if overwriting := (commandName in Controller.commandTable) and not overwrite:
             raise LookupError(f"The command {commandName} is already registered.")
@@ -136,12 +138,7 @@ def register(*, name: str = "", overwrite: bool = False) -> Callable:
         Controller.commandTable[commandName] = command
         return command
 
-    return registerDecorator
-
-
-@register()
-def pprint(bout, p):  # TODO: remove me
-    print(p)
+    return decorator(command) if callable(command) else decorator
 
 
 @Controller.flask.route("/")
