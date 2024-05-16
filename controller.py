@@ -100,10 +100,11 @@ def sync(sessionId: str, *args, **kwargs) -> dict:
 
 @Controller.socket.on("*")  # type: ignore
 def event(command: str, sessionId: str, *args, **kwargs) -> dict:
-    log.debug(f"Got command '{command}' {args=}, {kwargs=}")
+    log.debug(f"Got command '{command}' with args {args}.")
     response: dict = {"data": None}
     try:
         if command not in Controller.commandTable:
+            log.debug(f"Command '{command}' does not exist.")
             raise NotImplementedError(f"Unknown command '{command}'.")
         func = Controller.commandTable[command]
         response["data"] = func(Controller.bout, *args, **kwargs)
