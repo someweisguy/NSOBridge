@@ -24,12 +24,9 @@ class Controller(QRunnable):
 
     flask: Flask = Flask(__name__)
     socket: socketio.Server = socketio.Server(async_handlers=False)
+    commandTable: dict[str, Callable] = dict()
 
     bout: Bout = Bout()
-    # TODO: userTable: dict[]
-
-    commandTable: dict[str, Callable] = dict()
-    sessionTable: dict[str, str] = dict()
 
     class Signals(QObject):
         running: Signal = Signal(bool)
@@ -81,36 +78,34 @@ class Controller(QRunnable):
 
 
 @Controller.socket.event
-def connect(sessionId, environ, auth) -> None:
+def connect(sessionId: str, environ: dict, auth: dict) -> None:
     userId: str = auth["token"]
-    if userId is None:  # TODO: or userId not in Controller.userTable:
+    if userId is None:
         userId: str = md5(str(environ.items()).encode()).hexdigest()
         Controller.socket.emit("userId", userId, to=sessionId)
-    Controller.sessionTable[sessionId] = userId
-    log.info(f"User '{userId}' has connected.")
+    with Controller.socket.session(sessionId) as session:
+        session["userId"] = userId
 
 
 @Controller.socket.event
-def disconnect(sessionId) -> None:
-    pass  # TODO
+def disconnect(sessionId: str) -> None:
+    pass
 
 
 @Controller.socket.event
-def sync(*_) -> dict:
+def sync(sessionId: str) -> dict:
     tick: int = Controller.monotonic()
     return {"data": None, "tick": tick}
 
 
 @Controller.socket.on("*")  # type: ignore
-def event(command, _, data) -> dict:
+def event(command: str, sessionId: str, *args, **kwargs) -> dict:
+    log.debug(f"Got command '{command}', {args=}, {kwargs=}")
     response: dict = {"data": None}
     try:
         if command not in Controller.commandTable:
             raise NotImplementedError(f"Unknown command '{command}'.")
         func = Controller.commandTable[command]
-        args: list = data["args"] if "args" in data else []
-        args = [args] if not isinstance(args, list) else args
-        kwargs: dict = data["kwargs"] if "kwargs" in data else {}
         response["data"] = func(Controller.bout, *args, **kwargs)
     # TODO: add ClientException to return a warning message, not a traceback
     except Exception as e:
@@ -132,7 +127,7 @@ def event(command, _, data) -> dict:
 def register(*, name: str = "", overwrite: bool = False) -> Callable:
     def registerDecorator(command: Callable) -> Callable:
         commandName: str = name if name != "" else command.__name__
-        if (overwriting := commandName in Controller.commandTable) and not overwrite:
+        if overwriting := (commandName in Controller.commandTable) and not overwrite:
             raise LookupError(f"The command {commandName} is already registered.")
         if overwriting:
             log.debug(f"Overwriting '{commandName}' command")
@@ -144,15 +139,21 @@ def register(*, name: str = "", overwrite: bool = False) -> Callable:
     return registerDecorator
 
 
+@register()
+def pprint(bout, p):  # TODO: remove me
+    print(p)
+
+
 @Controller.flask.route("/")
 def index() -> str:
-    context = {"sync_iterations": 10}
+    context = {"sync_iterations": 10}  # TODO: update template
     return render_template("index.html", **context)
 
 
 if __name__ == "__main__":
     log.info("NSO Bridge is running in CLI mode.")
     controller: Controller = Controller(8000)
+    log.warning("Server is set to debug!")
     Controller.flask.debug = True
     try:
         controller.run()
