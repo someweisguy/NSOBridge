@@ -4,6 +4,7 @@ from engineio.async_drivers import gevent  # noqa: F401 - Required for pyinstall
 from roller_derby import Bout
 from flask import Flask, render_template
 from types import TracebackType
+from typing import Callable
 from hashlib import md5
 import socketio
 import time
@@ -23,7 +24,12 @@ class Controller(QRunnable):
 
     flask: Flask = Flask(__name__)
     socket: socketio.Server = socketio.Server(async_handlers=False)
+
     bout: Bout = Bout()
+    # TODO: userTable: dict[]
+
+    commandTable: dict[str, Callable] = dict()
+    sessionTable: dict[str, str] = dict()
 
     class Signals(QObject):
         running: Signal = Signal(bool)
@@ -75,50 +81,55 @@ class Controller(QRunnable):
 
 
 @Controller.socket.event
-def connect(sessionId, environ, auth):
+def connect(sessionId, environ, auth) -> None:
     userId: str = auth["token"]
-    if userId is None:  # TODO: or userId not in users
+    if userId is None:  # TODO: or userId not in Controller.userTable:
         userId: str = md5(str(environ.items()).encode()).hexdigest()
         Controller.socket.emit("userId", userId, to=sessionId)
+    Controller.sessionTable[sessionId] = userId
     log.info(f"User '{userId}' has connected.")
 
 
 @Controller.socket.event
-def sync(_):
-    return Controller.monotonic()
+def disconnect(sessionId) -> None:
+    pass  # TODO
 
 
-functionDictionary = {"print": print}  # TODO: find a better scope
+@Controller.socket.event
+def sync(*_) -> dict:
+    tick: int = Controller.monotonic()
+    return {"data": None, "tick": tick}
 
 
-@Controller.socket.on("*")
-def sboEvent(event, _, data):
-    response: dict = {"response": None}
+@Controller.socket.on("*")  # type: ignore
+def event(command, _, data) -> dict:
+    response: dict = {"data": None}
     try:
-        try:
-            func = functionDictionary[event]
-        except KeyError as e:
-            raise NotImplementedError(f"Unknown command '{event}'.") from e
+        if command not in Controller.commandTable:
+            raise NotImplementedError(f"Unknown command '{command}'.")
+        func = Controller.commandTable[command]
         args: list = data["args"] if "args" in data else []
         kwargs: dict = data["kwargs"] if "kwargs" in data else {}
-        response["response"] = func(*args, **kwargs)
+        response["data"] = func(Controller.bout, *args, **kwargs)
+    # TODO: add ClientException to return a warning message, not a traceback
     except Exception as e:
-        traceback: TracebackType = e.__traceback__
+        traceback: None | TracebackType = e.__traceback__
         response["error"] = {
-            "type": "Exception",
             "name": type(e).__name__,
             "message": str(e),
-            "file": os.path.split(traceback.tb_frame.f_code.co_filename)[-1],
-            "lineNumber": traceback.tb_lineno,
         }
-    # TODO: add ClientException to return a warning message, not a traceback
+        if isinstance(traceback, TracebackType):
+            response["error"] |= {
+                "file": os.path.split(traceback.tb_frame.f_code.co_filename)[-1],
+                "lineNumber": traceback.tb_lineno,
+            }
     finally:
         response["tick"] = Controller.monotonic()
     return response
 
 
 @Controller.flask.route("/")
-def index():
+def index() -> str:
     context = {"sync_iterations": 10}
     return render_template("index.html", **context)
 
