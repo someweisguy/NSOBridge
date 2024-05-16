@@ -2,14 +2,12 @@ import "./socket.io.js"
 
 // Connect to the host using a userId
 var userId = localStorage.getItem("userId");
-const socket = io(window.location.host, {auth: {token: userId}})
-if (userId == null) { 
-    socket.once("userId", (userId) => {
-        console.log("Got User ID: " + userId);
-        localStorage.setItem("userId", userId);
-        userId = userId;
-    });
-}
+const socket = io(window.location.host, {auth: {token: userId}});
+socket.once("userId", (newUserId) => {
+    console.log("Got User ID: " + newUserId);
+    localStorage.setItem("userId", newUserId);
+    userId = newUserId;
+});
 
 socket.on("connect", async () => {
     console.log("Connected to game server.");
