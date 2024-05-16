@@ -109,15 +109,16 @@ def event(command, _, data) -> dict:
             raise NotImplementedError(f"Unknown command '{command}'.")
         func = Controller.commandTable[command]
         args: list = data["args"] if "args" in data else []
+        args = [args] if not isinstance(args, list) else args
         kwargs: dict = data["kwargs"] if "kwargs" in data else {}
         response["data"] = func(Controller.bout, *args, **kwargs)
     # TODO: add ClientException to return a warning message, not a traceback
     except Exception as e:
-        traceback: None | TracebackType = e.__traceback__
         response["error"] = {
             "name": type(e).__name__,
             "message": str(e),
         }
+        traceback: None | TracebackType = e.__traceback__
         if isinstance(traceback, TracebackType):
             response["error"] |= {
                 "file": os.path.split(traceback.tb_frame.f_code.co_filename)[-1],
@@ -126,6 +127,21 @@ def event(command, _, data) -> dict:
     finally:
         response["tick"] = Controller.monotonic()
     return response
+
+
+def register(*, name: str = "", overwrite: bool = False) -> Callable:
+    def registerDecorator(command: Callable) -> Callable:
+        commandName: str = name if name != "" else command.__name__
+        if (overwriting := commandName in Controller.commandTable) and not overwrite:
+            raise LookupError(f"The command {commandName} is already registered.")
+        if overwriting:
+            log.debug(f"Overwriting '{commandName}' command")
+        else:
+            log.debug(f"Adding '{commandName}' command")
+        Controller.commandTable[commandName] = command
+        return command
+
+    return registerDecorator
 
 
 @Controller.flask.route("/")
