@@ -1,17 +1,16 @@
 from roller_derby import Bout
-from types import TracebackType
-from typing import Callable
-from hashlib import md5
-import time
-import os
-import logging
-
-import uvicorn
-import socketio
 from starlette.applications import Starlette
 from starlette.responses import HTMLResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
+from types import TracebackType
+from typing import Callable
+import hashlib
+import logging
+import os
+import socketio
+import time
+import uvicorn
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -40,46 +39,47 @@ async def serve(port: int = 8000) -> None:
         pass
 
 
+def register(
+    command: None | Callable = None, *, name: str = "", overwrite: bool = False
+) -> Callable:
+    def decorator(command: Callable) -> Callable:
+        commandName: str = name if name != "" else command.__name__
+        if overwriting := (commandName in _commandTable) and not overwrite:
+            raise LookupError(f"The command {commandName} is already registered.")
+        if overwriting:
+            log.debug(f"Overwriting '{commandName}' command")
+        else:
+            log.debug(f"Adding '{commandName}' command")
+        _commandTable[commandName] = command
+        return command
+
+    return decorator(command) if callable(command) else decorator
+
+
 async def homepage(request):
     with open("templates/index.html") as html:
         return HTMLResponse(html.read())
 
 
-_commandTable: dict[str, Callable] = dict()
-_socket = socketio.AsyncServer(cors_allowed_origins="*", async_mode="asgi")
-app = Starlette(
-    debug=True,
-    routes=[
-        Route("/", homepage),
-        Mount("/static", app=StaticFiles(directory="static"), name="static"),
-        Mount("/socket.io", socketio.ASGIApp(_socket)),
-    ],
-)
-
-
-@_socket.event
-async def connect(sessionId: str, environ: dict, auth: dict) -> None:
+async def _connect(sessionId: str, environ: dict, auth: dict) -> None:
     userId: str = auth["token"]
     if userId is None:
-        userId: str = md5(str(environ.items()).encode()).hexdigest()
+        userId: str = hashlib.md5(str(environ.items()).encode()).hexdigest()
         await _socket.emit("userId", userId, to=sessionId)
     async with _socket.session(sessionId) as session:
         session["userId"] = userId
 
 
-@_socket.event
-async def disconnect(sessionId: str) -> None:
+async def _disconnect(sessionId: str) -> None:
     pass
 
 
-@_socket.event
-async def sync(sessionId: str, *args, **kwargs) -> dict:
+async def _sync(sessionId: str, *args, **kwargs) -> dict:
     millis: int = tick()
     return {"data": None, "tick": millis}
 
 
-@_socket.on("*")  # type: ignore
-async def event(command: str, sessionId: str, *args, **kwargs) -> dict:
+async def _event(command: str, sessionId: str, *args, **kwargs) -> dict:
     log.debug(f"Got command '{command}' with args {args}.")
     response: dict = {"data": None}
     try:
@@ -104,21 +104,20 @@ async def event(command: str, sessionId: str, *args, **kwargs) -> dict:
     return response
 
 
-def register(
-    command: None | Callable = None, *, name: str = "", overwrite: bool = False
-) -> Callable:
-    def decorator(command: Callable) -> Callable:
-        commandName: str = name if name != "" else command.__name__
-        if overwriting := (commandName in _commandTable) and not overwrite:
-            raise LookupError(f"The command {commandName} is already registered.")
-        if overwriting:
-            log.debug(f"Overwriting '{commandName}' command")
-        else:
-            log.debug(f"Adding '{commandName}' command")
-        _commandTable[commandName] = command
-        return command
-
-    return decorator(command) if callable(command) else decorator
+_commandTable: dict[str, Callable] = dict()
+_socket = socketio.AsyncServer(cors_allowed_origins="*", async_mode="asgi")
+app = Starlette(
+    debug=True,
+    routes=[
+        Route("/", homepage),
+        Mount("/static", app=StaticFiles(directory="static"), name="static"),
+        Mount("/socket.io", socketio.ASGIApp(_socket)),
+    ],
+)
+_socket.on("connect", _connect)
+_socket.on("disconnect", _disconnect)
+_socket.on("sync", _sync)
+_socket.on("*", _event)
 
 
 if __name__ == "__main__":
