@@ -105,8 +105,10 @@ async def _event(command: str, sessionId: str, *args, **kwargs) -> dict:
 
 
 _commandTable: dict[str, Callable] = dict()
-_socket = socketio.AsyncServer(cors_allowed_origins="*", async_mode="asgi")
-app = Starlette(
+_socket: socketio.AsyncServer = socketio.AsyncServer(
+    cors_allowed_origins="*", async_mode="asgi"
+)
+app: Starlette = Starlette(
     debug=True,
     routes=[
         Route("/", homepage),
