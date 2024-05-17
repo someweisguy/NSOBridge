@@ -26,17 +26,27 @@ def tick():
     return round(now / 1_000_000)
 
 
-async def serve(port: int = 8000) -> None:
+async def serve(port: int = 8000, *, debug: bool = False) -> None:
     if not isinstance(port, int):
         raise TypeError(f"port must be int, not {type(port).__name__}")
     if not 1 <= port <= 65535:
         raise ValueError("port number is invalid")
-    config: uvicorn.Config = uvicorn.Config(app, host="0.0.0.0", port=port)
-    server: uvicorn.Server = uvicorn.Server(config)
-    try:
+    log.info(f"Starting NSO Bridge on port {port}")
+    if debug:
+        log.setLevel(logging.DEBUG)
+        log.debug("NSO Bridge is in debug mode.")
+        uvicorn.run(
+            "controller:app",
+            host="0.0.0.0",
+            port=port,
+            log_level="warning",
+            reload=True,
+        )
+    else:
+        config: uvicorn.Config = uvicorn.Config(app, host="0.0.0.0", port=port)
+        server: uvicorn.Server = uvicorn.Server(config)
         await server.serve()
-    except Exception:
-        pass
+    log.info("NSO Bridge was successfully shut down.")
 
 
 def register(
@@ -84,7 +94,7 @@ async def _event(command: str, sessionId: str, *args, **kwargs) -> dict:
     response: dict = {"data": None}
     try:
         if command not in _commandTable:
-            log.debug(f"Command '{command}' does not exist.")
+            log.debug(f"'{command}' does not exist.")
             raise NotImplementedError(f"Unknown command '{command}'.")
         func = _commandTable[command]
         response["data"] = func(None, *args, **kwargs)  # FIXME: None to Bout
@@ -123,17 +133,6 @@ _socket.on("*", _event)
 
 
 if __name__ == "__main__":
-    log.info("Starting NSO Bridge in CLI mode.")
-    reload: bool = True
-    if reload:
-        log.warning("Server is running with reloader!")
+    import asyncio
 
-    uvicorn.run(
-        "controller:app",
-        host="0.0.0.0",
-        port=8000,
-        log_level="warning",
-        reload=True,
-    )
-
-    log.info("NSO Bridge has successfully shut down.")
+    asyncio.run(serve(8000, debug=True))
