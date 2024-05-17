@@ -1,29 +1,32 @@
-# from roller_derby import Bout
-# from types import TracebackType
-# from typing import Callable
-# from hashlib import md5
-# import time
-# import os
-# import logging
+from roller_derby import Bout
+from types import TracebackType
+from typing import Callable
+from hashlib import md5
+import time
+import os
+import logging
 
 import uvicorn
 import socketio
 from starlette.applications import Starlette
 from starlette.responses import PlainTextResponse, HTMLResponse
 from starlette.middleware import Middleware
-from starlette.routing import Route
+from starlette.routing import Mount, Route
+from starlette.staticfiles import StaticFiles
 
-# logging.basicConfig(
-#     format="%(asctime)s [%(levelname)s] %(message)s",
-#     datefmt="%m/%d/%Y %H:%M:%S",
-#     level=None,
-# )
-# log: logging.Logger = logging.getLogger(__name__)
-# log.setLevel(logging.DEBUG)
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
+    level=None,
+)
+log: logging.Logger = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
 
 class SocketMiddleware(socketio.ASGIApp):
     def __init__(self, app, sio: socketio.AsyncServer):
         super().__init__(sio, app)
+
 
 async def homepage(request):
     with open("templates/index.html") as html:
@@ -32,15 +35,15 @@ async def homepage(request):
 
 # _commandTable: dict[str:Callable] = dict()
 
-_socket = socketio.AsyncServer()
+_socket = socketio.AsyncServer(cors_allowed_origins="*", async_mode="asgi")
 app = Starlette(
     debug=True,
     routes=[
         Route("/", homepage),
+        Mount("/static", app=StaticFiles(directory="static"), name="static"),
+        Mount("/socket.io", socketio.ASGIApp(_socket)),
     ],
-    # middleware=[Middleware(SocketMiddleware, sio=_socket)]
 )
-
 
 
 async def serve(port: int = 8000) -> None:
@@ -61,8 +64,8 @@ async def connect(sessionId: str, environ: dict, auth: dict) -> None:
     userId: str = auth["token"]
     if userId is None:
         userId: str = md5(str(environ.items()).encode()).hexdigest()
-        _socket.emit("userId", userId, to=sessionId)
-    with _socket.session(sessionId) as session:
+        await _socket.emit("userId", userId, to=sessionId)
+    async with _socket.session(sessionId) as session:
         session["userId"] = userId
 
 
@@ -122,18 +125,17 @@ async def event(command: str, sessionId: str, *args, **kwargs) -> dict:
 
 
 if __name__ == "__main__":
-    import asyncio
-    # log.info("Starting NSO Bridge in CLI mode.")
-    # if reload:
-    #     log.warning("Server is running with reloader!")
+    log.info("Starting NSO Bridge in CLI mode.")
+    reload: bool = True
+    if reload:
+        log.warning("Server is running with reloader!")
 
     uvicorn.run(
         "controller:app",
         host="0.0.0.0",
         port=8000,
-        # log_level=logging.INFO,
+        log_level="warning",
         reload=True,
     )
 
-    # log.info("NSO Bridge has successfully shut down.")
-    
+    log.info("NSO Bridge has successfully shut down.")
