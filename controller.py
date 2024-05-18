@@ -88,7 +88,7 @@ async def _sync(sessionId: str, *args, **kwargs) -> dict:
     return {"data": None, "tick": tick}
 
 
-async def _handleEvent(command: str, sessionId: str, *args) -> dict:
+async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
     log.debug(f"Handling event '{command}' with args: {args}.")
     response: dict = {"data": None}
     try:
