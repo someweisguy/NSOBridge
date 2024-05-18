@@ -27,7 +27,7 @@ def getTick():
     return round(now / 1_000_000)
 
 
-async def serve(port: int = 8000, *, debug: bool = False) -> None:
+async def serve(port: int, *, debug: bool = False) -> None:
     if not isinstance(port, int):
         raise TypeError(f"port must be int, not {type(port).__name__}")
     if not 1 <= port <= 65535:
