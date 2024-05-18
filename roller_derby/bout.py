@@ -20,3 +20,10 @@ class Bout(Encodable):
     @property
     def teams(self) -> TeamManager:
         return self._teams
+
+
+class BoutManager(Encodable):
+    pass
+
+class ClientException(Exception):
+    pass
