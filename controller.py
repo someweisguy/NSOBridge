@@ -1,8 +1,10 @@
 from roller_derby import Bout
 from starlette.applications import Starlette
-from starlette.responses import HTMLResponse
+from starlette.requests import Request
+from starlette.responses import FileResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
+from starlette.templating import Jinja2Templates
 from types import TracebackType
 from typing import Callable
 import hashlib
@@ -13,15 +15,16 @@ import time
 import uvicorn
 
 logging.basicConfig(
-    format="%(asctime)s [%(levelname)s] %(message)s",
+    format="{levelname}: {message}",
     datefmt="%m/%d/%Y %H:%M:%S",
+    style="{",
     level=None,
 )
 log: logging.Logger = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 
-def tick():
+def getTick():
     now = time.monotonic_ns()
     return round(now / 1_000_000)
 
@@ -32,20 +35,11 @@ async def serve(port: int = 8000, *, debug: bool = False) -> None:
     if not 1 <= port <= 65535:
         raise ValueError("port number is invalid")
     log.info(f"Starting NSO Bridge on port {port}")
-    if debug:
-        log.setLevel(logging.DEBUG)
-        log.debug("NSO Bridge is in debug mode.")
-        uvicorn.run(
-            "controller:app",
-            host="0.0.0.0",
-            port=port,
-            log_level="warning",
-            reload=True,
-        )
-    else:
-        config: uvicorn.Config = uvicorn.Config(app, host="0.0.0.0", port=port)
-        server: uvicorn.Server = uvicorn.Server(config)
-        await server.serve()
+    config: uvicorn.Config = uvicorn.Config(
+        app, host="0.0.0.0", port=port, log_level="critical"
+    )
+    server: uvicorn.Server = uvicorn.Server(config)
+    await server.serve()
     log.info("NSO Bridge was successfully shut down.")
 
 
@@ -66,12 +60,16 @@ def register(
     return decorator(command) if callable(command) else decorator
 
 
-async def homepage(request):
-    with open("templates/index.html") as html:
-        return HTMLResponse(html.read())
+async def _renderTemplate(request: Request):
+    file: str = "index.html"
+    if "file" in request.path_params:
+        file = request.path_params["file"]
+        if file == "favicon.ico":
+            return FileResponse("static/favicon.ico")
+    return _jinja.TemplateResponse(request, file)
 
 
-async def _connect(sessionId: str, environ: dict, auth: dict) -> None:
+async def _handleConnect(sessionId: str, environ: dict, auth: dict) -> None:
     userId: str = auth["token"]
     if userId is None:
         userId: str = hashlib.md5(str(environ.items()).encode()).hexdigest()
@@ -80,17 +78,17 @@ async def _connect(sessionId: str, environ: dict, auth: dict) -> None:
         session["userId"] = userId
 
 
-async def _disconnect(sessionId: str) -> None:
+async def _handleDisconnect(sessionId: str) -> None:
     pass
 
 
 async def _sync(sessionId: str, *args, **kwargs) -> dict:
-    millis: int = tick()
-    return {"data": None, "tick": millis}
+    tick: int = getTick()
+    return {"data": None, "tick": tick}
 
 
-async def _event(command: str, sessionId: str, *args, **kwargs) -> dict:
-    log.debug(f"Got command '{command}' with args {args}.")
+async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
+    log.debug(f"Handling event '{command}' with args {args}.")
     response: dict = {"data": None}
     try:
         if command not in _commandTable:
@@ -110,7 +108,7 @@ async def _event(command: str, sessionId: str, *args, **kwargs) -> dict:
                 "file": os.path.split(traceback.tb_frame.f_code.co_filename)[-1],
                 "lineNumber": traceback.tb_lineno,
             }
-    response["tick"] = tick()
+    response["tick"] = getTick()
     return response
 
 
@@ -118,18 +116,20 @@ _commandTable: dict[str, Callable] = dict()
 _socket: socketio.AsyncServer = socketio.AsyncServer(
     cors_allowed_origins="*", async_mode="asgi"
 )
+_jinja = Jinja2Templates(directory="templates")
 app: Starlette = Starlette(
     debug=True,
     routes=[
-        Route("/", homepage),
+        Route("/", _renderTemplate),
         Mount("/static", app=StaticFiles(directory="static"), name="static"),
-        Mount("/socket.io", socketio.ASGIApp(_socket)),
+        Mount("/socket.io", app=socketio.ASGIApp(_socket)),
+        Route("/{file:str}", _renderTemplate),
     ],
 )
-_socket.on("connect", _connect)
-_socket.on("disconnect", _disconnect)
+_socket.on("connect", _handleConnect)
+_socket.on("disconnect", _handleDisconnect)
 _socket.on("sync", _sync)
-_socket.on("*", _event)
+_socket.on("*", _handleEvent)
 
 
 if __name__ == "__main__":
