@@ -23,15 +23,34 @@ logging.basicConfig(
 
 
 def getTick():
+    """Gets the current server tick. The tick should be equivalent to number of
+    milliseconds that the server has been online on most machines.
+
+    Returns:
+        int: The current server tick.
+    """
     now = time.monotonic_ns()
     return round(now / 1_000_000)
 
 
 async def serve(port: int, *, debug: bool = False) -> None:
+    """Start and serve the scoreboard app on the specified port.
+
+    Args:
+        port (int): The port number to serve the scoreboard.
+        debug (bool, optional): Turns on debug log messages. Defaults to False.
+
+    Raises:
+        TypeError: if the port number is is not an int or the debug arg is not a
+        bool.
+        ValueError: if the port number is not between 1 and 65535 (inclusive).
+    """
     if not isinstance(port, int):
         raise TypeError(f"port must be int, not {type(port).__name__}")
     if not 1 <= port <= 65535:
         raise ValueError("port number is invalid")
+    if not isinstance(debug, bool):
+        raise TypeError(f"debug must be bool, not {type(port).__name__}")
     if debug:
         log.setLevel(logging.DEBUG)
     app.debug = debug
@@ -47,6 +66,21 @@ async def serve(port: int, *, debug: bool = False) -> None:
 def register(
     command: None | Callable = None, *, name: str = "", overwrite: bool = False
 ) -> Callable:
+    """A decorator to register server command methods. Server command methods
+    must not be asynchronous functions.
+
+    Args:
+        command (None | Callable, optional): The method to decorate. Defaults to
+        None.
+        name (str, optional): The to which to refer to the API. Defaults to the
+        method name in Python.
+        overwrite (bool, optional): Set to True to overwrite any currently
+        registered method name. Methods which are overwritten without setting
+        this flag to True will raise a LookupError exception. Defaults to False.
+
+    Returns:
+        Callable: The original method.
+    """
     def decorator(command: Callable) -> Callable:
         commandName: str = name if name != "" else command.__name__
         if overwriting := (commandName in _commandTable) and not overwrite:
@@ -62,6 +96,16 @@ def register(
 
 
 async def _renderTemplate(request: Request) -> HTMLResponse:
+    """Renders the HTML response using the Jinja2 templating engine. All HTML
+    templates must be found in the `web/templates/` directory.
+
+    Args:
+        request (Request): The Request object received from the Starlette app.
+
+    Returns:
+        HTMLResponse: An HTML response rendered from the Jinja2 templating
+        engine.
+    """
     file: str = "html/index.html"
     if "file" in request.path_params:
         file = f"html/{request.path_params["file"]}"
@@ -70,10 +114,26 @@ async def _renderTemplate(request: Request) -> HTMLResponse:
 
 
 async def _serveFavicon(request: Request) -> FileResponse:
+    """Serves the scoreboard favicon.
+
+    Args:
+        request (Request): The Request object received from the Starlette app.
+
+    Returns:
+        FileResponse: A Starlette file response of the favicon found in 
+        `web/static/favicon.ico`.
+    """
     return FileResponse("web/static/favicon.ico")
 
 
 async def _handleConnect(sessionId: str, environ: dict, auth: dict) -> None:
+    """Handles a socket.io connection event.
+
+    Args:
+        sessionId (str): The session ID of the corresponding connection.
+        environ (dict): The web browser environment of the connection.
+        auth (dict): The auth dictionary from the connection.
+    """
     userId: str = auth["token"]
     if userId is None:
         userId: str = hashlib.md5(str(environ.items()).encode()).hexdigest()
@@ -83,15 +143,44 @@ async def _handleConnect(sessionId: str, environ: dict, auth: dict) -> None:
 
 
 async def _handleDisconnect(sessionId: str) -> None:
+    """Handles a socket.io disconnection event.
+
+    Args:
+        sessionId (str): The session ID of the corresponding connection.
+    """
     pass
 
 
 async def _sync(sessionId: str, *args, **kwargs) -> dict:
+    """Handles a socket.io sync event. Returns an empty response with the
+    current server tick. Used to synchronize clients with the server.
+
+    Args:
+        sessionId (str): The session ID of the corresponding connection.
+
+    Returns:
+        dict: A dictionary with the current server tick.
+    """
     tick: int = getTick()
     return {"data": None, "tick": tick}
 
 
 async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
+    """Handles all socket.io events except for connection, disconnection, and 
+    sync. This handler looks up the received command in a command table and 
+    calls the appropriate function, if it exists. 
+
+    If an exception occurs while handling a command, the traceback is logged 
+    using the server logger instance. If the exception was a ClientException,
+    the error message is returned to the client.
+
+    Args:
+        command (str): The name of the command to call.
+        sessionId (str): The session ID of the corresponding connection.
+
+    Returns:
+        dict: A dictionary of the command response.
+    """
     log.debug(f"Handling event '{command}' with args: {args}.")
     response: dict = {"data": None}
     try:
@@ -101,7 +190,6 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
         func = _commandTable[command]
         response["data"] = func(*args)
     except (Exception, ClientException) as e:
-        response["tick"] = getTick()
         response["error"] = {
             "name": type(e).__name__,
             "message": str(e),
@@ -111,6 +199,7 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
             fileName: str = os.path.split(traceback.tb_frame.f_code.co_filename)[-1]
             lineNumber: int = traceback.tb_lineno
             log.error(f"{type(e).__name__}: {str(e)} ({fileName}, {lineNumber})")
+    response["tick"] = getTick()
     return response
 
 
