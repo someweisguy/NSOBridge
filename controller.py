@@ -1,7 +1,7 @@
 from roller_derby import BoutManager, ClientException
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import FileResponse
+from starlette.responses import HTMLResponse, FileResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
@@ -61,13 +61,16 @@ def register(
     return decorator(command) if callable(command) else decorator
 
 
-async def _renderTemplate(request: Request):
-    file: str = "index.html"
+async def _renderTemplate(request: Request) -> HTMLResponse:
+    file: str = "html/index.html"
     if "file" in request.path_params:
-        file = request.path_params["file"]
-        if file == "favicon.ico":
-            return FileResponse("static/favicon.ico")
+        file = f"html/{request.path_params["file"]}"
+    log.debug(f"Handling request for '{file}'.")
     return _jinja.TemplateResponse(request, file)
+
+
+async def _serveFavicon(request: Request) -> FileResponse:
+    return FileResponse("web/static/favicon.ico")
 
 
 async def _handleConnect(sessionId: str, environ: dict, auth: dict) -> None:
@@ -111,7 +114,7 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
     return response
 
 
-_jinja = Jinja2Templates(directory="templates")
+_jinja = Jinja2Templates(directory="web/templates")
 
 _socket: socketio.AsyncServer = socketio.AsyncServer(
     cors_allowed_origins="*", async_mode="asgi"
@@ -128,7 +131,8 @@ game: BoutManager = BoutManager()
 app: Starlette = Starlette(
     routes=[
         Route("/", _renderTemplate),
-        Mount("/static", app=StaticFiles(directory="static"), name="static"),
+        Route("/favicon.ico", _serveFavicon),
+        Mount("/static", app=StaticFiles(directory="web/static"), name="static"),
         Mount("/socket.io", app=socketio.ASGIApp(_socket)),
         Route("/{file:str}", _renderTemplate),
     ],

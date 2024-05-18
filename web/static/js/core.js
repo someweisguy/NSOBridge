@@ -10,10 +10,14 @@ socket.once("userId", (newUserId) => {
 });
 
 socket.on("connect", async () => {
-    console.log("Connected to game server.");
+    // console.log("Connected to game server.");
     const iterations = 10;
     console.log("Syncing time with server using " + iterations + " iterations");
     epsilon = await getEpsilon(iterations);
+    
+    socket.emit("pprint", "hello world", "hi", 1, 6);
+    console.log("pprint sent");
+
     setInterval(() => {
         document.getElementById("time").innerText = getServerTime()
     }, 50);
