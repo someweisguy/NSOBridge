@@ -22,9 +22,12 @@ class Bout(Encodable):
         return self._teams
 
 
-class BoutManager(Encodable):
+class SeriesManager(Encodable):
     def __init__(self):
         self.bouts: list[Bout] = [Bout()]
-
+        self.currentBout: Bout = self.bouts[0]
+        # self.teams: dict[str, Team] = dict()
+        # self.timers: TimerManager = TimerManager()
+        
 class ClientException(Exception):
     pass
