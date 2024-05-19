@@ -83,7 +83,7 @@ class Bout(Encodable):
 
 
 class Jam(Encodable):
-    class CallReason(IntEnum):
+    class StopReason(IntEnum):
         CALLED = auto()
         INJURY = auto()
         TIME = auto()
@@ -132,7 +132,7 @@ class Jam(Encodable):
         self._parent: Bout = parent
         self._started: Literal[False] | int = False
         self._stopped: Literal[False] | int = False
-        self._callReason: None | int = None
+        self._stopReason: None | int = None
         self._home: Jam.Team = Jam.Team(self)
         self._away: Jam.Team = Jam.Team(self)
 
@@ -171,27 +171,27 @@ class Jam(Encodable):
     def isStopped(self) -> bool:
         return self._stopped is not False
 
-    def stop(self, reason: Jam.CallReason, tick: int) -> None:
+    def stop(self, reason: Jam.StopReason, tick: int) -> None:
         if not self.isStarted:
             raise ClientException("This jam has not yet started.")
         if self.isStopped:
             raise ClientException("This jam has already stopped.")
-        if reason not in Jam.CallReason:
-            raise ClientException("Call reason is invalid")
+        if reason not in Jam.StopReason:
+            raise ClientException("Stop reason is invalid")
         self._stopped = tick
-        self._callReason = int(reason)
+        self._stopReason = int(reason)
 
     def unStop(self) -> None:
         if not self.isStopped:
             raise ClientException("This jam has not yet stopped.")
         self._stopped = False
-        self._callReason = None
+        self._stopReason = None
 
     def encode(self) -> dict:
         return {
             "startTick": self._started,
             "stopTick": self._stopped,
-            "callReason": self._callReason,
+            "callReason": self._stopReason,
             "home": self._home.encode(),
             "away": self._away.encode(),
         }
