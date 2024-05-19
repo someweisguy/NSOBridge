@@ -184,11 +184,15 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
     log.debug(f"Handling event '{command}' with args: {args}.")
     response: dict = {"data": None}
     try:
+        async with _socket.session(sessionId) as session:
+            if "userId" not in session:
+                raise ClientException("Unknown userId.")
+            userId: str = session["userId]"]
         if command not in _commandTable:
             log.debug(f"The '{command}' handler does not exist.")
             raise ClientException(f"Unknown command '{command}'.")
         func = _commandTable[command]
-        response["data"] = func(*args)
+        response["data"] = func(userId, *args)
     except (Exception, ClientException) as e:
         response["error"] = {
             "name": type(e).__name__,
