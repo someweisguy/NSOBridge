@@ -6,7 +6,7 @@ from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 from types import TracebackType
-from typing import Callable
+from typing import Callable, Any
 import hashlib
 import logging
 import os
@@ -64,7 +64,10 @@ async def serve(port: int, *, debug: bool = False) -> None:
 
 
 def register(
-    command: None | Callable = None, *, name: str = "", overwrite: bool = False
+    command: None | Callable[[str, Any], Any] = None,
+    *,
+    name: str = "",
+    overwrite: bool = False,
 ) -> Callable:
     """A decorator to register server command methods. Server command methods
     must not be asynchronous functions.
@@ -81,14 +84,13 @@ def register(
     Returns:
         Callable: The original method.
     """
-    def decorator(command: Callable) -> Callable:
+
+    def decorator(command: Callable[[str, Any], Any]) -> Callable[[str, Any], Any]:
         commandName: str = name if name != "" else command.__name__
         if overwriting := (commandName in _commandTable) and not overwrite:
-            raise LookupError(f"The command {commandName} is already registered.")
-        if overwriting:
-            log.debug(f"Overwriting '{commandName}' command")
-        else:
-            log.debug(f"Adding '{commandName}' command")
+            raise LookupError(f"The command '{commandName}' is already registered.")
+        gerund: str = "Adding" if not overwriting else "Overwriting"
+        log.debug(f"{gerund} '{commandName}' command")
         _commandTable[commandName] = command
         return command
 
