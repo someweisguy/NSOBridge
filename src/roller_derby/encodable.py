@@ -1,10 +1,10 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
-import time
 
 
 class Encodable(ABC):
+    @abstractmethod
     def encode(self) -> dict:
         """Encodes the Encodable into a dictionary which can then be sent to a
         client. This method is called recursively so that each sub-class is
@@ -15,41 +15,11 @@ class Encodable(ABC):
         Returns:
             dict: A dictionary representing the Encodable.
         """
-        
-        def _encode_list(iter: list[Any] | tuple[Any]) -> list:
-            new_list: list[Any] = []
-            for item in iter:
-                if isinstance(item, (tuple, list)):
-                    new_list.append(_encode_list(item))
-                elif hasattr(item, "__dict__"):
-                    new_list.append(_encode(item))
-                else:
-                    new_list.append(item)
-            return new_list
+        raise NotImplementedError()
 
-        def _encode(item) -> dict:
-            attributes: list[tuple[str, Any]] = list(item.__dict__.items())
-            dictionary: dict = {}
-            for key, value in attributes:
-                if key.startswith("_"):
-                    key = key[1:]
-                if hasattr(value, "__dict__"):
-                    value = _encode(value)
-                elif isinstance(value, (list, tuple)):
-                    value = _encode_list(value)
-                dictionary[key] = value
-            return dictionary
-        
-        
-        now: int = time.monotonic_ns()
-        now = round(now / 1_000_000)
-    
-        dictionary: dict = {"now": now}
-        dictionary |= _encode(self)
-        return dictionary
-
-    # @abstractmethod  # TODO: make abstract
-    def decode(self, json: dict) -> Encodable:
+    @staticmethod
+    # @abstractmethod # TODO
+    def decode(json: dict[str, Any]) -> Encodable:
         """Creates a new Encodable object from a dictionary.
 
         Args:
@@ -59,4 +29,4 @@ class Encodable(ABC):
             Encodable: A new Encodable with the same attributes as the JSON
             object.
         """
-        pass
+        raise NotImplementedError()
