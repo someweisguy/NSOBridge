@@ -1,4 +1,4 @@
-from roller_derby import BoutManager, ClientException
+from roller_derby import SeriesManager, ClientException
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, FileResponse
@@ -223,7 +223,7 @@ _socket.on("*", _handleEvent)
 _commandTable: dict[str, Callable] = dict()
 
 log: logging.Logger = logging.getLogger(__name__)
-game: BoutManager = BoutManager()
+game: SeriesManager = SeriesManager()
 app: Starlette = Starlette(
     routes=[
         Route("/", _renderTemplate),
