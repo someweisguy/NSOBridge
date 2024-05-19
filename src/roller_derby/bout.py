@@ -111,6 +111,8 @@ class Jam(Encodable):
             return sum(trip.points for trip in self._trips)
 
         def addTrip(self, points, tick) -> None:
+            if not self._parent.isStarted:
+                raise ClientException("This Jam has not yet started.")
             self._trips.append(Jam.Trip(points, tick))
 
         def editTrip(self, points, tripIndex) -> None:
