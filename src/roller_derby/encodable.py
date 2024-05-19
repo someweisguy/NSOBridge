@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from typing import Any
 import time
 
 
@@ -15,8 +16,8 @@ class Encodable(ABC):
             dict: A dictionary representing the Encodable.
         """
         
-        def _encode_list(iter: list[any] | tuple[any]) -> list:
-            new_list: list[any] = []
+        def _encode_list(iter: list[Any] | tuple[Any]) -> list:
+            new_list: list[Any] = []
             for item in iter:
                 if isinstance(item, (tuple, list)):
                     new_list.append(_encode_list(item))
@@ -27,7 +28,7 @@ class Encodable(ABC):
             return new_list
 
         def _encode(item) -> dict:
-            attributes: list[tuple[str, any]] = list(item.__dict__.items())
+            attributes: list[tuple[str, Any]] = list(item.__dict__.items())
             dictionary: dict = {}
             for key, value in attributes:
                 if key.startswith("_"):
@@ -48,7 +49,7 @@ class Encodable(ABC):
         return dictionary
 
     # @abstractmethod  # TODO: make abstract
-    def decode(json: dict) -> Encodable:
+    def decode(self, json: dict) -> Encodable:
         """Creates a new Encodable object from a dictionary.
 
         Args:

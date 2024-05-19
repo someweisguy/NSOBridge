@@ -23,7 +23,8 @@ class Bout(Encodable):
 
 
 class BoutManager(Encodable):
-    pass
+    def __init__(self):
+        self.bouts: list[Bout] = [Bout()]
 
 class ClientException(Exception):
     pass

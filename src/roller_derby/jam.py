@@ -141,7 +141,7 @@ class Jam(Encodable):
         jam_team: Jam.Data = self._home if team == "home" else self._away
         jam_team._lost = True
 
-    def decode(json: dict) -> Encodable:
+    def decode(self, json: dict) -> Encodable:
         # TODO: cleanup
         jam = Jam()
         jam.home._lead = json["home"]["lead"]
