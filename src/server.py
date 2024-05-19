@@ -1,4 +1,4 @@
-from roller_derby import SeriesManager, ClientException
+from roller_derby.bout import SeriesManager, ClientException
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, FileResponse
