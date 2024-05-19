@@ -128,7 +128,9 @@ async def _serveFavicon(request: Request) -> FileResponse:
     return FileResponse("web/static/favicon.ico")
 
 
-async def _handleConnect(sessionId: str, environ: dict, auth: dict) -> None:
+async def _handleConnect(
+    sessionId: str, environ: dict[str, Any], auth: dict[str, Any]
+) -> None:
     """Handles a socket.io connection event.
 
     Args:
@@ -184,7 +186,7 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
         dict: A dictionary of the command response.
     """
     log.debug(f"Handling event '{command}' with args: {args}.")
-    response: dict = {"data": None}
+    response: dict[str, Any] = {"data": None}
     try:
         async with _socket.session(sessionId) as session:
             if "userId" not in session:
@@ -209,7 +211,7 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
     return response
 
 
-_jinja = Jinja2Templates(directory="web/templates")
+_jinja: Jinja2Templates = Jinja2Templates(directory="web/templates")
 
 _socket: socketio.AsyncServer = socketio.AsyncServer(
     cors_allowed_origins="*", async_mode="asgi"
