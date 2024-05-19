@@ -64,7 +64,7 @@ async def serve(port: int, *, debug: bool = False) -> None:
 
 
 def register(
-    command: None | Callable[[str, Any], Any] = None,
+    command: None | Callable = None,
     *,
     name: str = "",
     overwrite: bool = False,
