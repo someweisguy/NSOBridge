@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from enum import Enum
+from enum import IntEnum, auto
 from typing import Literal
 from .encodable import Encodable
 
@@ -83,11 +83,11 @@ class Bout(Encodable):
 
 
 class Jam(Encodable):
-    class CallReason(Enum):
-        CALLED = 1
-        INJURY = 2
-        TIME = 3
-        OTHER = 4
+    class CallReason(IntEnum):
+        CALLED = auto()
+        INJURY = auto()
+        TIME = auto()
+        OTHER = auto()
 
     @dataclass
     class Trip(Encodable):
@@ -132,7 +132,7 @@ class Jam(Encodable):
         self._parent: Bout = parent
         self._started: Literal[False] | int = False
         self._stopped: Literal[False] | int = False
-        self._callReason: None | Jam.CallReason = None
+        self._callReason: None | int = None
         self._home: Jam.Team = Jam.Team(self)
         self._away: Jam.Team = Jam.Team(self)
 
@@ -169,7 +169,7 @@ class Jam(Encodable):
 
     @property
     def isStopped(self) -> bool:
-        return True
+        return self._stopped is not False
 
     def stop(self, reason: Jam.CallReason, tick: int) -> None:
         if not self.isStarted:
@@ -179,7 +179,7 @@ class Jam(Encodable):
         if reason not in Jam.CallReason:
             raise ClientException("Call reason is invalid")
         self._stopped = tick
-        self._callReason = reason
+        self._callReason = int(reason)
 
     def unStop(self) -> None:
         if not self.isStopped:
