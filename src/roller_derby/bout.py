@@ -118,8 +118,8 @@ class Jam(Encodable):
         def editTrip(self, points: int, tripIndex: int) -> None:
             self._trips[tripIndex].points = points
 
-        def deleteTrip(self) -> None:
-            del self._trips[-1]
+        def deleteTrip(self, tripIndex: int) -> None:
+            del self._trips[tripIndex]
 
         def encode(self) -> dict:
             return {
