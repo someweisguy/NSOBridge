@@ -97,6 +97,40 @@ def register(
     return decorator(command) if callable(command) else decorator
 
 
+async def emit(
+    event: str,
+    data: Any,
+    to: None | str = None,
+    room: None | str = None,
+    skipSession: None | str = None,
+    namespace: None | str = None,
+    *,
+    tick: int = getTick(),
+) -> None:
+    """Sends a Socket.IO message with the desired event name and data. Data is
+    wrapped in a dictionary with the current server tick.
+
+    Args:
+        event (str): The name of the event to send.
+        data (Any): The data payload.
+        to (None | str, optional): The session ID to which to send the message.
+        If None, the message is broadcast to all clients. Defaults to None.
+        room (None | str, optional): The Socket.IO room to which to send the
+        message. Defaults to None.
+        skipSession (None | str, optional): The session ID which should be
+        skipped in a broadcast. Allows the server to send a message to all
+        clients in a group except for one. Defaults to None.
+        namespace (None | str, optional): The Socket.IO namespace in which to
+        send the message. Defaults to None.
+        tick (int, optional): The server tick at which the action originated.
+        Defaults to server.getTick().
+    """
+    payload: dict[str, Any] = {"data": data, "tick": tick}
+    await _socket.emit(
+        event, payload, to=to, room=room, skip_sid=skipSession, namespace=namespace
+    )
+
+
 async def _renderTemplate(request: Request) -> HTMLResponse:
     """Renders the HTML response using the Jinja2 templating engine. All HTML
     templates must be found in the `web/templates/` directory.
@@ -122,7 +156,7 @@ async def _serveFavicon(request: Request) -> FileResponse:
         request (Request): The Request object received from the Starlette app.
 
     Returns:
-        FileResponse: A Starlette file response of the favicon found in 
+        FileResponse: A Starlette file response of the favicon found in
         `web/static/favicon.ico`.
     """
     return FileResponse("web/static/favicon.ico")
@@ -141,8 +175,8 @@ async def _handleConnect(
     userId: str = auth["token"]
     if userId is None:
         userId: str = hashlib.md5(str(environ.items()).encode()).hexdigest()
-        await socket.emit("userId", userId, to=sessionId)
-    async with socket.session(sessionId) as session:
+        await _socket.emit("userId", userId, to=sessionId)
+    async with _socket.session(sessionId) as session:
         session["userId"] = userId
 
 
@@ -170,11 +204,11 @@ async def _sync(sessionId: str, *args, **kwargs) -> dict:
 
 
 async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
-    """Handles all socket.io events except for connection, disconnection, and 
-    sync. This handler looks up the received command in a command table and 
-    calls the appropriate function, if it exists. 
+    """Handles all socket.io events except for connection, disconnection, and
+    sync. This handler looks up the received command in a command table and
+    calls the appropriate function, if it exists.
 
-    If an exception occurs while handling a command, the traceback is logged 
+    If an exception occurs while handling a command, the traceback is logged
     using the server logger instance. If the exception was a ClientException,
     the error message is returned to the client.
 
@@ -186,7 +220,7 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
         dict: A dictionary of the command response.
     """
     log.debug(f"Handling event '{command}' with args: {args}.")
-    response: dict[str, Any] = {"data": None}
+    response: dict[str, Any] = dict()
     try:
         if command not in _commandTable:
             log.debug(f"The '{command}' handler does not exist.")
@@ -207,18 +241,18 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
     return response
 
 
-
 log: logging.Logger = logging.getLogger(__name__)
 bouts: SeriesManager = SeriesManager()
-socket: socketio.AsyncServer = socketio.AsyncServer(
-    cors_allowed_origins="*", async_mode="asgi"
-)
-socket.on("connect", _handleConnect)
-socket.on("disconnect", _handleDisconnect)
-socket.on("sync", _sync)
-socket.on("*", _handleEvent)
 
 _commandTable: dict[str, Callable[[Any, Any], Awaitable[Any]]] = dict()
+_socket: socketio.AsyncServer = socketio.AsyncServer(
+    cors_allowed_origins="*", async_mode="asgi"
+)
+_socket.on("connect", _handleConnect)
+_socket.on("disconnect", _handleDisconnect)
+_socket.on("sync", _sync)
+_socket.on("*", _handleEvent)
+
 
 _jinja: Jinja2Templates = Jinja2Templates(directory="web/templates")
 _app: Starlette = Starlette(
@@ -226,7 +260,7 @@ _app: Starlette = Starlette(
         Route("/", _renderTemplate),
         Route("/favicon.ico", _serveFavicon),
         Mount("/static", app=StaticFiles(directory="web/static"), name="static"),
-        Mount("/socket.io", app=socketio.ASGIApp(socket)),
+        Mount("/socket.io", app=socketio.ASGIApp(_socket)),
         Route("/{file:str}", _renderTemplate),
     ],
 )

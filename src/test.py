@@ -11,8 +11,8 @@ async def addTrip(sessionId: str, team: str, points: int, tick: int):
     else:
         raise ClientException(f"Unknown team '{team}'.")
 
-    await server.socket.emit(
-        "jamUpdate", {"data": currentJam.encode(), "tick": tick}, skip_sid=sessionId
+    await server.emit(
+        "jamUpdate", currentJam.encode(), skipSession=sessionId, tick=tick
     )
 
 
