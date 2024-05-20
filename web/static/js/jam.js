@@ -22,7 +22,6 @@ class JamElement extends HTMLElement {
                 }
             });
             socket.on("jamUpdate", async (payload) => {
-                console.log(payload)
                 for (let element of JamElement.elementsInitialized) {
                     element.handleData(payload);
                     element.renderElement();
