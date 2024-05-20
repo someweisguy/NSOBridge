@@ -110,12 +110,12 @@ class Jam(Encodable):
         def jamScore(self) -> int:
             return sum(trip.points for trip in self._trips)
 
-        def addTrip(self, points, tick) -> None:
+        def addTrip(self, points: int, tick: int) -> None:
             if not self._parent.isStarted:
                 raise ClientException("This Jam has not yet started.")
             self._trips.append(Jam.Trip(points, tick))
 
-        def editTrip(self, points, tripIndex) -> None:
+        def editTrip(self, points: int, tripIndex: int) -> None:
             self._trips[tripIndex].points = points
 
         def deleteTrip(self) -> None:
