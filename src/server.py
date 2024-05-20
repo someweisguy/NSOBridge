@@ -6,7 +6,7 @@ from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 from types import TracebackType
-from typing import Callable, Any
+from typing import Callable, Any, Awaitable
 import hashlib
 import logging
 import os
@@ -53,10 +53,10 @@ async def serve(port: int, *, debug: bool = False) -> None:
         raise TypeError(f"debug must be bool, not {type(port).__name__}")
     if debug:
         log.setLevel(logging.DEBUG)
-    app.debug = debug
+    _app.debug = debug
     log.info(f"Starting NSO Bridge on port {port}")
     config: uvicorn.Config = uvicorn.Config(
-        app, host="0.0.0.0", port=port, log_level="critical"
+        _app, host="0.0.0.0", port=port, log_level="critical"
     )
     server: uvicorn.Server = uvicorn.Server(config)
     await server.serve()
@@ -141,8 +141,8 @@ async def _handleConnect(
     userId: str = auth["token"]
     if userId is None:
         userId: str = hashlib.md5(str(environ.items()).encode()).hexdigest()
-        await _socket.emit("userId", userId, to=sessionId)
-    async with _socket.session(sessionId) as session:
+        await socket.emit("userId", userId, to=sessionId)
+    async with socket.session(sessionId) as session:
         session["userId"] = userId
 
 
@@ -191,11 +191,8 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
         if command not in _commandTable:
             log.debug(f"The '{command}' handler does not exist.")
             raise ClientException(f"Unknown command '{command}'.")
-        func = _commandTable[command]
-        async with _socket.session(sessionId) as session:
-            if "userId" not in session:
-                raise ClientException("Unknown userId.")
-            response["data"] = func(session, *args)
+        func: Callable[[Any, Any], Awaitable[Any]] = _commandTable[command]
+        response["data"] = await func(sessionId, *args)
     except (Exception, ClientException) as e:
         response["error"] = {
             "name": type(e).__name__,
@@ -210,26 +207,26 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
     return response
 
 
-_jinja: Jinja2Templates = Jinja2Templates(directory="web/templates")
-
-_socket: socketio.AsyncServer = socketio.AsyncServer(
-    cors_allowed_origins="*", async_mode="asgi"
-)
-_socket.on("connect", _handleConnect)
-_socket.on("disconnect", _handleDisconnect)
-_socket.on("sync", _sync)
-_socket.on("*", _handleEvent)
-
-_commandTable: dict[str, Callable] = dict()
 
 log: logging.Logger = logging.getLogger(__name__)
-game: SeriesManager = SeriesManager()
-app: Starlette = Starlette(
+bouts: SeriesManager = SeriesManager()
+socket: socketio.AsyncServer = socketio.AsyncServer(
+    cors_allowed_origins="*", async_mode="asgi"
+)
+socket.on("connect", _handleConnect)
+socket.on("disconnect", _handleDisconnect)
+socket.on("sync", _sync)
+socket.on("*", _handleEvent)
+
+_commandTable: dict[str, Callable[[Any, Any], Awaitable[Any]]] = dict()
+
+_jinja: Jinja2Templates = Jinja2Templates(directory="web/templates")
+_app: Starlette = Starlette(
     routes=[
         Route("/", _renderTemplate),
         Route("/favicon.ico", _serveFavicon),
         Mount("/static", app=StaticFiles(directory="web/static"), name="static"),
-        Mount("/socket.io", app=socketio.ASGIApp(_socket)),
+        Mount("/socket.io", app=socketio.ASGIApp(socket)),
         Route("/{file:str}", _renderTemplate),
     ],
 )

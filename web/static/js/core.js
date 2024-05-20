@@ -2,7 +2,7 @@ import "./socket.io.js"
 
 // Connect to the host using a userId
 var userId = localStorage.getItem("userId");
-const socket = io(window.location.host, {auth: {token: userId}});
+export const socket = io(window.location.host, {auth: {token: userId}});
 socket.once("userId", (newUserId) => {
     console.log("Got User ID: " + newUserId);
     localStorage.setItem("userId", newUserId);
@@ -10,16 +10,14 @@ socket.once("userId", (newUserId) => {
 });
 
 socket.on("connect", async () => {
-    // console.log("Connected to game server.");
-    const iterations = 10;
+    console.log("Connected to game server.");
+    const iterations = 1;
     console.log("Syncing time with server using " + iterations + " iterations");
     epsilon = await getEpsilon(iterations);
     
-    socket.emit("pprint", "hello world", "hi", 1, 6);
-    console.log("pprint sent");
-
+    
     setInterval(() => {
-        document.getElementById("time").innerText = getServerTime()
+        document.getElementById("time").innerText = (getTick() / 1000).toFixed(1)
     }, 50);
 });
 
@@ -38,7 +36,7 @@ export async function getEpsilon(iterations) {
     return Math.round(window.performance.now()) - currentServerTime;
 }
 
-export function getServerTime() {
+export function getTick() {
     return Math.round(window.performance.now()) - epsilon;
 }
 

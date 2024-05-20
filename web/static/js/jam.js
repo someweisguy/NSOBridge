@@ -1,4 +1,8 @@
+import { socket, getTick } from "./core.js"
+
 class JamElement extends HTMLElement {
+    static elementsInitialized = [];
+
     constructor() {
         super();
 
@@ -8,15 +12,56 @@ class JamElement extends HTMLElement {
         this.tripViewer;
         this.activeTrip = 0;
         this.trips = [];
+
+        if (JamElement.elementsInitialized.length == 0) {
+            socket.on("connect", async () => {
+                let response = await socket.emitWithAck("getCurrentJam");
+                for (let element of JamElement.elementsInitialized) {
+                    element.handleData(response);
+                    element.renderElement();
+                }
+            });
+            socket.on("jamUpdate", async (payload) => {
+                console.log(payload)
+                for (let element of JamElement.elementsInitialized) {
+                    element.handleData(payload);
+                    element.renderElement();
+                }
+            });
+        }
+        JamElement.elementsInitialized.push(this);
     }
 
-    addTrip(points) {
-        this.trips.push(points);
-        this.activeTrip = this.trips.length;
-        this.renderElement();
+    handleData(response) {
+        let team = this.getAttribute("team");
+
+        // Don't set active trip to the latest trip if it isn't active now
+        let newActiveTrip = this.activeTrip;
+        if (this.activeTrip == this.trips.length) {
+            newActiveTrip = response.data[team].trips.length
+        }
+        
+
+        this.trips = []
+        for (let trip of response.data[team].trips) {
+            this.trips.push(trip.points)
+        }
+
+        this.activeTrip = newActiveTrip;
     }
 
-    editTrip(tripIndex, points) {
+    async addTrip(points) {
+        let tick = getTick()
+        let team = this.getAttribute("team");
+        let response = await socket.emitWithAck("addTrip", team, points, tick)
+        if (!response.hasOwnProperty("error")) {
+            this.trips.push(points);
+            this.activeTrip = this.trips.length;
+            this.renderElement();
+        }
+    }
+
+    async editTrip(tripIndex, points) {
         this.trips[tripIndex] = points;
         this.activeTrip = this.trips.length;
         this.renderElement();

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>NSO Bridge</title>
     <script type="module" src="static/js/core.js"></script>
-    <script src="static/js/jam.js"></script>
+    <script type="module" src="static/js/jam.js"></script>
 </head>
 
 <body>
@@ -14,7 +14,8 @@
     <button onclick="startGameTimer()">Start</button> <button onclick="stopGameTimer()">Stop</button>
     <p>
     
-    <jam-score />
+    <jam-score team="home">Home</jam-score><br>
+    <jam-score team="away">Away</jam-score><br>
 
 </body>
 </html>
