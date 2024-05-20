@@ -70,7 +70,7 @@ class Bout(Encodable):
     def addJam(self, period: int) -> None:
         self._periods[period].append(Jam(self))
 
-    def removeJam(self, period: int) -> None:
+    def deleteJam(self, period: int) -> None:
         self._periods[period].pop()
         if len(self.currentPeriod) == 0:
             self.currentPeriod.append(Jam(self))
@@ -118,7 +118,7 @@ class Jam(Encodable):
         def editTrip(self, points, tripIndex) -> None:
             self._trips[tripIndex].points = points
 
-        def removeTrip(self) -> None:
+        def deleteTrip(self) -> None:
             del self._trips[-1]
 
         def encode(self) -> dict:
