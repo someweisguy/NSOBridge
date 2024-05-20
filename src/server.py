@@ -264,9 +264,3 @@ _app: Starlette = Starlette(
         Route("/{file:str}", _renderTemplate),
     ],
 )
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(serve(8000, debug=True))
