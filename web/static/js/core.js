@@ -1,4 +1,4 @@
-import "./socket.io.js"
+import "./socket.io-client/dist/socket.io.min.js"
 
 // Connect to the host using a userId
 var userId = localStorage.getItem("userId");

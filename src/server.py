@@ -159,7 +159,7 @@ async def _serveFavicon(request: Request) -> FileResponse:
         FileResponse: A Starlette file response of the favicon found in
         `web/static/favicon.ico`.
     """
-    return FileResponse("web/static/favicon.ico")
+    return FileResponse(f"{_webDir}/static/favicon.ico")
 
 
 async def _handleConnect(
@@ -253,13 +253,13 @@ _socket.on("disconnect", _handleDisconnect)
 _socket.on("sync", _sync)
 _socket.on("*", _handleEvent)
 
-
-_jinja: Jinja2Templates = Jinja2Templates(directory="web/templates")
+_webDir: str = "./web"
+_jinja: Jinja2Templates = Jinja2Templates(directory=f"{_webDir}/templates")
 _app: Starlette = Starlette(
     routes=[
         Route("/", _renderTemplate),
         Route("/favicon.ico", _serveFavicon),
-        Mount("/static", app=StaticFiles(directory="web/static"), name="static"),
+        Mount("/static", app=StaticFiles(directory=f"{_webDir}/static"), name="static"),
         Mount("/socket.io", app=socketio.ASGIApp(_socket)),
         Route("/{file:str}", _renderTemplate),
     ],
