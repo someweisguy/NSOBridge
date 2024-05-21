@@ -22,9 +22,19 @@ async def getCurrentJam(session):
 
 if __name__ == "__main__":
     import asyncio
+    import socket
     
+    port: int = 8000
+    serverAddress: str = "0.0.0.0"
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.settimeout(0)
+        sock.connect(("1.1.1.1", 1))  # Doesn't actually send network data
+        serverAddress = sock.getsockname()[0]
+    httpStr: str = f"http://{serverAddress}:{port}"
+    server.log.info(f"Starting server at '{httpStr}'.")
+
     currentJam = server.bouts.currentBout.currentJam
     currentJam.start(server.getTick())
     
-    asyncio.run(server.serve(8000, debug=True))
+    asyncio.run(server.serve(port, debug=True))
 

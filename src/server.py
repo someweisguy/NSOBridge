@@ -18,7 +18,7 @@ logging.basicConfig(
     format="{levelname}: {message}",
     datefmt="%m/%d/%Y %H:%M:%S",
     style="{",
-    level=None,
+    level=logging.INFO,
 )
 
 
