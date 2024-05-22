@@ -142,9 +142,9 @@ async def _renderTemplate(request: Request) -> HTMLResponse:
         HTMLResponse: An HTML response rendered from the Jinja2 templating
         engine.
     """
-    file: str = "html/index.html"
+    file: str = "index.html"
     if "file" in request.path_params:
-        file = f"html/{request.path_params["file"]}"
+        file = f"{request.path_params["file"]}"
     log.debug(f"Handling request for '{file}'.")
     return _jinja.TemplateResponse(request, file)
 
@@ -159,7 +159,7 @@ async def _serveFavicon(request: Request) -> FileResponse:
         FileResponse: A Starlette file response of the favicon found in
         `web/static/favicon.ico`.
     """
-    return FileResponse(f"{_webDir}/static/favicon.ico")
+    return FileResponse(f"{_webDir}/favicon.ico")
 
 
 async def _handleConnect(
@@ -253,8 +253,8 @@ _socket.on("disconnect", _handleDisconnect)
 _socket.on("sync", _sync)
 _socket.on("*", _handleEvent)
 
-_webDir: str = "./web"
-_jinja: Jinja2Templates = Jinja2Templates(directory=f"{_webDir}/templates")
+_webDir: str = "./build"
+_jinja: Jinja2Templates = Jinja2Templates(directory=f"{_webDir}")
 _app: Starlette = Starlette(
     routes=[
         Route("/", _renderTemplate),
