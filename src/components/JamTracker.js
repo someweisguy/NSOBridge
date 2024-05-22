@@ -9,6 +9,9 @@ export function JamTracker({ team }) {
       let newTrips = payload.data[team].trips.map((tripData) => tripData.points);
       setTrips(newTrips);
     });
+    return function cleanup() {
+      socket.removeListener("jamUpdate");
+    };
   }, []);
 
 
