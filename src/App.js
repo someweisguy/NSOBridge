@@ -1,10 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
+import { JamTracker } from './components/JamTracker';
 
 import { io } from 'socket.io-client';
 
 var userId = localStorage.getItem("userId");
-const socket = io(window.location.host, { auth: { token: userId } });
+export const socket = io(window.location.host, { auth: { token: userId } });
 var epsilon = 0;
 
 export function getTick() {
@@ -51,6 +52,7 @@ function App() {
           Learn React
         </a>
       </header>
+      <JamTracker team="home" />
     </div>
   );
 }
