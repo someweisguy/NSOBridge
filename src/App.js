@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import { JamTracker } from './components/JamTracker';
+import { JamComponent } from './components/JamComponent';
 
 import { io } from 'socket.io-client';
 
@@ -38,7 +38,7 @@ function App() {
 
   return (
     <div className="App">
-        <JamTracker team="home" />
+        <JamComponent />
     </div>
   );
 }
