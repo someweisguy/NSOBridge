@@ -22,7 +22,9 @@ function TripComponent({ team, periodIndex, jamIndex, trips, setTrips }) {
     }
   }
 
+  // Render the points buttons
   const pointButtons = [];
+  // TODO: render NP/NP and Initial Pass buttons
   for (let i = 0; i <= 4; i++) {
     pointButtons.push(
       <button key={i} onClick={() => setPoints(i, activeTrip)}>
@@ -41,7 +43,6 @@ function TripComponent({ team, periodIndex, jamIndex, trips, setTrips }) {
       </button>
     );
   }
-
 
   return (
     <span>
