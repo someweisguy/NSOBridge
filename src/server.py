@@ -127,7 +127,7 @@ async def emit(
     """
     payload: dict[str, Any] = {
         "data": data,
-        # "error": None,  # TODO: Always include an error code?
+        "error": None,
         "commandTick": tick,
         "currentTick": getTick(),
     }
