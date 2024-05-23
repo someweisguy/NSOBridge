@@ -105,7 +105,7 @@ async def emit(
     skipSession: None | str = None,
     namespace: None | str = None,
     *,
-    tick: int = getTick(),
+    tick: None | int = None,
 ) -> None:
     """Sends a Socket.IO message with the desired event name and data. Data is
     wrapped in a dictionary with the current server tick.
@@ -122,10 +122,15 @@ async def emit(
         clients in a group except for one. Defaults to None.
         namespace (None | str, optional): The Socket.IO namespace in which to
         send the message. Defaults to None.
-        tick (int, optional): The server tick at which the action originated.
-        Defaults to server.getTick().
+        tick (None | int, optional): The server tick at which the action
+        originated. Defaults to None.
     """
-    payload: dict[str, Any] = {"data": data, "tick": tick}
+    payload: dict[str, Any] = {
+        "data": data,
+        # "error": None,  # TODO: Always include an error code?
+        "commandTick": tick,
+        "currentTick": getTick(),
+    }
     await _socket.emit(
         event, payload, to=to, room=room, skip_sid=skipSession, namespace=namespace
     )
