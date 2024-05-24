@@ -9,20 +9,34 @@ export const socket = io(window.location.host, { auth: { token: userId } });
 var epsilon = 0;
 
 export function getTick() {
-  return Math.round(window.performance.now()) - epsilon;
+  return Math.round(window.performance.now() - epsilon);
 }
 
 export async function getEpsilon(iterations) {
-  let sum = 0;
-  let oldServerTime = 0;
-  for (var i = 0; i < iterations; ++i) {
-    const start = window.performance.now();
-    oldServerTime = await socket.emitWithAck("sync");
-    oldServerTime = oldServerTime.tick;  // TODO: streamline this 
-    sum += (window.performance.now() - start);
+  if (iterations == 0) {
+    return 0;
   }
-  const currentServerTime = oldServerTime + Math.round((sum / 2) / iterations);
-  return Math.round(window.performance.now()) - currentServerTime;
+
+  let startTick = 0;
+  let serverTick = 0;
+
+  let latencySum = 0;
+  for (let i = 0; i < iterations; i++) {
+    // Get the client and server ticks
+    startTick = window.performance.now();
+    serverTick = (await socket.emitWithAck("sync")).tick;
+    const stopTick = window.performance.now();
+  
+    // Calculate the round-trip latency to receive the server tick
+    const roundTripLatencyIteration = stopTick - startTick;
+    latencySum += roundTripLatencyIteration;
+  }
+  const roundTripLatency = (latencySum / iterations)
+
+  // Refine the server tick by subtracting one-way latency
+  serverTick -= (roundTripLatency / 2);
+
+  return startTick - serverTick;
 }
 
 function App() {
@@ -32,7 +46,7 @@ function App() {
     userId = newUserId;
   });
   socket.on("connect", async () => {
-    await getEpsilon(10);
+    epsilon = await getEpsilon(10);
   });
 
 
