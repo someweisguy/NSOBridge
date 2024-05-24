@@ -5,33 +5,46 @@ import { socket, getTick } from "../App";
 function TripComponent({ team, periodIndex, jamIndex, trips, setTrips }) {
   const [activeTrip, setActiveTrip] = useState(trips.length);
 
-  async function setPoints(points, tripIndex) {
+  async function setPoints(points) {
     const tick = getTick();
-    let response = null;
-    if (activeTrip == trips.length) {
-      response = await socket.emitWithAck("addTrip", team, points, tick);
-    } else {
-      // Initial trip should always be worth zero points
-      response = await socket.emitWithAck("addTrip", team, points, tick);
-    }
+    let response = await socket.emitWithAck("setTrip", team, activeTrip, points, tick);
     if (response != null && response.error == null) {
       let newTrips = [...trips];
-      newTrips.push(points);
+      if (activeTrip == trips.length) {
+        newTrips.push(points);
+        setActiveTrip(activeTrip + 1);
+      } else {
+        newTrips[activeTrip] = points;
+      }
       setTrips(newTrips);
-      setActiveTrip(activeTrip + 1);
     }
   }
 
   // Render the points buttons
   const pointButtons = [];
-  // TODO: render NP/NP and Initial Pass buttons
-  for (let i = 0; i <= 4; i++) {
+  if (activeTrip == 0) {
+    // Render No-Pass/No-Penalty and Initial Pass buttons
     pointButtons.push(
-      <button key={i} onClick={() => setPoints(i, activeTrip)}>
-        {i}
+      <button key={0} onClick={() => setPoints(0)}>
+        NP/NP
       </button>
     );
+    pointButtons.push(
+      <button key={1} onClick={() => setPoints(0)}>
+        Initial
+      </button>
+    );
+  } else {
+    // Render trip point buttons
+    for (let i = 0; i <= 4; i++) {
+      pointButtons.push(
+        <button key={i} onClick={() => setPoints(i)}>
+          {i}
+        </button>
+      );
+    }
   }
+
 
   // Render each trip as a button
   const tripViewButtons = [];
