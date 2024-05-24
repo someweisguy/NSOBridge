@@ -24,6 +24,22 @@ async def setTrip(
         "jamUpdate", currentJam.encode(), skipSession=sessionId, tick=tick
     )
 
+@server.register
+async def deleteTrip(sessionId: str, team: str, tripIndex: int) -> None:
+    # TODO: get the desired jam
+    jam: Jam = server.bouts.currentBout.currentJam
+    
+    # Get the team in the jam
+    jamTeam: None | Jam.Team = None
+    if team == "home":
+        jamTeam = jam.home
+    elif team == "away":
+        jamTeam = jam.away
+    else:
+        raise ClientException(f"Unknown team '{team}'.")
+    
+    jamTeam.deleteTrip(tripIndex)
+    await server.emit("jamUpdate", currentJam.encode(), skipSession=sessionId)
 
 @server.register
 async def getCurrentJam(session):
