@@ -140,6 +140,12 @@ class Jam(Encodable):
         self._stopReason: None | int = None
         self._home: Jam.Team = Jam.Team(self)
         self._away: Jam.Team = Jam.Team(self)
+    
+    def __getitem__(self, teamName: str) -> Team:
+        teamName = teamName.lower()
+        if teamName not in ("home", "away"):
+            raise KeyError(f"Unknown team name '{teamName}'.")
+        return self._home if teamName == "home" else self._away
 
     @property
     def home(self) -> Jam.Team:
