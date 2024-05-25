@@ -102,7 +102,7 @@ async def emit(
     data: Any,
     to: None | str = None,
     room: None | str = None,
-    skipSession: None | str = None,
+    skip: None | str = None,
     namespace: None | str = None,
     *,
     tick: None | int = None,
@@ -117,9 +117,9 @@ async def emit(
         If None, the message is broadcast to all clients. Defaults to None.
         room (None | str, optional): The Socket.IO room to which to send the
         message. Defaults to None.
-        skipSession (None | str, optional): The session ID which should be
-        skipped in a broadcast. Allows the server to send a message to all
-        clients in a group except for one. Defaults to None.
+        skip (None | str, optional): The session ID which should be skipped in a
+        broadcast. Allows the server to send a message to all clients in a group
+        except for one. Defaults to None.
         namespace (None | str, optional): The Socket.IO namespace in which to
         send the message. Defaults to None.
         tick (None | int, optional): The server tick at which the action
@@ -132,7 +132,7 @@ async def emit(
         "currentTick": getTick(),
     }
     await _socket.emit(
-        event, payload, to=to, room=room, skip_sid=skipSession, namespace=namespace
+        event, payload, to=to, room=room, skip_sid=skip, namespace=namespace
     )
 
 
