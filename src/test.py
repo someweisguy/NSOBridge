@@ -1,50 +1,6 @@
-from roller_derby.bout import ClientException, Jam
+from roller_derby.bout import Jam
 from typing import Any
 import server
-
-
-@server.register
-async def setTrip(
-    sessionId: str, team: str, tripIndex: int, points: int, tick: int
-) -> None:
-    # TODO: Get the desired jam
-    jam: Jam = server.bouts.currentBout.currentJam
-
-    # Get the team in the jam
-    jamTeam: None | Jam.Team = None
-    if team == "home":
-        jamTeam = jam.home
-    elif team == "away":
-        jamTeam = jam.away
-    else:
-        raise ClientException(f"Unknown team '{team}'.")
-
-    # Set the trip value and broadcast the result
-    jamTeam.setTrip(tripIndex, points, tick)
-    await server.emit(
-        "jamUpdate", currentJam.encode(), skip=sessionId, tick=tick
-    )
-
-@server.register
-async def deleteTrip(sessionId: str, team: str, tripIndex: int) -> None:
-    # TODO: get the desired jam
-    jam: Jam = server.bouts.currentBout.currentJam
-    
-    # Get the team in the jam
-    jamTeam: None | Jam.Team = None
-    if team == "home":
-        jamTeam = jam.home
-    elif team == "away":
-        jamTeam = jam.away
-    else:
-        raise ClientException(f"Unknown team '{team}'.")
-    
-    jamTeam.deleteTrip(tripIndex)
-    await server.emit("jamUpdate", currentJam.encode(), skip=sessionId)
-
-@server.register
-async def getCurrentJam(session):
-    return server.bouts.currentBout.currentJam.encode()
 
 @server.register
 async def setJamTrip(sessionId: str, data: dict[str, Any]) -> dict[str, Any]: 
