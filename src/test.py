@@ -1,4 +1,5 @@
 from roller_derby.bout import ClientException, Jam
+from typing import Any
 import server
 
 
@@ -21,7 +22,7 @@ async def setTrip(
     # Set the trip value and broadcast the result
     jamTeam.setTrip(tripIndex, points, tick)
     await server.emit(
-        "jamUpdate", currentJam.encode(), skipSession=sessionId, tick=tick
+        "jamUpdate", currentJam.encode(), skip=sessionId, tick=tick
     )
 
 @server.register
@@ -39,12 +40,42 @@ async def deleteTrip(sessionId: str, team: str, tripIndex: int) -> None:
         raise ClientException(f"Unknown team '{team}'.")
     
     jamTeam.deleteTrip(tripIndex)
-    await server.emit("jamUpdate", currentJam.encode(), skipSession=sessionId)
+    await server.emit("jamUpdate", currentJam.encode(), skip=sessionId)
 
 @server.register
 async def getCurrentJam(session):
     return server.bouts.currentBout.currentJam.encode()
 
+@server.register
+async def setJamTrip(sessionId: str, data: dict[str, Any]) -> dict[str, Any]: 
+    # Get the desired Jam
+    # TODO: get actual desired jam
+    # periodIndex, jamIndex = data["periodIndex"], data["jamIndex"]
+    # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
+    jam: Jam = server.bouts.currentBout.currentJam
+    
+    # Get the desired team
+    teamJam: Jam.Team = jam[data["team"]]
+    
+    teamJam.setTrip(data["tripIndex"], data["tripPoints"], data["tick"])
+    response: dict[str, Any] = teamJam.encode() | {"team": data["team"]}
+    await server.emit("getJamTrip", response, skip=sessionId, tick=data["tick"])
+    return response
+
+@server.register
+async def getJamTrip(sessionId: str, data: dict[str, Any]) -> dict[str, Any]:
+    # Get the desired Jam
+    # TODO: get actual desired jam
+    # periodIndex, jamIndex = data["periodIndex"], data["jamIndex"]
+    # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
+    jam: Jam = server.bouts.currentBout.currentJam
+    
+    # Get the desired team
+    teamJam: Jam.Team = jam[data["team"]]
+   
+    response: dict[str, Any] = teamJam.encode() | {"team": data["team"]}
+    return response
+    
 
 if __name__ == "__main__":
     import asyncio
