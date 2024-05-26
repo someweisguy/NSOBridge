@@ -109,12 +109,12 @@ function TripComponent({ team, periodIndex, jamIndex }) {
         <button onClick={deleteTrip}>Delete</button>
       </div>
 
-      <div className="trips">
-        <button className="scrollButton">&lt;</button>
-        <div className="scrollbar">
+      <div className="scrollBar">
+        <button>&lt;</button>
+        <div className="trips">
           {tripViewButtons}
         </div>
-        <button className="scrollButton">&gt;</button>
+        <button>&gt;</button>
       </div>
       
     </div>
