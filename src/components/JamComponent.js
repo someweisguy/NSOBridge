@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { socket, getTick } from "../App";
+import "./JamComponent.css"
 
 
 function TripComponent({ team, periodIndex, jamIndex }) {
@@ -66,22 +67,24 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   // Render each trip as a button
   const tripViewButtons = [];
   for (let i = 0; i <= trips.length; i++) {
-    const id = i == activeTrip ? "active" : "";
-    const style = i == activeTrip ? { backgroundColor: "red" } : { backgroundColor: "" };
+    // const name = i == activeTrip ? "active" : "";
     tripViewButtons.push(
-      <button key={i} id={id} style={style} onClick={() => setActiveTrip(i)}>
+      <button key={i} onClick={() => setActiveTrip(i)}>
         <small>Trip {i + 1}</small>
         <br />{i < trips.length ? trips[i] : "\u00A0"}
       </button>
     );
   }
-
+  tripViewButtons[activeTrip].props.className = "active";
 
   return (
-    <span>
-      {pointButtons}<br />
-      {tripViewButtons}
-    </span>
+    <div>
+      {pointButtons}
+      <br />
+      <div className="tripView">
+        {tripViewButtons}
+      </div>
+    </div>
   );
 }
 

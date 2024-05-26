@@ -1,0 +1,10 @@
+.tripView {
+    width: 300px;
+    white-space: nowrap;
+    overflow-x: scroll;
+    display: inline-block;
+}
+
+.tripView button.active {
+    background-color: red;
+}
