@@ -78,7 +78,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
       </button>
     );
   }
-  tripViewButtons[activeTrip].props.className = "active";
+  tripViewButtons[activeTrip].props.className = "activeTrip";
 
   // Determine if the "delete trip" button is visible
   let visibility = "hidden";
@@ -109,12 +109,12 @@ function TripComponent({ team, periodIndex, jamIndex }) {
         <button onClick={deleteTrip}>Delete</button>
       </div>
 
-      <div className="tripViewer">
-        <button>&lt;</button>
+      <div className="trips">
+        <button className="scrollButton">&lt;</button>
         <div className="scrollbar">
           {tripViewButtons}
         </div>
-        <button>&gt;</button>
+        <button className="scrollButton">&gt;</button>
       </div>
       
     </div>

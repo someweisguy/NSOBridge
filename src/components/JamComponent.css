@@ -24,47 +24,47 @@
     height: 40px;
 }
 
-.tripViewer {
+.trips {
     display: inline flex;
     width: 100%;
     border: 1px solid black;
 }
 
-.tripViewer .scrollbar {
+.trips .scrollbar {
     width: 100%;
     white-space: nowrap;
     overflow-x: scroll;
-    display: inline-block;
+    display: inline flex;
     text-align: left;
     -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
     scrollbar-width: none;     /* Hide scrollbar for Firefox */
 }
-.tripViewer .scrollbar::-webkit-scrollbar {
+.trips .scrollbar::-webkit-scrollbar {
     display: none;  /* Hide scrollbar for Chrome, Safari, and Opera */
 }
 
 
-.tripViewer .scrollbar button {
-    border-width: 0px;
-    height: 100%;
+.trips .scrollbar button {
+    height: 50px;
+    width: 50px;
 }
 
-.tripViewer .scrollbar button:nth-child(even) {
+.trips .scrollbar button:nth-child(even) {
     background-color: lightgray;
 }
 
-.tripViewer .scrollbar button:nth-child(odd) {
+.trips .scrollbar button:nth-child(odd) {
     background-color: white;
 }
 
-.tripViewer .scrollbar button:last-child {
+.trips .scrollbar button:last-child {
     margin-right: 5px;
 }
 
-.tripViewer .scrollbar button:hover {
+.trips .scrollbar button:hover {
     background-color: pink;
 }
 
-.tripViewer .scrollbar button.active {
+.trips .scrollbar button.activeTrip {
     background-color: red;
 }
