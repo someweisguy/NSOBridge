@@ -101,15 +101,31 @@ function TripComponent({ team, periodIndex, jamIndex }) {
 
   return (
     <div className="tripComponent">
-      <div className="pointsComponent">
+      <div className="points">
         {pointButtons}
       </div>
+
       <div style={{ visibility: visibility }}>
         <button onClick={deleteTrip}>Delete</button>
       </div>
-      <div className="tripView">
-        {tripViewButtons}
+
+      <div className="tripScrollbar">
+        <button>&lt;</button>
+        <div className="tripView">
+          {tripViewButtons}
+        </div>
+        <button>&gt;</button>
       </div>
+      
+    </div>
+  );
+}
+
+function LeadComponent({ periodIndex, jamIndex, team }) {
+
+  return (
+    <div style={{border: "1px solid black"}}>
+      Hello world!
     </div>
   );
 }
@@ -123,8 +139,9 @@ export function TeamJamComponent({ periodIndex, jamIndex, team }) {
 
 
   return (
-    <div>
+    <div style={{width: "300px"}}>
       <TripComponent team={team} />
+      <LeadComponent team={team} />
       {/* <TripComponent team="away" trips={awayTrips} setTrips={setAwayTrips} /> */}
     </div>
   );

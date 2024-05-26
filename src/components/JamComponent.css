@@ -13,6 +13,8 @@
 .initialPassButtons {
     width: 70px;
     height: 30px;
+    margin-left: 3%;
+    margin-right: 3%;
 }
 .initialPassButtons:last-child {
     width: 80px;
@@ -30,14 +32,27 @@
     height: 40px;
 }
 
+.tripScrollbar {
+    display: flex;
+    width: 100%;
+    border: 1px solid black;
+}
+.tripScrollbar button {
+    display: inline;
+}
 
 .tripView {
-    width: 100%;
     white-space: nowrap;
     overflow-x: scroll;
     display: inline-block;
     text-align: left;
+    -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+    scrollbar-width: none;     /* Hide scrollbar for Firefox */
 }
+.tripView::-webkit-scrollbar {
+    display: none;  /* Hide scrollbar for Chrome, Safari, and Opera */
+}
+
 
 .tripView button {
     border-width: 0px;
