@@ -24,16 +24,13 @@
     height: 40px;
 }
 
-.tripScrollbar {
-    display: flex;
+.tripViewer {
+    display: inline flex;
     width: 100%;
     border: 1px solid black;
 }
-.tripScrollbar button {
-    display: inline;
-}
 
-.tripView {
+.tripViewer .scrollbar {
     width: 100%;
     white-space: nowrap;
     overflow-x: scroll;
@@ -42,31 +39,32 @@
     -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
     scrollbar-width: none;     /* Hide scrollbar for Firefox */
 }
-.tripView::-webkit-scrollbar {
+.tripViewer .scrollbar::-webkit-scrollbar {
     display: none;  /* Hide scrollbar for Chrome, Safari, and Opera */
 }
 
 
-.tripView button {
+.tripViewer .scrollbar button {
     border-width: 0px;
+    height: 100%;
 }
 
-.tripView button:nth-child(even) {
+.tripViewer .scrollbar button:nth-child(even) {
     background-color: lightgray;
 }
 
-.tripView button:nth-child(odd) {
+.tripViewer .scrollbar button:nth-child(odd) {
     background-color: white;
 }
 
-.tripView button:last-child {
+.tripViewer .scrollbar button:last-child {
     margin-right: 5px;
 }
 
-.tripView button:hover {
+.tripViewer .scrollbar button:hover {
     background-color: pink;
 }
 
-.tripView button.active {
+.tripViewer .scrollbar button.active {
     background-color: red;
 }

@@ -71,7 +71,6 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   // Render each trip as a button
   const tripViewButtons = [];
   for (let i = 0; i <= trips.length; i++) {
-    // const name = i == activeTrip ? "active" : "";
     tripViewButtons.push(
       <button key={i} onClick={() => setActiveTrip(i)}>
         <small>Trip {i + 1}</small>
@@ -110,9 +109,9 @@ function TripComponent({ team, periodIndex, jamIndex }) {
         <button onClick={deleteTrip}>Delete</button>
       </div>
 
-      <div className="tripScrollbar">
+      <div className="tripViewer">
         <button>&lt;</button>
-        <div className="tripView">
+        <div className="scrollbar">
           {tripViewButtons}
         </div>
         <button>&gt;</button>
