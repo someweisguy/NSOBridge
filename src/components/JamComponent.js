@@ -81,8 +81,11 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   }
   tripViewButtons[activeTrip].props.className = "active";
 
-  // Determine if the "delete trip" button is hidden
-  const visibility = activeTrip < trips.length && activeTrip > 0 ? "visible" : "hidden";
+  // Determine if the "delete trip" button is visible
+  let visibility = "hidden";
+  if (activeTrip < trips.length && (activeTrip > 0 || trips.length == 1)) {
+    visibility = "visible";
+  }
 
   async function deleteTrip() {
     const tick = getTick()
@@ -90,6 +93,9 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     if (response && !response.error) {
       let newTrips = trips.filter((points, tripIndex) => tripIndex != activeTrip);
       setTrips(newTrips);
+      if (activeTrip > 0) {
+        setActiveTrip(activeTrip - 1);
+      }
     }
   }
 
@@ -99,7 +105,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
         {pointButtons}
       </div>
       <div style={{ visibility: visibility }}>
-        Hello world! <button onClick={deleteTrip}>Delete</button>
+        <button onClick={deleteTrip}>Delete</button>
       </div>
       <div className="tripView">
         {tripViewButtons}
@@ -109,7 +115,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
 }
 
 
-export function JamComponent({ periodIndex, jamIndex }) {
+export function TeamJamComponent({ periodIndex, jamIndex, team }) {
   const [callReason, setCallReason] = useState(null);
 
 
@@ -118,7 +124,7 @@ export function JamComponent({ periodIndex, jamIndex }) {
 
   return (
     <div>
-      <TripComponent team="home" />
+      <TripComponent team={team} />
       {/* <TripComponent team="away" trips={awayTrips} setTrips={setAwayTrips} /> */}
     </div>
   );
