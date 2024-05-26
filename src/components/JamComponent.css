@@ -27,41 +27,37 @@
 .scrollBar {
     display: inline flex;
     width: 100%;
-}
-
-.scrollBar .trips {
-    width: 100%;
-    white-space: nowrap;
-    overflow-x: scroll;
-    display: inline flex;
-    text-align: left;
-    -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
-    scrollbar-width: none;     /* Hide scrollbar for Firefox */
-}
-.scrollBar .trips::-webkit-scrollbar {
-    display: none;  /* Hide scrollbar for Chrome, Safari, and Opera */
-}
-.scrollBar .trips button {
-    border: 0px;
-    height: 50px;
-    width: 50px;
-}
-.scrollBar .trips button:nth-child(even) {
-    background-color: lightgray;
-}
-
-.scrollBar .trips button:nth-child(odd) {
-    background-color: white;
-}
-
-.scrollBar .trips button:last-child {
-    margin-right: 5px;
-}
-
-.scrollBar .trips button:hover {
-    background-color: pink;
-}
-
-.scrollBar .trips button.activeTrip {
-    background-color: red;
+    .trips {
+        width: 100%;
+        white-space: nowrap;
+        overflow-x: scroll;
+        display: inline flex;
+        text-align: left;
+        -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+        scrollbar-width: none;     /* Hide scrollbar for Firefox */
+        ::-webkit-scrollbar {
+            display: none;  /* Hide scrollbar for Chrome, Safari, and Opera */
+        }
+        button {
+            border: 0px;
+            height: 50px;
+            width: 50px;
+        }
+        button:nth-child(even) {
+            background-color: lightgray;
+        }
+        button:nth-child(odd) {
+            background-color: white;
+        }
+        button:last-child {
+            margin-right: 5px;
+        }
+        button:hover {
+            background-color: pink;
+        }
+        button.activeTrip {
+            background-color: red;
+        }
+    }
+    
 }
