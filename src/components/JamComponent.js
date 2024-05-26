@@ -101,7 +101,8 @@ function TripComponent({ team, periodIndex, jamIndex }) {
 
   return (
     <div className="tripComponent">
-      <div className="points">
+      
+      <div>
         {pointButtons}
       </div>
 
