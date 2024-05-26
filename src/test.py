@@ -76,6 +76,21 @@ async def getJamTrip(sessionId: str, data: dict[str, Any]) -> dict[str, Any]:
     response: dict[str, Any] = teamJam.encode() | {"team": data["team"]}
     return response
     
+@server.register
+async def deleteJamTrip(sessionId: str, data: dict[str, Any]) -> dict[str, Any]:
+    # Get the desired Jam
+    # TODO: get actual desired jam
+    # periodIndex, jamIndex = data["periodIndex"], data["jamIndex"]
+    # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
+    jam: Jam = server.bouts.currentBout.currentJam
+    
+    # Get the desired team
+    teamJam: Jam.Team = jam[data["team"]]
+    teamJam.deleteTrip(data["tripIndex"])
+   
+    response: dict[str, Any] = teamJam.encode() | {"team": data["team"]}
+    await server.emit("getJamTrip", response, skip=sessionId, tick=data["tick"])
+    return response
 
 if __name__ == "__main__":
     import asyncio
