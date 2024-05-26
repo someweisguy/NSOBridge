@@ -43,25 +43,25 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   const pointButtons = [];
   if (activeTrip == 0) {
     // Render No-Pass/No-Penalty and Initial Pass buttons
-    const name = "initialPassButtons";
+    const className = "initial";
     pointButtons.push(
-      <button key={-1} className={name} onClick={() => setPoints(0)}>
+      <button key={-1} className={className} onClick={() => setPoints(0)}>
         NP/NP
       </button>
     );
     pointButtons.push(
-      <button key={-2} className={name} onClick={() => setPoints(0)}>
+      <button key={-2} className={className} onClick={() => setPoints(0)}>
         Initial
       </button>
     );
   } else {
     // Render trip point buttons
-    const name = "pointButtons";
+    const className = "points";
     const disableIndex = activeTrip < trips.length ? trips[activeTrip] : -1;
     for (let i = 0; i <= 4; i++) {
       const disabled = i == disableIndex;
       pointButtons.push(
-        <button key={i} className={name} disabled={disabled} onClick={() => setPoints(i)}>
+        <button key={i} className={className} disabled={disabled} onClick={() => setPoints(i)}>
           {i}
         </button>
       );
@@ -101,11 +101,11 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   return (
     <div className="tripComponent">
       
-      <div>
+      <div className="tripInput">
         {pointButtons}
       </div>
 
-      <div style={{ visibility: visibility }}>
+      <div className="tripEdit" style={{ visibility: visibility }}>
         <button onClick={deleteTrip}>Delete</button>
       </div>
 
