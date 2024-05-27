@@ -34,6 +34,7 @@
         white-space: nowrap;
         overflow-x: scroll;
         text-align: left;
+        scroll-behavior: smooth;
         -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
         scrollbar-width: none;     /* Hide scrollbar for Firefox */
         &::-webkit-scrollbar {
