@@ -106,6 +106,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
       </div>
 
       <div className="tripEdit" style={{ visibility: visibility }}>
+        Editing trip {activeTrip + 1}. &nbsp;
         <button onClick={deleteTrip}>Delete</button>
       </div>
 
@@ -142,7 +143,6 @@ export function TeamJamComponent({ periodIndex, jamIndex, team }) {
     <div style={{width: "300px"}}>
       <TripComponent team={team} />
       <LeadComponent team={team} />
-      {/* <TripComponent team="away" trips={awayTrips} setTrips={setAwayTrips} /> */}
     </div>
   );
 }

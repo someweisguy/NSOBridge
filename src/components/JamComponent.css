@@ -1,7 +1,6 @@
 .tripComponent {
-    width: 300px;
+    width: 400px;
 }
-
 
 .tripInput {
     button {
@@ -16,8 +15,15 @@
         width: 30px;
     }
     :last-child {
-        zoom: 120%;
+        zoom: 150%;
     }
+}
+
+.tripEdit {
+    display: flex;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
 }
 
 .scrollBar {
