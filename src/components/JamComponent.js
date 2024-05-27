@@ -17,6 +17,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
       updateTrips(response.data);
     }
 
+
     return () => { socket.removeListener(apiCall); };
   }, []);
 
@@ -42,7 +43,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
 
   async function deleteTrip() {
     const tick = getTick()
-    const response = await socket.emitWithAck("deleteJamTrip", 
+    const response = await socket.emitWithAck("deleteJamTrip",
       { team: team, tripIndex: activeTrip, tick: tick });
     if (response && !response.error) {
       let newTrips = trips.filter((_, tripIndex) => tripIndex !== activeTrip);
@@ -79,7 +80,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     for (let i = 0; i <= 4; i++) {
       const disabled = i === disableIndex;
       pointButtons.push(
-        <button key={i} className={className} disabled={disabled} 
+        <button key={i} className={className} disabled={disabled}
           onClick={() => setPoints(i)}>
           {i}
         </button>
