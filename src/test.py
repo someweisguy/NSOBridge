@@ -48,6 +48,26 @@ async def deleteJamTrip(sessionId: str, data: dict[str, Any]) -> dict[str, Any]:
     await server.emit("getJamTrip", response, skip=sessionId, tick=data["tick"])
     return response
 
+@server.register
+async def setJamLead(sessionId: str, data: dict[str, Any]) -> dict[str, Any]:
+    # Get the desired Jam
+    # TODO: get actual desired jam
+    # periodIndex, jamIndex = data["periodIndex"], data["jamIndex"]
+    # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
+    jam: Jam = server.bouts.currentBout.currentJam
+    
+    # Get the desired team
+    teamJam: Jam.Team = jam[data["team"]]
+    
+    # Set the team jam jammer stats
+    teamJam.lead = data["lead"]
+    teamJam.lost = data["lost"]
+    teamJam.starPass = data["starPass"]
+   
+    response: dict[str, Any] = teamJam.encode() | {"team": data["team"]}
+    await server.emit("getJamTrip", response, skip=sessionId, tick=data["tick"])
+    return response
+
 if __name__ == "__main__":
     import asyncio
     import socket
