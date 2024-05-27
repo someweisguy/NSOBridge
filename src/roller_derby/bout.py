@@ -149,8 +149,9 @@ class Jam(Encodable):
         
         @starPass.setter
         def starPass(self, value: Literal[False] | int) -> None:
-            if value is not False and not isinstance(value, int):
+            if value is True or not isinstance(value, (bool, int)):
                 raise TypeError(f"Star Pass should be False or int, not {type(value).__name__}.")
+            
             self._star_pass = value
         
         def encode(self) -> dict:
