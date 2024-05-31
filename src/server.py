@@ -22,14 +22,14 @@ logging.basicConfig(
 )
 
 
-def getTick():
+def getTimestamp():
     """Gets the current server tick. The tick should be equivalent to number of
     milliseconds that the server has been online on most machines.
 
     Returns:
         int: The current server tick.
     """
-    now = time.monotonic_ns()
+    now = time.time_ns()
     return round(now / 1_000_000)
 
 
@@ -85,7 +85,7 @@ def register(
         Callable: The original method.
     """
 
-    def decorator(command: Callable[[str, Any], Any]) -> Callable[[str, Any], Any]:
+    def decorator(command: Callable[[dict[str, Any]], Any]) -> Callable[[dict[str, Any]], Any]:
         commandName: str = name if name != "" else command.__name__
         if overwriting := (commandName in _commandTable) and not overwrite:
             raise LookupError(f"The command '{commandName}' is already registered.")
@@ -129,7 +129,7 @@ async def emit(
         "data": data,
         "error": None,
         "commandTick": tick,
-        "currentTick": getTick(),
+        "currentTick": getTimestamp(),
     }
     await _socket.emit(
         event, payload, to=to, room=room, skip_sid=skip, namespace=namespace
@@ -194,21 +194,21 @@ async def _handleDisconnect(sessionId: str) -> None:
     pass
 
 
-async def _sync(sessionId: str, *args, **kwargs) -> dict:
-    """Handles a socket.io sync event. Returns an empty response with the
-    current server tick. Used to synchronize clients with the server.
+async def _ping(sessionId: str, *args, **kwargs) -> dict:
+    """Handles a socket.io ping event. Returns an empty response with the
+    current server time. Used to synchronize clients with the server.
 
     Args:
         sessionId (str): The session ID of the corresponding connection.
 
     Returns:
-        dict: A dictionary with the current server tick.
+        dict: A dictionary with the current server time.
     """
-    tick: int = getTick()
-    return {"data": None, "tick": tick}
+    timestamp: int = getTimestamp()
+    return {"data": None, "timestamp": timestamp}
 
 
-async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
+async def _handleEvent(command: str, sessionId: str, json: dict[str, Any]) -> dict[str, Any]:
     """Handles all socket.io events except for connection, disconnection, and
     sync. This handler looks up the received command in a command table and
     calls the appropriate function, if it exists.
@@ -224,14 +224,15 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
     Returns:
         dict: A dictionary of the command response.
     """
-    log.debug(f"Handling event '{command}' with args: {args}.")
+    log.debug(f"Handling event '{command}' with args: {json}.")
     response: dict[str, Any] = dict()
     try:
         if command not in _commandTable:
             log.debug(f"The '{command}' handler does not exist.")
             raise ClientException(f"Unknown command '{command}'.")
-        func: Callable[[Any, Any], Awaitable[Any]] = _commandTable[command]
-        response["data"] = await func(sessionId, *args)
+        func: Callable[[dict[str, Any]], Awaitable[Any]] = _commandTable[command]
+        json['sessionId'] = sessionId
+        response["data"] = await func(json)
     except (Exception, ClientException) as e:
         response["error"] = {
             "name": type(e).__name__,
@@ -242,24 +243,24 @@ async def _handleEvent(command: str, sessionId: str, *args, **kwargs) -> dict:
             fileName: str = os.path.split(traceback.tb_frame.f_code.co_filename)[-1]
             lineNumber: int = traceback.tb_lineno
             log.error(f"{type(e).__name__}: {str(e)} ({fileName}, {lineNumber})")
-    response["tick"] = getTick()
+    response["timestamp"] = getTimestamp()
     return response
 
 
 log: logging.Logger = logging.getLogger(__name__)
 bouts: SeriesManager = SeriesManager()
 
-_commandTable: dict[str, Callable[[Any, Any], Awaitable[Any]]] = dict()
+_commandTable: dict[str, Callable[[dict[str, Any]], Awaitable[Any]]] = dict()
 _socket: socketio.AsyncServer = socketio.AsyncServer(
     cors_allowed_origins="*", async_mode="asgi"
 )
 _socket.on("connect", _handleConnect)
 _socket.on("disconnect", _handleDisconnect)
-_socket.on("sync", _sync)
+_socket.on("ping", _ping)
 _socket.on("*", _handleEvent)
 
 _webDir: str = "./build"
-_jinja: Jinja2Templates = Jinja2Templates(directory=f"{_webDir}")
+_jinja: Jinja2Templates = Jinja2Templates(directory=_webDir)
 _app: Starlette = Starlette(
     routes=[
         Route("/", _renderTemplate),
