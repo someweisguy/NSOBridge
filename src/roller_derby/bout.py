@@ -98,8 +98,9 @@ class Jam(Encodable):
             return self.__dict__
 
     class Team(Encodable):
-        def __init__(self, parent: Jam) -> None:
+        def __init__(self, parent: Jam, team: Literal["home", "away"]) -> None:
             self._parent: Jam = parent
+            self._team: Literal["home", "away"] = team
             self._lead: bool = False
             self._lost: bool = False
             self._star_pass: Literal[False] | int = False
@@ -122,40 +123,42 @@ class Jam(Encodable):
 
         def deleteTrip(self, tripIndex: int) -> None:
             del self._trips[tripIndex]
-        
+
         @property
         def lead(self) -> bool:
             return self._lead
-        
+
         @lead.setter
         def lead(self, value: bool) -> None:
             if not isinstance(value, bool):
                 raise TypeError(f"Lead should be bool, not {type(value).__name__}.")
-            self._lead = value        
+            self._lead = value
 
         @property
         def lost(self) -> bool:
             return self._lead
-        
+
         @lost.setter
         def lost(self, value: bool) -> None:
             if not isinstance(value, bool):
                 raise TypeError(f"Lost should be bool, not {type(value).__name__}.")
             self._lost = value
-        
+
         @property
         def starPass(self) -> None | int:
             return self._star_pass
-        
+
         @starPass.setter
         def starPass(self, value: Literal[False] | int) -> None:
             if value is True or not isinstance(value, (bool, int)):
-                raise TypeError(f"Star Pass should be False or int, not {type(value).__name__}.")
-            
+                raise TypeError(
+                    f"Star Pass should be False or int, not {type(value).__name__}."
+                )
             self._star_pass = value
-        
+
         def encode(self) -> dict:
             return {
+                "team": self._team,
                 "lead": self._lead,
                 "lost": self._lost,
                 "starPass": self._star_pass,
@@ -167,9 +170,9 @@ class Jam(Encodable):
         self._started: Literal[False] | int = False
         self._stopped: Literal[False] | int = False
         self._stopReason: None | int = None
-        self._home: Jam.Team = Jam.Team(self)
-        self._away: Jam.Team = Jam.Team(self)
-    
+        self._home: Jam.Team = Jam.Team(self, "home")
+        self._away: Jam.Team = Jam.Team(self, "away")
+
     def __getitem__(self, teamName: str) -> Team:
         teamName = teamName.lower()
         if teamName not in ("home", "away"):
