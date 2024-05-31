@@ -5,7 +5,6 @@ from starlette.responses import HTMLResponse, FileResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
-from types import TracebackType
 from typing import Callable, Any, Awaitable
 import hashlib
 import logging
@@ -85,7 +84,9 @@ def register(
         Callable: The original method.
     """
 
-    def decorator(command: Callable[[dict[str, Any]], Any]) -> Callable[[dict[str, Any]], Any]:
+    def decorator(
+        command: Callable[[dict[str, Any]], Any],
+    ) -> Callable[[dict[str, Any]], Any]:
         commandName: str = name if name != "" else command.__name__
         if overwriting := (commandName in _commandTable) and not overwrite:
             raise LookupError(f"The command '{commandName}' is already registered.")
@@ -194,21 +195,22 @@ async def _handleDisconnect(sessionId: str) -> None:
     pass
 
 
-async def _ping(sessionId: str, *args, **kwargs) -> dict:
-    """Handles a socket.io ping event. Returns an empty response with the
-    current server time. Used to synchronize clients with the server.
+async def _ping(sessionId: str, *args, **kwargs) -> None:
+    """Handles a socket.io ping event. Returns an empty response. Used by
+    clients to calculate the connection latency.
 
     Args:
         sessionId (str): The session ID of the corresponding connection.
 
     Returns:
-        dict: A dictionary with the current server time.
+        None.
     """
-    timestamp: int = getTimestamp()
-    return {"data": None, "timestamp": timestamp}
+    return None
 
 
-async def _handleEvent(command: str, sessionId: str, json: dict[str, Any]) -> dict[str, Any]:
+async def _handleEvent(
+    command: str, sessionId: str, json: dict[str, Any], *args, **kwargs
+) -> dict[str, Any]:
     """Handles all socket.io events except for connection, disconnection, and
     sync. This handler looks up the received command in a command table and
     calls the appropriate function, if it exists.
@@ -227,27 +229,58 @@ async def _handleEvent(command: str, sessionId: str, json: dict[str, Any]) -> di
     log.debug(f"Handling event '{command}' with args: {json}.")
     response: dict[str, Any] = dict()
     try:
+        # Validate the request payload has all the required JSON keys
+        requiredKeys: tuple[str, ...] = (
+            "method",
+            "kwargs",
+            "user",
+            "session",
+            "latency",
+        )
+        if not all(key in json for key in requiredKeys):
+            raise ClientException("Invalid request payload.")
+
+        # Ensure the requested method is lowercase
+        json["method"] = json["method"].lower()
+
+        # Validate the user is valid
+        if json["user"] is None:
+            raise ClientException("Invalid username.")
+
+        # Validate the latency value is between 0 and 5 seconds
+        if not isinstance(json["latency"], int) or 0 > json["latency"] > 5000:
+            raise ClientException("Client latency is invalid")
+
+        # Validate the command exists
         if command not in _commandTable:
             log.debug(f"The '{command}' handler does not exist.")
             raise ClientException(f"Unknown command '{command}'.")
+
+        # Get the function, call it, and encode the return value
         func: Callable[[dict[str, Any]], Awaitable[Any]] = _commandTable[command]
-        json['sessionId'] = sessionId
-        response["data"] = await func(json)
+        response["return"] = await func(json)
     except (Exception, ClientException) as e:
+        # Return the exception and exception message
         response["error"] = {
             "name": type(e).__name__,
             "message": str(e),
         }
-        traceback: None | TracebackType = e.__traceback__
-        if not isinstance(e, ClientException) and traceback is not None:
+
+        # If the exception was not caused by the client, log a traceback
+        if not isinstance(e, ClientException) and (traceback := e.__traceback__):
             fileName: str = os.path.split(traceback.tb_frame.f_code.co_filename)[-1]
             lineNumber: int = traceback.tb_lineno
             log.error(f"{type(e).__name__}: {str(e)} ({fileName}, {lineNumber})")
-    response["timestamp"] = getTimestamp()
-    return response
+    finally:
+        # Return the current timestamp
+        response["timestamp"] = getTimestamp()
+        return response
 
 
+# The server logging instance
 log: logging.Logger = logging.getLogger(__name__)
+
+# The series manager which handles the game logic
 bouts: SeriesManager = SeriesManager()
 
 _commandTable: dict[str, Callable[[dict[str, Any]], Awaitable[Any]]] = dict()
@@ -259,7 +292,7 @@ _socket.on("disconnect", _handleDisconnect)
 _socket.on("ping", _ping)
 _socket.on("*", _handleEvent)
 
-_webDir: str = "./build"
+_webDir: str = "./build"  # The relative location of the built React files
 _jinja: Jinja2Templates = Jinja2Templates(directory=_webDir)
 _app: Starlette = Starlette(
     routes=[
