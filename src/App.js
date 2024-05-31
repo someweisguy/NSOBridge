@@ -6,37 +6,49 @@ import { io } from 'socket.io-client';
 
 var userId = localStorage.getItem("userId");
 export const socket = io(window.location.host, { auth: { token: userId } });
-var epsilon = 0;
+var latency = 0;
 
-export function getTick() {
-  return Math.round(window.performance.now() - epsilon);
+export function getLatency() {
+  return latency;
 }
 
-export async function getEpsilon(iterations) {
-  if (iterations == 0) {
-    return 0;
-  }
-
-  let startTick = 0;
-  let serverTick = 0;
-
+async function calculateLatency(iterations) {
   let latencySum = 0;
   for (let i = 0; i < iterations; i++) {
     // Get the client and server ticks
-    startTick = window.performance.now();
-    serverTick = (await socket.emitWithAck("sync")).tick;
-    const stopTick = window.performance.now();
-  
-    // Calculate the round-trip latency to receive the server tick
-    const roundTripLatencyIteration = stopTick - startTick;
-    latencySum += roundTripLatencyIteration;
+    let success = true;
+    const start = window.performance.now();
+    await socket.timeout(5000).emitWithAck("ping", {}).then(
+      null,  // Do nothing on success
+      () => { success = false; }
+    );
+    const stop = window.performance.now();
+
+    if (success) {
+      // Calculate the round-trip latency to receive the server tick
+      const roundTripLatencyIteration = stop - start;
+      latencySum += roundTripLatencyIteration;
+    } else {
+      // Decrement the iterations value for accurate averaging
+      iterations--;
+    }
   }
-  const roundTripLatency = (latencySum / iterations)
+  if (iterations === 0) {
+    return 0;  // Avoid divide-by-zero error
+  }
 
-  // Refine the server tick by subtracting one-way latency
-  serverTick -= (roundTripLatency / 2);
+  const oneWayLatency = Math.round((latencySum / iterations) / 2);
+  console.log("Calculated latency: " + oneWayLatency + "ms");
 
-  return startTick - serverTick;
+  return oneWayLatency;
+}
+
+export async function sendServerData(apiName, data) {
+  const payload = { data: data, latency: latency }
+  // console.log(payload);
+  const response = await socket.emitWithAck(apiName, payload);
+  // console.log(response);
+  return response;
 }
 
 function App() {
@@ -45,14 +57,21 @@ function App() {
     localStorage.setItem("userId", newUserId);
     userId = newUserId;
   });
+
   socket.on("connect", async () => {
-    epsilon = await getEpsilon(10);
+    console.log("Connected to server as " + socket.id);
+    latency = await calculateLatency(10);
   });
+
+  // Calculate the client-server latency
+  setInterval(() => {
+    latency = calculateLatency(5);
+  }, 25000);
 
 
   return (
     <div className="App">
-        <TeamJamComponent team="home" />
+      <TeamJamComponent team="home" />
     </div>
   );
 }
