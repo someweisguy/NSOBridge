@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { socket, getTick } from "../App";
+import { socket, getLatency } from "../App";
 import "./JamComponent.css"
 
 
@@ -33,7 +33,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   }
 
   async function setPoints(points) {
-    const tick = getTick();
+    const tick = getLatency();
     const response = await socket.emitWithAck("setJamTrip",
       { team: team, tripIndex: activeTrip, tripPoints: points, tick: tick });
     if (response && !response.error) {
@@ -42,7 +42,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   }
 
   async function deleteTrip() {
-    const tick = getTick()
+    const tick = getLatency()
     const response = await socket.emitWithAck("deleteJamTrip",
       { team: team, tripIndex: activeTrip, tick: tick });
     if (response && !response.error) {
@@ -157,9 +157,9 @@ function LeadComponent({ periodIndex, jamIndex, team }) {
   }, []);
 
   useEffect(() => {
-    const tick = getTick();
+    const tick = getLatency();
     async function setApi(apiName, data) {
-      data.tick = getTick();
+      data.tick = getLatency();
       return await socket.emitWithAck(apiName, data);
     }
 
@@ -173,7 +173,7 @@ function LeadComponent({ periodIndex, jamIndex, team }) {
   }, [lead, lost, starPass])
 
   async function doLead() {
-    const tick = getTick();
+    const tick = getLatency();
     // setLead(!lead);
     const response = await socket.emitWithAck("setJamLead",
       { team: team, lead: !lead, lost: lost, starPass: starPass, tick: tick});
