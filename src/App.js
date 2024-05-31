@@ -5,14 +5,10 @@ import { TeamJamComponent } from './components/JamComponent';
 import { io } from 'socket.io-client';
 
 var userId = localStorage.getItem("userId");
-export const socket = io(window.location.host, { auth: { token: userId } });
+const socket = io(window.location.host, { auth: { token: userId } });
 var latency = 0;
 
-export function getLatency() {
-  return latency;
-}
-
-export async function sendRequest(api, method, kwargs) {
+export async function sendRequest(api, method, kwargs = {}) {
   const payload = {
     method: method,
     kwargs: kwargs,
@@ -21,6 +17,14 @@ export async function sendRequest(api, method, kwargs) {
     latency: latency
   };
   return await socket.emitWithAck(api, payload);
+}
+
+export function addRequestHandler(api, callback) {
+  socket.on(api, callback);
+}
+
+export function removeRequestHandler(api, callback = null) {
+  socket.off(api, callback);
 }
 
 async function calculateLatency(iterations) {
