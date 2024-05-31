@@ -12,6 +12,17 @@ export function getLatency() {
   return latency;
 }
 
+export async function sendRequest(api, method, kwargs) {
+  const payload = {
+    method: method,
+    kwargs: kwargs,
+    user: userId,  // TODO: use promise to await userId assignment
+    session: socket.id,
+    latency: latency
+  };
+  return await socket.emitWithAck(api, payload);
+}
+
 async function calculateLatency(iterations) {
   let latencySum = 0;
   for (let i = 0; i < iterations; i++) {
