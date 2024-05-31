@@ -24,42 +24,39 @@ export async function sendRequest(api, method, kwargs) {
 }
 
 async function calculateLatency(iterations) {
+  if (socket.disconnected) {
+    return;
+  }
+
   let latencySum = 0;
   for (let i = 0; i < iterations; i++) {
-    // Get the client and server ticks
+    // Calculate the round-trip latency
     let success = true;
     const start = window.performance.now();
-    await socket.timeout(5000).emitWithAck("ping", {}).then(
+    await socket.timeout(5000).emitWithAck("ping").then(
       null,  // Do nothing on success
       () => { success = false; }
     );
     const stop = window.performance.now();
+    if (start > stop) {
+      success = false;  // Guard against negative latency value
+    }
 
     if (success) {
-      // Calculate the round-trip latency to receive the server tick
-      const roundTripLatencyIteration = stop - start;
-      latencySum += roundTripLatencyIteration;
+      // Add round-trip latency to the accumulator
+      latencySum += stop - start;
     } else {
       // Decrement the iterations value for accurate averaging
       iterations--;
     }
   }
-  if (iterations === 0) {
-    return 0;  // Avoid divide-by-zero error
+
+  // Compute one-way latency (in milliseconds) using mathematical average
+  if (iterations < 1) {
+    return;  // Avoid divide-by-zero error
   }
-
-  const oneWayLatency = Math.round((latencySum / iterations) / 2);
-  console.log("Calculated latency: " + oneWayLatency + "ms");
-
-  return oneWayLatency;
-}
-
-export async function sendServerData(apiName, data) {
-  const payload = { data: data, latency: latency }
-  // console.log(payload);
-  const response = await socket.emitWithAck(apiName, payload);
-  // console.log(response);
-  return response;
+  latency = Math.round((latencySum / iterations) / 2);
+  console.log("Calculated latency: " + latency + "ms");
 }
 
 function App() {
@@ -71,13 +68,11 @@ function App() {
 
   socket.on("connect", async () => {
     console.log("Connected to server as " + socket.id);
-    latency = await calculateLatency(10);
+    calculateLatency(10);
   });
 
-  // Calculate the client-server latency
-  setInterval(() => {
-    latency = calculateLatency(5);
-  }, 25000);
+  // Periodically recalculate the client-server latency
+  setInterval(() => calculateLatency(5), 25000);
 
 
   return (
