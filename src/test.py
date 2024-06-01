@@ -7,10 +7,10 @@ import server
 async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
     NOW: int = server.getTimestamp()
     kwargs: dict[str, Any] = payload["kwargs"]
-    
+
     # Get the desired Bout
-    bout: Bout = server.bouts.currentBout    
-    
+    bout: Bout = server.bouts.currentBout
+
     # Get the desired Jam and Jam Team
     jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
     teamJam: Jam.Team = jam[kwargs["team"]]
@@ -29,7 +29,7 @@ async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
             teamJam.deleteTrip(kwargs["tripIndex"])
         case _:
             raise ClientException("Unknown method.")
-        
+
     # Broadcast the updates
     await server.emit("jamTrips", teamJam.encode())
 
