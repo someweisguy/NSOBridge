@@ -27,8 +27,8 @@ async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
         case "del":
             # Delete the specified Jam trip
             teamJam.deleteTrip(kwargs["tripIndex"])
-        case _:
-            raise ClientException("Unknown method.")
+        case _ as default:
+            raise ClientException(f"Unknown method '{default}'.")
 
     # Broadcast the updates
     await server.emit("jamTrips", teamJam.encode())
