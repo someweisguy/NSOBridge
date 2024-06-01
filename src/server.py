@@ -240,8 +240,10 @@ async def _handleEvent(
         if not all(key in json for key in requiredKeys):
             raise ClientException("Invalid request payload.")
 
-        # Ensure the requested method is lowercase
-        json["method"] = json["method"].lower()
+        # Validate the method is valid
+        if not isinstance(json["method"], str):
+            raise ClientException("Invalid method.")
+        json["method"] = json["method"].lower()  # Ensure lowercase method
 
         # Validate the user is valid
         if json["user"] is None:
@@ -258,13 +260,15 @@ async def _handleEvent(
 
         # Get the function, call it, and encode the return value
         func: Callable[[dict[str, Any]], Awaitable[Any]] = _commandTable[command]
-        response["return"] = await func(json)
+        response["data"] = await func(json)
+        response["status"] = "ok"
     except (Exception, ClientException) as e:
         # Return the exception and exception message
         response["error"] = {
             "name": type(e).__name__,
             "message": str(e),
         }
+        response["status"] = "error"
 
         # If the exception was not caused by the client, log a traceback
         if not isinstance(e, ClientException) and (traceback := e.__traceback__):
@@ -274,6 +278,7 @@ async def _handleEvent(
     finally:
         # Return the current timestamp
         response["timestamp"] = getTimestamp()
+        log.debug(f"Ack: {str(response)}")
         return response
 
 
