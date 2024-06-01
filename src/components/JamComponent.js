@@ -1,6 +1,22 @@
-import { useEffect, useState, useRef, useReducer } from "react";
-import { addRequestHandler, handleRequest, removeRequestHandler, sendRequest } from "../App";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { addConnectHandler, addRequestHandler, sendRequest } from "../App";
 import "./JamComponent.css"
+
+function useInterface(api, callbackFunction, constArgs) {
+  useEffect(
+    () => { return addRequestHandler(api, callbackFunction) },
+    [api, callbackFunction]
+  );
+
+  useEffect(() => {
+    return addConnectHandler(async () => {
+      const response = await sendRequest(api, "get", constArgs);
+      if (!response.error) {
+        callbackFunction(response);
+      }
+    });
+  }, [api, constArgs, callbackFunction]);
+}
 
 
 function TripComponent({ team, periodIndex, jamIndex }) {
@@ -8,47 +24,41 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   const [activeTrip, setActiveTrip] = useState(0);
   const scrollBar = useRef(null);
 
-  useEffect(() => {
-    function setTeamJamHandler(teamJam) {
-      if (teamJam.team !== team) {
-        return;
-      }
-      setTrips(teamJam);
+  const tripsHandler = useCallback((payload) => {
+    if (payload.data.team !== team) {
+      return;
     }
-
-    async function fetchData() {  // TODO: make this on connect!
-      const response = await sendRequest("jamTrips", "get", { team: team });
-      if (!response.error) {
-        console.log(response)
-        setTrips(response.data.trips);
-      }
+    const newTrips = payload.data.trips;
+    setTrips(newTrips);
+    if (activeTrip === trips.length) {
+      setActiveTrip(newTrips.length);
     }
+  }, [team, activeTrip, trips]);
 
-    fetchData();
-    return addRequestHandler("jamTrips", setTeamJamHandler);
-  }, []);
+  useInterface("jamTrips", tripsHandler, { team: team });
 
 
   async function setPoints(points) {
-    // const tick = getLatency();
-    // const response = await socket.emitWithAck("setJamTrip",
-    //   { team: team, tripIndex: activeTrip, tripPoints: points, tick: tick });
-    // if (response && !response.error) {
-    //   updateTrips(response.data);
-    // }
+    const response = await sendRequest("jamTrips", "set", {
+      team: team,
+      tripIndex: activeTrip,
+      tripPoints: points
+    });
+    if (response.error) {
+      console.error("set jamTrips returned: " + response.error.name + ": " +
+        response.error.message);
+    }
   }
 
   async function deleteTrip() {
-    // const tick = getLatency()
-    // const response = await socket.emitWithAck("deleteJamTrip",
-    //   { team: team, tripIndex: activeTrip, tick: tick });
-    // if (response && !response.error) {
-    //   let newTrips = trips.filter((_, tripIndex) => tripIndex !== activeTrip);
-    //   setTrips(newTrips);
-    //   if (activeTrip > 0) {
-    //     setActiveTrip(activeTrip - 1);
-    //   }
-    // }
+    const response = await sendRequest("jamTrips", "del", {
+      team: team,
+      tripIndex: activeTrip,
+    });
+    if (response.error) {
+      console.error("del jamTrips returned: " + response.error.name + ": " +
+        response.error.message);
+    }
   }
 
   function scroll(amount) {
@@ -91,11 +101,13 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     tripViewButtons.push(
       <button key={i} onClick={() => setActiveTrip(i)}>
         <small>Trip {i + 1}</small>
-        <br />{i < trips.length ? trips[i] : "\u00A0"}
+        <br />{i < trips.length ? trips[i].points : "\u00A0"}
       </button>
     );
   }
-  tripViewButtons[activeTrip].props.className = "activeTrip";
+  if (activeTrip <= trips.length) {
+    tripViewButtons[activeTrip].props.className = "activeTrip";
+  }
 
   // Determine if the "delete trip" button is visible
   let visibility = "hidden";
