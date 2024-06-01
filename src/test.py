@@ -1,6 +1,7 @@
 from roller_derby.bout import ClientException, Jam
-from typing import Any, Literal
+from typing import Any
 import server
+
 
 @server.register
 async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
@@ -10,10 +11,10 @@ async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
     # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
     jam: Jam = server.bouts.currentBout.currentJam
     kwargs: dict[str, Any] = payload["kwargs"]
-    
+
     # Get the desired team
     teamJam: Jam.Team = jam[kwargs["team"]]
-    
+
     method: str = payload["method"]
     if method == "get":
         return teamJam.encode()
@@ -24,8 +25,9 @@ async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
         teamJam.deleteTrip(kwargs["tripIndex"])
     else:
         raise ClientException("Unknown method")
-    
+
     await server.emit("jamTrips", teamJam.encode())
+
 
 @server.register
 async def getJamLead(payload: dict[str, Any]) -> dict[str, Any]:
@@ -65,7 +67,7 @@ async def setJamLead(payload: dict[str, Any]) -> dict[str, Any]:
     response: dict[str, Any] = teamJam.encode()
     await server.emit("getJamTrip", response, skip=payload["sessionId"])
     return response
-    
+
 
 # @server.register
 # async def getTeamJam(payload: dict[str, Any]) -> dict[str, Any]:
