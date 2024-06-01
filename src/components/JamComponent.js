@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from "react";
-import { socket, getLatency } from "../App";
+import { useEffect, useState, useRef, useReducer } from "react";
+import { addRequestHandler, handleRequest, removeRequestHandler, sendRequest } from "../App";
 import "./JamComponent.css"
 
 
@@ -8,50 +8,47 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   const [activeTrip, setActiveTrip] = useState(0);
   const scrollBar = useRef(null);
 
-
-  useEffect(async () => {
-    const apiCall = "getJamTrip";
-    socket.on(apiCall, (payload) => { updateTrips(payload.data); });
-    const response = await socket.emitWithAck(apiCall, { team: team });
-    if (response && !response.error) {
-      updateTrips(response.data);
+  useEffect(() => {
+    function setTeamJamHandler(teamJam) {
+      if (teamJam.team !== team) {
+        return;
+      }
+      setTrips(teamJam);
     }
 
+    async function fetchData() {  // TODO: make this on connect!
+      const response = await sendRequest("jamTrips", "get", { team: team });
+      if (!response.error) {
+        console.log(response)
+        setTrips(response.data.trips);
+      }
+    }
 
-    return () => { socket.removeListener(apiCall); };
+    fetchData();
+    return addRequestHandler("jamTrips", setTeamJamHandler);
   }, []);
 
-  function updateTrips(data) {
-    if (data.team !== team) {
-      return;
-    }
-    let newTrips = data.trips.map((trip) => trip.points);
-    if (activeTrip === trips.length) {
-      setActiveTrip(newTrips.length);
-    }
-    setTrips(newTrips)
-  }
 
   async function setPoints(points) {
-    const tick = getLatency();
-    const response = await socket.emitWithAck("setJamTrip",
-      { team: team, tripIndex: activeTrip, tripPoints: points, tick: tick });
-    if (response && !response.error) {
-      updateTrips(response.data);
-    }
+    // const tick = getLatency();
+    // const response = await socket.emitWithAck("setJamTrip",
+    //   { team: team, tripIndex: activeTrip, tripPoints: points, tick: tick });
+    // if (response && !response.error) {
+    //   updateTrips(response.data);
+    // }
   }
 
   async function deleteTrip() {
-    const tick = getLatency()
-    const response = await socket.emitWithAck("deleteJamTrip",
-      { team: team, tripIndex: activeTrip, tick: tick });
-    if (response && !response.error) {
-      let newTrips = trips.filter((_, tripIndex) => tripIndex !== activeTrip);
-      setTrips(newTrips);
-      if (activeTrip > 0) {
-        setActiveTrip(activeTrip - 1);
-      }
-    }
+    // const tick = getLatency()
+    // const response = await socket.emitWithAck("deleteJamTrip",
+    //   { team: team, tripIndex: activeTrip, tick: tick });
+    // if (response && !response.error) {
+    //   let newTrips = trips.filter((_, tripIndex) => tripIndex !== activeTrip);
+    //   setTrips(newTrips);
+    //   if (activeTrip > 0) {
+    //     setActiveTrip(activeTrip - 1);
+    //   }
+    // }
   }
 
   function scroll(amount) {
@@ -146,40 +143,40 @@ function LeadComponent({ periodIndex, jamIndex, team }) {
   }
 
   useEffect(async () => {
-    const apiCall = "getJamTrip";
-    socket.on(apiCall, (payload) => { updateLead(payload.data); });
-    const response = await socket.emitWithAck(apiCall, { team: team });
-    if (response && !response.error) {
-      updateLead(response.data);
-    }
+    // const apiCall = "getJamTrip";
+    // socket.on(apiCall, (payload) => { updateLead(payload.data); });
+    // const response = await socket.emitWithAck(apiCall, { team: team });
+    // if (response && !response.error) {
+    //   updateLead(response.data);
+    // }
 
-    return () => { socket.removeListener(apiCall); };
+    // return () => { socket.removeListener(apiCall); };
   }, []);
 
   useEffect(() => {
-    const tick = getLatency();
-    async function setApi(apiName, data) {
-      data.tick = getLatency();
-      return await socket.emitWithAck(apiName, data);
-    }
+    // const tick = getLatency();
+    // async function setApi(apiName, data) {
+    //   data.tick = getLatency();
+    //   return await socket.emitWithAck(apiName, data);
+    // }
 
-    const response = setApi("setJamLead", { team: team, lead: lead, lost: lost, starPass: starPass });
-    if (response && response.error) {
-      setLead(response.data.lead);
-      setLost(response.data.lost);
-      setStarPass(response.data.starPass);
-    }
+    // const response = setApi("setJamLead", { team: team, lead: lead, lost: lost, starPass: starPass });
+    // if (response && response.error) {
+    //   setLead(response.data.lead);
+    //   setLost(response.data.lost);
+    //   setStarPass(response.data.starPass);
+    // }
 
   }, [lead, lost, starPass])
 
   async function doLead() {
-    const tick = getLatency();
-    // setLead(!lead);
-    const response = await socket.emitWithAck("setJamLead",
-      { team: team, lead: !lead, lost: lost, starPass: starPass, tick: tick});
-    if (response && !response.error) {
-      updateLead(response);
-    }
+    // const tick = getLatency();
+    // // setLead(!lead);
+    // const response = await socket.emitWithAck("setJamLead",
+    //   { team: team, lead: !lead, lost: lost, starPass: starPass, tick: tick});
+    // if (response && !response.error) {
+    //   updateLead(response);
+    // }
   }
 
   return (

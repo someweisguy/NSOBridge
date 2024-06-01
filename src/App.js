@@ -9,18 +9,22 @@ const socket = io(window.location.host, { auth: { token: userId } });
 var latency = 0;
 
 export async function sendRequest(api, method, kwargs = {}) {
+  let session = socket.id ? socket.id : null;  // TODO: do not allow sending without socket.id
   const payload = {
     method: method,
     kwargs: kwargs,
     user: userId,  // TODO: use promise to await userId assignment
-    session: socket.id,
+    session: session,
     latency: latency
   };
-  return await socket.emitWithAck(api, payload);
+  console.log(payload);
+  const response = await socket.emitWithAck(api, payload);
+  return response;
 }
 
 export function addRequestHandler(api, callback) {
   socket.on(api, callback);
+  return () => socket.off(api, callback);
 }
 
 export function removeRequestHandler(api, callback = null) {
