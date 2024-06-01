@@ -21,7 +21,7 @@ function useInterface(api, callbackFunction, constArgs) {
 
 function TripComponent({ team, periodIndex, jamIndex }) {
   const [trips, setTrips] = useState([]);
-  const [activeTrip, setActiveTrip] = useState(0);
+  const [selectedTrip, selectTrip] = useState(0);
   const scrollBar = useRef(null);
 
   const tripsHandler = useCallback((payload) => {
@@ -30,16 +30,16 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     }
     const newTrips = payload.data.trips;
     setTrips(newTrips);
-    if (activeTrip === trips.length) {
-      setActiveTrip(newTrips.length);
+    if (selectedTrip === trips.length) {
+      selectTrip(newTrips.length);
     }
-  }, [team, activeTrip, trips]);
+  }, [team, selectedTrip, trips]);
   useInterface("jamTrips", tripsHandler, { team: team });
 
   async function setPoints(points) {
     await sendRequest("jamTrips", "set", {
       team: team,
-      tripIndex: activeTrip,
+      tripIndex: selectedTrip,
       tripPoints: points
     });
   }
@@ -47,7 +47,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   async function deleteTrip() {
     await sendRequest("jamTrips", "del", {
       team: team,
-      tripIndex: activeTrip,
+      tripIndex: selectedTrip,
     });
   }
 
@@ -57,7 +57,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
 
   // Render the points buttons
   const pointButtons = [];
-  if (activeTrip === 0) {
+  if (selectedTrip === 0) {
     // Render No-Pass/No-Penalty and Initial Pass buttons
     const className = "initial";
     pointButtons.push(
@@ -73,7 +73,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   } else {
     // Render trip point buttons
     const className = "points";
-    const disableIndex = activeTrip < trips.length ? trips[activeTrip] : -1;
+    const disableIndex = selectedTrip < trips.length ? trips[selectedTrip] : -1;
     for (let i = 0; i <= 4; i++) {
       const disabled = i === disableIndex;
       pointButtons.push(
@@ -89,19 +89,19 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   const tripViewButtons = [];
   for (let i = 0; i <= trips.length; i++) {
     tripViewButtons.push(
-      <button key={i} onClick={() => setActiveTrip(i)}>
+      <button key={i} onClick={() => selectTrip(i)}>
         <small>Trip {i + 1}</small>
         <br />{i < trips.length ? trips[i].points : "\u00A0"}
       </button>
     );
   }
-  if (activeTrip <= trips.length) {
-    tripViewButtons[activeTrip].props.className = "activeTrip";
+  if (selectedTrip <= trips.length) {
+    tripViewButtons[selectedTrip].props.className = "activeTrip";
   }
 
   // Determine if the "delete trip" button is visible
   let visibility = "hidden";
-  if (activeTrip < trips.length && (activeTrip > 0 || trips.length === 1)) {
+  if (selectedTrip < trips.length && (selectedTrip > 0 || trips.length === 1)) {
     visibility = "visible";
   }
 
@@ -113,7 +113,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
       </div>
 
       <div className="tripEdit" style={{ visibility: visibility }}>
-        Editing trip {activeTrip + 1}. &nbsp;
+        Editing trip {selectedTrip + 1}. &nbsp;
         <button onClick={deleteTrip}>Delete</button>
       </div>
 
