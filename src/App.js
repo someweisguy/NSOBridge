@@ -17,7 +17,6 @@ export async function sendRequest(api, method, kwargs = {}) {
     session: session,
     latency: latency
   };
-  console.log(payload);
   const response = await socket.emitWithAck(api, payload);
   return response;
 }
@@ -29,6 +28,11 @@ export function addRequestHandler(api, callback) {
 
 export function removeRequestHandler(api, callback = null) {
   socket.off(api, callback);
+}
+
+export function addConnectHandler(callback) {
+  socket.on("connect", callback);
+  return () => socket.off("connect", callback);
 }
 
 async function calculateLatency(iterations) {
