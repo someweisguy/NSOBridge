@@ -1,31 +1,36 @@
-from roller_derby.bout import ClientException, Jam
+from roller_derby.bout import ClientException, Bout, Jam
 from typing import Any
 import server
 
 
 @server.register
 async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
-    # Get the desired Jam
-    # TODO: get actual desired jam
-    # periodIndex, jamIndex = data["periodIndex"], data["jamIndex"]
-    # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
-    jam: Jam = server.bouts.currentBout.currentJam
+    NOW: int = server.getTimestamp()
     kwargs: dict[str, Any] = payload["kwargs"]
-
-    # Get the desired team
+    
+    # Get the desired Bout
+    bout: Bout = server.bouts.currentBout    
+    
+    # Get the desired Jam and Jam Team
+    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
     teamJam: Jam.Team = jam[kwargs["team"]]
 
-    method: str = payload["method"]
-    if method == "get":
-        return teamJam.encode()
-    elif method == "set":
-        timestamp: int = server.getTimestamp() - payload["latency"]
-        teamJam.setTrip(kwargs["tripIndex"], kwargs["tripPoints"], timestamp)
-    elif method == "del":
-        teamJam.deleteTrip(kwargs["tripIndex"])
-    else:
-        raise ClientException("Unknown method")
-
+    # Handle the method
+    match payload["method"]:
+        case "get":
+            # Just ack with the Jam Team
+            return teamJam.encode()
+        case "set":
+            # Set the trip using timestamp calculated from the client latency
+            timestamp: int = NOW - payload["latency"]
+            teamJam.setTrip(kwargs["tripIndex"], kwargs["tripPoints"], timestamp)
+        case "del":
+            # Delete the specified Jam trip
+            teamJam.deleteTrip(kwargs["tripIndex"])
+        case _:
+            raise ClientException("Unknown method.")
+        
+    # Broadcast the updates
     await server.emit("jamTrips", teamJam.encode())
 
 
