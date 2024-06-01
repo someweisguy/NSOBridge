@@ -105,8 +105,6 @@ async def emit(
     room: None | str = None,
     skip: None | str = None,
     namespace: None | str = None,
-    *,
-    tick: None | int = None,
 ) -> None:
     """Sends a Socket.IO message with the desired event name and data. Data is
     wrapped in a dictionary with the current server tick.
@@ -123,14 +121,12 @@ async def emit(
         except for one. Defaults to None.
         namespace (None | str, optional): The Socket.IO namespace in which to
         send the message. Defaults to None.
-        tick (None | int, optional): The server tick at which the action
+        timestamp (None | int, optional): The server epoch at which the action
         originated. Defaults to None.
     """
     payload: dict[str, Any] = {
         "data": data,
-        "error": None,
-        "commandTick": tick,
-        "currentTick": getTimestamp(),
+        "timestamp":  getTimestamp(),
     }
     await _socket.emit(
         event, payload, to=to, room=room, skip_sid=skip, namespace=namespace

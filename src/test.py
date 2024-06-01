@@ -25,7 +25,7 @@ async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
     else:
         raise ClientException("Unknown method")
     
-    await server.emit("jamTrips", teamJam.encode(), tick=timestamp)
+    await server.emit("jamTrips", teamJam.encode())
 
 @server.register
 async def getJamLead(payload: dict[str, Any]) -> dict[str, Any]:
@@ -63,7 +63,7 @@ async def setJamLead(payload: dict[str, Any]) -> dict[str, Any]:
     teamJam.starPass = data["starPass"]
 
     response: dict[str, Any] = teamJam.encode()
-    await server.emit("getJamTrip", response, skip=payload["sessionId"], tick=payload["tick"])
+    await server.emit("getJamTrip", response, skip=payload["sessionId"])
     return response
     
 
