@@ -34,31 +34,21 @@ function TripComponent({ team, periodIndex, jamIndex }) {
       setActiveTrip(newTrips.length);
     }
   }, [team, activeTrip, trips]);
-
   useInterface("jamTrips", tripsHandler, { team: team });
 
-
   async function setPoints(points) {
-    const response = await sendRequest("jamTrips", "set", {
+    await sendRequest("jamTrips", "set", {
       team: team,
       tripIndex: activeTrip,
       tripPoints: points
     });
-    if (response.error) {
-      console.error("set jamTrips returned: " + response.error.name + ": " +
-        response.error.message);
-    }
   }
 
   async function deleteTrip() {
-    const response = await sendRequest("jamTrips", "del", {
+    await sendRequest("jamTrips", "del", {
       team: team,
       tripIndex: activeTrip,
     });
-    if (response.error) {
-      console.error("del jamTrips returned: " + response.error.name + ": " +
-        response.error.message);
-    }
   }
 
   function scroll(amount) {
