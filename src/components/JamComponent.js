@@ -33,8 +33,15 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     if (selectedTrip === trips.length) {
       selectTrip(newTrips.length);
     }
+
   }, [team, selectedTrip, trips]);
   useInterface("jamTrips", tripsHandler, { team: team });
+
+  useEffect(() => {
+    // Scroll the Trips scrollbar to the selected Trip.
+    const selectedTripButton = scrollBar.current.children[selectedTrip];
+    selectedTripButton.scrollIntoView({ inline: "center" });
+  }, [selectedTrip]);
 
   async function setPoints(points) {
     await sendRequest("jamTrips", "set", {
@@ -71,13 +78,16 @@ function TripComponent({ team, periodIndex, jamIndex }) {
       </button>
     );
   } else {
-    // Render trip point buttons
-    const className = "points";
-    const disableIndex = selectedTrip < trips.length ? trips[selectedTrip] : -1;
+    // When editing a Trip, disable the point button of the current Trip points
+    let disableIndex = -1;  // Don't disable buttons by default
+    if (selectedTrip < trips.length) {
+      disableIndex = trips[selectedTrip].point;
+    }
+
+    // Instantiate the Trip point buttons
     for (let i = 0; i <= 4; i++) {
-      const disabled = i === disableIndex;
       pointButtons.push(
-        <button key={i} className={className} disabled={disabled}
+        <button key={i} className="points" disabled={i === disableIndex}
           onClick={() => setPoints(i)}>
           {i}
         </button>
