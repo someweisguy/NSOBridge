@@ -65,6 +65,28 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     });
   }
 
+  async function setLead() {
+    await sendRequest("jamLead", "set", {
+      team: team,
+      lead: !lead.current
+    });
+  }
+  
+  async function setLost() {
+    await sendRequest("jamLost", "set", {
+      team: team,
+      lost: !lost.current
+    });
+  }
+
+  
+  async function setStarPass() {
+    await sendRequest("jamStarPass", "set", {
+      team: team,
+      tripIndex: (starPass.current === false ? selectedTrip : false)
+    });
+  }
+
   function scroll(amount) {
     scrollBar.current.scrollLeft += amount;
   }
@@ -122,13 +144,6 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     visibility = "visible";
   }
 
-  async function setLead() {
-    await sendRequest("jamLead", "set", {
-      team: team,
-      lead: !lead.current
-    });
-  }
-
   return (
     <div className="tripComponent">
 
@@ -149,98 +164,36 @@ function TripComponent({ team, periodIndex, jamIndex }) {
         <button onClick={() => scroll(50)}>&gt;</button>
       </div>
 
-      <CheckboxComponent value={lead.current} onClick={setLead}>Hello World</CheckboxComponent>
+      <CheckboxComponent value={lead.current} onClick={setLead}>Lead Jammer</CheckboxComponent>
+      <CheckboxComponent value={lost.current} onClick={setLost}>Lost Lead</CheckboxComponent>
+      <CheckboxComponent value={starPass.current !== false} onClick={setStarPass}>Star Pass</CheckboxComponent>
 
     </div>
   );
 }
 
-function CheckboxComponent({value, onClick}) {
-  return (
-    <input type="checkbox" onClick={onClick} checked={value}></input>
-  );
-}
-
-function LeadComponent({ periodIndex, jamIndex, team }) {
-  const [lead, setLead] = useState(false);
-  const [lost, setLost] = useState(false);
-  const [starPass, setStarPass] = useState(null);
-
-  function updateLead(data) {
-    console.log(data);
-    if (data.team !== team) {
-      return;
-    }
-    setLead(data.lead);
-    setLost(data.lost);
-    setStarPass(data.starPass);
-  }
-
-  useEffect(async () => {
-    // const apiCall = "getJamTrip";
-    // socket.on(apiCall, (payload) => { updateLead(payload.data); });
-    // const response = await socket.emitWithAck(apiCall, { team: team });
-    // if (response && !response.error) {
-    //   updateLead(response.data);
-    // }
-
-    // return () => { socket.removeListener(apiCall); };
-  }, []);
-
-  useEffect(() => {
-    // const tick = getLatency();
-    // async function setApi(apiName, data) {
-    //   data.tick = getLatency();
-    //   return await socket.emitWithAck(apiName, data);
-    // }
-
-    // const response = setApi("setJamLead", { team: team, lead: lead, lost: lost, starPass: starPass });
-    // if (response && response.error) {
-    //   setLead(response.data.lead);
-    //   setLost(response.data.lost);
-    //   setStarPass(response.data.starPass);
-    // }
-
-  }, [lead, lost, starPass])
-
-  async function doLead() {
-    // const tick = getLatency();
-    // // setLead(!lead);
-    // const response = await socket.emitWithAck("setJamLead",
-    //   { team: team, lead: !lead, lost: lost, starPass: starPass, tick: tick});
-    // if (response && !response.error) {
-    //   updateLead(response);
-    // }
-  }
-
+function CheckboxComponent({value, onClick, children}) {
   return (
     <div>
-      <div>
-        Lead Jammer <input type="checkbox" checked={lead} onChange={() => setLead(!lead)}></input>
-      </div>
-      <div>
-        Lost Lead <input type="checkbox" checked={lost} onChange={() => setLost(!lost)}></input>
-      </div>
-      <div>
-        Star Pass <input type="checkbox" checked={starPass} onChange={() => setStarPass(!starPass)}></input>
-      </div>
-
+    {children}
+    <input type="checkbox" onClick={onClick} checked={value}></input>
     </div>
   );
 }
+
+
 
 
 export function TeamJamComponent({ periodIndex, jamIndex, team }) {
   // const [callReason, setCallReason] = useState(null); // TODO
 
 
-  // TODO: Add lead, lost, starPass, noPivot
+  // TODO: Add lead, lost, starPass
 
 
   return (
     <div style={{ width: "400px" }}>
       <TripComponent team={team} />
-      <LeadComponent team={team} />
     </div>
   );
 }
