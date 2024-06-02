@@ -19,7 +19,7 @@ function useInterface(api, callbackFunction, constArgs) {
 }
 
 
-function TripComponent({ team, periodIndex, jamIndex }) {
+export function TripComponent({ team, periodIndex, jamIndex }) {
   const [trips, setTrips] = useState([]);
   const [selectedTrip, selectTrip] = useState(0);
   const lead = useRef(false);
@@ -71,7 +71,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
       lead: !lead.current
     });
   }
-  
+
   async function setLost() {
     await sendRequest("jamLost", "set", {
       team: team,
@@ -79,7 +79,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     });
   }
 
-  
+
   async function setStarPass() {
     await sendRequest("jamStarPass", "set", {
       team: team,
@@ -172,28 +172,11 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   );
 }
 
-function CheckboxComponent({value, onClick, children}) {
+function CheckboxComponent({ value, onClick, children }) {
   return (
     <div>
-    {children}
-    <input type="checkbox" onClick={onClick} checked={value}></input>
-    </div>
-  );
-}
-
-
-
-
-export function TeamJamComponent({ periodIndex, jamIndex, team }) {
-  // const [callReason, setCallReason] = useState(null); // TODO
-
-
-  // TODO: Add lead, lost, starPass
-
-
-  return (
-    <div style={{ width: "400px" }}>
-      <TripComponent team={team} />
+      {children}
+      <input type="checkbox" onClick={onClick} checked={value}></input>
     </div>
   );
 }
