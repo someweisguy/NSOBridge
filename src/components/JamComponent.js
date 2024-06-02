@@ -78,8 +78,8 @@ function TripComponent({ team, periodIndex, jamIndex }) {
       </button>
     );
   } else {
-    // When editing a Trip, disable the point button of the current Trip points
-    let disableIndex = -1;  // Don't disable buttons by default
+    // When editing a Trip disable the point button of the current Trip points
+    let disableIndex = -1;  // Enable all by default
     if (selectedTrip < trips.length) {
       disableIndex = trips[selectedTrip].point;
     }
@@ -96,9 +96,9 @@ function TripComponent({ team, periodIndex, jamIndex }) {
   }
 
   // Render each trip as a button
-  const tripViewButtons = [];
+  const tripButtons = [];
   for (let i = 0; i <= trips.length; i++) {
-    tripViewButtons.push(
+    tripButtons.push(
       <button key={i} onClick={() => selectTrip(i)}>
         <small>Trip {i + 1}</small>
         <br />{i < trips.length ? trips[i].points : "\u00A0"}
@@ -106,7 +106,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     );
   }
   if (selectedTrip <= trips.length) {
-    tripViewButtons[selectedTrip].props.className = "activeTrip";
+    tripButtons[selectedTrip].props.className = "activeTrip";
   }
 
   // Determine if the "delete trip" button is visible
@@ -130,7 +130,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
       <div className="scrollBar">
         <button onClick={() => scroll(-50)}>&lt;</button>
         <div ref={scrollBar} className="trips">
-          {tripViewButtons}
+          {tripButtons}
         </div>
         <button onClick={() => scroll(50)}>&gt;</button>
       </div>
