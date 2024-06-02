@@ -79,7 +79,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     );
   } else {
     // When editing a Trip disable the point button of the current Trip points
-    let disableIndex = -1;  // Enable all by default
+    let disableIndex = null;  // Enable all by default
     if (selectedTrip < trips.length) {
       disableIndex = trips[selectedTrip].point;
     }
