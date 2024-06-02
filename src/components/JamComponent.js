@@ -22,18 +22,25 @@ function useInterface(api, callbackFunction, constArgs) {
 function TripComponent({ team, periodIndex, jamIndex }) {
   const [trips, setTrips] = useState([]);
   const [selectedTrip, selectTrip] = useState(0);
+  const lead = useRef(false);
+  const lost = useRef(false);
+  const starPass = useRef(null);
   const scrollBar = useRef(null);
 
   const tripsHandler = useCallback((payload) => {
     if (payload.data.team !== team) {
       return;
     }
+
     const newTrips = payload.data.trips;
     setTrips(newTrips);
     if (selectedTrip === trips.length) {
       selectTrip(newTrips.length);
     }
 
+    lead.current = payload.data.lead;
+    lost.current = payload.data.lost;
+    starPass.current = payload.data.starPass;
   }, [team, selectedTrip, trips]);
   useInterface("jamTrips", tripsHandler, { team: team });
 
@@ -115,6 +122,13 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     visibility = "visible";
   }
 
+  async function setLead() {
+    await sendRequest("jamLead", "set", {
+      team: team,
+      lead: !lead.current
+    });
+  }
+
   return (
     <div className="tripComponent">
 
@@ -135,7 +149,15 @@ function TripComponent({ team, periodIndex, jamIndex }) {
         <button onClick={() => scroll(50)}>&gt;</button>
       </div>
 
+      <CheckboxComponent value={lead.current} onClick={setLead}>Hello World</CheckboxComponent>
+
     </div>
+  );
+}
+
+function CheckboxComponent({value, onClick}) {
+  return (
+    <input type="checkbox" onClick={onClick} checked={value}></input>
   );
 }
 
