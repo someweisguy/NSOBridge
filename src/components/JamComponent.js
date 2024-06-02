@@ -110,7 +110,7 @@ function TripComponent({ team, periodIndex, jamIndex }) {
     // When editing a Trip disable the point button of the current Trip points
     let disableIndex = null;  // Enable all by default
     if (selectedTrip < trips.length) {
-      disableIndex = trips[selectedTrip].point;
+      disableIndex = trips[selectedTrip].points;
     }
 
     // Instantiate the Trip point buttons
