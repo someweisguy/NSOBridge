@@ -19,8 +19,8 @@ export async function sendRequest(api, method, kwargs = {}) {
   };
   const response = await socket.emitWithAck(api, payload);
   if (response.error) {
-    console.error(method + ":" + api +  " returned: " + response.error.name +
-     ": " + response.error.message);
+    console.error(api + "." + method + "() returned '" + response.error.name +
+      ": " + response.error.message + "'");
   }
   return response;
 }
