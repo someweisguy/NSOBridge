@@ -35,79 +35,56 @@ async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
 
 
 @server.register
-async def getJamLead(payload: dict[str, Any]) -> dict[str, Any]:
-    # Get the desired Jam
-    # TODO: get actual desired jam
-    # periodIndex, jamIndex = data["periodIndex"], data["jamIndex"]
-    # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
-    jam: Jam = server.bouts.currentBout.currentJam
+async def jamLead(payload: dict[str, Any]) -> None | dict[str, Any]:
+    kwargs: dict[str, Any] = payload["kwargs"]
 
-    data: dict[str, Any] = payload["data"]
+    # Get the desired Bout
+    bout: Bout = server.bouts.currentBout
 
-    # Get the desired team
-    teamJam: Jam.Team = jam[data["team"]]
+    # Get the desired Jam and Jam Team
+    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    teamJam: Jam.Team = jam[kwargs["team"]]
 
-    response: dict[str, Any] = teamJam.encode()
-    return response
+    # Handle the method
+    match payload["method"]:
+        case "get":
+            # Just ack with the Jam Team
+            return teamJam.encode()
+        case "set":
+            # Set the Jam lead variable appropriately
+            teamJam.lead = kwargs["lead"]
+        case _ as default:
+            raise ClientException(f"Unknown method '{default}'.")
+
+    # Broadcast the updates
+    await server.emit("jamTrips", teamJam.encode())
 
 
 @server.register
-async def setJamLead(payload: dict[str, Any]) -> dict[str, Any]:
-    # Get the desired Jam
-    # TODO: get actual desired jam
-    # periodIndex, jamIndex = data["periodIndex"], data["jamIndex"]
-    # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
-    jam: Jam = server.bouts.currentBout.currentJam
+async def jamLost(payload: dict[str, Any]) -> None | dict[str, Any]:
+    kwargs: dict[str, Any] = payload["kwargs"]
 
-    data: dict[str, Any] = payload["data"]
+    # Get the desired Bout
+    bout: Bout = server.bouts.currentBout
 
-    # Get the desired team
-    teamJam: Jam.Team = jam[data["team"]]
+    # Get the desired Jam and Jam Team
+    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    teamJam: Jam.Team = jam[kwargs["team"]]
 
-    # Set the team jam jammer stats
-    teamJam.lead = data["lead"]
-    teamJam.lost = data["lost"]
-    teamJam.starPass = data["starPass"]
+    # Handle the method
+    match payload["method"]:
+        case "get":
+            # Just ack with the Jam Team
+            return teamJam.encode()
+        case "set":
+            # Set the Jam lost variable appropriately
+            teamJam.lost = kwargs["lost"]
+        case _ as default:
+            raise ClientException(f"Unknown method '{default}'.")
 
-    response: dict[str, Any] = teamJam.encode()
-    await server.emit("getJamTrip", response, skip=payload["sessionId"])
-    return response
+    # Broadcast the updates
+    await server.emit("jamTrips", teamJam.encode())
 
-
-# @server.register
-# async def getTeamJam(payload: dict[str, Any]) -> dict[str, Any]:
-#     # Get the desired Jam
-#     # TODO: get actual desired jam
-#     # periodIndex, jamIndex = data["periodIndex"], data["jamIndex"]
-#     # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
-#     jam: Jam = server.bouts.currentBout.currentJam
-
-#     data: dict[str, Any] = payload["data"]
-#     team: Literal["home", "away"] = data["team"]
-
-#     # Get the desired team
-#     teamJam: Jam.Team = jam[team]
-
-#     response: dict[str, Any] = teamJam.encode()
-#     return response
-
-# @server.register
-# async def setTeamJam(payload: dict[str, Any]) -> None:
-#     # Get the desired Jam
-#     # TODO: get actual desired jam
-#     # periodIndex, jamIndex = data["periodIndex"], data["jamIndex"]
-#     # jam: Jam = server.bouts.currentBout[periodIndex][jamIndex]
-#     jam: Jam = server.bouts.currentBout.currentJam
-
-#     data: dict[str, Any] = payload["data"]
-#     team: Literal["home", "away"] = data["team"]
-
-#     # Get the desired team
-#     teamJam: Jam.Team = jam[team]
-#     teamJam._trips = [Jam.Trip(**trip) for trip in data["trips"]]
-
-#     response: dict[str, Any] = teamJam.encode()
-#     await server.emit("getTeamJam", response, skip=payload["sessionId"], tick=payload["tick"])
 
 if __name__ == "__main__":
     import asyncio
