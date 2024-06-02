@@ -1,6 +1,7 @@
 .tripComponent {
     width: 100%;
-    margin: 50px;
+    margin: 3%;
+    max-width: 500px;
 }
 
 .tripInput {
