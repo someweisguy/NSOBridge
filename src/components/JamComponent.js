@@ -47,7 +47,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
   useEffect(() => {
     // Scroll the Trips scrollbar to the selected Trip.
     const selectedTripButton = scrollBar.current.children[selectedTrip];
-    selectedTripButton.scrollIntoView({ inline: "center" });
+    selectedTripButton.scrollIntoView({behavior: "smooth", block: "nearest", inline: "center" });
   }, [selectedTrip]);
 
   async function setPoints(points) {
