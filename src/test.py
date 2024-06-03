@@ -1,147 +1,46 @@
-from roller_derby.score import ClientException, Bout, Jam
-from typing import Any
 import server
-
+from roller_derby.score import Jam
+from roller_derby.timer import Timer
+from roller_derby.encodable import ClientException
+from datetime import datetime, timedelta
+from typing import Any
 
 @server.register
-async def jamTrips(payload: dict[str, Any]) -> None | dict[str, Any]:
-    NOW: int = server.getTimestamp()
-    kwargs: dict[str, Any] = payload["kwargs"]
-
-    # Get the desired Bout
-    bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
-    teamJam: Jam.Team = jam[kwargs["team"]]
+async def jamTimer(
+    method: str, latency: int, stopReason: None | Jam.StopReason = None, **_
+) -> None | dict[str, Any]:
+    NOW: datetime = datetime.now()
+    
+    # Get the Jam Timer
+    timer: Timer = server.bouts.timer.jam
 
     # Handle the method
-    match payload["method"]:
+    match method:
         case "get":
-            # Just ack with the Jam Team
-            return teamJam.encode()
+            return timer.encode()
         case "set":
-            # Set the trip using timestamp calculated from the client latency
-            timestamp: int = NOW - payload["latency"]
-            teamJam.setTrip(kwargs["tripIndex"], kwargs["tripPoints"], timestamp)
-        case "del":
-            # Delete the specified Jam trip
-            teamJam.deleteTrip(kwargs["tripIndex"])
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
+            raise NotImplementedError()
+        case "start":
+            # Start the timer from the 
+            timestamp: datetime = NOW - timedelta(milliseconds=latency)
+            server.bouts.currentBout.currentJam.start(timestamp)
+            timer.start(timestamp)
+        case "stop":
+            if not isinstance(stopReason, Jam.StopReason):
+                raise TypeError(
+                    f"stopReason must be Jam.StopReason, not {type(stopReason).__name__}"
+                )
+            timestamp: datetime = NOW - timedelta(milliseconds=latency)
+            server.bouts.currentBout.currentJam.stop(stopReason, timestamp)
+            timer.stop(timestamp)
+        case _:
+            raise ClientException(f"Unknown method '{method}'.")
 
     # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
-
-
-@server.register
-async def jamLead(payload: dict[str, Any]) -> None | dict[str, Any]:
-    kwargs: dict[str, Any] = payload["kwargs"]
-
-    # Get the desired Bout
-    bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
-    teamJam: Jam.Team = jam[kwargs["team"]]
-
-    # Handle the method
-    match payload["method"]:
-        case "get":
-            # Just ack with the Jam Team
-            return teamJam.encode()
-        case "set":
-            # Set the Jam lead variable appropriately
-            teamJam.lead = kwargs["lead"]
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
-
-    # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
-
-
-@server.register
-async def jamLost(payload: dict[str, Any]) -> None | dict[str, Any]:
-    kwargs: dict[str, Any] = payload["kwargs"]
-
-    # Get the desired Bout
-    bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
-    teamJam: Jam.Team = jam[kwargs["team"]]
-
-    # Handle the method
-    match payload["method"]:
-        case "get":
-            # Just ack with the Jam Team
-            return teamJam.encode()
-        case "set":
-            # Set the Jam lost variable appropriately
-            teamJam.lost = kwargs["lost"]
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
-
-    # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
-        
-@server.register
-async def jamStarPass(payload: dict[str, Any]) -> None | dict[str, Any]:
-    kwargs: dict[str, Any] = payload["kwargs"]
-
-    # Get the desired Bout
-    bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
-    teamJam: Jam.Team = jam[kwargs["team"]]
-
-    # Handle the method
-    match payload["method"]:
-        case "get":
-            # Just ack with the Jam Team
-            return teamJam.encode()
-        case "set":
-            # Set the Jam starPass variable appropriately
-            teamJam.starPass = kwargs["tripIndex"]
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
-
-    # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
-
-@server.register
-async def jamInitial(payload: dict[str, Any]) -> None | dict[str, Any]:
-    NOW: int = server.getTimestamp()
-    kwargs: dict[str, Any] = payload["kwargs"]
-
-    # Get the desired Bout
-    bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
-    teamJam: Jam.Team = jam[kwargs["team"]]
-
-    # Handle the method
-    match payload["method"]:
-        case "set":
-            if len(teamJam.trips):
-                raise ClientException("This team has already had their initial trip.")
-            try:
-                teamJam.lead = True
-            except ClientException:
-                pass
-            # Set the trip using timestamp calculated from the client latency
-            timestamp: int = NOW - payload["latency"]
-            points: int = 0  # TODO: if is overtime, set to 4 points
-            teamJam.setTrip(0, points, timestamp)
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
-
-    # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
+    await server.emit("jamTimer", timer.encode())
 
 if __name__ == "__main__":
+    import scoreApi  # noqa: F401
     import asyncio
     import socket
 
@@ -155,6 +54,6 @@ if __name__ == "__main__":
     server.log.info(f"Starting server at '{httpStr}'.")
 
     currentJam = server.bouts.currentBout.currentJam
-    currentJam.start(server.getTimestamp())
+    currentJam.start(datetime.now())
 
     asyncio.run(server.serve(port, debug=True))
