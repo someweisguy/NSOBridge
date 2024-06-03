@@ -47,7 +47,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
   useEffect(() => {
     // Scroll the Trips scrollbar to the selected Trip.
     const selectedTripButton = scrollBar.current.children[selectedTrip];
-    selectedTripButton.scrollIntoView({behavior: "smooth", block: "nearest", inline: "center" });
+    selectedTripButton.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
   }, [selectedTrip]);
 
   async function setPoints(points) {
@@ -164,7 +164,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
         <button onClick={() => scroll(50)}>&gt;</button>
       </div>
 
-      <CheckboxComponent value={lead.current} onClick={setLead}>Lead Jammer</CheckboxComponent>
+      <CheckboxComponent value={lead.current} onClick={setLead} disabled={lost.current}>Lead Jammer</CheckboxComponent>
       <CheckboxComponent value={lost.current} onClick={setLost}>Lost Lead</CheckboxComponent>
       <CheckboxComponent value={starPass.current !== false} onClick={setStarPass}>Star Pass</CheckboxComponent>
 
@@ -172,11 +172,11 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
   );
 }
 
-function CheckboxComponent({ value, onClick, children }) {
+function CheckboxComponent({ value, onClick, children, disabled = false }) {
   return (
     <div>
       {children}
-      <input type="checkbox" onClick={onClick} checked={value}></input>
+      <input type="checkbox" onClick={onClick} disabled={disabled} checked={value}></input>
     </div>
   );
 }
