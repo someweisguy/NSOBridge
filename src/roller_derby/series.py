@@ -1,13 +1,14 @@
 from .encodable import Encodable
 from .score import Bout
+from .timer import TimeKeeper
 
 
 class Series(Encodable):
     def __init__(self):
         self._bouts: list[Bout] = [Bout()]
         self._currentBout: Bout = self._bouts[0]
+        self._timer: TimeKeeper = TimeKeeper()
         # self.teams: dict[str, Team] = dict()
-        # self.timers: TimerManager = TimerManager()
 
     def __getitem__(self, boutIndex: int) -> Bout:
         return self._bouts[boutIndex]
@@ -34,6 +35,10 @@ class Series(Encodable):
     @currentBout.setter
     def currentBout(self, boutIndex: int) -> None:
         self._currentBout = self._bouts[boutIndex]
+    
+    @property
+    def timer(self) -> TimeKeeper:
+        return self._timer
 
     def encode(self) -> dict:
         return {
