@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import IntEnum, auto
 from typing import Literal
+
 from .encodable import Encodable
 
 
@@ -132,11 +133,20 @@ class Jam(Encodable):
         def lead(self, value: bool) -> None:
             if not isinstance(value, bool):
                 raise TypeError(f"Lead should be bool, not {type(value).__name__}.")
+
+            # Validate that this team is eligible for lead
+            if value:
+                if self._lost:
+                    raise ClientException("This team ineligible for Lead.")
+                otherTeam: Jam.Team = self.getOtherTeam()
+                if otherTeam.lead and not otherTeam.lost:
+                    raise ClientException("Other team is currently lead.")
+
             self._lead = value
 
         @property
         def lost(self) -> bool:
-            return self._lead
+            return self._lost
 
         @lost.setter
         def lost(self, value: bool) -> None:
@@ -154,7 +164,12 @@ class Jam(Encodable):
                 raise TypeError(
                     f"Star Pass should be False or int, not {type(value).__name__}."
                 )
+            if not self._lost and value is not False:
+                self._lost = True
             self._star_pass = value
+
+        def getOtherTeam(self) -> Jam.Team:
+            return self._parent._away if self._team == "home" else self._parent._home
 
         def encode(self) -> dict:
             return {
@@ -173,7 +188,7 @@ class Jam(Encodable):
         self._home: Jam.Team = Jam.Team(self, "home")
         self._away: Jam.Team = Jam.Team(self, "away")
 
-    def __getitem__(self, teamName: str) -> Team:
+    def __getitem__(self, teamName: str) -> Jam.Team:
         teamName = teamName.lower()
         if teamName not in ("home", "away"):
             raise KeyError(f"Unknown team name '{teamName}'.")
