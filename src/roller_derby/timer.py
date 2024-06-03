@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Literal
 
-from roller_derby.bout import ClientException
-from .encodable import Encodable
+from .encodable import ClientException, Encodable
 
 
 class Timer(Encodable):
@@ -84,21 +83,92 @@ class Timer(Encodable):
         }
 
 
-class TimerManager:
+class TimeKeeper:
     def __init__(self) -> None:
         self._game: Timer = Timer(minutes=30)
         self._jam: Timer = Timer(minutes=2)
         self._lineup: Timer = Timer(seconds=30)
         self._timeout: Timer = Timer()
 
+        self._periodTimer = self._game
+        self._actionTimer = self._jam
+
     @property
     def game(self) -> Timer:
         return self._game
+
+    @game.setter
+    def game(self, timer: Timer) -> None:
+        if not isinstance(timer, Timer):
+            raise TypeError(f"Timer must be Timer, not {type(timer).__name__}")
+        if self._periodTimer is self._game:
+            self._periodTimer = timer
+        self._game = timer
 
     @property
     def jam(self) -> Timer:
         return self._jam
 
+    @jam.setter
+    def jam(self, timer: Timer) -> None:
+        if not isinstance(timer, Timer):
+            raise TypeError(f"Timer must be Timer, not {type(timer).__name__}")
+        if self._actionTimer is self._jam:
+            self._actionTimer = timer
+        self._jam = timer
+
     @property
     def lineup(self) -> Timer:
         return self._lineup
+
+    @lineup.setter
+    def lineup(self, timer: Timer) -> None:
+        if not isinstance(timer, Timer):
+            raise TypeError(f"Timer must be Timer, not {type(timer).__name__}")
+        if self._actionTimer is self._lineup:
+            self._actionTimer = timer
+        self._lineup = timer
+
+    @property
+    def timeout(self) -> Timer:
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, timer: Timer) -> None:
+        if not isinstance(timer, Timer):
+            raise TypeError(f"Timer must be Timer, not {type(timer).__name__}")
+        if self._actionTimer is self._timeout:
+            self._actionTimer = timer
+        self._timeout = timer
+
+    @property
+    def periodTimer(self) -> Timer:
+        return self._periodTimer  # TODO: Allow getting intermission Timer
+
+    @periodTimer.setter
+    def periodTimer(self, value: Literal["game", "intermission"]) -> None:
+        if value == "game":
+            self._periodTimer = self._game
+        elif value == "intermission":
+            raise NotImplementedError()
+        else:
+            raise ValueError(
+                f"Period timer must be one of 'game' or 'intermission', not '{value}'."
+            )
+
+    @property
+    def actionTimer(self) -> Timer:
+        return self._actionTimer
+
+    @actionTimer.setter
+    def actionTimer(self, value: Literal["jam", "lineup", "timeout"]) -> None:
+        if value == "jam":
+            self._actionTimer = self._jam
+        elif value == "lineup":
+            self._actionTimer = self._lineup
+        elif value == "timeout":
+            self._actionTimer = self._timeout
+        else:
+            raise ValueError(
+                f"Action Timer must be one of 'jam', 'lineup', or 'timeout', not '{value}'."
+            )

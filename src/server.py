@@ -1,4 +1,5 @@
-from roller_derby.bout import SeriesManager, ClientException
+from roller_derby.series import Series
+from roller_derby.encodable import ClientException
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, FileResponse
@@ -282,7 +283,7 @@ async def _handleEvent(
 log: logging.Logger = logging.getLogger(__name__)
 
 # The series manager which handles the game logic
-bouts: SeriesManager = SeriesManager()
+bouts: Series = Series()
 
 _commandTable: dict[str, Callable[[dict[str, Any]], Awaitable[Any]]] = dict()
 _socket: socketio.AsyncServer = socketio.AsyncServer(

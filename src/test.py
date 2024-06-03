@@ -1,4 +1,4 @@
-from roller_derby.bout import ClientException, Bout, Jam
+from roller_derby.score import ClientException, Bout, Jam
 from typing import Any
 import server
 

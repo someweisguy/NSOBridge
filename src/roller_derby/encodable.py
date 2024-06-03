@@ -3,6 +3,10 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
+class ClientException(Exception):
+    pass
+
+
 class Encodable(ABC):
     @abstractmethod
     def encode(self) -> dict:

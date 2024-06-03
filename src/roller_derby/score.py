@@ -3,47 +3,7 @@ from dataclasses import dataclass
 from enum import IntEnum, auto
 from typing import Literal
 
-from .encodable import Encodable
-
-
-class SeriesManager(Encodable):
-    def __init__(self):
-        self._bouts: list[Bout] = [Bout()]
-        self._currentBout: Bout = self._bouts[0]
-        # self.teams: dict[str, Team] = dict()
-        # self.timers: TimerManager = TimerManager()
-
-    def __getitem__(self, boutIndex: int) -> Bout:
-        return self._bouts[boutIndex]
-
-    @property
-    def bouts(self) -> list[Bout]:
-        return self._bouts
-
-    def addBout(self) -> None:
-        self._bouts.append(Bout())
-
-    def moveBout(self, fromIndex: int, toIndex: int) -> None:
-        bout: Bout = self._bouts[fromIndex]
-        self._bouts.insert(toIndex, bout)
-        self._bouts.pop(fromIndex)
-
-    def deleteBout(self, deleteIndex: int) -> None:
-        self._bouts.pop(deleteIndex)
-
-    @property
-    def currentBout(self) -> Bout:
-        return self._currentBout
-
-    @currentBout.setter
-    def currentBout(self, boutIndex: int) -> None:
-        self._currentBout = self._bouts[boutIndex]
-
-    def encode(self) -> dict:
-        return {
-            "currentBout": self._bouts.index(self._currentBout),
-            "bouts": [bout.encode() for bout in self._bouts],
-        }
+from .encodable import ClientException, Encodable
 
 
 class Bout(Encodable):
@@ -62,7 +22,7 @@ class Bout(Encodable):
 
     @property
     def jam(self) -> tuple[list[Jam], ...]:
-        return self._periods
+        return tuple(self._periods)
 
     @property
     def inOvertime(self) -> bool:
@@ -110,11 +70,11 @@ class Jam(Encodable):
         @property
         def jamScore(self) -> int:
             return sum(trip.points for trip in self._trips)
-        
+
         @property
         def trips(self) -> list[int]:
             return [trip.points for trip in self._trips]
- 
+
         def setTrip(self, tripIndex: int, points: int, tick: int) -> None:
             if not self._parent.isStarted:
                 raise ClientException("This Jam has not yet started.")
@@ -257,7 +217,3 @@ class Jam(Encodable):
             "home": self._home.encode(),
             "away": self._away.encode(),
         }
-
-
-class ClientException(Exception):
-    pass
