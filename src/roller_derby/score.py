@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from datetime import datetime
 from enum import IntEnum, auto
 from typing import Literal
 
@@ -146,9 +147,9 @@ class Jam(Encodable):
 
     def __init__(self, parent: Bout) -> None:
         self._parent: Bout = parent
-        self._started: Literal[False] | int = False
-        self._stopped: Literal[False] | int = False
-        self._stopReason: None | int = None
+        self._started: Literal[False] | datetime = False
+        self._stopped: Literal[False] | datetime = False
+        self._stopReason: None | Jam.StopReason = None
         self._home: Jam.Team = Jam.Team(self, "home")
         self._away: Jam.Team = Jam.Team(self, "away")
 
@@ -179,10 +180,10 @@ class Jam(Encodable):
     def isStarted(self) -> bool:
         return self._started is not False
 
-    def start(self, tick: int) -> None:
+    def start(self, timestamp: datetime) -> None:
         if self.isStarted:
             raise ClientException("This jam has already started.")
-        self._started = tick
+        self._started = timestamp
 
     def unStart(self) -> None:
         if not self.isStarted:
@@ -193,15 +194,15 @@ class Jam(Encodable):
     def isStopped(self) -> bool:
         return self._stopped is not False
 
-    def stop(self, reason: Jam.StopReason, tick: int) -> None:
+    def stop(self, reason: Jam.StopReason, timestamp: datetime) -> None:
         if not self.isStarted:
             raise ClientException("This jam has not yet started.")
         if self.isStopped:
             raise ClientException("This jam has already stopped.")
         if reason not in Jam.StopReason:
             raise ClientException("Stop reason is invalid")
-        self._stopped = tick
-        self._stopReason = int(reason)
+        self._stopped = timestamp
+        self._stopReason = reason
 
     def unStop(self) -> None:
         if not self.isStopped:
@@ -213,7 +214,7 @@ class Jam(Encodable):
         return {
             "startTick": self._started,
             "stopTick": self._stopped,
-            "callReason": self._stopReason,
+            "stopReason": None if self._stopReason is None else int(self._stopReason),
             "home": self._home.encode(),
             "away": self._away.encode(),
         }
