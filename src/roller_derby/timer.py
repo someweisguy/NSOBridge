@@ -69,6 +69,23 @@ class Timer(Encodable):
             lapTime = timestamp - self._lap.start
         elapsed += round(lapTime.total_seconds() * 1000)
         return elapsed
+    
+    def setElapsed(
+        self,
+        hours: None | int,
+        minutes: None | int,
+        seconds: None | int,
+        milliseconds: None | int,
+    ) -> None:
+        units: tuple[None | int, ...] = (hours, minutes, seconds, milliseconds)
+        if any(unit is not None and not isinstance(unit, int) for unit in units):
+            raise TypeError("Units must be int")
+        hours, minutes, seconds, milliseconds = [
+            0 if unit is None else unit for unit in units
+        ]
+        self._elapsed = timedelta(
+            hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
+        )
 
     def getAlarm(self) -> None | int:
         if self._alarm is None:
