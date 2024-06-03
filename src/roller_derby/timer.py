@@ -1,143 +1,86 @@
-from datetime import datetime
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Any
+
+from roller_derby.bout import ClientException
 from .encodable import Encodable
 
 
 class Timer(Encodable):
+    @dataclass
+    class Lap:
+        start: None | datetime = None
+        stop: None | datetime = None
+
     def __init__(
         self,
         alarm: None | datetime = None,
         *,
-        hours: int = 0,
-        minutes: int = 0,
-        seconds: int = 0,
-        milliseconds: int = 0,
+        hours: None | int = None,
+        minutes: None | int = None,
+        seconds: None | int = None,
     ) -> None:
-        """Initializes a Timer object. A Timer may act as a count-down or a
-        count-up. To initialize a count-down Timer, a time value must be
-        specified using the hours, minutes, seconds, and milliseconds keyword
-        arguments. A counter-down Timer which counts down to a specified
-        datetime may be initialized by passing a datetime to which to
-        count-down. A count-up Timer is initialized without any arguments.
+        if alarm is not None and not isinstance(alarm, datetime):
+            raise TypeError(f"Alarm must be datetime, not {type(alarm).__name__}")
+        units: tuple[None | int, ...] = (hours, minutes, seconds)
+        if any(unit is not None and not isinstance(unit, int) for unit in units):
+            raise TypeError("Units must be int")
+        if alarm is not None and any(unit is not None for unit in units):
+            raise TypeError(
+                f"{type(self).__name__} must be initialized with a datetime or timedelta, not both."
+            )
 
-        Args:
-            alarm (None | datetime, optional): The desired count-down datetime.
-            This argument must be None if any other arguments are provided.
-            Defaults to None.
-            hours (int, optional): The number of hours to count-down. Defaults
-            to 0.
-            minutes (int, optional): The number of minutes to count-down.
-            Defaults to 0.
-            seconds (int, optional): The number of seconds to count-down.
-            Defaults to 0.
-            milliseconds (int, optional): The number of milliseconds to
-            count-down. Defaults to 0.
+        self._alarm: None | timedelta = None
+        self._elapsed: timedelta = timedelta()
+        self._lap: Timer.Lap = Timer.Lap()
 
-        Raises:
-            TypeError: if an invalid argument type is provided.
-            ValueError: if a datetime in the past is provided or if a negative
-            hours, minutes, seconds, or milliseconds value is provided.
-        """
-        assert alarm is None  # TODO
-        if (
-            not isinstance(hours, int)
-            or not isinstance(minutes, int)
-            or not isinstance(seconds, int)
-            or not isinstance(milliseconds, int)
-        ):
-            raise TypeError("Timer alarm value must be int")
-        if hours < 0 or minutes < 0 or seconds < 0 or milliseconds < 0:
-            raise ValueError("Timer alarm value must be positive")
-        self._elapsed_milliseconds: int = 0
-        self._started_milliseconds: None | int = None
-        self._alarm_milliseconds: None | int = hours * 60 * 60 * 1000
-        self._alarm_milliseconds += minutes * 60 * 1000
-        self._alarm_milliseconds += seconds * 1000
-        self._alarm_milliseconds += milliseconds
-        if self._alarm_milliseconds == 0:
-            self._alarm_milliseconds = None
+        # Check if the Timer should have an alarm value
+        if alarm is not None:
+            now: datetime = datetime.now()
+            if alarm < now:
+                raise ValueError("Alarm cannot be set for a time in the past.")
+            self._alarm = now - alarm
+            self._lap.start = now
+        elif any(unit is not None for unit in units):
+            hours, minutes, seconds = [0 if unit is None else unit for unit in units]
+            self._alarm = timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
-    @property
-    def remaining(self) -> None | int:
-        """Returns the number of milliseconds that is remaining on this Timer.
+    def isRunning(self) -> bool:
+        return self._lap.start is not None and self._lap.stop is None
 
-        Returns:
-            None | int: The number of milliseconds remaining or None if an alarm
-            was not set.
-        """
-        return (
-            self._alarm_milliseconds - self._elapsed_milliseconds
-            if self._alarm_milliseconds is not None
-            else None
-        )
+    def start(self, timestamp: datetime = datetime.now()) -> None:
+        if self.isRunning():
+            raise ClientException("Timer is already running.")
+        if self._lap.start is not None and self._lap.stop is not None:
+            self._elapsed += self._lap.stop - self._lap.start
+            self._lap.stop = None
+        self._lap.start = timestamp
 
-    @property
-    def elapsed(self) -> int:
-        """Returns the number of milliseconds that have elapsed on this Timer.
+    def stop(self, timestamp: datetime = datetime.now()) -> None:
+        if not self.isRunning():
+            raise ClientException("Timer is already stopped.")
+        self._lap.stop = timestamp
 
-        Returns:
-            int: The number of milliseconds that have elapsed.
-        """
-        return self._elapsed_milliseconds
+    def getElapsed(self, timestamp: datetime = datetime.now()) -> int:
+        elapsed: int = round(self._elapsed.total_seconds() * 1000)
+        lapTime: timedelta = timedelta()
+        if self._lap.start is not None and self._lap.stop is not None:
+            lapTime = self._lap.stop - self._lap.start
+        elif self._lap.start is not None:
+            lapTime = timestamp - self._lap.start
+        elapsed += round(lapTime.total_seconds() * 1000)
+        return elapsed
 
-    def is_running(self) -> bool:
-        """Returns True if the Timer is running.
+    def getAlarm(self) -> None | int:
+        if self._alarm is None:
+            return None
+        return round(self._alarm.total_seconds() * 1000)
 
-        Returns:
-            bool: True if the Timer is running, else False.
-        """
-        return self._started_milliseconds is not None
-
-    def start(self, timestamp: int) -> None:
-        """Starts the timer at the specified monotonic, millisecond timestamp.
-
-        Args:
-            timestamp (int): The monotonic, millisecond timestamp at
-            which this method was called. Defaults to Timer.monotonic().
-
-        Raises:
-            TypeError: if the incorrect type is provided.
-            RuntimeError: if the Timer is already running.
-        """
-        if not isinstance(timestamp, int):
-            raise TypeError(f"timestamp must be int, not {type(timestamp).__name__}")
-        if self.is_running():
-            raise RuntimeError("Timer is already running")
-        self._started_milliseconds = timestamp
-
-    def pause(self, timestamp: int) -> None:
-        """Pauses the timer at the specified monotonic, millisecond timestamp.
-
-        Args:
-            timestamp (int): The monotonic, millisecond timestamp at
-            which this method was called. Defaults to Timer.monotonic().
-
-        Raises:
-            TypeError: if the incorrect type is provided.
-            RuntimeError: if the Timer is not running.
-        """
-        if not isinstance(timestamp, int):
-            raise TypeError(f"timestamp must be int, not {type(timestamp).__name__}")
-        if not self.is_running():
-            raise RuntimeError("Timer is not running")
-        assert self._started_milliseconds is not None
-        self._elapsed_milliseconds += timestamp - self._started_milliseconds
-        self._started_milliseconds = None
-
-    def reset(self, timestamp: int) -> None:
-        """Resets the elapsed time on the Timer back to zero.
-
-        Args:
-            timestamp (int): The monotonic, millisecond timerstamp at
-            which this method was called. Defaults to Timer.monotonic().
-        """
-        self._elapsed_milliseconds = Timer.monotonic() - timestamp
-
-    def serialize(self) -> dict:
-        # TODO: make this an interface method
+    def encode(self) -> dict[str, Any]:
         return {
-            "alarm": self._alarm_milliseconds,
-            "elapsed": self._elapsed_milliseconds,
-            "started": self._started_milliseconds,
+            "alarm": self.getAlarm(),
+            "elapsed": self.getElapsed(),
+            "running": self.isRunning(),
         }
 
 
