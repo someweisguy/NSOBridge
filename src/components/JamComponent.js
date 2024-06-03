@@ -87,6 +87,12 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
     });
   }
 
+  async function setInitial() {
+    await sendRequest("jamInitial", "set", {
+      team: team
+    });
+  }
+
   function scroll(amount) {
     scrollBar.current.scrollLeft += amount;
   }
@@ -102,7 +108,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
       </button>
     );
     pointButtons.push(
-      <button key={-2} className={className} onClick={() => setPoints(0)}>
+      <button key={-2} className={className} onClick={setInitial}>
         Initial
       </button>
     );

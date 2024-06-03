@@ -110,7 +110,11 @@ class Jam(Encodable):
         @property
         def jamScore(self) -> int:
             return sum(trip.points for trip in self._trips)
-
+        
+        @property
+        def trips(self) -> list[int]:
+            return [trip.points for trip in self._trips]
+ 
         def setTrip(self, tripIndex: int, points: int, tick: int) -> None:
             if not self._parent.isStarted:
                 raise ClientException("This Jam has not yet started.")

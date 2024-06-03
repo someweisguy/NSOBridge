@@ -110,6 +110,36 @@ async def jamStarPass(payload: dict[str, Any]) -> None | dict[str, Any]:
     # Broadcast the updates
     await server.emit("jamTrips", teamJam.encode())
 
+@server.register
+async def jamInitial(payload: dict[str, Any]) -> None | dict[str, Any]:
+    NOW: int = server.getTimestamp()
+    kwargs: dict[str, Any] = payload["kwargs"]
+
+    # Get the desired Bout
+    bout: Bout = server.bouts.currentBout
+
+    # Get the desired Jam and Jam Team
+    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    teamJam: Jam.Team = jam[kwargs["team"]]
+
+    # Handle the method
+    match payload["method"]:
+        case "set":
+            if len(teamJam.trips):
+                raise ClientException("This team has already had their initial trip.")
+            try:
+                teamJam.lead = True
+            except ClientException:
+                pass
+            # Set the trip using timestamp calculated from the client latency
+            timestamp: int = NOW - payload["latency"]
+            points: int = 0  # TODO: if is overtime, set to 4 points
+            teamJam.setTrip(0, points, timestamp)
+        case _ as default:
+            raise ClientException(f"Unknown method '{default}'.")
+
+    # Broadcast the updates
+    await server.emit("jamTrips", teamJam.encode())
 
 if __name__ == "__main__":
     import asyncio
