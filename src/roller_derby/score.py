@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import IntEnum, auto
-from typing import Literal
+from typing import Any, Literal
 
 from .encodable import ClientException, Encodable
 
@@ -54,10 +54,13 @@ class Jam(Encodable):
     @dataclass
     class Trip(Encodable):
         points: int
-        tick: int
+        timestamp: datetime
 
-        def encode(self) -> dict:
-            return self.__dict__
+        def encode(self) -> dict[str, Any]:
+            return {
+                "points": self.points,
+                "timestamp": round(self.timestamp.timestamp() * 1000),
+            }
 
     class Team(Encodable):
         def __init__(self, parent: Jam, team: Literal["home", "away"]) -> None:
@@ -76,14 +79,14 @@ class Jam(Encodable):
         def trips(self) -> list[int]:
             return [trip.points for trip in self._trips]
 
-        def setTrip(self, tripIndex: int, points: int, tick: int) -> None:
+        def setTrip(self, tripIndex: int, points: int, timestamp: datetime) -> None:
             if not self._parent.isStarted:
                 raise ClientException("This Jam has not yet started.")
             numTrips: int = len(self._trips)
             if tripIndex in range(numTrips):
                 self._trips[tripIndex].points = points
             elif tripIndex == numTrips:
-                self._trips.append(Jam.Trip(points, tick))
+                self._trips.append(Jam.Trip(points, timestamp))
             else:
                 raise ClientException("Trip number is invalid.")
 
