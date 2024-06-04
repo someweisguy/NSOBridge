@@ -27,20 +27,20 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
   const starPass = useRef(null);
   const scrollBar = useRef(null);
 
-  const tripsHandler = useCallback((data) => {
-    if (data.team !== team) {
+  const tripsHandler = useCallback((teamJam) => {
+    if (teamJam.team !== team) {
       return;
     }
 
-    const newTrips = data.trips;
+    const newTrips = teamJam.trips;
     setTrips(newTrips);
     if (selectedTrip === trips.length) {
       selectTrip(newTrips.length);
     }
 
-    lead.current = data.lead;
-    lost.current = data.lost;
-    starPass.current = data.starPass;
+    lead.current = teamJam.lead;
+    lost.current = teamJam.lost;
+    starPass.current = teamJam.starPass;
   }, [team, selectedTrip, trips]);
   useInterface("jamTrips", tripsHandler, { team: team });
 
