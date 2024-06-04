@@ -168,26 +168,12 @@ async def _handleConnect(
         session["userId"] = userId
 
 
-async def _handleDisconnect(sessionId: str) -> None:
-    """Handles a socket.io disconnection event.
-
-    Args:
-        sessionId (str): The session ID of the corresponding connection.
+async def _dummyHandler(*_, **__) -> None:
+    """A dummy function to handle miscellaneous Socket.IO API. This is needed to
+    ensure that there aren't any argument exceptions with catch-all Socket.IO
+    event handlers.
     """
     pass
-
-
-async def _ping(sessionId: str, *args, **kwargs) -> None:
-    """Handles a socket.io ping event. Returns an empty response. Used by
-    clients to calculate the connection latency.
-
-    Args:
-        sessionId (str): The session ID of the corresponding connection.
-
-    Returns:
-        None.
-    """
-    return None
 
 
 async def _handleEvent(
@@ -281,8 +267,8 @@ _socket: socketio.AsyncServer = socketio.AsyncServer(
     cors_allowed_origins="*", async_mode="asgi"
 )
 _socket.on("connect", _handleConnect)
-_socket.on("disconnect", _handleDisconnect)
-_socket.on("ping", _ping)
+_socket.on("disconnect", _dummyHandler)
+_socket.on("ping", _dummyHandler)
 _socket.on("*", _handleEvent)
 
 _webDir: str = "./build"  # The relative location of the built React files
