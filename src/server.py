@@ -6,12 +6,13 @@ from starlette.responses import HTMLResponse, FileResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
-from typing import Callable, Any, Awaitable
+from typing import Callable, Any, Awaitable, Collection
+from datetime import datetime, timedelta, timezone
+import inspect
 import hashlib
 import logging
 import os
 import socketio
-import time
 import uvicorn
 
 logging.basicConfig(
@@ -22,15 +23,14 @@ logging.basicConfig(
 )
 
 
-def getTimestamp():
-    """Gets the current server tick. The tick should be equivalent to number of
-    milliseconds that the server has been online on most machines.
+def getTimestamp() -> datetime:
+    """Gets the current server timestamp. The timestamp is the current datetime
+    set on the server's operating system.
 
     Returns:
-        int: The current server tick.
+        int: The current server timestamp.
     """
-    now = time.time_ns()
-    return round(now / 1_000_000)
+    return datetime.now()
 
 
 async def serve(port: int, *, debug: bool = False) -> None:
@@ -101,7 +101,7 @@ def register(
 
 async def emit(
     event: str,
-    data: Any,
+    data: dict[str, Any],
     to: None | str = None,
     room: None | str = None,
     skip: None | str = None,
@@ -127,8 +127,9 @@ async def emit(
     """
     payload: dict[str, Any] = {
         "data": data,
-        "timestamp":  getTimestamp(),
+        "timestamp": getTimestamp(),
     }
+    data["timestamp"] = getTimestamp()
     await _socket.emit(
         event, payload, to=to, room=room, skip_sid=skip, namespace=namespace
     )
@@ -206,7 +207,7 @@ async def _ping(sessionId: str, *args, **kwargs) -> None:
 
 
 async def _handleEvent(
-    command: str, sessionId: str, json: dict[str, Any], *args, **kwargs
+    command: str, sessionId: str, json: dict[str, Any]
 ) -> dict[str, Any]:
     """Handles all socket.io events except for connection, disconnection, and
     sync. This handler looks up the received command in a command table and
@@ -223,15 +224,13 @@ async def _handleEvent(
     Returns:
         dict: A dictionary of the command response.
     """
+    NOW: datetime = datetime.now(timezone.utc)
     log.debug(f"Handling event '{command}' with args: {json}.")
     response: dict[str, Any] = dict()
     try:
         # Validate the request payload has all the required JSON keys
         requiredKeys: tuple[str, ...] = (
             "method",
-            "kwargs",
-            "user",
-            "session",
             "latency",
         )
         if not all(key in json for key in requiredKeys):
@@ -242,23 +241,31 @@ async def _handleEvent(
             raise ClientException("Invalid method.")
         json["method"] = json["method"].lower()  # Ensure lowercase method
 
-        # Validate the user is valid
-        if json["user"] is None:
-            raise ClientException("Invalid username.")
-
         # Validate the latency value is between 0 and 5 seconds
         if not isinstance(json["latency"], int) or 0 > json["latency"] > 5000:
             raise ClientException("Client latency is invalid")
+        json["latency"] = timedelta(milliseconds=json["latency"])
 
         # Validate the command exists
         if command not in _commandTable:
             log.debug(f"The '{command}' handler does not exist.")
             raise ClientException(f"Unknown command '{command}'.")
 
-        # Get the function, call it, and encode the return value
-        func: Callable[[dict[str, Any]], Awaitable[Any]] = _commandTable[command]
-        response["data"] = await func(json)
+        # Add the current timestamp and the session ID
+        json["now"] = NOW
+        json["session"] = sessionId
+
+        # Get the function and call it with only the required arguments
+        func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]
+        params: set[str] = set(
+            [param.name for param in inspect.signature(func).parameters.values()]
+        )
+        json = {k: v for k, v in json.items() if k in params}
+        data: None | Collection = await func(**json)
+
+        # Build the response payload
         response["status"] = "ok"
+        response["data"] = data
     except (Exception, ClientException) as e:
         # Return the exception and exception message
         response["error"] = {
@@ -274,7 +281,7 @@ async def _handleEvent(
             log.error(f"{type(e).__name__}: {str(e)} ({fileName}, {lineNumber})")
     finally:
         # Return the current timestamp
-        response["timestamp"] = getTimestamp()
+        response["timestamp"] = str(datetime.now())
         log.debug(f"Ack: {str(response)}")
         return response
 
@@ -285,7 +292,7 @@ log: logging.Logger = logging.getLogger(__name__)
 # The series manager which handles the game logic
 bouts: Series = Series()
 
-_commandTable: dict[str, Callable[[dict[str, Any]], Awaitable[Any]]] = dict()
+_commandTable: dict[str, Callable[..., Awaitable[None | Collection]]] = dict()
 _socket: socketio.AsyncServer = socketio.AsyncServer(
     cors_allowed_origins="*", async_mode="asgi"
 )
