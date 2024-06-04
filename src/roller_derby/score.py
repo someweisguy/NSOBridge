@@ -59,7 +59,7 @@ class Jam(Encodable):
         def encode(self) -> dict[str, Any]:
             return {
                 "points": self.points,
-                "timestamp": round(self.timestamp.timestamp() * 1000),
+                "timestamp": str(self.timestamp),
             }
 
     class Team(Encodable):
@@ -215,8 +215,8 @@ class Jam(Encodable):
 
     def encode(self) -> dict:
         return {
-            "startTick": self._started,
-            "stopTick": self._stopped,
+            "startTick": str(self._started),
+            "stopTick": str(self._stopped),
             "stopReason": None if self._stopReason is None else int(self._stopReason),
             "home": self._home.encode(),
             "away": self._away.encode(),
