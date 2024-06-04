@@ -27,7 +27,7 @@ async def jamTrips(
             return teamJam.encode()
         case "set":
             # Set the trip using timestamp calculated from the client latency
-            assert tripIndex and tripPoints is not None
+            assert tripIndex is not None and tripPoints is not None
             timestamp: datetime = now - latency
             teamJam.setTrip(tripIndex, tripPoints, timestamp)
         case "del":
