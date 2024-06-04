@@ -23,16 +23,6 @@ logging.basicConfig(
 )
 
 
-def getTimestamp() -> datetime:
-    """Gets the current server timestamp. The timestamp is the current datetime
-    set on the server's operating system.
-
-    Returns:
-        int: The current server timestamp.
-    """
-    return datetime.now()
-
-
 async def serve(port: int, *, debug: bool = False) -> None:
     """Start and serve the scoreboard app on the specified port.
 
@@ -127,9 +117,8 @@ async def emit(
     """
     payload: dict[str, Any] = {
         "data": data,
-        "timestamp": getTimestamp(),
+        "timestamp": str(datetime.now(timezone.utc)),
     }
-    data["timestamp"] = getTimestamp()
     await _socket.emit(
         event, payload, to=to, room=room, skip_sid=skip, namespace=namespace
     )
