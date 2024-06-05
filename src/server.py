@@ -238,11 +238,11 @@ async def _handleEvent(
         response["data"] = data
     except (Exception, ClientException) as e:
         # Return the exception and exception message
+        response["status"] = "error"
         response["error"] = {
             "name": type(e).__name__,
             "message": str(e),
         }
-        response["status"] = "error"
 
         # If the exception was not caused by the client, log a traceback
         if not isinstance(e, ClientException) and (traceback := e.__traceback__):
