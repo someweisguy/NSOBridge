@@ -1,43 +1,35 @@
 import server
 from roller_derby.score import Jam
 from roller_derby.timer import Timer
-from roller_derby.encodable import ClientException
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
-@server.register
-async def jamTimer(
-    method: str, latency: int, stopReason: None | Jam.StopReason = None, **_
-) -> None | dict[str, Any]:
-    NOW: datetime = datetime.now()
-    
-    # Get the Jam Timer
-    timer: Timer = server.bouts.timer.jam
 
-    # Handle the method
-    match method:
-        case "get":
-            return timer.encode()
-        case "set":
-            raise NotImplementedError()
-        case "start":
-            # Start the timer from the 
-            timestamp: datetime = NOW - timedelta(milliseconds=latency)
-            server.bouts.currentBout.currentJam.start(timestamp)
-            timer.start(timestamp)
-        case "stop":
-            if not isinstance(stopReason, Jam.StopReason):
-                raise TypeError(
-                    f"stopReason must be Jam.StopReason, not {type(stopReason).__name__}"
-                )
-            timestamp: datetime = NOW - timedelta(milliseconds=latency)
-            server.bouts.currentBout.currentJam.stop(stopReason, timestamp)
-            timer.stop(timestamp)
-        case _:
-            raise ClientException(f"Unknown method '{method}'.")
+@server.register
+async def getJamTimer() -> dict[str, Any]:
+    timer: Timer = server.bouts.timer.jam
+    return timer.encode()
+
+
+@server.register
+async def startJamTimer(timestamp: datetime) -> None:
+    server.bouts.currentBout.currentJam.start(timestamp)
+    timer: Timer = server.bouts.timer.jam
+    timer.start(timestamp)
 
     # Broadcast the updates
-    await server.emit("jamTimer", timer.encode())
+    await server.emit("getJamTimer", timer.encode())
+
+
+@server.register
+async def stopJamTimer(stopReason: Jam.StopReason, timestamp: datetime) -> None:
+    server.bouts.currentBout.currentJam.stop(stopReason, timestamp)
+    timer: Timer = server.bouts.timer.jam
+    timer.stop(timestamp)
+
+    # Broadcast the updates
+    await server.emit("getJamTimer", timer.encode())
+
 
 if __name__ == "__main__":
     import scoreApi  # noqa: F401
