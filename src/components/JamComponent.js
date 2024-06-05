@@ -10,7 +10,7 @@ function useInterface(api, callbackFunction, constArgs) {
 
   useEffect(() => {
     return addConnectHandler(async () => {
-      const response = await sendRequest(api, "get", constArgs);
+      const response = await sendRequest(api, constArgs);
       if (!response.error) {
         callbackFunction(response);
       }
@@ -22,27 +22,45 @@ function useInterface(api, callbackFunction, constArgs) {
 export function TripComponent({ team, periodIndex, jamIndex }) {
   const [trips, setTrips] = useState([]);
   const [selectedTrip, selectTrip] = useState(0);
-  const lead = useRef(false);
-  const lost = useRef(false);
-  const starPass = useRef(null);
+  const [lead, setLead] = useState(false);
+  const [lost, setLost] = useState(false);
+  const [starPass, setStarPass] = useState(null);
   const scrollBar = useRef(null);
 
   const tripsHandler = useCallback((teamJam) => {
     if (teamJam.team !== team) {
       return;
     }
-
-    const newTrips = teamJam.trips;
-    setTrips(newTrips);
+    setTrips(teamJam.trips);
     if (selectedTrip === trips.length) {
-      selectTrip(newTrips.length);
+      selectTrip(teamJam.trips.length);
     }
-
-    lead.current = teamJam.lead;
-    lost.current = teamJam.lost;
-    starPass.current = teamJam.starPass;
   }, [team, selectedTrip, trips]);
-  useInterface("jamTrips", tripsHandler, { team: team });
+  useInterface("getJamTrips", tripsHandler, { team: team });
+
+  const leadHandler = useCallback((teamJam) => {
+    if (teamJam.team !== team) {
+      return;
+    }
+    setLead(teamJam.lead);
+  }, [team]);
+  useInterface("getJamLead", leadHandler, { team: team });
+
+  const lostHandler = useCallback((teamJam) => {
+    if (teamJam.team !== team) {
+      return;
+    }
+    setLost(teamJam.lost);
+  }, [team]);
+  useInterface("getJamLost", lostHandler, { team: team });
+
+  const starPassHandler = useCallback((teamJam) => {
+    if (teamJam.team !== team) {
+      return;
+    }
+    setStarPass(teamJam.starPass);
+  }, [team]);
+  useInterface("getJamStarPass", starPassHandler, { team: team });
 
   useEffect(() => {
     // Scroll the Trips scrollbar to the selected Trip.
@@ -51,7 +69,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
   }, [selectedTrip]);
 
   async function setPoints(points) {
-    await sendRequest("jamTrips", "set", {
+    await sendRequest("setJamTrips", {
       team: team,
       tripIndex: selectedTrip,
       tripPoints: points
@@ -59,38 +77,36 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
   }
 
   async function deleteTrip() {
-    await sendRequest("jamTrips", "del", {
+    await sendRequest("delJamTrips", {
       team: team,
       tripIndex: selectedTrip,
     });
   }
 
-  async function setLead() {
-    await sendRequest("jamLead", "set", {
+  async function setLeadRequest() {
+    await sendRequest("setJamLead", {
       team: team,
-      lead: !lead.current
+      lead: !lead
     });
   }
 
-  async function setLost() {
-    await sendRequest("jamLost", "set", {
+  async function setLostRequest() {
+    await sendRequest("setJamLost", {
       team: team,
-      lost: !lost.current
+      lost: !lost
     });
   }
 
 
-  async function setStarPass() {
-    await sendRequest("jamStarPass", "set", {
+  async function setStarPassRequest() {
+    await sendRequest("setJamStarPass", {
       team: team,
-      tripIndex: (starPass.current === false ? selectedTrip : false)
+      tripIndex: (starPass === false ? selectedTrip : false)
     });
   }
 
   async function setInitial() {
-    await sendRequest("jamInitial", "set", {
-      team: team
-    });
+    await sendRequest("setJamInitial", { team: team });
   }
 
   function scroll(amount) {
@@ -170,9 +186,9 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
         <button onClick={() => scroll(50)}>&gt;</button>
       </div>
 
-      <CheckboxComponent value={lead.current} onClick={setLead} disabled={lost.current}>Lead Jammer</CheckboxComponent>
-      <CheckboxComponent value={lost.current} onClick={setLost}>Lost Lead</CheckboxComponent>
-      <CheckboxComponent value={starPass.current !== false} onClick={setStarPass}>Star Pass</CheckboxComponent>
+      <CheckboxComponent value={lead} onClick={setLeadRequest} disabled={lost}>Lead Jammer</CheckboxComponent>
+      <CheckboxComponent value={lost} onClick={setLostRequest}>Lost Lead</CheckboxComponent>
+      <CheckboxComponent value={starPass !== false} onClick={setStarPassRequest}>Star Pass</CheckboxComponent>
 
     </div>
   );

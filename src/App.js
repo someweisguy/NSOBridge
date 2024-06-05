@@ -8,13 +8,12 @@ var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
 var latency = 0;
 
-export async function sendRequest(api, method, payload = {}) {
-  payload.method = method;
+export async function sendRequest(api, payload = {}) {
   payload.latency = latency;
   const response = await socket.emitWithAck(api, payload);
   if (response.error) {
-    console.error(api + "." + method + "() returned '" + response.error.name +
-      ": " + response.error.message + "'");
+    console.error(api + " returned '" + response.error.name + ": '" + 
+      response.error.message + "'");
     return null;
   }
   return response.data;

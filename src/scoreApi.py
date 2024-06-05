@@ -1,18 +1,11 @@
 from roller_derby.score import ClientException, Bout, Jam
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 import server
 
 
 @server.register
-async def jamTrips(
-    method: str,
-    team: str,
-    now: datetime,
-    latency: timedelta,
-    tripIndex: None | int = None,
-    tripPoints: None | int = None,
-) -> None | dict[str, Any]:
+async def getJamTrips(team: str) -> dict[str, Any]:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -20,31 +13,13 @@ async def jamTrips(
     jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
     teamJam: Jam.Team = jam[team]
 
-    # Handle the method
-    match method:
-        case "get":
-            # Just ack with the Jam Team
-            return teamJam.encode()
-        case "set":
-            # Set the trip using timestamp calculated from the client latency
-            assert tripIndex is not None and tripPoints is not None
-            timestamp: datetime = now - latency
-            teamJam.setTrip(tripIndex, tripPoints, timestamp)
-        case "del":
-            # Delete the specified Jam trip
-            assert tripIndex is not None
-            teamJam.deleteTrip(tripIndex)
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
-
-    # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
+    return {"team": team, "trips": [trip.encode() for trip in teamJam.trips]}
 
 
 @server.register
-async def jamLead(
-    method: str, team: str, lead: None | bool = None
-) -> None | dict[str, Any]:
+async def setJamTrips(
+    team: str, tripIndex: int, tripPoints: int, timestamp: datetime
+) -> None:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -52,26 +27,12 @@ async def jamLead(
     jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
     teamJam: Jam.Team = jam[team]
 
-    # Handle the method
-    match method:
-        case "get":
-            # Just ack with the Jam Team
-            return teamJam.encode()
-        case "set":
-            # Set the Jam lead variable appropriately
-            assert lead is not None
-            teamJam.lead = lead
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
-
-    # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
+    teamJam.setTrip(tripIndex, tripPoints, timestamp)
+    await server.emit("getJamTrips", await getJamTrips(team))
 
 
 @server.register
-async def jamLost(
-    method: str, team: str, lost: None | bool = None
-) -> None | dict[str, Any]:
+async def delJamTrips(team: str, tripIndex: int) -> None:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -79,26 +40,12 @@ async def jamLost(
     jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
     teamJam: Jam.Team = jam[team]
 
-    # Handle the method
-    match method:
-        case "get":
-            # Just ack with the Jam Team
-            return teamJam.encode()
-        case "set":
-            # Set the Jam lost variable appropriately
-            assert lost is not None
-            teamJam.lost = lost
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
-
-    # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
+    teamJam.deleteTrip(tripIndex)
+    await server.emit("getJamTrips", await getJamTrips(team))
 
 
 @server.register
-async def jamStarPass(
-    method: str, team: str, tripIndex: None | int = None
-) -> None | dict[str, Any]:
+async def setJamInitial(team: str, timestamp: datetime) -> None:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -106,26 +53,25 @@ async def jamStarPass(
     jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
     teamJam: Jam.Team = jam[team]
 
-    # Handle the method
-    match method:
-        case "get":
-            # Just ack with the Jam Team
-            return teamJam.encode()
-        case "set":
-            # Set the Jam starPass variable appropriately
-            assert tripIndex is not None
-            teamJam.starPass = tripIndex
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
+    # Raise an error if trying to set an invalid initial trip
+    if len(teamJam.trips):
+        raise ClientException("This team has already had their initial trip.")
 
-    # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
+    # Assign lead and set the initial trip points
+    try:
+        teamJam.lead = True
+    except ClientException:
+        pass
+    # Set the trip using timestamp calculated from the client latency
+    points: int = 0  # TODO: if is overtime, set to 4 points
+    teamJam.setTrip(0, points, timestamp)
+
+    await server.emit("getJamTrips", await getJamTrips(team))
+    await server.emit("getJamLead", await getJamLead(team))
 
 
 @server.register
-async def jamInitial(
-    method: str, team: str, now: datetime, latency: timedelta
-) -> None | dict[str, Any]:
+async def getJamLead(team: str) -> dict[str, Any]:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -133,21 +79,70 @@ async def jamInitial(
     jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
     teamJam: Jam.Team = jam[team]
 
-    # Handle the method
-    match method:
-        case "set":
-            if len(teamJam.trips):
-                raise ClientException("This team has already had their initial trip.")
-            try:
-                teamJam.lead = True
-            except ClientException:
-                pass
-            # Set the trip using timestamp calculated from the client latency
-            timestamp: datetime = now - latency
-            points: int = 0  # TODO: if is overtime, set to 4 points
-            teamJam.setTrip(0, points, timestamp)
-        case _ as default:
-            raise ClientException(f"Unknown method '{default}'.")
+    return {"team": team, "lead": teamJam.lead}
+
+
+@server.register
+async def setJamLead(team: str, lead: bool) -> None:
+    # Get the desired Bout
+    bout: Bout = server.bouts.currentBout
+
+    # Get the desired Jam and Jam Team
+    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    teamJam: Jam.Team = jam[team]
+    teamJam.lead = lead
 
     # Broadcast the updates
-    await server.emit("jamTrips", teamJam.encode())
+    await server.emit("getJamLead", await getJamLead(team))
+
+
+@server.register
+async def getJamLost(team: str) -> dict[str, Any]:
+    # Get the desired Bout
+    bout: Bout = server.bouts.currentBout
+
+    # Get the desired Jam and Jam Team
+    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    teamJam: Jam.Team = jam[team]
+
+    return {"team": team, "lost": teamJam.lost}
+
+
+@server.register
+async def setJamLost(team: str, lost: bool) -> None:
+    # Get the desired Bout
+    bout: Bout = server.bouts.currentBout
+
+    # Get the desired Jam and Jam Team
+    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    teamJam: Jam.Team = jam[team]
+    teamJam.lost = lost
+
+    await server.emit("getJamLost", await getJamLost(team))
+
+
+@server.register
+async def getJamStarPass(team: str) -> dict[str, Any]:
+    # Get the desired Bout
+    bout: Bout = server.bouts.currentBout
+
+    # Get the desired Jam and Jam Team
+    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    teamJam: Jam.Team = jam[team]
+
+    return {"team": team, "starPass": teamJam.starPass}
+
+
+@server.register
+async def setJamStarPass(team: str, tripIndex: None | int) -> None:
+    # Get the desired Bout
+    bout: Bout = server.bouts.currentBout
+
+    # Get the desired Jam and Jam Team
+    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    teamJam: Jam.Team = jam[team]
+    teamJam.starPass = tripIndex
+    teamJam.lost = True
+
+    await server.emit("getJamStarPass", await getJamStarPass(team))
+    await server.emit("getJamLost", await getJamLost(team))

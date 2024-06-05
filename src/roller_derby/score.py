@@ -76,8 +76,8 @@ class Jam(Encodable):
             return sum(trip.points for trip in self._trips)
 
         @property
-        def trips(self) -> list[int]:
-            return [trip.points for trip in self._trips]
+        def trips(self) -> list[Jam.Trip]:
+            return self._trips.copy()
 
         def setTrip(self, tripIndex: int, points: int, timestamp: datetime) -> None:
             if not self._parent.isStarted:
@@ -127,7 +127,7 @@ class Jam(Encodable):
             return self._star_pass
 
         @starPass.setter
-        def starPass(self, value: Literal[False] | int) -> None:
+        def starPass(self, value: None | int) -> None:
             if value is True or not isinstance(value, (bool, int)):
                 raise TypeError(
                     f"Star Pass should be False or int, not {type(value).__name__}."

@@ -200,21 +200,14 @@ async def _handleEvent(
     try:
         # Validate the request payload has all the required JSON keys
         requiredKeys: tuple[str, ...] = (
-            "method",
             "latency",
         )
         if not all(key in json for key in requiredKeys):
             raise ClientException("Invalid request payload.")
 
-        # Validate the method is valid
-        if not isinstance(json["method"], str):
-            raise ClientException("Invalid method.")
-        json["method"] = json["method"].lower()  # Ensure lowercase method
-
         # Validate the latency value is between 0 and 5 seconds
         if not isinstance(json["latency"], int) or 0 > json["latency"] > 5000:
             raise ClientException("Client latency is invalid")
-        json["latency"] = timedelta(milliseconds=json["latency"])
 
         # Validate the command exists
         if command not in _commandTable:
@@ -222,7 +215,7 @@ async def _handleEvent(
             raise ClientException(f"Unknown command '{command}'.")
 
         # Add the current timestamp and the session ID
-        json["now"] = NOW
+        json["timestamp"] = NOW - timedelta(milliseconds=json["latency"])
         json["session"] = sessionId
 
         # Get the function and call it with only the required arguments
