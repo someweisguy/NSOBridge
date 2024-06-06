@@ -52,6 +52,10 @@ export async function sendRequest(api, payload = {}) {
   return response.data;
 }
 
+export function getLatency() {
+  return latency;
+}
+
 async function calculateLatency(iterations) {
   if (socket.disconnected) {
     return;
