@@ -8,7 +8,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
   const [selectedTrip, selectTrip] = useState(0);
   const [lead, setLead] = useState(false);
   const [lost, setLost] = useState(false);
-  const [starPass, setStarPass] = useState(null);
+  const [starPass, setStarPass] = useState(false);
   const scrollBar = useRef(null);
 
   const tripsHandler = useCallback((teamJam) => {
