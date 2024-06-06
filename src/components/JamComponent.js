@@ -1,22 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { addConnectHandler, addRequestHandler, sendRequest } from "../App";
+import { useInterface, sendRequest } from "../App";
 import "./JamComponent.css"
-
-function useInterface(api, callbackFunction, constArgs) {
-  useEffect(
-    () => { return addRequestHandler(api, callbackFunction) },
-    [api, callbackFunction]
-  );
-
-  useEffect(() => {
-    return addConnectHandler(async () => {
-      const response = await sendRequest(api, constArgs);
-      if (!response.error) {
-        callbackFunction(response);
-      }
-    });
-  }, [api, constArgs, callbackFunction]);
-}
 
 
 export function TripComponent({ team, periodIndex, jamIndex }) {

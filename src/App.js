@@ -8,11 +8,36 @@ var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
 var latency = 0;
 
+/** A custom hook which requests data when the socket connects, and adds a
+ * handler to receive data.
+ * 
+ * @param {string} api The API function to call.
+ * @param {function} callbackFunction The callback which is called to handle 
+ * incoming data.
+ * @param {object} constArgs The constants which are added as request arguments
+ * when the socket connects.
+ */
+export function useInterface(api, callbackFunction, constArgs) {
+  useEffect(
+    () => { return addRequestHandler(api, callbackFunction) },
+    [api, callbackFunction]
+  );
+
+  useEffect(() => {
+    return addConnectHandler(async () => {
+      const response = await sendRequest(api, constArgs);
+      if (!response.error) {
+        callbackFunction(response);
+      }
+    });
+  }, [api, constArgs, callbackFunction]);
+}
+
 export async function sendRequest(api, payload = {}) {
   payload.latency = latency;
   const response = await socket.emitWithAck(api, payload);
   if (response.error) {
-    console.error(api + " returned '" + response.error.name + ": '" + 
+    console.error(api + " returned '" + response.error.name + ": '" +
       response.error.message + "'");
     return null;
   }
@@ -20,8 +45,7 @@ export async function sendRequest(api, payload = {}) {
 }
 
 export function addRequestHandler(api, callback) {
-  socket.on(api, callback);
-  return () => socket.off(api, callback);
+  ;
 }
 
 export function removeRequestHandler(api, callback = null) {
@@ -86,9 +110,9 @@ function App() {
 
 
   return (
-    <div className="App" style={{display: "flex"}}>
-        <TripComponent team="home" />
-        <TripComponent team="away" />
+    <div className="App" style={{ display: "flex" }}>
+      <TripComponent team="home" />
+      <TripComponent team="away" />
     </div>
   );
 }
