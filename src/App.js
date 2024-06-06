@@ -1,6 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import { TripComponent } from './components/JamComponent';
+import { useEffect } from 'react';
 
 import { io } from 'socket.io-client';
 
@@ -18,18 +19,25 @@ var latency = 0;
  * when the socket connects.
  */
 export function useInterface(api, callbackFunction, constArgs) {
+  // Register a socket callback when data is received
   useEffect(
-    () => { return addRequestHandler(api, callbackFunction) },
+    () => {
+      socket.on(api, callbackFunction);
+      return () => socket.off(api, callbackFunction);
+    },
     [api, callbackFunction]
   );
 
+  // Use an effect to request data when the socket connects
   useEffect(() => {
-    return addConnectHandler(async () => {
+    const connectHandler = async () => {
       const response = await sendRequest(api, constArgs);
       if (!response.error) {
         callbackFunction(response);
       }
-    });
+    };
+    socket.on("connect", connectHandler);
+    return () => socket.off("connect", connectHandler);
   }, [api, constArgs, callbackFunction]);
 }
 
@@ -42,19 +50,6 @@ export async function sendRequest(api, payload = {}) {
     return null;
   }
   return response.data;
-}
-
-export function addRequestHandler(api, callback) {
-  ;
-}
-
-export function removeRequestHandler(api, callback = null) {
-  socket.off(api, callback);
-}
-
-export function addConnectHandler(callback) {
-  socket.on("connect", callback);
-  return () => socket.off("connect", callback);
 }
 
 async function calculateLatency(iterations) {
