@@ -40,11 +40,7 @@ export function TimerComponent({ direction = "down" }) {
   const accumulated = useRef(0);
 
   function timerCallback({ alarm, elapsed, running }) {
-    if (running) {
-      setRunTime(elapsed + (running ? getLatency() : 0));
-    } else {
-      setRunTime(0);
-    }
+    setRunTime(running ? getLatency() : 0);
     accumulated.current = elapsed;
     setMaxRunTime(alarm);
     setIsRunning(running);
@@ -88,7 +84,7 @@ const INJURY = 2;
 const TIME = 3;
 const OTHER = 4;
 
-export function StartJamComponent({}) {
+export function StartJamComponent({ }) {
 
   function startJam() {
     sendRequest("startJamTimer");
@@ -99,10 +95,10 @@ export function StartJamComponent({}) {
   );
 }
 
-export function StopJamComponent({}) {
+export function StopJamComponent({ }) {
 
   function stopJam() {
-    sendRequest("stopJamTimer", {stopReason: CALLED});
+    sendRequest("stopJamTimer", { stopReason: CALLED });
   }
 
   return (
