@@ -101,6 +101,10 @@ class Jam(Encodable):
         def lead(self, value: bool) -> None:
             if not isinstance(value, bool):
                 raise TypeError(f"Lead should be bool, not {type(value).__name__}.")
+            
+            # Ensure the jam has started
+            if not self._parent.isStarted:
+                raise ClientException("This Jam has not yet started.")
 
             # Validate that this team is eligible for lead
             if value:
@@ -120,6 +124,11 @@ class Jam(Encodable):
         def lost(self, value: bool) -> None:
             if not isinstance(value, bool):
                 raise TypeError(f"Lost should be bool, not {type(value).__name__}.")
+
+            # Ensure the jam has started
+            if not self._parent.isStarted:
+                raise ClientException("This Jam has not yet started.")
+            
             self._lost = value
 
         @property
@@ -132,6 +141,11 @@ class Jam(Encodable):
                 raise TypeError(
                     f"Star Pass should be False or int, not {type(value).__name__}."
                 )
+                
+            # Ensure the jam has started
+            if not self._parent.isStarted:
+                raise ClientException("This Jam has not yet started.")
+            
             if not self._lost and value is not False:
                 self._lost = True
             self._star_pass = value
