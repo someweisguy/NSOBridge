@@ -45,7 +45,9 @@ if __name__ == "__main__":
     httpStr: str = f"http://{serverAddress}:{port}"
     server.log.info(f"Starting server at '{httpStr}'.")
 
+    start: datetime = datetime.now()
     currentJam = server.bouts.currentBout.currentJam
-    currentJam.start(datetime.now())
+    currentJam.start(start)
+    server.bouts.timer.jam.start(start)
 
     asyncio.run(server.serve(port, debug=True))
