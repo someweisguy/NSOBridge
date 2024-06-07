@@ -33,7 +33,7 @@ function formatTimeString(millisRemaining) {
 }
 
 
-export default function TimerComponent({ }) {
+export default function TimerComponent({ direction = "down" }) {
   const [runTime, setRunTime] = useState(0);
   const [maxRunTime, setMaxRunTime] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -59,7 +59,7 @@ export default function TimerComponent({ }) {
 
 
   let timerMillis = 0;
-  if (maxRunTime !== null) {
+  if (maxRunTime !== null && direction === "down") {
     // Format the time string for a count-down timer
     timerMillis = maxRunTime - (runTime + accumulated.current);
     if (isRunning && timerMillis <= 0) {
@@ -73,8 +73,8 @@ export default function TimerComponent({ }) {
   const timeString = formatTimeString(timerMillis);
 
   return (
-    <>
+    <span className={timerMillis <= 0 ? "timerComplete" : ""}>
       {timeString}
-    </>
+    </span>
   );
 }
