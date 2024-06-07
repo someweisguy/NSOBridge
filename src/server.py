@@ -194,7 +194,7 @@ async def _handleEvent(
     Returns:
         dict: A dictionary of the command response.
     """
-    NOW: datetime = datetime.now(timezone.utc)
+    NOW: datetime = datetime.now()
     log.debug(f"Handling event '{command}' with args: {json}.")
     response: dict[str, Any] = dict()
     try:
