@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useInterface, getLatency } from "../App.js"
+import { useInterface, getLatency, sendRequest } from "../App.js"
 
 function formatTimeString(millisRemaining) {
   let timeString = "";
@@ -33,14 +33,18 @@ function formatTimeString(millisRemaining) {
 }
 
 
-export default function TimerComponent({ direction = "down" }) {
+export function TimerComponent({ direction = "down" }) {
   const [runTime, setRunTime] = useState(0);
   const [maxRunTime, setMaxRunTime] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const accumulated = useRef(0);
 
   function timerCallback({ alarm, elapsed, running }) {
-    setRunTime(elapsed + (running ? getLatency() : 0));
+    if (running) {
+      setRunTime(elapsed + (running ? getLatency() : 0));
+    } else {
+      setRunTime(0);
+    }
     accumulated.current = elapsed;
     setMaxRunTime(alarm);
     setIsRunning(running);
@@ -76,5 +80,32 @@ export default function TimerComponent({ direction = "down" }) {
     <span className={timerMillis <= 0 ? "timerComplete" : ""}>
       {timeString}
     </span>
+  );
+}
+
+const CALLED = 1;
+const INJURY = 2;
+const TIME = 3;
+const OTHER = 4;
+
+export function StartJamComponent({}) {
+
+  function startJam() {
+    sendRequest("startJamTimer");
+  }
+
+  return (
+    <button onClick={startJam}>Start</button>
+  );
+}
+
+export function StopJamComponent({}) {
+
+  function stopJam() {
+    sendRequest("stopJamTimer", {stopReason: CALLED});
+  }
+
+  return (
+    <button onClick={stopJam}>Stop</button>
   );
 }
