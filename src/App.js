@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import { TripComponent } from './components/JamComponent';
-import TimerComponent from './components/TimerComponent';
+import { TimerComponent, StartJamComponent, StopJamComponent }from './components/TimerComponent';
 import { useEffect } from 'react';
 
 import { io } from 'socket.io-client';
@@ -111,7 +111,7 @@ function App() {
 
   return (
     <div className="App">
-      <TimerComponent />
+      <StartJamComponent /><StopJamComponent /><TimerComponent />
       <div style={{display: "flex"}}>
         <TripComponent team="home" />
         <TripComponent team="away" />
