@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Any, Literal
 
 from .encodable import ClientException, Encodable
