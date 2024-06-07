@@ -2,32 +2,40 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useInterface, getLatency } from "../App.js"
 
 export default function TimerComponent({ }) {
-    const [timerElapsed, setTimerElapsed] = useState(0);
+    const [runTime, setRunTime] = useState(0);
+    const [maxRunTime, setMaxRunTime] = useState(null);
     const [isRunning, setIsRunning] = useState(false);
-    const accumulatedMilliseconds = useRef(0);
-    const runningSince = useRef(Date.now());
+    const accumulated = useRef(0);
+    
+    function timerCallback({ alarm, elapsed, running }) {
+        setRunTime(elapsed + (running ? getLatency() : 0));
+        accumulated.current = elapsed;
+        setMaxRunTime(alarm);
+        setIsRunning(running);
+    }
+    useInterface("getJamTimer", timerCallback);
 
     useEffect(() => {
         if (isRunning) {
+            const runningSince = Date.now() - getLatency();
             const intervalId = setInterval(() => {
-                setTimerElapsed(Date.now() - runningSince.current + accumulatedMilliseconds.current)
+                setRunTime(Date.now() - runningSince)
             }, 50);
             return () => clearInterval(intervalId);
         }
     }, [isRunning]);
 
 
-    function cb({ alarm, elapsed, running }) {
-        console.log(elapsed)
-        runningSince.current = Date.now() - getLatency();
-        accumulatedMilliseconds.current = elapsed;
-        setTimerElapsed(elapsed + (running ? getLatency() : 0));
-        setIsRunning(running);
+    let timerValue = maxRunTime - (runTime + accumulated.current);
+    if (timerValue < 0) {
+        timerValue = 0;
+    } else if (timerValue < 10000) {
+        timerValue = (timerValue / 1000).toFixed(1);
+    } else {
+        timerValue = (timerValue / 1000).toFixed(0);
     }
-    useInterface("getJamTimer", cb);
-
 
     return (
-        <h1>{((timerElapsed + accumulatedMilliseconds.current) / 1000.0).toFixed(1)}</h1>
+        <h1>{timerValue}</h1>
     );
 }
