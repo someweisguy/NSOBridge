@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
 from .encodable import ClientException, Encodable
@@ -47,7 +47,9 @@ class Timer(Encodable):
     def isRunning(self) -> bool:
         return self._lap.start is not None and self._lap.stop is None
 
-    def start(self, timestamp: datetime = datetime.now()) -> None:
+    def start(self, timestamp: None | datetime = None) -> None:
+        if timestamp is None:
+            timestamp = datetime.now()
         if self.isRunning():
             raise ClientException("Timer is already running.")
         if self._lap.start is not None and self._lap.stop is not None:
@@ -55,12 +57,16 @@ class Timer(Encodable):
             self._lap.stop = None
         self._lap.start = timestamp
 
-    def stop(self, timestamp: datetime = datetime.now()) -> None:
+    def stop(self, timestamp: None | datetime = None) -> None:
+        if timestamp is None:
+            timestamp = datetime.now()
         if not self.isRunning():
             raise ClientException("Timer is already stopped.")
         self._lap.stop = timestamp
 
-    def getElapsed(self, timestamp: datetime = datetime.now()) -> int:
+    def getElapsed(self, timestamp: None | datetime = None) -> int:
+        if timestamp is None:
+            timestamp = datetime.now()
         elapsed: int = round(self._elapsed.total_seconds() * 1000)
         lapTime: timedelta = timedelta()
         if self._lap.start is not None and self._lap.stop is not None:
