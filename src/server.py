@@ -6,8 +6,8 @@ from starlette.responses import HTMLResponse, FileResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
-from typing import Callable, Any, Awaitable, Collection
-from datetime import datetime, timedelta, timezone
+from typing import Callable, Any, Awaitable, Collection, TypeAlias
+from datetime import datetime, timedelta
 import inspect
 import hashlib
 import logging
@@ -22,6 +22,8 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+"""Type alias for `None | dict[str, Any]`. """
+API: TypeAlias = None | dict[str, Any]
 
 async def serve(port: int, *, debug: bool = False) -> None:
     """Start and serve the scoreboard app on the specified port.
