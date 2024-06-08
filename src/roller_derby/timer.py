@@ -13,12 +13,15 @@ class Timer(Encodable):
 
     def __init__(
         self,
+        timerType: str,
         alarm: None | datetime = None,
         *,
         hours: None | int = None,
         minutes: None | int = None,
         seconds: None | int = None,
     ) -> None:
+        if not isinstance(timerType, str):
+            raise TypeError(f"Type must be str, not {type(timerType).__name__}")
         if alarm is not None and not isinstance(alarm, datetime):
             raise TypeError(f"Alarm must be datetime, not {type(alarm).__name__}")
         units: tuple[None | int, ...] = (hours, minutes, seconds)
@@ -29,6 +32,7 @@ class Timer(Encodable):
                 f"{type(self).__name__} must be initialized with a datetime or timedelta, not both."
             )
 
+        self._timerType: str = timerType
         self._alarm: None | timedelta = None
         self._elapsed: timedelta = timedelta()
         self._lap: Timer.Lap = Timer.Lap()
@@ -75,7 +79,7 @@ class Timer(Encodable):
             lapTime = timestamp - self._lap.start
         elapsed += round(lapTime.total_seconds() * 1000)
         return elapsed
-    
+
     def setElapsed(
         self,
         hours: None | int,
@@ -100,6 +104,7 @@ class Timer(Encodable):
 
     def encode(self) -> dict[str, Any]:
         return {
+            "type": self._timerType,
             "alarm": self.getAlarm(),
             "elapsed": self.getElapsed(),
             "running": self.isRunning(),
@@ -108,13 +113,30 @@ class Timer(Encodable):
 
 class TimeKeeper:
     def __init__(self) -> None:
-        self._game: Timer = Timer(minutes=30)
-        self._jam: Timer = Timer(minutes=2)
-        self._lineup: Timer = Timer(seconds=30)
-        self._timeout: Timer = Timer()
+        self._game: Timer = Timer("game", minutes=30)
+        self._jam: Timer = Timer("jam", minutes=2)
+        self._lineup: Timer = Timer("lineup", seconds=30)
+        self._timeout: Timer = Timer("timeout")
 
         self._periodTimer = self._game
         self._actionTimer = self._jam
+    
+    def __getitem__(self, item: str) -> Timer:
+        match item:
+            case "game":
+                return self._game
+            case "jam":
+                return self._jam
+            case "lineup":
+                return self._lineup
+            case "timeout":
+                return self._timeout
+            case "period":
+                return self._periodTimer
+            case "action":
+                return self._actionTimer
+            case _:
+                raise LookupError(f"Unknown timer '{item}'.")
 
     @property
     def game(self) -> Timer:

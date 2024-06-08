@@ -111,7 +111,7 @@ function App() {
 
   return (
     <div className="App">
-      <StartJamComponent /><StopJamComponent /><TimerComponent />
+      <StartJamComponent /><StopJamComponent /><br /><TimerComponent timerType="jam" />&nbsp;<TimerComponent timerType="game" />
       <div style={{display: "flex"}}>
         <TripComponent team="home" />
         <TripComponent team="away" />

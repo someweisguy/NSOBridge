@@ -1,34 +1,39 @@
 import server
+from server import API, ClientException
 from roller_derby.score import Jam
 from roller_derby.timer import Timer
 from datetime import datetime
-from typing import Any
 
 
 @server.register
-async def getJamTimer() -> dict[str, Any]:
+async def timer(timerType: str) -> API:
+    return server.bouts.timer[timerType].encode()
+
+
+@server.register
+async def getJamTimer() -> API:
     timer: Timer = server.bouts.timer.jam
     return timer.encode()
 
 
 @server.register
-async def startJamTimer(timestamp: datetime) -> None:
+async def startJamTimer(timestamp: datetime) -> API:
     server.bouts.currentBout.currentJam.start(timestamp)
     timer: Timer = server.bouts.timer.jam
     timer.start(timestamp)
 
     # Broadcast the updates
-    await server.emit("getJamTimer", timer.encode())
+    await server.emit("timer", timer.encode())
 
 
 @server.register
-async def stopJamTimer(stopReason: Jam.StopReason, timestamp: datetime) -> None:
+async def stopJamTimer(stopReason: Jam.StopReason, timestamp: datetime) -> API:
     server.bouts.currentBout.currentJam.stop(stopReason, timestamp)
     timer: Timer = server.bouts.timer.jam
     timer.stop(timestamp)
 
     # Broadcast the updates
-    await server.emit("getJamTimer", timer.encode())
+    await server.emit("timer", timer.encode())
 
 
 if __name__ == "__main__":

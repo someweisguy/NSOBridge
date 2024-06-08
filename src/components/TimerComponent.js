@@ -33,19 +33,22 @@ function formatTimeString(millisRemaining) {
 }
 
 
-export function TimerComponent({ direction = "down" }) {
+export function TimerComponent({ timerType, direction = "down" }) {
   const [runTime, setRunTime] = useState(0);
   const [maxRunTime, setMaxRunTime] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const accumulated = useRef(0);
 
-  function timerCallback({ alarm, elapsed, running }) {
+  function timerCallback({ type, alarm, elapsed, running }) {
+    if (timerType !== type) {
+        return;
+    }
     setRunTime(running ? getLatency() : 0);
     accumulated.current = elapsed;
     setMaxRunTime(alarm);
     setIsRunning(running);
   }
-  useInterface("getJamTimer", timerCallback);
+  useInterface("timer", timerCallback, {timerType: timerType});
 
   useEffect(() => {
     if (isRunning) {
