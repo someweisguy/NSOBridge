@@ -212,6 +212,7 @@ class Jam(Encodable):
         if self.isStopped:
             raise ClientException("This jam has already stopped.")
         self._stopped = timestamp
+        self._stopReason = "unknown"
 
     @property
     def stopReason(self) -> None | Jam.STOP_REASONS:
