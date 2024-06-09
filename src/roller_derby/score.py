@@ -49,7 +49,7 @@ class Jam(Encodable):
         CALLED = auto()
         INJURY = auto()
         TIME = auto()
-        OTHER = auto()
+        UNKNOWN = auto()
 
     @dataclass
     class Trip(Encodable):
@@ -211,7 +211,7 @@ class Jam(Encodable):
     def isStopped(self) -> bool:
         return self._stopped is not False
 
-    def stop(self, reason: Jam.StopReason, timestamp: datetime) -> None:
+    def stop(self, timestamp: datetime, reason: Jam.StopReason = StopReason.UNKNOWN) -> None:
         if not self.isStarted:
             raise ClientException("This jam has not yet started.")
         if self.isStopped:
@@ -220,6 +220,20 @@ class Jam(Encodable):
             raise ClientException("Stop reason is invalid")
         self._stopped = timestamp
         self._stopReason = reason
+
+    @property
+    def stopReason(self) -> None | Jam.StopReason:
+        return self._stopReason
+
+    @stopReason.setter
+    def stopReason(self, stopReason: Jam.StopReason) -> None:
+        if not isinstance(stopReason, Jam.StopReason):
+            raise TypeError(
+                f"stopReason must be StopReason, not '{type(stopReason).__name__}'."
+            )
+        if not self.isStopped:
+            raise ClientException("This jam has not yet stopped.")
+        self._stopReason = stopReason
 
     def unStop(self) -> None:
         if not self.isStopped:

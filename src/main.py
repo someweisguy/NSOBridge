@@ -17,7 +17,7 @@ async def startJam(timestamp: datetime) -> API:
 
     jamTimer: Timer = server.bouts.timer.jam
     jamTimer.start(timestamp)
-    
+
     # Start the period clock if it isn't running
     periodClock: Timer = server.bouts.timer.game
     if not periodClock.isRunning():
@@ -30,9 +30,9 @@ async def startJam(timestamp: datetime) -> API:
 
 
 @server.register
-async def stopJam(stopReason: Jam.StopReason, timestamp: datetime) -> API:
+async def stopJam(timestamp: datetime) -> API:
     jam: Jam = server.bouts.currentBout.currentJam
-    jam.stop(stopReason, timestamp)
+    jam.stop(timestamp)
 
     timer: Timer = server.bouts.timer.jam
     timer.stop(timestamp)
@@ -40,6 +40,14 @@ async def stopJam(stopReason: Jam.StopReason, timestamp: datetime) -> API:
     # Broadcast the updates
     await server.emit("jam", jam.encode())
     await server.emit("timer", timer.encode())
+
+
+@server.register
+async def setJamStopReason(stopReason: Jam.StopReason) -> API:
+    jam: Jam = server.bouts.currentBout.currentJam
+    jam.stopReason = stopReason
+
+    await server.emit("jam", jam.encode())
 
 
 if __name__ == "__main__":
@@ -57,3 +65,7 @@ if __name__ == "__main__":
     server.log.info(f"Starting server at '{httpStr}'.")
 
     asyncio.run(server.serve(port, debug=True))
+
+
+# start jam
+# stop jam: time, call, injury, other
