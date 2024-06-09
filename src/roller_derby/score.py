@@ -1,8 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-from enum import IntEnum, auto
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
 from .encodable import ClientException, Encodable
 
@@ -45,11 +44,7 @@ class Bout(Encodable):
 
 
 class Jam(Encodable):
-    class StopReason(IntEnum):
-        CALLED = auto()
-        INJURY = auto()
-        TIME = auto()
-        UNKNOWN = auto()
+    type STOP_REASONS = Literal["called", "injury", "time", "unknown"]
 
     @dataclass
     class Trip(Encodable):
@@ -101,7 +96,7 @@ class Jam(Encodable):
         def lead(self, value: bool) -> None:
             if not isinstance(value, bool):
                 raise TypeError(f"Lead should be bool, not {type(value).__name__}.")
-            
+
             # Ensure the jam has started
             if not self._parent.isStarted:
                 raise ClientException("This Jam has not yet started.")
@@ -128,7 +123,7 @@ class Jam(Encodable):
             # Ensure the jam has started
             if not self._parent.isStarted:
                 raise ClientException("This Jam has not yet started.")
-            
+
             self._lost = value
 
         @property
@@ -141,11 +136,11 @@ class Jam(Encodable):
                 raise TypeError(
                     f"Star Pass should be False or int, not {type(value).__name__}."
                 )
-                
+
             # Ensure the jam has started
             if not self._parent.isStarted:
                 raise ClientException("This Jam has not yet started.")
-            
+
             if not self._lost and value is not False:
                 self._lost = True
             self._star_pass = value
@@ -166,7 +161,7 @@ class Jam(Encodable):
         self._parent: Bout = parent
         self._started: Literal[False] | datetime = False
         self._stopped: Literal[False] | datetime = False
-        self._stopReason: None | Jam.StopReason = None
+        self._stopReason: None | Jam.STOP_REASONS = None
         self._home: Jam.Team = Jam.Team(self, "home")
         self._away: Jam.Team = Jam.Team(self, "away")
 
@@ -211,25 +206,22 @@ class Jam(Encodable):
     def isStopped(self) -> bool:
         return self._stopped is not False
 
-    def stop(self, timestamp: datetime, reason: Jam.StopReason = StopReason.UNKNOWN) -> None:
+    def stop(self, timestamp: datetime) -> None:
         if not self.isStarted:
             raise ClientException("This jam has not yet started.")
         if self.isStopped:
             raise ClientException("This jam has already stopped.")
-        if reason not in Jam.StopReason:
-            raise ClientException("Stop reason is invalid")
         self._stopped = timestamp
-        self._stopReason = reason
 
     @property
-    def stopReason(self) -> None | Jam.StopReason:
+    def stopReason(self) -> None | Jam.STOP_REASONS:
         return self._stopReason
 
     @stopReason.setter
-    def stopReason(self, stopReason: Jam.StopReason) -> None:
-        if not isinstance(stopReason, Jam.StopReason):
-            raise TypeError(
-                f"stopReason must be StopReason, not '{type(stopReason).__name__}'."
+    def stopReason(self, stopReason: Jam.STOP_REASONS) -> None:
+        if stopReason not in get_args(Jam.STOP_REASONS):
+            raise ValueError(
+                f"Stop reason must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
             )
         if not self.isStopped:
             raise ClientException("This jam has not yet stopped.")
