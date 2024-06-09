@@ -15,12 +15,18 @@ async def startJam(timestamp: datetime) -> API:
     jam: Jam = server.bouts.currentBout.currentJam
     jam.start(timestamp)
 
-    timer: Timer = server.bouts.timer.jam
-    timer.start(timestamp)
+    jamTimer: Timer = server.bouts.timer.jam
+    jamTimer.start(timestamp)
+    
+    # Start the period clock if it isn't running
+    periodClock: Timer = server.bouts.timer.game
+    if not periodClock.isRunning():
+        periodClock.start(timestamp)
+        await server.emit("timer", periodClock.encode())
 
     # Broadcast the updates
     await server.emit("jam", jam.encode())
-    await server.emit("timer", timer.encode())
+    await server.emit("timer", jamTimer.encode())
 
 
 @server.register
