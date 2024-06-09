@@ -102,6 +102,9 @@ class Timer(Encodable):
             return None
         return round(self._alarm.total_seconds() * 1000)
 
+    def reset(self) -> None:
+        self.elapsed = timedelta()
+
     def encode(self) -> dict[str, Any]:
         return {
             "type": self._timerType,
