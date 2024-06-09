@@ -246,7 +246,6 @@ async def _handleEvent(
             log.error(f"{type(e).__name__}: {str(e)} ({fileName}, {lineNumber})")
     finally:
         # Return the current timestamp
-        response["timestamp"] = str(datetime.now())
         log.debug(f"Ack: {str(response)}")
         return response
 
