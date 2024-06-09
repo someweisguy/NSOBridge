@@ -11,28 +11,28 @@ async def timer(timerType: str) -> API:
 
 
 @server.register
-async def getJamTimer() -> API:
-    timer: Timer = server.bouts.timer.jam
-    return timer.encode()
+async def startJam(timestamp: datetime) -> API:
+    jam: Jam = server.bouts.currentBout.currentJam
+    jam.start(timestamp)
 
-
-@server.register
-async def startJamTimer(timestamp: datetime) -> API:
-    server.bouts.currentBout.currentJam.start(timestamp)
     timer: Timer = server.bouts.timer.jam
     timer.start(timestamp)
 
     # Broadcast the updates
+    await server.emit("jam", jam.encode())
     await server.emit("timer", timer.encode())
 
 
 @server.register
-async def stopJamTimer(stopReason: Jam.StopReason, timestamp: datetime) -> API:
-    server.bouts.currentBout.currentJam.stop(stopReason, timestamp)
+async def stopJam(stopReason: Jam.StopReason, timestamp: datetime) -> API:
+    jam: Jam = server.bouts.currentBout.currentJam
+    jam.stop(stopReason, timestamp)
+
     timer: Timer = server.bouts.timer.jam
     timer.stop(timestamp)
 
     # Broadcast the updates
+    await server.emit("jam", jam.encode())
     await server.emit("timer", timer.encode())
 
 
@@ -49,6 +49,5 @@ if __name__ == "__main__":
         serverAddress = sock.getsockname()[0]
     httpStr: str = f"http://{serverAddress}:{port}"
     server.log.info(f"Starting server at '{httpStr}'.")
-
 
     asyncio.run(server.serve(port, debug=True))

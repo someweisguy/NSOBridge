@@ -41,14 +41,14 @@ export function TimerComponent({ timerType, direction = "down" }) {
 
   function timerCallback({ type, alarm, elapsed, running }) {
     if (timerType !== type) {
-        return;
+      return;
     }
     setRunTime(running ? getLatency() : 0);
     accumulated.current = elapsed;
     setMaxRunTime(alarm);
     setIsRunning(running);
   }
-  useInterface("timer", timerCallback, {timerType: timerType});
+  useInterface("timer", timerCallback, { timerType: timerType });
 
   useEffect(() => {
     if (isRunning) {
@@ -90,7 +90,7 @@ const OTHER = 4;
 export function StartJamComponent({ }) {
 
   function startJam() {
-    sendRequest("startJamTimer");
+    sendRequest("startJam");
   }
 
   return (
@@ -101,7 +101,7 @@ export function StartJamComponent({ }) {
 export function StopJamComponent({ }) {
 
   function stopJam() {
-    sendRequest("stopJamTimer", { stopReason: CALLED });
+    sendRequest("stopJam", { stopReason: CALLED });
   }
 
   return (
