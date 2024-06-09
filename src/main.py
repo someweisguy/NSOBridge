@@ -43,7 +43,7 @@ async def stopJam(timestamp: datetime) -> API:
 
 
 @server.register
-async def setJamStopReason(stopReason: Jam.StopReason) -> API:
+async def setJamStopReason(stopReason: Jam.STOP_REASONS) -> API:
     jam: Jam = server.bouts.currentBout.currentJam
     jam.stopReason = stopReason
 
