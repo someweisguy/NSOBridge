@@ -33,7 +33,7 @@ function formatTimeString(millisRemaining) {
 }
 
 
-export function TimerComponent({ timerType, direction = "down" }) {
+export default function TimerComponent({ timerType, direction = "down" }) {
   const [runTime, setRunTime] = useState(0);
   const [maxRunTime, setMaxRunTime] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -62,49 +62,25 @@ export function TimerComponent({ timerType, direction = "down" }) {
 
 
   let timerMillis = 0;
+  let alarmFired = false;
   if (maxRunTime !== null && direction === "down") {
     // Format the time string for a count-down timer
     timerMillis = maxRunTime - (runTime + accumulated.current);
     if (isRunning && timerMillis <= 0) {
       // Stop interval to reduce CPU load
       setIsRunning(false);
+      alarmFired = true;
     }
   } else {
     timerMillis = runTime + accumulated.current;
   }
 
+  // Format the time string
   const timeString = formatTimeString(timerMillis);
 
   return (
-    <span className={timerMillis <= 0 ? "timerComplete" : ""}>
+    <span className={alarmFired ? "timerComplete" : ""}>
       {timeString}
     </span>
-  );
-}
-
-const CALLED = 1;
-const INJURY = 2;
-const TIME = 3;
-const OTHER = 4;
-
-export function StartJamComponent({ }) {
-
-  function startJam() {
-    sendRequest("startJam");
-  }
-
-  return (
-    <button onClick={startJam}>Start</button>
-  );
-}
-
-export function StopJamComponent({ }) {
-
-  function stopJam() {
-    sendRequest("stopJam", { stopReason: CALLED });
-  }
-
-  return (
-    <button onClick={stopJam}>Stop</button>
   );
 }
