@@ -148,6 +148,9 @@ class Jam(Encodable):
         def getOtherTeam(self) -> Jam.Team:
             return self._parent._away if self._team == "home" else self._parent._home
 
+        def canBeLead(self) -> bool:
+            return not self._lost and not self.getOtherTeam()._lead
+
         def encode(self) -> dict:
             return {
                 "team": self._team,
@@ -155,6 +158,7 @@ class Jam(Encodable):
                 "lost": self._lost,
                 "starPass": self._star_pass,
                 "trips": [trip.encode() for trip in self._trips],
+                "canBeLead": self.canBeLead(),
             }
 
     def __init__(self, parent: Bout) -> None:
