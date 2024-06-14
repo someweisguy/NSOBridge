@@ -238,7 +238,7 @@ class Jam(Encodable):
         return {
             "startTick": str(self._started),
             "stopTick": str(self._stopped),
-            "stopReason": None if self._stopReason is None else int(self._stopReason),
+            "stopReason": self._stopReason,
             "home": self._home.encode(),
             "away": self._away.encode(),
         }
