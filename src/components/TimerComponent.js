@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useInterface, getLatency, sendRequest } from "../App.js"
 
-function formatTimeString(millisRemaining) {
+function formatTimeString(millisRemaining, showMillis = true) {
   let timeString = "";
   if (millisRemaining > 0) {
     let hours = Math.floor((millisRemaining / (1000 * 60 * 60)) % 24);
@@ -22,7 +22,7 @@ function formatTimeString(millisRemaining) {
     if (millisRemaining >= 10000) {
       seconds = seconds < 10 ? "0" + seconds : seconds.toString();
       timeString += seconds;
-    } else {
+    } else if (showMillis) {
       let deciseconds = Math.floor((millisRemaining % 1000) / 100);
       timeString += seconds + "." + deciseconds
     }
