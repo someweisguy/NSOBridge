@@ -82,17 +82,14 @@ class Timer(Encodable):
 
     def setElapsed(
         self,
-        hours: None | int,
-        minutes: None | int,
-        seconds: None | int,
-        milliseconds: None | int,
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: int = 0,
+        milliseconds: int = 0,
     ) -> None:
-        units: tuple[None | int, ...] = (hours, minutes, seconds, milliseconds)
-        if any(unit is not None and not isinstance(unit, int) for unit in units):
+        units: tuple[int, ...] = (hours, minutes, seconds, milliseconds)
+        if any(unit is not isinstance(unit, int) for unit in units):
             raise TypeError("Units must be int")
-        hours, minutes, seconds, milliseconds = [
-            0 if unit is None else unit for unit in units
-        ]
         self._elapsed = timedelta(
             hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
         )
@@ -101,7 +98,7 @@ class Timer(Encodable):
         if self._alarm is None:
             return None
         return round(self._alarm.total_seconds() * 1000)
-    
+
     def getRemaining(self) -> None | int:
         if self._alarm is None:
             return None
@@ -128,7 +125,7 @@ class TimeKeeper:
 
         self._periodTimer = self._game
         self._actionTimer = self._jam
-    
+
     def __getitem__(self, item: str) -> Timer:
         match item:
             case "game":
