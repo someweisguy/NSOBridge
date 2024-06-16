@@ -36,6 +36,7 @@ async def startJam(timestamp: datetime) -> API:
     # Broadcast the updates
     await server.emit("jam", jam.encode())
     await server.emit("timer", jamTimer.encode())
+    await server.emit("timer", lineupTimer.encode())
 
 
 @server.register
@@ -60,6 +61,7 @@ async def stopJam(timestamp: datetime) -> API:
     # Broadcast the updates
     await server.emit("jam", jam.encode())
     await server.emit("timer", jamTimer.encode())
+    await server.emit("timer", lineupTimer.encode())
 
 
 @server.register
