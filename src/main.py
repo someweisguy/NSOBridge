@@ -69,7 +69,3 @@ if __name__ == "__main__":
     server.log.info(f"Starting server at '{httpStr}'.")
 
     asyncio.run(server.serve(port, debug=True))
-
-
-# start jam
-# stop jam: time, call, injury, other
