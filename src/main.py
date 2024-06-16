@@ -40,6 +40,14 @@ async def stopJam(timestamp: datetime) -> API:
 
     timer: Timer = server.bouts.timer.jam
     timer.stop(timestamp)
+    
+    # Attempt to determine the reason the jam ended
+    millisecondsLeftInJam: None | int = timer.getRemaining()
+    assert millisecondsLeftInJam is not None
+    if millisecondsLeftInJam < 0:
+        jam.stopReason = "time"
+    elif jam.home.lead or jam.away.lead:
+        jam.stopReason = "called"
 
     # Broadcast the updates
     await server.emit("jam", jam.encode())
