@@ -4,11 +4,13 @@ from roller_derby.score import Jam
 from roller_derby.timer import Timer
 from datetime import datetime
 
+
 @server.register
 async def jam() -> API:
     return server.bouts.currentBout.currentJam.encode()
 
 
+# TODO: Move to separate timer control file?
 @server.register
 async def timer(timerType: str) -> API:
     return server.bouts.timer[timerType].encode()
@@ -40,7 +42,7 @@ async def stopJam(timestamp: datetime) -> API:
 
     timer: Timer = server.bouts.timer.jam
     timer.stop(timestamp)
-    
+
     # Attempt to determine the reason the jam ended
     millisecondsLeftInJam: None | int = timer.getRemaining()
     assert millisecondsLeftInJam is not None
