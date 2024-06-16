@@ -101,6 +101,11 @@ class Timer(Encodable):
         if self._alarm is None:
             return None
         return round(self._alarm.total_seconds() * 1000)
+    
+    def getRemaining(self) -> None | int:
+        if self._alarm is None:
+            return None
+        return round(self._alarm.total_seconds() * 1000) - self.getElapsed()
 
     def reset(self) -> None:
         self.elapsed = timedelta()
