@@ -1,8 +1,12 @@
 import server
-from server import API, ClientException
+from server import API
 from roller_derby.score import Jam
 from roller_derby.timer import Timer
 from datetime import datetime
+
+@server.register
+async def jam() -> API:
+    return server.bouts.currentBout.currentJam.encode()
 
 
 @server.register

@@ -240,8 +240,8 @@ class Jam(Encodable):
 
     def encode(self) -> dict:
         return {
-            "startTick": str(self._started),
-            "stopTick": str(self._stopped),
+            "startTime": self._started if self._started is False else str(self._started),
+            "stopTime": self._stopped if self._stopped is False else str(self._stopped),
             "stopReason": self._stopReason,
             "home": self._home.encode(),
             "away": self._away.encode(),
