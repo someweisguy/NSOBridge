@@ -34,18 +34,18 @@ function formatTimeString(millisRemaining) {
 
 
 export default function TimerComponent({ timerType, direction = "down" }) {
+  const [currentType, setCurrentType] = useState(timerType);
   const [runTime, setRunTime] = useState(0);
   const [maxRunTime, setMaxRunTime] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const accumulated = useRef(0);
 
-  function timerCallback(props) {
-    const { type, alarm, elapsed, running } = props
+  function timerCallback({ type, alarm, elapsed, running }) {
     if (timerType === "action") {
       if (!running || !(["jam", "lineup", "timeout"].includes(type))) {
         return;  // Not the running action timer
       }
-      console.log(props);
+      setCurrentType(type);
     } else if (timerType !== type) {
       return;  // Incorrect timer type
     }
@@ -65,8 +65,7 @@ export default function TimerComponent({ timerType, direction = "down" }) {
       }, 50);
       return () => clearInterval(intervalId);
     }
-  }, [isRunning]);
-
+  }, [isRunning, currentType]);
 
   let timerMillis = 0;
   let alarmFired = false;
