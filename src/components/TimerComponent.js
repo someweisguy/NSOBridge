@@ -39,12 +39,19 @@ export default function TimerComponent({ timerType, direction = "down" }) {
   const [isRunning, setIsRunning] = useState(false);
   const accumulated = useRef(0);
 
-  function timerCallback({ type, alarm, elapsed, running }) {
-    if (timerType !== type) {
-      return;
+  function timerCallback(props) {
+    const { type, alarm, elapsed, running } = props
+    if (timerType === "action") {
+      if (!running || !(["jam", "lineup", "timeout"].includes(type))) {
+        return;  // Not the running action timer
+      }
+      console.log(props);
+    } else if (timerType !== type) {
+      return;  // Incorrect timer type
     }
-    setRunTime(running ? getLatency() : 0);
+
     accumulated.current = elapsed;
+    setRunTime(running ? getLatency() : 0);
     setMaxRunTime(alarm);
     setIsRunning(running);
   }
