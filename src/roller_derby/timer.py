@@ -88,7 +88,7 @@ class Timer(Encodable):
         milliseconds: int = 0,
     ) -> None:
         units: tuple[int, ...] = (hours, minutes, seconds, milliseconds)
-        if any(unit is not isinstance(unit, int) for unit in units):
+        if any(not isinstance(unit, int) for unit in units):
             raise TypeError("Units must be int")
         self._elapsed = timedelta(
             hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
