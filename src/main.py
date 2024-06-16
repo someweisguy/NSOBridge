@@ -24,6 +24,9 @@ async def startJam(timestamp: datetime) -> API:
     jamTimer: Timer = server.bouts.timer.jam
     jamTimer.start(timestamp)
 
+    lineupTimer: Timer = server.bouts.timer.lineup
+    lineupTimer.setElapsed(seconds=0)
+
     # Start the period clock if it isn't running
     periodClock: Timer = server.bouts.timer.game
     if not periodClock.isRunning():
@@ -40,11 +43,14 @@ async def stopJam(timestamp: datetime) -> API:
     jam: Jam = server.bouts.currentBout.currentJam
     jam.stop(timestamp)
 
-    timer: Timer = server.bouts.timer.jam
-    timer.stop(timestamp)
+    jamTimer: Timer = server.bouts.timer.jam
+    jamTimer.stop(timestamp)
+
+    lineupTimer: Timer = server.bouts.timer.lineup
+    lineupTimer.start(timestamp)
 
     # Attempt to determine the reason the jam ended
-    millisecondsLeftInJam: None | int = timer.getRemaining()
+    millisecondsLeftInJam: None | int = jamTimer.getRemaining()
     assert millisecondsLeftInJam is not None
     if millisecondsLeftInJam < 0:
         jam.stopReason = "time"
@@ -53,7 +59,7 @@ async def stopJam(timestamp: datetime) -> API:
 
     # Broadcast the updates
     await server.emit("jam", jam.encode())
-    await server.emit("timer", timer.encode())
+    await server.emit("timer", jamTimer.encode())
 
 
 @server.register
