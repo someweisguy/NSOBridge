@@ -6,28 +6,6 @@ const INJURY = "injury";
 const TIME = "time";
 const UNKNOWN = "unknown";
 
-export function StartJamComponent({ }) {
-
-  function startJam() {
-    sendRequest("startJam");
-  }
-
-  return (
-    <button onClick={startJam}>Start</button>
-  );
-}
-
-export function StopJamComponent({ }) {
-
-  function stopJam() {
-    sendRequest("stopJam", { stopReason: CALLED });
-  }
-
-  return (
-    <button onClick={stopJam}>Stop</button>
-  );
-}
-
 export function JamControlComponent({ }) {
   const [isStarted, setIsStarted] = useState(false);
   const [stopReason, setStopReason] = useState(null);
