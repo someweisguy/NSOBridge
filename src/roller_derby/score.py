@@ -44,7 +44,7 @@ class Bout(Encodable):
 
 
 class Jam(Encodable):
-    type STOP_REASONS = Literal["called", "injury", "time", "unknown"]
+    STOP_REASONS = Literal["called", "injury", "time", "unknown"]
 
     @dataclass
     class Trip(Encodable):
