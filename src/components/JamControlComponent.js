@@ -18,6 +18,7 @@ export function JamControlComponent({ }) {
 
   const isStopped = stopReason !== null;
 
+  let nextJamButton = null;
   let label = null;
   const buttons = [];
   if (!isStarted) {
@@ -29,6 +30,9 @@ export function JamControlComponent({ }) {
       <button onClick={() => sendRequest("stopJam")}>Stop Jam</button>
     );
   } else {
+    nextJamButton = (
+      <button>Start Next Jam</button>
+    );
     label = (<small>Set stop reason: </small>);
     buttons.push(
       <button onClick={() => sendRequest("setJamStopReason", { stopReason: CALLED })}
@@ -46,7 +50,7 @@ export function JamControlComponent({ }) {
 
   return (
     <div>
-      {label}{buttons}
+      {nextJamButton}{label}{buttons}
     </div>
   );
 }
