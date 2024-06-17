@@ -20,7 +20,7 @@ var latency = 0;
  * @param {object} constArgs The constants which are added as request arguments
  * when the socket connects.
  */
-export function useInterface(api, callbackFunction, constArgs = undefined) {
+export function useSocketGetter(api, callbackFunction, constArgs = undefined) {
   // Register a socket callback when data is received
   useEffect(
     () => {
@@ -40,7 +40,7 @@ export function useInterface(api, callbackFunction, constArgs = undefined) {
     };
     socket.on("connect", connectHandler);
     return () => socket.off("connect", connectHandler);
-  }, [api, constArgs, callbackFunction]);
+  }, [api, callbackFunction, constArgs]);
 }
 
 export async function sendRequest(api, payload = {}) {

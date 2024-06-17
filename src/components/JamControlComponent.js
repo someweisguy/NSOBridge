@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useInterface, sendRequest } from "../App";
+import { useSocketGetter, sendRequest } from "../App";
 
 const CALLED = "called";
 const INJURY = "injury";
@@ -14,7 +14,7 @@ export function JamControlComponent({ }) {
     setIsStarted(startTime !== false);
     setStopReason(stopReason);
   }
-  useInterface("jam", jamCallback);
+  useSocketGetter("jam", jamCallback);
 
   const isStopped = stopReason !== null;
 

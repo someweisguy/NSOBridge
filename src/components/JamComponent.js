@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useInterface, sendRequest } from "../App";
+import { useSocketGetter, sendRequest } from "../App";
 import "./JamComponent.css"
 
 
@@ -20,7 +20,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
       selectTrip(teamJam.trips.length);
     }
   }, [team, selectedTrip, trips]);
-  useInterface("getJamTrips", tripsHandler, { team: team });
+  useSocketGetter("getJamTrips", tripsHandler, { team: team });
 
   const leadHandler = useCallback((teamJam) => {
     if (teamJam.team !== team) {
@@ -28,7 +28,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
     }
     setLead(teamJam.lead);
   }, [team]);
-  useInterface("getJamLead", leadHandler, { team: team });
+  useSocketGetter("getJamLead", leadHandler, { team: team });
 
   const lostHandler = useCallback((teamJam) => {
     if (teamJam.team !== team) {
@@ -36,7 +36,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
     }
     setLost(teamJam.lost);
   }, [team]);
-  useInterface("getJamLost", lostHandler, { team: team });
+  useSocketGetter("getJamLost", lostHandler, { team: team });
 
   const starPassHandler = useCallback((teamJam) => {
     if (teamJam.team !== team) {
@@ -44,7 +44,7 @@ export function TripComponent({ team, periodIndex, jamIndex }) {
     }
     setStarPass(teamJam.starPass);
   }, [team]);
-  useInterface("getJamStarPass", starPassHandler, { team: team });
+  useSocketGetter("getJamStarPass", starPassHandler, { team: team });
 
   useEffect(() => {
     // Scroll the Trips scrollbar to the selected Trip.

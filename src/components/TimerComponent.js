@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useInterface, getLatency, sendRequest } from "../App.js"
+import { useSocketGetter, getLatency, sendRequest } from "../App.js"
 
 function formatTimeString(millisRemaining, showMillis = true) {
   let timeString = "";
@@ -55,7 +55,7 @@ export default function TimerComponent({ timerType, direction = "down" }) {
     setMaxRunTime(alarm);
     setIsRunning(running);
   }
-  useInterface("timer", timerCallback, { timerType: timerType });
+  useSocketGetter("timer", timerCallback, { timerType: timerType });
 
   useEffect(() => {
     if (isRunning) {
