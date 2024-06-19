@@ -26,7 +26,6 @@ const NULL_JAM = {
 
 export function NewJamControlComponent({ }) {
   const [state, setState] = useState(NULL_JAM);
-
   const jamHandler = useCallback((newJamState) => {
     setState(newJamState);
   }, []);
@@ -61,11 +60,13 @@ function TripComponent({ team, trips }) {
     selectedTripButton.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
   }, [selectedTrip]);
 
-  // Ensure the latest Trip is selected when adding new Trips
-  if (latestIsSelected.current && selectedTrip != trips.length) {
-    setSelectedTrip(trips.length);
-  }
-  latestIsSelected.current = selectedTrip === trips.length;
+  // Ensure the new latest Trip is selected when adding a new Trip
+  useEffect(() => {
+    if (latestIsSelected.current && selectedTrip != trips.length) {
+      setSelectedTrip(trips.length);
+    }
+    latestIsSelected.current = selectedTrip === trips.length;
+  }, [selectedTrip, trips]);
 
   // Render the Trip score buttons
   const tripScoreButtons = [];
