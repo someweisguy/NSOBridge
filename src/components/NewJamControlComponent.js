@@ -28,7 +28,6 @@ export function NewJamControlComponent({ }) {
   const [state, setState] = useState(NULL_JAM);
 
   const jamHandler = useCallback((newJamState) => {
-    console.log(newJamState);
     setState(newJamState);
   }, []);
   useSocketGetter("jam", jamHandler);
