@@ -6,6 +6,7 @@ import { JamControlComponent, StartJamComponent, StopJamComponent } from './comp
 import { useEffect } from 'react';
 
 import { io } from 'socket.io-client';
+import { NewJamControlComponent } from './components/NewJamControlComponent';
 
 var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
@@ -114,10 +115,7 @@ function App() {
     <div className="App">
       <JamControlComponent /><br />
       <TimerComponent timerType="action" />&nbsp;<TimerComponent timerType="game" />
-      <div style={{display: "flex"}}>
-        <TripComponent team="home" />
-        <TripComponent team="away" />
-      </div>
+      <NewJamControlComponent />
     </div>
   );
 }
