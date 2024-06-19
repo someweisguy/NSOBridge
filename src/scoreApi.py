@@ -1,6 +1,5 @@
 from roller_derby.score import ClientException, Bout, Jam
 from datetime import datetime
-from typing import Any
 import server
 
 
@@ -21,7 +20,7 @@ async def setJamTrips(
 
 
 @server.register
-async def delJamTrips(team: str, tripIndex: int) -> None:
+async def delJamTrips(team: str, tripIndex: int) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -35,7 +34,7 @@ async def delJamTrips(team: str, tripIndex: int) -> None:
 
 
 @server.register
-async def setJamInitial(team: str, timestamp: datetime) -> None:
+async def setJamInitial(team: str, timestamp: datetime) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -60,7 +59,7 @@ async def setJamInitial(team: str, timestamp: datetime) -> None:
 
 
 @server.register
-async def setJamLead(team: str, lead: bool) -> None:
+async def setJamLead(team: str, lead: bool) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -74,7 +73,7 @@ async def setJamLead(team: str, lead: bool) -> None:
 
 
 @server.register
-async def setJamLost(team: str, lost: bool) -> None:
+async def setJamLost(team: str, lost: bool) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -87,7 +86,7 @@ async def setJamLost(team: str, lost: bool) -> None:
 
 
 @server.register
-async def setJamStarPass(team: str, tripIndex: None | int) -> None:
+async def setJamStarPass(team: str, tripIndex: None | int) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
