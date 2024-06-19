@@ -68,6 +68,23 @@ function TripComponent({ team, trips }) {
     latestIsSelected.current = selectedTrip === trips.length;
   }, [selectedTrip, trips]);
 
+  // Scroll the Trips scrollbar the width of a Trip button
+  const scroll = useCallback((direction) => {
+    const buttonWidth = scrollBar.current.children[0].offsetWidth;
+    let scrollAmount = 0;
+    switch (direction) {
+      case "left":
+        scrollAmount = -buttonWidth;
+        break;
+      case "right":
+        scrollAmount = buttonWidth
+        break;
+      default:
+        throw new Error("Direction must be either 'left' or 'right'.");
+    }
+    scrollBar.current.scrollRight += buttonWidth;
+  }, []);
+
   // Render the Trip score buttons
   const tripScoreButtons = [];
   if (selectedTrip === 0) {
@@ -154,11 +171,11 @@ function TripComponent({ team, trips }) {
       </div>
 
       <div className="scrollBar">
-        <button onClick={() => scrollBar.current.scrollLeft -= 50}>&lt;</button>
+        <button onClick={() => scroll("left")}>&lt;</button>
         <div ref={scrollBar} className="trips">
           {tripButtons}
         </div>
-        <button onClick={() => scrollBar.current.scrollLeft += 50}>&gt;</button>
+        <button onClick={() => scroll("right")}>&gt;</button>
       </div>
 
     </div>
@@ -167,7 +184,7 @@ function TripComponent({ team, trips }) {
 
 
 function JammerStateComponent({ team, jamState, numTrips, isLeadEligible }) {
-  const {lead, lost, starPass} = jamState;
+  const { lead, lost, starPass } = jamState;
   return (
     <div>
       <div>
