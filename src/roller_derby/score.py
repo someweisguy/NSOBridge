@@ -11,6 +11,9 @@ class Bout(Encodable):
         self._periods: tuple[list[Jam], ...] = ([Jam(self)], [], [])
         self._currentPeriod: list[Jam] = self._periods[0]
         self._currentJam: Jam = self._currentPeriod[0]
+        
+    def __getitem__(self, periodIndex: int) -> list[Jam]:
+        return self._periods[periodIndex]
 
     @property
     def currentPeriod(self) -> list[Jam]:
@@ -21,7 +24,7 @@ class Bout(Encodable):
         return self._currentJam
 
     @property
-    def jam(self) -> tuple[list[Jam], ...]:
+    def periods(self) -> tuple[list[Jam], ...]:
         return tuple(self._periods)
 
     @property

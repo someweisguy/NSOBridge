@@ -1,14 +1,33 @@
+from roller_derby.encodable import ClientException
 import server
 from server import API
-from roller_derby.score import Jam
+from roller_derby.score import Bout, Jam
 from roller_derby.timer import Timer
 from datetime import datetime
 
 
 @server.register
-async def jam() -> API:
-    return server.bouts.currentBout.currentJam.encode()
+async def jam(periodIndex: None | int = None, jamIndex: None | int = None) -> API:
+    if periodIndex is None:
+        periodIndex = 0
+    if jamIndex is None:
+        jamIndex = 0
+        
+    period: list[Jam] = server.bouts.currentBout[periodIndex]
+    if jamIndex == len(period):
+        server.bouts.currentBout.addJam(periodIndex)
+    elif jamIndex > len(period):
+        raise ClientException("This jam does not exist.")
+    
+    jam: Jam = period[jamIndex]
+    
+    return jam.encode()
 
+@server.register
+async def numJams() -> API:
+    bout: Bout = server.bouts.currentBout
+    return [len(period) for period in bout.periods]
+    
 
 # TODO: Move to separate timer control file?
 @server.register
