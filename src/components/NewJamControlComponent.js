@@ -71,19 +71,17 @@ function TripComponent({ team, trips }) {
   // Scroll the Trips scrollbar the width of a Trip button
   const scroll = useCallback((direction) => {
     const buttonWidth = scrollBar.current.children[0].offsetWidth;
-    let scrollAmount = 0;
     switch (direction) {
       case "left":
-        scrollAmount = -buttonWidth;
+        scrollBar.current.scrollLeft -= buttonWidth;
         break;
-      case "right":
-        scrollAmount = buttonWidth
+        case "right":
+        scrollBar.current.scrollLeft += buttonWidth;
         break;
       default:
         throw new Error("Direction must be either 'left' or 'right'.");
     }
-    scrollBar.current.scrollRight += buttonWidth;
-  }, []);
+  }, [scrollBar]);
 
   // Render the Trip score buttons
   const tripScoreButtons = [];
