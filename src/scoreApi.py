@@ -4,7 +4,7 @@ import server
 
 
 @server.register
-async def setJamTrips(
+async def setTrip(
     team: str, tripIndex: int, tripPoints: int, timestamp: datetime
 ) -> None:
     # Get the desired Bout
@@ -20,7 +20,7 @@ async def setJamTrips(
 
 
 @server.register
-async def delJamTrips(team: str, tripIndex: int) -> server.API:
+async def deleteTrip(team: str, tripIndex: int) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -34,7 +34,7 @@ async def delJamTrips(team: str, tripIndex: int) -> server.API:
 
 
 @server.register
-async def setJamInitial(team: str, timestamp: datetime) -> server.API:
+async def setInitialPass(team: str, timestamp: datetime) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -59,7 +59,7 @@ async def setJamInitial(team: str, timestamp: datetime) -> server.API:
 
 
 @server.register
-async def setJamLead(team: str, lead: bool) -> server.API:
+async def setLead(team: str, lead: bool) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -73,7 +73,7 @@ async def setJamLead(team: str, lead: bool) -> server.API:
 
 
 @server.register
-async def setJamLost(team: str, lost: bool) -> server.API:
+async def setLost(team: str, lost: bool) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
@@ -86,7 +86,7 @@ async def setJamLost(team: str, lost: bool) -> server.API:
 
 
 @server.register
-async def setJamStarPass(team: str, tripIndex: None | int) -> server.API:
+async def setStarPass(team: str, tripIndex: None | int) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 

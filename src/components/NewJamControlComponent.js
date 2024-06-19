@@ -75,7 +75,7 @@ function TripComponent({ team, trips }) {
     const className = "initial";
     tripScoreButtons.push(
       <button key={-1} className={className} onClick={() =>
-        sendRequest("setJamTrips", {
+        sendRequest("setTrip", {
           team: team,
           tripIndex: selectedTrip,
           tripPoints: 0
@@ -86,7 +86,7 @@ function TripComponent({ team, trips }) {
     );
     tripScoreButtons.push(
       <button key={-2} className={className} onClick={() =>
-        sendRequest("setJamInitial", {
+        sendRequest("setInitialPass", {
           team: team
         })
       }>
@@ -104,7 +104,7 @@ function TripComponent({ team, trips }) {
     for (let i = 0; i <= 4; i++) {
       tripScoreButtons.push(
         <button key={i} className="points" disabled={i === disableIndex}
-          onClick={() => sendRequest("setJamTrips", {
+          onClick={() => sendRequest("setTrip", {
             team: team,
             tripIndex: selectedTrip,
             tripPoints: i
@@ -147,7 +147,7 @@ function TripComponent({ team, trips }) {
 
       <div className="tripEdit" style={{ visibility: visibility }}>
         Editing trip {selectedTrip + 1}.&nbsp;
-        <button onClick={() => sendRequest("delJamTrips", {
+        <button onClick={() => sendRequest("deleteTrip", {
           team: team,
           tripIndex: selectedTrip
         })}>Delete</button>
@@ -172,7 +172,7 @@ function JammerStateComponent({ team, jamState, numTrips, isLeadEligible }) {
     <div>
       <div>
         Lead&nbsp;<input type="checkbox"
-          onClick={() => sendRequest("setJamLead", {
+          onClick={() => sendRequest("setLead", {
             team: team,
             lead: !lead
           })}
@@ -181,7 +181,7 @@ function JammerStateComponent({ team, jamState, numTrips, isLeadEligible }) {
       </div>
       <div>
         Lost&nbsp;<input type="checkbox"
-          onClick={() => sendRequest("setJamLost", {
+          onClick={() => sendRequest("setLost", {
             team: team,
             lost: !lost
           })}
@@ -189,7 +189,7 @@ function JammerStateComponent({ team, jamState, numTrips, isLeadEligible }) {
       </div>
       <div>
         Star Pass&nbsp;<input type="checkbox"
-          onClick={() => sendRequest("setJamStarPass", {
+          onClick={() => sendRequest("setStarPass", {
             team: team,
             tripIndex: (starPass === false ? numTrips : false)
           })}
