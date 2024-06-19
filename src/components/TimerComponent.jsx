@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useSocketGetter, getLatency, sendRequest } from "../App.js"
+import { useSocketGetter, getLatency, sendRequest } from "../App.jsx"
 
 function formatTimeString(millisRemaining, showMillis = true) {
   let timeString = "";

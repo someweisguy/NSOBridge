@@ -1,8 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
-import { TripComponent } from './components/JamComponent';
 import TimerComponent from './components/TimerComponent';
-import { JamControlComponent, StartJamComponent, StopJamComponent } from './components/JamControlComponent';
+import { JamControlComponent } from './components/JamControlComponent';
 import { useEffect } from 'react';
 
 import { io } from 'socket.io-client';

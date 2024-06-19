@@ -272,6 +272,7 @@ _app: Starlette = Starlette(
         Route("/", _renderTemplate),
         Route("/favicon.ico", _serveFavicon),
         Mount("/static", app=StaticFiles(directory=f"{_webDir}/static"), name="static"),
+        Mount("/assets", app=StaticFiles(directory=f"{_webDir}/assets"), name="assets"),
         Mount("/socket.io", app=socketio.ASGIApp(_socket)),
         Route("/{file:str}", _renderTemplate),
     ],
