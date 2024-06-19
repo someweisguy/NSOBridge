@@ -54,12 +54,6 @@ function TripComponent({ team, trips }) {
   const latestIsSelected = useRef(true);
   const scrollBar = useRef(null);
 
-  // Scroll the Trips scrollbar to the selected Trip
-  useEffect(() => {
-    const selectedTripButton = scrollBar.current.children[selectedTrip];
-    selectedTripButton.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  }, [selectedTrip]);
-
   // Ensure the new latest Trip is selected when adding a new Trip
   useEffect(() => {
     if (latestIsSelected.current && selectedTrip != trips.length) {
@@ -75,13 +69,24 @@ function TripComponent({ team, trips }) {
       case "left":
         scrollBar.current.scrollLeft -= buttonWidth;
         break;
-        case "right":
+      case "right":
         scrollBar.current.scrollLeft += buttonWidth;
         break;
+      case "selectedTrip":
+        // Scroll the selected Trip to the middle of the Trip scrollbar
+        const scrollBarWidth = scrollBar.current.offsetWidth;
+        const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
+        scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
+        break;
       default:
-        throw new Error("Direction must be either 'left' or 'right'.");
+        throw new Error("Direction must be either 'left', 'right', or 'selectedTrip'.");
     }
-  }, [scrollBar]);
+  }, [scrollBar, selectedTrip]);
+
+  // Scroll the Trips scrollbar to the selected Trip
+  useEffect(() => {
+    scroll("selectedTrip");
+  }, [selectedTrip]);
 
   // Render the Trip score buttons
   const tripScoreButtons = [];
