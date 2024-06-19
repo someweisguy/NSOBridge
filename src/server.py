@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 """Type alias for `None | dict[str, Any]`. """
-API: TypeAlias = None | dict[str, Any]
+API: TypeAlias = None | dict[str, Any] | list[Any]
 
 async def serve(port: int, *, debug: bool = False) -> None:
     """Start and serve the scoreboard app on the specified port.
