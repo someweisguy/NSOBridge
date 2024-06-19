@@ -1,11 +1,10 @@
-import logo from './logo.svg';
 import './App.css';
+import { useEffect } from 'react';
+import { io } from 'socket.io-client';
+
+import { JamComponent } from './components/JamComponent';
 import TimerComponent from './components/TimerComponent';
 import { JamControlComponent } from './components/JamControlComponent';
-import { useEffect } from 'react';
-
-import { io } from 'socket.io-client';
-import { NewJamControlComponent } from './components/NewJamControlComponent';
 
 var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
@@ -114,7 +113,7 @@ function App() {
     <div className="App">
       <JamControlComponent /><br />
       <TimerComponent timerType="action" />&nbsp;<TimerComponent timerType="game" />
-      <NewJamControlComponent />
+      <JamComponent />
     </div>
   );
 }
