@@ -50,7 +50,12 @@ export function JamControlComponent({ }) {
 
   return (
     <div>
-      {nextJamButton}{label}{buttons}
+      <div>
+        {nextJamButton}{label}{buttons}
+      </div>
+      <div>
+        
+      </div>
     </div>
   );
 }

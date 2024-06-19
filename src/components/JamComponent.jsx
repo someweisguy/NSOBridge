@@ -34,14 +34,14 @@ export function JamComponent({ }) {
   return (
     <div style={{ display: "flex" }}>
       <div>
-        <TripComponent team={HOME} trips={state.home.trips} />
-        <JammerStateComponent team={HOME} jamState={state.home}
+        <TripEditor team={HOME} trips={state.home.trips} />
+        <JammerState team={HOME} jamState={state.home}
           numTrips={state.home.trips.length}
           isLeadEligible={!state.away.lead} />
       </div>
       <div>
-        <TripComponent team={AWAY} trips={state.away.trips} />
-        <JammerStateComponent team={AWAY} jamState={state.away}
+        <TripEditor team={AWAY} trips={state.away.trips} />
+        <JammerState team={AWAY} jamState={state.away}
           numTrips={state.away.trips.length}
           isLeadEligible={!state.home.lead} />
       </div>
@@ -49,7 +49,7 @@ export function JamComponent({ }) {
   );
 }
 
-function TripComponent({ team, trips }) {
+function TripEditor({ team, trips }) {
   const [selectedTrip, setSelectedTrip] = useState(0);
   const latestIsSelected = useRef(true);
   const scrollBar = useRef(null);
@@ -186,7 +186,7 @@ function TripComponent({ team, trips }) {
 }
 
 
-function JammerStateComponent({ team, jamState, numTrips, isLeadEligible }) {
+function JammerState({ team, jamState, numTrips, isLeadEligible }) {
   const { lead, lost, starPass } = jamState;
   return (
     <div>
