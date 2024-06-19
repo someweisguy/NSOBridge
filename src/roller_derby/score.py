@@ -235,9 +235,15 @@ class Jam(Encodable):
         self._stopReason = None
 
     def encode(self) -> dict:
+        startTime: Literal[False] | str = (
+            self._started if self._started is False else str(self._started)
+        )
+        stopTime: Literal[False] | str = (
+            self._stopped if self._stopped is False else str(self._stopped)
+        )
         return {
-            "startTime": self._started if self._started is False else str(self._started),
-            "stopTime": self._stopped if self._stopped is False else str(self._stopped),
+            "startTime": startTime,
+            "stopTime": stopTime,
             "stopReason": self._stopReason,
             "home": self._home.encode(),
             "away": self._away.encode(),
