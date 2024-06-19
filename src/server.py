@@ -164,7 +164,8 @@ async def _handleConnect(
     """
     userId: str = auth["token"]
     if userId is None:
-        userId: str = hashlib.md5(str(environ.items()).encode()).hexdigest()
+        environStr: bytes = str(environ.items()).encode()
+        userId: str = hashlib.md5(environStr, usedforsecurity=False).hexdigest()
         await _socket.emit("userId", userId, to=sessionId)
     async with _socket.session(sessionId) as session:
         session["userId"] = userId
