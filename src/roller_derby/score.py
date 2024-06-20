@@ -78,7 +78,7 @@ class Jam(Encodable):
             return self._trips.copy()
 
         def setTrip(self, tripIndex: int, points: int, timestamp: datetime) -> None:
-            if not self._parent.isStarted:
+            if not self._parent.isStarted():
                 raise ClientException("This Jam has not yet started.")
             numTrips: int = len(self._trips)
             if tripIndex in range(numTrips):
@@ -101,7 +101,7 @@ class Jam(Encodable):
                 raise TypeError(f"Lead should be bool, not {type(value).__name__}.")
 
             # Ensure the jam has started
-            if not self._parent.isStarted:
+            if not self._parent.isStarted():
                 raise ClientException("This Jam has not yet started.")
 
             # Validate that this team is eligible for lead
@@ -124,7 +124,7 @@ class Jam(Encodable):
                 raise TypeError(f"Lost should be bool, not {type(value).__name__}.")
 
             # Ensure the jam has started
-            if not self._parent.isStarted:
+            if not self._parent.isStarted():
                 raise ClientException("This Jam has not yet started.")
 
             self._lost = value
@@ -141,7 +141,7 @@ class Jam(Encodable):
                 )
 
             # Ensure the jam has started
-            if not self._parent.isStarted:
+            if not self._parent.isStarted():
                 raise ClientException("This Jam has not yet started.")
 
             if not self._lost and value is not False:
@@ -182,26 +182,24 @@ class Jam(Encodable):
     def away(self) -> Jam.Team:
         return self._away
 
-    @property
-    def index(self) -> int:
-        for period in reversed(self._parent._periods):
-            try:
-                return period.index(self)
-            except ValueError:
-                pass
-        raise ValueError("This Jam is not in a Bout")
-
-    @property
     def isStarted(self) -> bool:
         return self._started is not False
+    
+    def index(self) -> tuple[int, int]:
+        for periodIndex, period in enumerate(self._parent._periods):
+            if self in period:
+                return (periodIndex, period.index(self))
+        else:
+            # This exception should never be raised
+            raise ValueError("This Jam is not in a Bout")
 
     def start(self, timestamp: datetime) -> None:
-        if self.isStarted:
+        if self.isStarted():
             raise ClientException("This jam has already started.")
         self._started = timestamp
 
     def unStart(self) -> None:
-        if not self.isStarted:
+        if not self.isStarted():
             raise ClientException("This jam has not yet started.")
         self._started = False
 
@@ -210,7 +208,7 @@ class Jam(Encodable):
         return self._stopped is not False
 
     def stop(self, timestamp: datetime) -> None:
-        if not self.isStarted:
+        if not self.isStarted():
             raise ClientException("This jam has not yet started.")
         if self.isStopped:
             raise ClientException("This jam has already stopped.")
@@ -245,6 +243,7 @@ class Jam(Encodable):
             self._stopped if self._stopped is False else str(self._stopped)
         )
         return {
+            "index": self.index(),
             "startTime": startTime,
             "stopTime": stopTime,
             "stopReason": self._stopReason,
