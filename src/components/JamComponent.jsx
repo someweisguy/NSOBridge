@@ -9,6 +9,7 @@ const NULL_JAM = {
   startTime: null,
   stopTime: null,
   stopReason: null,
+  index: null,
   home: {
     team: HOME,
     lead: false,
@@ -27,23 +28,31 @@ const NULL_JAM = {
 export function JamComponent({ }) {
   const [state, setState] = useState(NULL_JAM);
   const jamHandler = useCallback((newJamState) => {
-    setState(newJamState);
+    if (newJamState.index === state.index || state.index === null) {
+      setState(newJamState);
+    }
   }, []);
   useSocketGetter("jam", jamHandler);
 
+  const periodLabel = state.index !== null ? "P" + (state.index[0] + 1) : null;
+  const jamLabel = state.index !== null ? "J" + (state.index[1] + 1) : null;
+
   return (
-    <div style={{ display: "flex" }}>
-      <div>
-        <TripEditor team={HOME} trips={state.home.trips} />
-        <JammerState team={HOME} jamState={state.home}
-          numTrips={state.home.trips.length}
-          isLeadEligible={!state.away.lead} />
-      </div>
-      <div>
-        <TripEditor team={AWAY} trips={state.away.trips} />
-        <JammerState team={AWAY} jamState={state.away}
-          numTrips={state.away.trips.length}
-          isLeadEligible={!state.home.lead} />
+    <div>
+      {periodLabel}&nbsp;{jamLabel}
+      <div style={{ display: "flex" }}>
+        <div>
+          <TripEditor team={HOME} trips={state.home.trips} />
+          <JammerState team={HOME} jamState={state.home}
+            numTrips={state.home.trips.length}
+            isLeadEligible={!state.away.lead} />
+        </div>
+        <div>
+          <TripEditor team={AWAY} trips={state.away.trips} />
+          <JammerState team={AWAY} jamState={state.away}
+            numTrips={state.away.trips.length}
+            isLeadEligible={!state.home.lead} />
+        </div>
       </div>
     </div>
   );
