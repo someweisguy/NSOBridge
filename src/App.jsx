@@ -44,7 +44,6 @@ export function useSocketGetter(api, callbackFunction, constArgs = undefined) {
 
 export async function sendRequest(api, payload = {}) {
   payload.latency = latency;
-  console.log(payload);
   const response = await socket.emitWithAck(api, payload);
   if (response.error) {
     console.error(api + " returned '" + response.error.name + ": '" +
