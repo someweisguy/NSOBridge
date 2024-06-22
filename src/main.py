@@ -32,14 +32,16 @@ async def timer(timerType: str) -> API:
 
 @server.register
 async def startJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:
+    lineupTimer: Timer = server.bouts.timer.lineup
+    if lineupTimer.isRunning():
+        lineupTimer.stop(timestamp)
+        lineupTimer.reset()
+        
     jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
     jam.start(timestamp)
 
     jamTimer: Timer = server.bouts.timer.jam
     jamTimer.start(timestamp)
-
-    lineupTimer: Timer = server.bouts.timer.lineup
-    lineupTimer.setElapsed(seconds=0)
 
     # Start the period clock if it isn't running
     periodClock: Timer = server.bouts.timer.game
@@ -60,6 +62,7 @@ async def stopJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:
 
     jamTimer: Timer = server.bouts.timer.jam
     jamTimer.stop(timestamp)
+    jamTimer.reset()
 
     lineupTimer: Timer = server.bouts.timer.lineup
     lineupTimer.start(timestamp)
