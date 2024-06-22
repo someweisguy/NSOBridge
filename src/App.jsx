@@ -4,7 +4,6 @@ import { io } from 'socket.io-client';
 
 import { JamComponent } from './components/JamComponent';
 import TimerComponent from './components/TimerComponent';
-import { JamControlComponent } from './components/JamControlComponent';
 
 var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
