@@ -5,13 +5,18 @@ import server
 
 @server.register
 async def setTrip(
-    team: str, tripIndex: int, tripPoints: int, timestamp: datetime
+    periodIndex: int,
+    jamIndex: int,
+    team: str,
+    tripIndex: int,
+    tripPoints: int,
+    timestamp: datetime,
 ) -> None:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    jam: Jam = bout.periods[periodIndex][jamIndex]
     teamJam: Jam.Team = jam[team]
 
     teamJam.setTrip(tripIndex, tripPoints, timestamp)
@@ -20,12 +25,14 @@ async def setTrip(
 
 
 @server.register
-async def deleteTrip(team: str, tripIndex: int) -> server.API:
+async def deleteTrip(
+    periodIndex: int, jamIndex: int, team: str, tripIndex: int
+) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    jam: Jam = bout.periods[periodIndex][jamIndex]
     teamJam: Jam.Team = jam[team]
 
     teamJam.deleteTrip(tripIndex)
@@ -34,12 +41,14 @@ async def deleteTrip(team: str, tripIndex: int) -> server.API:
 
 
 @server.register
-async def setInitialPass(team: str, timestamp: datetime) -> server.API:
+async def setInitialPass(
+    periodIndex: int, jamIndex: int, team: str, timestamp: datetime
+) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    jam: Jam = bout.periods[periodIndex][jamIndex]
     teamJam: Jam.Team = jam[team]
 
     # Raise an error if trying to set an invalid initial trip
@@ -48,7 +57,7 @@ async def setInitialPass(team: str, timestamp: datetime) -> server.API:
 
     # Assign lead and set the initial trip points
     try:
-        teamJam.lead = True
+        teamJam.lead = True  # TODO: remove try/except
     except ClientException:
         pass
     # Set the trip using timestamp calculated from the client latency
@@ -59,12 +68,12 @@ async def setInitialPass(team: str, timestamp: datetime) -> server.API:
 
 
 @server.register
-async def setLead(team: str, lead: bool) -> server.API:
+async def setLead(periodIndex: int, jamIndex: int, team: str, lead: bool) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    jam: Jam = bout.periods[periodIndex][jamIndex]
     teamJam: Jam.Team = jam[team]
     teamJam.lead = lead
 
@@ -73,12 +82,12 @@ async def setLead(team: str, lead: bool) -> server.API:
 
 
 @server.register
-async def setLost(team: str, lost: bool) -> server.API:
+async def setLost(periodIndex: int, jamIndex: int, team: str, lost: bool) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    jam: Jam = bout.periods[periodIndex][jamIndex]
     teamJam: Jam.Team = jam[team]
     teamJam.lost = lost
 
@@ -86,12 +95,14 @@ async def setLost(team: str, lost: bool) -> server.API:
 
 
 @server.register
-async def setStarPass(team: str, tripIndex: None | int) -> server.API:
+async def setStarPass(
+    periodIndex: int, jamIndex: int, team: str, tripIndex: None | int
+) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.currentJam  # TODO: periodIndex, jamIndex
+    jam: Jam = bout.periods[periodIndex][jamIndex]
     teamJam: Jam.Team = jam[team]
     teamJam.starPass = tripIndex
     if tripIndex is not False:

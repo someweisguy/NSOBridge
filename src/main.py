@@ -12,22 +12,17 @@ async def jam(periodIndex: None | int = None, jamIndex: None | int = None) -> AP
         periodIndex = 0
     if jamIndex is None:
         jamIndex = 0
-        
+
     period: list[Jam] = server.bouts.currentBout[periodIndex]
     if jamIndex == len(period):
         server.bouts.currentBout.addJam(periodIndex)
     elif jamIndex > len(period):
         raise ClientException("This jam does not exist.")
-    
+
     jam: Jam = period[jamIndex]
-    
+
     return jam.encode()
 
-@server.register
-async def numJams() -> API:
-    bout: Bout = server.bouts.currentBout
-    return [len(period) for period in bout.periods]
-    
 
 # TODO: Move to separate timer control file?
 @server.register
@@ -36,8 +31,8 @@ async def timer(timerType: str) -> API:
 
 
 @server.register
-async def startJam(timestamp: datetime) -> API:
-    jam: Jam = server.bouts.currentBout.currentJam
+async def startJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:
+    jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
     jam.start(timestamp)
 
     jamTimer: Timer = server.bouts.timer.jam
@@ -59,8 +54,8 @@ async def startJam(timestamp: datetime) -> API:
 
 
 @server.register
-async def stopJam(timestamp: datetime) -> API:
-    jam: Jam = server.bouts.currentBout.currentJam
+async def stopJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:
+    jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
     jam.stop(timestamp)
 
     jamTimer: Timer = server.bouts.timer.jam
@@ -84,8 +79,10 @@ async def stopJam(timestamp: datetime) -> API:
 
 
 @server.register
-async def setJamStopReason(stopReason: Jam.STOP_REASONS) -> API:
-    jam: Jam = server.bouts.currentBout.currentJam
+async def setJamStopReason(
+    periodIndex: int, jamIndex: int, stopReason: Jam.STOP_REASONS
+) -> API:
+    jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
     jam.stopReason = stopReason
 
     await server.emit("jam", jam.encode())
