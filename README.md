@@ -6,6 +6,6 @@ This is a scoreboard application designed for the Women's Flat Track Derby Assoc
 
 This project uses the Python framework, Starlette, to host an ASGI server backend. The frontend uses React, the popular Javascript web-development framework. Socket.IO is used as the websocket manager which allows for bidirectional, client-server communication.
 
-To use this app in its current state, Python 3.12 and Node.js is required. Clone this repository into a directory on your device and install the Python requirements found in `requirements.txt`. The React frontend can be built by running `npm run build`.
+To use this app in its current state, Python 3.12 and Node.js is required. Clone this repository into a directory on your device and install the Python requirements found in `requirements.txt`. The React frontend dependencies can be installed by running `npm install` and then the frontend can be built by running `npm run build`.
 
 Executables files will be created using the Python module, _pyinstaller_, though the creation of executables is not supported at this time. This program is currently command-line only, by running `main.py` in your Python interpreter.
