@@ -11,7 +11,7 @@ class Bout(Encodable):
         self._periods: tuple[list[Jam], ...] = ([Jam(self)], [], [])
         self._currentPeriod: list[Jam] = self._periods[0]
         self._currentJam: Jam = self._currentPeriod[0]
-        
+
     def __getitem__(self, periodIndex: int) -> list[Jam]:
         return self._periods[periodIndex]
 
@@ -184,7 +184,7 @@ class Jam(Encodable):
 
     def isStarted(self) -> bool:
         return self._started is not False
-    
+
     def index(self) -> tuple[int, int]:
         for periodIndex, period in enumerate(self._parent._periods):
             if self in period:
@@ -242,10 +242,11 @@ class Jam(Encodable):
         stopTime: Literal[False] | str = (
             self._stopped if self._stopped is False else str(self._stopped)
         )
+        periodIndex, jamIndex = self.index()
         return {
-            "index": self.index(),
             "startTime": startTime,
             "stopTime": stopTime,
+            "index": {"period": periodIndex, "jam": jamIndex},
             "stopReason": self._stopReason,
             "home": self._home.encode(),
             "away": self._away.encode(),
