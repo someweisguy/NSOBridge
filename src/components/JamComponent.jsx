@@ -61,7 +61,7 @@ export function JamComponent({ }) {
       {nextJamButton}
       {periodLabel}&nbsp;{jamLabel}
       <br />
-      <JamControlComponent setState={setState} startTime={state.startTime}
+      <JamControlComponent startTime={state.startTime}
         stopReason={state.stopReason} index={state.index} />
       <div style={{ display: "flex" }}>
         <div>
@@ -270,12 +270,11 @@ const INJURY = "injury";
 const TIME = "time";
 const UNKNOWN = "unknown";
 
-export function JamControlComponent({ setState, startTime, stopReason, index }) {
+export function JamControlComponent({ startTime, stopReason, index }) {
 
   const isStarted = startTime !== false;
   const isStopped = stopReason !== null;
 
-  let nextJamButton = null;
   let label = null;
   const buttons = [];
   if (!isStarted) {
@@ -293,15 +292,6 @@ export function JamControlComponent({ setState, startTime, stopReason, index }) 
       })}>Stop Jam</button>
     );
   } else {
-    nextJamButton = (
-      <button onClick={() => {
-        let nextState = NULL_JAM;
-        nextState.index = { period: index.period, jam: index.jam + 1 };
-        setState(nextState);
-        const newIndex = nextState.index;
-        sendRequest("startJam", { newIndex });
-      }}>Start Next Jam</button>
-    );
     label = (<small>Set stop reason: </small>);
     buttons.push(
       <button onClick={() => sendRequest("setJamStopReason", {
@@ -332,7 +322,7 @@ export function JamControlComponent({ setState, startTime, stopReason, index }) 
   return (
     <div>
       <div>
-        {nextJamButton}{label}{buttons}
+        {label}{buttons}
       </div>
       <div>
 
