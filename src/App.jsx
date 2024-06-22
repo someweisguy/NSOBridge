@@ -111,7 +111,6 @@ function App() {
 
   return (
     <div className="App">
-      <JamControlComponent /><br />
       <TimerComponent timerType="action" />&nbsp;<TimerComponent timerType="game" />
       <JamComponent />
     </div>

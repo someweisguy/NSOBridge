@@ -27,19 +27,27 @@ const NULL_JAM = {
 
 export function JamComponent({ }) {
   const [state, setState] = useState(NULL_JAM);
-  const jamHandler = useCallback((newJamState) => {
-    if (newJamState.index === state.index || state.index === null) {
-      setState(newJamState);
+  const jamHandler = useCallback((newState) => {
+    if (state.index === null || (newState.index.period === state.index.period
+      && newState.index.jam === state.index.jam)) {
+      setState(newState);
     }
-  }, []);
+  }, [state]);
   useSocketGetter("jam", jamHandler);
 
-  const periodLabel = state.index !== null ? "P" + (state.index[0] + 1) : null;
-  const jamLabel = state.index !== null ? "J" + (state.index[1] + 1) : null;
+
+  let [periodLabel, jamLabel] = [null, null];
+  if (state.index !== null) {
+    periodLabel = "P" + (state.index.period + 1);
+    jamLabel = "J" + (state.index.jam + 1);
+  }
 
   return (
     <div>
       {periodLabel}&nbsp;{jamLabel}
+      <br />
+      <JamControlComponent setState={setState} startTime={state.startTime}
+        stopReason={state.stopReason} index={state.index} />
       <div style={{ display: "flex" }}>
         <div>
           <TripEditor team={HOME} trips={state.home.trips} />
@@ -223,6 +231,64 @@ function JammerState({ team, jamState, numTrips, isLeadEligible }) {
             tripIndex: (starPass === false ? numTrips : false)
           })}
           checked={starPass !== false} />
+      </div>
+    </div>
+  );
+}
+
+const CALLED = "called";
+const INJURY = "injury";
+const TIME = "time";
+const UNKNOWN = "unknown";
+
+export function JamControlComponent({ setState, startTime, stopReason, index}) {
+
+  const isStarted = startTime !== false;
+  const isStopped = stopReason !== null;
+
+  let nextJamButton = null;
+  let label = null;
+  const buttons = [];
+  if (!isStarted) {
+    buttons.push(
+      <button onClick={() => sendRequest("startJam", {index})}>Start Jam</button>
+    );
+  } else if (!isStopped) {
+    buttons.push(
+      <button onClick={() => sendRequest("stopJam", {index})}>Stop Jam</button>
+    );
+  } else {
+    nextJamButton = (
+      <button onClick={() => {
+        let nextState = NULL_JAM;
+        nextState.index = {period: index.period + 1, jam: index.jam + 1};
+        setState(nextState);
+        const newIndex = nextState.index;
+        sendRequest("startJam", {newIndex});
+      }}>Start Next Jam</button>
+    );
+    label = (<small>Set stop reason: </small>);
+    buttons.push(
+      <button onClick={() => sendRequest("setJamStopReason", { stopReason: CALLED, index })}
+        disabled={stopReason === CALLED}>Called</button>
+    );
+    buttons.push(
+      <button onClick={() => sendRequest("setJamStopReason", { stopReason: TIME, index })}
+        disabled={stopReason === TIME}>Time</button>
+    );
+    buttons.push(
+      <button onClick={() => sendRequest("setJamStopReason", { stopReason: INJURY, index })}
+        disabled={stopReason === INJURY}>Injury</button>
+    );
+  }
+
+  return (
+    <div>
+      <div>
+        {nextJamButton}{label}{buttons}
+      </div>
+      <div>
+        
       </div>
     </div>
   );
