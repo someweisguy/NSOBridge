@@ -8,6 +8,19 @@ from .timer import TimeKeeper, Timer
 import server
 
 
+@dataclass
+class JamIndex(Encodable):
+    period: int
+    jam: int
+
+    @staticmethod
+    def decode(index: dict[str, int]) -> JamIndex:
+        return JamIndex(**index)
+
+    def encode(self) -> dict:
+        return {"period": self.period, "jam": self.jam}
+
+
 class Bout(Encodable):
     def __init__(self) -> None:
         self._periods: tuple[list[Jam], ...] = ([Jam(self)], [], [])
@@ -17,7 +30,7 @@ class Bout(Encodable):
 
     def __getitem__(self, periodIndex: int) -> list[Jam]:
         return self._periods[periodIndex]
-    
+
     @property
     def timer(self) -> TimeKeeper:
         return self._timer
@@ -198,10 +211,10 @@ class Jam(Encodable):
     def isStarted(self) -> bool:
         return self._started is not False
 
-    def index(self) -> tuple[int, int]:
+    def index(self) -> JamIndex:
         for periodIndex, period in enumerate(self._parent._periods):
             if self in period:
-                return (periodIndex, period.index(self))
+                return JamIndex(period=periodIndex, jam=period.index(self))
         else:
             # This exception should never be raised
             raise ValueError("This Jam is not in a Bout")
@@ -210,14 +223,14 @@ class Jam(Encodable):
         if self.isStarted():
             raise ClientException("This jam has already started.")
         self._started = timestamp
-        
+
         # Stop the Lineup timer and start the Jam timer
         jamTimer: Timer = self._parent._timer.jam
         lineupTimer: Timer = self._parent._timer.lineup
         if lineupTimer.isRunning():
             lineupTimer.stop(timestamp)
         jamTimer.restart(timestamp)
-        
+
         # Start the period clock if it isn't running
         periodClock: Timer = self._parent._timer.period
         if not periodClock.isRunning():
@@ -248,13 +261,13 @@ class Jam(Encodable):
             )
         self._stopReason = stopReason
         self._stopped = timestamp
-        
+
         # Stop the Jam timer and start the Lineup timer
         jamTimer: Timer = self._parent._timer.jam
         lineupTimer: Timer = self._parent._timer.lineup
         jamTimer.stop(timestamp)
         lineupTimer.restart(timestamp)
-        
+
         server.update(self)
 
     @property
@@ -287,11 +300,10 @@ class Jam(Encodable):
         stopTime: Literal[False] | str = (
             self._stopped if self._stopped is False else str(self._stopped)
         )
-        periodIndex, jamIndex = self.index()
         return {
+            "jamIndex": self.index().encode(),
             "startTime": startTime,
             "stopTime": stopTime,
-            "index": {"period": periodIndex, "jam": jamIndex},
             "stopReason": self._stopReason,
             "home": self._home.encode(),
             "away": self._away.encode(),

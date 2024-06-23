@@ -1,26 +1,24 @@
 from roller_derby.encodable import ClientException
 import server
 from server import API
-from roller_derby.score import Bout, Jam
+from roller_derby.score import Jam, JamIndex
 from roller_derby.timer import Timer
 from datetime import datetime
 
 
 @server.register
-async def jam(periodIndex: None | int = None, jamIndex: None | int = None) -> API:
+async def jam(jamIndex: None | JamIndex = None) -> API:
     # TODO: get the current period and Jam
-    if periodIndex is None:
-        periodIndex = 0
     if jamIndex is None:
-        jamIndex = 0
+        jamIndex = JamIndex(0, 0)
 
-    period: list[Jam] = server.bouts.currentBout[periodIndex]
-    if jamIndex == len(period):
-        server.bouts.currentBout.addJam(periodIndex)
-    elif jamIndex > len(period):
+    period: list[Jam] = server.bouts.currentBout[jamIndex.period]
+    if jamIndex.jam == len(period):
+        server.bouts.currentBout.addJam(jamIndex.period)
+    elif jamIndex.jam > len(period):
         raise ClientException("This jam does not exist.")
 
-    jam: Jam = period[jamIndex]
+    jam: Jam = period[jamIndex.jam]
 
     return jam.encode()
 
@@ -32,16 +30,16 @@ async def timer(timerType: str) -> API:
 
 
 @server.register
-async def startJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:   
+async def startJam(jamIndex: JamIndex, timestamp: datetime) -> API:
     # Start the Jam
-    jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
+    jam: Jam = server.bouts.currentBout.periods[jamIndex.period][jamIndex.jam]
     jam.start(timestamp)
 
 
 @server.register
-async def stopJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:
-    jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
-    
+async def stopJam(jamIndex: JamIndex, timestamp: datetime) -> API:
+    jam: Jam = server.bouts.currentBout.periods[jamIndex.period][jamIndex.jam]
+
     # Attempt to determine the reason the jam ended
     stopReason: Jam.STOP_REASONS = "unknown"
     jamTimer: Timer = server.bouts.currentBout.timer.jam
@@ -51,15 +49,13 @@ async def stopJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:
         stopReason = "time"
     elif jam.home.lead or jam.away.lead:
         stopReason = "called"
-        
+
     jam.stop(timestamp, stopReason)
 
 
 @server.register
-async def setJamStopReason(
-    periodIndex: int, jamIndex: int, stopReason: Jam.STOP_REASONS
-) -> API:
-    jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
+async def setJamStopReason(jamIndex: JamIndex, stopReason: Jam.STOP_REASONS) -> API:
+    jam: Jam = server.bouts.currentBout.periods[jamIndex.period][jamIndex.jam]
     jam.stopReason = stopReason
 
 

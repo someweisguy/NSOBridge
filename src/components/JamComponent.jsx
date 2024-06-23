@@ -9,7 +9,7 @@ const NULL_JAM = {
   startTime: null,
   stopTime: null,
   stopReason: null,
-  index: null,
+  jamIndex: null,
   home: {
     team: HOME,
     lead: false,
@@ -28,8 +28,8 @@ const NULL_JAM = {
 export function JamComponent({ }) {
   const [state, setState] = useState(NULL_JAM);
   const jamHandler = useCallback((newState) => {
-    if (state.index === null || (newState.index.period === state.index.period
-      && newState.index.jam === state.index.jam)) {
+    if (state.jamIndex === null || (newState.jamIndex.period === state.jamIndex.period
+      && newState.jamIndex.jam === state.jamIndex.jam)) {
       setState(newState);
     }
   }, [state]);
@@ -37,21 +37,18 @@ export function JamComponent({ }) {
 
   // Instantiate Jam labels
   let [periodLabel, jamLabel] = [null, null];
-  if (state.index !== null) {
-    periodLabel = "P" + (state.index.period + 1);
-    jamLabel = "J" + (state.index.jam + 1);
+  if (state.jamIndex !== null) {
+    periodLabel = "P" + (state.jamIndex.period + 1);
+    jamLabel = "J" + (state.jamIndex.jam + 1);
   }
 
   // Instantiate next Jam button
   let nextJamButton = null;
   if (state.stopReason !== null) {
     nextJamButton = (<button onClick={async () => {
-      let index = state.index;
-      index.jam += 1;
-      const nextState = await sendRequest("jam", {
-        periodIndex: index.period,
-        jamIndex: index.jam
-      });
+      let jamIndex = state.jamIndex;
+      jamIndex.jam += 1;
+      const nextState = await sendRequest("jam", { ...jamIndex });
       setState(nextState);
     }}>Go to next Jam</button>);
   }
@@ -62,17 +59,17 @@ export function JamComponent({ }) {
       {periodLabel}&nbsp;{jamLabel}
       <br />
       <JamControlComponent startTime={state.startTime}
-        stopReason={state.stopReason} index={state.index} />
+        stopReason={state.stopReason} jamIndex={state.jamIndex} />
       <div style={{ display: "flex" }}>
         <div>
-          <TripEditor team={HOME} trips={state.home.trips} index={state.index} />
-          <JammerState team={HOME} jamState={state.home} index={state.index}
+          <TripEditor team={HOME} trips={state.home.trips} jamIndex={state.jamIndex} />
+          <JammerState team={HOME} jamState={state.home} jamIndex={state.jamIndex}
             numTrips={state.home.trips.length}
             isLeadEligible={!state.away.lead} />
         </div>
         <div>
-          <TripEditor team={AWAY} trips={state.away.trips} index={state.index} />
-          <JammerState team={AWAY} jamState={state.away} index={state.index}
+          <TripEditor team={AWAY} trips={state.away.trips} jamIndex={state.jamIndex} />
+          <JammerState team={AWAY} jamState={state.away} jamIndex={state.jamIndex}
             numTrips={state.away.trips.length}
             isLeadEligible={!state.home.lead} />
         </div>
@@ -81,7 +78,7 @@ export function JamComponent({ }) {
   );
 }
 
-function TripEditor({ team, trips, index }) {
+function TripEditor({ team, trips, jamIndex }) {
   const [selectedTrip, setSelectedTrip] = useState(0);
   const latestIsSelected = useRef(true);
   const scrollBar = useRef(null);
@@ -131,8 +128,7 @@ function TripEditor({ team, trips, index }) {
           team: team,
           tripIndex: selectedTrip,
           tripPoints: 0,
-          periodIndex: index.period,
-          jamIndex: index.jam
+          jamIndex
         })
       }>
         NP/NP
@@ -142,8 +138,7 @@ function TripEditor({ team, trips, index }) {
       <button key={-2} className={className} onClick={() =>
         sendRequest("setInitialPass", {
           team: team,
-          periodIndex: index.period,
-          jamIndex: index.jam
+          jamIndex
         })
       }>
         Initial
@@ -164,8 +159,7 @@ function TripEditor({ team, trips, index }) {
             team: team,
             tripIndex: selectedTrip,
             tripPoints: i,
-            periodIndex: index.period,
-            jamIndex: index.jam
+            jamIndex
           })}>
           {i}
         </button>
@@ -208,8 +202,7 @@ function TripEditor({ team, trips, index }) {
         <button onClick={() => sendRequest("deleteTrip", {
           team: team,
           tripIndex: selectedTrip,
-          periodIndex: index.period,
-          jamIndex: index.jam
+          jamIndex
         })}>Delete</button>
       </div>
 
@@ -226,7 +219,7 @@ function TripEditor({ team, trips, index }) {
 }
 
 
-function JammerState({ team, jamState, index, numTrips, isLeadEligible }) {
+function JammerState({ team, jamState, jamIndex, numTrips, isLeadEligible }) {
   const { lead, lost, starPass } = jamState;
   return (
     <div>
@@ -235,8 +228,7 @@ function JammerState({ team, jamState, index, numTrips, isLeadEligible }) {
           onClick={() => sendRequest("setLead", {
             team: team,
             lead: !lead,
-            periodIndex: index.period,
-            jamIndex: index.jam
+            jamIndex
           })}
           disabled={!isLeadEligible || lost}
           checked={lead} />
@@ -246,8 +238,7 @@ function JammerState({ team, jamState, index, numTrips, isLeadEligible }) {
           onClick={() => sendRequest("setLost", {
             team: team,
             lost: !lost,
-            periodIndex: index.period,
-            jamIndex: index.jam
+            jamIndex
           })}
           checked={lost} />
       </div>
@@ -256,8 +247,7 @@ function JammerState({ team, jamState, index, numTrips, isLeadEligible }) {
           onClick={() => sendRequest("setStarPass", {
             team: team,
             tripIndex: (starPass === false ? numTrips : false),
-            periodIndex: index.period,
-            jamIndex: index.jam
+            jamIndex
           })}
           checked={starPass !== false} />
       </div>
@@ -270,7 +260,7 @@ const INJURY = "injury";
 const TIME = "time";
 const UNKNOWN = "unknown";
 
-export function JamControlComponent({ startTime, stopReason, index }) {
+export function JamControlComponent({ startTime, stopReason, jamIndex }) {
 
   const isStarted = startTime !== false;
   const isStopped = stopReason !== null;
@@ -280,40 +270,35 @@ export function JamControlComponent({ startTime, stopReason, index }) {
   if (!isStarted) {
     buttons.push(
       <button onClick={() => sendRequest("startJam", {
-        periodIndex: index.period,
-        jamIndex: index.jam
+        jamIndex
       })}>Start Jam</button>
     );
   } else if (!isStopped) {
     buttons.push(
       <button onClick={() => sendRequest("stopJam", {
-        periodIndex: index.period,
-        jamIndex: index.jam
+        jamIndex
       })}>Stop Jam</button>
     );
   } else {
     label = (<small>Set stop reason: </small>);
     buttons.push(
       <button onClick={() => sendRequest("setJamStopReason", {
+        jamIndex,
         stopReason: CALLED,
-        periodIndex: index.period,
-        jamIndex: index.jam
       })}
         disabled={stopReason === CALLED}>Called</button>
     );
     buttons.push(
       <button onClick={() => sendRequest("setJamStopReason", {
-        stopReason: TIME,
-        periodIndex: index.period,
-        jamIndex: index.jam
+        jamIndex,
+        stopReason: TIME
       })}
         disabled={stopReason === TIME}>Time</button>
     );
     buttons.push(
       <button onClick={() => sendRequest("setJamStopReason", {
-        stopReason: INJURY,
-        periodIndex: index.period,
-        jamIndex: index.jam
+        jamIndex,
+        stopReason: INJURY
       })}
         disabled={stopReason === INJURY}>Injury</button>
     );

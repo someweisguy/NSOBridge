@@ -1,12 +1,11 @@
-from roller_derby.score import ClientException, Bout, Jam
+from roller_derby.score import ClientException, Bout, Jam, JamIndex
 from datetime import datetime
 import server
 
 
 @server.register
 async def setTrip(
-    periodIndex: int,
-    jamIndex: int,
+    jamIndex: JamIndex,
     team: str,
     tripIndex: int,
     tripPoints: int,
@@ -16,20 +15,19 @@ async def setTrip(
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[periodIndex][jamIndex]
+    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
 
     teamJam.setTrip(tripIndex, tripPoints, timestamp)
 
+
 @server.register
-async def deleteTrip(
-    periodIndex: int, jamIndex: int, team: str, tripIndex: int
-) -> server.API:
+async def deleteTrip(jamIndex: JamIndex, team: str, tripIndex: int) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[periodIndex][jamIndex]
+    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
 
     teamJam.deleteTrip(tripIndex)
@@ -37,13 +35,13 @@ async def deleteTrip(
 
 @server.register
 async def setInitialPass(
-    periodIndex: int, jamIndex: int, team: str, timestamp: datetime
+    jamIndex: JamIndex, team: str, timestamp: datetime
 ) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[periodIndex][jamIndex]
+    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
 
     # Raise an error if trying to set an invalid initial trip
@@ -61,35 +59,36 @@ async def setInitialPass(
 
 
 @server.register
-async def setLead(periodIndex: int, jamIndex: int, team: str, lead: bool) -> server.API:
+async def setLead(jamIndex: JamIndex, team: str, lead: bool) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[periodIndex][jamIndex]
+    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
     teamJam.lead = lead
 
+
 @server.register
-async def setLost(periodIndex: int, jamIndex: int, team: str, lost: bool) -> server.API:
+async def setLost(jamIndex: JamIndex, team: str, lost: bool) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[periodIndex][jamIndex]
+    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
     teamJam.lost = lost
 
 
 @server.register
 async def setStarPass(
-    periodIndex: int, jamIndex: int, team: str, tripIndex: None | int
+    jamIndex: JamIndex, team: str, tripIndex: None | int
 ) -> server.API:
     # Get the desired Bout
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[periodIndex][jamIndex]
+    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
     teamJam.starPass = tripIndex
     if tripIndex is not False:

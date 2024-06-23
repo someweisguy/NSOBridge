@@ -9,6 +9,7 @@ from starlette.templating import Jinja2Templates
 from typing import Callable, Any, Awaitable, Collection, TypeAlias
 from datetime import datetime, timedelta
 from roller_derby.encodable import Encodable
+from roller_derby.score import JamIndex
 import inspect
 import hashlib
 import logging
@@ -226,9 +227,11 @@ async def _handleEvent(
             log.debug(f"The '{command}' handler does not exist.")
             raise ClientException(f"Unknown command '{command}'.")
 
-        # Add the current timestamp and the session ID
+        # Add commonly used arguments
         json["timestamp"] = NOW - timedelta(milliseconds=json["latency"])
         json["session"] = sessionId
+        if "jamIndex" in json.keys():
+            json["jamIndex"] = JamIndex.decode(json["jamIndex"])
 
         # Get the function and call it with only the required arguments
         func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]
