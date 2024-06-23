@@ -52,9 +52,7 @@ class Timer(Encodable):
     def running(self) -> bool:
         return self._lap.start is not None and self._lap.stop is None
 
-    def start(self, timestamp: None | datetime = None) -> None:
-        if timestamp is None:
-            timestamp = datetime.now()
+    def start(self, timestamp: datetime) -> None:
         if self.running():
             raise ClientException("Timer is already running.")
         if self._lap.start is not None and self._lap.stop is not None:
@@ -63,17 +61,13 @@ class Timer(Encodable):
         self._lap.start = timestamp
         server.update(self)
 
-    def stop(self, timestamp: None | datetime = None) -> None:
-        if timestamp is None:
-            timestamp = datetime.now()
+    def stop(self, timestamp: datetime) -> None:
         if not self.running():
             raise ClientException("Timer is already stopped.")
         self._lap.stop = timestamp
         server.update(self)
 
-    def getElapsed(self, timestamp: None | datetime = None) -> int:
-        if timestamp is None:
-            timestamp = datetime.now()
+    def getElapsedMilliseconds(self, timestamp: datetime) -> int:
         elapsed: int = round(self._elapsed.total_seconds() * 1000)
         lapTime: timedelta = timedelta()
         if self._lap.start is not None and self._lap.stop is not None:
@@ -103,30 +97,19 @@ class Timer(Encodable):
         return round(self._alarm.total_seconds() * 1000)
 
     def getRemaining(self) -> None | int:
+        NOW: datetime = datetime.now()
         if self._alarm is None:
             return None
-        return round(self._alarm.total_seconds() * 1000) - self.getElapsed()
-
-    def reset(self) -> None:
-        self._lap = Timer.Lap()
-        self._elapsed = timedelta()
-        if self.running():
-            server.update(self)
-
-    def restart(self, timestamp: None | datetime = None) -> None:
-        if timestamp is None:
-            timestamp = datetime.now()
-        if self.running():
-            raise ClientException("Timer is already running.")
-        self._lap = Timer.Lap(start=timestamp)
-        self._elapsed = timedelta()
-        server.update(self)
+        return round(self._alarm.total_seconds() * 1000) - self.getElapsedMilliseconds(
+            NOW
+        )
 
     def encode(self) -> dict[str, Any]:
+        NOW: datetime = datetime.now()
         return {
-            "type": self._timerType,
+            "type": self._timerType,  # TODO: remove
             "alarm": self.getAlarm(),
-            "elapsed": self.getElapsed(),
+            "elapsed": self.getElapsedMilliseconds(NOW),
             "running": self.running(),
         }
 
