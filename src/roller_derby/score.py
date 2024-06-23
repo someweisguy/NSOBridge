@@ -4,6 +4,8 @@ from datetime import datetime
 from typing import Any, Literal, get_args
 
 from .encodable import ClientException, Encodable
+from .timer import TimeKeeper, Timer
+import server
 
 
 class Bout(Encodable):
@@ -11,9 +13,14 @@ class Bout(Encodable):
         self._periods: tuple[list[Jam], ...] = ([Jam(self)], [], [])
         self._currentPeriod: list[Jam] = self._periods[0]
         self._currentJam: Jam = self._currentPeriod[0]
+        self._timer: TimeKeeper = TimeKeeper()
 
     def __getitem__(self, periodIndex: int) -> list[Jam]:
         return self._periods[periodIndex]
+    
+    @property
+    def timer(self) -> TimeKeeper:
+        return self._timer
 
     @property
     def currentPeriod(self) -> list[Jam]:
@@ -33,11 +40,13 @@ class Bout(Encodable):
 
     def addJam(self, period: int) -> None:
         self._periods[period].append(Jam(self))
+        server.update(self)
 
     def deleteJam(self, period: int) -> None:
         self._periods[period].pop()
         if len(self.currentPeriod) == 0:
             self.currentPeriod.append(Jam(self))
+        server.update(self)
 
     def encode(self) -> dict:
         return {
@@ -87,6 +96,7 @@ class Jam(Encodable):
                 self._trips.append(Jam.Trip(points, timestamp))
             else:
                 raise ClientException("Trip number is invalid.")
+            server.update(self._parent)
 
         def deleteTrip(self, tripIndex: int) -> None:
             del self._trips[tripIndex]
@@ -113,6 +123,7 @@ class Jam(Encodable):
                     raise ClientException("Other team is currently lead.")
 
             self._lead = value
+            server.update(self._parent)
 
         @property
         def lost(self) -> bool:
@@ -128,6 +139,7 @@ class Jam(Encodable):
                 raise ClientException("This Jam has not yet started.")
 
             self._lost = value
+            server.update(self._parent)
 
         @property
         def starPass(self) -> None | int:
@@ -147,6 +159,7 @@ class Jam(Encodable):
             if not self._lost and value is not False:
                 self._lost = True
             self._star_pass = value
+            server.update(self._parent)
 
         def getOtherTeam(self) -> Jam.Team:
             return self._parent._away if self._team == "home" else self._parent._home
@@ -197,23 +210,52 @@ class Jam(Encodable):
         if self.isStarted():
             raise ClientException("This jam has already started.")
         self._started = timestamp
+        
+        # Stop the Lineup timer and start the Jam timer
+        jamTimer: Timer = self._parent._timer.jam
+        lineupTimer: Timer = self._parent._timer.lineup
+        if lineupTimer.isRunning():
+            lineupTimer.stop(timestamp)
+        jamTimer.restart(timestamp)
+        
+        # Start the period clock if it isn't running
+        periodClock: Timer = self._parent._timer.period
+        if not periodClock.isRunning():
+            periodClock.start(timestamp)
+        server.update(self)
 
     def unStart(self) -> None:
         if not self.isStarted():
             raise ClientException("This jam has not yet started.")
         self._started = False
+        # TODO: handle timers
+        server.update(self)
 
     @property
     def isStopped(self) -> bool:
         return self._stopped is not False
 
-    def stop(self, timestamp: datetime) -> None:
+    def stop(
+        self, timestamp: datetime, stopReason: Jam.STOP_REASONS = "unknown"
+    ) -> None:
         if not self.isStarted():
             raise ClientException("This jam has not yet started.")
         if self.isStopped:
             raise ClientException("This jam has already stopped.")
+        if stopReason not in get_args(Jam.STOP_REASONS):
+            raise ValueError(
+                f"Stop reason must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
+            )
+        self._stopReason = stopReason
         self._stopped = timestamp
-        self._stopReason = "unknown"
+        
+        # Stop the Jam timer and start the Lineup timer
+        jamTimer: Timer = self._parent._timer.jam
+        lineupTimer: Timer = self._parent._timer.lineup
+        jamTimer.stop(timestamp)
+        lineupTimer.restart(timestamp)
+        
+        server.update(self)
 
     @property
     def stopReason(self) -> None | Jam.STOP_REASONS:
@@ -228,12 +270,15 @@ class Jam(Encodable):
         if not self.isStopped:
             raise ClientException("This jam has not yet stopped.")
         self._stopReason = stopReason
+        server.update(self)
 
     def unStop(self) -> None:
         if not self.isStopped:
             raise ClientException("This jam has not yet stopped.")
         self._stopped = False
         self._stopReason = None
+        # TODO: update timers
+        server.update(self)
 
     def encode(self) -> dict:
         startTime: Literal[False] | str = (

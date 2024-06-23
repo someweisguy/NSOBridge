@@ -8,12 +8,14 @@ from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 from typing import Callable, Any, Awaitable, Collection, TypeAlias
 from datetime import datetime, timedelta
+from roller_derby.encodable import Encodable
 import inspect
 import hashlib
 import logging
 import os
 import socketio
 import uvicorn
+import asyncio
 
 logging.basicConfig(
     format="{levelname}: {message}",
@@ -89,6 +91,13 @@ def register(
         return command
 
     return decorator(command) if callable(command) else decorator
+
+
+def update(encodable: Encodable) -> None:
+    # TODO: documentation
+    eventName: str = type(encodable).__name__.lower()
+    loop = asyncio.get_running_loop()
+    loop.create_task(_socket.emit(eventName, encodable.encode()))
 
 
 async def emit(

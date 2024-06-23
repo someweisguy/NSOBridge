@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import Any, Literal
 
 from .encodable import ClientException, Encodable
+import server
 
 
 class Timer(Encodable):
@@ -60,6 +61,7 @@ class Timer(Encodable):
             self._elapsed += self._lap.stop - self._lap.start
             self._lap.stop = None
         self._lap.start = timestamp
+        server.update(self)
 
     def stop(self, timestamp: None | datetime = None) -> None:
         if timestamp is None:
@@ -67,6 +69,7 @@ class Timer(Encodable):
         if not self.isRunning():
             raise ClientException("Timer is already stopped.")
         self._lap.stop = timestamp
+        server.update(self)
 
     def getElapsed(self, timestamp: None | datetime = None) -> int:
         if timestamp is None:
@@ -107,6 +110,17 @@ class Timer(Encodable):
     def reset(self) -> None:
         self._lap = Timer.Lap()
         self._elapsed = timedelta()
+        if self.isRunning():
+            server.update(self)
+
+    def restart(self, timestamp: None | datetime = None) -> None:
+        if timestamp is None:
+            timestamp = datetime.now()
+        if self.isRunning():
+            raise ClientException("Timer is already running.")
+        self._lap = Timer.Lap(start=timestamp)
+        self._elapsed = timedelta()
+        server.update(self)
 
     def encode(self) -> dict[str, Any]:
         return {
@@ -119,18 +133,18 @@ class Timer(Encodable):
 
 class TimeKeeper:
     def __init__(self) -> None:
-        self._game: Timer = Timer("game", minutes=30)
+        self._period: Timer = Timer("period", minutes=30)
         self._jam: Timer = Timer("jam", minutes=2)
         self._lineup: Timer = Timer("lineup", seconds=30)
         self._timeout: Timer = Timer("timeout")
 
-        self._periodTimer = self._game
+        self._periodTimer = self._period
         self._actionTimer = self._jam
 
     def __getitem__(self, item: str) -> Timer:
         match item:
-            case "game":
-                return self._game
+            case "period":
+                return self._period
             case "jam":
                 return self._jam
             case "lineup":
@@ -145,16 +159,16 @@ class TimeKeeper:
                 raise LookupError(f"Unknown timer '{item}'.")
 
     @property
-    def game(self) -> Timer:
-        return self._game
+    def period(self) -> Timer:
+        return self._period
 
-    @game.setter
-    def game(self, timer: Timer) -> None:
+    @period.setter
+    def period(self, timer: Timer) -> None:
         if not isinstance(timer, Timer):
             raise TypeError(f"Timer must be Timer, not {type(timer).__name__}")
-        if self._periodTimer is self._game:
+        if self._periodTimer is self._period:
             self._periodTimer = timer
-        self._game = timer
+        self._period = timer
 
     @property
     def jam(self) -> Timer:
@@ -199,7 +213,7 @@ class TimeKeeper:
     @periodTimer.setter
     def periodTimer(self, value: Literal["game", "intermission"]) -> None:
         if value == "game":
-            self._periodTimer = self._game
+            self._periodTimer = self._period
         elif value == "intermission":
             raise NotImplementedError()
         else:

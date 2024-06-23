@@ -8,6 +8,7 @@ from datetime import datetime
 
 @server.register
 async def jam(periodIndex: None | int = None, jamIndex: None | int = None) -> API:
+    # TODO: get the current period and Jam
     if periodIndex is None:
         periodIndex = 0
     if jamIndex is None:
@@ -27,58 +28,31 @@ async def jam(periodIndex: None | int = None, jamIndex: None | int = None) -> AP
 # TODO: Move to separate timer control file?
 @server.register
 async def timer(timerType: str) -> API:
-    return server.bouts.timer[timerType].encode()
+    return server.bouts.currentBout.timer[timerType].encode()
 
 
 @server.register
-async def startJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:
-    lineupTimer: Timer = server.bouts.timer.lineup
-    if lineupTimer.isRunning():
-        lineupTimer.stop(timestamp)
-        lineupTimer.reset()
-        
+async def startJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:   
+    # Start the Jam
     jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
     jam.start(timestamp)
-
-    jamTimer: Timer = server.bouts.timer.jam
-    jamTimer.start(timestamp)
-
-    # Start the period clock if it isn't running
-    periodClock: Timer = server.bouts.timer.game
-    if not periodClock.isRunning():
-        periodClock.start(timestamp)
-        await server.emit("timer", periodClock.encode())
-
-    # Broadcast the updates
-    await server.emit("jam", jam.encode())
-    await server.emit("timer", jamTimer.encode())
-    await server.emit("timer", lineupTimer.encode())
 
 
 @server.register
 async def stopJam(periodIndex: int, jamIndex: int, timestamp: datetime) -> API:
     jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
-    jam.stop(timestamp)
-
-    jamTimer: Timer = server.bouts.timer.jam
-    jamTimer.stop(timestamp)
-    jamTimer.reset()
-
-    lineupTimer: Timer = server.bouts.timer.lineup
-    lineupTimer.start(timestamp)
-
+    
     # Attempt to determine the reason the jam ended
+    stopReason: Jam.STOP_REASONS = "unknown"
+    jamTimer: Timer = server.bouts.currentBout.timer.jam
     millisecondsLeftInJam: None | int = jamTimer.getRemaining()
     assert millisecondsLeftInJam is not None
     if millisecondsLeftInJam < 0:
-        jam.stopReason = "time"
+        stopReason = "time"
     elif jam.home.lead or jam.away.lead:
-        jam.stopReason = "called"
-
-    # Broadcast the updates
-    await server.emit("jam", jam.encode())
-    await server.emit("timer", jamTimer.encode())
-    await server.emit("timer", lineupTimer.encode())
+        stopReason = "called"
+        
+    jam.stop(timestamp, stopReason)
 
 
 @server.register
@@ -87,8 +61,6 @@ async def setJamStopReason(
 ) -> API:
     jam: Jam = server.bouts.currentBout.periods[periodIndex][jamIndex]
     jam.stopReason = stopReason
-
-    await server.emit("jam", jam.encode())
 
 
 if __name__ == "__main__":

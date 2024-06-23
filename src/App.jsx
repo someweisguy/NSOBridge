@@ -110,7 +110,7 @@ function App() {
 
   return (
     <div className="App">
-      <TimerComponent timerType="action" />&nbsp;<TimerComponent timerType="game" />
+      <TimerComponent timerType="action" />&nbsp;<TimerComponent timerType="period" />
       <JamComponent />
     </div>
   );
