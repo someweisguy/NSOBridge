@@ -46,7 +46,7 @@ async def stopJam(jamIndex: JamIndex, timestamp: datetime) -> API:
 
     # Attempt to determine the reason the jam ended
     stopReason: Jam.STOP_REASONS = "unknown"
-    if jam.millisRemaining() < 0:
+    if jam.finished():
         stopReason = "time"
     elif jam.getLead("home") or jam.getLead("away"):
         stopReason = "called"
@@ -57,7 +57,7 @@ async def stopJam(jamIndex: JamIndex, timestamp: datetime) -> API:
 @server.register
 async def setJamStopReason(jamIndex: JamIndex, stopReason: Jam.STOP_REASONS) -> API:
     jam: Jam = server.bouts.currentBout[jamIndex.period][jamIndex.jam]
-    jam.stopReason = stopReason
+    jam.setStopReason(stopReason)
 
 
 if __name__ == "__main__":

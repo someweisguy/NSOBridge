@@ -192,21 +192,6 @@ class Jam(Encodable):
 
         server.update(self)
 
-    @property
-    def stopReason(self) -> None | Jam.STOP_REASONS:
-        return self._stopReason
-
-    @stopReason.setter
-    def stopReason(self, stopReason: Jam.STOP_REASONS) -> None:
-        if stopReason not in get_args(Jam.STOP_REASONS):
-            raise ValueError(
-                f"Stop reason must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
-            )
-        if not self.finished():
-            raise ClientException("This jam has not yet stopped.")
-        self._stopReason = stopReason
-        server.update(self)
-
     def unStop(self) -> None:
         if not self.finished():
             raise ClientException("This jam has not yet stopped.")
@@ -335,6 +320,23 @@ class Jam(Encodable):
         jamTeam: Jam.Team = self._home if team == "home" else self._away
         otherTeam: Jam.Team = self._away if team == "home" else self._home
         return not jamTeam.lost and not otherTeam.lead
+
+    def getStopReason(self) -> None | Jam.STOP_REASONS:
+        return self._stopReason
+
+    def setStopReason(self, stopReason: None | Jam.STOP_REASONS) -> None:
+        if stopReason is not None and stopReason not in get_args(Jam.STOP_REASONS):
+            raise ValueError(
+                f"Team must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
+            )
+        if stopReason is not None and not self.finished():
+            raise ClientException(
+                "Cannot set Stop Reason when the Jam is not finished."
+            )
+
+        self._stopReason = stopReason
+
+        server.update(self)
 
     def running(self) -> bool:
         return self._timer.isRunning()
