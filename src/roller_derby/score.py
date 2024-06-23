@@ -141,16 +141,13 @@ class Jam(Encodable):
     def timer(self) -> Timer:
         return self._timer
 
-    def isStarted(self) -> bool:
-        return self._timer.isRunning()
-
     def index(self) -> JamIndex:
         periodIndex: int = self._parent._parent._periods.index(self._parent)
         jamIndex: int = self._parent._jams.index(self)
         return JamIndex(period=periodIndex, jam=jamIndex)
 
     def start(self, timestamp: datetime) -> None:
-        if self.isStarted():
+        if self.running():
             raise ClientException("This jam has already started.")
 
         # Stop the Lineup timer
@@ -168,21 +165,18 @@ class Jam(Encodable):
         server.update(self)
 
     def unStart(self) -> None:
-        if not self.isStarted():
+        if not self.running():
             raise ClientException("This jam has not yet started.")
         # TODO: Implement this
         server.update(self)
 
-    def isStopped(self) -> bool:
-        return not self.isStarted() and self._timer.getElapsed() > 0
-
     def stop(
         self, timestamp: datetime, stopReason: Jam.STOP_REASONS = "unknown"
     ) -> None:
-        if not self.isStarted():
+        if not self.running():
             raise ClientException("This jam has not yet started.")
-        if self.isStopped():
-            raise ClientException("This jam has already stopped.")
+        if self.finished():
+            raise ClientException("This jam is already finished.")
         if stopReason not in get_args(Jam.STOP_REASONS):
             raise ValueError(
                 f"Stop reason must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
@@ -208,13 +202,13 @@ class Jam(Encodable):
             raise ValueError(
                 f"Stop reason must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
             )
-        if not self.isStopped():
+        if not self.finished():
             raise ClientException("This jam has not yet stopped.")
         self._stopReason = stopReason
         server.update(self)
 
     def unStop(self) -> None:
-        if not self.isStopped():
+        if not self.finished():
             raise ClientException("This jam has not yet stopped.")
         # TODO: update timers
         server.update(self)
@@ -226,7 +220,9 @@ class Jam(Encodable):
             millis = 0
         return millis
 
-    def setTrip(self, team: Jam.TEAMS, tripIndex: int, points: int, timestamp: datetime) -> None:
+    def setTrip(
+        self, team: Jam.TEAMS, tripIndex: int, points: int, timestamp: datetime
+    ) -> None:
         if team not in get_args(Jam.TEAMS):
             raise ValueError(
                 f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
@@ -235,18 +231,18 @@ class Jam(Encodable):
             raise TypeError(f"Trip Index must be int not {type(tripIndex).__name__}.")
         if not isinstance(points, int):
             raise TypeError(f"Points must be int not {type(points).__name__}.")
-        
+
         # Check if the tripIndex is a valid value
         jamTeam: Jam.Team = self._home if team == "home" else self._away
         if tripIndex > len(jamTeam.trips):
             raise IndexError("list index out of range")
-        
+
         # Append or edit the desired Trip
         if tripIndex == len(jamTeam.trips):
             jamTeam.trips.append(Jam.Trip(points, timestamp))
         else:
             jamTeam.trips[tripIndex].points = points
-            
+
         server.update(self)
 
     def deleteTrip(self, team: Jam.TEAMS, tripIndex: int) -> None:
@@ -254,11 +250,11 @@ class Jam(Encodable):
             raise ValueError(
                 f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
             )
-        
+
         # Delete the desired trip
         jamTeam: Jam.Team = self._home if team == "home" else self._away
         del jamTeam.trips[tripIndex]
-        
+
         server.update(self)
 
     def getLead(self, team: Jam.TEAMS) -> bool:
@@ -278,7 +274,7 @@ class Jam(Encodable):
             raise TypeError(f"Lead must be bool not {type(lead).__name__}.")
         jamTeam: Jam.Team = self._home if team == "home" else self._away
         jamTeam.lead = lead
-        
+
         server.update(self)
 
     def getLost(self, team: Jam.TEAMS) -> bool:
@@ -298,7 +294,7 @@ class Jam(Encodable):
             raise TypeError(f"Lost must be bool not {type(lost).__name__}.")
         jamTeam: Jam.Team = self._home if team == "home" else self._away
         jamTeam.lost = lost
-        
+
         server.update(self)
 
     def getStarPass(self, team: Jam.TEAMS) -> None | int:
@@ -320,9 +316,9 @@ class Jam(Encodable):
             )
         jamTeam: Jam.Team = self._home if team == "home" else self._away
         jamTeam.starPass = starPass
-        
+
         server.update(self)
-    
+
     def getTripCount(self, team: Jam.TEAMS) -> int:
         if team not in get_args(Jam.TEAMS):
             raise ValueError(
@@ -330,7 +326,7 @@ class Jam(Encodable):
             )
         jamTeam: Jam.Team = self._home if team == "home" else self._away
         return len(jamTeam.trips)
-    
+
     def isLeadEligible(self, team: Jam.TEAMS) -> bool:
         if team not in get_args(Jam.TEAMS):
             raise ValueError(
@@ -339,6 +335,12 @@ class Jam(Encodable):
         jamTeam: Jam.Team = self._home if team == "home" else self._away
         otherTeam: Jam.Team = self._away if team == "home" else self._home
         return not jamTeam.lost and not otherTeam.lead
+
+    def running(self) -> bool:
+        return self._timer.isRunning()
+
+    def finished(self) -> bool:
+        return not self.running() and self._timer.getElapsed() > 0
 
     def encode(self) -> dict:
         return {
