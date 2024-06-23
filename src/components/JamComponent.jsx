@@ -292,10 +292,10 @@ function JammerState({ team, jamState, jamIndex, numTrips, isLeadEligible }) {
         Star Pass&nbsp;<input type="checkbox"
           onClick={() => sendRequest("setStarPass", {
             team: team,
-            tripIndex: (starPass === false ? numTrips : false),
+            tripIndex: (starPass === null ? numTrips : null),
             jamIndex
           })}
-          checked={starPass !== false} />
+          checked={starPass !== null} />
       </div>
     </div>
   );
