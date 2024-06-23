@@ -49,13 +49,13 @@ class Timer(Encodable):
             hours, minutes, seconds = [0 if unit is None else unit for unit in units]
             self._alarm = timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
-    def isRunning(self) -> bool:
+    def running(self) -> bool:
         return self._lap.start is not None and self._lap.stop is None
 
     def start(self, timestamp: None | datetime = None) -> None:
         if timestamp is None:
             timestamp = datetime.now()
-        if self.isRunning():
+        if self.running():
             raise ClientException("Timer is already running.")
         if self._lap.start is not None and self._lap.stop is not None:
             self._elapsed += self._lap.stop - self._lap.start
@@ -66,7 +66,7 @@ class Timer(Encodable):
     def stop(self, timestamp: None | datetime = None) -> None:
         if timestamp is None:
             timestamp = datetime.now()
-        if not self.isRunning():
+        if not self.running():
             raise ClientException("Timer is already stopped.")
         self._lap.stop = timestamp
         server.update(self)
@@ -110,13 +110,13 @@ class Timer(Encodable):
     def reset(self) -> None:
         self._lap = Timer.Lap()
         self._elapsed = timedelta()
-        if self.isRunning():
+        if self.running():
             server.update(self)
 
     def restart(self, timestamp: None | datetime = None) -> None:
         if timestamp is None:
             timestamp = datetime.now()
-        if self.isRunning():
+        if self.running():
             raise ClientException("Timer is already running.")
         self._lap = Timer.Lap(start=timestamp)
         self._elapsed = timedelta()
@@ -127,7 +127,7 @@ class Timer(Encodable):
             "type": self._timerType,
             "alarm": self.getAlarm(),
             "elapsed": self.getElapsed(),
-            "running": self.isRunning(),
+            "running": self.running(),
         }
 
 

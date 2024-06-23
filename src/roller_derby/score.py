@@ -151,7 +151,7 @@ class Jam(Encodable):
             raise ClientException("This jam has already started.")
 
         # Stop the Lineup timer
-        if self._countdown.isRunning():
+        if self._countdown.running():
             self._countdown.stop(timestamp)
 
         # Start the Jam timer
@@ -159,7 +159,7 @@ class Jam(Encodable):
 
         # Start the period clock if it isn't running
         periodClock: Timer = self._parent._clock
-        if not periodClock.isRunning():
+        if not periodClock.running():
             periodClock.start(timestamp)
 
         server.update(self)
@@ -332,7 +332,7 @@ class Jam(Encodable):
         server.update(self)
 
     def running(self) -> bool:
-        return self._clock.isRunning()
+        return self._clock.running()
 
     def finished(self) -> bool:
         return not self.running() and self._clock.getElapsed() > 0
