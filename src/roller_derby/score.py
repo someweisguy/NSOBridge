@@ -57,8 +57,8 @@ class Bout(Encodable):
 class Period(Encodable):
     def __init__(self, parent: Bout) -> None:
         self._parent: Bout = parent
-        self._ttd: Timer = Timer("ttd", minutes=15)
-        self._timer: Timer = Timer("period", minutes=30)
+        self._countdown: Timer = Timer("ttd", minutes=15)
+        self._clock: Timer = Timer("period", minutes=30)
         self._jams: list[Jam] = [Jam(self)]
 
     def __len__(self) -> int:
@@ -69,7 +69,7 @@ class Period(Encodable):
 
     @property
     def timer(self) -> Timer:
-        return self._timer
+        return self._clock
 
     def getJam(self, jamIndex: int) -> Jam:
         return self._jams[jamIndex]
@@ -96,7 +96,11 @@ class Period(Encodable):
         pass  # TODO
 
     def encode(self) -> dict[str, Any]:
-        return {"jamCount": len(self._jams), "timer": self._timer.encode()}
+        return {
+            "jamCount": len(self._jams),
+            "countdown": self._countdown.encode(),
+            "clock": self._clock.encode(),
+        }
 
 
 class Jam(Encodable):
@@ -131,8 +135,8 @@ class Jam(Encodable):
 
     def __init__(self, parent: Period) -> None:
         self._parent: Period = parent
-        self._lineup: Timer = Timer("lineup", seconds=30)
-        self._timer: Timer = Timer("jam", minutes=2)
+        self._countdown: Timer = Timer("lineup", seconds=30)
+        self._clock: Timer = Timer("jam", minutes=2)
         self._stopReason: None | Jam.STOP_REASONS = None
         self._home: Jam.Team = Jam.Team()
         self._away: Jam.Team = Jam.Team()
@@ -147,14 +151,14 @@ class Jam(Encodable):
             raise ClientException("This jam has already started.")
 
         # Stop the Lineup timer
-        if self._lineup.isRunning():
-            self._lineup.stop(timestamp)
+        if self._countdown.isRunning():
+            self._countdown.stop(timestamp)
 
         # Start the Jam timer
-        self._timer.start(timestamp)
+        self._clock.start(timestamp)
 
         # Start the period clock if it isn't running
-        periodClock: Timer = self._parent._timer
+        periodClock: Timer = self._parent._clock
         if not periodClock.isRunning():
             periodClock.start(timestamp)
 
@@ -180,11 +184,11 @@ class Jam(Encodable):
 
         # Stop the current Jam
         self._stopReason = stopReason
-        self._timer.stop(timestamp)
+        self._clock.stop(timestamp)
 
         # Add the next Jam and start its Lineup timer
         nextJam: Jam = self._parent.addJam()
-        nextJam._lineup.start(timestamp)
+        nextJam._countdown.start(timestamp)
 
         server.update(self)
 
@@ -328,15 +332,15 @@ class Jam(Encodable):
         server.update(self)
 
     def running(self) -> bool:
-        return self._timer.isRunning()
+        return self._clock.isRunning()
 
     def finished(self) -> bool:
-        return not self.running() and self._timer.getElapsed() > 0
+        return not self.running() and self._clock.getElapsed() > 0
 
     def encode(self) -> dict:
         return {
             "jamIndex": self.index().encode(),
-            "timer": self._timer.encode(),
+            "timer": self._clock.encode(),
             "stopReason": self._stopReason,
             "home": self._home.encode(),
             "away": self._away.encode(),

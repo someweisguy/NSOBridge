@@ -29,7 +29,7 @@ async def timer(timerType: str) -> API:
     match timerType:
         case "jam":
             # TODO
-            return server.bouts.currentBout[-1][-1]._timer.encode()
+            return server.bouts.currentBout[-1][-1]._clock.encode()
         case "period":
             return server.bouts.currentBout[-1].timer.encode()
 
