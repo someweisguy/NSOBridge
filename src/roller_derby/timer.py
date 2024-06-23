@@ -28,12 +28,10 @@ class Timer(Encodable):
         if alarm is not None:
             if alarm < NOW:
                 raise ValueError("Alarm cannot be set for a time in the past.")
-            self._alarm: None | timedelta = alarm - NOW
+            self._alarm: timedelta = alarm - NOW
         else:
-            newAlarm: None | timedelta = None
-            if any(unit != 0 for unit in (hours, minutes, seconds)):
-                newAlarm = timedelta(hours=hours, minutes=minutes, seconds=seconds)
-            self._alarm: None | timedelta = newAlarm
+            newAlarm = timedelta(hours=hours, minutes=minutes, seconds=seconds)
+            self._alarm: timedelta = newAlarm
 
         self._elapsed: timedelta = timedelta()
         self._startTime: None | datetime = None
@@ -59,36 +57,27 @@ class Timer(Encodable):
 
         server.update(self)
 
-    def getElapsedMilliseconds(self, timestamp: datetime) -> int:
-        elapsed: int = round(self._elapsed.total_seconds() * 1000)
+    def getElapsed(self) -> timedelta:
+        NOW: datetime = datetime.now()
         lapTime: timedelta = timedelta()
         if self._startTime is not None and self._stopTime is not None:
             lapTime = self._stopTime - self._startTime
         elif self._startTime is not None:
-            lapTime = timestamp - self._startTime
-        elapsed += round(lapTime.total_seconds() * 1000)
-        return elapsed
+            lapTime = NOW - self._startTime
+        return self._elapsed + lapTime
 
     def setElapsed(self, hours: int = 0, minutes: int = 0, seconds: int = 0) -> None:
         self._elapsed = timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
-    def getAlarm(self) -> None | int:
-        if self._alarm is None:
-            return None
-        return round(self._alarm.total_seconds() * 1000)
+    def getAlarm(self) -> timedelta:
+        return self._alarm
 
-    def getRemaining(self) -> None | int:
-        NOW: datetime = datetime.now()
-        if self._alarm is None:
-            return None
-        return round(self._alarm.total_seconds() * 1000) - self.getElapsedMilliseconds(
-            NOW
-        )
+    def getRemaining(self) -> timedelta:
+        return self._alarm - self.getElapsed()
 
     def encode(self) -> dict[str, Any]:
-        NOW: datetime = datetime.now()
         return {
-            "alarm": self.getAlarm(),
-            "elapsed": self.getElapsedMilliseconds(NOW),
+            "alarm": round(self.getAlarm().total_seconds() * 1000),
+            "elapsed": round(self.getElapsed().total_seconds() * 1000),
             "running": self.running(),
         }

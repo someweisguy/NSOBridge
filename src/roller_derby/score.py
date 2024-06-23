@@ -334,8 +334,7 @@ class Jam(Encodable):
         return self._clock.running()
 
     def finished(self) -> bool:
-        NOW: datetime = datetime.now()
-        return not self.running() and self._clock.getElapsedMilliseconds(NOW) > 0
+        return not self.running() and self._clock.getElapsed().total_seconds() > 0
 
     def encode(self) -> dict:
         return {
