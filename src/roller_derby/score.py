@@ -137,10 +137,6 @@ class Jam(Encodable):
         self._home: Jam.Team = Jam.Team()
         self._away: Jam.Team = Jam.Team()
 
-    @property
-    def timer(self) -> Timer:
-        return self._timer
-
     def index(self) -> JamIndex:
         periodIndex: int = self._parent._parent._periods.index(self._parent)
         jamIndex: int = self._parent._jams.index(self)
