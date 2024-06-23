@@ -96,7 +96,7 @@ class Period(Encodable):
         pass  # TODO
 
     def encode(self) -> dict[str, Any]:
-        return {"jamCount": 0, "timer": self._timer.encode()}
+        return {"jamCount": len(self._jams), "timer": self._timer.encode()}
 
 
 class Jam(Encodable):
