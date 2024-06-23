@@ -134,19 +134,15 @@ class Timer(Encodable):
 class TimeKeeper:
     def __init__(self) -> None:
         self._period: Timer = Timer("period", minutes=30)
-        self._jam: Timer = Timer("jam", minutes=2)
         self._lineup: Timer = Timer("lineup", seconds=30)
         self._timeout: Timer = Timer("timeout")
 
         self._periodTimer = self._period
-        self._actionTimer = self._jam
 
     def __getitem__(self, item: str) -> Timer:
         match item:
             case "period":
                 return self._period
-            case "jam":
-                return self._jam
             case "lineup":
                 return self._lineup
             case "timeout":
@@ -169,18 +165,6 @@ class TimeKeeper:
         if self._periodTimer is self._period:
             self._periodTimer = timer
         self._period = timer
-
-    @property
-    def jam(self) -> Timer:
-        return self._jam
-
-    @jam.setter
-    def jam(self, timer: Timer) -> None:
-        if not isinstance(timer, Timer):
-            raise TypeError(f"Timer must be Timer, not {type(timer).__name__}")
-        if self._actionTimer is self._jam:
-            self._actionTimer = timer
-        self._jam = timer
 
     @property
     def lineup(self) -> Timer:
@@ -226,14 +210,12 @@ class TimeKeeper:
         return self._actionTimer
 
     @actionTimer.setter
-    def actionTimer(self, value: Literal["jam", "lineup", "timeout"]) -> None:
-        if value == "jam":
-            self._actionTimer = self._jam
-        elif value == "lineup":
+    def actionTimer(self, value: Literal["lineup", "timeout"]) -> None:
+        if value == "lineup":
             self._actionTimer = self._lineup
         elif value == "timeout":
             self._actionTimer = self._timeout
         else:
             raise ValueError(
-                f"Action Timer must be one of 'jam', 'lineup', or 'timeout', not '{value}'."
+                f"Action Timer must be one of 'lineup', or 'timeout', not '{value}'."
             )

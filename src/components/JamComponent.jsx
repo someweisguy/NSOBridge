@@ -1,13 +1,16 @@
 import { useCallback, useState, useRef, useEffect } from "react";
-import { useSocketGetter, sendRequest } from "../App";
+import { useSocketGetter, sendRequest, getLatency } from "../App";
 import "./JamComponent.css"
 
 const HOME = "home";
 const AWAY = "away";
 
 const NULL_JAM = {
-  startTime: null,
-  stopTime: null,
+  timer: {
+    alarm: null,
+    elapsed: null,
+    running: false
+  },
   stopReason: null,
   jamIndex: null,
   home: {
@@ -24,6 +27,49 @@ const NULL_JAM = {
     trips: []
   }
 };
+
+export function PeriodViewer({ }) {
+  const [periodClock, setPeriodClock] = useState(null);
+  const [nextPeriodIsReady, setNextPeriodIsReady] = useState(false);
+
+  const timerCallback = useCallback((timer) => {
+    if (timer.type !== "period") {
+      return;  // Incorrect timer type
+    }
+    setPeriodClock(timer);
+  }, []);
+  useSocketGetter("timer", timerCallback, { timerType: "period" });
+
+  useEffect(() => {
+    let timeoutMillis = periodClock.alarm - periodClock.elapsed;
+    if (periodClock.running) {
+      timeoutMillis -= getLatency()
+    }
+
+    if (timeoutMillis <= 0) {
+      setNextPeriodIsReady(true);
+    } else if (periodClock.isRunning) {
+      const timeoutId = setTimeout(() => {
+        setNextPeriodIsReady(true);
+      }, timeoutMillis);
+      return () => clearTimeout(timeoutId);
+    } else {
+      setNextPeriodIsReady(false);
+    }
+  }, [periodClock]);
+
+
+  return (
+    <div>
+      <div>
+        
+      </div>
+      <div>
+
+      </div>
+    </div>
+  );
+} 
 
 export function JamComponent({ }) {
   const [state, setState] = useState(NULL_JAM);
@@ -58,7 +104,7 @@ export function JamComponent({ }) {
       {nextJamButton}
       {periodLabel}&nbsp;{jamLabel}
       <br />
-      <JamControlComponent startTime={state.startTime}
+      <JamControlComponent isStarted={state.timer.running}
         stopReason={state.stopReason} jamIndex={state.jamIndex} />
       <div style={{ display: "flex" }}>
         <div>
@@ -260,9 +306,7 @@ const INJURY = "injury";
 const TIME = "time";
 const UNKNOWN = "unknown";
 
-export function JamControlComponent({ startTime, stopReason, jamIndex }) {
-
-  const isStarted = startTime !== false;
+export function JamControlComponent({ isStarted, stopReason, jamIndex }) {
   const isStopped = stopReason !== null;
 
   let label = null;

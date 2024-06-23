@@ -192,8 +192,7 @@ class Jam(Encodable):
 
     def __init__(self, parent: Bout) -> None:
         self._parent: Bout = parent
-        self._started: Literal[False] | datetime = False
-        self._stopped: Literal[False] | datetime = False
+        self._timer: Timer = Timer("jam", minutes=2)
         self._stopReason: None | Jam.STOP_REASONS = None
         self._home: Jam.Team = Jam.Team(self, "home")
         self._away: Jam.Team = Jam.Team(self, "away")
@@ -213,7 +212,7 @@ class Jam(Encodable):
         return self._away
 
     def isStarted(self) -> bool:
-        return self._started is not False
+        return self._timer.isRunning()
 
     def index(self) -> JamIndex:
         for periodIndex, period in enumerate(self._parent._periods):
@@ -226,14 +225,12 @@ class Jam(Encodable):
     def start(self, timestamp: datetime) -> None:
         if self.isStarted():
             raise ClientException("This jam has already started.")
-        self._started = timestamp
+        self._timer.start(timestamp)
 
         # Stop the Lineup timer and start the Jam timer
-        jamTimer: Timer = self._parent._timer.jam
         lineupTimer: Timer = self._parent._timer.lineup
         if lineupTimer.isRunning():
             lineupTimer.stop(timestamp)
-        jamTimer.restart(timestamp)
 
         # Start the period clock if it isn't running
         periodClock: Timer = self._parent._timer.period
@@ -244,12 +241,11 @@ class Jam(Encodable):
     def unStart(self) -> None:
         if not self.isStarted():
             raise ClientException("This jam has not yet started.")
-        self._started = False
-        # TODO: handle timers
+        # TODO: Implement this
         server.update(self)
 
     def isStopped(self) -> bool:
-        return self._stopped is not False
+        return not self.isStarted() and self._timer.getElapsed() > 0
 
     def stop(
         self, timestamp: datetime, stopReason: Jam.STOP_REASONS = "unknown"
@@ -263,12 +259,10 @@ class Jam(Encodable):
                 f"Stop reason must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
             )
         self._stopReason = stopReason
-        self._stopped = timestamp
+        self._timer.stop(timestamp)
 
         # Stop the Jam timer and start the Lineup timer
-        jamTimer: Timer = self._parent._timer.jam
         lineupTimer: Timer = self._parent._timer.lineup
-        jamTimer.stop(timestamp)
         lineupTimer.restart(timestamp)
 
         server.update(self)
@@ -291,22 +285,20 @@ class Jam(Encodable):
     def unStop(self) -> None:
         if not self.isStopped():
             raise ClientException("This jam has not yet stopped.")
-        self._stopped = False
-        self._stopReason = None
         # TODO: update timers
         server.update(self)
+    
+    def millisRemaining(self) -> int:
+        millis: None | int = self._timer.getRemaining()
+        assert millis is not None
+        if millis < 0:
+            millis = 0
+        return millis
 
     def encode(self) -> dict:
-        startTime: Literal[False] | str = (
-            self._started if self._started is False else str(self._started)
-        )
-        stopTime: Literal[False] | str = (
-            self._stopped if self._stopped is False else str(self._stopped)
-        )
         return {
             "jamIndex": self.index().encode(),
-            "startTime": startTime,
-            "stopTime": stopTime,
+            "timer": self._timer.encode(),
             "stopReason": self._stopReason,
             "home": self._home.encode(),
             "away": self._away.encode(),
