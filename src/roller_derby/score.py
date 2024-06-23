@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Literal, get_args
 
 from .encodable import ClientException, Encodable
-from .timer import TimeKeeper, Timer
+from .timer import Timer
 import server
 
 
@@ -29,7 +29,6 @@ class Bout(Encodable):
 
     def __init__(self) -> None:
         self._periods: list[Period] = [Period(self)]
-        self._timer: TimeKeeper = TimeKeeper()
 
     def __len__(self) -> int:
         return len(self._periods)
