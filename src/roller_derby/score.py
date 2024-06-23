@@ -248,7 +248,6 @@ class Jam(Encodable):
         # TODO: handle timers
         server.update(self)
 
-    @property
     def isStopped(self) -> bool:
         return self._stopped is not False
 
@@ -257,7 +256,7 @@ class Jam(Encodable):
     ) -> None:
         if not self.isStarted():
             raise ClientException("This jam has not yet started.")
-        if self.isStopped:
+        if self.isStopped():
             raise ClientException("This jam has already stopped.")
         if stopReason not in get_args(Jam.STOP_REASONS):
             raise ValueError(
@@ -284,13 +283,13 @@ class Jam(Encodable):
             raise ValueError(
                 f"Stop reason must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
             )
-        if not self.isStopped:
+        if not self.isStopped():
             raise ClientException("This jam has not yet stopped.")
         self._stopReason = stopReason
         server.update(self)
 
     def unStop(self) -> None:
-        if not self.isStopped:
+        if not self.isStopped():
             raise ClientException("This jam has not yet stopped.")
         self._stopped = False
         self._stopReason = None
