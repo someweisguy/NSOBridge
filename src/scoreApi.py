@@ -49,10 +49,8 @@ async def setInitialPass(
         raise ClientException("This team has already had their initial trip.")
 
     # Assign lead and set the initial trip points
-    try:
-        teamJam.lead = True  # TODO: remove try/except
-    except ClientException:
-        pass
+    if not teamJam.lost and not teamJam.getOtherTeam().lead:
+        teamJam.lead = True
     # Set the trip using timestamp calculated from the client latency
     points: int = 0  # TODO: if is overtime, set to 4 points
     teamJam.setTrip(0, points, timestamp)
