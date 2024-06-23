@@ -48,7 +48,7 @@ async def stopJam(jamIndex: JamIndex, timestamp: datetime) -> API:
     stopReason: Jam.STOP_REASONS = "unknown"
     if jam.millisRemaining() < 0:
         stopReason = "time"
-    elif jam.home.lead or jam.away.lead:
+    elif jam.getLead("home") or jam.getLead("away"):
         stopReason = "called"
 
     jam.stop(timestamp, stopReason)

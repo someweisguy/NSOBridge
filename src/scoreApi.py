@@ -1,93 +1,80 @@
 from roller_derby.score import ClientException, Bout, Jam, JamIndex
 from datetime import datetime
+from server import API
 import server
 
 
 @server.register
 async def setTrip(
     jamIndex: JamIndex,
-    team: str,
+    team: Jam.TEAMS,
     tripIndex: int,
     tripPoints: int,
     timestamp: datetime,
 ) -> None:
-    # Get the desired Bout
+    # Get the desired Bout and Jam
     bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
-    teamJam: Jam.Team = jam[team]
 
-    teamJam.setTrip(tripIndex, tripPoints, timestamp)
+    jam.setTrip(team, tripIndex, tripPoints, timestamp)
 
 
 @server.register
-async def deleteTrip(jamIndex: JamIndex, team: str, tripIndex: int) -> server.API:
-    # Get the desired Bout
+async def deleteTrip(jamIndex: JamIndex, team: Jam.TEAMS, tripIndex: int) -> API:
+    # Get the desired Bout and Jam
     bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
-    teamJam: Jam.Team = jam[team]
 
-    teamJam.deleteTrip(tripIndex)
+    jam.deleteTrip(team, tripIndex)
 
 
 @server.register
 async def setInitialPass(
-    jamIndex: JamIndex, team: str, timestamp: datetime
-) -> server.API:
-    # Get the desired Bout
+    jamIndex: JamIndex, team: Jam.TEAMS, timestamp: datetime
+) -> API:
+    # Get the desired Bout and Jam
     bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
-    teamJam: Jam.Team = jam[team]
 
     # Raise an error if trying to set an invalid initial trip
-    if len(teamJam.trips):
+    if jam.getTripCount(team) > 0:
         raise ClientException("This team has already had their initial trip.")
 
     # Assign lead and set the initial trip points
-    if not teamJam.lost and not teamJam.getOtherTeam().lead:
-        teamJam.lead = True
-    # Set the trip using timestamp calculated from the client latency
+    if jam.isLeadEligible(team):
+        jam.setLead(team, True)
+
     points: int = 0  # TODO: if is overtime, set to 4 points
-    teamJam.setTrip(0, points, timestamp)
+    tripIndex: int = 0  # The initial pass
+    jam.setTrip(team, tripIndex, points, timestamp)
 
 
 @server.register
-async def setLead(jamIndex: JamIndex, team: str, lead: bool) -> server.API:
-    # Get the desired Bout
+async def setLead(jamIndex: JamIndex, team: Jam.TEAMS, lead: bool) -> API:
+    # Get the desired Bout and Jam
     bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
-    teamJam: Jam.Team = jam[team]
-    teamJam.lead = lead
+
+    jam.setLead(team, lead)
 
 
 @server.register
-async def setLost(jamIndex: JamIndex, team: str, lost: bool) -> server.API:
-    # Get the desired Bout
+async def setLost(jamIndex: JamIndex, team: Jam.TEAMS, lost: bool) -> API:
+    # Get the desired Bout and Jam
     bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
-    teamJam: Jam.Team = jam[team]
-    teamJam.lost = lost
+
+    jam.setLost(team, lost)
 
 
 @server.register
 async def setStarPass(
-    jamIndex: JamIndex, team: str, tripIndex: None | int
-) -> server.API:
-    # Get the desired Bout
+    jamIndex: JamIndex, team: Jam.TEAMS, tripIndex: None | int
+) -> API:
+    # Get the desired Bout and Jam
     bout: Bout = server.bouts.currentBout
-
-    # Get the desired Jam and Jam Team
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
-    teamJam: Jam.Team = jam[team]
-    teamJam.starPass = tripIndex
-    if tripIndex is not False:
-        teamJam.lost = True
+
+    jam.setStarPass(team, tripIndex)
+    if tripIndex is not None:
+        jam.setLost(team, True)
