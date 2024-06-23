@@ -48,7 +48,7 @@ export function JamComponent({ }) {
     nextJamButton = (<button onClick={async () => {
       let jamIndex = state.jamIndex;
       jamIndex.jam += 1;
-      const nextState = await sendRequest("jam", { ...jamIndex });
+      const nextState = await sendRequest("jam", { jamIndex });
       setState(nextState);
     }}>Go to next Jam</button>);
   }
