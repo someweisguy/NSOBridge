@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -7,11 +6,6 @@ import server
 
 
 class Timer(Encodable):
-    @dataclass
-    class Lap:
-        start: None | datetime = None
-        stop: None | datetime = None
-
     def __init__(
         self,
         timerType: str,
@@ -36,7 +30,8 @@ class Timer(Encodable):
         self._timerType: str = timerType
         self._alarm: None | timedelta = None
         self._elapsed: timedelta = timedelta()
-        self._lap: Timer.Lap = Timer.Lap()
+        self._startTime: None | datetime = None
+        self._stopTime: None | datetime = None
 
         # Check if the Timer should have an alarm value
         if alarm is not None:
@@ -44,52 +39,43 @@ class Timer(Encodable):
             if alarm < now:
                 raise ValueError("Alarm cannot be set for a time in the past.")
             self._alarm = now - alarm
-            self._lap.start = now
+            self._startTime = now
         elif any(unit is not None for unit in units):
             hours, minutes, seconds = [0 if unit is None else unit for unit in units]
             self._alarm = timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
     def running(self) -> bool:
-        return self._lap.start is not None and self._lap.stop is None
+        return self._startTime is not None and self._stopTime is None
 
     def start(self, timestamp: datetime) -> None:
         if self.running():
             raise ClientException("Timer is already running.")
-        if self._lap.start is not None and self._lap.stop is not None:
-            self._elapsed += self._lap.stop - self._lap.start
-            self._lap.stop = None
-        self._lap.start = timestamp
+        if self._startTime is not None and self._stopTime is not None:
+            self._elapsed += self._stopTime - self._startTime
+            self._stopTime = None
+        self._startTime = timestamp
+
         server.update(self)
 
     def stop(self, timestamp: datetime) -> None:
         if not self.running():
             raise ClientException("Timer is already stopped.")
-        self._lap.stop = timestamp
+        self._stopTime = timestamp
+
         server.update(self)
 
     def getElapsedMilliseconds(self, timestamp: datetime) -> int:
         elapsed: int = round(self._elapsed.total_seconds() * 1000)
         lapTime: timedelta = timedelta()
-        if self._lap.start is not None and self._lap.stop is not None:
-            lapTime = self._lap.stop - self._lap.start
-        elif self._lap.start is not None:
-            lapTime = timestamp - self._lap.start
+        if self._startTime is not None and self._stopTime is not None:
+            lapTime = self._stopTime - self._startTime
+        elif self._startTime is not None:
+            lapTime = timestamp - self._startTime
         elapsed += round(lapTime.total_seconds() * 1000)
         return elapsed
 
-    def setElapsed(
-        self,
-        hours: int = 0,
-        minutes: int = 0,
-        seconds: int = 0,
-        milliseconds: int = 0,
-    ) -> None:
-        units: tuple[int, ...] = (hours, minutes, seconds, milliseconds)
-        if any(not isinstance(unit, int) for unit in units):
-            raise TypeError("Units must be int")
-        self._elapsed = timedelta(
-            hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
-        )
+    def setElapsed(self, hours: int = 0, minutes: int = 0, seconds: int = 0) -> None:
+        self._elapsed = timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
     def getAlarm(self) -> None | int:
         if self._alarm is None:
