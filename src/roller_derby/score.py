@@ -340,7 +340,8 @@ class Jam(Encodable):
     def encode(self) -> dict:
         return {
             "jamIndex": self.index().encode(),
-            "timer": self._clock.encode(),
+            "countdown": self._countdown.encode(),
+            "clock": self._clock.encode(),
             "stopReason": self._stopReason,
             "home": self._home.encode(),
             "away": self._away.encode(),
