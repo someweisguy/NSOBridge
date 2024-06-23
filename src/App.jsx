@@ -110,7 +110,7 @@ function App() {
 
   return (
     <div className="App">
-      <TimerComponent timerType="action" />&nbsp;<TimerComponent timerType="period" />
+      <TimerComponent timerType="jam" />&nbsp;<TimerComponent timerType="period" />
       <JamComponent />
     </div>
   );

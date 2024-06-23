@@ -22,55 +22,74 @@ class JamIndex(Encodable):
 
 
 class Bout(Encodable):
+    
+    class Team(Encodable):
+        def __init__(self) -> None:
+            # TODO: add team references, colors, timeouts, official reviews, etc
+            pass
+    
     def __init__(self) -> None:
-        self._periods: tuple[list[Jam], ...] = ([Jam(self)], [], [])
-        self._currentPeriod: list[Jam] = self._periods[0]
+        self._periods: list[Period] = [Period(self)]
         self._timer: TimeKeeper = TimeKeeper()
+    
+    def __len__(self) -> int:
+        return len(self._periods)
 
-    def __getitem__(self, periodIndex: int) -> list[Jam]:
+    def __getitem__(self, periodIndex: int) -> Period:
         return self._periods[periodIndex]
-
-    @property
-    def timer(self) -> TimeKeeper:
-        return self._timer
-
-    @property
-    def currentPeriod(self) -> list[Jam]:
-        return self._currentPeriod
-
-    @property
-    def currentJam(self) -> Jam:
-        for period in reversed(self._periods):
-            for jam in reversed(period):
-                if jam.isStarted():
-                    return jam
-        else:
-            return self._periods[0][0]
-
-    @property
-    def periods(self) -> tuple[list[Jam], ...]:
-        return tuple(self._periods)
-
-    @property
-    def inOvertime(self) -> bool:
-        return self.currentJam in self._periods[2]
-
-    def addJam(self, period: int) -> None:
-        self._periods[period].append(Jam(self))
-        server.update(self)
-
-    def deleteJam(self, period: int) -> None:
-        self._periods[period].pop()
-        if len(self.currentPeriod) == 0:
-            self.currentPeriod.append(Jam(self))
-        server.update(self)
+    
+    def getPeriod(self, periodIndex: int) -> Period:
+        return self._periods[periodIndex]
+    
+    def getCurrentPeriod(self) -> Period:
+        return self._periods[-1]
+    
+    def addPeriod(self) -> None:
+        if len(self._periods) >= 2:
+            raise RuntimeError("A Bout cannot have more than 2 Periods.")
+        self._periods.append(Period(self))
 
     def encode(self) -> dict:
         return {
-            "currentPeriod": self._periods.index(self.currentPeriod),
-            "jams": [[jam.encode() for jam in period] for period in self._periods],
+            "periodCount": len(self._periods),
         }
 
+
+class Period(Encodable):
+    def __init__(self, parent: Bout) -> None:
+        self._parent: Bout = parent
+        self._timer: Timer = Timer("period", minutes=30)
+        self._jams: list[Jam] = [Jam(self)]
+        
+    def __len__(self) -> int:
+        return len(self._jams)
+    
+    def __getitem__(self, jamIndex: int) -> Jam:
+        return self._jams[jamIndex]
+    
+    @property
+    def timer(self) -> Timer:
+        return self._timer
+    
+    def getJam(self, jamIndex: int) -> Jam:
+        return self._jams[jamIndex]
+    
+    def getCurrentJam(self) -> Jam:
+        return self._jams[-1]
+        
+    def addJam(self) -> None:
+        self._jams.append(Jam(self))
+    
+    def deleteJam(self, index: int) -> None:
+        del self._jams[index]
+        if len(self._jams) == 0:
+            self._jams.append(Jam(self))
+    
+    def encode(self) -> dict[str, Any]:
+        return {
+            "jamCount": 0,
+            "periodClock": None
+        }
 
 class Jam(Encodable):
     STOP_REASONS = Literal["called", "injury", "time", "unknown"]
@@ -190,8 +209,8 @@ class Jam(Encodable):
                 "trips": [trip.encode() for trip in self._trips],
             }
 
-    def __init__(self, parent: Bout) -> None:
-        self._parent: Bout = parent
+    def __init__(self, parent: Period) -> None:
+        self._parent: Period = parent
         self._timer: Timer = Timer("jam", minutes=2)
         self._stopReason: None | Jam.STOP_REASONS = None
         self._home: Jam.Team = Jam.Team(self, "home")
@@ -202,7 +221,11 @@ class Jam(Encodable):
         if teamName not in ("home", "away"):
             raise KeyError(f"Unknown team name '{teamName}'.")
         return self._home if teamName == "home" else self._away
-
+    
+    @property
+    def timer(self) -> Timer:
+        return self._timer
+    
     @property
     def home(self) -> Jam.Team:
         return self._home
@@ -215,25 +238,23 @@ class Jam(Encodable):
         return self._timer.isRunning()
 
     def index(self) -> JamIndex:
-        for periodIndex, period in enumerate(self._parent._periods):
-            if self in period:
-                return JamIndex(period=periodIndex, jam=period.index(self))
-        else:
-            # This exception should never be raised
-            raise ValueError("This Jam is not in a Bout")
+        periodIndex: int = self._parent._parent._periods.index(self._parent)
+        jamIndex: int = self._parent._jams.index(self)
+        return JamIndex(period=periodIndex, jam=jamIndex)
 
     def start(self, timestamp: datetime) -> None:
         if self.isStarted():
             raise ClientException("This jam has already started.")
         self._timer.start(timestamp)
 
-        # Stop the Lineup timer and start the Jam timer
-        lineupTimer: Timer = self._parent._timer.lineup
-        if lineupTimer.isRunning():
-            lineupTimer.stop(timestamp)
+        # FIXME
+        # # Stop the Lineup timer and start the Jam timer
+        # lineupTimer: Timer = self._parent._timer.lineup
+        # if lineupTimer.isRunning():
+        #     lineupTimer.stop(timestamp)
 
         # Start the period clock if it isn't running
-        periodClock: Timer = self._parent._timer.period
+        periodClock: Timer = self._parent._timer
         if not periodClock.isRunning():
             periodClock.start(timestamp)
         server.update(self)
@@ -261,9 +282,10 @@ class Jam(Encodable):
         self._stopReason = stopReason
         self._timer.stop(timestamp)
 
-        # Stop the Jam timer and start the Lineup timer
-        lineupTimer: Timer = self._parent._timer.lineup
-        lineupTimer.restart(timestamp)
+        # FIXME
+        # # Stop the Jam timer and start the Lineup timer
+        # lineupTimer: Timer = self._parent._timer.lineup
+        # lineupTimer.restart(timestamp)
 
         server.update(self)
 

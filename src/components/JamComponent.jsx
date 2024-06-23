@@ -104,7 +104,7 @@ export function JamComponent({ }) {
       {nextJamButton}
       {periodLabel}&nbsp;{jamLabel}
       <br />
-      <JamControlComponent isStarted={state.timer.running}
+      <JamControlComponent isStarted={state.timer.running || state.timer.elapsed > 0}
         stopReason={state.stopReason} jamIndex={state.jamIndex} />
       <div style={{ display: "flex" }}>
         <div>

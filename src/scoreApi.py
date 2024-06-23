@@ -15,7 +15,7 @@ async def setTrip(
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
+    jam: Jam = bout[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
 
     teamJam.setTrip(tripIndex, tripPoints, timestamp)
@@ -27,7 +27,7 @@ async def deleteTrip(jamIndex: JamIndex, team: str, tripIndex: int) -> server.AP
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
+    jam: Jam = bout[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
 
     teamJam.deleteTrip(tripIndex)
@@ -41,7 +41,7 @@ async def setInitialPass(
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
+    jam: Jam = bout[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
 
     # Raise an error if trying to set an invalid initial trip
@@ -62,7 +62,7 @@ async def setLead(jamIndex: JamIndex, team: str, lead: bool) -> server.API:
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
+    jam: Jam = bout[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
     teamJam.lead = lead
 
@@ -73,7 +73,7 @@ async def setLost(jamIndex: JamIndex, team: str, lost: bool) -> server.API:
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
+    jam: Jam = bout[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
     teamJam.lost = lost
 
@@ -86,7 +86,7 @@ async def setStarPass(
     bout: Bout = server.bouts.currentBout
 
     # Get the desired Jam and Jam Team
-    jam: Jam = bout.periods[jamIndex.period][jamIndex.jam]
+    jam: Jam = bout[jamIndex.period][jamIndex.jam]
     teamJam: Jam.Team = jam[team]
     teamJam.starPass = tripIndex
     if tripIndex is not False:
