@@ -56,8 +56,8 @@ class Bout(Encodable):
 class Period(Encodable):
     def __init__(self, parent: Bout) -> None:
         self._parent: Bout = parent
-        self._countdown: Timer = Timer("ttd", minutes=15)
-        self._clock: Timer = Timer("period", minutes=30)
+        self._countdown: Timer = Timer(minutes=15)
+        self._clock: Timer = Timer(minutes=30)
         self._jams: list[Jam] = [Jam(self)]
 
     def __len__(self) -> int:
@@ -134,8 +134,8 @@ class Jam(Encodable):
 
     def __init__(self, parent: Period) -> None:
         self._parent: Period = parent
-        self._countdown: Timer = Timer("lineup", seconds=30)
-        self._clock: Timer = Timer("jam", minutes=2)
+        self._countdown: Timer = Timer(seconds=30)
+        self._clock: Timer = Timer(minutes=2)
         self._stopReason: None | Jam.STOP_REASONS = None
         self._home: Jam.Team = Jam.Team()
         self._away: Jam.Team = Jam.Team()

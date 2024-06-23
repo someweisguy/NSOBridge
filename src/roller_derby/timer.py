@@ -1,55 +1,50 @@
 from datetime import datetime, timedelta
 from typing import Any
 
-from .encodable import ClientException, Encodable
+from .encodable import Encodable
 import server
 
 
 class Timer(Encodable):
     def __init__(
         self,
-        timerType: str,
         alarm: None | datetime = None,
         *,
-        hours: None | int = None,
-        minutes: None | int = None,
-        seconds: None | int = None,
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: int = 0,
     ) -> None:
-        if not isinstance(timerType, str):
-            raise TypeError(f"Type must be str, not {type(timerType).__name__}")
+        NOW: datetime = datetime.now()
         if alarm is not None and not isinstance(alarm, datetime):
             raise TypeError(f"Alarm must be datetime, not {type(alarm).__name__}")
-        units: tuple[None | int, ...] = (hours, minutes, seconds)
-        if any(unit is not None and not isinstance(unit, int) for unit in units):
+        if any(not isinstance(unit, int) for unit in (hours, minutes, seconds)):
             raise TypeError("Units must be int")
-        if alarm is not None and any(unit is not None for unit in units):
+        if alarm is not None and any(unit != 0 for unit in (hours, minutes, seconds)):
             raise TypeError(
                 f"{type(self).__name__} must be initialized with a datetime or timedelta, not both."
             )
 
-        self._timerType: str = timerType
-        self._alarm: None | timedelta = None
+        # Set the Timer alarm value
+        if alarm is not None:
+            if alarm < NOW:
+                raise ValueError("Alarm cannot be set for a time in the past.")
+            self._alarm: None | timedelta = alarm - NOW
+        else:
+            newAlarm: None | timedelta = None
+            if any(unit != 0 for unit in (hours, minutes, seconds)):
+                newAlarm = timedelta(hours=hours, minutes=minutes, seconds=seconds)
+            self._alarm: None | timedelta = newAlarm
+
         self._elapsed: timedelta = timedelta()
         self._startTime: None | datetime = None
         self._stopTime: None | datetime = None
-
-        # Check if the Timer should have an alarm value
-        if alarm is not None:
-            now: datetime = datetime.now()
-            if alarm < now:
-                raise ValueError("Alarm cannot be set for a time in the past.")
-            self._alarm = now - alarm
-            self._startTime = now
-        elif any(unit is not None for unit in units):
-            hours, minutes, seconds = [0 if unit is None else unit for unit in units]
-            self._alarm = timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
     def running(self) -> bool:
         return self._startTime is not None and self._stopTime is None
 
     def start(self, timestamp: datetime) -> None:
         if self.running():
-            raise ClientException("Timer is already running.")
+            raise RuntimeError("Timer is already running.")
         if self._startTime is not None and self._stopTime is not None:
             self._elapsed += self._stopTime - self._startTime
             self._stopTime = None
@@ -59,7 +54,7 @@ class Timer(Encodable):
 
     def stop(self, timestamp: datetime) -> None:
         if not self.running():
-            raise ClientException("Timer is already stopped.")
+            raise RuntimeError("Timer is not currently running.")
         self._stopTime = timestamp
 
         server.update(self)
@@ -93,7 +88,6 @@ class Timer(Encodable):
     def encode(self) -> dict[str, Any]:
         NOW: datetime = datetime.now()
         return {
-            "type": self._timerType,  # TODO: remove
             "alarm": self.getAlarm(),
             "elapsed": self.getElapsedMilliseconds(NOW),
             "running": self.running(),
