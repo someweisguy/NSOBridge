@@ -25,7 +25,6 @@ class Bout(Encodable):
     def __init__(self) -> None:
         self._periods: tuple[list[Jam], ...] = ([Jam(self)], [], [])
         self._currentPeriod: list[Jam] = self._periods[0]
-        self._currentJam: Jam = self._currentPeriod[0]
         self._timer: TimeKeeper = TimeKeeper()
 
     def __getitem__(self, periodIndex: int) -> list[Jam]:
@@ -41,7 +40,12 @@ class Bout(Encodable):
 
     @property
     def currentJam(self) -> Jam:
-        return self._currentJam
+        for period in reversed(self._periods):
+            for jam in reversed(period):
+                if jam.isStarted():
+                    return jam
+        else:
+            return self._periods[0][0]
 
     @property
     def periods(self) -> tuple[list[Jam], ...]:

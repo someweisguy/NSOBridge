@@ -8,10 +8,11 @@ from datetime import datetime
 
 @server.register
 async def jam(jamIndex: None | JamIndex = None) -> API:
-    # TODO: get the current period and Jam
+    # Get the current Jam index
     if jamIndex is None:
-        jamIndex = JamIndex(0, 0)
+        jamIndex = server.bouts.currentBout.currentJam.index()
 
+    # Determine if a Jam should be added
     period: list[Jam] = server.bouts.currentBout[jamIndex.period]
     if jamIndex.jam == len(period):
         server.bouts.currentBout.addJam(jamIndex.period)
