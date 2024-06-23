@@ -194,13 +194,6 @@ class Jam(Encodable):
         # TODO: update timers
         server.update(self)
 
-    def millisRemaining(self) -> int:
-        millis: None | int = self._timer.getRemaining()
-        assert millis is not None
-        if millis < 0:
-            millis = 0
-        return millis
-
     def setTrip(
         self, team: Jam.TEAMS, tripIndex: int, points: int, timestamp: datetime
     ) -> None:
