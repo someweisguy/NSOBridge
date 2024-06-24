@@ -66,9 +66,13 @@ class Period(Encodable):
     def __getitem__(self, jamIndex: int) -> Jam:
         return self._jams[jamIndex]
 
-    @property
-    def timer(self) -> Timer:
-        return self._clock
+    def start(self, timestamp: datetime) -> None:
+        self._clock.start(timestamp)
+        
+        server.update(self)
+    
+    def running(self) -> bool:
+        return self._clock.running()
 
     def getJam(self, jamIndex: int) -> Jam:
         return self._jams[jamIndex]
@@ -156,10 +160,10 @@ class Jam(Encodable):
         # Start the Jam timer
         self._clock.start(timestamp)
 
-        # Start the period clock if it isn't running
-        periodClock: Timer = self._parent._clock
-        if not periodClock.running():
-            periodClock.start(timestamp)
+        # Start the period clock if it isn't running # FIXME
+        period: Period = self._parent
+        if not period.running():
+            period.start(timestamp)
 
         server.update(self)
 
