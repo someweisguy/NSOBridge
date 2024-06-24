@@ -44,24 +44,23 @@ export function PeriodClock({ direction = "down" }) {
 
   const clockCallback = useCallback((period) => {
     // Show the time-to-derby clock if it is running
-    if (period.countdown.running) {
-      setState(period.countdown);
-    } else {
-      setState(period.clock);
+    const clock = period.countdown.running ? period.countdown : period.clock;
+    if (clock.running) {
+      clock.elapsed += getLatency();
     }
+    setState(clock);
   }, []);
   useSocketGetter("period", clockCallback);
 
   useEffect(() => {
     // Create an interval to update the Clock if the clock is running
     if (state.running && state.elapsed < state.alarm) {
-      const startTime = Date.now() - getLatency();
-      const intervalId = setInterval(() => {
+      const startTime = Date.now();
+      setTimeout(() => {
         let newState = { ...state };
-        newState.elapsed = Date.now() - startTime;
+        newState.elapsed += Date.now() - startTime;
         setState(newState);
       }, 50);
-      return () => clearInterval(intervalId);
     }
   }, [state]);
 
