@@ -6,9 +6,14 @@ const HOME = "home";
 const AWAY = "away";
 
 const NULL_JAM = {
-  timer: {
-    alarm: null,
-    elapsed: null,
+  countdown: {
+    alarm: 0,
+    elapsed: 0,
+    running: false
+  },
+  clock: {
+    alarm: 0,
+    elapsed: 0,
     running: false
   },
   stopReason: null,
@@ -62,14 +67,14 @@ export function PeriodViewer({ }) {
   return (
     <div>
       <div>
-        
+
       </div>
       <div>
 
       </div>
     </div>
   );
-} 
+}
 
 export function JamComponent({ }) {
   const [state, setState] = useState(NULL_JAM);
@@ -104,7 +109,7 @@ export function JamComponent({ }) {
       {nextJamButton}
       {periodLabel}&nbsp;{jamLabel}
       <br />
-      <JamControlComponent isStarted={state.timer.running || state.timer.elapsed > 0}
+      <JamControlComponent isStarted={state.clock.running || state.clock.elapsed > 0}
         stopReason={state.stopReason} jamIndex={state.jamIndex} />
       <div style={{ display: "flex" }}>
         <div>
