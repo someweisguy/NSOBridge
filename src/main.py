@@ -4,6 +4,14 @@ from server import API
 from roller_derby.score import Period, Jam, JamIndex
 from datetime import datetime
 
+@server.register
+async def period(periodIndex: None | int = None) -> API:
+    if periodIndex is None:
+        periodIndex = -1
+    
+    period: Period = server.bouts.currentBout[periodIndex]
+    return period.encode()
+    
 
 @server.register
 async def jam(jamIndex: None | JamIndex = None) -> API:

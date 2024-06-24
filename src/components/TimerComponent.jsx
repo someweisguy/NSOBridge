@@ -1,6 +1,12 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useSocketGetter, getLatency, sendRequest } from "../App.jsx"
 
+const NULL_TIMER = {
+  alarm: 0,
+  elapsed: 0,
+  running: false
+};
+
 function formatTimeString(millisRemaining, showMillis = true) {
   let timeString = "";
   if (millisRemaining > 0) {
@@ -30,6 +36,45 @@ function formatTimeString(millisRemaining, showMillis = true) {
     timeString = "0.0";
   }
   return timeString;
+}
+
+
+export function PeriodClock({ direction = "down" }) {
+  const [state, setState] = useState(NULL_TIMER);
+
+  const clockCallback = useCallback((period) => {
+    // Show the time-to-derby clock if it is running
+    if (period.countdown.running) {
+      setState(period.countdown);
+    } else {
+      setState(period.clock);
+    }
+  }, []);
+  useSocketGetter("period", clockCallback);
+
+  useEffect(() => {
+    // Create an interval to update the Clock if the clock is running
+    if (state.running && state.elapsed < state.alarm) {
+      const startTime = Date.now() - getLatency();
+      const intervalId = setInterval(() => {
+        let newState = { ...state };
+        newState.elapsed = Date.now() - startTime;
+        setState(newState);
+      }, 50);
+      return () => clearInterval(intervalId);
+    }
+  }, [state]);
+
+  // Get the number of milliseconds remaining on the Period clock
+  const clockMilliseconds = state.alarm > state.elapsed
+    ? state.alarm - state.elapsed
+    : 0;
+
+  return (
+    <span className={clockMilliseconds ? "timerComplete" : ""}>
+      {formatTimeString(clockMilliseconds)}
+    </span>
+  );
 }
 
 
