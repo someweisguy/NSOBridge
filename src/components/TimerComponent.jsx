@@ -78,35 +78,36 @@ export function PeriodClock({ direction = "down" }) {
 }
 
 export function GameClock({ }) {
-  const [state, setState] = useState(NULL_TIMER);
+  const [jamTimer, setJamTimer] = useState(NULL_TIMER);
 
   const clockCallback = useCallback((jam) => {
     // Show the time-to-derby clock if it is running
     const clock = jam.countdown.running ? jam.countdown : jam.clock;
-    if (!clock.running) {
+    if (!clock.running && jam.jamIndex.jam !== 0) {
+      // TODO: Clock may be stopped in certain conditions
       return;  // Only display a running clock
     }
     clock.elapsed += getLatency();
-    setState(clock);
+    setJamTimer(clock);
   }, []);
   useSocketGetter("jam", clockCallback);
 
   useEffect(() => {
     // Create an interval to update the Clock if the clock is running
-    if (state.running && state.elapsed < state.alarm) {
+    if (jamTimer.running && jamTimer.elapsed < jamTimer.alarm) {
       const startTime = Date.now();
       const timeoutId = setTimeout(() => {
-        let newState = { ...state };
+        let newState = { ...jamTimer };
         newState.elapsed += Date.now() - startTime;
-        setState(newState);
+        setJamTimer(newState);
       }, 50);
       return () => clearTimeout(timeoutId);
     }
-  }, [state]);
+  }, [jamTimer]);
 
   // Get the number of milliseconds remaining on the Period clock
-  const clockMilliseconds = state.alarm > state.elapsed
-    ? state.alarm - state.elapsed
+  const clockMilliseconds = jamTimer.alarm > jamTimer.elapsed
+    ? jamTimer.alarm - jamTimer.elapsed
     : 0;
 
   return (
