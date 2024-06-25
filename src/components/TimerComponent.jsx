@@ -56,11 +56,12 @@ export function PeriodClock({ direction = "down" }) {
     // Create an interval to update the Clock if the clock is running
     if (state.running && state.elapsed < state.alarm) {
       const startTime = Date.now();
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         let newState = { ...state };
         newState.elapsed += Date.now() - startTime;
         setState(newState);
       }, 50);
+      return () => clearTimeout(timeoutId);
     }
   }, [state]);
 
@@ -76,61 +77,42 @@ export function PeriodClock({ direction = "down" }) {
   );
 }
 
+export function GameClock({ }) {
+  const [state, setState] = useState(NULL_TIMER);
 
-export default function TimerComponent({ timerType, direction = "down" }) {
-  const [currentType, setCurrentType] = useState(timerType);
-  const [runTime, setRunTime] = useState(0);
-  const [maxRunTime, setMaxRunTime] = useState(null);
-  const [isRunning, setIsRunning] = useState(false);
-  const accumulated = useRef(0);
-
-  function timerCallback({ type, alarm, elapsed, running }) {
-    if (timerType === "action") {
-      if (!running || !(["jam", "lineup", "timeout"].includes(type))) {
-        return;  // Not the running action timer
-      }
-      setCurrentType(type);
-    } else if (timerType !== type) {
-      return;  // Incorrect timer type
+  const clockCallback = useCallback((jam) => {
+    // Show the time-to-derby clock if it is running
+    const clock = jam.countdown.running ? jam.countdown : jam.clock;
+    if (!clock.running) {
+      return;  // Only display a running clock
     }
-
-    accumulated.current = elapsed;
-    setRunTime(running ? getLatency() : 0);
-    setMaxRunTime(alarm);
-    setIsRunning(running);
-  }
-  useSocketGetter("timer", timerCallback, { timerType: timerType });
+    clock.elapsed += getLatency();
+    setState(clock);
+  }, []);
+  useSocketGetter("jam", clockCallback);
 
   useEffect(() => {
-    if (isRunning) {
-      const runningSince = Date.now() - getLatency();
-      const intervalId = setInterval(() => {
-        setRunTime(Date.now() - runningSince)
+    // Create an interval to update the Clock if the clock is running
+    if (state.running && state.elapsed < state.alarm) {
+      const startTime = Date.now();
+      const timeoutId = setTimeout(() => {
+        let newState = { ...state };
+        newState.elapsed += Date.now() - startTime;
+        setState(newState);
       }, 50);
-      return () => clearInterval(intervalId);
+      return () => clearTimeout(timeoutId);
     }
-  }, [isRunning, currentType]);
+  }, [state]);
 
-  let timerMillis = 0;
-  let alarmFired = false;
-  if (maxRunTime !== null && direction === "down") {
-    // Format the time string for a count-down timer
-    timerMillis = maxRunTime - (runTime + accumulated.current);
-    if (isRunning && timerMillis <= 0) {
-      // Stop interval to reduce CPU load
-      setIsRunning(false);
-      alarmFired = true;
-    }
-  } else {
-    timerMillis = runTime + accumulated.current;
-  }
-
-  // Format the time string
-  const timeString = formatTimeString(timerMillis);
+  // Get the number of milliseconds remaining on the Period clock
+  const clockMilliseconds = state.alarm > state.elapsed
+    ? state.alarm - state.elapsed
+    : 0;
 
   return (
-    <span className={alarmFired ? "timerComplete" : ""}>
-      {timeString}
+    <span className={clockMilliseconds ? "timerComplete" : ""}>
+      {formatTimeString(clockMilliseconds)}
     </span>
   );
 }
+

@@ -3,8 +3,7 @@ import { useEffect } from 'react';
 import { io } from 'socket.io-client';
 
 import { JamComponent } from './components/JamComponent';
-import TimerComponent from './components/TimerComponent';
-import { PeriodClock } from './components/TimerComponent';
+import { PeriodClock, GameClock } from './components/TimerComponent';
 
 var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
@@ -111,7 +110,7 @@ function App() {
 
   return (
     <div className="App">
-      <TimerComponent timerType="jam" />&nbsp;<PeriodClock />
+      <GameClock />&nbsp;<PeriodClock />
       <JamComponent />
     </div>
   );

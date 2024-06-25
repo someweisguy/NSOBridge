@@ -192,6 +192,7 @@ class Jam(Encodable):
         # Add the next Jam and start its Lineup timer
         nextJam: Jam = self._parent.addJam()
         nextJam._countdown.start(timestamp)
+        server.update(nextJam)
 
         server.update(self)
 
