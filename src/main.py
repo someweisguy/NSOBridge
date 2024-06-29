@@ -1,7 +1,7 @@
 from roller_derby.encodable import ClientException
 import server
 from server import API
-from roller_derby.score import Period, Jam, JamIndex
+from roller_derby.series import Jam, JamIndex, Period
 from datetime import datetime
 
 
@@ -34,12 +34,10 @@ async def jam(jamIndex: None | JamIndex = None) -> API:
 
 @server.register
 async def jamScore(jamIndex: JamIndex, team: Jam.TEAMS) -> API:
-    
     period: Period = server.bouts.currentBout[jamIndex.period]
     jam: Jam = period[jamIndex.jam]
-    
-    return jam.encode()[team]
 
+    return jam.encode()[team]
 
 
 # TODO: Move to separate timer control file?

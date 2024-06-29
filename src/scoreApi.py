@@ -1,4 +1,4 @@
-from roller_derby.score import Bout, Jam, JamIndex
+from roller_derby.series import Bout, Jam, JamIndex
 from datetime import datetime
 from server import API
 import server
