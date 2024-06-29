@@ -8,19 +8,6 @@ from typing import Any, get_args, Literal
 import server
 
 
-@dataclass
-class JamIndex(Encodable):
-    period: int
-    jam: int
-
-    @staticmethod
-    def decode(index: dict[str, int]) -> JamIndex:
-        return JamIndex(**index)
-
-    def encode(self) -> dict:
-        return {"period": self.period, "jam": self.jam}
-
-
 class Series(Encodable):
     def __init__(self):
         self._bouts: list[Bout] = [Bout()]
@@ -149,6 +136,18 @@ class Jam(Encodable):
     STOP_REASONS = Literal["called", "injury", "time", "unknown"]
     TEAMS = Literal["home", "away"]
 
+    @dataclass
+    class Id(Encodable):
+        period: int
+        jam: int
+
+        @staticmethod
+        def decode(value: dict[str, int]) -> Jam.Id:
+            return Jam.Id(**value)
+
+        def encode(self) -> dict:
+            return {"period": self.period, "jam": self.jam}
+
     def __init__(self, parent: Period) -> None:
         self._parent: Period = parent
         self._countdown: Timer = Timer(seconds=30)
@@ -172,10 +171,10 @@ class Jam(Encodable):
     def away(self) -> JamTeam:
         return self._away
 
-    def index(self) -> JamIndex:
+    def index(self) -> Jam.Id:
         periodIndex: int = self._parent._parent._periods.index(self._parent)
         jamIndex: int = self._parent._jams.index(self)
-        return JamIndex(period=periodIndex, jam=jamIndex)
+        return Jam.Id(period=periodIndex, jam=jamIndex)
 
     def start(self, timestamp: datetime) -> None:
         if self.running():

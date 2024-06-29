@@ -1,7 +1,7 @@
 from roller_derby.encodable import ClientException
 import server
 from server import API
-from roller_derby.bout import JamIndex, Jam, Period
+from roller_derby.bout import Jam, Period
 from datetime import datetime
 
 
@@ -15,27 +15,27 @@ async def period(periodIndex: None | int = None) -> API:
 
 
 @server.register
-async def jam(jamIndex: None | JamIndex = None) -> API:
+async def jam(jamId: None | Jam.Id = None) -> API:
     # Get the current Jam index
-    if jamIndex is None:
-        jamIndex = server.bouts.currentBout[-1][-1].index()
+    if jamId is None:
+        jamId = server.bouts.currentBout[-1][-1].index()
 
     # Determine if a Jam should be added
-    period: Period = server.bouts.currentBout[jamIndex.period]
-    if jamIndex.jam == len(period):
+    period: Period = server.bouts.currentBout[jamId.period]
+    if jamId.jam == len(period):
         server.bouts.currentBout[-1].addJam()
-    elif jamIndex.jam > len(period):
+    elif jamId.jam > len(period):
         raise ClientException("This jam does not exist.")
 
-    jam: Jam = period[jamIndex.jam]
+    jam: Jam = period[jamId.jam]
 
     return jam.encode()
 
 
 @server.register
-async def jamScore(jamIndex: JamIndex, team: Jam.TEAMS) -> API:
-    period: Period = server.bouts.currentBout[jamIndex.period]
-    jam: Jam = period[jamIndex.jam]
+async def jamScore(jamId: Jam.Id, team: Jam.TEAMS) -> API:
+    period: Period = server.bouts.currentBout[jamId.period]
+    jam: Jam = period[jamId.jam]
 
     return jam.encode()[team]
 
@@ -52,15 +52,15 @@ async def timer(timerType: str) -> API:
 
 
 @server.register
-async def startJam(jamIndex: JamIndex, timestamp: datetime) -> API:
+async def startJam(jamId: Jam.Id, timestamp: datetime) -> API:
     # Start the Jam
-    jam: Jam = server.bouts.currentBout[jamIndex.period][jamIndex.jam]
+    jam: Jam = server.bouts.currentBout[jamId.period][jamId.jam]
     jam.start(timestamp)
 
 
 @server.register
-async def stopJam(jamIndex: JamIndex, timestamp: datetime) -> API:
-    jam: Jam = server.bouts.currentBout[jamIndex.period][jamIndex.jam]
+async def stopJam(jamId: Jam.Id, timestamp: datetime) -> API:
+    jam: Jam = server.bouts.currentBout[jamId.period][jamId.jam]
 
     # Attempt to determine the reason the jam ended
     stopReason: Jam.STOP_REASONS = "unknown"
@@ -73,8 +73,8 @@ async def stopJam(jamIndex: JamIndex, timestamp: datetime) -> API:
 
 
 @server.register
-async def setJamStopReason(jamIndex: JamIndex, stopReason: Jam.STOP_REASONS) -> API:
-    jam: Jam = server.bouts.currentBout[jamIndex.period][jamIndex.jam]
+async def setJamStopReason(jamId: Jam.Id, stopReason: Jam.STOP_REASONS) -> API:
+    jam: Jam = server.bouts.currentBout[jamId.period][jamId.jam]
     jam.setStopReason(stopReason)
 
 
