@@ -293,10 +293,8 @@ class JamTeam:
         del self._score.trips[tripIndex]
 
     def isLeadEligible(self) -> bool:
-        otherTeamScore: JamTeam = (
-            self._parent._home if self is self._parent._away else self._parent._away
-        )
-        return not otherTeamScore.getLead() and not self._score.lost
+        otherTeam: JamTeam = self.getOtherTeam()
+        return not otherTeam.getLead() and not self._score.lost
 
     def getLead(self) -> bool:
         return self._score.lead
