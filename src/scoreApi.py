@@ -11,10 +11,14 @@ async def setTrip(
     tripIndex: int,
     tripPoints: int,
     timestamp: datetime,
+    validPass: bool = True,
 ) -> None:
     # Get the desired Bout and Jam
     bout: Bout = server.bouts.currentBout
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
+
+    if jam.isLeadEligible(team) and validPass:
+        jam.setLead(team, True)
 
     jam.setTrip(team, tripIndex, tripPoints, timestamp)
 
@@ -26,27 +30,6 @@ async def deleteTrip(jamIndex: JamIndex, team: Jam.TEAMS, tripIndex: int) -> API
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
 
     jam.deleteTrip(team, tripIndex)
-
-
-@server.register
-async def setInitialPass(
-    jamIndex: JamIndex, team: Jam.TEAMS, timestamp: datetime
-) -> API:
-    # Get the desired Bout and Jam
-    bout: Bout = server.bouts.currentBout
-    jam: Jam = bout[jamIndex.period][jamIndex.jam]
-
-    # Raise an error if trying to set an invalid initial trip
-    if jam.getTripCount(team) > 0:
-        raise ClientException("This team has already had their initial trip.")
-
-    # Assign lead and set the initial trip points
-    if jam.isLeadEligible(team):
-        jam.setLead(team, True)
-
-    points: int = 0  # TODO: if is overtime, set to 4 points
-    tripIndex: int = 0  # The initial pass
-    jam.setTrip(team, tripIndex, points, timestamp)
 
 
 @server.register
