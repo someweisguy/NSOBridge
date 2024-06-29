@@ -8,14 +8,14 @@ from starlette.templating import Jinja2Templates
 from typing import Callable, Any, Awaitable, Collection, TypeAlias
 from datetime import datetime, timedelta
 from roller_derby.encodable import Encodable
-import inspect
+import asyncio
 import hashlib
+import inspect
 import logging
 import os
+import roller_derby.bout as bout
 import socketio
 import uvicorn
-import asyncio
-import roller_derby.series as series
 
 
 logging.basicConfig(
@@ -27,6 +27,7 @@ logging.basicConfig(
 
 """Type alias for `None | dict[str, Any]`. """
 API: TypeAlias = None | dict[str, Any] | list[Any]
+
 
 async def serve(port: int, *, debug: bool = False) -> None:
     """Start and serve the scoreboard app on the specified port.
@@ -212,9 +213,7 @@ async def _handleEvent(
     response: dict[str, Any] = dict()
     try:
         # Validate the request payload has all the required JSON keys
-        requiredKeys: tuple[str, ...] = (
-            "latency",
-        )
+        requiredKeys: tuple[str, ...] = ("latency",)
         if not all(key in json for key in requiredKeys):
             raise ClientException("Invalid request payload.")
 
@@ -231,7 +230,7 @@ async def _handleEvent(
         json["timestamp"] = NOW - timedelta(milliseconds=json["latency"])
         json["session"] = sessionId
         if "jamIndex" in json.keys():
-            json["jamIndex"] = series.JamIndex.decode(json["jamIndex"])
+            json["jamIndex"] = bout.JamIndex.decode(json["jamIndex"])
 
         # Get the function and call it with only the required arguments
         func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]
@@ -267,7 +266,7 @@ async def _handleEvent(
 log: logging.Logger = logging.getLogger(__name__)
 
 # The series manager which handles the game logic
-bouts: series.Series = series.Series()
+bouts: bout.Series = bout.Series()
 
 _commandTable: dict[str, Callable[..., Awaitable[None | Collection]]] = dict()
 _socket: socketio.AsyncServer = socketio.AsyncServer(

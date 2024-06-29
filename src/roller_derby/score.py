@@ -6,7 +6,6 @@ from typing import Any
 import roller_derby.bout as bout
 
 
-
 class Score(Encodable):
     @dataclass
     class Trip(Encodable):
