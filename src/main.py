@@ -1,7 +1,8 @@
 from roller_derby.encodable import ClientException
 import server
 from server import API
-from roller_derby.series import Jam, JamIndex, Period
+from roller_derby.bout import Jam, Period
+from roller_derby.series import JamIndex
 from datetime import datetime
 
 

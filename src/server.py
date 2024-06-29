@@ -1,4 +1,3 @@
-from roller_derby.series import Series
 from roller_derby.encodable import ClientException
 from starlette.applications import Starlette
 from starlette.requests import Request
@@ -9,7 +8,6 @@ from starlette.templating import Jinja2Templates
 from typing import Callable, Any, Awaitable, Collection, TypeAlias
 from datetime import datetime, timedelta
 from roller_derby.encodable import Encodable
-from roller_derby.score import JamIndex
 import inspect
 import hashlib
 import logging
@@ -17,6 +15,8 @@ import os
 import socketio
 import uvicorn
 import asyncio
+import roller_derby.series as series
+
 
 logging.basicConfig(
     format="{levelname}: {message}",
@@ -231,7 +231,7 @@ async def _handleEvent(
         json["timestamp"] = NOW - timedelta(milliseconds=json["latency"])
         json["session"] = sessionId
         if "jamIndex" in json.keys():
-            json["jamIndex"] = JamIndex.decode(json["jamIndex"])
+            json["jamIndex"] = series.JamIndex.decode(json["jamIndex"])
 
         # Get the function and call it with only the required arguments
         func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]
@@ -267,7 +267,7 @@ async def _handleEvent(
 log: logging.Logger = logging.getLogger(__name__)
 
 # The series manager which handles the game logic
-bouts: Series = Series()
+bouts: series.Series = series.Series()
 
 _commandTable: dict[str, Callable[..., Awaitable[None | Collection]]] = dict()
 _socket: socketio.AsyncServer = socketio.AsyncServer(
