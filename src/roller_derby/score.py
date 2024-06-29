@@ -1,5 +1,5 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Literal, get_args
 
@@ -68,9 +68,9 @@ class Period(Encodable):
 
     def start(self, timestamp: datetime) -> None:
         self._clock.start(timestamp)
-        
+
         server.update(self)
-    
+
     def running(self) -> bool:
         return self._clock.running()
 
@@ -106,43 +106,120 @@ class Period(Encodable):
         }
 
 
-class Jam(Encodable):
-    STOP_REASONS = Literal["called", "injury", "time", "unknown"]
-    TEAMS = Literal["home", "away"]
+class JamTeam:
+    class Score(Encodable):
+        @dataclass
+        class Trip(Encodable):
+            points: int
+            timestamp: datetime
 
-    @dataclass
-    class Trip(Encodable):
-        points: int
-        timestamp: datetime
+            def encode(self) -> dict[str, Any]:
+                return {
+                    "points": self.points,
+                    "timestamp": str(self.timestamp),
+                }
+
+        def __init__(self, parent: JamTeam) -> None:
+            super().__init__()
+            self.parent: JamTeam = parent
+            self.trips: list[JamTeam.Score.Trip] = []
+            self.lead: bool = False
+            self.lost: bool = False
+            self.starPass: None | int = None
 
         def encode(self) -> dict[str, Any]:
             return {
-                "points": self.points,
-                "timestamp": str(self.timestamp),
-            }
-
-    @dataclass
-    class Team(Encodable):
-        lead: bool = False
-        lost: bool = False
-        starPass: None | int = None
-        trips: list[Jam.Trip] = field(default_factory=list)
-
-        def encode(self) -> dict[str, Any]:
-            return {
+                "trips": [trip.encode() for trip in self.trips],
                 "lead": self.lead,
                 "lost": self.lost,
                 "starPass": self.starPass,
-                "trips": [trip.encode() for trip in self.trips],
             }
+
+    def __init__(self, parent: Jam) -> None:
+        super().__init__()
+        self._parent: Jam = parent
+        self._score: JamTeam.Score = JamTeam.Score(self)
+
+    def setTrip(self, tripIndex: int, points: int, timestamp: datetime) -> None:
+        if not isinstance(tripIndex, int):
+            raise TypeError(f"Trip Index must be int not {type(tripIndex).__name__}.")
+        if not isinstance(points, int):
+            raise TypeError(f"Points must be int not {type(points).__name__}.")
+
+        # Check if the tripIndex is a valid value
+        if tripIndex > len(self._score.trips):
+            raise IndexError("list index out of range")
+
+        # Append or edit the desired Trip
+        if tripIndex == len(self._score.trips):
+            self._score.trips.append(JamTeam.Score.Trip(points, timestamp))
+        else:
+            self._score.trips[tripIndex].points = points
+
+    def deleteTrip(self, tripIndex: int) -> None:
+        del self._score.trips[tripIndex]
+
+    def isLeadEligible(self) -> bool:
+        otherTeamScore: JamTeam = (
+            self._parent._home if self is self._parent._away else self._parent._away
+        )
+        return not otherTeamScore.getLead() and not self._score.lost
+
+    def getLead(self) -> bool:
+        return self._score.lead
+
+    def setLead(self, lead: bool) -> None:
+        if not isinstance(lead, bool):
+            raise TypeError(f"Lead must be bool not {type(lead).__name__}.")
+        if lead and not self.isLeadEligible():
+            raise ClientException("This team is not eligible for lead jammer.")
+        self._score.lead = lead
+
+    def getLost(self) -> bool:
+        return self._score.lost
+
+    def setLost(self, lost: bool) -> None:
+        if not isinstance(lost, bool):
+            raise TypeError(f"Lost must be bool not {type(lost).__name__}.")
+        self._score.lost = lost
+
+    def getStarPass(self) -> None | int:
+        return self._score.starPass
+
+    def setStarPass(self, starPass: None | int) -> None:
+        if starPass is not None and not isinstance(starPass, int):
+            raise TypeError(
+                f"Star Pass must be None or int not {type(starPass).__name__}."
+            )
+        self._score.starPass = starPass
+
+
+class Jam(Encodable):
+    STOP_REASONS = Literal["called", "injury", "time", "unknown"]
+    TEAMS = Literal["home", "away"]
 
     def __init__(self, parent: Period) -> None:
         self._parent: Period = parent
         self._countdown: Timer = Timer(seconds=30)
         self._clock: Timer = Timer(minutes=2)
         self._stopReason: None | Jam.STOP_REASONS = None
-        self._home: Jam.Team = Jam.Team()
-        self._away: Jam.Team = Jam.Team()
+        self._home: JamTeam = JamTeam(self)
+        self._away: JamTeam = JamTeam(self)
+
+    def __getitem__(self, team: Jam.TEAMS) -> JamTeam:
+        if team not in get_args(Jam.TEAMS):
+            raise ValueError(
+                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
+            )
+        return self._home if team == "home" else self._away
+
+    @property
+    def home(self) -> JamTeam:
+        return self._home
+
+    @property
+    def away(self) -> JamTeam:
+        return self._away
 
     def index(self) -> JamIndex:
         periodIndex: int = self._parent._parent._periods.index(self._parent)
@@ -202,129 +279,13 @@ class Jam(Encodable):
         # TODO: update timers
         server.update(self)
 
-    def setTrip(
-        self, team: Jam.TEAMS, tripIndex: int, points: int, timestamp: datetime
-    ) -> None:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        if not isinstance(tripIndex, int):
-            raise TypeError(f"Trip Index must be int not {type(tripIndex).__name__}.")
-        if not isinstance(points, int):
-            raise TypeError(f"Points must be int not {type(points).__name__}.")
-
-        # Check if the tripIndex is a valid value
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        if tripIndex > len(jamTeam.trips):
-            raise IndexError("list index out of range")
-
-        # Append or edit the desired Trip
-        if tripIndex == len(jamTeam.trips):
-            jamTeam.trips.append(Jam.Trip(points, timestamp))
-        else:
-            jamTeam.trips[tripIndex].points = points
-
-        server.update(self)
-
-    def deleteTrip(self, team: Jam.TEAMS, tripIndex: int) -> None:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-
-        # Delete the desired trip
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        del jamTeam.trips[tripIndex]
-
-        server.update(self)
-
-    def getLead(self, team: Jam.TEAMS) -> bool:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        return jamTeam.lead
-
-    def setLead(self, team: Jam.TEAMS, lead: bool) -> None:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        if not isinstance(lead, bool):
-            raise TypeError(f"Lead must be bool not {type(lead).__name__}.")
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        jamTeam.lead = lead
-
-        server.update(self)
-
-    def getLost(self, team: Jam.TEAMS) -> bool:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        return jamTeam.lost
-
-    def setLost(self, team: Jam.TEAMS, lost: bool) -> None:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        if not isinstance(lost, bool):
-            raise TypeError(f"Lost must be bool not {type(lost).__name__}.")
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        jamTeam.lost = lost
-
-        server.update(self)
-
-    def getStarPass(self, team: Jam.TEAMS) -> None | int:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        return jamTeam.starPass
-
-    def setStarPass(self, team: Jam.TEAMS, starPass: None | int) -> None:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        if starPass is not None and not isinstance(starPass, int):
-            raise TypeError(
-                f"Star Pass must be None or int not {type(starPass).__name__}."
-            )
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        jamTeam.starPass = starPass
-
-        server.update(self)
-
-    def getTripCount(self, team: Jam.TEAMS) -> int:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        return len(jamTeam.trips)
-
-    def isLeadEligible(self, team: Jam.TEAMS) -> bool:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        jamTeam: Jam.Team = self._home if team == "home" else self._away
-        otherTeam: Jam.Team = self._away if team == "home" else self._home
-        return not jamTeam.lost and not otherTeam.lead
-
     def getStopReason(self) -> None | Jam.STOP_REASONS:
         return self._stopReason
 
     def setStopReason(self, stopReason: None | Jam.STOP_REASONS) -> None:
         if stopReason is not None and stopReason not in get_args(Jam.STOP_REASONS):
             raise ValueError(
-                f"Team must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
+                f"Stop Reason must be one of {get_args(Jam.STOP_REASONS)} not '{stopReason}'."
             )
         if stopReason is not None and not self.finished():
             raise ClientException(
@@ -347,6 +308,4 @@ class Jam(Encodable):
             "countdown": self._countdown.encode(),
             "clock": self._clock.encode(),
             "stopReason": self._stopReason,
-            "home": self._home.encode(),
-            "away": self._away.encode(),
         }

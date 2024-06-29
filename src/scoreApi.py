@@ -17,10 +17,10 @@ async def setTrip(
     bout: Bout = server.bouts.currentBout
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
 
-    if jam.isLeadEligible(team) and validPass:
-        jam.setLead(team, True)
+    if jam[team].isLeadEligible() and validPass:
+        jam[team].setLead(True)
 
-    jam.setTrip(team, tripIndex, tripPoints, timestamp)
+    jam[team].setTrip(tripIndex, tripPoints, timestamp)
 
 
 @server.register
@@ -29,7 +29,7 @@ async def deleteTrip(jamIndex: JamIndex, team: Jam.TEAMS, tripIndex: int) -> API
     bout: Bout = server.bouts.currentBout
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
 
-    jam.deleteTrip(team, tripIndex)
+    jam[team].deleteTrip(tripIndex)
 
 
 @server.register
@@ -38,7 +38,7 @@ async def setLead(jamIndex: JamIndex, team: Jam.TEAMS, lead: bool) -> API:
     bout: Bout = server.bouts.currentBout
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
 
-    jam.setLead(team, lead)
+    jam[team].setLead(lead)
 
 
 @server.register
@@ -47,7 +47,7 @@ async def setLost(jamIndex: JamIndex, team: Jam.TEAMS, lost: bool) -> API:
     bout: Bout = server.bouts.currentBout
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
 
-    jam.setLost(team, lost)
+    jam[team].setLost(lost)
 
 
 @server.register
@@ -58,6 +58,6 @@ async def setStarPass(
     bout: Bout = server.bouts.currentBout
     jam: Jam = bout[jamIndex.period][jamIndex.jam]
 
-    jam.setStarPass(team, tripIndex)
+    jam[team].setStarPass(tripIndex)
     if tripIndex is not None:
-        jam.setLost(team, True)
+        jam[team].setLost(True)

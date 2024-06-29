@@ -32,6 +32,16 @@ async def jam(jamIndex: None | JamIndex = None) -> API:
     return jam.encode()
 
 
+@server.register
+async def jamScore(jamIndex: JamIndex, team: Jam.TEAMS) -> API:
+    
+    period: Period = server.bouts.currentBout[jamIndex.period]
+    jam: Jam = period[jamIndex.jam]
+    
+    return jam.encode()[team]
+
+
+
 # TODO: Move to separate timer control file?
 @server.register
 async def timer(timerType: str) -> API:
@@ -58,7 +68,7 @@ async def stopJam(jamIndex: JamIndex, timestamp: datetime) -> API:
     stopReason: Jam.STOP_REASONS = "unknown"
     if jam.finished():
         stopReason = "time"
-    elif jam.getLead("home") or jam.getLead("away"):
+    elif jam.home.getLead() or jam.away.getLead():
         stopReason = "called"
 
     jam.stop(timestamp, stopReason)
