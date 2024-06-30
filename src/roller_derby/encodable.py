@@ -9,7 +9,7 @@ class ClientException(Exception):
 
 class Encodable(ABC):
     @abstractmethod
-    def encode(self) -> dict:
+    def encode(self) -> dict[str, Any]:
         """Encodes the Encodable into a dictionary which can then be sent to a
         client. This method is called recursively so that each sub-class is
         encoded into a sub-dictionary. All private members of the Encodable

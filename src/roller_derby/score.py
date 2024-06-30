@@ -2,12 +2,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from .encodable import Encodable
-from typing import Any
-import roller_derby.bout as bout
+from .teamAttribute import AbstractAttribute, TeamAttribute
+from typing import Any, Self
 import server
 
 
-class Score(Encodable):
+class Score(AbstractAttribute):
     @dataclass
     class Trip(Encodable):
         points: int
@@ -16,9 +16,8 @@ class Score(Encodable):
         def encode(self) -> dict[str, Any]:
             return {"points": self.points, "timestamp": str(self.timestamp)}
 
-    def __init__(self, parent: bout.JamTeam) -> None:
-        super().__init__()
-        self._parent: bout.JamTeam = parent
+    def __init__(self, parent: TeamAttribute[Self]) -> None:
+        super().__init__(parent)
         self._trips: list[Score.Trip] = []
         self._lead: bool = False
         self._lost: bool = False
@@ -41,15 +40,18 @@ class Score(Encodable):
             self._trips[tripIndex].points = points
 
         server.update(self)
+    
+    def getTrips(self) -> list[Score.Trip]:
+        return self._trips
 
     def deleteTrip(self, tripIndex: int) -> None:
         del self._trips[tripIndex]
 
-        server.update(self)
+        server.update(self.parent)
 
     def isLeadEligible(self) -> bool:
-        otherTeam: bout.JamTeam = self._parent.getOtherTeam()
-        return not otherTeam.score.getLead() and not self._lost
+        other: Score = self.getOther()
+        return not other.getLead() and not self.getLost()
 
     def getLead(self) -> bool:
         return self._lead
@@ -61,7 +63,7 @@ class Score(Encodable):
             raise server.ClientException("This team is not eligible for lead jammer.")
         self._lead = lead
 
-        server.update(self)
+        server.update(self.parent)
 
     def getLost(self) -> bool:
         return self._lost
@@ -86,22 +88,13 @@ class Score(Encodable):
         server.update(self)
 
     def encode(self) -> dict[str, Any]:
-        parentJam: bout.Jam = self._parent._parent
-        jamId: bout.Jam.Id = parentJam.index()
-        home: Score = parentJam.home.score
-        away: Score = parentJam.away.score
         return {
-            "jamId": jamId,
-            "home": {
-                "trips": [trip.encode() for trip in home._trips],
-                "lead": home._lead,
-                "lost": home._lost,
-                "starPass": home._starPass,
-            },
-            "away": {
-                "trips": [trip.encode() for trip in away._trips],
-                "lead": away._lead,
-                "lost": away._lost,
-                "starPass": away._starPass,  
+            "jamId": self.parentJam.index(),
+            self.getTeam(): {
+                "trips": [trip.encode() for trip in self.getTrips()],
+                "lead": self.getLead(),
+                "lost": self.getLost(),
+                "starPass": self.getStarPass(),
+                "isLeadEligible": self.isLeadEligible()
             }
         }

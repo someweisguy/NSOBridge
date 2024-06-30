@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from .encodable import Encodable
+from .teamAttribute import TeamAttribute
 from .score import Score
 from .timer import Timer
 from typing import Any, get_args, Literal
@@ -92,6 +93,10 @@ class Period(Encodable):
     def __getitem__(self, jamIndex: int) -> Jam:
         return self._jams[jamIndex]
 
+    @property
+    def parentBout(self) -> Bout:
+        return self._parent
+
     def start(self, timestamp: datetime) -> None:
         self._clock.start(timestamp)
 
@@ -153,23 +158,19 @@ class Jam(Encodable):
         self._countdown: Timer = Timer(seconds=30)
         self._clock: Timer = Timer(minutes=2)
         self._stopReason: None | Jam.STOP_REASONS = None
-        self._home: JamTeam = JamTeam(self)
-        self._away: JamTeam = JamTeam(self)
-
-    def __getitem__(self, team: Jam.TEAMS) -> JamTeam:
-        if team not in get_args(Jam.TEAMS):
-            raise ValueError(
-                f"Team must be one of {get_args(Jam.TEAMS)}, not '{team}'."
-            )
-        return self._home if team == "home" else self._away
+        self._score: TeamAttribute[Score] = TeamAttribute(self, Score)
 
     @property
-    def home(self) -> JamTeam:
-        return self._home
+    def parentPeriod(self) -> Period:
+        return self._parent
 
     @property
-    def away(self) -> JamTeam:
-        return self._away
+    def parentBout(self) -> Bout:
+        return self._parent._parent
+    
+    @property
+    def score(self) -> TeamAttribute[Score]:
+        return self._score
 
     def index(self) -> Jam.Id:
         periodIndex: int = self._parent._parent._periods.index(self._parent)
@@ -259,18 +260,3 @@ class Jam(Encodable):
             "clock": self._clock.encode(),
             "stopReason": self._stopReason,
         }
-
-
-class JamTeam:
-    def __init__(self, parent: Jam) -> None:
-        super().__init__()
-        self._parent: Jam = parent
-
-        self._score: Score = Score(self)
-
-    @property
-    def score(self) -> Score:
-        return self._score
-
-    def getOtherTeam(self) -> JamTeam:
-        return self._parent.home if self is self._parent.away else self._parent.home
