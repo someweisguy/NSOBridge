@@ -255,7 +255,7 @@ class Jam(Encodable):
 
     def encode(self) -> dict:
         return {
-            "jamIndex": self.getId().encode(),
+            "jamId": self.getId().encode(),
             "countdown": self._countdown.encode(),
             "clock": self._clock.encode(),
             "stopReason": self._stopReason,
