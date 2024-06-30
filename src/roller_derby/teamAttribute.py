@@ -44,7 +44,7 @@ class TeamAttribute[T: AbstractAttribute](Encodable):
         self._home: T = cls(self)
         self._away: T = cls(self)
 
-    def __getitem__(self, team: Literal["home", "away"]) -> T:
+    def __getitem__(self, team: bout.Jam.TEAMS) -> T:
         match team:
             case "home":
                 return self.home

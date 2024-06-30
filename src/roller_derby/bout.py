@@ -138,6 +138,7 @@ class Period(Encodable):
 
 
 class Jam(Encodable):
+    TEAMS = Literal["home", "away"]
     STOP_REASONS = Literal["called", "injury", "time", "unknown"]
 
     @dataclass
