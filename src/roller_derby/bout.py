@@ -265,58 +265,12 @@ class JamTeam:
     def __init__(self, parent: Jam) -> None:
         super().__init__()
         self._parent: Jam = parent
+
         self._score: Score = Score(self)
+
+    @property
+    def score(self) -> Score:
+        return self._score
 
     def getOtherTeam(self) -> JamTeam:
         return self._parent.home if self is self._parent.away else self._parent.home
-
-    def setTrip(self, tripIndex: int, points: int, timestamp: datetime) -> None:
-        if not isinstance(tripIndex, int):
-            raise TypeError(f"Trip Index must be int not {type(tripIndex).__name__}.")
-        if not isinstance(points, int):
-            raise TypeError(f"Points must be int not {type(points).__name__}.")
-
-        # Check if the tripIndex is a valid value
-        if tripIndex > len(self._score.trips):
-            raise IndexError("list index out of range")
-
-        # Append or edit the desired Trip
-        if tripIndex == len(self._score.trips):
-            self._score.trips.append(Score.Trip(points, timestamp))
-        else:
-            self._score.trips[tripIndex].points = points
-
-    def deleteTrip(self, tripIndex: int) -> None:
-        del self._score.trips[tripIndex]
-
-    def isLeadEligible(self) -> bool:
-        otherTeam: JamTeam = self.getOtherTeam()
-        return not otherTeam.getLead() and not self._score.lost
-
-    def getLead(self) -> bool:
-        return self._score.lead
-
-    def setLead(self, lead: bool) -> None:
-        if not isinstance(lead, bool):
-            raise TypeError(f"Lead must be bool not {type(lead).__name__}.")
-        if lead and not self.isLeadEligible():
-            raise server.ClientException("This team is not eligible for lead jammer.")
-        self._score.lead = lead
-
-    def getLost(self) -> bool:
-        return self._score.lost
-
-    def setLost(self, lost: bool) -> None:
-        if not isinstance(lost, bool):
-            raise TypeError(f"Lost must be bool not {type(lost).__name__}.")
-        self._score.lost = lost
-
-    def getStarPass(self) -> None | int:
-        return self._score.starPass
-
-    def setStarPass(self, starPass: None | int) -> None:
-        if starPass is not None and not isinstance(starPass, int):
-            raise TypeError(
-                f"Star Pass must be None or int not {type(starPass).__name__}."
-            )
-        self._score.starPass = starPass
