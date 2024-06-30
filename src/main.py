@@ -18,7 +18,7 @@ async def period(periodIndex: None | int = None) -> API:
 async def jam(jamId: None | Jam.Id = None) -> API:
     # Get the current Jam index
     if jamId is None:
-        jamId = server.bouts.currentBout[-1][-1].index()
+        jamId = server.bouts.currentBout[-1][-1].getId()
 
     # Determine if a Jam should be added
     period: Period = server.bouts.currentBout[jamId.period]

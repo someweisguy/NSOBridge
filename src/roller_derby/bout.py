@@ -139,7 +139,6 @@ class Period(Encodable):
 
 class Jam(Encodable):
     STOP_REASONS = Literal["called", "injury", "time", "unknown"]
-    TEAMS = Literal["home", "away"]
 
     @dataclass
     class Id(Encodable):
@@ -172,7 +171,7 @@ class Jam(Encodable):
     def score(self) -> TeamAttribute[Score]:
         return self._score
 
-    def index(self) -> Jam.Id:
+    def getId(self) -> Jam.Id:
         periodIndex: int = self._parent._parent._periods.index(self._parent)
         jamIndex: int = self._parent._jams.index(self)
         return Jam.Id(period=periodIndex, jam=jamIndex)
@@ -255,7 +254,7 @@ class Jam(Encodable):
 
     def encode(self) -> dict:
         return {
-            "jamIndex": self.index().encode(),
+            "jamIndex": self.getId().encode(),
             "countdown": self._countdown.encode(),
             "clock": self._clock.encode(),
             "stopReason": self._stopReason,

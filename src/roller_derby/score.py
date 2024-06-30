@@ -63,7 +63,7 @@ class Score(AbstractAttribute):
             raise server.ClientException("This team is not eligible for lead jammer.")
         self._lead = lead
 
-        server.update(self.parent)
+        server.update(self)
 
     def getLost(self) -> bool:
         return self._lost
@@ -89,7 +89,7 @@ class Score(AbstractAttribute):
 
     def encode(self) -> dict[str, Any]:
         return {
-            "jamId": self.parentJam.index(),
+            "jamId": self.parentJam.getId(),
             self.getTeam(): {
                 "trips": [trip.encode() for trip in self.getTrips()],
                 "lead": self.getLead(),
