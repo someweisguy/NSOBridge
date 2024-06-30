@@ -86,13 +86,22 @@ class Score(Encodable):
         server.update(self)
 
     def encode(self) -> dict[str, Any]:
-        assert self._parent in (self._parent._parent._home, self._parent._parent._away)
-        team: str = "home" if self._parent is self._parent._parent._home else "away"
+        parentJam: bout.Jam = self._parent._parent
+        jamId: bout.Jam.Id = parentJam.index()
+        home: Score = parentJam.home.score
+        away: Score = parentJam.away.score
         return {
-            team: {
-                "trips": [trip.encode() for trip in self._trips],
-                "lead": self._lead,
-                "lost": self._lost,
-                "starPass": self._starPass,
+            "jamId": jamId,
+            "home": {
+                "trips": [trip.encode() for trip in home._trips],
+                "lead": home._lead,
+                "lost": home._lost,
+                "starPass": home._starPass,
+            },
+            "away": {
+                "trips": [trip.encode() for trip in away._trips],
+                "lead": away._lead,
+                "lost": away._lost,
+                "starPass": away._starPass,  
             }
         }
