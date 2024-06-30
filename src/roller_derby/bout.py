@@ -188,8 +188,8 @@ class Jam(Encodable):
         # Start the Jam timer
         self._clock.start(timestamp)
 
-        # Start the period clock if it isn't running # FIXME
-        period: Period = self._parent
+        # Start the period clock if it isn't running
+        period: Period = self.parentPeriod
         if not period.running():
             period.start(timestamp)
 
