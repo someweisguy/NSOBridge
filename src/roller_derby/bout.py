@@ -131,6 +131,7 @@ class Period(Encodable):
 
     def encode(self) -> dict[str, Any]:
         return {
+            "periodIndex": self.parentBout._periods.index(self),
             "countdown": self._countdown.encode(),
             "clock": self._clock.encode(),
             "jamCount": len(self._jams),
