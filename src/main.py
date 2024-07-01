@@ -6,11 +6,11 @@ from datetime import datetime
 
 
 @server.register
-async def period(periodIndex: None | int = None) -> API:
-    if periodIndex is None:
-        periodIndex = -1
+async def period(periodId: None | int = None) -> API:
+    if periodId is None:
+        periodId = -1
 
-    period: Period = server.bouts.currentBout[periodIndex]
+    period: Period = server.bouts.currentBout[periodId]
     return period.encode()
 
 
