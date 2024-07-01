@@ -85,6 +85,8 @@ export function JamComponent({ jamId, team }) {
       }, (error) => {
         // Ignore errors
       });
+
+    // TODO: socket.on("jamScore")
     
     return () => ignore = true;
   }, [jamId, team]);
