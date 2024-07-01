@@ -1,8 +1,8 @@
 import './App.css';
-import { useEffect } from 'react';
-import { io } from 'socket.io-client';
+import { useCallback, useEffect, useState } from 'react';
+import { connect, io } from 'socket.io-client';
 
-import { JamComponent } from './components/JamComponent';
+import { JamComponent, PeriodViewer } from './components/JamComponent';
 import { PeriodClock, GameClock } from './components/TimerComponent';
 
 var userId = localStorage.getItem("userId");
@@ -31,7 +31,7 @@ export function useSocketGetter(api, callbackFunction, constArgs = undefined) {
   // Use an effect to request data when the socket connects
   useEffect(() => {
     const connectHandler = async () => {
-      const response = await sendRequest(api, constArgs);
+      const response = await old_sendRequest(api, constArgs);
       if (!response.error) {
         callbackFunction(response);
       }
@@ -42,6 +42,17 @@ export function useSocketGetter(api, callbackFunction, constArgs = undefined) {
 }
 
 export async function sendRequest(api, payload = {}) {
+  payload.latency = getLatency();
+  return socket.emitWithAck(api, payload).then((response) => {
+    if (response.status === "error") {
+      throw Error(response.error.name + ": '" + response.error.message + "'");
+    }
+    return response.data;
+  });
+}
+
+
+export async function old_sendRequest(api, payload = {}) {
   payload.latency = latency;
   const response = await socket.emitWithAck(api, payload);
   if (response.error) {
@@ -110,8 +121,8 @@ function App() {
 
   return (
     <div className="App">
-      <GameClock />&nbsp;<PeriodClock />
-      <JamComponent />
+      {/* <GameClock />&nbsp;<PeriodClock  */}
+      <PeriodViewer />
     </div>
   );
 }

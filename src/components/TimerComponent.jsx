@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useSocketGetter, getLatency, sendRequest } from "../App.jsx"
+import { useSocketGetter, getLatency, old_sendRequest } from "../App.jsx"
 
 const NULL_TIMER = {
   alarm: 0,

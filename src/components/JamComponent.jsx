@@ -1,11 +1,15 @@
-import { useCallback, useState, useRef, useEffect } from "react";
-import { useSocketGetter, sendRequest, getLatency } from "../App";
+import { useCallback, useState, useRef, useEffect, Suspense, lazy } from "react";
+import { old_sendRequest, sendRequest } from "../App";
 import "./JamComponent.css"
 
 const HOME = "home";
 const AWAY = "away";
 
 const NULL_JAM = {
+  jamId: {
+    period: 0,
+    jam: 0
+  },
   countdown: {
     alarm: 0,
     elapsed: 0,
@@ -17,291 +21,228 @@ const NULL_JAM = {
     running: false
   },
   stopReason: null,
-  jamIndex: null,
-  home: {
-    team: HOME,
-    lead: false,
-    lost: false,
-    starPass: false,
-    trips: []
-  }, away: {
-    team: AWAY,
-    lead: false,
-    lost: false,
-    starPass: false,
-    trips: []
-  }
+  // jamIndex: null,
+  // home: {
+  //   team: HOME,
+  //   lead: false,
+  //   lost: false,
+  //   starPass: false,
+  //   trips: []
+  // }, away: {
+  //   team: AWAY,
+  //   lead: false,
+  //   lost: false,
+  //   starPass: false,
+  //   trips: []
+  // }
 };
 
-export function PeriodViewer({ }) {
-  const [periodClock, setPeriodClock] = useState(null);
-  const [nextPeriodIsReady, setNextPeriodIsReady] = useState(false);
+const NULL_JAM_SCORE = {
+  trips: [], 
+  lead: false,
+  lost: false,
+  starPass: null,
+  isLeadEligible: true
+};
 
-  const timerCallback = useCallback((timer) => {
-    if (timer.type !== "period") {
-      return;  // Incorrect timer type
-    }
-    setPeriodClock(timer);
-  }, []);
-  useSocketGetter("timer", timerCallback, { timerType: "period" });
+export function PeriodViewer({ periodId = 0 }) {
+  const [jamId, setJamId] = useState(null);
 
   useEffect(() => {
-    let timeoutMillis = periodClock.alarm - periodClock.elapsed;
-    if (periodClock.running) {
-      timeoutMillis -= getLatency()
-    }
-
-    if (timeoutMillis <= 0) {
-      setNextPeriodIsReady(true);
-    } else if (periodClock.isRunning) {
-      const timeoutId = setTimeout(() => {
-        setNextPeriodIsReady(true);
-      }, timeoutMillis);
-      return () => clearTimeout(timeoutId);
-    } else {
-      setNextPeriodIsReady(false);
-    }
-  }, [periodClock]);
+    let ignore = false;
+    sendRequest("period", { periodId })
+      .then((response) => {
+        if (!ignore) {
+          setJamId({ period: periodId, jam: response.jamCount - 1 });
+        }
+      }, (error) => {
+        // Ignore errors
+      });
+    
+    return () => ignore = true;
+  }, []);
 
 
   return (
     <div>
-      <div>
-
-      </div>
-      <div>
-
-      </div>
+        <Suspense fallback={"Loading..."}>
+          <JamComponent jamId={jamId} team={HOME} />
+        </Suspense>
     </div>
   );
 }
 
-export function JamComponent({ }) {
-  const [state, setState] = useState(NULL_JAM);
-  const jamHandler = useCallback((newState) => {
-    if (state.jamIndex === null || (newState.jamIndex.period === state.jamIndex.period
-      && newState.jamIndex.jam === state.jamIndex.jam)) {
-      setState(newState);
-    }
-  }, [state]);
-  useSocketGetter("jam", jamHandler);
+export function JamComponent({ jamId, team }) {
+  const [state, setState] = useState(NULL_JAM_SCORE)
 
-  // Instantiate Jam labels
-  let [periodLabel, jamLabel] = [null, null];
-  if (state.jamIndex !== null) {
-    periodLabel = "P" + (state.jamIndex.period + 1);
-    jamLabel = "J" + (state.jamIndex.jam + 1);
-  }
+  useEffect(() => {
+    let ignore = false;
+    sendRequest("jamScore", { jamId, team })
+      .then((response) => {
+        if (!ignore && response[team]) {
+          setState(response[team]);
+        }
+      }, (error) => {
+        // Ignore errors
+      });
+    
+    return () => ignore = true;
+  }, [jamId, team]);
 
-  // Instantiate next Jam button
-  let nextJamButton = null;
-  if (state.stopReason !== null) {
-    nextJamButton = (<button onClick={async () => {
-      let jamIndex = state.jamIndex;
-      jamIndex.jam += 1;
-      const nextState = await sendRequest("jam", { jamIndex });
-      setState(nextState);
-    }}>Go to next Jam</button>);
-  }
 
+  
   return (
     <div>
-      {nextJamButton}
-      {periodLabel}&nbsp;{jamLabel}
-      <br />
-      <JamControlComponent isStarted={state.clock.running || state.clock.elapsed > 0}
-        stopReason={state.stopReason} jamIndex={state.jamIndex} />
-      <div style={{ display: "flex" }}>
-        <div>
-          <TripEditor team={HOME} trips={state.home.trips} jamIndex={state.jamIndex} />
-          <JammerState team={HOME} jamState={state.home} jamIndex={state.jamIndex}
-            numTrips={state.home.trips.length}
-            isLeadEligible={!state.away.lead} />
-        </div>
-        <div>
-          <TripEditor team={AWAY} trips={state.away.trips} jamIndex={state.jamIndex} />
-          <JammerState team={AWAY} jamState={state.away} jamIndex={state.jamIndex}
-            numTrips={state.away.trips.length}
-            isLeadEligible={!state.home.lead} />
-        </div>
-      </div>
+      {JSON.stringify(state)}
     </div>
   );
 }
 
-function TripEditor({ team, trips, jamIndex }) {
+function TeamJamScore({ jamId, team, state, isLeadEligible = false }) {
+  // const [state, setState] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(0);
-  const latestIsSelected = useRef(true);
+  const latestTripIsSelected = useRef(true);
   const scrollBar = useRef(null);
 
   // Ensure the new latest Trip is selected when adding a new Trip
   useEffect(() => {
-    if (latestIsSelected.current && selectedTrip != trips.length) {
-      setSelectedTrip(trips.length);
+    if (latestTripIsSelected.current) {
+      setSelectedTrip(state.trips.length);
     }
-    latestIsSelected.current = selectedTrip === trips.length;
-  }, [selectedTrip, trips]);
-
-  // Scroll the Trips scrollbar the width of a Trip button
-  const scroll = useCallback((direction) => {
-    const buttonWidth = scrollBar.current.children[0].offsetWidth;
-    switch (direction) {
-      case "left":
-        scrollBar.current.scrollLeft -= buttonWidth;
-        break;
-      case "right":
-        scrollBar.current.scrollLeft += buttonWidth;
-        break;
-      case "selectedTrip":
-        // Scroll the selected Trip to the middle of the Trip scrollbar
-        const scrollBarWidth = scrollBar.current.offsetWidth;
-        const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
-        scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
-        break;
-      default:
-        throw new Error("Direction must be either 'left', 'right', or 'selectedTrip'.");
-    }
-  }, [scrollBar, selectedTrip]);
-
-  // Scroll the Trips scrollbar to the selected Trip
+  }, [state]);
   useEffect(() => {
-    scroll("selectedTrip");
+    latestTripIsSelected.current = selectedTrip === state.trips.length;
   }, [selectedTrip]);
 
-  // Render the Trip score buttons
-  const tripScoreButtons = [];
+  // Scroll to the selected Trip
+  useEffect(() => {
+    const buttonWidth = scrollBar.current.children[0].offsetWidth;
+    const scrollBarWidth = scrollBar.current.offsetWidth;
+    const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
+    scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
+  }, [selectedTrip])
+
+  const setTrip = useCallback((tripIndex, tripPoints, validPass = true) => {
+    old_sendRequest("setTrip", { jamIndex: jamId, team, tripIndex, tripPoints, validPass });
+  }, [jamId, team]);
+
+  const deleteTrip = useCallback((tripIndex) => {
+    old_sendRequest("deleteTrip", { jamIndex: jamId, team, tripIndex })
+  }, [jamId, team])
+
+  const setLead = useCallback((lead) => {
+    old_sendRequest("setLead", { jamIndex: jamId, team, lead })
+  }, [jamId, team]);
+
+  const setLost = useCallback((lost) => {
+    old_sendRequest("setLost", { jamIndex: jamId, team, lost })
+  }, [jamId, team]);
+
+  const setStarPass = useCallback((tripIndex) => {
+    old_sendRequest("setStarPass", { jamIndex: jamId, team, tripIndex })
+  }, [jamId, team, selectedTrip]);
+
+  // Render the Trip point buttons
+  let pointButtons = [];
   if (selectedTrip === 0) {
-    // Render No-Pass/No-Penalty and Initial Pass buttons
     const className = "initial";
-    tripScoreButtons.push(
-      <button key={-1} className={className} onClick={() =>
-        sendRequest("setTrip", {
-          team: team,
-          tripIndex: selectedTrip,
-          tripPoints: 0,
-          jamIndex
-        })
-      }>
-        NP/NP
-      </button>
-    );
-    tripScoreButtons.push(
-      <button key={-2} className={className} onClick={() =>
-        sendRequest("setInitialPass", {
-          team: team,
-          jamIndex
-        })
-      }>
-        Initial
-      </button>
+    pointButtons = (
+      <>
+        <button key={-1} className={className} onClick={() => setTrip(0, 0, false)}>
+          NP/NP
+        </button>
+        <button key={-2} className={className} onClick={() => setTrip(0, 0)}>
+          Initial
+        </button>
+      </>
     );
   } else {
     // When editing a Trip disable the score button of the current Trip points
-    let disableIndex = null;  // Enable all by default
-    if (selectedTrip < trips.length) {
-      disableIndex = trips[selectedTrip].points;
-    }
+    const disableIndex = selectedTrip < state.trips.length
+      ? state.trips[selectedTrip].points
+      : null;
 
     // Instantiate the Trip point buttons
     for (let i = 0; i <= 4; i++) {
-      tripScoreButtons.push(
-        <button key={i} className="points" disabled={i === disableIndex}
-          onClick={() => sendRequest("setTrip", {
-            team: team,
-            tripIndex: selectedTrip,
-            tripPoints: i,
-            jamIndex
-          })}>
+      const disabled = i === disableIndex;
+      pointButtons.push(
+        <button key={i} className="points" onClick={() => setTrip(selectedTrip, i)}
+          disabled={disabled} >
           {i}
         </button>
       );
     }
   }
 
-  // Render each trip as a button
-  const tripButtons = [];
-  for (let i = 0; i <= trips.length; i++) {
+  // Render the Trip edit/delete component
+  const tripEditDialog = (
+    <>
+      Editing trip {selectedTrip + 1}.&nbsp;
+      <button onClick={() => deleteTrip(selectedTrip)}>Delete</button>
+    </>
+  );
+  const tripEditDialogVisibility = selectedTrip < state.trips.length
+    ? "visible" : "hidden";
+
+  // Render the Trip buttons
+  const tripButtons = []
+  const currentTrip = { points: "\u00A0" };
+  [...state.trips, currentTrip].forEach((trip, i) => {
     tripButtons.push(
-      <button key={i} onClick={() => {
-        latestIsSelected.current = (i === trips.length);
-        setSelectedTrip(i);
-      }}>
-        <small>Trip {i + 1}</small>
-        <br />{i < trips.length ? trips[i].points : "\u00A0"}
+      <button onClick={() => setSelectedTrip(i)}>
+        <small>Trip {i + 1}</small><br />
+        {trip.points}
       </button>
     );
-  }
-  if (selectedTrip <= trips.length) {
-    tripButtons[selectedTrip].props.className = "activeTrip";
-  }
-
-  // Determine if the "delete trip" button is visible
-  let visibility = "hidden";
-  if (selectedTrip < trips.length && (selectedTrip > 0 || trips.length === 1)) {
-    visibility = "visible";
-  }
+  });
+  tripButtons[selectedTrip].props.className = "activeTrip";
 
   return (
     <div className="tripComponent">
 
       <div className="tripInput">
-        {tripScoreButtons}
+        {pointButtons}
       </div>
 
-      <div className="tripEdit" style={{ visibility: visibility }}>
-        Editing trip {selectedTrip + 1}.&nbsp;
-        <button onClick={() => sendRequest("deleteTrip", {
-          team: team,
-          tripIndex: selectedTrip,
-          jamIndex
-        })}>Delete</button>
+      <div className="tripEdit" style={{ visibility: tripEditDialogVisibility }}>
+        {tripEditDialog}
       </div>
 
       <div className="scrollBar">
-        <button onClick={() => scroll("left")}>&lt;</button>
+        <button onClick={() => {
+          const buttonWidth = scrollBar.current.children[0].offsetWidth;
+          scrollBar.current.scrollLeft -= buttonWidth;
+        }}>
+          &lt;
+        </button>
         <div ref={scrollBar} className="trips">
           {tripButtons}
         </div>
-        <button onClick={() => scroll("right")}>&gt;</button>
+        <button onClick={() => {
+          const buttonWidth = scrollBar.current.children[0].offsetWidth;
+          scrollBar.current.scrollLeft += buttonWidth;
+        }}>
+          &gt;
+        </button>
       </div>
 
-    </div>
-  );
-}
+      <div>
+        <div>
+          Lead&nbsp;
+          <input type="checkbox" checked={state.lead} onClick={() => setLead(!state.lead)}
+            disabled={!isLeadEligible || state.lost} />
+        </div>
+        <div>
+          Lost&nbsp;
+          <input type="checkbox" checked={state.lost} onClick={() => setLost(!state.lost)} />
+        </div>
+        <div>
+          Star Pass&nbsp;
+          <input type="checkbox" checked={state.starPass !== null}
+            onClick={() => setStarPass(state.starPass === null ? selectedTrip : null)} />
+        </div>
+      </div>
 
-
-function JammerState({ team, jamState, jamIndex, numTrips, isLeadEligible }) {
-  const { lead, lost, starPass } = jamState;
-  return (
-    <div>
-      <div>
-        Lead&nbsp;<input type="checkbox"
-          onClick={() => sendRequest("setLead", {
-            team: team,
-            lead: !lead,
-            jamIndex
-          })}
-          disabled={!isLeadEligible || lost}
-          checked={lead} />
-      </div>
-      <div>
-        Lost&nbsp;<input type="checkbox"
-          onClick={() => sendRequest("setLost", {
-            team: team,
-            lost: !lost,
-            jamIndex
-          })}
-          checked={lost} />
-      </div>
-      <div>
-        Star Pass&nbsp;<input type="checkbox"
-          onClick={() => sendRequest("setStarPass", {
-            team: team,
-            tripIndex: (starPass === null ? numTrips : null),
-            jamIndex
-          })}
-          checked={starPass !== null} />
-      </div>
     </div>
   );
 }
@@ -318,34 +259,34 @@ export function JamControlComponent({ isStarted, stopReason, jamIndex }) {
   const buttons = [];
   if (!isStarted) {
     buttons.push(
-      <button onClick={() => sendRequest("startJam", {
+      <button onClick={() => old_sendRequest("startJam", {
         jamIndex
       })}>Start Jam</button>
     );
   } else if (!isStopped) {
     buttons.push(
-      <button onClick={() => sendRequest("stopJam", {
+      <button onClick={() => old_sendRequest("stopJam", {
         jamIndex
       })}>Stop Jam</button>
     );
   } else {
     label = (<small>Set stop reason: </small>);
     buttons.push(
-      <button onClick={() => sendRequest("setJamStopReason", {
+      <button onClick={() => old_sendRequest("setJamStopReason", {
         jamIndex,
         stopReason: CALLED,
       })}
         disabled={stopReason === CALLED}>Called</button>
     );
     buttons.push(
-      <button onClick={() => sendRequest("setJamStopReason", {
+      <button onClick={() => old_sendRequest("setJamStopReason", {
         jamIndex,
         stopReason: TIME
       })}
         disabled={stopReason === TIME}>Time</button>
     );
     buttons.push(
-      <button onClick={() => sendRequest("setJamStopReason", {
+      <button onClick={() => old_sendRequest("setJamStopReason", {
         jamIndex,
         stopReason: INJURY
       })}
