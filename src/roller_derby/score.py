@@ -89,12 +89,10 @@ class Score(AbstractAttribute):
 
     def encode(self) -> dict[str, Any]:
         return {
-            "jamId": self.parentJam.getId().encode(),
-            self.getTeam(): {
-                "trips": [trip.encode() for trip in self.getTrips()],
-                "lead": self.getLead(),
-                "lost": self.getLost(),
-                "starPass": self.getStarPass(),
-                "isLeadEligible": self.isLeadEligible()
-            }
+            "id": self.parentJam.getId().encode(),
+            "trips": [trip.encode() for trip in self.getTrips()],
+            "lead": self.getLead(),
+            "lost": self.getLost(),
+            "starPass": self.getStarPass(),
+            "isLeadEligible": self.isLeadEligible()
         }
