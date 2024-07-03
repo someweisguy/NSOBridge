@@ -37,7 +37,10 @@ async def jamScore(id: Jam.Id, team: None | Jam.TEAMS = None) -> API:
     period: Period = server.bouts.currentBout[id.period]
     jam: Jam = period[id.jam]
     if team is None:
-        return jam.score.encode()
+        return {
+            "home": jam.score.home.encode(),
+            "away": jam.score.away.encode(),
+        }
     else:
         return jam.score[team].encode()
 
