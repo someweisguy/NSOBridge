@@ -57,15 +57,15 @@ async def timer(timerType: str) -> API:
 
 
 @server.register
-async def startJam(jamId: Jam.Id, timestamp: datetime) -> API:
+async def startJam(id: Jam.Id, timestamp: datetime) -> API:
     # Start the Jam
-    jam: Jam = server.bouts.currentBout[jamId.period][jamId.jam]
+    jam: Jam = server.bouts.currentBout[id.period][id.jam]
     jam.start(timestamp)
 
 
 @server.register
-async def stopJam(jamId: Jam.Id, timestamp: datetime) -> API:
-    jam: Jam = server.bouts.currentBout[jamId.period][jamId.jam]
+async def stopJam(id: Jam.Id, timestamp: datetime) -> API:
+    jam: Jam = server.bouts.currentBout[id.period][id.jam]
 
     # Attempt to determine the reason the jam ended
     stopReason: Jam.STOP_REASONS = "unknown"
@@ -78,8 +78,8 @@ async def stopJam(jamId: Jam.Id, timestamp: datetime) -> API:
 
 
 @server.register
-async def setJamStopReason(jamId: Jam.Id, stopReason: Jam.STOP_REASONS) -> API:
-    jam: Jam = server.bouts.currentBout[jamId.period][jamId.jam]
+async def setJamStopReason(id: Jam.Id, stopReason: Jam.STOP_REASONS) -> API:
+    jam: Jam = server.bouts.currentBout[id.period][id.jam]
     jam.setStopReason(stopReason)
 
 
