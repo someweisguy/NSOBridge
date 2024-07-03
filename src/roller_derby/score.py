@@ -66,6 +66,7 @@ class Score(AbstractAttribute):
         self._lead = lead
 
         server.update(self, Score.API_NAME)
+        server.update(self.getOther(), Score.API_NAME)  # Update lead eligibility
 
     def getLost(self) -> bool:
         return self._lost
