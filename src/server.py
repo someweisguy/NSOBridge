@@ -95,10 +95,11 @@ def register(
     return decorator(command) if callable(command) else decorator
 
 
-def update(encodable: Encodable, eventName: str = "") -> None:
+def update(encodable: Encodable) -> None:
     # TODO: documentation
-    if eventName == "":
-        eventName = type(encodable).__name__
+    eventName: str = type(encodable).__name__
+    if hasattr(encodable, "API_NAME"):
+        eventName = getattr(encodable, "API_NAME")
     loop = asyncio.get_running_loop()
     loop.create_task(emit(eventName, encodable.encode()))
 

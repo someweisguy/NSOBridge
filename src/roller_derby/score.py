@@ -41,7 +41,7 @@ class Score(AbstractAttribute):
         else:
             self._trips[tripIndex].points = points
 
-        server.update(self, Score.API_NAME)
+        server.update(self)
     
     def getTrips(self) -> list[Score.Trip]:
         return self._trips
@@ -49,7 +49,7 @@ class Score(AbstractAttribute):
     def deleteTrip(self, tripIndex: int) -> None:
         del self._trips[tripIndex]
 
-        server.update(self, Score.API_NAME)
+        server.update(self)
 
     def isLeadEligible(self) -> bool:
         other: Score = self.getOther()
@@ -65,8 +65,8 @@ class Score(AbstractAttribute):
             raise server.ClientException("This team is not eligible for lead jammer.")
         self._lead = lead
 
-        server.update(self, Score.API_NAME)
-        server.update(self.getOther(), Score.API_NAME)  # Update lead eligibility
+        server.update(self)
+        server.update(self.getOther())  # Update lead eligibility
 
     def getLost(self) -> bool:
         return self._lost
@@ -76,7 +76,7 @@ class Score(AbstractAttribute):
             raise TypeError(f"Lost must be bool not {type(lost).__name__}.")
         self._lost = lost
 
-        server.update(self, Score.API_NAME)
+        server.update(self)
 
     def getStarPass(self) -> None | int:
         return self._starPass
@@ -88,7 +88,7 @@ class Score(AbstractAttribute):
             )
         self._starPass = starPass
 
-        server.update(self, Score.API_NAME)
+        server.update(self)
 
     def encode(self) -> dict[str, Any]:
         return {
