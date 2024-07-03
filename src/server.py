@@ -229,8 +229,9 @@ async def _handleEvent(
         # Add commonly used arguments
         json["timestamp"] = NOW - timedelta(milliseconds=json["latency"])
         json["session"] = sessionId
-        if "jamId" in json.keys():
-            json["jamId"] = bout.Jam.Id.decode(json["jamId"])
+        # TODO: figure out a better solution for ID
+        if "id" in json.keys() and isinstance(json["id"], dict) and all([elem in json["id"].keys() for elem in ("period", "jam")]):
+            json["id"] = bout.Jam.Id.decode(json["id"])
 
         # Get the function and call it with only the required arguments
         func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]

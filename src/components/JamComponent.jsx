@@ -1,103 +1,151 @@
 import { useCallback, useState, useRef, useEffect, Suspense, lazy } from "react";
-import { old_sendRequest, sendRequest } from "../App";
+import { old_sendRequest, onEvent, sendRequest } from "../App";
 import "./JamComponent.css"
 
 const HOME = "home";
 const AWAY = "away";
 
+const NULL_TIMER = {
+  alarm: 0,
+  elapsed: -1,
+  running: false,
+}
+
+const NULL_PERIOD = {
+  id: 0,
+  countdown: NULL_TIMER,
+  clock: NULL_TIMER,
+  jamCount: 1
+};
+
 const NULL_JAM = {
-  jamId: {
+  id: {
     period: 0,
     jam: 0
   },
-  countdown: {
-    alarm: 0,
-    elapsed: 0,
-    running: false
-  },
-  clock: {
-    alarm: 0,
-    elapsed: 0,
-    running: false
-  },
-  stopReason: null,
-  // jamIndex: null,
-  // home: {
-  //   team: HOME,
-  //   lead: false,
-  //   lost: false,
-  //   starPass: false,
-  //   trips: []
-  // }, away: {
-  //   team: AWAY,
-  //   lead: false,
-  //   lost: false,
-  //   starPass: false,
-  //   trips: []
-  // }
-};
+  countdown: NULL_TIMER,
+  clock: NULL_TIMER,
+  stopReason: null
+}
 
 const NULL_JAM_SCORE = {
-  trips: [], 
+  id: {
+    period: 0,
+    jam: 0
+  },
+  trips: [],
   lead: false,
   lost: false,
   starPass: null,
   isLeadEligible: true
 };
 
-export function PeriodViewer({ periodId = 0 }) {
-  const [jamId, setJamId] = useState(null);
+export function PeriodViewer({ periodCount = 1 }) {
+  const [state, setState] = useState(NULL_PERIOD);
 
   useEffect(() => {
     let ignore = false;
-    sendRequest("period", { periodId })
-      .then((response) => {
+    sendRequest("period", { id: periodCount - 1 })
+      .then((newState) => {
         if (!ignore) {
-          setJamId({ period: periodId, jam: response.jamCount - 1 });
+          console.log(newState);
+          setState(newState)
         }
       }, (error) => {
-        // Ignore errors
+        console.error(error);
       });
-    
+
     return () => ignore = true;
   }, []);
+
+  useEffect(() => {
+    if (state.id === null) {
+      return;
+    }
+    const unsubscribe = onEvent("period", (newState) => {
+      if (newState.id == state.id) {
+        console.log(data);
+        setState(newState);
+      }
+    });
+    return () => unsubscribe();
+  }, [state.id])
 
 
   return (
     <div>
-        <Suspense fallback={"Loading..."}>
-          <JamComponent jamId={jamId} team={HOME} />
-        </Suspense>
+      <Suspense fallback={"Loading..."}>
+        <JamComponent period={state.id} jamCount={state.jamCount} />
+      </Suspense>
     </div>
   );
 }
 
-export function JamComponent({ jamId, team }) {
+export function JamComponent({ period, jamCount }) {
   const [state, setState] = useState(NULL_JAM_SCORE)
 
   useEffect(() => {
     let ignore = false;
-    sendRequest("jamScore", { jamId, team })
-      .then((response) => {
-        if (!ignore && response[team]) {
-          setState(response[team]);
+    sendRequest("jam", { id: { period, jam: jamCount - 1 } })
+      .then((newState) => {
+        if (!ignore) {
+          console.log(newState);
+          setState(newState)
         }
       }, (error) => {
-        // Ignore errors
+        console.error(error);
       });
 
-    // TODO: socket.on("jamScore")
-    
     return () => ignore = true;
-  }, [jamId, team]);
+  }, []);
 
+  useEffect(() => {
+    if (state.id === null) {
+      return;
+    }
+    const unsubscribe = onEvent("jam", (newState) => {
+      if (newState.id.period == period && newState.id.jam == state.id.jam) {
+        console.log(data);
+        setState(newState);
+      }
+    });
+    return () => unsubscribe();
+  }, [period, state.id])
 
-  
+  return (
+    <div>
+      <JamScore id={state.id} team={HOME} />
+    </div>
+  );
+}
+
+function JamScore({ id, team }) {
+  const [state, setState] = useState(NULL_JAM_SCORE);
+  const [activeTrip, setSelectedTrip] = useState(0);
+
+console.log(id);
+
+  useEffect(() => {
+    let ignore = false;
+    sendRequest("jamScore", { id, team })
+      .then((newState) => {
+        if (!ignore) {
+          console.log(newState);
+          setState(newState)
+        }
+      }, (error) => {
+        console.error(error);
+      });
+
+    return () => ignore = true;
+  }, []);
+
   return (
     <div>
       {JSON.stringify(state)}
     </div>
   );
+
 }
 
 function TeamJamScore({ jamId, team, state, isLeadEligible = false }) {

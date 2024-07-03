@@ -131,7 +131,7 @@ class Period(Encodable):
 
     def encode(self) -> dict[str, Any]:
         return {
-            "periodId": self.parentBout._periods.index(self),
+            "id": self.parentBout._periods.index(self),
             "countdown": self._countdown.encode(),
             "clock": self._clock.encode(),
             "jamCount": len(self._jams),
@@ -168,7 +168,7 @@ class Jam(Encodable):
     @property
     def parentBout(self) -> Bout:
         return self._parent._parent
-    
+
     @property
     def score(self) -> TeamAttribute[Score]:
         return self._score
@@ -256,7 +256,7 @@ class Jam(Encodable):
 
     def encode(self) -> dict:
         return {
-            "jamId": self.getId().encode(),
+            "id": self.getId().encode(),
             "countdown": self._countdown.encode(),
             "clock": self._clock.encode(),
             "stopReason": self._stopReason,

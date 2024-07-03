@@ -6,37 +6,40 @@ from datetime import datetime
 
 
 @server.register
-async def period(periodId: None | int = None) -> API:
-    if periodId is None:
-        periodId = -1
+async def period(id: None | int = None) -> API:
+    if id is None:
+        id = -1
 
-    period: Period = server.bouts.currentBout[periodId]
+    period: Period = server.bouts.currentBout[id]
     return period.encode()
 
 
 @server.register
-async def jam(jamId: None | Jam.Id = None) -> API:
+async def jam(id: None | Jam.Id = None) -> API:
     # Get the current Jam index
-    if jamId is None:
-        jamId = server.bouts.currentBout[-1][-1].getId()
+    if id is None:
+        id = server.bouts.currentBout[-1][-1].getId()
 
     # Determine if a Jam should be added
-    period: Period = server.bouts.currentBout[jamId.period]
-    if jamId.jam == len(period):
+    period: Period = server.bouts.currentBout[id.period]
+    if id.jam == len(period):
         server.bouts.currentBout[-1].addJam()
-    elif jamId.jam > len(period):
+    elif id.jam > len(period):
         raise ClientException("This jam does not exist.")
 
-    jam: Jam = period[jamId.jam]
+    jam: Jam = period[id.jam]
 
     return jam.encode()
 
 
 @server.register
-async def jamScore(jamId: Jam.Id) -> API:
-    period: Period = server.bouts.currentBout[jamId.period]
-    jam: Jam = period[jamId.jam]
-    return jam.score.encode()
+async def jamScore(id: Jam.Id, team: None | Jam.TEAMS = None) -> API:
+    period: Period = server.bouts.currentBout[id.period]
+    jam: Jam = period[id.jam]
+    if team is None:
+        return jam.score.encode()
+    else:
+        return jam.score[team].encode()
 
 
 # TODO: Move to separate timer control file?

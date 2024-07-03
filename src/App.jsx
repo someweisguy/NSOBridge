@@ -51,6 +51,11 @@ export async function sendRequest(api, payload = {}) {
   });
 }
 
+export function onEvent(api, callback) {
+  socket.on(api, callback);
+  return () => socket.off(api, callback);
+}
+
 
 export async function old_sendRequest(api, payload = {}) {
   payload.latency = latency;
