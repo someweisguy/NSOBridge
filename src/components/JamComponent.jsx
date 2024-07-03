@@ -28,7 +28,7 @@ const NULL_JAM_SCORE = {
   isLeadEligible: true
 };
 
-export function JamComponent({ periodCount = 1 }) {
+export function ScoreboardEditor({ periodCount = 1 }) {
   const [periodState, setPeriodState] = useState(NULL_PERIOD);
   const [jamState, setJamState] = useState(NULL_JAM);
 
@@ -84,8 +84,10 @@ export function JamComponent({ periodCount = 1 }) {
   return (
     <div>
       {jamState.id && ("P" + (jamState.id.period + 1) + " J" + (jamState.id.jam + 1))}
-      <JamScore id={jamState.id} team={HOME} />
-      <JamScore id={jamState.id} team={AWAY} />
+      <div>
+        <JamScore id={jamState.id} team={HOME} />
+        <JamScore id={jamState.id} team={AWAY} />
+      </div>
     </div>
   );
 }
