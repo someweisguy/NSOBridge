@@ -5,6 +5,11 @@ import "./JamComponent.css"
 const HOME = "home";
 const AWAY = "away";
 
+const CALLED = "called";
+const INJURY = "injury";
+const TIME = "time";
+const UNKNOWN = "unknown";
+
 const NULL_PERIOD = {
   id: null,
   countdown: null,
@@ -84,6 +89,9 @@ export function ScoreboardEditor({ periodCount = 1 }) {
   return (
     <div>
       {jamState.id && ("P" + (jamState.id.period + 1) + " J" + (jamState.id.jam + 1))}
+      <br />
+      <JamController id={jamState.id} jamClock={jamState.clock} 
+        stopReason={jamState.stopReason} />
       <div>
         <JamScore id={jamState.id} team={HOME} />
         <JamScore id={jamState.id} team={AWAY} />
@@ -268,49 +276,47 @@ function JamScore({ id, team }) {
   );
 }
 
-const CALLED = "called";
-const INJURY = "injury";
-const TIME = "time";
-const UNKNOWN = "unknown";
+function JamController({ id, jamClock, stopReason }) {
+  const isStarted = jamClock && jamClock.running;
+  const isFinished = stopReason !== null;
 
-export function JamControlComponent({ isStarted, stopReason, jamIndex }) {
-  const isStopped = stopReason !== null;
+  console.log(jamClock);
+  console.log(stopReason);
+  
+  const startJam = useCallback(() => {
+    sendRequest("startJam", { id });
+  }, [id]);
+
+  const stopJam = useCallback(() => {
+    sendRequest("stopJam", { id });
+  }, [id]);
+
+  const setJamStopReason = useCallback((stopReason) => {
+    sendRequest("setJamStopReason", { id, stopReason });
+  }, [id]);
 
   let label = null;
   const buttons = [];
   if (!isStarted) {
     buttons.push(
-      <button onClick={() => old_sendRequest("startJam", {
-        jamIndex
-      })}>Start Jam</button>
+      <button onClick={startJam}>Start Jam</button>
     );
-  } else if (!isStopped) {
+  } else if (!isFinished) {
     buttons.push(
-      <button onClick={() => old_sendRequest("stopJam", {
-        jamIndex
-      })}>Stop Jam</button>
+      <button onClick={stopJam}>Stop Jam</button>
     );
   } else {
     label = (<small>Set stop reason: </small>);
     buttons.push(
-      <button onClick={() => old_sendRequest("setJamStopReason", {
-        jamIndex,
-        stopReason: CALLED,
-      })}
+      <button onClick={() => setJamStopReason(CALLED)}
         disabled={stopReason === CALLED}>Called</button>
     );
     buttons.push(
-      <button onClick={() => old_sendRequest("setJamStopReason", {
-        jamIndex,
-        stopReason: TIME
-      })}
+      <button onClick={() => setJamStopReason(TIME)}
         disabled={stopReason === TIME}>Time</button>
     );
     buttons.push(
-      <button onClick={() => old_sendRequest("setJamStopReason", {
-        jamIndex,
-        stopReason: INJURY
-      })}
+      <button onClick={() => setJamStopReason(INJURY)}
         disabled={stopReason === INJURY}>Injury</button>
     );
   }
