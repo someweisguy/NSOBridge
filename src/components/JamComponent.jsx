@@ -97,8 +97,11 @@ export function JamComponent({ periodCount = 1 }) {
 
 function JamScore({ id, team }) {
   const [state, setState] = useState(NULL_JAM_SCORE);
-  const [activeTrip, setSelectedTrip] = useState(0);
+  const [selectedTrip, setSelectedTrip] = useState(0);
+  const latestTripIsSelected = useRef(true);
+  const scrollBar = useRef(null);
 
+  // Request new data when the Jam changes
   useEffect(() => {
     if (id === null) {
       return;
@@ -107,26 +110,23 @@ function JamScore({ id, team }) {
     sendRequest("jamScore", { id, team })
       .then((newState) => {
         if (!ignore) {
-          setState(newState[team])
+          setState(newState)
         }
       });
 
-    return () => ignore = true;
+    const unsubscribe = onEvent("jamScore", (newState) => {
+      console.log(newState);
+      if (newState.id.period === id.period && newState.id.jam === id.jam
+        && newState.team === team) {
+        setState(newState);
+      }
+    });
+
+    return () => {
+      ignore = true;
+      unsubscribe();
+    };
   }, [id, team]);
-
-  return (
-    <div>
-      {JSON.stringify(state)}
-    </div>
-  );
-
-}
-
-function TeamJamScore({ jamId, team, state, isLeadEligible = false }) {
-  // const [state, setState] = useState(null);
-  const [selectedTrip, setSelectedTrip] = useState(0);
-  const latestTripIsSelected = useRef(true);
-  const scrollBar = useRef(null);
 
   // Ensure the new latest Trip is selected when adding a new Trip
   useEffect(() => {
@@ -147,24 +147,24 @@ function TeamJamScore({ jamId, team, state, isLeadEligible = false }) {
   }, [selectedTrip])
 
   const setTrip = useCallback((tripIndex, tripPoints, validPass = true) => {
-    old_sendRequest("setTrip", { jamIndex: jamId, team, tripIndex, tripPoints, validPass });
-  }, [jamId, team]);
+    sendRequest("setTrip", { id, team, tripIndex, tripPoints, validPass });
+  }, [id, team]);
 
   const deleteTrip = useCallback((tripIndex) => {
-    old_sendRequest("deleteTrip", { jamIndex: jamId, team, tripIndex })
-  }, [jamId, team])
+    sendRequest("deleteTrip", { id, team, tripIndex });
+  }, [id, team])
 
   const setLead = useCallback((lead) => {
-    old_sendRequest("setLead", { jamIndex: jamId, team, lead })
-  }, [jamId, team]);
+    sendRequest("setLead", { id, team, lead });
+  }, [id, team]);
 
   const setLost = useCallback((lost) => {
-    old_sendRequest("setLost", { jamIndex: jamId, team, lost })
-  }, [jamId, team]);
+    sendRequest("setLost", { id, team, lost });
+  }, [id, team]);
 
   const setStarPass = useCallback((tripIndex) => {
-    old_sendRequest("setStarPass", { jamIndex: jamId, team, tripIndex })
-  }, [jamId, team, selectedTrip]);
+    sendRequest("setStarPass", { id, team, tripIndex });
+  }, [id, team, selectedTrip]);
 
   // Render the Trip point buttons
   let pointButtons = [];
@@ -254,7 +254,7 @@ function TeamJamScore({ jamId, team, state, isLeadEligible = false }) {
         <div>
           Lead&nbsp;
           <input type="checkbox" checked={state.lead} onClick={() => setLead(!state.lead)}
-            disabled={!isLeadEligible || state.lost} />
+            disabled={!state.isLeadEligible || state.lost} />
         </div>
         <div>
           Lost&nbsp;
