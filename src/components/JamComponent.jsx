@@ -91,6 +91,7 @@ export function JamComponent({ periodCount = 1 }) {
     <div>
       {jamState.id && ("P" + (jamState.id.period + 1) + " J" + (jamState.id.jam + 1))}
       <JamScore id={jamState.id} team={HOME} />
+      <JamScore id={jamState.id} team={AWAY} />
     </div>
   );
 }
@@ -115,7 +116,6 @@ function JamScore({ id, team }) {
       });
 
     const unsubscribe = onEvent("jamScore", (newState) => {
-      console.log(newState);
       if (newState.id.period === id.period && newState.id.jam === id.jam
         && newState.team === team) {
         setState(newState);
@@ -129,11 +129,12 @@ function JamScore({ id, team }) {
   }, [id, team]);
 
   // Ensure the new latest Trip is selected when adding a new Trip
+  // TODO: doesn't work when deleting and re-adding a trip
   useEffect(() => {
     if (latestTripIsSelected.current) {
       setSelectedTrip(state.trips.length);
     }
-  }, [state]);
+  }, [state.trips]);
   useEffect(() => {
     latestTripIsSelected.current = selectedTrip === state.trips.length;
   }, [selectedTrip]);
