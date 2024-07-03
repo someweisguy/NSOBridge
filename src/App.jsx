@@ -2,7 +2,7 @@ import './App.css';
 import { useCallback, useEffect, useState } from 'react';
 import { connect, io } from 'socket.io-client';
 
-import { JamComponent, PeriodViewer } from './components/JamComponent';
+import { JamComponent } from './components/JamComponent';
 import { PeriodClock, GameClock } from './components/TimerComponent';
 
 var userId = localStorage.getItem("userId");
@@ -127,7 +127,7 @@ function App() {
   return (
     <div className="App">
       {/* <GameClock />&nbsp;<PeriodClock  */}
-      <PeriodViewer />
+      <JamComponent />
     </div>
   );
 }

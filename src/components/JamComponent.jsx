@@ -12,27 +12,21 @@ const NULL_TIMER = {
 }
 
 const NULL_PERIOD = {
-  id: 0,
+  id: null,
   countdown: NULL_TIMER,
   clock: NULL_TIMER,
   jamCount: 1
 };
 
 const NULL_JAM = {
-  id: {
-    period: 0,
-    jam: 0
-  },
+  id: null,
   countdown: NULL_TIMER,
   clock: NULL_TIMER,
   stopReason: null
 }
 
 const NULL_JAM_SCORE = {
-  id: {
-    period: 0,
-    jam: 0
-  },
+  id: null,
   trips: [],
   lead: false,
   lost: false,
@@ -40,81 +34,62 @@ const NULL_JAM_SCORE = {
   isLeadEligible: true
 };
 
-export function PeriodViewer({ periodCount = 1 }) {
-  const [state, setState] = useState(NULL_PERIOD);
+export function JamComponent({ periodCount = 1 }) {
+  const [periodState, setPeriodState] = useState(NULL_PERIOD);
+  const [jamState, setJamState] = useState(NULL_JAM);
 
   useEffect(() => {
     let ignore = false;
-    sendRequest("period", { id: periodCount - 1 })
-      .then((newState) => {
+    const periodId = periodState.id === null ? periodCount - 1 : periodState.id;
+    sendRequest("period", { id: periodId })
+      .then((newPeriodState) => {
         if (!ignore) {
-          console.log(newState);
-          setState(newState)
+          setPeriodState(newPeriodState)
         }
-      }, (error) => {
-        console.error(error);
       });
-
     return () => ignore = true;
   }, []);
 
   useEffect(() => {
-    if (state.id === null) {
-      return;
+    if (periodState.id === null) {
+      return;  // Wait until there is a valid Period ID
     }
-    const unsubscribe = onEvent("period", (newState) => {
-      if (newState.id == state.id) {
-        console.log(data);
-        setState(newState);
-      }
-    });
-    return () => unsubscribe();
-  }, [state.id])
-
-
-  return (
-    <div>
-      <Suspense fallback={"Loading..."}>
-        <JamComponent period={state.id} jamCount={state.jamCount} />
-      </Suspense>
-    </div>
-  );
-}
-
-export function JamComponent({ period, jamCount }) {
-  const [state, setState] = useState(NULL_JAM_SCORE)
-
-  useEffect(() => {
     let ignore = false;
-    sendRequest("jam", { id: { period, jam: jamCount - 1 } })
-      .then((newState) => {
+    const jamId = jamState.id === null ? periodState.jamCount - 1 : jamState.id.jam;
+    sendRequest("jam", { id: { period: periodState.id, jam: jamId } })
+      .then((newJamState) => {
         if (!ignore) {
-          console.log(newState);
-          setState(newState)
+          setJamState(newJamState);
         }
-      }, (error) => {
-        console.error(error);
       });
 
-    return () => ignore = true;
-  }, []);
+    const unsubscribe = onEvent("period", (newPeriodState) => {
+      if (newPeriodState.id === periodState.id) {
+        setPeriodState(newPeriodState);
+      }
+    });
+    return () => {
+      ignore = true;
+      unsubscribe();
+    };
+  }, [periodState.id]);
 
   useEffect(() => {
-    if (state.id === null) {
-      return;
+    if (jamState.id === null) {
+      return;  // Wait until there is a valid Jam ID
     }
-    const unsubscribe = onEvent("jam", (newState) => {
-      if (newState.id.period == period && newState.id.jam == state.id.jam) {
-        console.log(data);
-        setState(newState);
+    const unsubscribe = onEvent("jam", (newJamState) => {
+      if (newJamState.id.period === jamState.id.period
+        && newJamState.id.jam === jamState.id.jam) {
+        setJamState(newJamState);
       }
     });
     return () => unsubscribe();
-  }, [period, state.id])
+  }, [jamState.id]);
 
   return (
     <div>
-      <JamScore id={state.id} team={HOME} />
+      <JamScore id={jamState.id} team={HOME} />
     </div>
   );
 }
@@ -123,22 +98,20 @@ function JamScore({ id, team }) {
   const [state, setState] = useState(NULL_JAM_SCORE);
   const [activeTrip, setSelectedTrip] = useState(0);
 
-console.log(id);
-
   useEffect(() => {
+    if (id === null) {
+      return;
+    }
     let ignore = false;
     sendRequest("jamScore", { id, team })
       .then((newState) => {
         if (!ignore) {
-          console.log(newState);
-          setState(newState)
+          setState(newState[team])
         }
-      }, (error) => {
-        console.error(error);
       });
 
     return () => ignore = true;
-  }, []);
+  }, [id, team]);
 
   return (
     <div>
