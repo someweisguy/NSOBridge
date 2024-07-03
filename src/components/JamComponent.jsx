@@ -89,6 +89,7 @@ export function JamComponent({ periodCount = 1 }) {
 
   return (
     <div>
+      {jamState.id && ("P" + (jamState.id.period + 1) + " J" + (jamState.id.jam + 1))}
       <JamScore id={jamState.id} team={HOME} />
     </div>
   );
