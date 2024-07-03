@@ -95,11 +95,12 @@ def register(
     return decorator(command) if callable(command) else decorator
 
 
-def update(encodable: Encodable) -> None:
+def update(encodable: Encodable, eventName: str = "") -> None:
     # TODO: documentation
-    eventName: str = type(encodable).__name__.lower()
+    if eventName == "":
+        eventName = type(encodable).__name__
     loop = asyncio.get_running_loop()
-    loop.create_task(_socket.emit(eventName, encodable.encode()))
+    loop.create_task(emit(eventName, encodable.encode()))
 
 
 async def emit(
@@ -127,6 +128,7 @@ async def emit(
         timestamp (None | int, optional): The server epoch at which the action
         originated. Defaults to None.
     """
+    log.debug(f"Emit: '{event}' {data}")
     await _socket.emit(
         event, data, to=to, room=room, skip_sid=skip, namespace=namespace
     )

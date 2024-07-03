@@ -8,6 +8,8 @@ import server
 
 
 class Score(AbstractAttribute):
+    API_NAME: str = "jamScore"
+    
     @dataclass
     class Trip(Encodable):
         points: int
@@ -39,7 +41,7 @@ class Score(AbstractAttribute):
         else:
             self._trips[tripIndex].points = points
 
-        server.update(self)
+        server.update(self, Score.API_NAME)
     
     def getTrips(self) -> list[Score.Trip]:
         return self._trips
@@ -47,7 +49,7 @@ class Score(AbstractAttribute):
     def deleteTrip(self, tripIndex: int) -> None:
         del self._trips[tripIndex]
 
-        server.update(self.parent)
+        server.update(self, Score.API_NAME)
 
     def isLeadEligible(self) -> bool:
         other: Score = self.getOther()
@@ -63,7 +65,7 @@ class Score(AbstractAttribute):
             raise server.ClientException("This team is not eligible for lead jammer.")
         self._lead = lead
 
-        server.update(self)
+        server.update(self, Score.API_NAME)
 
     def getLost(self) -> bool:
         return self._lost
@@ -73,7 +75,7 @@ class Score(AbstractAttribute):
             raise TypeError(f"Lost must be bool not {type(lost).__name__}.")
         self._lost = lost
 
-        server.update(self)
+        server.update(self, Score.API_NAME)
 
     def getStarPass(self) -> None | int:
         return self._starPass
@@ -85,11 +87,12 @@ class Score(AbstractAttribute):
             )
         self._starPass = starPass
 
-        server.update(self)
+        server.update(self, Score.API_NAME)
 
     def encode(self) -> dict[str, Any]:
         return {
             "id": self.parentJam.getId().encode(),
+            "team": self.getTeam(),
             "trips": [trip.encode() for trip in self.getTrips()],
             "lead": self.getLead(),
             "lost": self.getLost(),
