@@ -129,7 +129,6 @@ function JamScore({ id, team }) {
   }, [id, team]);
 
   // Ensure the new latest Trip is selected when adding a new Trip
-  // TODO: doesn't work when deleting and re-adding a trip
   useEffect(() => {
     if (latestTripIsSelected.current) {
       setSelectedTrip(state.trips.length);
@@ -137,7 +136,7 @@ function JamScore({ id, team }) {
   }, [state.trips]);
   useEffect(() => {
     latestTripIsSelected.current = selectedTrip === state.trips.length;
-  }, [selectedTrip]);
+  }, [selectedTrip, state.trips]);
 
   // Scroll to the selected Trip
   useEffect(() => {
