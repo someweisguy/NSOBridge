@@ -139,6 +139,7 @@ class Period(Encodable):
 
 
 class Jam(Encodable):
+    API_NAME: str = "jam"
     TEAMS = Literal["home", "away"]
     STOP_REASONS = Literal["called", "injury", "time", "unknown"]
 
