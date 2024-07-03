@@ -280,6 +280,8 @@ function JamController({ id, jamClock, stopReason }) {
   const isStarted = jamClock && jamClock.running;
   const isFinished = stopReason !== null;
 
+  // FIXME
+
   console.log(jamClock);
   console.log(stopReason);
   
