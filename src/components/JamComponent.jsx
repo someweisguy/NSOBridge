@@ -199,6 +199,7 @@ function JamScore({ id, team }) {
   }
 
   // Render the Trip edit/delete component
+  // TODO: Change dialog when editing initial Trip
   const tripEditDialog = (
     <>
       Editing trip {selectedTrip + 1}.&nbsp;
