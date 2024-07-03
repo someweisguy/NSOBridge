@@ -230,7 +230,11 @@ async def _handleEvent(
         json["timestamp"] = NOW - timedelta(milliseconds=json["latency"])
         json["session"] = sessionId
         # TODO: figure out a better solution for ID
-        if "id" in json.keys() and isinstance(json["id"], dict) and all([elem in json["id"].keys() for elem in ("period", "jam")]):
+        if (
+            "id" in json.keys()
+            and isinstance(json["id"], dict)
+            and all([elem in json["id"].keys() for elem in ("period", "jam")])
+        ):
             json["id"] = bout.Jam.Id.decode(json["id"])
 
         # Get the function and call it with only the required arguments
