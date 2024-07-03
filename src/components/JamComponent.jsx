@@ -5,23 +5,17 @@ import "./JamComponent.css"
 const HOME = "home";
 const AWAY = "away";
 
-const NULL_TIMER = {
-  alarm: 0,
-  elapsed: -1,
-  running: false,
-}
-
 const NULL_PERIOD = {
   id: null,
-  countdown: NULL_TIMER,
-  clock: NULL_TIMER,
+  countdown: null,
+  clock: null,
   jamCount: 1
 };
 
 const NULL_JAM = {
   id: null,
-  countdown: NULL_TIMER,
-  clock: NULL_TIMER,
+  countdown: null,
+  clock: null,
   stopReason: null
 }
 
