@@ -70,8 +70,17 @@ export function ScoreboardEditor({ boutId = 0 }) {
           setPeriodState(newPeriodState)
         }
       });
-    return () => ignore = true;
-  }, [boutState.periodCount]);
+
+      const unsubscribe = onEvent("bout", (newBoutState) => {
+        if (newBoutState.id === boutState.id) {
+          setBoutState(newBoutState);
+        }
+      });
+    return () => {
+      ignore = true;
+      unsubscribe();
+    };
+  }, [boutState.id]);
 
   useEffect(() => {
     if (periodState.id === null) {
