@@ -1,6 +1,6 @@
 import './App.css';
 import { useCallback, useEffect, useState } from 'react';
-import { connect, io } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 import { ScoreboardEditor } from './components/JamComponent';
 import { PeriodClock, GameClock } from './components/TimerComponent';
@@ -8,38 +8,6 @@ import { PeriodClock, GameClock } from './components/TimerComponent';
 var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
 var latency = 0;
-
-/** A custom hook which requests data when the socket connects, and adds a
- * handler to receive data.
- * 
- * @param {string} api The API function to call.
- * @param {function} callbackFunction The callback which is called to handle 
- * incoming data.
- * @param {object} constArgs The constants which are added as request arguments
- * when the socket connects.
- */
-export function useSocketGetter(api, callbackFunction, constArgs = undefined) {
-  // Register a socket callback when data is received
-  useEffect(
-    () => {
-      socket.on(api, callbackFunction);
-      return () => socket.off(api, callbackFunction);
-    },
-    [api, callbackFunction]
-  );
-
-  // Use an effect to request data when the socket connects
-  useEffect(() => {
-    const connectHandler = async () => {
-      const response = sendRequest(api, constArgs);
-      if (!response.error) {
-        callbackFunction(response);
-      }
-    };
-    socket.on("connect", connectHandler);
-    return () => socket.off("connect", connectHandler);
-  }, [api, callbackFunction, constArgs]);
-}
 
 export async function sendRequest(api, payload = {}) {
   payload.latency = getLatency();
