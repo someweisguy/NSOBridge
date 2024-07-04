@@ -98,37 +98,67 @@ export function PeriodClock({ boutId = 0 }) {
   );
 }
 
-export function GameClock({ }) {
-  const [jamTimer, setJamTimer] = useState(NULL_TIMER);
+export function GameClock({ boutId = 0 }) {
+  const [state, setState] = useState(NULL_TIMER);
+  const [lap, setLap] = useState(0);
 
-  const clockCallback = useCallback((jam) => {
-    // Show the time-to-derby clock if it is running
-    const clock = jam.countdown.running ? jam.countdown : jam.clock;
-    if (!clock.running && jam.jamIndex.jam !== 0) {
-      // TODO: Clock may be stopped in certain conditions
-      return;  // Only display a running clock
-    }
-    clock.elapsed += getLatency();
-    setJamTimer(clock);
-  }, []);
-  useSocketGetter("jam", clockCallback);
+  // TODO: allow the lineup timer to count up
 
   useEffect(() => {
-    // Create an interval to update the Clock if the clock is running
-    if (jamTimer.running && jamTimer.elapsed < jamTimer.alarm) {
-      const startTime = Date.now();
-      const timeoutId = setTimeout(() => {
-        let newState = { ...jamTimer };
-        newState.elapsed += Date.now() - startTime;
-        setJamTimer(newState);
-      }, 50);
-      return () => clearTimeout(timeoutId);
+    if (boutId === null) {
+      return;
     }
-  }, [jamTimer]);
+    let ignore = false;
+    sendRequest("jam", { id: null })
+      .then((newJam) => {
+        if (!ignore) {
+          // The initial state must always be set
+          if (newJam.countdown.running) {
+            setState(newJam.countdown);
+          } else {
+            setState(newJam.clock);
+          }
+        }
+      });
+
+    const unsubscribe = onEvent("jam", (newJam) => {
+      // Only update the state if a clock is running
+      if (newJam.countdown.running) {
+        setState(newJam.countdown);
+      } else if (newJam.clock.running) {
+        setState(newJam.clock);
+      }
+    });
+
+    return () => {
+      ignore = true;
+      unsubscribe();
+    }
+  }, [boutId]);
+
+  useEffect(() => {
+    if (!state.running) {
+      return;
+    }
+    const start = Date.now();
+    const intervalId = setInterval(() => {
+      if (lap + state.elapsed >= state.alarm) {
+        clearInterval(intervalId);
+      } else {
+        setLap(Date.now() - start);
+      }
+    }, 50);
+    return () => {
+      clearInterval(intervalId);
+      setLap(0);  // Reset the currently running Lap
+    };
+  }, [state]);
+
+  const totalElapsed = lap + state.elapsed;
 
   // Get the number of milliseconds remaining on the Period clock
-  const clockMilliseconds = jamTimer.alarm > jamTimer.elapsed
-    ? jamTimer.alarm - jamTimer.elapsed
+  const clockMilliseconds = state.alarm > state.elapsed
+    ? state.alarm - totalElapsed
     : 0;
 
   return (

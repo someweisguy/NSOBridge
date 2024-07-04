@@ -114,7 +114,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* <GameClock /> */}
+      <GameClock />
       &nbsp;
       <PeriodClock />
       <ScoreboardEditor />
