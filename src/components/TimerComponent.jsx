@@ -39,7 +39,7 @@ function formatTimeString(millisRemaining, showMillis = true) {
 }
 
 
-export function PeriodClock({ boutId = 0, direction = "down" }) {
+export function PeriodClock({ boutId = 0 }) {
   const [state, setState] = useState(NULL_TIMER);
   const [lap, setLap] = useState(0);
 
@@ -72,7 +72,7 @@ export function PeriodClock({ boutId = 0, direction = "down" }) {
     }
     const start = Date.now();
     const intervalId = setInterval(() => {
-      if (lap + state.elapsed >= state.alarm && direction === "down") {
+      if (lap + state.elapsed >= state.alarm) {
         clearInterval(intervalId);
       } else {
         setLap(Date.now() - start);
