@@ -1,83 +1,84 @@
 from datetime import datetime, timedelta
-from typing import Any
-
 from .encodable import Encodable
-import server
+from typing import Any, Callable
+import asyncio
 
 
 class Timer(Encodable):
-    def __init__(
-        self,
-        alarm: None | datetime = None,
-        *,
-        hours: int = 0,
-        minutes: int = 0,
-        seconds: int = 0,
-    ) -> None:
-        NOW: datetime = datetime.now()
-        if alarm is not None and not isinstance(alarm, datetime):
-            raise TypeError(f"Alarm must be datetime, not {type(alarm).__name__}")
-        if any(not isinstance(unit, int) for unit in (hours, minutes, seconds)):
-            raise TypeError("Units must be int")
-        if alarm is not None and any(unit != 0 for unit in (hours, minutes, seconds)):
-            raise TypeError(
-                f"{type(self).__name__} must be initialized with a datetime or timedelta, not both."
-            )
+    def __init__(self, *, hours: int = 0, minutes: int = 0, seconds: int = 0) -> None:
+        # Set the Timer alarm value if necessary
+        alarm: timedelta = timedelta(hours=hours, minutes=minutes, seconds=seconds)
+        self._alarm: None | timedelta = alarm if alarm.total_seconds() > 0 else None
 
-        # Set the Timer alarm value
-        if alarm is not None:
-            if alarm < NOW:
-                raise ValueError("Alarm cannot be set for a time in the past.")
-            self._alarm: timedelta = alarm - NOW
-        else:
-            newAlarm = timedelta(hours=hours, minutes=minutes, seconds=seconds)
-            self._alarm: timedelta = newAlarm
-
-        self._elapsed: timedelta = timedelta()
+        self._task: None | asyncio.Task = None
         self._startTime: None | datetime = None
         self._stopTime: None | datetime = None
+        self._elapsed: timedelta = timedelta()
 
-    def running(self) -> bool:
+    def isRunning(self) -> bool:
         return self._startTime is not None and self._stopTime is None
 
-    def start(self, timestamp: datetime) -> None:
-        if self.running():
-            raise RuntimeError("Timer is already running.")
+    def start(
+        self, timestamp: datetime, callback: None | Callable[[datetime], None] = None
+    ) -> None:
+        if self.isRunning():
+            raise RuntimeError("timer is already running")
+
+        # Increment the elapsed time if the Timer has already been running
         if self._startTime is not None and self._stopTime is not None:
             self._elapsed += self._stopTime - self._startTime
             self._stopTime = None
+
         self._startTime = timestamp
 
-        server.update(self)
+        if callback is not None:
+            if self._alarm is None:
+                raise RuntimeError("cannot set a callback on a Timer without an alarm")
+
+            # Create and run a Timer callback
+            async def runTask() -> None:
+                await asyncio.sleep(self.getRemaining().total_seconds())
+                callback(datetime.now())
+                self._task = None  # Garbage collect the Task information
+
+            self._task = asyncio.create_task(runTask())
 
     def stop(self, timestamp: datetime) -> None:
-        if not self.running():
-            raise RuntimeError("Timer is not currently running.")
+        if not self.isRunning():
+            raise RuntimeError("timer is not currently running")
+
+        # Stop the timer by assigning a stop time - allows for undo
         self._stopTime = timestamp
 
-        server.update(self)
+        # Stop the timer callback task
+        if self._task is not None:
+            self._task.cancel()
+            self._task = None
 
     def getElapsed(self) -> timedelta:
-        NOW: datetime = datetime.now()
-        lapTime: timedelta = timedelta()
+        lapTime: timedelta
         if self._startTime is not None and self._stopTime is not None:
             lapTime = self._stopTime - self._startTime
         elif self._startTime is not None:
-            lapTime = NOW - self._startTime
+            lapTime = datetime.now() - self._startTime
+        else:
+            lapTime = timedelta()
         return self._elapsed + lapTime
 
     def setElapsed(self, hours: int = 0, minutes: int = 0, seconds: int = 0) -> None:
         self._elapsed = timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
     def getAlarm(self) -> timedelta:
+        assert self._alarm is not None
         return self._alarm
 
     def getRemaining(self) -> timedelta:
+        assert self._alarm is not None
         return self._alarm - self.getElapsed()
 
     def encode(self) -> dict[str, Any]:
         return {
             "alarm": round(self.getAlarm().total_seconds() * 1000),
             "elapsed": round(self.getElapsed().total_seconds() * 1000),
-            "running": self.running(),
+            "running": self.isRunning(),
         }
