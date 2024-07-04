@@ -49,13 +49,9 @@ class Series(Encodable):
 
 
 class Bout(Encodable):
-    class Team(Encodable):
-        def __init__(self) -> None:
-            # TODO: add team references, colors, timeouts, official reviews, etc
-            pass
-
     def __init__(self) -> None:
         self._periods: list[Period] = [Period(self)]
+        # TODO: add team attribute for teams
 
     def __len__(self) -> int:
         return len(self._periods)
