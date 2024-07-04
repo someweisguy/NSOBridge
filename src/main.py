@@ -20,7 +20,7 @@ async def gameClock(id: int) -> API:
 async def bout(id: int) -> API:
     # TODO: query different bouts
     bout: Bout = server.bouts.currentBout
-    return bout.encode() 
+    return bout.encode()
 
 
 @server.register
@@ -29,9 +29,9 @@ async def period(id: None | int = None) -> API:
         id = -1
     elif id > 1:
         raise ClientException("a Bout may only have two Periods")
-        
+
     bout: Bout = server.bouts.currentBout
-    
+
     if id == len(bout):
         # TODO: stop previous period and jam
         bout.addPeriod()
@@ -71,17 +71,6 @@ async def jamScore(id: Jam.Id, team: None | Jam.TEAMS = None) -> API:
         }
     else:
         return jam.score[team].encode()
-
-
-# TODO: Move to separate timer control file?
-@server.register
-async def timer(timerType: str) -> API:
-    match timerType:
-        case "jam":
-            # TODO
-            return server.bouts.currentBout[-1][-1]._clock.encode()
-        case "period":
-            return server.bouts.currentBout[-1]._clock.encode()
 
 
 @server.register
