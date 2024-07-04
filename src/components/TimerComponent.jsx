@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { useSocketGetter, getLatency, sendRequest, onEvent } from "../App.jsx"
+import { useState, useEffect } from "react";
+import { getLatency, sendRequest, onEvent } from "../App.jsx"
 
 const NULL_TIMER = {
   alarm: 0,
@@ -52,11 +52,15 @@ export function PeriodClock({ boutId = 0 }) {
       .then((newPeriod) => {
         if (!ignore) {
           // TODO: Handle halftime and pre-game timers
+          // TODO: use getLatency()
           setState(newPeriod.clock);
         }
       });
 
     const unsubscribe = onEvent("period", (newPeriod) => {
+      if (newPeriod.clock.running) {
+        newPeriod.clock.elapsed += getLatency();
+      }
       setState(newPeriod.clock);
     });
 
@@ -114,8 +118,12 @@ export function GameClock({ boutId = 0 }) {
         if (!ignore) {
           // The initial state must always be set
           if (newJam.countdown.running) {
+            newJam.countdown.elapsed += getLatency();
             setState(newJam.countdown);
           } else {
+            if (newJam.clock.running) {
+              newJam.clock.elapsed += getLatency();
+            }
             setState(newJam.clock);
           }
         }
@@ -124,8 +132,10 @@ export function GameClock({ boutId = 0 }) {
     const unsubscribe = onEvent("jam", (newJam) => {
       // Only update the state if a clock is running
       if (newJam.countdown.running) {
+        newJam.countdown.elapsed += getLatency();
         setState(newJam.countdown);
       } else if (newJam.clock.running) {
+        newJam.clock.elapsed += getLatency();
         setState(newJam.clock);
       }
     });
