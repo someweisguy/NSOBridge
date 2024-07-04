@@ -40,7 +40,6 @@ const NULL_JAM_SCORE = {
 
 export function ScoreboardEditor({ boutId = 0 }) {
   const [jamId, setJamId] = useState(null);
-  const [boutState, setBoutState] = useState(NULL_BOUT);
   const [periodState, setPeriodState] = useState(NULL_PERIOD);
   const [jamState, setJamState] = useState(NULL_JAM);
 
@@ -52,16 +51,7 @@ export function ScoreboardEditor({ boutId = 0 }) {
     sendRequest("bout", { id: boutId })
       .then((newBoutState) => {
         if (!ignore) {
-          setBoutState(newBoutState);
-        }
-      });
-
-    // Update the Jam ID to the latest jam
-    // TODO: make this part of the "bout" API
-    sendRequest("jam", { id: null })
-      .then((newJamState) => {
-        if (!ignore) {
-          setJamId(newJamState.id);
+          setJamId(newBoutState.activeJamId)
         }
       });
     return () => ignore = true;

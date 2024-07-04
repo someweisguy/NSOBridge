@@ -71,9 +71,11 @@ class Bout(Encodable):
         self._periods.append(Period(self))
 
     def encode(self) -> dict:
+        activeJam: Jam = self.getCurrentPeriod().getCurrentJam()
         return {
             "id": 0,  # TODO
             "periodCount": len(self._periods),
+            "activeJamId": activeJam.getId().encode()
         }
 
 
