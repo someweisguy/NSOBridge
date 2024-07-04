@@ -277,14 +277,9 @@ function JamScore({ id, team }) {
 }
 
 function JamController({ id, jamClock, stopReason }) {
-  const isStarted = jamClock && jamClock.running;
-  const isFinished = stopReason !== null;
+  const isStarted = jamClock && jamClock.elapsed > 0;
+  const isFinished = isStarted && stopReason !== null;
 
-  // FIXME
-
-  console.log(jamClock);
-  console.log(stopReason);
-  
   const startJam = useCallback(() => {
     sendRequest("startJam", { id });
   }, [id]);
