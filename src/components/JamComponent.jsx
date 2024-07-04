@@ -81,7 +81,7 @@ export function ScoreboardEditor({ boutId = 0 }) {
     }
 
     const unsubscribePeriod = onEvent("period", (newPeriodState) => {
-      if (newPeriodState.id.period === jamId.period) {
+      if (newPeriodState.id === jamId.period) {
         setPeriodState(newPeriodState);
       }
     });
@@ -106,12 +106,21 @@ export function ScoreboardEditor({ boutId = 0 }) {
     setJamId(newJamId);
   }, [jamId]);
 
+  const goToNextPeriod = useCallback(() => {
+    const newJamId = {...jamId};
+    newJamId.period++;
+    setJamId(newJamId);
+  }, [jamId?.period]);
+
   const readyForNextJam = jamState.stopReason !== null;
+  const readyForNextPeriod = periodState.clock?.elapsed > periodState.clock?.alarm 
+    && !jamState.clock?.running;
 
   return (
     <div>
       {jamState.id && ("P" + (jamState.id.period + 1) + " J" + (jamState.id.jam + 1))}
       {readyForNextJam && <button onClick={goToNextJam}>Next Jam</button>}
+      {readyForNextPeriod && <button onClick={goToNextPeriod}>Next Period</button>}
       <br />
       <JamController id={jamId} jamClock={jamState.clock}
         stopReason={jamState.stopReason} />
