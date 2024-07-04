@@ -78,6 +78,8 @@ class Bout(Encodable):
 
 
 class Period(Encodable):
+    API_NAME: str = "period"
+    
     def __init__(self, parent: Bout) -> None:
         self._parent: Bout = parent
         self._countdown: Timer = Timer(minutes=15)
@@ -95,7 +97,7 @@ class Period(Encodable):
         return self._parent
 
     def start(self, timestamp: datetime) -> None:
-        self._clock.start(timestamp)
+        self._clock.start(timestamp, lambda _: server.update(self))
 
         server.update(self)
 

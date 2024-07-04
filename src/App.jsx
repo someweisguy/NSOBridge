@@ -31,7 +31,7 @@ export function useSocketGetter(api, callbackFunction, constArgs = undefined) {
   // Use an effect to request data when the socket connects
   useEffect(() => {
     const connectHandler = async () => {
-      const response = await old_sendRequest(api, constArgs);
+      const response = sendRequest(api, constArgs);
       if (!response.error) {
         callbackFunction(response);
       }
@@ -54,18 +54,6 @@ export async function sendRequest(api, payload = {}) {
 export function onEvent(api, callback) {
   socket.on(api, callback);
   return () => socket.off(api, callback);
-}
-
-
-export async function old_sendRequest(api, payload = {}) {
-  payload.latency = latency;
-  const response = await socket.emitWithAck(api, payload);
-  if (response.error) {
-    console.error(api + " returned '" + response.error.name + ": '" +
-      response.error.message + "'");
-    return null;
-  }
-  return response.data;
 }
 
 export function getLatency() {
@@ -126,7 +114,9 @@ function App() {
 
   return (
     <div className="App">
-      {/* <GameClock />&nbsp;<PeriodClock  */}
+      {/* <GameClock /> */}
+      &nbsp;
+      <PeriodClock />
       <ScoreboardEditor />
     </div>
   );

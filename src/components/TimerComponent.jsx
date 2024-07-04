@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useSocketGetter, getLatency, old_sendRequest } from "../App.jsx"
+import { useSocketGetter, getLatency, sendRequest, onEvent } from "../App.jsx"
 
 const NULL_TIMER = {
   alarm: 0,
@@ -39,35 +39,55 @@ function formatTimeString(millisRemaining, showMillis = true) {
 }
 
 
-export function PeriodClock({ direction = "down" }) {
+export function PeriodClock({ boutId = 0, direction = "down" }) {
   const [state, setState] = useState(NULL_TIMER);
-
-  const clockCallback = useCallback((period) => {
-    // Show the time-to-derby clock if it is running
-    const clock = period.countdown.running ? period.countdown : period.clock;
-    if (clock.running) {
-      clock.elapsed += getLatency();
-    }
-    setState(clock);
-  }, []);
-  useSocketGetter("period", clockCallback);
+  const [lap, setLap] = useState(0);
 
   useEffect(() => {
-    // Create an interval to update the Clock if the clock is running
-    if (state.running && state.elapsed < state.alarm) {
-      const startTime = Date.now();
-      const timeoutId = setTimeout(() => {
-        let newState = { ...state };
-        newState.elapsed += Date.now() - startTime;
-        setState(newState);
-      }, 50);
-      return () => clearTimeout(timeoutId);
+    if (boutId === null) {
+      return;
     }
+    let ignore = false;
+    sendRequest("period", { id: null })
+      .then((newPeriod) => {
+        if (!ignore) {
+          setState(newPeriod.clock);
+        }
+      });
+
+    const unsubscribe = onEvent("period", (newPeriod) => {
+      setState(newPeriod.clock);
+    });
+
+    return () => {
+      ignore = true;
+      unsubscribe();
+    }
+  }, [boutId]);
+
+  useEffect(() => {
+    if (!state.running) {
+      return;
+    }
+    const start = Date.now();
+    const intervalId = setInterval(() => {
+      if (lap + state.elapsed >= state.alarm && direction === "down") {
+        clearInterval(intervalId);
+      } else {
+        setLap(Date.now() - start);
+      }
+    }, 50);
+    return () => {
+      clearInterval(intervalId);
+      setLap(0);  // Reset the currently running Lap
+    };
   }, [state]);
+
+  const totalElapsed = lap + state.elapsed;
 
   // Get the number of milliseconds remaining on the Period clock
   const clockMilliseconds = state.alarm > state.elapsed
-    ? state.alarm - state.elapsed
+    ? state.alarm - totalElapsed
     : 0;
 
   return (

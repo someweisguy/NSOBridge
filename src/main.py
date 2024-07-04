@@ -1,15 +1,26 @@
 from roller_derby.encodable import ClientException
-import server
 from server import API
 from roller_derby.bout import Bout, Jam, Period
 from datetime import datetime
+import server
+
+
+@server.register
+async def gameClock(id: int) -> API:
+    # TODO: query different bouts
+    bout: Bout = server.bouts.currentBout
+    return {
+        "period": bout.getCurrentPeriod().encode(),
+        "jam": bout.getCurrentPeriod().getCurrentJam().encode(),
+        # TODO: current timeout, if any
+    }
 
 
 @server.register
 async def bout(id: int) -> API:
-    # TODO: Query different bouts
+    # TODO: query different bouts
     bout: Bout = server.bouts.currentBout
-    return bout.encode()
+    return bout.encode() 
 
 
 @server.register
