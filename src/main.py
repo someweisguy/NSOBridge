@@ -27,6 +27,16 @@ async def bout(id: int) -> API:
 async def period(id: None | int = None) -> API:
     if id is None:
         id = -1
+    elif id > 1:
+        raise ClientException("a Bout may only have two Periods")
+        
+    bout: Bout = server.bouts.currentBout
+    
+    if id == len(bout):
+        # TODO: stop previous period and jam
+        bout.addPeriod()
+    elif id > len(bout):
+        raise ClientException("that Period does not exist")
 
     period: Period = server.bouts.currentBout[id]
     return period.encode()
