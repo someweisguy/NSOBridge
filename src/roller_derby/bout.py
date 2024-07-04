@@ -76,6 +76,7 @@ class Bout(Encodable):
 
     def encode(self) -> dict:
         return {
+            "id": 0,  # TODO
             "periodCount": len(self._periods),
         }
 

@@ -10,6 +10,11 @@ const INJURY = "injury";
 const TIME = "time";
 const UNKNOWN = "unknown";
 
+const NULL_BOUT = {
+  id: null,
+  periodCount: null,
+}
+
 const NULL_PERIOD = {
   id: null,
   countdown: null,
@@ -33,13 +38,32 @@ const NULL_JAM_SCORE = {
   isLeadEligible: true
 };
 
-export function ScoreboardEditor({ periodCount = 1 }) {
+export function ScoreboardEditor({ boutId = 0 }) {
+  const [boutState, setBoutState] = useState(NULL_BOUT);
   const [periodState, setPeriodState] = useState(NULL_PERIOD);
   const [jamState, setJamState] = useState(NULL_JAM);
 
   useEffect(() => {
+    if (boutId === null) {
+      return;
+    }
     let ignore = false;
-    const periodId = periodState.id === null ? periodCount - 1 : periodState.id;
+    sendRequest("bout", { id: boutId })
+      .then((newBoutState) => {
+        if (!ignore) {
+          setBoutState(newBoutState)
+        }
+      });
+    return () => ignore = true;
+  }, [boutId]);
+
+  useEffect(() => {
+    if (boutState.periodCount === null) {
+      return;
+    }
+    let ignore = false;
+    const periodId = periodState.id === null ? boutState.periodCount - 1
+      : periodState.id;
     sendRequest("period", { id: periodId })
       .then((newPeriodState) => {
         if (!ignore) {
@@ -47,7 +71,7 @@ export function ScoreboardEditor({ periodCount = 1 }) {
         }
       });
     return () => ignore = true;
-  }, []);
+  }, [boutState.periodCount]);
 
   useEffect(() => {
     if (periodState.id === null) {
@@ -90,7 +114,7 @@ export function ScoreboardEditor({ periodCount = 1 }) {
     <div>
       {jamState.id && ("P" + (jamState.id.period + 1) + " J" + (jamState.id.jam + 1))}
       <br />
-      <JamController id={jamState.id} jamClock={jamState.clock} 
+      <JamController id={jamState.id} jamClock={jamState.clock}
         stopReason={jamState.stopReason} />
       <div>
         <JamScore id={jamState.id} team={HOME} />
