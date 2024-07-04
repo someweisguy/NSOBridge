@@ -51,6 +51,7 @@ export function PeriodClock({ boutId = 0, direction = "down" }) {
     sendRequest("period", { id: null })
       .then((newPeriod) => {
         if (!ignore) {
+          // TODO: Handle halftime and pre-game timers
           setState(newPeriod.clock);
         }
       });
