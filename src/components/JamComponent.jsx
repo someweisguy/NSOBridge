@@ -39,6 +39,7 @@ const NULL_JAM_SCORE = {
 };
 
 export function ScoreboardEditor({ boutId = 0 }) {
+  const [jamId, setJamId] = useState(null);
   const [boutState, setBoutState] = useState(NULL_BOUT);
   const [periodState, setPeriodState] = useState(NULL_PERIOD);
   const [jamState, setJamState] = useState(NULL_JAM);
@@ -51,83 +52,82 @@ export function ScoreboardEditor({ boutId = 0 }) {
     sendRequest("bout", { id: boutId })
       .then((newBoutState) => {
         if (!ignore) {
-          setBoutState(newBoutState)
+          setBoutState(newBoutState);
+        }
+      });
+
+    // Update the Jam ID to the latest jam
+    // TODO: make this part of the "bout" API
+    sendRequest("jam", { id: null })
+      .then((newJamState) => {
+        if (!ignore) {
+          setJamId(newJamState.id);
         }
       });
     return () => ignore = true;
   }, [boutId]);
 
+  
   useEffect(() => {
-    if (boutState.periodCount === null) {
+    if (jamId === null) {
       return;
     }
     let ignore = false;
-    const periodId = periodState.id === null ? boutState.periodCount - 1
-      : periodState.id;
-    sendRequest("period", { id: periodId })
-      .then((newPeriodState) => {
-        if (!ignore) {
-          setPeriodState(newPeriodState)
-        }
-      });
-
-      const unsubscribe = onEvent("bout", (newBoutState) => {
-        if (newBoutState.id === boutState.id) {
-          setBoutState(newBoutState);
-        }
-      });
-    return () => {
-      ignore = true;
-      unsubscribe();
-    };
-  }, [boutState.id]);
-
-  useEffect(() => {
-    if (periodState.id === null) {
-      return;  // Wait until there is a valid Period ID
+    if (jamId.period !== periodState.id) {
+      sendRequest("period", { id: jamId.period })
+        .then((newPeriodState) => {
+          if (!ignore) {
+            setPeriodState(newPeriodState);
+          }
+        });
     }
-    let ignore = false;
-    const jamId = jamState.id === null ? periodState.jamCount - 1 : jamState.id.jam;
-    sendRequest("jam", { id: { period: periodState.id, jam: jamId } })
-      .then((newJamState) => {
-        if (!ignore) {
-          setJamState(newJamState);
-        }
-      });
+    if (jamId.jam !== jamState.id?.jam) {
+      sendRequest("jam", { id: jamId })
+        .then((newJamState) => {
+          if (!ignore) {
+            setJamState(newJamState);
+          }
+        });
+    }
 
-    const unsubscribe = onEvent("period", (newPeriodState) => {
-      if (newPeriodState.id === periodState.id) {
+    const unsubscribePeriod = onEvent("period", (newPeriodState) => {
+      if (newPeriodState.id.period === jamId.period) {
         setPeriodState(newPeriodState);
       }
     });
-    return () => {
-      ignore = true;
-      unsubscribe();
-    };
-  }, [periodState.id]);
 
-  useEffect(() => {
-    if (jamState.id === null) {
-      return;  // Wait until there is a valid Jam ID
-    }
-    const unsubscribe = onEvent("jam", (newJamState) => {
-      if (newJamState.id.period === jamState.id.period
-        && newJamState.id.jam === jamState.id.jam) {
+    const unsubscribeJam = onEvent("jam", (newJamState) => {
+      if (newJamState.id.period === jamId.period
+        && newJamState.id.jam === jamId.jam) {
         setJamState(newJamState);
       }
     });
-    return () => unsubscribe();
-  }, [jamState.id]);
+
+    return () => {
+      ignore = true;
+      unsubscribePeriod();
+      unsubscribeJam();
+    };
+  }, [jamId])
+
+  const goToNextJam = useCallback(() => {
+    const newJamId = {...jamId};
+    newJamId.jam++;
+    setJamId(newJamId);
+  }, [jamId]);
+
+  const readyForNextJam = jamState.stopReason !== null;
 
   return (
     <div>
       {jamState.id && ("P" + (jamState.id.period + 1) + " J" + (jamState.id.jam + 1))}
+      {readyForNextJam && <button onClick={goToNextJam}>Next Jam</button>}
       <br />
-      <JamController id={jamState.id} jamClock={jamState.clock}
+      <JamController id={jamId} jamClock={jamState.clock}
         stopReason={jamState.stopReason} />
       <div>
-        <JamScore id={jamState.id} team={HOME} />
-        <JamScore id={jamState.id} team={AWAY} />
+        <JamScore id={jamId} team={HOME} />
+        <JamScore id={jamId} team={AWAY} />
       </div>
     </div>
   );
@@ -138,6 +138,8 @@ function JamScore({ id, team }) {
   const [selectedTrip, setSelectedTrip] = useState(0);
   const latestTripIsSelected = useRef(true);
   const scrollBar = useRef(null);
+
+  // FIXME: find null pointer error
 
   // Request new data when the Jam changes
   useEffect(() => {
