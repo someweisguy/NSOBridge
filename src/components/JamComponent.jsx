@@ -69,6 +69,11 @@ export function ScoreboardEditor({ boutId = 0 }) {
           if (!ignore) {
             setPeriodState(newPeriodState);
           }
+        }, () => {
+          // On error set the jamId back to its previous state
+          const oldJamId = {...jamId};
+          oldJamId.period = periodState.id;
+          setJamId(oldJamId);
         });
     }
     if (jamId.jam !== jamState.id?.jam) {
@@ -77,6 +82,11 @@ export function ScoreboardEditor({ boutId = 0 }) {
           if (!ignore) {
             setJamState(newJamState);
           }
+        }, () => {
+          // On error set the jamId back to its previous state
+          const oldJamId = {...jamId};
+          oldJamId.jam = jamState.id.jam;
+          setJamId(oldJamId);
         });
     }
 
