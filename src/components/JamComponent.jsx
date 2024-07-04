@@ -139,8 +139,6 @@ function JamScore({ id, team }) {
   const latestTripIsSelected = useRef(true);
   const scrollBar = useRef(null);
 
-  // FIXME: find null pointer error
-
   // Request new data when the Jam changes
   useEffect(() => {
     if (id === null) {
@@ -150,6 +148,7 @@ function JamScore({ id, team }) {
     sendRequest("jamScore", { id, team })
       .then((newState) => {
         if (!ignore) {
+          setSelectedTrip(newState.trips.length);
           setState(newState)
         }
       });
