@@ -4,7 +4,7 @@ from datetime import datetime
 from .encodable import Encodable
 from .teamAttribute import AbstractAttribute, TeamAttribute
 from typing import Any, Self
-import bout
+import roller_derby.bout as bout
 import server
 
 
