@@ -26,11 +26,11 @@ class AbstractAttribute(Encodable, ABC):
         return self.parentPeriod.parentBout
 
     def getOther(self) -> Self:
-        assert self in (self.parent.home, self.parent.away)
+        assert self in (self.parent.home, self.parent.away), "misconfigured Attribute"
         return self.parent.home if self is self.parent.away else self.parent.away
 
     def getTeam(self) -> Literal["home", "away"]:
-        assert self in (self.parent.home, self.parent.away)
+        assert self in (self.parent.home, self.parent.away), "misconfigured Attribute"
         return "home" if self is self.parent.home else "away"
 
 
