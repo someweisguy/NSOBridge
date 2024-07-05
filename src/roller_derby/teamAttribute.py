@@ -24,10 +24,6 @@ class AbstractAttribute[P](Encodable, ABC):
 
 class TeamAttribute[P, T: AbstractAttribute](Encodable):
     def __init__(self, parent: P, cls: type[T]) -> None:
-        if not isinstance(parent, type(P)):
-            raise TypeError(
-                f"parent must be {type(P).__name__} type not {type(parent).__name__}"
-            )
         if not issubclass(cls, AbstractAttribute):
             raise TypeError("Attribute must be sub-class of AsbtractAttribute type")
         self._parent: P = parent
