@@ -183,7 +183,7 @@ class Jam(Expectable):
         if stopReason is not None and stopReason not in get_args(Jam.STOP_REASONS):
             raise ValueError(f"stopReason must be one of {get_args(Jam.STOP_REASONS)}")
         if stopReason is not None and self.isRunning():
-            raise server.ClientException("cannot set stopReason for an incomplete Jam")
+            raise RuntimeError("cannot set stopReason for an incomplete Jam")
 
         self._stopReason = stopReason
         server.update(self)
