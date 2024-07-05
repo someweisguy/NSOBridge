@@ -4,6 +4,7 @@ from datetime import datetime
 from .encodable import Encodable
 from .teamAttribute import AbstractAttribute, TeamAttribute
 from typing import Any, Self
+import bout
 import server
 
 
@@ -18,12 +19,16 @@ class Score(AbstractAttribute):
         def encode(self) -> dict[str, Any]:
             return {"points": self.points, "timestamp": str(self.timestamp)}
 
-    def __init__(self, parent: TeamAttribute[Self]) -> None:
+    def __init__(self, parent: TeamAttribute[bout.Jam, Self]) -> None:
         super().__init__(parent)
         self._trips: list[Score.Trip] = []
         self._lead: bool = False
         self._lost: bool = False
         self._starPass: None | int = None
+        
+    @property
+    def parentJam(self) -> bout.Jam:
+        return self._parent._parent
 
     def setTrip(self, tripIndex: int, points: int, timestamp: datetime) -> None:
         if not isinstance(tripIndex, int):

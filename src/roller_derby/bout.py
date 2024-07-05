@@ -144,7 +144,7 @@ class Jam(Expectable):
         super().__init__(timedelta(seconds=30), timedelta(minutes=2))
         self._parent: Period = parent
         self._stopReason: None | Jam.STOP_REASONS = None
-        self._score: TeamAttribute[Score] = TeamAttribute(self, Score)
+        self._score: TeamAttribute[Jam, Score] = TeamAttribute(self, Score)
 
     def start(self, timestamp: datetime) -> None:
         super().start(timestamp)
@@ -168,7 +168,7 @@ class Jam(Expectable):
         return self._parent
 
     @property
-    def score(self) -> TeamAttribute[Score]:
+    def score(self) -> TeamAttribute[Jam, Score]:
         return self._score
 
     def getId(self) -> Jam.Id:

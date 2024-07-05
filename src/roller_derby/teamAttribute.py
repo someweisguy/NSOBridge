@@ -5,25 +5,13 @@ from typing import Any, Literal, Self
 import roller_derby.bout as bout
 
 
-class AbstractAttribute(Encodable, ABC):
-    def __init__(self, parent: TeamAttribute[Self]) -> None:
-        self._parent: TeamAttribute[Self] = parent
+class AbstractAttribute[P](Encodable, ABC):
+    def __init__(self, parent: TeamAttribute[P, Self]) -> None:
+        self._parent: TeamAttribute[P, Self] = parent
 
     @property
-    def parent(self) -> TeamAttribute[Self]:
+    def parent(self) -> TeamAttribute[P, Self]:
         return self._parent
-
-    @property
-    def parentJam(self) -> bout.Jam:
-        return self.parent.parentJam
-
-    @property
-    def parentPeriod(self) -> bout.Period:
-        return self.parentJam.parentPeriod
-
-    @property
-    def parentBout(self) -> bout.Bout:
-        return self.parentPeriod.parentBout
 
     def getOther(self) -> Self:
         assert self in (self.parent.home, self.parent.away), "misconfigured Attribute"
@@ -34,13 +22,15 @@ class AbstractAttribute(Encodable, ABC):
         return "home" if self is self.parent.home else "away"
 
 
-class TeamAttribute[T: AbstractAttribute](Encodable):
-    def __init__(self, parent: bout.Jam, cls: type[T]) -> None:
-        if not isinstance(parent, bout.Jam):
-            raise TypeError(f"Parent must be Jam type not {type(parent).__name__}")
+class TeamAttribute[P, T: AbstractAttribute](Encodable):
+    def __init__(self, parent: P, cls: type[T]) -> None:
+        if not isinstance(parent, type(P)):
+            raise TypeError(
+                f"parent must be {type(P).__name__} type not {type(parent).__name__}"
+            )
         if not issubclass(cls, AbstractAttribute):
             raise TypeError("Attribute must be sub-class of AsbtractAttribute type")
-        self._parent: bout.Jam = parent
+        self._parent: P = parent
         self._home: T = cls(self)
         self._away: T = cls(self)
 
@@ -60,18 +50,6 @@ class TeamAttribute[T: AbstractAttribute](Encodable):
     @property
     def away(self) -> T:
         return self._away
-
-    @property
-    def parentJam(self) -> bout.Jam:
-        return self._parent
-
-    @property
-    def parentPeriod(self) -> bout.Period:
-        return self.parentJam.parentPeriod
-
-    @property
-    def parentBout(self) -> bout.Bout:
-        return self.parentPeriod.parentBout
 
     def encode(self) -> dict[str, Any]:
         return self.home.encode() | self.away.encode()
