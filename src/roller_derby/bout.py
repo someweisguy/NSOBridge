@@ -1,10 +1,10 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from .encodable import Encodable
 from .teamAttribute import TeamAttribute
 from .score import Score
-from .timer import Timer
+from .timer import Expectable
 from typing import Any, get_args, Literal
 import server
 
@@ -75,17 +75,16 @@ class Bout(Encodable):
         return {
             "id": 0,  # TODO
             "periodCount": len(self._periods),
-            "activeJamId": activeJam.getId().encode()
+            "activeJamId": activeJam.getId().encode(),
         }
 
 
-class Period(Encodable):
+class Period(Expectable):
     API_NAME: str = "period"
-    
+
     def __init__(self, parent: Bout) -> None:
+        super().__init__(timedelta(minutes=15), timedelta(minutes=30))
         self._parent: Bout = parent
-        self._countdown: Timer = Timer(minutes=15)
-        self._clock: Timer = Timer(minutes=30)
         self._jams: list[Jam] = [Jam(self)]
 
     def __len__(self) -> int:
@@ -94,17 +93,12 @@ class Period(Encodable):
     def __getitem__(self, jamIndex: int) -> Jam:
         return self._jams[jamIndex]
 
+    def isComplete(self) -> bool:
+        return self._eventTimer.getRemaining().total_seconds() <= 0
+
     @property
     def parentBout(self) -> Bout:
         return self._parent
-
-    def start(self, timestamp: datetime) -> None:
-        self._clock.start(timestamp, lambda _: server.update(self))
-
-        server.update(self)
-
-    def running(self) -> bool:
-        return self._clock.isRunning()
 
     def getJam(self, jamIndex: int) -> Jam:
         return self._jams[jamIndex]
@@ -122,24 +116,14 @@ class Period(Encodable):
         if len(self._jams) == 0:
             self._jams.append(Jam(self))
 
-    def setTimeToDerby(
-        self,
-        hours: None | int = None,
-        minutes: None | int = None,
-        seconds: None | int = None,
-    ) -> None:
-        pass  # TODO
-
     def encode(self) -> dict[str, Any]:
-        return {
+        return super().encode() | {
             "id": self.parentBout._periods.index(self),
-            "countdown": self._countdown.encode(),
-            "clock": self._clock.encode(),
             "jamCount": len(self._jams),
         }
 
 
-class Jam(Encodable):
+class Jam(Expectable):
     API_NAME: str = "jam"
     TEAMS = Literal["home", "away"]
     STOP_REASONS = Literal["called", "injury", "time", "unknown"]
@@ -157,19 +141,31 @@ class Jam(Encodable):
             return {"period": self.period, "jam": self.jam}
 
     def __init__(self, parent: Period) -> None:
+        super().__init__(timedelta(seconds=30), timedelta(minutes=2))
         self._parent: Period = parent
-        self._countdown: Timer = Timer(seconds=30)
-        self._clock: Timer = Timer(minutes=2)
         self._stopReason: None | Jam.STOP_REASONS = None
         self._score: TeamAttribute[Score] = TeamAttribute(self, Score)
+
+    def start(self, timestamp: datetime) -> None:
+        super().start(timestamp)
+
+        # Start the Period clock if it is not already running
+        if not self.parentPeriod.isRunning():
+            self.parentPeriod.start(timestamp)
+
+    def stop(self, timestamp: datetime) -> None:
+        super().stop(timestamp)
+
+        # Add the next Jam and start its Lineup timer
+        nextJam: Jam = self.parentPeriod.addJam()
+        nextJam.expect(timestamp)
+
+    def isComplete(self) -> bool:
+        return self._stopReason is not None
 
     @property
     def parentPeriod(self) -> Period:
         return self._parent
-
-    @property
-    def parentBout(self) -> Bout:
-        return self._parent._parent
 
     @property
     def score(self) -> TeamAttribute[Score]:
@@ -180,86 +176,20 @@ class Jam(Encodable):
         jamIndex: int = self._parent._jams.index(self)
         return Jam.Id(period=periodIndex, jam=jamIndex)
 
-    def start(self, timestamp: datetime) -> None:
-        if self.running():
-            raise server.ClientException("This jam has already started.")
-
-        # Stop the Lineup timer
-        if self._countdown.isRunning():
-            self._countdown.stop(timestamp)
-        
-        # Start the Jam timer and update clients when it completes
-        self._clock.start(timestamp, lambda _: server.update(self))
-
-        # Start the period clock if it isn't running
-        period: Period = self.parentPeriod
-        if not period.running():
-            period.start(timestamp)
-
-        server.update(self)
-
-    def unStart(self) -> None:
-        if not self.running():
-            raise server.ClientException("This jam has not yet started.")
-        # TODO: Implement this
-        server.update(self)
-
-    def stop(
-        self, timestamp: datetime, stopReason: Jam.STOP_REASONS = "unknown"
-    ) -> None:
-        if not self.running():
-            raise server.ClientException("This jam has not yet started.")
-        if self.finished():
-            raise server.ClientException("This jam is already finished.")
-        if stopReason not in get_args(Jam.STOP_REASONS):
-            raise ValueError(
-                f"Stop reason must be one of {get_args(Jam.STOP_REASONS)}, not '{stopReason}'."
-            )
-
-        # Stop the current Jam
-        self._stopReason = stopReason
-        self._clock.stop(timestamp)
-
-        # Add the next Jam and start its Lineup timer
-        nextJam: Jam = self._parent.addJam()
-        nextJam._countdown.start(timestamp)
-        server.update(nextJam)
-
-        server.update(self)
-
-    def unStop(self) -> None:
-        if not self.finished():
-            raise server.ClientException("This jam has not yet stopped.")
-        # TODO: update timers
-        server.update(self)
-
     def getStopReason(self) -> None | Jam.STOP_REASONS:
         return self._stopReason
 
     def setStopReason(self, stopReason: None | Jam.STOP_REASONS) -> None:
         if stopReason is not None and stopReason not in get_args(Jam.STOP_REASONS):
-            raise ValueError(
-                f"Stop Reason must be one of {get_args(Jam.STOP_REASONS)} not '{stopReason}'."
-            )
-        if stopReason is not None and not self.finished():
-            raise server.ClientException(
-                "Cannot set Stop Reason when the Jam is not finished."
-            )
+            raise ValueError(f"stopReason must be one of {get_args(Jam.STOP_REASONS)}")
+        if stopReason is not None and self.isRunning():
+            raise server.ClientException("cannot set stopReason for an incomplete Jam")
 
         self._stopReason = stopReason
-
         server.update(self)
 
-    def running(self) -> bool:
-        return self._clock.isRunning()
-
-    def finished(self) -> bool:
-        return not self.running() and self._clock.getElapsed().total_seconds() > 0
-
     def encode(self) -> dict:
-        return {
+        return super().encode() | {
             "id": self.getId().encode(),
-            "countdown": self._countdown.encode(),
-            "clock": self._clock.encode(),
             "stopReason": self._stopReason,
         }

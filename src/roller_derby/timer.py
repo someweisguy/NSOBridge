@@ -1,41 +1,11 @@
+from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from .encodable import Encodable
-from typing import Any, Callable, Protocol
+from typing import Any, Callable
 import server
 import asyncio
 
-"""
-Period:
-    start time to derby
-    
-
-Jam:
-    start lineup
-    
-    
-
-expect
-start
-stop
-
-isRunning
-isExpected
-
-getElapsed
-setElapsed
-getRemaining
-
-setTimeToStart
-getTimeToStart
-
-
-    
-
-
-"""
-
-
-class Expectable(Encodable):
+class Expectable(Encodable, ABC):
     def __init__(self, expect: timedelta, event: timedelta) -> None:
         self._expectTimer: Timer = Timer(expect)
         self._eventTimer: Timer = Timer(event)
@@ -44,6 +14,7 @@ class Expectable(Encodable):
         if self._expectTimer.isRunning():
             raise RuntimeError(f"this {type(self).__name__} is already expected")
         self._expectTimer.start(timestamp, lambda _: server.update(self))
+        server.update(self)
 
     def start(self, timestamp: datetime) -> None:
         if self._eventTimer.isRunning():
@@ -51,6 +22,7 @@ class Expectable(Encodable):
         if self._expectTimer.isRunning():
             self._expectTimer.stop(timestamp)
         self._eventTimer.start(timestamp, lambda _: server.update(self))
+        server.update(self)
 
     def stop(self, timestamp: datetime) -> None:
         if not self._eventTimer.isRunning():
@@ -58,6 +30,7 @@ class Expectable(Encodable):
         if self._expectTimer.isRunning():
             self._expectTimer.stop(timestamp)
         self._eventTimer.stop(timestamp)
+        server.update(self)
 
     def isExpected(self) -> bool:
         return self._expectTimer.isRunning()
@@ -65,11 +38,16 @@ class Expectable(Encodable):
     def isRunning(self) -> bool:
         return self._eventTimer.isRunning()
 
+    @abstractmethod
+    def isComplete(self) -> bool:
+        pass
+
     def getElapsed(self) -> timedelta:
         return self._eventTimer.getElapsed()
 
     def setElapsed(self, hours: int = 0, minutes: int = 0, seconds: int = 0) -> None:
         self._eventTimer.setElapsed(hours, minutes, seconds)
+        server.update(self)
 
     def getRemaining(self) -> timedelta:
         return self._eventTimer.getRemaining()
@@ -81,6 +59,13 @@ class Expectable(Encodable):
         self, hours: int = 0, minutes: int = 0, seconds: int = 0
     ) -> None:
         pass  # TODO
+        server.update(self)
+        
+    def encode(self) -> dict[str, Any]:
+        return {
+            "countdown": self._expectTimer.encode(),
+            "clock": self._eventTimer.encode(),
+        }
 
 
 class Timer(Encodable):
@@ -159,16 +144,19 @@ class Timer(Encodable):
         self._elapsed = timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
     def getAlarm(self) -> timedelta:
-        assert self._alarm is not None
+        assert self._alarm is not None, "there is no alarm for this Timer"
         return self._alarm
 
     def getRemaining(self) -> timedelta:
-        assert self._alarm is not None
+        assert self._alarm is not None, "there is no alarm for this Timer"
         return self._alarm - self.getElapsed()
 
     def encode(self) -> dict[str, Any]:
+        alarmValue: None | int = None
+        if self._alarm is not None:
+            alarmValue = round(self.getAlarm().total_seconds() * 1000)
         return {
-            "alarm": round(self.getAlarm().total_seconds() * 1000),
+            "alarm": alarmValue,
             "elapsed": round(self.getElapsed().total_seconds() * 1000),
             "running": self.isRunning(),
         }
