@@ -112,8 +112,8 @@ class Timer(Encodable):
 
             # Create and run a Timer callback
             async def runTask() -> None:
-                while self.getRemaining().total_seconds() > 0:
-                    await asyncio.sleep(self.getRemaining().total_seconds())
+                while (remaining := self.getRemaining().total_seconds()) > 0:
+                    await asyncio.sleep(remaining)
                 callback(datetime.now())
                 self._task = None  # Garbage collect the Task information
 
