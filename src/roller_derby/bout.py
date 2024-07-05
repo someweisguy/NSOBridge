@@ -13,7 +13,7 @@ class Series(Encodable):
     def __init__(self):
         self._bouts: list[Bout] = [Bout()]
         self._currentBout: Bout = self._bouts[0]
-        # self.teams: dict[str, Team] = dict()
+        # TODO: add teams
 
     def __getitem__(self, boutIndex: int) -> Bout:
         return self._bouts[boutIndex]
