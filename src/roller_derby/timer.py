@@ -77,18 +77,12 @@ class Timer(Encodable):
         minutes: int = 0,
         seconds: int = 0,
     ) -> None:
-        # Set the Timer alarm value if necessary
-        self._alarm: None | timedelta = None
-        if time is not None and time.total_seconds() > 0:
-            self._alarm = time
-        time = timedelta(hours=hours, minutes=minutes, seconds=seconds)
-        if time.total_seconds() > 0:
-            self._alarm = time
-
         self._task: None | asyncio.Task = None
         self._startTime: None | datetime = None
         self._stopTime: None | datetime = None
         self._elapsed: timedelta = timedelta()
+        self._alarm: None | timedelta = None
+        self.setAlarm(time, hours=hours, minutes=minutes, seconds=seconds)
 
     def isRunning(self) -> bool:
         return self._startTime is not None and self._stopTime is None
@@ -147,6 +141,20 @@ class Timer(Encodable):
     def getAlarm(self) -> timedelta:
         assert self._alarm is not None, "there is no alarm for this Timer"
         return self._alarm
+
+    def setAlarm(
+        self,
+        time: None | timedelta = None,
+        *,
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: int = 0,
+    ) -> None:
+        if time is not None and time.total_seconds() > 0:
+            self._alarm = time
+        time = timedelta(hours=hours, minutes=minutes, seconds=seconds)
+        if time.total_seconds() > 0:
+            self._alarm = time
 
     def getRemaining(self) -> timedelta:
         assert self._alarm is not None, "there is no alarm for this Timer"
