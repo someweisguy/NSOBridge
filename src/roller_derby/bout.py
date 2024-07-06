@@ -104,7 +104,11 @@ class Period(Expectable):
         return self._jams[jamIndex]
 
     def getCurrentJam(self) -> Jam:
-        return self._jams[-1]
+        for jam in reversed(self._jams):
+            if jam.getElapsed().total_seconds() > 0:
+                return jam
+        else:
+            return self._jams[-1]
 
     def addJam(self) -> Jam:
         jam: Jam = Jam(self)
