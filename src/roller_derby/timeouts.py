@@ -1,92 +1,200 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from datetime import datetime
 from .teamAttribute import AbstractAttribute, TeamAttribute
 from .timer import Timer
-from typing import Any, Literal, Self
+from typing import Any, Callable, get_args, Literal, Self
 import bout
 import server
 
 
-class ClockStoppage(AbstractAttribute):
-    API_NAME: str = "timeout"
+class Stoppages(AbstractAttribute):
+    API_NAME: str = "stoppages"
+
+    @dataclass
+    class Instance(Timer):
+        isAssigned: bool = False
+        isOfficialReview: bool = False
+        isRetained: bool = False
+        notes: str = ""
+
+        def __init__(
+            self, timestamp: datetime, callback: Callable[[datetime], None]
+        ) -> None:
+            self.start(timestamp, callback)
+
+        def encode(self) -> dict[str, Any]:
+            return super().encode() | {
+                "isAssigned": self.isAssigned,
+                "isOfficialReview": self.isOfficialReview,
+                "isRetained": self.isRetained,
+                "notes": self.notes,
+            }
 
     def __init__(self, parent: TeamAttribute[bout.Bout, Self]) -> None:
         super().__init__(parent)
-        self._timeouts: int = 3
-        self._officialReviews: int = 1
+        self._timeoutsRemaining: int = 3
+        self._officialReviewsRemaining: int = 1
+        self._stoppages: list[Stoppages.Instance] = []
 
-    @property
-    def timeouts(self) -> int:
-        return self._timeouts
+    def _add(self, stoppage: Stoppages.Instance) -> None:
+        if stoppage in self._stoppages:
+            return  # Do nothing
+        if not stoppage.isOfficialReview:
+            if self._timeoutsRemaining <= 0:
+                # TODO: allow this action, but serve the user a Warning
+                raise RuntimeError("this Team does not have any remaining Timeouts")
+            self._timeoutsRemaining -= 1
+        else:
+            if self._officialReviewsRemaining <= 0:
+                # TODO: allow this action, but serve the user a Warning
+                raise RuntimeError(
+                    "this Team does not have any remaining Official Reviews"
+                )
+            self._officialReviewsRemaining -= 1
+        self._stoppages.append(stoppage)
+        stoppage.isAssigned = True
 
-    @timeouts.setter
-    def timeouts(self, value: int) -> None:
-        if not isinstance(value, int):
-            raise TypeError(f"timeouts must be of type int not {type(value).__name__}")
-        if value < 0:
-            raise ValueError("a Team cannot have fewer than 0 timeouts")
-        self._timeouts = value
-
-    @property
-    def officialReviews(self) -> int:
-        return self._officialReviews
-
-    @officialReviews.setter
-    def officialReviews(self, value: int) -> None:
-        if not isinstance(value, int):
-            raise TypeError(
-                f"officalReviews must be of type int not {type(value).__name__}"
-            )
-        if value < 0:
-            raise ValueError("a Team cannot have fewer than 0 Official Reviews")
-        self._officialReviews = value
-
-    def timeout(self) -> None:
-        if self._timeouts <= 0:
-            raise RuntimeError("this team does not have any remaining Timeouts")
-        self._timeouts -= 1
-
-    def officialReview(self) -> None:
-        if self._officialReviews <= 0:
-            raise RuntimeError("this team does not have any remaining Official Reviews")
-        self._officialReviews -= 1
+    def _delete(self, stoppage: Stoppages.Instance) -> None:
+        self._stoppages.remove(stoppage)
+        if stoppage.isOfficialReview:
+            self._officialReviewsRemaining += 1
+        else:
+            self._timeoutsRemaining += 1
 
     def encode(self) -> dict[str, Any]:
         return {
             "team": self.getTeam(),
-            "timeouts": self._timeouts,
-            "officialReviews": self._officialReviews,
+            "timeoutsRemaining": self._timeoutsRemaining,
+            "officialReviewsRemaining": self._officialReviewsRemaining,
+            "stoppages": [stoppage.encode() for stoppage in self._stoppages],
         }
 
 
-class TeamClockStoppage(TeamAttribute[bout.Bout, ClockStoppage]):
+class ClockStoppage(TeamAttribute[bout.Bout, Stoppages]):
     API_NAME: str = "clockStoppage"
-    SOURCES = Literal["official"] | bout.Jam.TEAMS
+    OFFICIALS = Literal["official"]
 
-    def __init__(self, parent: bout.Bout, cls: type[ClockStoppage]) -> None:
+    def __init__(self, parent: bout.Bout, cls: type[Stoppages]) -> None:
         super().__init__(parent, cls)
-        self._timeout: Timer = Timer()
-        self._source: None | TeamClockStoppage.SOURCES = None
-        self._isTimeout: None | bool = None
+        self._activeStoppage: None | Stoppages.Instance = None
+        self._officialTimeouts: list[Stoppages.Instance] = []
 
     def call(self, timestamp: datetime) -> None:
-        if self._timeout.isRunning():
+        if self._activeStoppage is not None:
             raise RuntimeError("the Period clock is already stopped")
-        self._timeout.start(timestamp, lambda _: server.update(self))
+        self._activeStoppage = Stoppages.Instance(
+            timestamp, lambda _: server.update(self)
+        )
+        self._parent.getCurrentPeriod().stop(timestamp)
         server.update(self)
 
-    def assignTimeout(self, source: TeamClockStoppage.SOURCES) -> None:
-        if not self._timeout.isRunning():
-            raise RuntimeError("there is not a Clock Stoppage currently ongoing")
-        if source != "official":
-            self[source].timeout()
-        self._source = source
-        self._isTimeout = True
+    def convertToTimeout(self) -> None:
+        if self._activeStoppage is None:
+            raise RuntimeError("a clock stoppage has not been called")
+        if not self._activeStoppage.isOfficialReview:
+            return
+
+        if self._activeStoppage.isAssigned:
+            team: Stoppages = (
+                self.home if self._activeStoppage in self.home._stoppages else self.away
+            )
+            assert (
+                self._activeStoppage in team._stoppages
+            ), "clock stoppage is misconfigured"
+            team._officialReviewsRemaining += 1
+            team._timeoutsRemaining -= 1
+        self._activeStoppage.isOfficialReview = False
+        self._activeStoppage.setAlarm(minutes=1)
         server.update(self)
 
-    def assignOfficialReview(self, source: bout.Jam.TEAMS) -> None:
-        if not self._timeout.isRunning():
-            raise RuntimeError("there is not a Clock Stoppage currently ongoing")
-        self[source].officialReview()
-        self._source = source
-        self._isTimeout = False
+    def convertToOfficialReview(self) -> None:
+        if self._activeStoppage is None:
+            raise RuntimeError("a clock stoppage has not been called")
+        if self._activeStoppage.isOfficialReview:
+            return  # Nothing to do
+
+        if self._activeStoppage.isAssigned:
+            if self._activeStoppage in self._officialTimeouts:
+                raise RuntimeError(
+                    "cannot convert an Official Timeout into an Official Review"
+                )
+            team: Stoppages = (
+                self.home if self._activeStoppage in self.home._stoppages else self.away
+            )
+            assert (
+                self._activeStoppage in team._stoppages
+            ), "clock stoppage is misconfigured"
+            team._officialReviewsRemaining -= 1
+            team._timeoutsRemaining += 1
+        self._activeStoppage.setAlarm(None)
+        self._activeStoppage.isOfficialReview = True
+        server.update(self)
+
+    def end(self, timestamp: datetime) -> None:
+        if self._activeStoppage is None:
+            raise RuntimeError("a clock stoppage has not been called")
+        if not self._activeStoppage.isAssigned:
+            raise RuntimeError("the active clock stoppage has not been assigned")
+
+        self._activeStoppage.stop(timestamp)
+        self._activeStoppage = None
+
+        server.update(self)
+
+    def assign(self, source: bout.Jam.TEAMS | ClockStoppage.OFFICIALS) -> None:
+        if self._activeStoppage is None:
+            raise RuntimeError("a clock stoppage has not been called")
+        if self._activeStoppage.isOfficialReview and source in get_args(
+            ClockStoppage.OFFICIALS
+        ):
+            raise RuntimeError("Official Reviews must be assigned to a Team")
+
+        # Remove the active Stoppage from its currently assigned location
+        if self._activeStoppage.isAssigned:
+            if self._activeStoppage in self._officialTimeouts:
+                self._officialTimeouts.remove(self._activeStoppage)
+            else:
+                team: Stoppages = (
+                    self.home
+                    if self._activeStoppage in self.home._stoppages
+                    else self.away
+                )
+                assert (
+                    self._activeStoppage in team._stoppages
+                ), "clock stoppage is misconfigured"
+                team._delete(self._activeStoppage)
+
+        # Assign the Stoppage to the appropriate team/official location
+        if source in get_args(bout.Jam.TEAMS):
+            assert isinstance(source, bout.Jam.TEAMS), "Stoppage is misconfigured"
+            self[source]._add(self._activeStoppage)
+        else:
+            self._officialTimeouts.append(self._activeStoppage)
+        self._activeStoppage.isAssigned = True
+
+        server.update(self)
+
+    def resolve(self, retained: bool, notes: str) -> None:
+        if self._activeStoppage is None:
+            raise RuntimeError("an Official Review has not been called")
+
+        # Don't check if the Stoppage instance is a Official Review - we will
+        # keep the isRetained flag and Stoppage notes in RAM so that the user
+        # can make changes for as long as they would like. That is, until the
+        # file is saved and the server is shutdown; only Official reviews will
+        # save the isRetained flag and notes field to disk. Timeouts will not
+        # store these values to disk.
+
+        self._activeStoppage.isRetained = retained
+        self._activeStoppage.notes = notes
+
+        server.update(self)
+
+    def encode(self) -> dict[str, Any]:
+        return super().encode() | {
+            "activeStoppage": self._activeStoppage.encode()
+            if self._activeStoppage is not None
+            else None,
+            "officialTimeoutCount": len(self._officialTimeouts),
+        }
