@@ -335,12 +335,19 @@ function JamController({ id, jamClock, stopReason }) {
     sendRequest("setJamStopReason", { id, stopReason });
   }, [id]);
 
+  const callTimeout = useCallback(() => {
+    sendRequest("callTimeout", {});
+  }, [])
+
   let label = null;
   const buttons = [];
   if (!isStarted) {
     buttons.push(
       <button onClick={startJam}>Start Jam</button>
     );
+    buttons.push(
+      <button onClick={callTimeout}>Timeout/OR</button>
+    )
   } else if (!isFinished) {
     buttons.push(
       <button onClick={stopJam}>Stop Jam</button>
