@@ -1,4 +1,6 @@
-from roller_derby.encodable import ClientException
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, FileResponse
@@ -6,14 +8,11 @@ from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 from typing import Callable, Any, Awaitable, Collection, TypeAlias
-from datetime import datetime, timedelta
-from roller_derby.encodable import Encodable
 import asyncio
 import hashlib
 import inspect
 import logging
 import os
-import roller_derby.bout as bout
 import socketio
 import uvicorn
 
@@ -27,6 +26,39 @@ logging.basicConfig(
 
 """Type alias for `None | dict[str, Any]`. """
 API: TypeAlias = None | dict[str, Any] | list[Any]
+
+
+class ClientException(Exception):
+    pass
+
+
+class Encodable(ABC):
+    @abstractmethod
+    def encode(self) -> dict[str, Any]:
+        """Encodes the Encodable into a dictionary which can then be sent to a
+        client. This method is called recursively so that each sub-class is
+        encoded into a sub-dictionary. All private members of the Encodable
+        (i.e. members prefixed with an underscore) are converted to public
+        members.
+
+        Returns:
+            dict: A dictionary representing the Encodable.
+        """
+        raise NotImplementedError()
+
+    @staticmethod
+    # @abstractmethod # TODO
+    def decode(json: dict[str, Any]) -> Encodable:
+        """Creates a new Encodable object from a dictionary.
+
+        Args:
+            json (dict): A dictionary object created from a JSON object.
+
+        Returns:
+            Encodable: A new Encodable with the same attributes as the JSON
+            object.
+        """
+        raise NotImplementedError()
 
 
 async def serve(port: int, *, debug: bool = False) -> None:
@@ -238,7 +270,7 @@ async def _handleEvent(
             and isinstance(json["id"], dict)
             and all([elem in json["id"].keys() for elem in ("period", "jam")])
         ):
-            json["id"] = bout.Jam.Id.decode(json["id"])
+            json["id"] = bout.Jam.Id.decode(json["id"])  # FIXME
 
         # Get the function and call it with only the required arguments
         func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]
@@ -274,7 +306,7 @@ async def _handleEvent(
 log: logging.Logger = logging.getLogger(__name__)
 
 # The series manager which handles the game logic
-bouts: bout.Series = bout.Series()
+# bouts: bout.Series = bout.Series()
 
 _commandTable: dict[str, Callable[..., Awaitable[None | Collection]]] = dict()
 _socket: socketio.AsyncServer = socketio.AsyncServer(

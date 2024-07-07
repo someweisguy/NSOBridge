@@ -1,13 +1,14 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from roller_derby.encodable import Encodable
 from roller_derby.timer import Expectable
 from typing import Any, get_args, Literal
+from roller_derby.score import Score
+from roller_derby.teamAttribute import TeamAttribute
 import server
 
 
-class Series(Encodable):
+class Series(server.Encodable):
     def __init__(self):
         self._bouts: list[Bout] = [Bout()]
         self._currentBout: Bout = self._bouts[0]
@@ -46,12 +47,10 @@ class Series(Encodable):
         }
 
 
-class Bout(Encodable):
+class Bout(server.Encodable):
     def __init__(self) -> None:
-        from .timeouts import ClockStoppage
-
         self._periods: list[Period] = [Period(self)]
-        self._timeout: ClockStoppage = ClockStoppage(self)
+        # self._timeout: ClockStoppage = ClockStoppage(self)
         # TODO: add team attribute for teams
 
     def __len__(self) -> int:
@@ -140,7 +139,7 @@ class Jam(Expectable):
     STOP_REASONS = Literal["called", "injury", "time", "unknown"]
 
     @dataclass
-    class Id(Encodable):
+    class Id(server.Encodable):
         period: int
         jam: int
 
@@ -152,9 +151,6 @@ class Jam(Expectable):
             return {"period": self.period, "jam": self.jam}
 
     def __init__(self, parent: Period) -> None:
-        from roller_derby.score import Score
-        from roller_derby.teamAttribute import TeamAttribute
-
         super().__init__(timedelta(seconds=30), timedelta(minutes=2))
         self._parent: Period = parent
         self._stopReason: None | Jam.STOP_REASONS = None
@@ -207,3 +203,6 @@ class Jam(Expectable):
             "id": self.getId().encode(),
             "stopReason": self._stopReason,
         }
+
+
+series: Series = Series()

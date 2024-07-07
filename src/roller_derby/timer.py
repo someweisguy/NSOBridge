@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from .encodable import Encodable
 from typing import Any, Callable
 import server
 import asyncio
 
 
-class Expectable(Encodable, ABC):
+class Expectable(server.Encodable, ABC):
     def __init__(self, expect: timedelta, event: timedelta) -> None:
         self._expectTimer: Timer = Timer(expect)
         self._eventTimer: Timer = Timer(event)
@@ -69,7 +68,7 @@ class Expectable(Encodable, ABC):
         }
 
 
-class Timer(Encodable):
+class Timer(server.Encodable):
     def __init__(
         self,
         time: None | timedelta = None,

@@ -1,6 +1,5 @@
-from roller_derby.encodable import ClientException
 from server import API
-from roller_derby.bout import Bout, Jam, Period
+from roller_derby.bout import series, Bout, Jam, Period
 from datetime import datetime
 import server
 
@@ -8,7 +7,7 @@ import server
 @server.register
 async def gameClock(id: int) -> API:
     # TODO: query different bouts
-    bout: Bout = server.bouts.currentBout
+    bout: Bout = series.currentBout
     return {
         "period": bout.getCurrentPeriod().encode(),
         "jam": bout.getCurrentPeriod().getCurrentJam().encode(),
@@ -19,7 +18,7 @@ async def gameClock(id: int) -> API:
 @server.register
 async def bout(id: int) -> API:
     # TODO: query different bouts
-    bout: Bout = server.bouts.currentBout
+    bout: Bout = series.currentBout
     return bout.encode()
 
 
@@ -28,17 +27,17 @@ async def period(id: None | int = None) -> API:
     if id is None:
         id = -1
     elif id > 1:
-        raise ClientException("a Bout may only have two Periods")
+        raise server.ClientException("a Bout may only have two Periods")
 
-    bout: Bout = server.bouts.currentBout
+    bout: Bout = series.currentBout
 
     if id == len(bout):
         # TODO: stop previous period and jam
         bout.addPeriod()
     elif id > len(bout):
-        raise ClientException("that Period does not exist")
+        raise server.ClientException("that Period does not exist")
 
-    period: Period = server.bouts.currentBout[id]
+    period: Period = series.currentBout[id]
     return period.encode()
 
 
@@ -46,14 +45,14 @@ async def period(id: None | int = None) -> API:
 async def jam(id: None | Jam.Id = None) -> API:
     # Get the current Jam index
     if id is None:
-        id = server.bouts.currentBout[-1][-1].getId()
+        id = series.currentBout[-1][-1].getId()
 
     # Determine if a Jam should be added
-    period: Period = server.bouts.currentBout[id.period]
+    period: Period = series.currentBout[id.period]
     if id.jam == len(period):
-        server.bouts.currentBout[-1].addJam()
+        series.currentBout[-1].addJam()
     elif id.jam > len(period):
-        raise ClientException("This jam does not exist.")
+        raise server.ClientException("This jam does not exist.")
 
     jam: Jam = period[id.jam]
 
@@ -62,7 +61,7 @@ async def jam(id: None | Jam.Id = None) -> API:
 
 @server.register
 async def jamScore(id: Jam.Id, team: None | Jam.TEAMS = None) -> API:
-    period: Period = server.bouts.currentBout[id.period]
+    period: Period = series.currentBout[id.period]
     jam: Jam = period[id.jam]
     if team is None:
         return {
@@ -76,13 +75,13 @@ async def jamScore(id: Jam.Id, team: None | Jam.TEAMS = None) -> API:
 @server.register
 async def startJam(id: Jam.Id, timestamp: datetime) -> API:
     # Start the Jam
-    jam: Jam = server.bouts.currentBout[id.period][id.jam]
+    jam: Jam = series.currentBout[id.period][id.jam]
     jam.start(timestamp)
 
 
 @server.register
 async def stopJam(id: Jam.Id, timestamp: datetime) -> API:
-    jam: Jam = server.bouts.currentBout[id.period][id.jam]
+    jam: Jam = series.currentBout[id.period][id.jam]
 
     # Attempt to determine the reason the jam ended
     stopReason: Jam.STOP_REASONS = "unknown"
@@ -97,7 +96,7 @@ async def stopJam(id: Jam.Id, timestamp: datetime) -> API:
 
 @server.register
 async def setJamStopReason(id: Jam.Id, stopReason: Jam.STOP_REASONS) -> API:
-    jam: Jam = server.bouts.currentBout[id.period][id.jam]
+    jam: Jam = series.currentBout[id.period][id.jam]
     jam.setStopReason(stopReason)
 
 

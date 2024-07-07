@@ -1,4 +1,4 @@
-from roller_derby.bout import Bout, Jam
+from roller_derby.bout import series, Bout, Jam
 from datetime import datetime
 from server import API
 import server
@@ -14,7 +14,7 @@ async def setTrip(
     validPass: bool = True,
 ) -> API:
     # Get the desired Bout and Jam
-    bout: Bout = server.bouts.currentBout
+    bout: Bout = series.currentBout
     jam: Jam = bout[id.period][id.jam]
 
     # Attempt to set the lead jammer
@@ -27,7 +27,7 @@ async def setTrip(
 @server.register
 async def deleteTrip(id: Jam.Id, team: Jam.TEAMS, tripIndex: int) -> API:
     # Get the desired Bout and Jam
-    bout: Bout = server.bouts.currentBout
+    bout: Bout = series.currentBout
     jam: Jam = bout[id.period][id.jam]
 
     jam.score[team].deleteTrip(tripIndex)
@@ -36,7 +36,7 @@ async def deleteTrip(id: Jam.Id, team: Jam.TEAMS, tripIndex: int) -> API:
 @server.register
 async def setLead(id: Jam.Id, team: Jam.TEAMS, lead: bool) -> API:
     # Get the desired Bout and Jam
-    bout: Bout = server.bouts.currentBout
+    bout: Bout = series.currentBout
     jam: Jam = bout[id.period][id.jam]
 
     jam.score[team].setLead(lead)
@@ -45,7 +45,7 @@ async def setLead(id: Jam.Id, team: Jam.TEAMS, lead: bool) -> API:
 @server.register
 async def setLost(id: Jam.Id, team: Jam.TEAMS, lost: bool) -> API:
     # Get the desired Bout and Jam
-    bout: Bout = server.bouts.currentBout
+    bout: Bout = series.currentBout
     jam: Jam = bout[id.period][id.jam]
 
     jam.score[team].setLost(lost)
@@ -54,7 +54,7 @@ async def setLost(id: Jam.Id, team: Jam.TEAMS, lost: bool) -> API:
 @server.register
 async def setStarPass(id: Jam.Id, team: Jam.TEAMS, tripIndex: None | int) -> API:
     # Get the desired Bout and Jam
-    bout: Bout = server.bouts.currentBout
+    bout: Bout = series.currentBout
     jam: Jam = bout[id.period][id.jam]
 
     jam.score[team].setStarPass(tripIndex)
