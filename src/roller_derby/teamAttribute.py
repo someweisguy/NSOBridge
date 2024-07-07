@@ -2,7 +2,6 @@ from __future__ import annotations
 from abc import ABC
 from .encodable import Encodable
 from typing import Any, Literal, Self
-import roller_derby.bout as bout
 
 
 class AbstractAttribute[P](Encodable, ABC):
@@ -23,6 +22,8 @@ class AbstractAttribute[P](Encodable, ABC):
 
 
 class TeamAttribute[P, T: AbstractAttribute](Encodable):
+    import roller_derby.bout as bout
+    
     def __init__(self, parent: P, cls: type[T]) -> None:
         if not issubclass(cls, AbstractAttribute):
             raise TypeError("Attribute must be sub-class of AsbtractAttribute type")
