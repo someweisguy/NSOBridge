@@ -5,6 +5,7 @@ from typing import Any, Callable
 import server
 import asyncio
 
+
 class Expectable(Encodable, ABC):
     def __init__(self, expect: timedelta, event: timedelta) -> None:
         self._expectTimer: Timer = Timer(expect)
@@ -60,7 +61,7 @@ class Expectable(Encodable, ABC):
     ) -> None:
         pass  # TODO
         server.update(self)
-        
+
     def encode(self) -> dict[str, Any]:
         return {
             "countdown": self._expectTimer.encode(),

@@ -1,18 +1,19 @@
 from __future__ import annotations
+from .bout import Bout, Jam
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, get_args, Literal, Self
-import roller_derby.timer as timer
-from .bout import Bout, Jam
 from .teamAttribute import AbstractAttribute, TeamAttribute
+from typing import Any, Callable, get_args, Literal, Self
 import server
 
 
 class Stoppages(AbstractAttribute):
+    from roller_derby.timer import Timer
+
     API_NAME: str = "stoppages"
 
     @dataclass
-    class Instance(timer.Timer):
+    class Instance(Timer):
         isAssigned: bool = False
         isOfficialReview: bool = False
         isRetained: bool = False

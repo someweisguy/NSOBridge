@@ -4,13 +4,14 @@ from datetime import datetime
 from .encodable import Encodable
 from .teamAttribute import AbstractAttribute, TeamAttribute
 from typing import Any, Self
-import roller_derby.bout as bout
 import server
 
 
 class Score(AbstractAttribute):
+    from roller_derby.bout import Jam
+
     API_NAME: str = "jamScore"
-    
+
     @dataclass
     class Trip(Encodable):
         points: int
@@ -19,15 +20,15 @@ class Score(AbstractAttribute):
         def encode(self) -> dict[str, Any]:
             return {"points": self.points, "timestamp": str(self.timestamp)}
 
-    def __init__(self, parent: TeamAttribute[bout.Jam, Self]) -> None:
+    def __init__(self, parent: TeamAttribute[Jam, Self]) -> None:
         super().__init__(parent)
         self._trips: list[Score.Trip] = []
         self._lead: bool = False
         self._lost: bool = False
         self._starPass: None | int = None
-        
+
     @property
-    def parentJam(self) -> bout.Jam:
+    def parentJam(self) -> Jam:
         return self._parent._parent
 
     def setTrip(self, tripIndex: int, points: int, timestamp: datetime) -> None:
@@ -47,7 +48,7 @@ class Score(AbstractAttribute):
             self._trips[tripIndex].points = points
 
         server.update(self)
-    
+
     def getTrips(self) -> list[Score.Trip]:
         return self._trips
 
@@ -103,5 +104,5 @@ class Score(AbstractAttribute):
             "lead": self.getLead(),
             "lost": self.getLost(),
             "starPass": self.getStarPass(),
-            "isLeadEligible": self.isLeadEligible()
+            "isLeadEligible": self.isLeadEligible(),
         }
