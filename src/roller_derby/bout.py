@@ -7,12 +7,6 @@ from typing import Any, get_args, Literal
 import server
 
 
-"""
-series -> bout -
-
-"""
-
-
 class Series(Encodable):
     def __init__(self):
         self._bouts: list[Bout] = [Bout()]
@@ -53,10 +47,9 @@ class Series(Encodable):
 
 
 class Bout(Encodable):
-    
     def __init__(self) -> None:
         from .timeouts import ClockStoppage
-        
+
         self._periods: list[Period] = [Period(self)]
         self._timeout: ClockStoppage = ClockStoppage(self)
         # TODO: add team attribute for teams
@@ -66,7 +59,7 @@ class Bout(Encodable):
 
     def __getitem__(self, periodIndex: int) -> Period:
         return self._periods[periodIndex]
-    
+
     # @property
     # def timeout(self) -> ClockStoppage:
     #     return self._timeout
@@ -141,7 +134,7 @@ class Period(Expectable):
 
 class Jam(Expectable):
     from roller_derby.teamAttribute import TeamAttribute
-    
+
     API_NAME: str = "jam"
     TEAMS = Literal["home", "away"]
     STOP_REASONS = Literal["called", "injury", "time", "unknown"]
@@ -161,7 +154,7 @@ class Jam(Expectable):
     def __init__(self, parent: Period) -> None:
         from roller_derby.score import Score
         from roller_derby.teamAttribute import TeamAttribute
-        
+
         super().__init__(timedelta(seconds=30), timedelta(minutes=2))
         self._parent: Period = parent
         self._stopReason: None | Jam.STOP_REASONS = None
