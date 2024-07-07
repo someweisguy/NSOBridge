@@ -1,12 +1,11 @@
 from __future__ import annotations
 from abc import ABC
-from typing import Any, Literal, Self
+from typing import Literal, Self
+import roller_derby.bout as bout
 import server
 
 
 class AbstractAttribute[P](server.Encodable, ABC):
-    import roller_derby.bout as bout
-
     def __init__(self, parent: TeamAttribute[P, Self]) -> None:
         self._parent: TeamAttribute[P, Self] = parent
 
@@ -24,8 +23,6 @@ class AbstractAttribute[P](server.Encodable, ABC):
 
 
 class TeamAttribute[P, T: AbstractAttribute](server.Encodable):
-    import roller_derby.bout as bout
-
     def __init__(self, parent: P, cls: type[T]) -> None:
         if not issubclass(cls, AbstractAttribute):
             raise TypeError("Attribute must be sub-class of AsbtractAttribute type")
@@ -50,5 +47,5 @@ class TeamAttribute[P, T: AbstractAttribute](server.Encodable):
     def away(self) -> T:
         return self._away
 
-    def encode(self) -> dict[str, Any]:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         return self.home.encode() | self.away.encode()

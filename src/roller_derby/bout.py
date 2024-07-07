@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from roller_derby.timer import Expectable
-from typing import Any, get_args, Literal
+from typing import get_args, Literal
 from roller_derby.score import Score
 from roller_derby.teamAttribute import TeamAttribute
 import server
@@ -40,7 +40,7 @@ class Series(server.Encodable):
     def currentBout(self, boutIndex: int) -> None:
         self._currentBout = self._bouts[boutIndex]
 
-    def encode(self) -> dict:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         return {
             "currentBout": self._bouts.index(self._currentBout),
             "bouts": [bout.encode() for bout in self._bouts],
@@ -74,7 +74,7 @@ class Bout(server.Encodable):
             raise RuntimeError("A Bout cannot have more than 2 Periods.")
         self._periods.append(Period(self))
 
-    def encode(self) -> dict:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         activeJam: Jam = self.getCurrentPeriod().getCurrentJam()
         return {
             "id": 0,  # TODO
@@ -124,7 +124,7 @@ class Period(Expectable):
         if len(self._jams) == 0:
             self._jams.append(Jam(self))
 
-    def encode(self) -> dict[str, Any]:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         return super().encode() | {
             "id": self.parentBout._periods.index(self),
             "jamCount": len(self._jams),
@@ -132,8 +132,6 @@ class Period(Expectable):
 
 
 class Jam(Expectable):
-    from roller_derby.teamAttribute import TeamAttribute
-
     API_NAME: str = "jam"
     TEAMS = Literal["home", "away"]
     STOP_REASONS = Literal["called", "injury", "time", "unknown"]
@@ -147,7 +145,7 @@ class Jam(Expectable):
         def decode(value: dict[str, int]) -> Jam.Id:
             return Jam.Id(**value)
 
-        def encode(self) -> dict:
+        def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
             return {"period": self.period, "jam": self.jam}
 
     def __init__(self, parent: Period) -> None:
@@ -198,7 +196,7 @@ class Jam(Expectable):
         self._stopReason = stopReason
         server.update(self)
 
-    def encode(self) -> dict:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         return super().encode() | {
             "id": self.getId().encode(),
             "stopReason": self._stopReason,

@@ -3,7 +3,7 @@ from .bout import Bout, Jam
 from dataclasses import dataclass
 from datetime import datetime
 from .teamAttribute import AbstractAttribute, TeamAttribute
-from typing import Any, Callable, get_args, Literal, Self
+from typing import Callable, get_args, Literal, Self
 import server
 
 
@@ -24,7 +24,7 @@ class Stoppages(AbstractAttribute):
         ) -> None:
             self.start(timestamp, callback)
 
-        def encode(self) -> dict[str, Any]:
+        def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
             return super().encode() | {
                 "isAssigned": self.isAssigned,
                 "isOfficialReview": self.isOfficialReview,
@@ -63,7 +63,7 @@ class Stoppages(AbstractAttribute):
         else:
             self._timeoutsRemaining += 1
 
-    def encode(self) -> dict[str, Any]:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         return {
             "team": self.getTeam(),
             "timeoutsRemaining": self._timeoutsRemaining,
@@ -192,7 +192,7 @@ class ClockStoppage(TeamAttribute[Bout, Stoppages]):
 
         server.update(self)
 
-    def encode(self) -> dict[str, Any]:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         return super().encode() | {
             "activeStoppage": self._activeStoppage.encode()
             if self._activeStoppage is not None

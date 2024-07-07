@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from typing import Any, Callable
+from typing import Callable
 import server
 import asyncio
 
@@ -61,7 +61,7 @@ class Expectable(server.Encodable, ABC):
         pass  # TODO
         server.update(self)
 
-    def encode(self) -> dict[str, Any]:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         return {
             "countdown": self._expectTimer.encode(),
             "clock": self._eventTimer.encode(),
@@ -160,7 +160,7 @@ class Timer(server.Encodable):
         assert self._alarm is not None, "there is no alarm for this Timer"
         return self._alarm - self.getElapsed()
 
-    def encode(self) -> dict[str, Any]:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         alarmValue: None | int = None
         if self._alarm is not None:
             alarmValue = round(self.getAlarm().total_seconds() * 1000)

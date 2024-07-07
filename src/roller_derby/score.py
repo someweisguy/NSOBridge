@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from .teamAttribute import AbstractAttribute, TeamAttribute
-from typing import Any, Self
+from typing import Self
 import server
 
 
@@ -16,7 +16,7 @@ class Score(AbstractAttribute):
         points: int
         timestamp: datetime
 
-        def encode(self) -> dict[str, Any]:
+        def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
             return {"points": self.points, "timestamp": str(self.timestamp)}
 
     def __init__(self, parent: TeamAttribute[bout.Jam, Self]) -> None:
@@ -95,7 +95,7 @@ class Score(AbstractAttribute):
 
         server.update(self)
 
-    def encode(self) -> dict[str, Any]:
+    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         return {
             "id": self.parentJam.getId().encode(),
             "team": self.getTeam(),

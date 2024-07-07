@@ -24,8 +24,12 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
-"""Type alias for `None | dict[str, Any]`. """
-API: TypeAlias = None | dict[str, Any] | list[Any]
+"""Type alias for the types of values that can be serialized into JSON. """
+API: TypeAlias = (
+    None
+    | dict[str, None | int | float | str | bool]
+    | list[None | int | float | str | bool]
+)
 
 
 class ClientException(Exception):
@@ -33,8 +37,10 @@ class ClientException(Exception):
 
 
 class Encodable(ABC):
+    PRIMITIVE: TypeAlias = None | int | float | str | bool | dict | list
+    
     @abstractmethod
-    def encode(self) -> dict[str, Any]:
+    def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         """Encodes the Encodable into a dictionary which can then be sent to a
         client. This method is called recursively so that each sub-class is
         encoded into a sub-dictionary. All private members of the Encodable
@@ -48,7 +54,7 @@ class Encodable(ABC):
 
     @staticmethod
     # @abstractmethod # TODO
-    def decode(json: dict[str, Any]) -> Encodable:
+    def decode(json: Encodable.PRIMITIVE) -> Encodable:
         """Creates a new Encodable object from a dictionary.
 
         Args:
