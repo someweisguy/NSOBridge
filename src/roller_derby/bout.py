@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from .encodable import Encodable
 from .teamAttribute import TeamAttribute
 from .score import Score
+from .timeouts import ClockStoppage
 from .timer import Expectable
 from typing import Any, get_args, Literal
 import server
@@ -51,6 +52,7 @@ class Series(Encodable):
 class Bout(Encodable):
     def __init__(self) -> None:
         self._periods: list[Period] = [Period(self)]
+        self._timeout: ClockStoppage = ClockStoppage(self)
         # TODO: add team attribute for teams
 
     def __len__(self) -> int:
@@ -58,6 +60,10 @@ class Bout(Encodable):
 
     def __getitem__(self, periodIndex: int) -> Period:
         return self._periods[periodIndex]
+    
+    @property
+    def timeout(self) -> ClockStoppage:
+        return self._timeout
 
     def getPeriod(self, periodIndex: int) -> Period:
         return self._periods[periodIndex]
