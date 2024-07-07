@@ -276,7 +276,8 @@ async def _handleEvent(
             and isinstance(json["id"], dict)
             and all([elem in json["id"].keys() for elem in ("period", "jam")])
         ):
-            json["id"] = bout.Jam.Id.decode(json["id"])  # FIXME
+            from roller_derby.bout import Jam
+            json["id"] = Jam.Id.decode(json["id"])  # FIXME
 
         # Get the function and call it with only the required arguments
         func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]
