@@ -75,8 +75,8 @@ class ClockStoppage(TeamAttribute[bout.Bout, Stoppages]):
     API_NAME: str = "clockStoppage"
     OFFICIALS = Literal["official"]
 
-    def __init__(self, parent: bout.Bout, cls: type[Stoppages]) -> None:
-        super().__init__(parent, cls)
+    def __init__(self, parent: bout.Bout) -> None:
+        super().__init__(parent, Stoppages)
         self._activeStoppage: None | Stoppages.Instance = None
         self._officialTimeouts: list[Stoppages.Instance] = []
 
