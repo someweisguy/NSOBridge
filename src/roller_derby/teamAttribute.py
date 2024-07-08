@@ -5,7 +5,7 @@ import roller_derby.bout as bout
 import server
 
 
-class AbstractAttribute[P](server.Encodable, ABC):
+class AbstractAttribute(server.Encodable, ABC):
     def __init__(self, parent: TeamAttribute[Self]) -> None:
         super().__init__()
         self._parent: TeamAttribute[Self] = parent
