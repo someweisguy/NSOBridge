@@ -14,6 +14,7 @@ import inspect
 import logging
 import os
 import socketio
+import uuid
 import uvicorn
 
 
@@ -38,6 +39,13 @@ class ClientException(Exception):
 
 class Encodable(ABC):
     PRIMITIVE: TypeAlias = None | int | float | str | bool | dict | list
+    
+    def __init__(self) -> None:
+        self._uuid: uuid.UUID = uuid.uuid4()
+        
+    @property
+    def uuid(self) -> str:
+        return str(self._uuid)
     
     @abstractmethod
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:

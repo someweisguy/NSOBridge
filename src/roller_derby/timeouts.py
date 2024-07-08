@@ -1,9 +1,9 @@
 from __future__ import annotations
-from .bout import Bout, Jam
 from dataclasses import dataclass
 from datetime import datetime
 from .teamAttribute import AbstractAttribute, TeamAttribute
 from typing import Callable, get_args, Literal, Self
+import roller_derby.bout as bout
 import server
 
 
@@ -32,7 +32,7 @@ class Stoppages(AbstractAttribute):
                 "notes": self.notes,
             }
 
-    def __init__(self, parent: TeamAttribute[Bout, Self]) -> None:
+    def __init__(self, parent: TeamAttribute[Self]) -> None:
         super().__init__(parent)
         self._timeoutsRemaining: int = 3
         self._officialReviewsRemaining: int = 1
@@ -72,12 +72,12 @@ class Stoppages(AbstractAttribute):
         }
 
 
-class ClockStoppage(TeamAttribute[Bout, Stoppages]):
+class ClockStoppage(TeamAttribute[Stoppages]):
     API_NAME: str = "clockStoppage"
     OFFICIALS = Literal["official"]
 
-    def __init__(self, parent: Bout) -> None:
-        super().__init__(parent, Stoppages)
+    def __init__(self) -> None:
+        super().__init__(Stoppages)
         self._activeStoppage: None | Stoppages.Instance = None
         self._officialTimeouts: list[Stoppages.Instance] = []
 
@@ -87,7 +87,6 @@ class ClockStoppage(TeamAttribute[Bout, Stoppages]):
         self._activeStoppage = Stoppages.Instance(
             timestamp, lambda _: server.update(self)
         )
-        self._parent.getCurrentPeriod().stop(timestamp)
         server.update(self)
 
     def convertToTimeout(self) -> None:
@@ -143,7 +142,7 @@ class ClockStoppage(TeamAttribute[Bout, Stoppages]):
 
         server.update(self)
 
-    def assign(self, source: Jam.TEAMS | ClockStoppage.OFFICIALS) -> None:
+    def assign(self, source: bout.Jam.TEAMS | ClockStoppage.OFFICIALS) -> None:
         if self._activeStoppage is None:
             raise RuntimeError("a clock stoppage has not been called")
         if self._activeStoppage.isOfficialReview and source in get_args(
@@ -167,8 +166,8 @@ class ClockStoppage(TeamAttribute[Bout, Stoppages]):
                 team._delete(self._activeStoppage)
 
         # Assign the Stoppage to the appropriate team/official location
-        if source in get_args(Jam.TEAMS):
-            assert isinstance(source, Jam.TEAMS), "Stoppage is misconfigured"
+        if source in get_args(bout.Jam.TEAMS):
+            assert isinstance(source, bout.Jam.TEAMS), "Stoppage is misconfigured"
             self[source]._add(self._activeStoppage)
         else:
             self._officialTimeouts.append(self._activeStoppage)

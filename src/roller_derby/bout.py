@@ -5,6 +5,7 @@ from roller_derby.timer import Expectable
 from typing import get_args, Literal
 from roller_derby.score import Score
 from roller_derby.teamAttribute import TeamAttribute
+from roller_derby.timeouts import ClockStoppage
 import server
 
 
@@ -50,7 +51,7 @@ class Series(server.Encodable):
 class Bout(server.Encodable):
     def __init__(self) -> None:
         self._periods: list[Period] = [Period(self)]
-        # self._timeout: ClockStoppage = ClockStoppage(self)
+        self._timeout: ClockStoppage = ClockStoppage()
         # TODO: add team attribute for teams
 
     def __len__(self) -> int:
@@ -59,9 +60,9 @@ class Bout(server.Encodable):
     def __getitem__(self, periodIndex: int) -> Period:
         return self._periods[periodIndex]
 
-    # @property
-    # def timeout(self) -> ClockStoppage:
-    #     return self._timeout
+    @property
+    def timeout(self) -> ClockStoppage:
+        return self._timeout
 
     def getPeriod(self, periodIndex: int) -> Period:
         return self._periods[periodIndex]
@@ -152,7 +153,7 @@ class Jam(Expectable):
         super().__init__(timedelta(seconds=30), timedelta(minutes=2))
         self._parent: Period = parent
         self._stopReason: None | Jam.STOP_REASONS = None
-        self._score: TeamAttribute[Jam, Score] = TeamAttribute(self, Score)
+        self._score: TeamAttribute[Score] = TeamAttribute(Score)
 
     def start(self, timestamp: datetime) -> None:
         super().start(timestamp)
@@ -176,7 +177,7 @@ class Jam(Expectable):
         return self._parent
 
     @property
-    def score(self) -> TeamAttribute[Jam, score.Score]:
+    def score(self) -> TeamAttribute[score.Score]:
         return self._score
 
     def getId(self) -> Jam.Id:

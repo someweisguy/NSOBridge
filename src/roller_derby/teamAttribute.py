@@ -6,11 +6,12 @@ import server
 
 
 class AbstractAttribute[P](server.Encodable, ABC):
-    def __init__(self, parent: TeamAttribute[P, Self]) -> None:
-        self._parent: TeamAttribute[P, Self] = parent
+    def __init__(self, parent: TeamAttribute[Self]) -> None:
+        super().__init__()
+        self._parent: TeamAttribute[Self] = parent
 
     @property
-    def parent(self) -> TeamAttribute[P, Self]:
+    def parent(self) -> TeamAttribute[Self]:
         return self._parent
 
     def getOther(self) -> Self:
@@ -22,11 +23,11 @@ class AbstractAttribute[P](server.Encodable, ABC):
         return "home" if self is self.parent.home else "away"
 
 
-class TeamAttribute[P, T: AbstractAttribute](server.Encodable):
-    def __init__(self, parent: P, cls: type[T]) -> None:
+class TeamAttribute[T: AbstractAttribute](server.Encodable):
+    def __init__(self, cls: type[T]) -> None:
         if not issubclass(cls, AbstractAttribute):
             raise TypeError("Attribute must be sub-class of AsbtractAttribute type")
-        self._parent: P = parent
+        super().__init__()
         self._home: T = cls(self)
         self._away: T = cls(self)
 

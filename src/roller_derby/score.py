@@ -7,8 +7,6 @@ import server
 
 
 class Score(AbstractAttribute):
-    import roller_derby.bout as bout
-
     API_NAME: str = "jamScore"
 
     @dataclass
@@ -19,16 +17,12 @@ class Score(AbstractAttribute):
         def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
             return {"points": self.points, "timestamp": str(self.timestamp)}
 
-    def __init__(self, parent: TeamAttribute[bout.Jam, Self]) -> None:
+    def __init__(self, parent: TeamAttribute[Self]) -> None:
         super().__init__(parent)
         self._trips: list[Score.Trip] = []
         self._lead: bool = False
         self._lost: bool = False
         self._starPass: None | int = None
-
-    @property
-    def parentJam(self) -> bout.Jam:
-        return self._parent._parent
 
     def setTrip(self, tripIndex: int, points: int, timestamp: datetime) -> None:
         if not isinstance(tripIndex, int):
@@ -97,7 +91,7 @@ class Score(AbstractAttribute):
 
     def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         return {
-            "id": self.parentJam.getId().encode(),
+            "uuid": self.uuid,
             "team": self.getTeam(),
             "trips": [trip.encode() for trip in self.getTrips()],
             "lead": self.getLead(),

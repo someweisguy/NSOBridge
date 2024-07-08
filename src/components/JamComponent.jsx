@@ -57,7 +57,7 @@ export function ScoreboardEditor({ boutId = 0 }) {
     return () => ignore = true;
   }, [boutId]);
 
-  
+
   useEffect(() => {
     if (jamId === null) {
       return;
@@ -71,7 +71,7 @@ export function ScoreboardEditor({ boutId = 0 }) {
           }
         }, () => {
           // On error set the jamId back to its previous state
-          const oldJamId = {...jamId};
+          const oldJamId = { ...jamId };
           oldJamId.period = periodState.id;
           setJamId(oldJamId);
         });
@@ -84,7 +84,7 @@ export function ScoreboardEditor({ boutId = 0 }) {
           }
         }, () => {
           // On error set the jamId back to its previous state
-          const oldJamId = {...jamId};
+          const oldJamId = { ...jamId };
           oldJamId.jam = jamState.id.jam;
           setJamId(oldJamId);
         });
@@ -111,19 +111,19 @@ export function ScoreboardEditor({ boutId = 0 }) {
   }, [jamId])
 
   const goToNextJam = useCallback(() => {
-    const newJamId = {...jamId};
+    const newJamId = { ...jamId };
     newJamId.jam++;
     setJamId(newJamId);
   }, [jamId]);
 
   const goToNextPeriod = useCallback(() => {
-    const newJamId = {...jamId};
+    const newJamId = { ...jamId };
     newJamId.period++;
     setJamId(newJamId);
   }, [jamId?.period]);
 
   const readyForNextJam = jamState.stopReason !== null;
-  const readyForNextPeriod = periodState.clock?.elapsed > periodState.clock?.alarm 
+  const readyForNextPeriod = periodState.clock?.elapsed > periodState.clock?.alarm
     && !jamState.clock?.running;
 
   return (
@@ -161,19 +161,20 @@ function JamScore({ id, team }) {
           setState(newState)
         }
       });
+    return () => ignore = true;
+  }, [id, team]);
 
-    const unsubscribe = onEvent("jamScore", (newState) => {
-      if (newState.id.period === id.period && newState.id.jam === id.jam
-        && newState.team === team) {
+  useEffect(() => {
+    if (id === null) {
+      return;
+    }
+    const unsubscribeFunction = onEvent("jamScore", (newState) => {
+      if (newState.uuid === state.uuid && newState.team === team) {
         setState(newState);
       }
     });
-
-    return () => {
-      ignore = true;
-      unsubscribe();
-    };
-  }, [id, team]);
+    return () => unsubscribeFunction();
+  }, [state, team])
 
   // Ensure the new latest Trip is selected when adding a new Trip
   useEffect(() => {
