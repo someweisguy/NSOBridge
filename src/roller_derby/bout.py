@@ -78,7 +78,7 @@ class Bout(server.Encodable):
     def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         activeJam: Jam = self.getCurrentPeriod().getCurrentJam()
         return {
-            "id": 0,  # TODO
+            "uuid": self.uuid,
             "periodCount": len(self._periods),
             "activeJamId": activeJam.getId().encode(),
         }
@@ -177,7 +177,7 @@ class Jam(Expectable):
         return self._parent
 
     @property
-    def score(self) -> TeamAttribute[score.Score]:
+    def score(self) -> TeamAttribute[Score]:
         return self._score
 
     def getId(self) -> Jam.Id:
