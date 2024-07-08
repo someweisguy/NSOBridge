@@ -28,8 +28,8 @@ logging.basicConfig(
 """Type alias for the types of values that can be serialized into JSON. """
 API: TypeAlias = (
     None
-    | dict[str, None | int | float | str | bool]
-    | list[None | int | float | str | bool]
+    | dict[str, None | int | float | str | bool | dict | list]
+    | list[None | int | float | str | bool | dict | list]
 )
 
 
