@@ -99,19 +99,7 @@ class Timer(server.Encodable):
             self._stopTime = None
 
         self._startTime = timestamp
-
-        if callback is not None:
-            if self._alarm is None:
-                raise RuntimeError("cannot set a callback on a Timer without an alarm")
-
-            # Create and run a Timer callback
-            async def runTask() -> None:
-                while (remaining := self.getRemaining().total_seconds()) > 0:
-                    await asyncio.sleep(remaining)
-                callback(datetime.now())
-                self._task = None  # Garbage collect the Task information
-
-            self._task = asyncio.create_task(runTask())
+        self.setCallback(callback)
 
     def stop(self, timestamp: datetime) -> None:
         if not self.isRunning():
@@ -159,6 +147,24 @@ class Timer(server.Encodable):
     def getRemaining(self) -> timedelta:
         assert self._alarm is not None, "there is no alarm for this Timer"
         return self._alarm - self.getElapsed()
+    
+    def setCallback(self, callback: None | Callable[[datetime], None]) -> None:
+        if callback is not None:
+            if self._alarm is None:
+                raise RuntimeError("cannot set a callback on a Timer without an alarm")
+
+            # Create and run a Timer callback
+            async def runTask() -> None:
+                while (remaining := self.getRemaining().total_seconds()) > 0:
+                    await asyncio.sleep(remaining)
+                callback(datetime.now())
+                self._task = None  # Garbage collect the Task information
+
+            self._task = asyncio.create_task(runTask())
+        else:
+            if self._task is not None:
+                self._task.cancel()
+            self._task = None
 
     def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
         alarmValue: None | int = None
