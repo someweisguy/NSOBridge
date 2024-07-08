@@ -11,6 +11,7 @@ import server
 
 class Series(server.Encodable):
     def __init__(self):
+        super().__init__()
         self._bouts: list[Bout] = [Bout()]
         self._currentBout: Bout = self._bouts[0]
         # TODO: add teams
@@ -50,6 +51,7 @@ class Series(server.Encodable):
 
 class Bout(server.Encodable):
     def __init__(self) -> None:
+        super().__init__()
         self._periods: list[Period] = [Period(self)]
         self._timeout: ClockStoppage = ClockStoppage()
         # TODO: add team attribute for teams

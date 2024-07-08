@@ -13,6 +13,11 @@ class Score(AbstractAttribute):
     class Trip(server.Encodable):
         points: int
         timestamp: datetime
+        
+        def __init__(self, points: int, timestamp: datetime) -> None:
+            super().__init__()
+            self.points = points
+            self.timestamp = timestamp
 
         def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
             return {
