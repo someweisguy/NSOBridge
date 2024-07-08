@@ -15,7 +15,11 @@ class Score(AbstractAttribute):
         timestamp: datetime
 
         def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
-            return {"points": self.points, "timestamp": str(self.timestamp)}
+            return {
+                "uuid": self.uuid,
+                "points": self.points,
+                "timestamp": str(self.timestamp),
+            }
 
     def __init__(self, parent: TeamAttribute[Self]) -> None:
         super().__init__(parent)
