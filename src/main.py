@@ -1,7 +1,57 @@
 from server import API
 from roller_derby.bout import series, Bout, Jam, Period
+from roller_derby.timeouts import ClockStoppage
 from datetime import datetime
 import server
+
+@server.register
+async def clockStoppage() -> API:
+    bout: Bout = series.currentBout
+    return bout.timeout.encode()
+
+@server.register
+async def callTimeout(timestamp: datetime) -> API:
+    bout: Bout = series.currentBout
+    bout.timeout.call(timestamp)
+    
+    period: Period = bout.getCurrentPeriod()
+    if period.isRunning():
+        period.stop(timestamp)
+    
+
+@server.register
+async def setTimeout(
+    caller: Jam.TEAMS | ClockStoppage.OFFICIALS,
+    isOfficialReview: bool,
+    isRetained: bool,
+    notes: str,
+) -> API:
+    bout: Bout = series.currentBout
+    bout.timeout.assign(caller)
+    if isOfficialReview:
+        bout.timeout.convertToOfficialReview()
+    else:
+        bout.timeout.convertToTimeout()
+    bout.timeout.resolve(isRetained, notes)
+
+
+@server.register
+async def endTimeout(timestamp: datetime) -> API:
+    bout: Bout = series.currentBout
+    bout.timeout.end(timestamp)
+
+    # Ready the next Jam
+    # jam: Jam = bout.getCurrentPeriod().getCurrentJam()
+    # if jam.getTimeToStart().total_seconds() < 10:
+    #     # TODO: I need to talk to an experienced Jam Timer NSO to figure out how
+    #     # this is supposed to work. It seems that the way that you come out of
+    #     # timeouts is very arbitrary; some NSOs like to give a 10 second timer,
+    #     # others make it a 15 second timer. For now, the behavior as written
+    #     # here is to add a 10 second lineup timer coming out of the timeout
+    #     # before starting the next Jam.
+    #     jam.setTimeToStart(seconds=10)
+    # if not jam.isExpected():
+    #     jam.expect(timestamp)
 
 
 @server.register

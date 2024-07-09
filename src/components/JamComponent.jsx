@@ -4,6 +4,7 @@ import "./JamComponent.css"
 
 const HOME = "home";
 const AWAY = "away";
+const OFFICIAL = "official";
 
 const CALLED = "called";
 const INJURY = "injury";
@@ -38,9 +39,22 @@ const NULL_JAM_SCORE = {
   isLeadEligible: true
 };
 
+const NULL_STOPPAGE = {
+  activeStoppage: null,
+  home: {
+    officialReviewRemaining: 1,
+    timeoutsRemaining: 3
+  },
+  away: {
+    officialReviewRemaining: 1,
+    timeoutsRemaining: 3
+  }
+}
+
 export function ScoreboardEditor({ boutId = 0 }) {
   const [jamId, setJamId] = useState(null);
   const [periodState, setPeriodState] = useState(NULL_PERIOD);
+  const [clockStoppage, setClockStoppage] = useState(NULL_STOPPAGE);
   const [jamState, setJamState] = useState(NULL_JAM);
 
   useEffect(() => {
@@ -52,6 +66,12 @@ export function ScoreboardEditor({ boutId = 0 }) {
       .then((newBoutState) => {
         if (!ignore) {
           setJamId(newBoutState.activeJamId)
+        }
+      });
+    sendRequest("clockStoppage", { id: boutId })
+      .then((newClockState) => {
+        if (!ignore) {
+          setClockStoppage(newClockState);
         }
       });
     return () => ignore = true;
@@ -103,10 +123,15 @@ export function ScoreboardEditor({ boutId = 0 }) {
       }
     });
 
+    const unsubscribeStoppage = onEvent("clockStoppage", (newStoppage) => {
+      setClockStoppage(newStoppage);
+    });
+
     return () => {
       ignore = true;
       unsubscribePeriod();
       unsubscribeJam();
+      unsubscribeStoppage();
     };
   }, [jamId])
 
@@ -126,14 +151,20 @@ export function ScoreboardEditor({ boutId = 0 }) {
   const readyForNextPeriod = periodState.clock?.elapsed > periodState.clock?.alarm
     && !jamState.clock?.running;
 
+  const clockIsStopped = clockStoppage.activeStoppage !== null;
+
   return (
     <div>
       {jamState.id && ("P" + (jamState.id.period + 1) + " J" + (jamState.id.jam + 1))}
       {readyForNextJam && <button onClick={goToNextJam}>Next Jam</button>}
       {readyForNextPeriod && <button onClick={goToNextPeriod}>Next Period</button>}
       <br />
-      <JamController id={jamId} jamClock={jamState.clock}
-        stopReason={jamState.stopReason} />
+      {clockIsStopped ? (
+        <TimeoutController stoppage={clockStoppage} />
+      ) : (
+        <JamController id={jamId} jamClock={jamState.clock}
+          stopReason={jamState.stopReason} />
+      )}
       <div>
         <JamScore id={jamId} team={HOME} />
         <JamScore id={jamId} team={AWAY} />
@@ -377,6 +408,64 @@ function JamController({ id, jamClock, stopReason }) {
       <div>
 
       </div>
+    </div>
+  );
+}
+
+function TimeoutController({ stoppage }) {
+  const setTimeout = useCallback(() => {
+    const payload = { ...stoppage.activeStoppage };
+    payload.isOfficialReview = false;
+    sendRequest("setTimeout", payload);
+  }, [stoppage.activeStoppage]);
+
+  const setOfficialReview = useCallback(() => {
+    const payload = { ...stoppage.activeStoppage };
+    payload.isOfficialReview = true;
+    sendRequest("setTimeout", payload);
+  }, [stoppage.activeStoppage]);
+
+  const setCaller = useCallback((caller) => {
+    const payload = { ...stoppage.activeStoppage };
+    payload.caller = caller;
+    sendRequest("setTimeout", payload);
+  }, [stoppage.activeStoppage]);
+
+  const endTimeout = useCallback(() => {
+    sendRequest("endTimeout");
+  }, []);
+
+  const timeout = stoppage.activeStoppage;
+
+  return (
+    <div>
+      <span>
+        <button onClick={setTimeout} disabled={!timeout.isOfficialReview}>
+          Timeout
+        </button>
+        <button onClick={setOfficialReview}
+          disabled={timeout.isOfficialReview || timeout.caller === OFFICIAL}>
+          Official Review
+        </button>
+      </span>
+
+      <span>
+        <button onClick={() => setCaller(HOME)} disabled={timeout.caller === HOME}>
+          Home
+        </button>
+        <button onClick={() => setCaller(OFFICIAL)}
+          disabled={timeout.caller === OFFICIAL || timeout.isOfficialReview}>
+          Official
+        </button>
+        <button onClick={() => setCaller(AWAY)} disabled={timeout.caller === AWAY}>
+          Away
+        </button>
+      </span>
+
+      <span>
+        <button onClick={endTimeout}>End {timeout.isOfficialReview ? "O/R" : "T/O"}</button>
+      </span>
+
     </div>
   );
 }
