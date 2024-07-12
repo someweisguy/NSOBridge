@@ -40,19 +40,6 @@ async def endTimeout(timestamp: datetime) -> API:
     bout: Bout = series.currentBout
     bout.timeout.end(timestamp)
 
-    # Ready the next Jam
-    # jam: Jam = bout.getCurrentPeriod().getCurrentJam()
-    # if jam.getTimeToStart().total_seconds() < 10:
-    #     # TODO: I need to talk to an experienced Jam Timer NSO to figure out how
-    #     # this is supposed to work. It seems that the way that you come out of
-    #     # timeouts is very arbitrary; some NSOs like to give a 10 second timer,
-    #     # others make it a 15 second timer. For now, the behavior as written
-    #     # here is to add a 10 second lineup timer coming out of the timeout
-    #     # before starting the next Jam.
-    #     jam.setTimeToStart(seconds=10)
-    # if not jam.isExpected():
-    #     jam.expect(timestamp)
-
 
 @server.register
 async def gameClock(id: int) -> API:
