@@ -115,15 +115,6 @@ export function GameClock({ boutId = 0 }) {
 
   // Subscribe to any changes to the Jam and Timeout state
   useEffect(() => {
-    const unsubscribeJam = onEvent("jam", (newJam) => {
-      const clock = newJam.countdown.running ? newJam.countdown : newJam.clock;
-      if (!clock.running) {
-        return;
-      }
-      clock.timestamp = Date.now();
-      setJamClock(clock);
-    });
-
     const unsubscribeTimeout = onEvent("clockStoppage", (newTimeout) => {
       const clock = newTimeout.activeStoppage;
       if (clock !== null) {
@@ -131,12 +122,20 @@ export function GameClock({ boutId = 0 }) {
       }
       setTimeoutClock(clock);
     });
-
-    return () => {
-      unsubscribeJam();
-      unsubscribeTimeout();
-    };
-  }, []);
+    return () => unsubscribeTimeout();
+    }, []);
+  useEffect(() => {
+    const unsubscribeJam = onEvent("jam", (newJam) => {
+      const clock = newJam.countdown.running ? newJam.countdown : newJam.clock;
+      if (!clock.running || timeoutClock) {
+        // Prevent the Jam or Lineup clocks from clobbering the Timeout clock
+        return;
+      }
+      clock.timestamp = Date.now();
+      setJamClock(clock);
+    });
+    return () => unsubscribeJam();
+  }, [timeoutClock])
 
   // Get the initial Jam and Timeout state
   useEffect(() => {
