@@ -77,6 +77,7 @@ class Timer(server.Encodable):
         minutes: int = 0,
         seconds: int = 0,
     ) -> None:
+        super().__init__()
         self._task: None | asyncio.Task = None
         self._startTime: None | datetime = None
         self._stopTime: None | datetime = None
@@ -171,6 +172,7 @@ class Timer(server.Encodable):
         if self._alarm is not None:
             alarmValue = round(self.getAlarm().total_seconds() * 1000)
         return {
+            "uuid": self.uuid,
             "alarm": alarmValue,
             "elapsed": round(self.getElapsed().total_seconds() * 1000),
             "running": self.isRunning(),
