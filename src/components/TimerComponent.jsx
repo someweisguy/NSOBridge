@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getLatency, sendRequest, onEvent } from "../App.jsx"
 
 const NULL_TIMER = {
@@ -28,19 +28,25 @@ function formatTimeString(millisRemaining, showMillis = true) {
     if (millisRemaining >= 10000) {
       seconds = seconds < 10 ? "0" + seconds : seconds.toString();
       timeString += seconds;
-    } else if (showMillis) {
-      let deciseconds = Math.floor((millisRemaining % 1000) / 100);
-      timeString += seconds + "." + deciseconds
+    } else if (millisRemaining < 10000) {
+      timeString += seconds
+      if (showMillis) {
+        let deciseconds = Math.floor((millisRemaining % 1000) / 100);
+        timeString += "." + deciseconds;
+      }
     }
   } else {
-    timeString = "0.0";
+    timeString = "0";
+    if (showMillis) {
+      timeString += ".0";
+    }
   }
   return timeString;
 }
 
 
 export function PeriodClock({ boutId = 0 }) {
-  const [state, setState] = useState(NULL_TIMER);
+  const [periodClock, setPeriodClock] = useState(NULL_TIMER);
   const [lap, setLap] = useState(0);
 
   useEffect(() => {
@@ -53,7 +59,7 @@ export function PeriodClock({ boutId = 0 }) {
         if (!ignore) {
           // TODO: Handle halftime and pre-game timers
           // TODO: use getLatency()
-          setState(newPeriod.clock);
+          setPeriodClock(newPeriod.clock);
         }
       });
 
@@ -61,7 +67,7 @@ export function PeriodClock({ boutId = 0 }) {
       if (newPeriod.clock.running) {
         newPeriod.clock.elapsed += getLatency();
       }
-      setState(newPeriod.clock);
+      setPeriodClock(newPeriod.clock);
     });
 
     return () => {
@@ -71,12 +77,12 @@ export function PeriodClock({ boutId = 0 }) {
   }, [boutId]);
 
   useEffect(() => {
-    if (!state.running) {
+    if (!periodClock.running) {
       return;
     }
     const start = Date.now();
     const intervalId = setInterval(() => {
-      if (lap + state.elapsed >= state.alarm) {
+      if (lap + periodClock.elapsed >= periodClock.alarm) {
         clearInterval(intervalId);
       } else {
         setLap(Date.now() - start);
@@ -86,13 +92,13 @@ export function PeriodClock({ boutId = 0 }) {
       clearInterval(intervalId);
       setLap(0);  // Reset the currently running Lap
     };
-  }, [state]);
+  }, [periodClock]);
 
-  const totalElapsed = lap + state.elapsed;
+  const totalElapsed = lap + periodClock.elapsed;
 
   // Get the number of milliseconds remaining on the Period clock
-  const clockMilliseconds = state.alarm > state.elapsed
-    ? state.alarm - totalElapsed
+  const clockMilliseconds = periodClock.alarm > periodClock.elapsed
+    ? periodClock.alarm - totalElapsed
     : 0;
 
   return (
@@ -103,78 +109,99 @@ export function PeriodClock({ boutId = 0 }) {
 }
 
 export function GameClock({ boutId = 0 }) {
-  const [state, setState] = useState(NULL_TIMER);
+  const [jamClock, setJamClock] = useState(null);
+  const [timeoutClock, setTimeoutClock] = useState(null);
   const [lap, setLap] = useState(0);
 
-  // TODO: allow the lineup timer to count up
-
+  // Subscribe to any changes to the Jam and Timeout state
   useEffect(() => {
-    if (boutId === null) {
-      return;
-    }
-    let ignore = false;
-    sendRequest("jam", { id: null })
-      .then((newJam) => {
-        if (!ignore) {
-          // The initial state must always be set
-          if (newJam.countdown.running) {
-            newJam.countdown.elapsed += getLatency();
-            setState(newJam.countdown);
-          } else {
-            if (newJam.clock.running) {
-              newJam.clock.elapsed += getLatency();
-            }
-            setState(newJam.clock);
-          }
-        }
-      });
-
-    const unsubscribe = onEvent("jam", (newJam) => {
-      // Only update the state if a clock is running
-      if (newJam.countdown.running) {
-        newJam.countdown.elapsed += getLatency();
-        setState(newJam.countdown);
-      } else if (newJam.clock.running) {
-        newJam.clock.elapsed += getLatency();
-        setState(newJam.clock);
+    const unsubscribeJam = onEvent("jam", (newJam) => {
+      const clock = newJam.countdown.running ? newJam.countdown : newJam.clock;
+      if (!clock.running) {
+        return;
       }
+      clock.timestamp = Date.now();
+      setJamClock(clock);
+    });
+
+    const unsubscribeTimeout = onEvent("clockStoppage", (newTimeout) => {
+      const clock = newTimeout.activeStoppage;
+      if (clock !== null) {
+        clock.timestamp = Date.now();
+      }
+      setTimeoutClock(clock);
     });
 
     return () => {
-      ignore = true;
-      unsubscribe();
+      unsubscribeJam();
+      unsubscribeTimeout();
+    };
+  }, []);
+
+  // Get the initial Jam and Timeout state
+  useEffect(() => {
+    if (boutId == null) {
+      return;
     }
+
+    let ignore = false;  // Avoid race conditions
+    sendRequest("jam", { id: null })
+      .then((newJam) => {
+        if (!ignore) {
+          const clock = newJam.countdown.running ? newJam.countdown : newJam.clock;
+          clock.timestamp = Date.now();
+          setJamClock(clock);
+        }
+      });
+    sendRequest("clockStoppage", { id: boutId })
+      .then((newTimeout) => {
+        if (!ignore) {
+          const clock = newTimeout.activeStoppage;
+          if (clock !== null) {
+            clock.timestamp = Date.now();
+          }
+          setTimeoutClock(clock);
+        }
+      });
+
+    return () => ignore = true;
   }, [boutId]);
 
   useEffect(() => {
-    if (!state.running) {
+    // Get the active clock and calculate its expiry
+    const clock = timeoutClock && timeoutClock.running ? timeoutClock : jamClock;
+    if (!clock || !clock.running) {
       return;
     }
-    const start = Date.now();
+    const stopTime = clock.timestamp + clock.alarm - clock.elapsed;
+
     const intervalId = setInterval(() => {
-      if (lap + state.elapsed >= state.alarm) {
+      if (clock.alarm && clock !== timeoutClock && Date.now() >= stopTime) {
+        // Timeout clocks should not expire
         clearInterval(intervalId);
       } else {
-        setLap(Date.now() - start);
+        setLap(Date.now() - clock.timestamp);
       }
     }, 50);
+
     return () => {
       clearInterval(intervalId);
-      setLap(0);  // Reset the currently running Lap
-    };
-  }, [state]);
-
-  const totalElapsed = lap + state.elapsed;
+      setLap(0);
+    }
+  }, [jamClock, timeoutClock]);
 
   // Get the number of milliseconds remaining on the Period clock
-  const clockMilliseconds = state.alarm > state.elapsed
-    ? state.alarm - totalElapsed
-    : 0;
+  const clock = timeoutClock && timeoutClock.running ? timeoutClock : jamClock;
+  let clockMilliseconds = clock?.elapsed + lap;
+  if (clock !== timeoutClock && clock.alarm !== null) {
+    clockMilliseconds = clock.alarm > clockMilliseconds
+      ? clock.alarm - clockMilliseconds
+      : 0;
+  }
 
   return (
     <span className={clockMilliseconds ? "timerComplete" : ""}>
-      {formatTimeString(clockMilliseconds)}
+      {formatTimeString(clockMilliseconds, (clock !== timeoutClock))}
     </span>
   );
 }
-
