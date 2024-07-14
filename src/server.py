@@ -38,7 +38,7 @@ class ClientException(Exception):
 
 
 class Encodable(ABC):
-    PRIMITIVE: TypeAlias = None | int | float | str | bool | dict | list
+    PRIMITIVE: TypeAlias = None | int | float | str | bool | dict[str, Any] | list[Any]
     
     def __init__(self) -> None:
         self._uuid: uuid.UUID = uuid.uuid4()
