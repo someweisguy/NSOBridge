@@ -51,7 +51,7 @@ export function PeriodClock({ boutId = "0" }) {
 
   useEffect(() => {
     let ignore = false;
-    sendRequest("period", { uri: { bout: boutId } })
+    sendRequest("period", { uri: { bout: boutId, period: -1 } })
       .then((newPeriod) => {
         if (!ignore) {
           // TODO: Handle halftime and pre-game timers
