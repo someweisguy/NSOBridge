@@ -11,20 +11,6 @@ const INJURY = "injury";
 const TIME = "time";
 const UNKNOWN = "unknown";
 
-const NULL_PERIOD = {
-  uuid: null,
-  countdown: null,
-  clock: null,
-  jamCount: 1
-};
-
-const NULL_JAM = {
-  uuid: null,
-  countdown: null,
-  clock: null,
-  stopReason: null
-}
-
 const NULL_JAM_SCORE = {
   uuid: null,
   trips: [],
@@ -49,19 +35,22 @@ const NULL_STOPPAGE = {
 
 export function ScoreboardEditor({ boutId = "0" }) {
   const [uri, setUri] = useState(null);
-  const [period, setPeriod] = useState(NULL_PERIOD);
-  const [jam, setJam] = useState(NULL_JAM);
+  const [period, setPeriod] = useState(null);
+  const [jam, setJam] = useState(null);
   const [clockStoppage, setClockStoppage] = useState(NULL_STOPPAGE);
 
   useEffect(() => {
     let ignore = false;
     sendRequest("bout", { uri: { bout: boutId } })
-      .then((newBoutState) => {
+      .then((newBout) => {
         if (!ignore) {
-          setUri({
-            bout: boutId, period: newBoutState.periodCount - 1,
-            jam: newBoutState.currentJamNum
-          })
+          const newUri = {
+            bout: boutId, period: newBout.periodCount - 1,
+            jam: newBout.currentJamNum
+          };
+          sendRequest("period", { uri: newUri }).then((newPeriod) => setPeriod(newPeriod));
+          sendRequest("jam", { uri: newUri }).then((newJam) => setJam(newJam));
+          setUri(newUri);
         }
       });
     sendRequest("clockStoppage", { uri: { bout: boutId } })
@@ -74,64 +63,56 @@ export function ScoreboardEditor({ boutId = "0" }) {
   }, [boutId]);
 
   useEffect(() => {
-    if (uri === null) {
-      return;
-    }
-    let ignore = false;
-    sendRequest("period", { uri })
-      .then((newPeriodState) => {
-        if (!ignore) {
-          setPeriod(newPeriodState);
-        }
-      });
-    sendRequest("jam", { uri })
-      .then((newJamState) => {
-        if (!ignore) {
-          setJam(newJamState);
-        }
-      });
-
-    const unsubscribePeriod = onEvent("period", (newPeriodState) => {
-      if (newPeriodState.uuid === period.uuid) {
-        setPeriod(newPeriodState);
-      }
-    });
-
-    const unsubscribeJam = onEvent("jam", (newJamState) => {
-      if (newJamState.uuid === jam.uuid) {
-        setJam(newJamState);
-      }
-    });
-
     const unsubscribeStoppage = onEvent("clockStoppage", (newStoppage) => {
       setClockStoppage(newStoppage);
     });
-
+    return unsubscribeStoppage;
+  }, []);
+  useEffect(() => {
+    if (period === null || jam === null) {
+      return;
+    }
+    const unsubscribePeriod = onEvent("period", (newPeriod) => {
+      if (newPeriod.uuid === period.uuid) {
+        setPeriod(newPeriod);
+      }
+    });
+    const unsubscribeJam = onEvent("jam", (newJam) => {
+      if (newJam.uuid === jam.uuid) {
+        setJam(newJam);
+      }
+    });
     return () => {
-      ignore = true;
       unsubscribePeriod();
       unsubscribeJam();
-      unsubscribeStoppage();
     };
-  }, [uri, period.uuid, jam.uuid])
+  }, [period?.uuid, jam?.uuid])
 
   const goToNextJam = useCallback(() => {
     const newUri = { ...uri };
     newUri.jam++;
-    setUri(newUri);
-  }, [uri?.jam]);
+    sendRequest("jam", { uri: newUri })
+      .then((newJam) => {
+        setJam(newJam);
+        setUri(newUri);
+      })
+  }, [uri]);
 
   const goToNextPeriod = useCallback(() => {
     const newUri = { ...uri };
     newUri.period++;
-    setUri(newUri);
-  }, [uri?.period]);
+    sendRequest("period", { uri: newUri })
+      .then((newPeriod) => {
+        setJam(newPeriod);
+        setUri(newUri);
+      })
+  }, [uri]);
 
-  const readyForNextJam = jam.stopReason !== null;
-  const readyForNextPeriod = period.clock?.elapsed > period.clock?.alarm
-    && !jam.clock?.running;
+  const readyForNextJam = jam?.stopReason !== null;
+  const readyForNextPeriod = period?.clock?.elapsed > period?.clock?.alarm
+    && !jam?.clock?.running;
 
-  const clockIsStopped = clockStoppage.activeStoppage !== null;
+  const clockIsStopped = clockStoppage?.activeStoppage !== null;
 
   return (
     <div>
@@ -142,8 +123,8 @@ export function ScoreboardEditor({ boutId = "0" }) {
       {clockIsStopped ? (
         <TimeoutController stoppage={clockStoppage} />
       ) : (
-        <JamController uri={uri} hasStarted={jam.hasStarted}
-          jamClock={jam.clock} stopReason={jam.stopReason} />
+        <JamController uri={uri} hasStarted={jam?.hasStarted}
+          jamClock={jam?.clock} stopReason={jam?.stopReason} />
       )}
       <div>
         <JamScore uri={uri} team={HOME} />
