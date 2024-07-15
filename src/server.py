@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from starlette.applications import Starlette
 from starlette.requests import Request
@@ -37,16 +38,23 @@ class ClientException(Exception):
     pass
 
 
+@dataclass
+class URI:
+    bout: str
+    period: int = -1
+    jam: int = -1
+
+
 class Encodable(ABC):
     PRIMITIVE: TypeAlias = None | int | float | str | bool | dict[str, Any] | list[Any]
-    
+
     def __init__(self) -> None:
         self._uuid: uuid.UUID = uuid.uuid4()
-        
+
     @property
     def uuid(self) -> str:
         return str(self._uuid)
-    
+
     @abstractmethod
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         """Encodes the Encodable into a dictionary which can then be sent to a
@@ -278,14 +286,13 @@ async def _handleEvent(
         # Add commonly used arguments
         json["timestamp"] = NOW - timedelta(milliseconds=json["latency"])
         json["session"] = sessionId
-        # TODO: figure out a better solution for ID
-        if (
-            "id" in json.keys()
-            and isinstance(json["id"], dict)
-            and all([elem in json["id"].keys() for elem in ("period", "jam")])
-        ):
-            from roller_derby.bout import Jam
-            json["id"] = Jam.Id.decode(json["id"])  # FIXME
+        if "id" in json.keys() and isinstance(json["id"], dict):
+            rawURI: dict[str, Any] = json["id"]
+            if "bout" not in rawURI:
+                raise ClientException("bout must be specified")
+            period: int = rawURI["period"] if "period" in rawURI else -1
+            jam: int = rawURI["jam"] if "jam" in rawURI else -1
+            json["id"] = URI(rawURI["boutId"], period, jam)
 
         # Get the function and call it with only the required arguments
         func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]
@@ -312,8 +319,8 @@ async def _handleEvent(
             lineNumber: int = traceback.tb_lineno
             log.error(f"{type(e).__name__}: {str(e)} ({fileName}, {lineNumber})")
     finally:
-        # Return the current timestamp
         log.debug(f"Ack: {str(response)}")
+        # Return the current timestamp
         return response
 
 

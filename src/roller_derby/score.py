@@ -1,61 +1,61 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-from .teamAttribute import AbstractAttribute, TeamAttribute
-from typing import Self
+from roller_derby.attribute import AbstractAttribute, JamTeamAttribute
+from server import Encodable
 import server
 
 
-class Score(AbstractAttribute):
+class Score(AbstractAttribute[JamTeamAttribute]):
     API_NAME: str = "jamScore"
 
     @dataclass
-    class Trip(server.Encodable):
+    class Trip(Encodable):
         points: int
         timestamp: datetime
-        
+
         def __init__(self, points: int, timestamp: datetime) -> None:
             super().__init__()
             self.points = points
             self.timestamp = timestamp
 
-        def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
+        def encode(self) -> dict[str, Encodable.PRIMITIVE]:
             return {
                 "uuid": self.uuid,
                 "points": self.points,
                 "timestamp": str(self.timestamp),
             }
 
-    def __init__(self, parent: TeamAttribute[Self]) -> None:
+    def __init__(self, parent: JamTeamAttribute[Score]) -> None:
         super().__init__(parent)
         self._trips: list[Score.Trip] = []
         self._lead: bool = False
         self._lost: bool = False
         self._starPass: None | int = None
 
-    def setTrip(self, tripIndex: int, points: int, timestamp: datetime) -> None:
-        if not isinstance(tripIndex, int):
-            raise TypeError(f"Trip Index must be int not {type(tripIndex).__name__}.")
+    def setTrip(self, tripNum: int, points: int, timestamp: datetime) -> None:
+        if not isinstance(tripNum, int):
+            raise TypeError(f"Trip Index must be int not {type(tripNum).__name__}.")
         if not isinstance(points, int):
             raise TypeError(f"Points must be int not {type(points).__name__}.")
 
         # Check if the tripIndex is a valid value
-        if tripIndex > len(self._trips):
+        if tripNum > len(self._trips):
             raise IndexError("list index out of range")
 
         # Append or edit the desired Trip
-        if tripIndex == len(self._trips):
+        if tripNum == len(self._trips):
             self._trips.append(Score.Trip(points, timestamp))
         else:
-            self._trips[tripIndex].points = points
+            self._trips[tripNum].points = points
 
         server.update(self)
 
     def getTrips(self) -> list[Score.Trip]:
         return self._trips
 
-    def deleteTrip(self, tripIndex: int) -> None:
-        del self._trips[tripIndex]
+    def deleteTrip(self, tripNum: int) -> None:
+        del self._trips[tripNum]
 
         server.update(self)
 
@@ -98,7 +98,7 @@ class Score(AbstractAttribute):
 
         server.update(self)
 
-    def encode(self) -> dict[str, server.Encodable.PRIMITIVE]:
+    def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
             "uuid": self.uuid,
             "team": self.getTeam(),
