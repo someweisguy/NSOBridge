@@ -286,13 +286,13 @@ async def _handleEvent(
         # Add commonly used arguments
         json["timestamp"] = NOW - timedelta(milliseconds=json["latency"])
         json["session"] = sessionId
-        if "id" in json.keys() and isinstance(json["id"], dict):
-            rawURI: dict[str, Any] = json["id"]
+        if "uri" in json.keys() and isinstance(json["uri"], dict):
+            rawURI: dict[str, Any] = json["uri"]
             if "bout" not in rawURI:
                 raise ClientException("bout must be specified")
             period: int = rawURI["period"] if "period" in rawURI else -1
             jam: int = rawURI["jam"] if "jam" in rawURI else -1
-            json["id"] = URI(rawURI["boutId"], period, jam)
+            json["uri"] = URI(rawURI["bout"], period, jam)
 
         # Get the function and call it with only the required arguments
         func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]
