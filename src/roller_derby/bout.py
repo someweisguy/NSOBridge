@@ -65,6 +65,10 @@ class Jam(Encodable, Timeable):
         self._clock.start(timestamp)
         self._hasStarted = True
         
+        # Start the Period clock if it is not running
+        if not self.parentPeriod.isRunning():
+            self.parentPeriod.start(timestamp)
+        
         server.update(self)
 
     def stop(self, timestamp: datetime) -> None:
@@ -113,12 +117,16 @@ class Period(Encodable, Timeable):
     def addJam(self) -> Jam:
         jam: Jam = Jam(self)
         self._jams.append(jam)
+        
+        server.update(self)
         return jam
 
     def deleteJam(self, index: int) -> None:
         del self._jams[index]
         if len(self._jams) == 0:
             self._jams.append(Jam(self))
+        
+        server.update(self)
 
     def setTimeToDerby(
         self,
@@ -133,16 +141,22 @@ class Period(Encodable, Timeable):
         self._timeToDerby.setElapsed(None)
         self._timeToDerby.setAlarm(hours=hours, minutes=minutes, seconds=seconds)
         self._timeToDerby.start(timestamp)
+        
+        server.update(self)
 
     def start(self, timestamp: datetime) -> None:
         if self.isRunning():
             raise RuntimeError("this Period has already started")
         self._clock.start(timestamp)
+        
+        server.update(self)
 
     def stop(self, timestamp: datetime) -> None:
         if not self.isRunning():
             raise RuntimeError("this Period has already stopped")
         self._clock.stop(timestamp)
+        
+        server.update(self)
 
     def isRunning(self) -> bool:
         return self._clock.isRunning()
