@@ -50,6 +50,7 @@ export function ScoreboardEditor({ boutId = "0" }) {
           };
           sendRequest("period", { uri: newUri }).then((newPeriod) => setPeriod(newPeriod));
           sendRequest("jam", { uri: newUri }).then((newJam) => setJam(newJam));
+          // TODO: add current timeout to bout API
           setUri(newUri);
         }
       });
