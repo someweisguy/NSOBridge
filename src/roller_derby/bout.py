@@ -13,7 +13,7 @@ TEAMS: TypeAlias = Literal["home", "away"]
 STOP_REASONS: TypeAlias = Literal["time", "called", "injury"]
 
 
-class Jam(Timeable, Encodable):
+class Jam(Encodable, Timeable):
     API_NAME: str = "jam"
 
     def __init__(self, parent: Period) -> None:
@@ -84,7 +84,7 @@ class Jam(Timeable, Encodable):
         }
 
 
-class Period(Timeable, Encodable):
+class Period(Encodable, Timeable):
     API_NAME: str = "period"
 
     def __init__(self, parent: Bout) -> None:
