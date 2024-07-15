@@ -74,6 +74,10 @@ class Jam(Encodable, Timeable):
     def stop(self, timestamp: datetime) -> None:
         self._clock.stop(timestamp)
         
+        # Add a new Jam and start its Lineup
+        newJam: Jam = self.parentPeriod.addJam()
+        newJam.lineup(timestamp)
+        
         server.update(self)
 
     def isRunning(self) -> bool:
