@@ -54,6 +54,8 @@ class Jam(Encodable, Timeable):
             raise RuntimeError("this Jam has already started")
         self._clock.setAlarm(seconds=30)
         self._clock.start(timestamp)
+        
+        server.update(self)
 
     def start(self, timestamp: datetime) -> None:
         if self._clock.isRunning():
