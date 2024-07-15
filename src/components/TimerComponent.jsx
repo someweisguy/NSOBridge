@@ -136,7 +136,7 @@ export function GameClock({ boutId = "0" }) {
   // Get the initial Jam and Timeout state
   useEffect(() => {
     let ignore = false;  // Avoid race conditions
-    sendRequest("jam", { uri: { bout: boutId } })
+    sendRequest("jam", { uri: { bout: boutId, period: -1, jam: -1 } })
       .then((newJam) => {
         if (!ignore) {
           newJam.clock.timestamp = Date.now();
