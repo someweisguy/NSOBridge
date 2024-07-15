@@ -11,27 +11,22 @@ const INJURY = "injury";
 const TIME = "time";
 const UNKNOWN = "unknown";
 
-const NULL_BOUT = {
-  id: null,
-  periodCount: null,
-}
-
 const NULL_PERIOD = {
-  id: null,
+  uuid: null,
   countdown: null,
   clock: null,
   jamCount: 1
 };
 
 const NULL_JAM = {
-  id: null,
+  uuid: null,
   countdown: null,
   clock: null,
   stopReason: null
 }
 
 const NULL_JAM_SCORE = {
-  id: null,
+  uuid: null,
   trips: [],
   lead: false,
   lost: false,
@@ -40,6 +35,7 @@ const NULL_JAM_SCORE = {
 };
 
 const NULL_STOPPAGE = {
+  uuid: null,
   activeStoppage: null,
   home: {
     officialReviewRemaining: 1,
@@ -51,24 +47,24 @@ const NULL_STOPPAGE = {
   }
 }
 
-export function ScoreboardEditor({ boutId = 0 }) {
-  const [jamId, setJamId] = useState(null);
-  const [periodState, setPeriodState] = useState(NULL_PERIOD);
+export function ScoreboardEditor({ boutId = "0" }) {
+  const [uri, setUri] = useState(null);
+  const [period, setPeriod] = useState(NULL_PERIOD);
+  const [jam, setJam] = useState(NULL_JAM);
   const [clockStoppage, setClockStoppage] = useState(NULL_STOPPAGE);
-  const [jamState, setJamState] = useState(NULL_JAM);
 
   useEffect(() => {
-    if (boutId === null) {
-      return;
-    }
     let ignore = false;
-    sendRequest("bout", { id: boutId })
+    sendRequest("bout", { uri: { bout: boutId } })
       .then((newBoutState) => {
         if (!ignore) {
-          setJamId(newBoutState.activeJamId)
+          setUri({
+            bout: boutId, period: newBoutState.periodCount - 1,
+            jam: newBoutState.currentJamNum
+          })
         }
       });
-    sendRequest("clockStoppage", { id: boutId })
+    sendRequest("clockStoppage", { uri: { bout: boutId } })
       .then((newClockState) => {
         if (!ignore) {
           setClockStoppage(newClockState);
@@ -77,49 +73,33 @@ export function ScoreboardEditor({ boutId = 0 }) {
     return () => ignore = true;
   }, [boutId]);
 
-
   useEffect(() => {
-    if (jamId === null) {
+    if (uri === null) {
       return;
     }
     let ignore = false;
-    if (jamId.period !== periodState.id) {
-      sendRequest("period", { id: jamId.period })
-        .then((newPeriodState) => {
-          if (!ignore) {
-            setPeriodState(newPeriodState);
-          }
-        }, () => {
-          // On error set the jamId back to its previous state
-          const oldJamId = { ...jamId };
-          oldJamId.period = periodState.id;
-          setJamId(oldJamId);
-        });
-    }
-    if (jamId.jam !== jamState.id?.jam) {
-      sendRequest("jam", { id: jamId })
-        .then((newJamState) => {
-          if (!ignore) {
-            setJamState(newJamState);
-          }
-        }, () => {
-          // On error set the jamId back to its previous state
-          const oldJamId = { ...jamId };
-          oldJamId.jam = jamState.id.jam;
-          setJamId(oldJamId);
-        });
-    }
+    sendRequest("period", { uri })
+      .then((newPeriodState) => {
+        if (!ignore) {
+          setPeriod(newPeriodState);
+        }
+      });
+    sendRequest("jam", { uri })
+      .then((newJamState) => {
+        if (!ignore) {
+          setJam(newJamState);
+        }
+      });
 
     const unsubscribePeriod = onEvent("period", (newPeriodState) => {
-      if (newPeriodState.id === jamId.period) {
-        setPeriodState(newPeriodState);
+      if (newPeriodState.uuid === period.uuid) {
+        setPeriod(newPeriodState);
       }
     });
 
     const unsubscribeJam = onEvent("jam", (newJamState) => {
-      if (newJamState.id.period === jamId.period
-        && newJamState.id.jam === jamId.jam) {
-        setJamState(newJamState);
+      if (newJamState.uuid === jam.uuid) {
+        setJam(newJamState);
       }
     });
 
@@ -133,47 +113,47 @@ export function ScoreboardEditor({ boutId = 0 }) {
       unsubscribeJam();
       unsubscribeStoppage();
     };
-  }, [jamId])
+  }, [uri, period.uuid, jam.uuid])
 
   const goToNextJam = useCallback(() => {
-    const newJamId = { ...jamId };
-    newJamId.jam++;
-    setJamId(newJamId);
-  }, [jamId]);
+    const newUri = { ...uri };
+    newUri.jam++;
+    setUri(newUri);
+  }, [uri?.jam]);
 
   const goToNextPeriod = useCallback(() => {
-    const newJamId = { ...jamId };
-    newJamId.period++;
-    setJamId(newJamId);
-  }, [jamId?.period]);
+    const newUri = { ...uri };
+    newUri.period++;
+    setUri(newUri);
+  }, [uri?.period]);
 
-  const readyForNextJam = jamState.stopReason !== null;
-  const readyForNextPeriod = periodState.clock?.elapsed > periodState.clock?.alarm
-    && !jamState.clock?.running;
+  const readyForNextJam = jam.stopReason !== null;
+  const readyForNextPeriod = period.clock?.elapsed > period.clock?.alarm
+    && !jam.clock?.running;
 
   const clockIsStopped = clockStoppage.activeStoppage !== null;
 
   return (
     <div>
-      {jamState.id && ("P" + (jamState.id.period + 1) + " J" + (jamState.id.jam + 1))}
+      {uri && ("P" + (uri.period + 1) + " J" + (uri.jam + 1))}
       {readyForNextJam && <button onClick={goToNextJam}>Next Jam</button>}
       {readyForNextPeriod && <button onClick={goToNextPeriod}>Next Period</button>}
       <br />
       {clockIsStopped ? (
         <TimeoutController stoppage={clockStoppage} />
       ) : (
-        <JamController id={jamId} jamClock={jamState.clock}
-          stopReason={jamState.stopReason} />
+        <JamController uri={uri} hasStarted={jam.hasStarted}
+          jamClock={jam.clock} stopReason={jam.stopReason} />
       )}
       <div>
-        <JamScore id={jamId} team={HOME} />
-        <JamScore id={jamId} team={AWAY} />
+        <JamScore uri={uri} team={HOME} />
+        <JamScore uri={uri} team={AWAY} />
       </div>
     </div>
   );
 }
 
-function JamScore({ id, team }) {
+function JamScore({ uri, team }) {
   const [state, setState] = useState(NULL_JAM_SCORE);
   const [selectedTrip, setSelectedTrip] = useState(0);
   const latestTripIsSelected = useRef(true);
@@ -181,11 +161,11 @@ function JamScore({ id, team }) {
 
   // Request new data when the Jam changes
   useEffect(() => {
-    if (id === null) {
+    if (uri === null) {
       return;
     }
     let ignore = false;
-    sendRequest("jamScore", { id, team })
+    sendRequest("jamScore", { uri, team })
       .then((newState) => {
         if (!ignore) {
           setSelectedTrip(newState.trips.length);
@@ -193,10 +173,10 @@ function JamScore({ id, team }) {
         }
       });
     return () => ignore = true;
-  }, [id, team]);
+  }, [uri, team]);
 
   useEffect(() => {
-    if (id === null) {
+    if (uri === null) {
       return;
     }
     const unsubscribeFunction = onEvent("jamScore", (newState) => {
@@ -225,25 +205,25 @@ function JamScore({ id, team }) {
     scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
   }, [selectedTrip])
 
-  const setTrip = useCallback((tripIndex, tripPoints, validPass = true) => {
-    sendRequest("setTrip", { id, team, tripIndex, tripPoints, validPass });
-  }, [id, team]);
+  const setTrip = useCallback((tripNum, points, validPass = true) => {
+    sendRequest("setTrip", { uri, team, tripNum, points, validPass });
+  }, [uri, team]);
 
-  const deleteTrip = useCallback((tripIndex) => {
-    sendRequest("deleteTrip", { id, team, tripIndex });
-  }, [id, team])
+  const deleteTrip = useCallback((tripNum) => {
+    sendRequest("deleteTrip", { uri, team, tripNum });
+  }, [uri, team])
 
   const setLead = useCallback((lead) => {
-    sendRequest("setLead", { id, team, lead });
-  }, [id, team]);
+    sendRequest("setLead", { uri, team, lead });
+  }, [uri, team]);
 
   const setLost = useCallback((lost) => {
-    sendRequest("setLost", { id, team, lost });
-  }, [id, team]);
+    sendRequest("setLost", { uri, team, lost });
+  }, [uri, team]);
 
-  const setStarPass = useCallback((tripIndex) => {
-    sendRequest("setStarPass", { id, team, tripIndex });
-  }, [id, team, selectedTrip]);
+  const setStarPass = useCallback((tripNum) => {
+    sendRequest("setStarPass", { uri, team, tripNum });
+  }, [uri, team]);
 
   // Render the Trip point buttons
   let pointButtons = [];
@@ -293,7 +273,7 @@ function JamScore({ id, team }) {
   const currentTrip = { points: "\u00A0" };
   [...state.trips, currentTrip].forEach((trip, i) => {
     tripButtons.push(
-      <button onClick={() => setSelectedTrip(i)}>
+      <button key={trip.uuid} onClick={() => setSelectedTrip(i)}>
         <small>Trip {i + 1}</small><br />
         {trip.points}
       </button>
@@ -351,21 +331,20 @@ function JamScore({ id, team }) {
   );
 }
 
-function JamController({ id, jamClock, stopReason }) {
-  const isStarted = jamClock && jamClock.elapsed > 0;
-  const isFinished = isStarted && stopReason !== null;
+function JamController({ uri, hasStarted, jamClock, stopReason }) {
+  const isFinished = hasStarted && !jamClock?.running;
 
   const startJam = useCallback(() => {
-    sendRequest("startJam", { id });
-  }, [id]);
+    sendRequest("startJam", { uri });
+  }, [uri]);
 
   const stopJam = useCallback(() => {
-    sendRequest("stopJam", { id });
-  }, [id]);
+    sendRequest("stopJam", { uri });
+  }, [uri]);
 
   const setJamStopReason = useCallback((stopReason) => {
-    sendRequest("setJamStopReason", { id, stopReason });
-  }, [id]);
+    sendRequest("setJamStopReason", { uri, stopReason });
+  }, [uri]);
 
   const callTimeout = useCallback(() => {
     sendRequest("callTimeout", {});
@@ -373,7 +352,7 @@ function JamController({ id, jamClock, stopReason }) {
 
   let label = null;
   const buttons = [];
-  if (!isStarted) {
+  if (!hasStarted) {
     buttons.push(
       <button onClick={startJam}>Start Jam</button>
     );

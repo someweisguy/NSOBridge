@@ -45,16 +45,13 @@ function formatTimeString(millisRemaining, showMillis = true) {
 }
 
 
-export function PeriodClock({ boutId = 0 }) {
+export function PeriodClock({ boutId = "0" }) {
   const [periodClock, setPeriodClock] = useState(NULL_TIMER);
   const [lap, setLap] = useState(0);
 
   useEffect(() => {
-    if (boutId === null) {
-      return;
-    }
     let ignore = false;
-    sendRequest("period", { id: null })
+    sendRequest("period", { uri: { bout: boutId } })
       .then((newPeriod) => {
         if (!ignore) {
           // TODO: Handle halftime and pre-game timers
@@ -108,7 +105,7 @@ export function PeriodClock({ boutId = 0 }) {
   );
 }
 
-export function GameClock({ boutId = 0 }) {
+export function GameClock({ boutId = "0" }) {
   const [jamClock, setJamClock] = useState(null);
   const [timeoutClock, setTimeoutClock] = useState(null);
   const [lap, setLap] = useState(0);
@@ -123,36 +120,30 @@ export function GameClock({ boutId = 0 }) {
       setTimeoutClock(clock);
     });
     return () => unsubscribeTimeout();
-    }, []);
+  }, []);
   useEffect(() => {
     const unsubscribeJam = onEvent("jam", (newJam) => {
-      const clock = newJam.countdown.running ? newJam.countdown : newJam.clock;
-      if (!clock.running || timeoutClock) {
+      if (!newJam.clock.running || timeoutClock) {
         // Prevent the Jam or Lineup clocks from clobbering the Timeout clock
         return;
       }
-      clock.timestamp = Date.now();
-      setJamClock(clock);
+      newJam.clock.timestamp = Date.now();
+      setJamClock(newJam.clock);
     });
     return () => unsubscribeJam();
   }, [timeoutClock])
 
   // Get the initial Jam and Timeout state
   useEffect(() => {
-    if (boutId == null) {
-      return;
-    }
-
     let ignore = false;  // Avoid race conditions
-    sendRequest("jam", { id: null })
+    sendRequest("jam", { uri: { bout: boutId } })
       .then((newJam) => {
         if (!ignore) {
-          const clock = newJam.countdown.running ? newJam.countdown : newJam.clock;
-          clock.timestamp = Date.now();
-          setJamClock(clock);
+          newJam.clock.timestamp = Date.now();
+          setJamClock(newJam.clock);
         }
       });
-    sendRequest("clockStoppage", { id: boutId })
+    sendRequest("clockStoppage", { uri: { bout: boutId } })
       .then((newTimeout) => {
         if (!ignore) {
           const clock = newTimeout.activeStoppage;
@@ -168,7 +159,7 @@ export function GameClock({ boutId = 0 }) {
 
   useEffect(() => {
     // Get the active clock and calculate its expiry
-    const clock = timeoutClock && timeoutClock.running ? timeoutClock : jamClock;
+    const clock = timeoutClock?.running ? timeoutClock : jamClock;
     if (!clock || !clock.running) {
       return;
     }
@@ -190,7 +181,7 @@ export function GameClock({ boutId = 0 }) {
   }, [jamClock, timeoutClock]);
 
   // Get the number of milliseconds remaining on the Period clock
-  const clock = timeoutClock && timeoutClock.running ? timeoutClock : jamClock;
+  const clock = timeoutClock?.running ? timeoutClock : jamClock;
   let clockMilliseconds = clock?.elapsed + lap;
   if (clock !== timeoutClock && clock.alarm !== null) {
     clockMilliseconds = clock.alarm > clockMilliseconds
