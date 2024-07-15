@@ -62,9 +62,13 @@ class Jam(Encodable, Timeable):
         self._clock.setAlarm(minutes=2)
         self._clock.start(timestamp)
         self._hasStarted = True
+        
+        server.update(self)
 
     def stop(self, timestamp: datetime) -> None:
         self._clock.stop(timestamp)
+        
+        server.update(self)
 
     def isRunning(self) -> bool:
         return self._hasStarted and self._clock.isRunning()
