@@ -87,7 +87,7 @@ export function ScoreboardEditor({ boutId = "0" }) {
       unsubscribePeriod();
       unsubscribeJam();
     };
-  }, [period?.uuid, jam?.uuid])
+  }, [period, jam])
 
   const goToNextJam = useCallback(() => {
     const newUri = { ...uri };
