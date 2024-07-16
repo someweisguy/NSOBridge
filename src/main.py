@@ -65,7 +65,7 @@ async def period(uri: URI) -> API:
     elif uri.period > bout.getPeriodCount():
         raise server.ClientException("that Period does not exist")
 
-    period: Period = series.currentBout[uri.period]
+    period: Period = bout[uri.period]
     return period.encode()
 
 
