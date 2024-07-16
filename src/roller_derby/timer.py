@@ -46,7 +46,7 @@ class Timer(Encodable, Timeable):
         secondsRemaining: float = self.getRemaining().total_seconds()
         while secondsRemaining > 0:
             await asyncio.sleep(secondsRemaining)
-            secondsRemaining = self.getRemaining.total_seconds()
+            secondsRemaining = self.getRemaining().total_seconds()
         if self._callback is not None:
             self._callback(datetime.now())
         self._task = None
