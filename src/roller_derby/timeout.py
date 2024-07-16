@@ -5,6 +5,7 @@ from server import Encodable
 from roller_derby.attribute import AbstractAttribute, BoutTeamAttribute
 from roller_derby.timer import Timer
 from typing import get_args, Literal, Self, TypeAlias, TYPE_CHECKING
+import roller_derby.bout as bout
 import server
 
 if TYPE_CHECKING:
@@ -171,7 +172,7 @@ class BoutClockStoppage(BoutTeamAttribute[TeamClockStoppage]):
                 team._delete(self._activeStoppage)
 
         # Assign the Stoppage to the appropriate team/official location
-        if source in get_args(TEAMS):
+        if source in get_args(bout.TEAMS):
             self[source]._add(self._activeStoppage)  # type: ignore
             if not self._activeStoppage.isOfficialReview:
                 self._activeStoppage.setCallback(lambda _: server.update(self))
