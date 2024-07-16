@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from roller_derby.attribute import JamTeamAttribute
 from roller_derby.score import Score
-from roller_derby.timeout import BoutClockStoppage
+from roller_derby.timeout import BoutTimeout
 from roller_derby.timer import Timeable, Timer
 from server import Encodable
 from typing import get_args, Literal, TypeAlias
@@ -54,7 +54,7 @@ class Jam(Encodable, Timeable):
             raise RuntimeError("this Jam has already started")
         self._clock.setAlarm(seconds=30)
         self._clock.start(timestamp)
-        
+
         server.update(self)
 
     def start(self, timestamp: datetime) -> None:
@@ -64,20 +64,20 @@ class Jam(Encodable, Timeable):
         self._clock.setAlarm(minutes=2)
         self._clock.start(timestamp)
         self._hasStarted = True
-        
+
         # Start the Period clock if it is not running
         if not self.parentPeriod.isRunning():
             self.parentPeriod.start(timestamp)
-        
+
         server.update(self)
 
     def stop(self, timestamp: datetime) -> None:
         self._clock.stop(timestamp)
-        
+
         # Add a new Jam and start its Lineup
         newJam: Jam = self.parentPeriod.addJam()
         newJam.lineup(timestamp)
-        
+
         server.update(self)
 
     def isRunning(self) -> bool:
@@ -121,7 +121,7 @@ class Period(Encodable, Timeable):
     def addJam(self) -> Jam:
         jam: Jam = Jam(self)
         self._jams.append(jam)
-        
+
         server.update(self)
         return jam
 
@@ -129,7 +129,7 @@ class Period(Encodable, Timeable):
         del self._jams[index]
         if len(self._jams) == 0:
             self._jams.append(Jam(self))
-        
+
         server.update(self)
 
     def setTimeToDerby(
@@ -145,21 +145,21 @@ class Period(Encodable, Timeable):
         self._timeToDerby.setElapsed(None)
         self._timeToDerby.setAlarm(hours=hours, minutes=minutes, seconds=seconds)
         self._timeToDerby.start(timestamp)
-        
+
         server.update(self)
 
     def start(self, timestamp: datetime) -> None:
         if self.isRunning():
             raise RuntimeError("this Period has already started")
         self._clock.start(timestamp)
-        
+
         server.update(self)
 
     def stop(self, timestamp: datetime) -> None:
         if not self.isRunning():
             raise RuntimeError("this Period has already stopped")
         self._clock.stop(timestamp)
-        
+
         server.update(self)
 
     def isRunning(self) -> bool:
@@ -190,13 +190,13 @@ class Bout(Encodable):
     def __init__(self) -> None:
         super().__init__()
         self._periods: list[Period] = [Period(self)]
-        self._timeout: BoutClockStoppage = BoutClockStoppage(self)
+        self._timeout: BoutTimeout = BoutTimeout(self)
 
     def __getitem__(self, item: int) -> Period:
         return self._periods[item]
 
     @property
-    def timeout(self) -> BoutClockStoppage:
+    def timeout(self) -> BoutTimeout:
         return self._timeout
 
     def getPeriodCount(self) -> int:

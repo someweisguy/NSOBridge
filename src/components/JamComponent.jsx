@@ -22,7 +22,7 @@ const NULL_JAM_SCORE = {
 
 const NULL_STOPPAGE = {
   uuid: null,
-  activeStoppage: null,
+  current: null,
   home: {
     officialReviewRemaining: 1,
     timeoutsRemaining: 3
@@ -37,7 +37,7 @@ export function ScoreboardEditor({ boutId = "0" }) {
   const [uri, setUri] = useState(null);
   const [period, setPeriod] = useState(null);
   const [jam, setJam] = useState(null);
-  const [clockStoppage, setClockStoppage] = useState(NULL_STOPPAGE);
+  const [timeout, setTimeout] = useState(NULL_STOPPAGE);
 
   useEffect(() => {
     let ignore = false;
@@ -54,18 +54,18 @@ export function ScoreboardEditor({ boutId = "0" }) {
           setUri(newUri);
         }
       });
-    sendRequest("clockStoppage", { uri: { bout: boutId } })
-      .then((newClockState) => {
+    sendRequest("boutTimeout", { uri: { bout: boutId } })
+      .then((newTimeout) => {
         if (!ignore) {
-          setClockStoppage(newClockState);
+          setTimeout(newTimeout);
         }
       });
     return () => ignore = true;
   }, [boutId]);
 
   useEffect(() => {
-    const unsubscribeStoppage = onEvent("clockStoppage", (newStoppage) => {
-      setClockStoppage(newStoppage);
+    const unsubscribeStoppage = onEvent("boutTimeout", (newStoppage) => {
+      setTimeout(newStoppage);
     });
     return unsubscribeStoppage;
   }, []);
@@ -113,7 +113,7 @@ export function ScoreboardEditor({ boutId = "0" }) {
   const readyForNextPeriod = period?.clock?.elapsed > period?.clock?.alarm
     && !jam?.clock?.running;
 
-  const clockIsStopped = clockStoppage?.activeStoppage !== null;
+  const clockIsStopped = timeout?.current !== null;
 
   return (
     <div>
@@ -122,7 +122,7 @@ export function ScoreboardEditor({ boutId = "0" }) {
       {readyForNextPeriod && <button onClick={goToNextPeriod}>Next Period</button>}
       <br />
       {clockIsStopped ? (
-        <TimeoutController stoppage={clockStoppage} />
+        <TimeoutController timeout={timeout.current} />
       ) : (
         <JamController uri={uri} hasStarted={jam?.hasStarted}
           jamClock={jam?.clock} stopReason={jam?.stopReason} />
@@ -373,30 +373,29 @@ function JamController({ uri, hasStarted, jamClock, stopReason }) {
   );
 }
 
-function TimeoutController({ stoppage }) {
+function TimeoutController({ timeout }) {
   const setTimeout = useCallback(() => {
-    const payload = { ...stoppage.activeStoppage };
-    payload.isOfficialReview = false;
-    sendRequest("setTimeout", payload);
-  }, [stoppage.activeStoppage]);
+    const newTimeoutState = { ...timeout };
+    newTimeoutState.isOfficialReview = false;
+    sendRequest("setTimeout", newTimeoutState);
+  }, [timeout]);
 
   const setOfficialReview = useCallback(() => {
-    const payload = { ...stoppage.activeStoppage };
-    payload.isOfficialReview = true;
-    sendRequest("setTimeout", payload);
-  }, [stoppage.activeStoppage]);
+    const newTimeoutState = { ...timeout };
+    newTimeoutState.isOfficialReview = true;
+    sendRequest("setTimeout", newTimeoutState);
+  }, [timeout]);
 
   const setCaller = useCallback((caller) => {
-    const payload = { ...stoppage.activeStoppage };
-    payload.caller = caller;
-    sendRequest("setTimeout", payload);
-  }, [stoppage.activeStoppage]);
+    const newTimeoutState = { ...timeout };
+    newTimeoutState.caller = caller;
+    sendRequest("setTimeout", newTimeoutState);
+  }, [timeout]);
 
   const endTimeout = useCallback(() => {
     sendRequest("endTimeout");
   }, []);
 
-  const timeout = stoppage.activeStoppage;
 
   return (
     <div>

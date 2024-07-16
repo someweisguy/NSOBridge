@@ -119,12 +119,12 @@ export function GameClock({ boutId = "0" }) {
     // Send requests to the get Jam clock and current Timeout
     const getJamClock = sendRequest("jam", { uri: { bout: boutId } })
       .then((newJam) => { return { ...newJam.clock, timestamp: Date.now() } });
-    const getTimeout = sendRequest("clockStoppage", { uri: { bout: boutId } })
+    const getTimeout = sendRequest("boutTimeout", { uri: { bout: boutId } })
       .then((newTimeout) => {
-        if (newTimeout.activeStoppage === null) {
+        if (newTimeout.current === null) {
           return null;
         }
-        return { ...newTimeout.activeStoppage, timestamp: Date.now() }
+        return { ...newTimeout.current, timestamp: Date.now() }
       });
 
     // Update the component state at the same time to avoid clock jitter
@@ -147,11 +147,11 @@ export function GameClock({ boutId = "0" }) {
       newJam.clock.timestamp = Date.now();
       setJamClock(newJam.clock);
     });
-    const unsubscribeTimeout = onEvent("clockStoppage", (newTimeout) => {
-      if (newTimeout.activeStoppage !== null) {
-        newTimeout.activeStoppage.timestamp = Date.now();
+    const unsubscribeTimeout = onEvent("boutTimeout", (newTimeout) => {
+      if (newTimeout.current !== null) {
+        newTimeout.current.timestamp = Date.now();
       }
-      setTimeoutClock(newTimeout.activeStoppage);
+      setTimeoutClock(newTimeout.current);
     });
 
     return () => {

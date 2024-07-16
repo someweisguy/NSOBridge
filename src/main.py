@@ -6,7 +6,7 @@ import server
 
 
 @server.register
-async def clockStoppage() -> API:
+async def boutTimeout() -> API:
     bout: Bout = series.currentBout
     return bout.timeout.encode()
 
