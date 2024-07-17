@@ -39,14 +39,14 @@ function formatTimeString(millisRemaining, showMillis = true) {
 }
 
 
-export function PeriodClock({ boutId = "0" }) {
+export function PeriodClock({ boutUuid  }) {
   const [periodClock, setPeriodClock] = useState(null);
   const [lap, setLap] = useState(0);
 
   // Get the initial Period clock state
   useEffect(() => {
     let ignore = false;
-    sendRequest("period", { uri: { bout: boutId } })
+    sendRequest("period", { uri: { bout: boutUuid } })
       .then((newPeriod) => {
         if (!ignore) {
           // TODO: Handle halftime and pre-game timers
@@ -59,7 +59,7 @@ export function PeriodClock({ boutId = "0" }) {
       });
 
     return () => ignore = true;
-  }, [boutId]);
+  }, [boutUuid]);
 
   // Subscribe to any changes of the Period clock
   useEffect(() => {
@@ -109,7 +109,7 @@ export function PeriodClock({ boutId = "0" }) {
   );
 }
 
-export function GameClock({ boutId = "0" }) {
+export function GameClock({ boutUuid }) {
   const [jamClock, setJamClock] = useState(null);
   const [timeoutClock, setTimeoutClock] = useState(null);
   const [lap, setLap] = useState(0);
@@ -117,9 +117,9 @@ export function GameClock({ boutId = "0" }) {
   // Get the initial Jam and Timeout state
   useEffect(() => {
     // Send requests to the get Jam clock and current Timeout
-    const getJamClock = sendRequest("jam", { uri: { bout: boutId } })
+    const getJamClock = sendRequest("jam", { uri: { bout: boutUuid } })
       .then((newJam) => { return { ...newJam.clock, timestamp: Date.now() } });
-    const getTimeout = sendRequest("boutTimeout", { uri: { bout: boutId } })
+    const getTimeout = sendRequest("boutTimeout", { uri: { bout: boutUuid } })
       .then((newTimeout) => {
         if (newTimeout.current === null) {
           return null;
@@ -136,7 +136,7 @@ export function GameClock({ boutId = "0" }) {
       }
     });
     return () => ignore = true;
-  }, [boutId]);
+  }, [boutUuid]);
 
   // Subscribe to any changes to the Jam and Timeout state
   useEffect(() => {

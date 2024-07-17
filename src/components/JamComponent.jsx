@@ -33,7 +33,7 @@ const NULL_STOPPAGE = {
   }
 }
 
-export function ScoreboardEditor({ boutId = "0" }) {
+export function ScoreboardEditor({ boutUuid }) {
   const [uri, setUri] = useState(null);
   const [period, setPeriod] = useState(null);
   const [jam, setJam] = useState(null);
@@ -41,11 +41,11 @@ export function ScoreboardEditor({ boutId = "0" }) {
 
   useEffect(() => {
     let ignore = false;
-    sendRequest("bout", { uri: { bout: boutId } })
+    sendRequest("bout", { uri: { bout: boutUuid } })
       .then((newBout) => {
         if (!ignore) {
           const newUri = {
-            bout: boutId, period: newBout.periodCount - 1,
+            bout: boutUuid, period: newBout.periodCount - 1,
             jam: newBout.currentJamNum
           };
           sendRequest("period", { uri: newUri }).then((newPeriod) => setPeriod(newPeriod));
@@ -54,14 +54,14 @@ export function ScoreboardEditor({ boutId = "0" }) {
           setUri(newUri);
         }
       });
-    sendRequest("boutTimeout", { uri: { bout: boutId } })
+    sendRequest("boutTimeout", { uri: { bout: boutUuid } })
       .then((newTimeout) => {
         if (!ignore) {
           setTimeout(newTimeout);
         }
       });
     return () => ignore = true;
-  }, [boutId]);
+  }, [boutUuid]);
 
   useEffect(() => {
     const unsubscribeStoppage = onEvent("boutTimeout", (newStoppage) => {
