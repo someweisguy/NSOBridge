@@ -219,6 +219,10 @@ class Series(Encodable):
     def __init__(self) -> None:
         super().__init__()
         self._bouts: list[Bout] = [Bout()]
+        
+    @property
+    def bouts(self) -> list[Bout]:
+        return self._bouts
 
     @property
     def currentBout(self) -> Bout:

@@ -4,6 +4,9 @@ from roller_derby.timeout import OFFICIAL
 from server import API, URI
 import server
 
+@server.register
+async def getBouts() -> API:
+    return [bout.encode() for bout in series._bouts]
 
 @server.register
 async def boutTimeout() -> API:
