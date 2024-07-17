@@ -19,7 +19,7 @@ class Jam(Encodable, Timeable):
     def __init__(self, parent: Period) -> None:
         super().__init__()
         self._parent: Period = parent
-        self._clock: Timer = Timer()
+        self._clock: Timer = Timer(minutes=2)
         self._hasStarted: bool = False
         self._stopReason: None | STOP_REASONS = None
         self._score: JamTeamAttribute[Score] = JamTeamAttribute[Score](self, Score)
