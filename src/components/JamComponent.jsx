@@ -114,10 +114,15 @@ export function ScoreboardEditor({ boutUuid }) {
       })
   }, [uri]);
 
-  const readyForNextJam = jam?.stopReason !== null;
+  // Determine button visibility
+  const showPreviousPeriodButton = uri.period > 0;
+  const showPreviousJamButton = uri.jam > 0;
+  const showNextJamButton = uri.jam + 1 < period.jamCount;
+
   const readyForNextPeriod = period?.clock?.elapsed > period?.clock?.alarm
     && !jam?.clock?.running;
 
+  const readyForNextJam = jam?.stopReason !== null;
   const clockIsStopped = timeout?.current !== null;
 
   return (
