@@ -39,6 +39,7 @@ export function ScoreboardEditor({ boutUuid }) {
   const [jam, setJam] = useState(null);
   const [timeout, setTimeout] = useState(NULL_STOPPAGE);
 
+  // Get information about the current Timeout, Period, and Jam
   useEffect(() => {
     let ignore = false;
     sendRequest("bout", { uri: { bout: boutUuid } })
@@ -63,6 +64,7 @@ export function ScoreboardEditor({ boutUuid }) {
     return () => ignore = true;
   }, [boutUuid]);
 
+  // Subscribe to changes of the Timeout, Period, and Jam
   useEffect(() => {
     const unsubscribeStoppage = onEvent("boutTimeout", (newStoppage) => {
       setTimeout(newStoppage);
@@ -70,7 +72,7 @@ export function ScoreboardEditor({ boutUuid }) {
     return unsubscribeStoppage;
   }, []);
   useEffect(() => {
-    if (period === null || jam === null) {
+    if (period === null) {
       return;
     }
     const unsubscribePeriod = onEvent("period", (newPeriod) => {
@@ -78,16 +80,19 @@ export function ScoreboardEditor({ boutUuid }) {
         setPeriod(newPeriod);
       }
     });
+    return unsubscribePeriod;
+  }, [period]);
+  useEffect(() => {
+    if (jam === null) {
+      return;
+    }
     const unsubscribeJam = onEvent("jam", (newJam) => {
       if (newJam.uuid === jam.uuid) {
         setJam(newJam);
       }
     });
-    return () => {
-      unsubscribePeriod();
-      unsubscribeJam();
-    };
-  }, [period, jam])
+    return unsubscribeJam;
+  }, [jam])
 
   const goToNextJam = useCallback(() => {
     const newUri = { ...uri };
