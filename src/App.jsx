@@ -31,7 +31,9 @@ function App() {
 
     // Calculate connection latency then get server information
     let ignore = false;
-    calculateLatency(10).then(() => {
+    calculateLatency(10).then((latency) => {
+      console.log("One-way latency: " + latency + "ms")
+
       sendRequest("getBouts").then((series) => {
         if (ignore) {
           return;  // Ignore old requests

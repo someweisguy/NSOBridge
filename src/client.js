@@ -56,5 +56,5 @@ export async function calculateLatency(iterations) {
     return;  // Avoid divide-by-zero error
   }
   latency = Math.round((latencySum / iterations) / 2);
-  console.log("Calculated latency: " + latency + "ms");
+  return latency;
 }
