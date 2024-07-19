@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getLatency, sendRequest, onEvent } from "../App.jsx"
+import { getLatency, sendRequest, onEvent } from "../client.js"
 
 function formatTimeString(millisRemaining, showMillis = true) {
   let timeString = "";

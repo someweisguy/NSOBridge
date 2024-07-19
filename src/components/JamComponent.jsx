@@ -1,5 +1,5 @@
 import { useCallback, useState, useRef, useEffect } from "react";
-import { onEvent, sendRequest } from "../App";
+import { onEvent, sendRequest } from "../client.js";
 import "./JamComponent.css"
 
 const HOME = "home";
