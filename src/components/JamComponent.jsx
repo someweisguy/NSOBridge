@@ -94,6 +94,16 @@ export function ScoreboardEditor({ boutUuid }) {
     return unsubscribeJam;
   }, [jam])
 
+  const goToNextPeriod = useCallback(() => {
+    const newUri = { ...uri };
+    newUri.period++;
+    sendRequest("period", { uri: newUri })
+      .then((newPeriod) => {
+        setPeriod(newPeriod);
+        setUri(newUri);
+      })
+  }, [uri]);
+
   const goToNextJam = useCallback(() => {
     const newUri = { ...uri };
     newUri.jam++;
@@ -104,44 +114,70 @@ export function ScoreboardEditor({ boutUuid }) {
       })
   }, [uri]);
 
-  const goToNextPeriod = useCallback(() => {
+  const goToPreviousJam = useCallback(() => {
     const newUri = { ...uri };
-    newUri.period++;
+    newUri.jam--;
+    sendRequest("jam", { uri: newUri })
+      .then((newJam) => {
+        setJam(newJam);
+        setUri(newUri);
+      })
+  }, [uri]);
+
+  const goToPreviousPeriod = useCallback(() => {
+    const newUri = { ...uri };
+    newUri.period--;
     sendRequest("period", { uri: newUri })
       .then((newPeriod) => {
-        setJam(newPeriod);
+        setPeriod(newPeriod);
         setUri(newUri);
       })
   }, [uri]);
 
   // Determine button visibility
-  const showPreviousPeriodButton = uri?.period > 0;
-  const showPreviousJamButton = uri?.jam > 0;
-  const showNextJamButton = uri?.jam + 1 < period?.jamCount;
+  const previousPeriodVisible = uri?.period > 0 ? "visible" : "hidden";
+  const previousJamVisible = uri?.jam > 0 ? "visible" : "hidden";
+  const nextJamVisible = uri?.jam + 1 < period?.jamCount ? "visible" : "hidden";
 
-  const readyForNextPeriod = period?.clock?.elapsed > period?.clock?.alarm
-    && !jam?.clock?.running;
+  // FIXME: 
+  const nextPeriodVisibility = period?.clock?.elapsed > period?.clock?.alarm
+    && !jam?.clock?.running ? "visible" : "hidden";
 
-  const readyForNextJam = jam?.stopReason !== null;
+
   const clockIsStopped = timeout?.current !== null;
 
   return (
-    <div>
-      {uri && ("P" + (uri.period + 1) + " J" + (uri.jam + 1))}
-      {readyForNextJam && <button onClick={goToNextJam}>Next Jam</button>}
-      {readyForNextPeriod && <button onClick={goToNextPeriod}>Next Period</button>}
+    <>
+      <div>
+        <button onClick={goToPreviousPeriod} style={{ visibility: previousPeriodVisible }}>
+          Last Period
+        </button>
+        <button onClick={goToPreviousJam} style={{ visibility: previousJamVisible }}>
+          Last Jam
+        </button>
+        {uri && ("P" + (uri.period + 1) + " J" + (uri.jam + 1))}
+        <button onClick={goToNextJam} style={{ visibility: nextJamVisible }}>
+          Next Jam
+        </button>
+        <button onClick={goToNextPeriod} style={{ visibility: nextPeriodVisibility }}>
+          Next Period
+        </button>
+      </div>
+
       <br />
+
       {clockIsStopped ? (
         <TimeoutController timeout={timeout.current} />
       ) : (
         <JamController uri={uri} hasStarted={jam?.hasStarted}
           jamClock={jam?.clock} stopReason={jam?.stopReason} />
       )}
+
       <div>
         <JamScore uri={uri} team={HOME} />
         <JamScore uri={uri} team={AWAY} />
       </div>
-    </div>
+    </>
   );
 }
 
@@ -437,5 +473,12 @@ function TimeoutController({ timeout }) {
       </span>
 
     </div>
+  );
+}
+
+function IntermissionController({ }) {
+
+  return (
+    <></>
   );
 }
