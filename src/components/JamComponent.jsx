@@ -35,9 +35,12 @@ const NULL_STOPPAGE = {
 
 export function ScoreboardEditor({ boutUuid }) {
   const [uri, setUri] = useState(null);
+  const [bout, setBout] = useState(null);
   const [period, setPeriod] = useState(null);
   const [jam, setJam] = useState(null);
   const [timeout, setTimeout] = useState(NULL_STOPPAGE);
+
+  const [readyForIntermission, setReadyForIntermission] = useState(false);
 
   // Get information about the current Timeout, Period, and Jam
   useEffect(() => {
@@ -52,6 +55,7 @@ export function ScoreboardEditor({ boutUuid }) {
           sendRequest("period", { uri: newUri }).then((newPeriod) => setPeriod(newPeriod));
           sendRequest("jam", { uri: newUri }).then((newJam) => setJam(newJam));
           // TODO: add current timeout to bout API
+          setBout(newBout);
           setUri(newUri);
         }
       });
@@ -64,7 +68,16 @@ export function ScoreboardEditor({ boutUuid }) {
     return () => ignore = true;
   }, [boutUuid]);
 
-  // Subscribe to changes of the Timeout, Period, and Jam
+  // Subscribe to changes in the latest Period
+  useEffect(() => {
+    const unsubscribeCurrentPeriod = onEvent("period", (newPeriod) => {
+      const ready = newPeriod.clock.elapsed >= newPeriod.clock.alarm;
+      setReadyForIntermission(ready);
+    })
+    return unsubscribeCurrentPeriod;
+  }, []);
+
+  // Subscribe to changes of the current Timeout, Period, and Jam
   useEffect(() => {
     const unsubscribeStoppage = onEvent("boutTimeout", (newStoppage) => {
       setTimeout(newStoppage);
@@ -96,6 +109,7 @@ export function ScoreboardEditor({ boutUuid }) {
 
   const goToNextPeriod = useCallback(() => {
     const newUri = { ...uri };
+    newUri.jam = 0;
     newUri.period++;
     sendRequest("period", { uri: newUri })
       .then((newPeriod) => {
@@ -116,6 +130,7 @@ export function ScoreboardEditor({ boutUuid }) {
 
   const goToPreviousJam = useCallback(() => {
     const newUri = { ...uri };
+    // FIXME: get jamCount of previous Period
     newUri.jam--;
     sendRequest("jam", { uri: newUri })
       .then((newJam) => {
@@ -138,10 +153,7 @@ export function ScoreboardEditor({ boutUuid }) {
   const previousPeriodVisible = uri?.period > 0 ? "visible" : "hidden";
   const previousJamVisible = uri?.jam > 0 ? "visible" : "hidden";
   const nextJamVisible = uri?.jam + 1 < period?.jamCount ? "visible" : "hidden";
-
-  // FIXME: 
-  const nextPeriodVisibility = period?.clock?.elapsed > period?.clock?.alarm
-    && !jam?.clock?.running ? "visible" : "hidden";
+  const nextPeriodVisibility = uri?.period + 1 < bout?.periodCount ? "visible" : "hidden";
 
 
   const clockIsStopped = timeout?.current !== null;
@@ -155,7 +167,9 @@ export function ScoreboardEditor({ boutUuid }) {
         <button onClick={goToPreviousJam} style={{ visibility: previousJamVisible }}>
           Last Jam
         </button>
+        &nbsp;
         {uri && ("P" + (uri.period + 1) + " J" + (uri.jam + 1))}
+        &nbsp;
         <button onClick={goToNextJam} style={{ visibility: nextJamVisible }}>
           Next Jam
         </button>
@@ -163,6 +177,10 @@ export function ScoreboardEditor({ boutUuid }) {
           Next Period
         </button>
       </div>
+
+      <button onClick={goToNextPeriod} style={{ visibility: readyForIntermission }}>
+        End Period
+      </button>
 
       <br />
 
