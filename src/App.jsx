@@ -101,7 +101,7 @@ function App() {
         // If the client already has a Bout UUID, ensure it is valid
         if (boutUuid !== null) {
           let hasValidBout = false;
-          for (bout of series) {
+          for (let bout of series) {
             if (boutUuid === bout.uuid) {
               hasValidBout = true;
               break;
