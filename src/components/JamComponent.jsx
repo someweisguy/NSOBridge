@@ -68,15 +68,6 @@ export function ScoreboardEditor({ boutUuid }) {
     return () => ignore = true;
   }, [boutUuid]);
 
-  // Subscribe to changes in the latest Period
-  useEffect(() => {
-    const unsubscribeCurrentPeriod = onEvent("period", (newPeriod) => {
-      const ready = newPeriod.clock.elapsed >= newPeriod.clock.alarm;
-      setReadyForIntermission(ready);
-    })
-    return unsubscribeCurrentPeriod;
-  }, []);
-
   // Subscribe to changes of the current Timeout, Period, and Jam
   useEffect(() => {
     const unsubscribeStoppage = onEvent("boutTimeout", (newStoppage) => {
@@ -89,6 +80,8 @@ export function ScoreboardEditor({ boutUuid }) {
       return;
     }
     const unsubscribePeriod = onEvent("period", (newPeriod) => {
+      const ready = newPeriod.clock.elapsed >= newPeriod.clock.alarm;
+      setReadyForIntermission(ready);
       if (newPeriod.uuid === period.uuid) {
         setPeriod(newPeriod);
       }
@@ -107,26 +100,20 @@ export function ScoreboardEditor({ boutUuid }) {
     return unsubscribeJam;
   }, [jam])
 
-  const goToNextPeriod = useCallback(() => {
-    const newUri = { ...uri };
-    newUri.jam = 0;
-    newUri.period++;
-    sendRequest("period", { uri: newUri })
-      .then((newPeriod) => {
-        setPeriod(newPeriod);
-        setUri(newUri);
-      })
-  }, [uri]);
-
   const goToNextJam = useCallback(() => {
     const newUri = { ...uri };
-    newUri.jam++;
+    if (uri.jam + 1 >= period?.jamCount) {
+      newUri.period++;
+      newUri.jam = 0;
+    } else {
+      newUri.jam++;
+    }
     sendRequest("jam", { uri: newUri })
       .then((newJam) => {
         setJam(newJam);
         setUri(newUri);
       })
-  }, [uri]);
+  }, [uri, period]);
 
   const goToPreviousJam = useCallback(() => {
     const newUri = { ...uri };
@@ -139,52 +126,51 @@ export function ScoreboardEditor({ boutUuid }) {
       })
   }, [uri]);
 
-  const goToPreviousPeriod = useCallback(() => {
+  const goToNextPeriod = useCallback(() => {
     const newUri = { ...uri };
-    newUri.period--;
-    sendRequest("period", { uri: newUri })
-      .then((newPeriod) => {
-        setPeriod(newPeriod);
-        setUri(newUri);
-      })
-  }, [uri]);
+    newUri.period++;
+    sendRequest("jam", { uri: newUri })
+    .then((newJam) => {
+      setJam(newJam);
+      setUri(newUri);
+    })
+  }, [])
 
   // Determine button visibility
-  const previousPeriodVisible = uri?.period > 0 ? "visible" : "hidden";
   const previousJamVisible = uri?.jam > 0 ? "visible" : "hidden";
   const nextJamVisible = uri?.jam + 1 < period?.jamCount ? "visible" : "hidden";
-  const nextPeriodVisibility = uri?.period + 1 < bout?.periodCount ? "visible" : "hidden";
 
+  const jamIsRunning = jam?.hasStarted && jam?.clock.running;
+  const readyForNextPeriod = period?.clock.elapsed >= period?.clock.alarm;
 
-  const clockIsStopped = timeout?.current !== null;
+  const timeoutIsRunning = timeout?.current !== null;
 
   return (
     <>
       <div>
-        <button onClick={goToPreviousPeriod} style={{ visibility: previousPeriodVisible }}>
-          Last Period
-        </button>
-        <button onClick={goToPreviousJam} style={{ visibility: previousJamVisible }}>
-          Last Jam
-        </button>
+        {previousJamVisible &&
+          <button onClick={goToPreviousJam} style={{ visibility: previousJamVisible }}>
+            Last Jam
+          </button>}
+
         &nbsp;
         {uri && ("P" + (uri.period + 1) + " J" + (uri.jam + 1))}
         &nbsp;
-        <button onClick={goToNextJam} style={{ visibility: nextJamVisible }}>
-          Next Jam
-        </button>
-        <button onClick={goToNextPeriod} style={{ visibility: nextPeriodVisibility }}>
-          Next Period
-        </button>
+
+        {nextJamVisible &&
+          <button onClick={goToNextJam} style={{ visibility: nextJamVisible }}>
+            Next Jam
+          </button>}
       </div>
 
-      <button onClick={goToNextPeriod} style={{ visibility: readyForIntermission }}>
-        End Period
-      </button>
+      {!jamIsRunning && readyForNextPeriod && 
+        <button onClick={goToNextPeriod} style={{ visibility: readyForIntermission }}>
+          End Period
+        </button>}
 
       <br />
 
-      {clockIsStopped ? (
+      {timeoutIsRunning ? (
         <TimeoutController timeout={timeout.current} />
       ) : (
         <JamController uri={uri} hasStarted={jam?.hasStarted}
