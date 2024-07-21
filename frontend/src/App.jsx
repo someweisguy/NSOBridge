@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react';
-import { ScoreboardEditor } from './components/JamComponent';
-import { PeriodClock, GameClock } from './components/TimerComponent';
+import { ScoreboardEditor } from './components/JamComponent.jsx';
+import { PeriodClock, GameClock } from './components/TimerComponent.jsx';
 import { onEvent, calculateLatency, sendRequest } from './client.js';
 
 function App() {

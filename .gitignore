@@ -3,16 +3,16 @@ __pycache__
 .venv
 
 # dependencies
-/node_modules
-/.pnp
+node_modules
+.pnp
 .pnp.js
 
 # testing
 /coverage
 
 # production
-/build
-/dist
+build
+dist
 
 # misc
 .DS_Store
