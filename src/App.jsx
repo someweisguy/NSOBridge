@@ -1,15 +1,15 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { ScoreboardEditor } from './components/JamComponent';
 import { PeriodClock, GameClock } from './components/TimerComponent';
 import { onEvent, calculateLatency, sendRequest } from './client.js';
 
 function App() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [boutUuid, setBoutUuid] = useState(null);
+  const [isConnected, setIsConnected] = React.useState(false);
+  const [boutUuid, setBoutUuid] = React.useState(null);
 
   // Add connect and disconnect listeners
-  useEffect(() => {
+  React.useEffect(() => {
     const unsubscribeConnect = onEvent("connect",
       () => setIsConnected(true)
     );
@@ -24,7 +24,7 @@ function App() {
   }, []);
 
   // Request server data on connection
-  useEffect(() => {
+  React.useEffect(() => {
     if (!isConnected) {
       return;
     }

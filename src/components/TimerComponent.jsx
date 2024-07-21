@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React from "react";
 import { getLatency, sendRequest, onEvent } from "../client.js"
 
 function formatTimeString(millisRemaining, showMillis = true) {
@@ -39,12 +39,12 @@ function formatTimeString(millisRemaining, showMillis = true) {
 }
 
 
-export function PeriodClock({ boutUuid  }) {
-  const [periodClock, setPeriodClock] = useState(null);
-  const [lap, setLap] = useState(0);
+export function PeriodClock({ boutUuid }) {
+  const [periodClock, setPeriodClock] = React.useState(null);
+  const [lap, setLap] = React.useState(0);
 
   // Get the initial Period clock state
-  useEffect(() => {
+  React.useEffect(() => {
     let ignore = false;
     sendRequest("period", { uri: { bout: boutUuid } })
       .then((newPeriod) => {
@@ -62,7 +62,7 @@ export function PeriodClock({ boutUuid  }) {
   }, [boutUuid]);
 
   // Subscribe to any changes of the Period clock
-  useEffect(() => {
+  React.useEffect(() => {
     const unsubscribe = onEvent("period", (newPeriod) => {
       // TODO: Handle halftime and pre-game timers
       newPeriod.clock.timestamp = Date.now();
@@ -75,7 +75,7 @@ export function PeriodClock({ boutUuid  }) {
     return unsubscribe;
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!periodClock || !periodClock.running) {
       return;  // Don't update the Lap time if the clock isn't running
     }
@@ -110,12 +110,12 @@ export function PeriodClock({ boutUuid  }) {
 }
 
 export function GameClock({ boutUuid }) {
-  const [jamClock, setJamClock] = useState(null);
-  const [timeoutClock, setTimeoutClock] = useState(null);
-  const [lap, setLap] = useState(0);
+  const [jamClock, setJamClock] = React.useState(null);
+  const [timeoutClock, setTimeoutClock] = React.useState(null);
+  const [lap, setLap] = React.useState(0);
 
   // Get the initial Jam and Timeout state
-  useEffect(() => {
+  React.useEffect(() => {
     // Send requests to the get Jam clock and current Timeout
     const getJamClock = sendRequest("jam", { uri: { bout: boutUuid } })
       .then((newJam) => { return { ...newJam.clock, timestamp: Date.now() } });
@@ -139,7 +139,7 @@ export function GameClock({ boutUuid }) {
   }, [boutUuid]);
 
   // Subscribe to any changes to the Jam and Timeout state
-  useEffect(() => {
+  React.useEffect(() => {
     const unsubscribeJam = onEvent("jam", (newJam) => {
       if (!newJam.clock.running) {
         return;  // Only use clocks that are running
@@ -160,7 +160,7 @@ export function GameClock({ boutUuid }) {
     };
   }, [])
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Get the active clock - return early if there is no active clock
     const gameClock = timeoutClock?.running ? timeoutClock : jamClock;
     if (!gameClock || !gameClock.running) {

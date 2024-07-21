@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef, useEffect } from "react";
+import React from "react";
 import { onEvent, sendRequest } from "../client.js";
 import "./JamComponent.css"
 
@@ -34,16 +34,16 @@ const NULL_STOPPAGE = {
 }
 
 export function ScoreboardEditor({ boutUuid }) {
-  const [uri, setUri] = useState(null);
-  const [bout, setBout] = useState(null);
-  const [period, setPeriod] = useState(null);
-  const [jam, setJam] = useState(null);
-  const [timeout, setTimeout] = useState(NULL_STOPPAGE);
+  const [uri, setUri] = React.useState(null);
+  const [bout, setBout] = React.useState(null);
+  const [period, setPeriod] = React.useState(null);
+  const [jam, setJam] = React.useState(null);
+  const [timeout, setTimeout] = React.useState(NULL_STOPPAGE);
 
-  const [readyForIntermission, setReadyForIntermission] = useState(false);
+  const [readyForIntermission, setReadyForIntermission] = React.useState(false);
 
   // Get information about the current Timeout, Period, and Jam
-  useEffect(() => {
+  React.useEffect(() => {
     let ignore = false;
     sendRequest("bout", { uri: { bout: boutUuid } })
       .then((newBout) => {
@@ -69,13 +69,13 @@ export function ScoreboardEditor({ boutUuid }) {
   }, [boutUuid]);
 
   // Subscribe to changes of the current Timeout, Period, and Jam
-  useEffect(() => {
+  React.useEffect(() => {
     const unsubscribeStoppage = onEvent("boutTimeout", (newStoppage) => {
       setTimeout(newStoppage);
     });
     return unsubscribeStoppage;
   }, []);
-  useEffect(() => {
+  React.useEffect(() => {
     if (period === null) {
       return;
     }
@@ -88,7 +88,7 @@ export function ScoreboardEditor({ boutUuid }) {
     });
     return unsubscribePeriod;
   }, [period]);
-  useEffect(() => {
+  React.useEffect(() => {
     if (jam === null) {
       return;
     }
@@ -100,7 +100,7 @@ export function ScoreboardEditor({ boutUuid }) {
     return unsubscribeJam;
   }, [jam])
 
-  const goToNextJam = useCallback(() => {
+  const goToNextJam = React.useCallback(() => {
     const newUri = { ...uri };
     if (uri.jam + 1 >= period?.jamCount) {
       newUri.period++;
@@ -115,7 +115,7 @@ export function ScoreboardEditor({ boutUuid }) {
       })
   }, [uri, period]);
 
-  const goToPreviousJam = useCallback(() => {
+  const goToPreviousJam = React.useCallback(() => {
     const newUri = { ...uri };
     // FIXME: get jamCount of previous Period
     newUri.jam--;
@@ -126,14 +126,15 @@ export function ScoreboardEditor({ boutUuid }) {
       })
   }, [uri]);
 
-  const goToNextPeriod = useCallback(() => {
+  const goToNextPeriod = React.useCallback(() => {
     const newUri = { ...uri };
     newUri.period++;
+    newUri.jam = 0;
     sendRequest("jam", { uri: newUri })
-    .then((newJam) => {
-      setJam(newJam);
-      setUri(newUri);
-    })
+      .then((newJam) => {
+        setJam(newJam);
+        setUri(newUri);
+      })
   }, [uri])
 
   // Determine button visibility
@@ -163,7 +164,7 @@ export function ScoreboardEditor({ boutUuid }) {
           </button>}
       </div>
 
-      {!jamIsRunning && readyForNextPeriod && 
+      {!jamIsRunning && readyForNextPeriod &&
         <button onClick={goToNextPeriod} style={{ visibility: readyForIntermission }}>
           End Period
         </button>}
@@ -186,13 +187,13 @@ export function ScoreboardEditor({ boutUuid }) {
 }
 
 function JamScore({ uri, team }) {
-  const [state, setState] = useState(NULL_JAM_SCORE);
-  const [selectedTrip, setSelectedTrip] = useState(0);
-  const latestTripIsSelected = useRef(true);
-  const scrollBar = useRef(null);
+  const [state, setState] = React.useState(NULL_JAM_SCORE);
+  const [selectedTrip, setSelectedTrip] = React.useState(0);
+  const latestTripIsSelected = React.useRef(true);
+  const scrollBar = React.useRef(null);
 
   // Request new data when the Jam changes
-  useEffect(() => {
+  React.useEffect(() => {
     if (uri === null) {
       return;
     }
@@ -207,7 +208,7 @@ function JamScore({ uri, team }) {
     return () => ignore = true;
   }, [uri, team]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (uri === null) {
       return;
     }
@@ -220,40 +221,40 @@ function JamScore({ uri, team }) {
   }, [state, team])
 
   // Ensure the new latest Trip is selected when adding a new Trip
-  useEffect(() => {
+  React.useEffect(() => {
     if (latestTripIsSelected.current) {
       setSelectedTrip(state.trips.length);
     }
   }, [state.trips]);
-  useEffect(() => {
+  React.useEffect(() => {
     latestTripIsSelected.current = selectedTrip === state.trips.length;
   }, [selectedTrip, state.trips]);
 
   // Scroll to the selected Trip
-  useEffect(() => {
+  React.useEffect(() => {
     const buttonWidth = scrollBar.current.children[0].offsetWidth;
     const scrollBarWidth = scrollBar.current.offsetWidth;
     const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
     scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
   }, [selectedTrip])
 
-  const setTrip = useCallback((tripNum, points, validPass = true) => {
+  const setTrip = React.useCallback((tripNum, points, validPass = true) => {
     sendRequest("setTrip", { uri, team, tripNum, points, validPass });
   }, [uri, team]);
 
-  const deleteTrip = useCallback((tripNum) => {
+  const deleteTrip = React.useCallback((tripNum) => {
     sendRequest("deleteTrip", { uri, team, tripNum });
   }, [uri, team])
 
-  const setLead = useCallback((lead) => {
+  const setLead = React.useCallback((lead) => {
     sendRequest("setLead", { uri, team, lead });
   }, [uri, team]);
 
-  const setLost = useCallback((lost) => {
+  const setLost = React.useCallback((lost) => {
     sendRequest("setLost", { uri, team, lost });
   }, [uri, team]);
 
-  const setStarPass = useCallback((tripNum) => {
+  const setStarPass = React.useCallback((tripNum) => {
     sendRequest("setStarPass", { uri, team, tripNum });
   }, [uri, team]);
 
@@ -366,19 +367,19 @@ function JamScore({ uri, team }) {
 function JamController({ uri, hasStarted, jamClock, stopReason }) {
   const isFinished = hasStarted && !jamClock?.running;
 
-  const startJam = useCallback(() => {
+  const startJam = React.useCallback(() => {
     sendRequest("startJam", { uri });
   }, [uri]);
 
-  const stopJam = useCallback(() => {
+  const stopJam = React.useCallback(() => {
     sendRequest("stopJam", { uri });
   }, [uri]);
 
-  const setJamStopReason = useCallback((stopReason) => {
+  const setJamStopReason = React.useCallback((stopReason) => {
     sendRequest("setJamStopReason", { uri, stopReason });
   }, [uri]);
 
-  const callTimeout = useCallback(() => {
+  const callTimeout = React.useCallback(() => {
     sendRequest("callTimeout", {});
   }, [])
 
@@ -424,25 +425,25 @@ function JamController({ uri, hasStarted, jamClock, stopReason }) {
 }
 
 function TimeoutController({ timeout }) {
-  const setTimeout = useCallback(() => {
+  const setTimeout = React.useCallback(() => {
     const newTimeoutState = { ...timeout };
     newTimeoutState.isOfficialReview = false;
     sendRequest("setTimeout", newTimeoutState);
   }, [timeout]);
 
-  const setOfficialReview = useCallback(() => {
+  const setOfficialReview = React.useCallback(() => {
     const newTimeoutState = { ...timeout };
     newTimeoutState.isOfficialReview = true;
     sendRequest("setTimeout", newTimeoutState);
   }, [timeout]);
 
-  const setCaller = useCallback((caller) => {
+  const setCaller = React.useCallback((caller) => {
     const newTimeoutState = { ...timeout };
     newTimeoutState.caller = caller;
     sendRequest("setTimeout", newTimeoutState);
   }, [timeout]);
 
-  const endTimeout = useCallback(() => {
+  const endTimeout = React.useCallback(() => {
     sendRequest("endTimeout");
   }, []);
 
