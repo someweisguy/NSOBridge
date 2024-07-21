@@ -2,9 +2,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from pathlib import Path
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, FileResponse
+from starlette.responses import HTMLResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
@@ -207,19 +208,6 @@ async def _renderTemplate(request: Request) -> HTMLResponse:
     return _jinja.TemplateResponse(request, file)
 
 
-async def _serveFavicon(request: Request) -> FileResponse:
-    """Serves the scoreboard favicon.
-
-    Args:
-        request (Request): The Request object received from the Starlette app.
-
-    Returns:
-        FileResponse: A Starlette file response of the favicon found in
-        `web/static/favicon.ico`.
-    """
-    return FileResponse(f"{_webDir}/favicon.ico")
-
-
 async def _handleConnect(
     sessionId: str, environ: dict[str, Any], auth: dict[str, Any]
 ) -> None:
@@ -230,10 +218,10 @@ async def _handleConnect(
         environ (dict): The web browser environment of the connection.
         auth (dict): The auth dictionary from the connection.
     """
-    userId: str = auth["token"]
+    userId: None | str = auth.get("token", None)
     if userId is None:
         environStr: bytes = str(environ.items()).encode()
-        userId: str = hashlib.md5(environStr, usedforsecurity=False).hexdigest()
+        userId = hashlib.md5(environStr, usedforsecurity=False).hexdigest()
         await _socket.emit("userId", userId, to=sessionId)
     async with _socket.session(sessionId) as session:
         session["userId"] = userId
@@ -339,14 +327,13 @@ _socket.on("disconnect", _dummyHandler)
 _socket.on("ping", _dummyHandler)
 _socket.on("*", _handleEvent)
 
-_webDir: str = "./build"  # The relative location of the built React files
+_webDir: Path = Path(__file__).parent.parent.parent / "frontend" / "build"
 _jinja: Jinja2Templates = Jinja2Templates(directory=_webDir)
 _app: Starlette = Starlette(
     routes=[
         Route("/", _renderTemplate),
-        Route("/favicon.ico", _serveFavicon),
         # Mount("/static", app=StaticFiles(directory=f"{_webDir}/static"), name="static"),
-        Mount("/assets", app=StaticFiles(directory=f"{_webDir}/assets"), name="assets"),
+        Mount("/assets", app=StaticFiles(directory=_webDir / "assets"), name="assets"),
         Mount("/socket.io", app=socketio.ASGIApp(_socket)),
         Route("/{file:str}", _renderTemplate),
     ],
