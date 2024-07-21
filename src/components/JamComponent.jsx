@@ -1,6 +1,7 @@
-import React from "react";
-import { onEvent, sendRequest } from "../client.js";
 import "./JamComponent.css"
+import React from "react";
+import PropTypes from 'prop-types';
+import { onEvent, sendRequest } from "../client.js";
 
 const HOME = "home";
 const AWAY = "away";
@@ -185,6 +186,10 @@ export function ScoreboardEditor({ boutUuid }) {
     </>
   );
 }
+ScoreboardEditor.propTypes = {
+  boutUuid: PropTypes.string.isRequired
+}
+
 
 function JamScore({ uri, team }) {
   const [state, setState] = React.useState(NULL_JAM_SCORE);
@@ -363,6 +368,10 @@ function JamScore({ uri, team }) {
     </div>
   );
 }
+JamScore.propTypes = {
+  uri: PropTypes.object.isRequired,
+  team: PropTypes.string.isRequired
+}
 
 function JamController({ uri, hasStarted, jamClock, stopReason }) {
   const isFinished = hasStarted && !jamClock?.running;
@@ -423,6 +432,12 @@ function JamController({ uri, hasStarted, jamClock, stopReason }) {
     </div>
   );
 }
+JamController.propTypes = {
+  uri: PropTypes.object.isRequired,
+  hasStarted: PropTypes.bool.isRequired,
+  jamClock: PropTypes.object.isRequired,
+  stopReason: PropTypes.string
+}
 
 function TimeoutController({ timeout }) {
   const setTimeout = React.useCallback(() => {
@@ -479,6 +494,9 @@ function TimeoutController({ timeout }) {
 
     </div>
   );
+}
+TimeoutController.propTypes = {
+  timeout: PropTypes.object.isRequired
 }
 
 function IntermissionController({ }) {

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types"
 import { getLatency, sendRequest, onEvent } from "../client.js"
 
 function formatTimeString(millisRemaining, showMillis = true) {
@@ -108,6 +109,9 @@ export function PeriodClock({ boutUuid }) {
     </span>
   );
 }
+PeriodClock.propTypes = {
+  boutUuid: PropTypes.string.isRequired
+}
 
 export function GameClock({ boutUuid }) {
   const [jamClock, setJamClock] = React.useState(null);
@@ -202,4 +206,7 @@ export function GameClock({ boutUuid }) {
       {formatTimeString(clockMilliseconds, (gameClock !== timeoutClock))}
     </span>
   );
+}
+GameClock.propTypes = {
+  boutUuid: PropTypes.string.isRequired
 }
