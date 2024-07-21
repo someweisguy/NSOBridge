@@ -134,7 +134,7 @@ export function ScoreboardEditor({ boutUuid }) {
       setJam(newJam);
       setUri(newUri);
     })
-  }, [])
+  }, [uri])
 
   // Determine button visibility
   const previousJamVisible = uri?.jam > 0 ? "visible" : "hidden";
