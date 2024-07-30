@@ -66,6 +66,12 @@ class Bout(_GameNode[None]):
     def addPeriod(self) -> None:
         if len(self._periods) >= 2:
             raise RuntimeError("a Bout cannot have more than 2 Periods")
+        
+        # Remove any un-started Jams
+        for jam in self._periods[-1]._jams:
+            if not jam.hasStarted:
+                del jam
+        
         self._periods.append(Period(self))
 
         self.update()
