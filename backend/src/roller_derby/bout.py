@@ -68,9 +68,7 @@ class Bout(_GameNode[None]):
             raise RuntimeError("a Bout cannot have more than 2 Periods")
         
         # Remove any un-started Jams
-        for jam in self._periods[-1]._jams:
-            if not jam.hasStarted:
-                del jam
+        self._periods[-1].purge()
         
         self._periods.append(Period(self))
 
@@ -94,7 +92,7 @@ class Period(_GameNode[Bout], Timeable):
     def __init__(self, parent: Bout) -> None:
         super().__init__(parent)
         self._timeToDerby: Timer = Timer()
-        self._clock: Timer = Timer(minutes=30)
+        self._clock: Timer = Timer(minutes=0.1)
         self._jams: list[Jam] = [Jam(self)]
 
         self._timeToDerby.setCallback(lambda _: self.update())
@@ -119,6 +117,13 @@ class Period(_GameNode[Bout], Timeable):
         if len(self._jams) == 0:
             self._jams.append(Jam(self))
 
+        self.update()
+        
+    def purge(self) -> None:
+        for i in reversed(range(len(self._jams))):
+            if not self._jams[i].hasStarted:
+                del self._jams[i]
+        
         self.update()
 
     def setTimeToDerby(
