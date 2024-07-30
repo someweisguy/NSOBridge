@@ -1,7 +1,7 @@
 from datetime import datetime
 from roller_derby.bout import series, Bout, Jam, Period, TEAMS, STOP_REASONS
 from roller_derby.timeout import OFFICIAL
-from server import API, URI, ClientException
+from server import API, URI
 import server
 
 @server.register
