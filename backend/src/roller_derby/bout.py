@@ -13,103 +13,86 @@ TEAMS: TypeAlias = Literal["home", "away"]
 STOP_REASONS: TypeAlias = Literal["time", "called", "injury"]
 
 
-class Jam(Encodable, Timeable):
-    API_NAME: str = "jam"
-
-    def __init__(self, parent: Period) -> None:
+class _GameNode[T: None | _GameNode](Encodable):
+    def __init__(self, parent: T) -> None:
         super().__init__()
-        self._parent: Period = parent
-        self._clock: Timer = Timer(minutes=2)
-        self._hasStarted: bool = False
-        self._stopReason: None | STOP_REASONS = None
-        self._score: JamTeamAttribute[Score] = JamTeamAttribute[Score](self, Score)
+        self._parent: T = parent
 
-        self._clock.setCallback(lambda _: server.update(self))
+    def update(self) -> None:
+        server.update(self)
+        node: None | _GameNode = self._parent
+        while node is not None:
+            server.update(node)
+            node = node._parent
+
+
+class Series(Encodable):
+    def __init__(self) -> None:
+        super().__init__()
+        self._bouts: list[Bout] = [Bout()]
 
     @property
-    def parentPeriod(self) -> Period:
-        return self._parent
+    def bouts(self) -> list[Bout]:
+        return self._bouts
 
     @property
-    def stopReason(self) -> None | STOP_REASONS:
-        return self._stopReason
+    def currentBout(self) -> Bout:
+        return self._bouts[-1]  # TODO: remove this property
 
-    @stopReason.setter
-    def stopReason(self, stopReason: None | STOP_REASONS) -> None:
-        if stopReason is not None and stopReason not in get_args(STOP_REASONS):
-            raise ValueError(f"stopReason must be one of {get_args(STOP_REASONS)}")
-        self._stopReason = stopReason
-        server.update(self)
+    def encode(self) -> dict[str, Encodable.PRIMITIVE]:
+        return {
+            "bouts": [bout.encode() for bout in self._bouts],
+        }
+
+
+class Bout(_GameNode[None]):
+    API_NAME: str = "bout"
+
+    def __init__(self) -> None:
+        super().__init__(None)
+        self._periods: list[Period] = [Period(self)]
+        self._timeout: BoutTimeout = BoutTimeout(self)
+
+    def __getitem__(self, item: int) -> Period:
+        return self._periods[item]
 
     @property
-    def hasStarted(self) -> bool:
-        return self._hasStarted
+    def timeout(self) -> BoutTimeout:
+        return self._timeout
 
-    @property
-    def score(self) -> JamTeamAttribute[Score]:
-        return self._score
+    def getPeriodCount(self) -> int:
+        return len(self._periods)
 
-    def lineup(self, timestamp: datetime) -> None:
-        if self.hasStarted:
-            raise RuntimeError("this Jam has already started")
-        self._clock.setAlarm(seconds=30)
-        self._clock.start(timestamp)
+    def addPeriod(self) -> None:
+        if len(self._periods) >= 2:
+            raise RuntimeError("a Bout cannot have more than 2 Periods")
+        self._periods.append(Period(self))
 
-        server.update(self)
-
-    def start(self, timestamp: datetime) -> None:
-        if self._clock.isRunning():
-            self._clock.stop(timestamp)
-            self._clock.setElapsed(None)
-        self._clock.setAlarm(minutes=2)
-        self._clock.start(timestamp)
-        self._hasStarted = True
-
-        # Start the Period clock if it is not running
-        if not self.parentPeriod.isRunning():
-            self.parentPeriod.start(timestamp)
-
-        server.update(self)
-
-    def stop(self, timestamp: datetime) -> None:
-        self._clock.stop(timestamp)
-
-        # Add a new Jam and start its Lineup
-        newJam: Jam = self.parentPeriod.addJam()
-        newJam.lineup(timestamp)
-
-        server.update(self)
-
-    def isRunning(self) -> bool:
-        return self._hasStarted and self._clock.isRunning()
-
-    def isComplete(self) -> bool:
-        return self._hasStarted and not self._clock.isRunning()
-
-    def getRemaining(self) -> timedelta:
-        return self._clock.getRemaining()
+        self.update()
 
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
             "uuid": self.uuid,
-            "clock": self._clock.encode(),
-            "hasStarted": self.hasStarted,
-            "stopReason": self.stopReason,
+            "periodCount": len(self._periods),
+            "currentJamNum": self._periods[-1].getCurrentJamNum(),
+            "jamCounts": [
+                self[0].getJamCount(),
+                self[1].getJamCount() if len(self._periods) > 1 else 0,
+            ],
         }
 
 
-class Period(Encodable, Timeable):
+class Period(_GameNode[Bout], Timeable):
     API_NAME: str = "period"
 
     def __init__(self, parent: Bout) -> None:
-        super().__init__()
-        self._parent: Bout = parent
+        super().__init__(parent)
         self._timeToDerby: Timer = Timer()
         self._clock: Timer = Timer(minutes=30)
         self._jams: list[Jam] = [Jam(self)]
 
-        self._timeToDerby.setCallback(lambda _: server.update(self))
-        self._clock.setCallback(lambda _: server.update(self))
+        self._timeToDerby.setCallback(lambda _: self.update())
+        self._clock.setCallback(lambda _: self.update())
 
     def __getitem__(self, item: int) -> Jam:
         return self._jams[item]
@@ -122,7 +105,7 @@ class Period(Encodable, Timeable):
         jam: Jam = Jam(self)
         self._jams.append(jam)
 
-        server.update(self)
+        self.update()
         return jam
 
     def deleteJam(self, index: int) -> None:
@@ -130,7 +113,7 @@ class Period(Encodable, Timeable):
         if len(self._jams) == 0:
             self._jams.append(Jam(self))
 
-        server.update(self)
+        self.update()
 
     def setTimeToDerby(
         self,
@@ -146,21 +129,21 @@ class Period(Encodable, Timeable):
         self._timeToDerby.setAlarm(hours=hours, minutes=minutes, seconds=seconds)
         self._timeToDerby.start(timestamp)
 
-        server.update(self)
+        self.update()
 
     def start(self, timestamp: datetime) -> None:
         if self.isRunning():
             raise RuntimeError("this Period has already started")
         self._clock.start(timestamp)
 
-        server.update(self)
+        self.update()
 
     def stop(self, timestamp: datetime) -> None:
         if not self.isRunning():
             raise RuntimeError("this Period has already stopped")
         self._clock.stop(timestamp)
 
-        server.update(self)
+        self.update()
 
     def isRunning(self) -> bool:
         return self._clock.isRunning()
@@ -184,53 +167,87 @@ class Period(Encodable, Timeable):
         }
 
 
-class Bout(Encodable):
-    API_NAME: str = "bout"
+class Jam(_GameNode[Period], Timeable):
+    API_NAME: str = "jam"
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._periods: list[Period] = [Period(self)]
-        self._timeout: BoutTimeout = BoutTimeout(self)
+    def __init__(self, parent: Period) -> None:
+        super().__init__(parent)
+        self._clock: Timer = Timer(minutes=2)
+        self._hasStarted: bool = False
+        self._stopReason: None | STOP_REASONS = None
+        self._score: JamTeamAttribute[Score] = JamTeamAttribute[Score](self, Score)
 
-    def __getitem__(self, item: int) -> Period:
-        return self._periods[item]
+        self._clock.setCallback(lambda _: self.update())
 
     @property
-    def timeout(self) -> BoutTimeout:
-        return self._timeout
+    def parentPeriod(self) -> Period:
+        return self._parent
 
-    def getPeriodCount(self) -> int:
-        return len(self._periods)
+    @property
+    def stopReason(self) -> None | STOP_REASONS:
+        return self._stopReason
 
-    def addPeriod(self) -> None:
-        if len(self._periods) >= 2:
-            raise RuntimeError("a Bout cannot have more than 2 Periods")
-        self._periods.append(Period(self))
+    @stopReason.setter
+    def stopReason(self, stopReason: None | STOP_REASONS) -> None:
+        if stopReason is not None and stopReason not in get_args(STOP_REASONS):
+            raise ValueError(f"stopReason must be one of {get_args(STOP_REASONS)}")
+        self._stopReason = stopReason
+        self.update()
+
+    @property
+    def hasStarted(self) -> bool:
+        return self._hasStarted
+
+    @property
+    def score(self) -> JamTeamAttribute[Score]:
+        return self._score
+
+    def lineup(self, timestamp: datetime) -> None:
+        if self.hasStarted:
+            raise RuntimeError("this Jam has already started")
+        self._clock.setAlarm(seconds=30)
+        self._clock.start(timestamp)
+
+        self.update()
+
+    def start(self, timestamp: datetime) -> None:
+        if self._clock.isRunning():
+            self._clock.stop(timestamp)
+            self._clock.setElapsed(None)
+        self._clock.setAlarm(minutes=2)
+        self._clock.start(timestamp)
+        self._hasStarted = True
+
+        # Start the Period clock if it is not running
+        if not self.parentPeriod.isRunning():
+            self.parentPeriod.start(timestamp)
+
+        self.update()
+
+    def stop(self, timestamp: datetime) -> None:
+        self._clock.stop(timestamp)
+
+        # Add a new Jam and start its Lineup
+        newJam: Jam = self.parentPeriod.addJam()
+        newJam.lineup(timestamp)
+
+        self.update()
+
+    def isRunning(self) -> bool:
+        return self._hasStarted and self._clock.isRunning()
+
+    def isComplete(self) -> bool:
+        return self._hasStarted and not self._clock.isRunning()
+
+    def getRemaining(self) -> timedelta:
+        return self._clock.getRemaining()
 
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
             "uuid": self.uuid,
-            "periodCount": len(self._periods),
-            "currentJamNum": self._periods[-1].getCurrentJamNum(),
-        }
-
-
-class Series(Encodable):
-    def __init__(self) -> None:
-        super().__init__()
-        self._bouts: list[Bout] = [Bout()]
-        
-    @property
-    def bouts(self) -> list[Bout]:
-        return self._bouts
-
-    @property
-    def currentBout(self) -> Bout:
-        return self._bouts[-1]  # TODO: remove this property
-
-    def encode(self) -> dict[str, Encodable.PRIMITIVE]:
-        return {
-            "bouts": [bout.encode() for bout in self._bouts],
+            "clock": self._clock.encode(),
+            "hasStarted": self.hasStarted,
+            "stopReason": self.stopReason,
         }
 
 
