@@ -103,7 +103,7 @@ export function ScoreboardEditor({ boutUuid }) {
 
   const goToNextJam = React.useCallback(() => {
     const newUri = { ...uri };
-    if (uri.jam + 1 >= period?.jamCount) {
+    if (uri.jam + 1 >= bout?.jamCounts[uri.period] && uri?.period + 1 < bout?.periodCount) {
       newUri.period++;
       newUri.jam = 0;
     } else {
@@ -114,33 +114,42 @@ export function ScoreboardEditor({ boutUuid }) {
         setJam(newJam);
         setUri(newUri);
       })
-  }, [uri, period]);
+  }, [uri, period, bout]);
 
   const goToPreviousJam = React.useCallback(() => {
     const newUri = { ...uri };
-    // FIXME: get jamCount of previous Period
-    newUri.jam--;
+    if (uri.jam === 0) {
+      newUri.period--;
+      newUri.jam = bout.jamCounts[newUri.period] - 1;
+    } else {
+      newUri.jam--;
+    }
     sendRequest("jam", { uri: newUri })
       .then((newJam) => {
         setJam(newJam);
         setUri(newUri);
       })
-  }, [uri]);
+  }, [uri, period, bout]);
 
   const goToNextPeriod = React.useCallback(() => {
     const newUri = { ...uri };
     newUri.period++;
     newUri.jam = 0;
-    sendRequest("jam", { uri: newUri })
-      .then((newJam) => {
-        setJam(newJam);
-        setUri(newUri);
+    sendRequest("period", { uri: newUri })
+      .then((newPeriod) => {
+        sendRequest("jam", { uri: newUri })
+          .then((newJam) => {
+            setPeriod(newPeriod);
+            setJam(newJam);
+            setUri(newUri);
+          });
       })
   }, [uri])
 
   // Determine button visibility
-  const previousJamVisible = uri?.jam > 0 ? "visible" : "hidden";
-  const nextJamVisible = uri?.jam + 1 < period?.jamCount ? "visible" : "hidden";
+  const previousJamVisible = uri?.jam > 0 || uri?.period > 0 ? "visible" : "hidden";
+  const nextJamVisible = uri?.jam < bout?.jamCounts[uri?.period] - 1
+    || uri?.period < bout?.periodCount - 1 ? "visible" : "hidden";
 
   const jamIsRunning = jam?.hasStarted && jam?.clock.running;
   const readyForNextPeriod = period?.clock.elapsed >= period?.clock.alarm;
