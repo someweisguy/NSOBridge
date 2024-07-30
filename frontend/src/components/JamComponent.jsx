@@ -124,22 +124,21 @@ export function ScoreboardEditor({ boutUuid }) {
         setJam(newJam);
         setUri(newUri);
       })
-  }, [uri, period, bout]);
+  }, [uri, bout]);
 
   const goToPreviousJam = React.useCallback(() => {
     const newUri = { ...uri };
-    if (uri.jam === 0) {
+    newUri.jam--;
+    if (newUri.jam < 0) {
       newUri.period--;
-      newUri.jam = bout.jamCounts[newUri.period] - 1;
-    } else {
-      newUri.jam--;
+      newUri.jam = bout?.jamCounts[newUri.period] - 1;
     }
     sendRequest("jam", { uri: newUri })
       .then((newJam) => {
         setJam(newJam);
         setUri(newUri);
       })
-  }, [uri, period, bout]);
+  }, [uri, bout]);
 
   const goToNextPeriod = React.useCallback(() => {
     const newUri = { ...uri };
