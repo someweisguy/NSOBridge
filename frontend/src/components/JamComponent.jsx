@@ -77,6 +77,17 @@ export function ScoreboardEditor({ boutUuid }) {
     return unsubscribeStoppage;
   }, []);
   React.useEffect(() => {
+    if (bout === null) {
+      return;
+    }
+    const unsubscribeBout = onEvent("bout", (newBout) => {
+      if (newBout.uuid === bout.uuid) {
+        setBout(newBout);
+      }
+    });
+    return unsubscribeBout;
+  }, [bout]);
+  React.useEffect(() => {
     if (period === null) {
       return;
     }
@@ -103,11 +114,10 @@ export function ScoreboardEditor({ boutUuid }) {
 
   const goToNextJam = React.useCallback(() => {
     const newUri = { ...uri };
-    if (uri.jam + 1 >= bout?.jamCounts[uri.period] && uri?.period + 1 < bout?.periodCount) {
+    newUri.jam++;
+    if (newUri.jam === bout?.jamCounts[newUri.period]) {
       newUri.period++;
       newUri.jam = 0;
-    } else {
-      newUri.jam++;
     }
     sendRequest("jam", { uri: newUri })
       .then((newJam) => {
@@ -148,9 +158,8 @@ export function ScoreboardEditor({ boutUuid }) {
 
   // Determine button visibility
   const previousJamVisible = uri?.jam > 0 || uri?.period > 0 ? "visible" : "hidden";
-  const nextJamVisible = uri?.jam < bout?.jamCounts[uri?.period] - 1
-    || uri?.period < bout?.periodCount - 1 || (jam?.hasStarted && !jam?.clock.running)
-    ? "visible" : "hidden";
+  const nextJamVisible = uri?.jam + 1 < bout?.jamCounts[uri?.period]
+    || uri?.period + 1 < bout?.periodCount ? "visible" : "hidden";
 
   const jamIsRunning = jam?.hasStarted && jam?.clock.running;
   const readyForNextPeriod = period?.clock.elapsed >= period?.clock.alarm;
