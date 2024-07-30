@@ -1,7 +1,7 @@
 from datetime import datetime
 from roller_derby.bout import series, Bout, Jam, Period, TEAMS, STOP_REASONS
 from roller_derby.timeout import OFFICIAL
-from server import API, URI
+from server import API, URI, ClientException
 import server
 
 @server.register
@@ -77,9 +77,11 @@ async def jam(uri: URI) -> API:
     # Determine if a Jam should be added
     period: Period = series.currentBout[uri.period]
     if uri.jam == period.getJamCount():
+        if not series.currentBout[-1][-1].isComplete():
+            raise ClientException("Cannot add a new Jam until the previous is complete")
         series.currentBout[-1].addJam()
     elif uri.jam > period.getJamCount():
-        raise server.ClientException("This jam does not exist.")
+        raise server.ClientException("This Jam does not exist.")
 
     jam: Jam = period[uri.jam]
 
