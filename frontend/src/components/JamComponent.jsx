@@ -149,7 +149,8 @@ export function ScoreboardEditor({ boutUuid }) {
   // Determine button visibility
   const previousJamVisible = uri?.jam > 0 || uri?.period > 0 ? "visible" : "hidden";
   const nextJamVisible = uri?.jam < bout?.jamCounts[uri?.period] - 1
-    || uri?.period < bout?.periodCount - 1 ? "visible" : "hidden";
+    || uri?.period < bout?.periodCount - 1 || (jam?.hasStarted && !jam?.clock.running)
+    ? "visible" : "hidden";
 
   const jamIsRunning = jam?.hasStarted && jam?.clock.running;
   const readyForNextPeriod = period?.clock.elapsed >= period?.clock.alarm;
