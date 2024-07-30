@@ -71,18 +71,9 @@ async def period(uri: URI) -> API:
     period: Period = bout[uri.period]
     return period.encode()
 
-
 @server.register
 async def jam(uri: URI) -> API:
-    # Determine if a Jam should be added
     period: Period = series.currentBout[uri.period]
-    if uri.jam == period.getJamCount():
-        if not series.currentBout[-1][-1].isComplete():
-            raise ClientException("Cannot add a new Jam until the previous is complete")
-        series.currentBout[-1].addJam()
-    elif uri.jam > period.getJamCount():
-        raise server.ClientException("This Jam does not exist.")
-
     jam: Jam = period[uri.jam]
 
     return jam.encode()
