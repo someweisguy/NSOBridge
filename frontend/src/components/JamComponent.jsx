@@ -170,7 +170,7 @@ export function ScoreboardEditor({ boutUuid }) {
       <div>
         {previousJamVisible &&
           <button onClick={goToPreviousJam} style={{ visibility: previousJamVisible }}>
-            Last Jam
+            Previous Jam
           </button>}
 
         &nbsp;
