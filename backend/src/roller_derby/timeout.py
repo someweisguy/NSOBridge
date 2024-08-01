@@ -49,7 +49,8 @@ class TimeoutAttribute(AbstractAttribute[BoutTeamAttribute]):
         if not timeout.isOfficialReview:
             if self._timeoutsRemaining <= 0:
                 # TODO: allow this action, but serve the user a Warning
-                raise RuntimeError("this Team does not have any remaining Timeouts")
+                raise RuntimeError(
+                    "this Team does not have any remaining Timeouts")
             self._timeoutsRemaining -= 1
             timeout.setAlarm(minutes=1)
             timeout.setCallback(lambda _: server.update(self._parent))
@@ -102,9 +103,8 @@ class BoutTimeout(BoutTeamAttribute[TimeoutAttribute]):
             return
 
         if self._current.caller is not None:
-            team: TimeoutAttribute = (
-                self.home if self._current in self.home._timeouts else self.away
-            )
+            team: TimeoutAttribute = (self.home if self._current in
+                                      self.home._timeouts else self.away)
             assert self._current in team._timeouts, "timeout is misconfigured"
             team._officialReviewsRemaining += 1
             team._timeoutsRemaining -= 1
@@ -121,12 +121,10 @@ class BoutTimeout(BoutTeamAttribute[TimeoutAttribute]):
 
         if self._current.caller is not None:
             if self._current.caller == "official":
-                raise RuntimeError(
-                    "cannot convert an Official Timeout into an Official Review"
-                )
-            team: TimeoutAttribute = (
-                self.home if self._current in self.home._timeouts else self.away
-            )
+                raise RuntimeError("""cannot convert an Official Timeout into
+                                   an Official Review""")
+            team: TimeoutAttribute = (self.home if self._current in
+                                      self.home._timeouts else self.away)
             assert self._current in team._timeouts, "timeout is misconfigured"
             team._officialReviewsRemaining -= 1
             team._timeoutsRemaining += 1
@@ -157,10 +155,9 @@ class BoutTimeout(BoutTeamAttribute[TimeoutAttribute]):
             if self._current in self._officialTimeouts:
                 self._officialTimeouts.remove(self._current)
             else:
-                team: TimeoutAttribute = (
-                    self.home if self._current in self.home._timeouts else self.away
-                )
-                assert self._current in team._timeouts, "timeout is misconfigured"
+                team: TimeoutAttribute = (self.home if self._current in
+                                          self.home._timeouts else self.away)
+                assert self._current in team._timeouts
                 team._delete(self._current)
 
         # Assign the Stoppage to the appropriate team/official location
@@ -192,7 +189,8 @@ class BoutTimeout(BoutTeamAttribute[TimeoutAttribute]):
 
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
-            "current": self._current.encode() if self._current is not None else None,
+            "current": (self._current.encode() if self._current is not None
+                        else None),
             "home": self.home.encode(),
             "away": self.away.encode(),
         }

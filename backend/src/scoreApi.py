@@ -5,14 +5,8 @@ import server
 
 
 @server.register
-async def setTrip(
-    uri: URI,
-    team: TEAMS,
-    tripNum: int,
-    points: int,
-    timestamp: datetime,
-    validPass: bool = True,
-) -> API:
+async def setTrip(uri: URI, team: TEAMS, tripNum: int, points: int,
+                  timestamp: datetime, validPass: bool = True) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
     jam: Jam = bout[uri.period][uri.jam]

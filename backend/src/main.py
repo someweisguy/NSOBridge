@@ -4,9 +4,11 @@ from roller_derby.timeout import OFFICIAL
 from server import API, URI
 import server
 
+
 @server.register
 async def getBouts() -> API:
     return [bout.encode() for bout in series._bouts]
+
 
 @server.register
 async def boutTimeout() -> API:
@@ -70,6 +72,7 @@ async def period(uri: URI) -> API:
 
     period: Period = bout[uri.period]
     return period.encode()
+
 
 @server.register
 async def jam(uri: URI) -> API:

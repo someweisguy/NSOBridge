@@ -66,10 +66,10 @@ class Bout(_GameNode[None]):
     def addPeriod(self) -> None:
         if len(self._periods) >= 2:
             raise RuntimeError("a Bout cannot have more than 2 Periods")
-        
+
         # Remove any un-started Jams
         self._periods[-1].purge()
-        
+
         self._periods.append(Period(self))
 
         self.update()
@@ -118,12 +118,12 @@ class Period(_GameNode[Bout], Timeable):
             self._jams.append(Jam(self))
 
         self.update()
-        
+
     def purge(self) -> None:
         for i in reversed(range(len(self._jams))):
             if not self._jams[i].hasStarted:
                 del self._jams[i]
-        
+
         self.update()
 
     def setTimeToDerby(
@@ -137,7 +137,8 @@ class Period(_GameNode[Bout], Timeable):
         if self._timeToDerby.isRunning():
             self._timeToDerby.stop(timestamp)
         self._timeToDerby.setElapsed(None)
-        self._timeToDerby.setAlarm(hours=hours, minutes=minutes, seconds=seconds)
+        self._timeToDerby.setAlarm(
+            hours=hours, minutes=minutes, seconds=seconds)
         self._timeToDerby.start(timestamp)
 
         self.update()
@@ -186,7 +187,8 @@ class Jam(_GameNode[Period], Timeable):
         self._clock: Timer = Timer(minutes=2)
         self._hasStarted: bool = False
         self._stopReason: None | STOP_REASONS = None
-        self._score: JamTeamAttribute[Score] = JamTeamAttribute[Score](self, Score)
+        self._score: JamTeamAttribute[Score] = JamTeamAttribute[Score](
+            self, Score)
 
         self._clock.setCallback(lambda _: self.update())
 
@@ -201,7 +203,8 @@ class Jam(_GameNode[Period], Timeable):
     @stopReason.setter
     def stopReason(self, stopReason: None | STOP_REASONS) -> None:
         if stopReason is not None and stopReason not in get_args(STOP_REASONS):
-            raise ValueError(f"stopReason must be one of {get_args(STOP_REASONS)}")
+            raise ValueError(f"stopReason must be one of {
+                             get_args(STOP_REASONS)}")
         self._stopReason = stopReason
         self.update()
 

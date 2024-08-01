@@ -17,7 +17,8 @@ class AbstractAttribute[P: _AbstractTeamAttribute](Encodable, ABC):
         return self._parent
 
     def getOther(self) -> Self:
-        return self.parent.home if self is self.parent.away else self.parent.away
+        return (self.parent.home if self is self.parent.away
+                else self.parent.away)
 
     def getTeam(self) -> TEAMS:
         return "home" if self is self.parent.home else "away"

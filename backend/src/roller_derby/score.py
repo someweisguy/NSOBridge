@@ -35,7 +35,8 @@ class Score(AbstractAttribute[JamTeamAttribute]):
 
     def setTrip(self, tripNum: int, points: int, timestamp: datetime) -> None:
         if not isinstance(tripNum, int):
-            raise TypeError(f"Trip Index must be int not {type(tripNum).__name__}.")
+            raise TypeError(f"Trip Index must be int not {
+                            type(tripNum).__name__}.")
         if not isinstance(points, int):
             raise TypeError(f"Points must be int not {type(points).__name__}.")
 
@@ -70,7 +71,8 @@ class Score(AbstractAttribute[JamTeamAttribute]):
         if not isinstance(lead, bool):
             raise TypeError(f"Lead must be bool not {type(lead).__name__}.")
         if lead and not self.isLeadEligible():
-            raise server.ClientException("This team is not eligible for lead jammer.")
+            raise server.ClientException(
+                "This team is not eligible for lead jammer.")
         self._lead = lead
 
         server.update(self)

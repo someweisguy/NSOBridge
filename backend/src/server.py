@@ -9,6 +9,7 @@ from starlette.responses import HTMLResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
+from types import TracebackType
 from typing import Callable, Any, Awaitable, Collection, TypeAlias
 import asyncio
 import hashlib
@@ -47,7 +48,8 @@ class URI:
 
 
 class Encodable(ABC):
-    PRIMITIVE: TypeAlias = None | int | float | str | bool | dict[str, Any] | list[Any]
+    PRIMITIVE: TypeAlias = (None | int | float | str | bool | dict[str, Any] |
+                            list[Any])
 
     def __init__(self) -> None:
         self._uuid: uuid.UUID = uuid.uuid4()
@@ -92,8 +94,8 @@ async def serve(port: int, *, debug: bool = False) -> None:
         debug (bool, optional): Turns on debug log messages. Defaults to False.
 
     Raises:
-        TypeError: if the port number is is not an int or the debug arg is not a
-        bool.
+        TypeError: if the port number is is not an int or the debug arg is not
+        a bool.
         ValueError: if the port number is not between 1 and 65535 (inclusive).
     """
     if not isinstance(port, int):
@@ -124,13 +126,14 @@ def register(
     must not be asynchronous functions.
 
     Args:
-        command (None | Callable, optional): The method to decorate. Defaults to
-        None.
+        command (None | Callable, optional): The method to decorate. Defaults
+        to None.
         name (str, optional): The to which to refer to the API. Defaults to the
         method name in Python.
         overwrite (bool, optional): Set to True to overwrite any currently
         registered method name. Methods which are overwritten without setting
-        this flag to True will raise a LookupError exception. Defaults to False.
+        this flag to True will raise a LookupError exception. Defaults to
+        False.
 
     Returns:
         Callable: The original method.
@@ -141,7 +144,8 @@ def register(
     ) -> Callable[[dict[str, Any]], Any]:
         commandName: str = name if name != "" else command.__name__
         if overwriting := (commandName in _commandTable) and not overwrite:
-            raise LookupError(f"The command '{commandName}' is already registered.")
+            raise LookupError(
+                f"The command '{commandName}' is already registered.")
         gerund: str = "Adding" if not overwriting else "Overwriting"
         log.debug(f"{gerund} '{commandName}' command")
         _commandTable[commandName] = command
@@ -176,9 +180,9 @@ async def emit(
         If None, the message is broadcast to all clients. Defaults to None.
         room (None | str, optional): The Socket.IO room to which to send the
         message. Defaults to None.
-        skip (None | str, optional): The session ID which should be skipped in a
-        broadcast. Allows the server to send a message to all clients in a group
-        except for one. Defaults to None.
+        skip (None | str, optional): The session ID which should be skipped in
+        a broadcast. Allows the server to send a message to all clients in a
+        group except for one. Defaults to None.
         namespace (None | str, optional): The Socket.IO namespace in which to
         send the message. Defaults to None.
         timestamp (None | int, optional): The server epoch at which the action
@@ -228,9 +232,9 @@ async def _handleConnect(
 
 
 async def _dummyHandler(*_, **__) -> None:
-    """A dummy function to handle miscellaneous Socket.IO API. This is needed to
-    ensure that there aren't any argument exceptions with catch-all Socket.IO
-    event handlers.
+    """A dummy function to handle miscellaneous Socket.IO API. This is needed
+    to ensure that there aren't any argument exceptions with catch-all
+    Socket.IO event handlers.
     """
     pass
 
@@ -283,9 +287,11 @@ async def _handleEvent(
             json["uri"] = URI(rawURI["bout"], period, jam)
 
         # Get the function and call it with only the required arguments
-        func: Callable[..., Awaitable[None | Collection]] = _commandTable[command]
+        func: Callable[..., Awaitable[None | Collection]
+                       ] = _commandTable[command]
         params: set[str] = set(
-            [param.name for param in inspect.signature(func).parameters.values()]
+            [param.name for param in inspect.signature(
+                func).parameters.values()]
         )
         json = {k: v for k, v in json.items() if k in params}
         data: None | Collection = await func(**json)
@@ -302,10 +308,13 @@ async def _handleEvent(
         }
 
         # If the exception was not caused by the client, log a traceback
-        if not isinstance(e, ClientException) and (traceback := e.__traceback__):
-            fileName: str = os.path.split(traceback.tb_frame.f_code.co_filename)[-1]
+        traceback: None | TracebackType = e.__traceback__
+        if not isinstance(e, ClientException) and traceback is not None:
+            fileName: str = os.path.split(
+                traceback.tb_frame.f_code.co_filename)[-1]
             lineNumber: int = traceback.tb_lineno
-            log.error(f"{type(e).__name__}: {str(e)} ({fileName}, {lineNumber})")
+            log.error(f"{type(e).__name__}: {
+                      str(e)} ({fileName}, {lineNumber})")
     finally:
         log.debug(f"Ack: {str(response)}")
         # Return the current timestamp
@@ -332,8 +341,10 @@ _jinja: Jinja2Templates = Jinja2Templates(directory=_webDir)
 _app: Starlette = Starlette(
     routes=[
         Route("/", _renderTemplate),
-        # Mount("/static", app=StaticFiles(directory=f"{_webDir}/static"), name="static"),
-        Mount("/assets", app=StaticFiles(directory=_webDir / "assets"), name="assets"),
+        # Mount("/static", app=StaticFiles(directory=f"{_webDir}/static"),
+        # name="static"),
+        Mount("/assets", app=StaticFiles(directory=_webDir / "assets"),
+              name="assets"),
         Mount("/socket.io", app=socketio.ASGIApp(_socket)),
         Route("/{file:str}", _renderTemplate),
     ],
