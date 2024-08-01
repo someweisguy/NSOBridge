@@ -93,6 +93,7 @@ class Period(_GameNode[Bout], Timeable):
         super().__init__(parent)
         self._timeToDerby: Timer = Timer()
         self._clock: Timer = Timer(minutes=0.1)
+        self._hasStarted: bool = False
         self._jams: list[Jam] = [Jam(self)]
 
         self._timeToDerby.setCallback(lambda _: self.update())
@@ -137,10 +138,17 @@ class Period(_GameNode[Bout], Timeable):
 
         self.update()
 
+    def startTimeToDerby(self, timestamp: datetime) -> None:
+        if self._timeToDerby.isRunning():
+            raise RuntimeError("Halftime is already running")
+        self._timeToDerby.start(timestamp)
+
     def start(self, timestamp: datetime) -> None:
         if self.isRunning():
             raise RuntimeError("this Period has already started")
         self._clock.start(timestamp)
+        self._timeToDerby.stop(timestamp)
+        self._hasStarted = True
 
         self.update()
 
@@ -168,6 +176,7 @@ class Period(_GameNode[Bout], Timeable):
         return {
             "uuid": self.uuid,
             "timeToDerby": self._timeToDerby.encode(),
+            "hasStarted": self._hasStarted,
             "clock": self._clock.encode(),
             "jamCount": len(self._jams),
         }
@@ -229,6 +238,7 @@ class Jam(_GameNode[Period], Timeable):
         # Start the Period clock if it is not running
         if not self.parentPeriod.isRunning():
             self.parentPeriod.start(timestamp)
+            # TODO check if TTD is running
 
         self.update()
 
