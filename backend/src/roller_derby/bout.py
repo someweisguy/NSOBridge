@@ -126,14 +126,8 @@ class Period(_GameNode[Bout], Timeable):
 
         self.update()
 
-    def setTimeToDerby(
-        self,
-        timestamp: datetime,
-        *,
-        hours: float = 0,
-        minutes: float = 0,
-        seconds: float = 0,
-    ) -> None:
+    def setTimeToDerby(self, timestamp: datetime, *, hours: float = 0,
+                       minutes: float = 0, seconds: float = 0) -> None:
         if self._timeToDerby.isRunning():
             self._timeToDerby.stop(timestamp)
         self._timeToDerby.setElapsed(None)
@@ -203,8 +197,8 @@ class Jam(_GameNode[Period], Timeable):
     @stopReason.setter
     def stopReason(self, stopReason: None | STOP_REASONS) -> None:
         if stopReason is not None and stopReason not in get_args(STOP_REASONS):
-            raise ValueError(f"stopReason must be one of {
-                             get_args(STOP_REASONS)}")
+            raise ValueError(f"""stopReason must be one of
+                             {get_args(STOP_REASONS)}""")
         self._stopReason = stopReason
         self.update()
 

@@ -163,14 +163,9 @@ def update(encodable: Encodable) -> None:
     loop.create_task(emit(eventName, encodable.encode()))
 
 
-async def emit(
-    event: str,
-    data: dict[str, Any],
-    to: None | str = None,
-    room: None | str = None,
-    skip: None | str = None,
-    namespace: None | str = None,
-) -> None:
+async def emit(event: str, data: dict[str, Any], to: None | str = None,
+               room: None | str = None, skip: None | str = None,
+               namespace: None | str = None) -> None:
     """Sends a Socket.IO message with the desired event name and data.
 
     Args:
@@ -212,9 +207,8 @@ async def _renderTemplate(request: Request) -> HTMLResponse:
     return _jinja.TemplateResponse(request, file)
 
 
-async def _handleConnect(
-    sessionId: str, environ: dict[str, Any], auth: dict[str, Any]
-) -> None:
+async def _handleConnect(sessionId: str, environ: dict[str, Any],
+                         auth: dict[str, Any]) -> None:
     """Handles a socket.io connection event.
 
     Args:
@@ -239,9 +233,8 @@ async def _dummyHandler(*_, **__) -> None:
     pass
 
 
-async def _handleEvent(
-    command: str, sessionId: str, json: dict[str, Any]
-) -> dict[str, Any]:
+async def _handleEvent(command: str, sessionId: str,
+                       json: dict[str, Any]) -> dict[str, Any]:
     """Handles all socket.io events except for connection, disconnection, and
     sync. This handler looks up the received command in a command table and
     calls the appropriate function, if it exists.
@@ -328,9 +321,8 @@ log: logging.Logger = logging.getLogger(__name__)
 # bouts: bout.Series = bout.Series()
 
 _commandTable: dict[str, Callable[..., Awaitable[None | Collection]]] = dict()
-_socket: socketio.AsyncServer = socketio.AsyncServer(
-    cors_allowed_origins="*", async_mode="asgi"
-)
+_socket: socketio.AsyncServer = socketio.AsyncServer(cors_allowed_origins="*",
+                                                     async_mode="asgi")
 _socket.on("connect", _handleConnect)
 _socket.on("disconnect", _dummyHandler)
 _socket.on("ping", _dummyHandler)

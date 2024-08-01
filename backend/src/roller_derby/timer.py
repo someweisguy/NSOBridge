@@ -17,14 +17,8 @@ class Timeable(Protocol):
 
 
 class Timer(Encodable, Timeable):
-    def __init__(
-        self,
-        alarm: None | timedelta = None,
-        *,
-        hours: float = 0,
-        minutes: float = 0,
-        seconds: float = 0,
-    ) -> None:
+    def __init__(self, alarm: None | timedelta = None, *, hours: float = 0,
+                 minutes: float = 0, seconds: float = 0) -> None:
         super().__init__()
 
         self._task: None | asyncio.Task = None
@@ -99,14 +93,8 @@ class Timer(Encodable, Timeable):
         else:
             return self._elapsed
 
-    def setElapsed(
-        self,
-        elapsed: None | timedelta = None,
-        *,
-        hours: float = 0,
-        minutes: float = 0,
-        seconds: float = 0,
-    ) -> None:
+    def setElapsed(self, elapsed: None | timedelta = None, *, hours: float = 0,
+                   minutes: float = 0, seconds: float = 0) -> None:
         if elapsed is None:
             elapsed = timedelta(hours=hours, minutes=minutes, seconds=seconds)
         self._elapsed = elapsed
@@ -122,14 +110,8 @@ class Timer(Encodable, Timeable):
     def getAlarm(self) -> None | timedelta:
         return self._alarm
 
-    def setAlarm(
-        self,
-        alarm: None | timedelta = None,
-        *,
-        hours: float = 0,
-        minutes: float = 0,
-        seconds: float = 0,
-    ) -> None:
+    def setAlarm(self, alarm: None | timedelta = None, *, hours: float = 0,
+                 minutes: float = 0, seconds: float = 0) -> None:
         if alarm is not None:
             self._alarm = alarm
         else:

@@ -27,12 +27,8 @@ async def callTimeout(timestamp: datetime) -> API:
 
 
 @server.register
-async def setTimeout(
-    caller: TEAMS | OFFICIAL,
-    isOfficialReview: bool,
-    isRetained: bool,
-    notes: str,
-) -> API:
+async def setTimeout(caller: TEAMS | OFFICIAL, isOfficialReview: bool,
+                     isRetained: bool, notes: str) -> API:
     bout: Bout = series.currentBout
     bout.timeout.assign(caller)
     if isOfficialReview:
