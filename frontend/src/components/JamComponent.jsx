@@ -10,7 +10,6 @@ const OFFICIAL = "official";
 const CALLED = "called";
 const INJURY = "injury";
 const TIME = "time";
-const UNKNOWN = "unknown";
 
 const NULL_JAM_SCORE = {
   uuid: null,
@@ -164,6 +163,14 @@ export function ScoreboardEditor({ boutUuid }) {
   const readyForNextPeriod = period?.clock.elapsed >= period?.clock.alarm;
 
   const timeoutIsRunning = timeout?.current !== null;
+
+  const halftimeIsRunning = period !== null ? !period.hasStarted : false;
+
+  if (halftimeIsRunning) {
+    return (
+      <IntermissionController uri={uri} period={period}/>
+    )
+  }
 
   return (
     <>
@@ -517,7 +524,7 @@ TimeoutController.propTypes = {
   timeout: PropTypes.object.isRequired
 }
 
-function IntermissionController({ }) {
+function IntermissionController({ uri, period }) {
 
   return (
     <></>
