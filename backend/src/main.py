@@ -6,6 +6,12 @@ import server
 
 
 @server.register
+async def startTimeToDerby(uri: URI, timestamp: datetime) -> API:
+    period: Period = series.currentBout[uri.period]
+    period.startTimeToDerby(timestamp)
+
+
+@server.register
 async def getBouts() -> API:
     return [bout.encode() for bout in series._bouts]
 
