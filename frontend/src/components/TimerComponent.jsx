@@ -210,3 +210,63 @@ export function GameClock({ boutUuid }) {
 GameClock.propTypes = {
   boutUuid: PropTypes.string.isRequired
 }
+
+
+export function HalftimeClock({ boutUuid }) {
+  const [halftimeClock, setHalftimeClock] = React.useState(null);
+  const [lap, setLap] = React.useState(0);
+
+  React.useEffect(() => {
+    sendRequest("period", { uri: { bout: boutUuid } })
+      .then((newPeriod) => {
+        setHalftimeClock(newPeriod.timeToDerby);
+      });
+  }, [boutUuid]);
+
+  React.useEffect(() => {
+    const unsubscribePeriod = onEvent("period", (newPeriod) => {
+      setHalftimeClock(newPeriod.timeToDerby);
+    });
+
+    return unsubscribePeriod;
+  }, []);
+
+  React.useEffect(() => {
+    if (!halftimeClock || !halftimeClock.running) {
+      return;
+    }
+
+    // Calculate the clock's expiry to know when to stop the tracking interval
+    const stopTime = halftimeClock.timestamp + halftimeClock.alarm
+      - halftimeClock.elapsed;
+
+    // Setup an interval to track the game clock
+    const intervalId = setInterval(() => {
+      const NOW = Date.now();
+      if (NOW >= stopTime) {
+        clearInterval(intervalId);
+      } else {
+        setLap(NOW - halftimeClock.timestamp);
+      }
+    }, 50);
+
+    return () => {
+      clearInterval(intervalId);
+      setLap(0);  // Reset the current Lap
+    }
+  }, [halftimeClock]);
+
+  
+  let clockMilliseconds = halftimeClock?.alarm - (halftimeClock?.elapsed + lap);
+  if (clockMilliseconds < 0) {
+    clockMilliseconds = 0;
+  }
+  console.log(clockMilliseconds);
+  
+  return (
+    <>{formatTimeString(clockMilliseconds)}</>
+  );
+}
+HalftimeClock.propTypes = {
+  boutUuid: PropTypes.string.isRequired
+}
