@@ -261,7 +261,6 @@ export function HalftimeClock({ boutUuid }) {
   if (clockMilliseconds < 0) {
     clockMilliseconds = 0;
   }
-  console.log(clockMilliseconds);
   
   return (
     <>{formatTimeString(clockMilliseconds)}</>
