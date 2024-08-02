@@ -91,8 +91,8 @@ class Period(_GameNode[Bout], Timeable):
 
     def __init__(self, parent: Bout) -> None:
         super().__init__(parent)
-        self._timeToDerby: Timer = Timer()
-        self._clock: Timer = Timer(minutes=0.1)
+        self._timeToDerby: Timer = Timer(minutes=10)
+        self._clock: Timer = Timer(minutes=30)
         self._hasStarted: bool = False
         self._jams: list[Jam] = [Jam(self)]
 
