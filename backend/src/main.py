@@ -88,16 +88,7 @@ async def startJam(uri: URI, timestamp: datetime) -> API:
 @server.register
 async def stopJam(uri: URI, timestamp: datetime) -> API:
     jam: Jam = series.currentBout.jams[uri.period][uri.jam]
-
-    # Attempt to determine the reason the jam ended
-    stopReason: None | STOP_REASONS = None
-    if jam.getRemaining().total_seconds() <= 0:
-        stopReason = "time"
-    elif jam.score.home.getLead() or jam.score.away.getLead():
-        stopReason = "called"
-
     jam.stop(timestamp)
-    jam.stopReason = stopReason
 
 
 @server.register

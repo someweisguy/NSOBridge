@@ -146,6 +146,12 @@ class Jam(Encodable, Timeable):
         jamClock.setElapsed(seconds=0)
         self._parentBout._lineupClock.start(timestamp)
 
+        # Attempt to determine the probable stop reason
+        if self._parentBout._jamClock.getRemaining().total_seconds() <= 0:
+            self._stopReason = 'time'
+        elif self._score.home.getLead() or self._score.away.getLead():
+            self._stopReason = 'called'
+
         # Instantiate a new Jam
         periodIndex: int = self._parentBout._currentPeriod
         self._parentBout._jams[periodIndex].append(Jam(self._parentBout))
