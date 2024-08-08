@@ -5,7 +5,7 @@ from roller_derby.score import Score
 from roller_derby.timeout import BoutTimeout
 from roller_derby.timer import Timeable, Timer
 from server import Encodable
-from typing import Literal, TypeAlias
+from typing import get_args, Literal, TypeAlias
 
 
 TEAMS: TypeAlias = Literal['home', 'away']
@@ -103,6 +103,17 @@ class Jam(Encodable, Timeable):
     @property
     def parentBout(self) -> Bout:
         return self._parentBout
+
+    @property
+    def stopReason(self) -> None | STOP_REASONS:
+        return self._stopReason
+
+    @stopReason.setter
+    def stopReason(self, stopReason: None | STOP_REASONS) -> None:
+        if stopReason is not None and stopReason not in get_args(STOP_REASONS):
+            raise ValueError((f'stopReason must be None or one of '
+                              f'{get_args(STOP_REASONS)}'))
+        self._stopReason = stopReason
 
     @property
     def score(self) -> JamTeamAttribute[Score]:
