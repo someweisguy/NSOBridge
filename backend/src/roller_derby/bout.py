@@ -63,7 +63,7 @@ class Bout(Encodable):
         if not self._periodClock.isRunning():
             raise RuntimeError('this Period is not running')
         elif self._jamClock.isRunning():
-            raise RuntimeError('cannot stop the Period while a Jam is running')
+            raise RuntimeError('cannot end the Period while a Jam is running')
 
         self._periodClock.stop(timestamp)
         self._currentPeriod += 1
