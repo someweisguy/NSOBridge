@@ -1,22 +1,11 @@
 from __future__ import annotations
 from datetime import datetime, timedelta
 from server import Encodable
-from typing import Callable, Protocol
+from typing import Callable
 import asyncio
 
 
-class Timeable(Protocol):
-    def start(self, timestamp: datetime) -> None:
-        raise NotImplementedError
-
-    def stop(self, timestamp: datetime) -> None:
-        raise NotImplementedError
-
-    def isRunning(self) -> bool:
-        raise NotImplementedError
-
-
-class Timer(Encodable, Timeable):
+class Timer(Encodable):
     def __init__(self, alarm: None | timedelta = None, *, hours: float = 0,
                  minutes: float = 0, seconds: float = 0) -> None:
         super().__init__()
@@ -54,7 +43,7 @@ class Timer(Encodable, Timeable):
                 self._task = None
 
     def start(self, timestamp: datetime) -> None:
-        if self.isRunning():
+        if self.isStarted():
             raise RuntimeError("timer has already been started")
 
         # Increment the elapsed time if the Timer has already been running
@@ -69,7 +58,7 @@ class Timer(Encodable, Timeable):
             self._task = asyncio.create_task(Timer._alarmTask(self))
 
     def stop(self, timestamp: datetime) -> None:
-        if not self.isRunning():
+        if not self.isStarted():
             raise RuntimeError("timer has already been stopped")
 
         self._stopTime = timestamp
@@ -79,7 +68,7 @@ class Timer(Encodable, Timeable):
             self._task.cancel()
             self._task = None
 
-    def isRunning(self) -> bool:
+    def isStarted(self) -> bool:
         return self._startTime is not None and self._stopTime is None
 
     def setCallback(self, callback: None | Callable[[datetime], None]) -> None:
@@ -100,7 +89,7 @@ class Timer(Encodable, Timeable):
         self._elapsed = elapsed
 
         # Reset the current lap
-        if not self.isRunning():
+        if not self.isStarted():
             self._startTime = None
             self._stopTime = None
 
@@ -131,5 +120,5 @@ class Timer(Encodable, Timeable):
             "uuid": self.uuid,
             "alarm": Timer.getMilliseconds(self._alarm),
             "elapsed": Timer.getMilliseconds(self.getElapsed()),
-            "running": self.isRunning(),  # FIXME: rename to isRunning
+            "running": self.isStarted(),  # FIXME: rename to isRunning
         }
