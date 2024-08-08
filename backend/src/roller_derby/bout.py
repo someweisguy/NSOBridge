@@ -59,11 +59,11 @@ class Bout(Encodable):
     def timeout(self) -> BoutTimeout:
         return self._timeout
 
-    def stopPeriod(self, timestamp: datetime) -> None:
+    def endPeriod(self, timestamp: datetime) -> None:
         if not self._periodClock.isRunning():
             raise RuntimeError('this Period is not running')
         elif self._jamClock.isRunning():
-            raise RuntimeError('cannot stop a Period while a Jam is running')
+            raise RuntimeError('cannot stop the Period while a Jam is running')
 
         self._periodClock.stop(timestamp)
         self._currentPeriod += 1
