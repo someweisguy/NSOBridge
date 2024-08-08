@@ -131,5 +131,5 @@ class Timer(Encodable, Timeable):
             "uuid": self.uuid,
             "alarm": Timer.getMilliseconds(self._alarm),
             "elapsed": Timer.getMilliseconds(self.getElapsed()),
-            "running": self.isRunning(),
+            "running": self.isRunning(),  # FIXME: rename to isRunning
         }
