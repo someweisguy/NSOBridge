@@ -1,5 +1,5 @@
 from datetime import datetime
-from roller_derby.bout import series, Bout, Jam, Period, TEAMS, STOP_REASONS
+from roller_derby.bout import series, Bout, Jam, TEAMS, STOP_REASONS
 from roller_derby.timeout import OFFICIAL
 from server import API, URI
 import server
@@ -7,8 +7,9 @@ import server
 
 @server.register
 async def startTimeToDerby(uri: URI, timestamp: datetime) -> API:
-    period: Period = series.currentBout[uri.period]
-    period.startTimeToDerby(timestamp)
+    # period: Period = series.currentBout[uri.period]
+    # period.startTimeToDerby(timestamp)
+    pass
 
 
 @server.register
@@ -27,9 +28,10 @@ async def callTimeout(timestamp: datetime) -> API:
     bout: Bout = series.currentBout
     bout.timeout.call(timestamp)
 
-    period: Period = bout[-1]
-    if period.isRunning():
-        period.stop(timestamp)
+    # FIXME: stop period from timeout
+    # period: Period = bout[-1]
+    # if period.isRunning():
+    #     period.stop(timestamp)
 
 
 @server.register
@@ -58,36 +60,14 @@ async def bout(uri: URI) -> API:
 
 
 @server.register
-async def period(uri: URI) -> API:
-    # if id is None:
-    #     id = -1
-    # elif id > 1:
-    #     raise server.ClientException("a Bout may only have two Periods")
-
-    bout: Bout = series.currentBout
-
-    if uri.period == bout.getPeriodCount():
-        # TODO: stop previous period and jam
-        bout.addPeriod()
-    elif uri.period > bout.getPeriodCount():
-        raise server.ClientException("that Period does not exist")
-
-    period: Period = bout[uri.period]
-    return period.encode()
-
-
-@server.register
 async def jam(uri: URI) -> API:
-    period: Period = series.currentBout[uri.period]
-    jam: Jam = period[uri.jam]
-
+    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
     return jam.encode()
 
 
 @server.register
 async def jamScore(uri: URI, team: None | TEAMS = None) -> API:
-    period: Period = series.currentBout[uri.period]
-    jam: Jam = period[uri.jam]
+    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
     if team is None:
         return {
             "home": jam.score.home.encode(),
@@ -100,13 +80,13 @@ async def jamScore(uri: URI, team: None | TEAMS = None) -> API:
 @server.register
 async def startJam(uri: URI, timestamp: datetime) -> API:
     # Start the Jam
-    jam: Jam = series.currentBout[uri.period][uri.jam]
+    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
     jam.start(timestamp)
 
 
 @server.register
 async def stopJam(uri: URI, timestamp: datetime) -> API:
-    jam: Jam = series.currentBout[uri.period][uri.jam]
+    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
 
     # Attempt to determine the reason the jam ended
     stopReason: None | STOP_REASONS = None
@@ -121,7 +101,7 @@ async def stopJam(uri: URI, timestamp: datetime) -> API:
 
 @server.register
 async def setJamStopReason(uri: URI, stopReason: STOP_REASONS) -> API:
-    jam: Jam = series.currentBout[uri.period][uri.jam]
+    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
     jam.stopReason = stopReason
 
 

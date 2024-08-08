@@ -4,7 +4,7 @@ from typing import Any, Self, TYPE_CHECKING
 from server import Encodable
 
 if TYPE_CHECKING:
-    from roller_derby.bout import Bout, Jam, Period, TEAMS
+    from roller_derby.bout import Bout, Jam, TEAMS
 
 
 class AbstractAttribute[P: _AbstractTeamAttribute](Encodable, ABC):
@@ -58,15 +58,6 @@ class JamTeamAttribute[T: AbstractAttribute](_AbstractTeamAttribute[T]):
 
     @property
     def parentJam(self) -> Jam:
-        return self._parent
-
-
-class PeriodTeamAttribute[T: AbstractAttribute](_AbstractTeamAttribute[T]):
-    def __init__(self, parent: Period, cls: type[T]) -> None:
-        super().__init__(parent, cls)
-
-    @property
-    def parentPeriod(self) -> Period:
         return self._parent
 
 
