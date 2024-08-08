@@ -3,7 +3,7 @@ from datetime import datetime
 from roller_derby.attribute import JamTeamAttribute
 from roller_derby.score import Score
 from roller_derby.timeout import BoutTimeout
-from roller_derby.timer import Timeable, Timer
+from roller_derby.timer import Timer
 from server import Encodable
 from typing import get_args, Literal, TypeAlias
 
@@ -60,9 +60,9 @@ class Bout(Encodable):
         return self._timeout
 
     def endPeriod(self, timestamp: datetime) -> None:
-        if not self._periodClock.isRunning():
+        if not self._periodClock.isStarted():
             raise RuntimeError('this Period is not running')
-        elif self._jamClock.isRunning():
+        elif self._jamClock.isStarted():
             raise RuntimeError('cannot end the Period while a Jam is running')
 
         self._periodClock.stop(timestamp)
@@ -88,7 +88,7 @@ class Bout(Encodable):
         }
 
 
-class Jam(Encodable, Timeable):
+class Jam(Encodable):
     def __init__(self, parentBout: Bout) -> None:
         super().__init__()
         self._parentBout: Bout = parentBout
@@ -120,12 +120,12 @@ class Jam(Encodable, Timeable):
         return self._score
 
     def start(self, timestamp: datetime) -> None:
-        if self.isRunning():
+        if self.isStarted():
             raise RuntimeError('this Jam is already running')
 
         # Start the Period clock if it is not running
         periodClock: Timer = self._parentBout._periodClock
-        if not periodClock.isRunning():
+        if not periodClock.isStarted():
             periodClock.start(timestamp)
 
         # Reset the Lineup clock and start the Jam clock
@@ -137,7 +137,7 @@ class Jam(Encodable, Timeable):
         self._startTime = timestamp
 
     def stop(self, timestamp: datetime) -> None:
-        if not self.isRunning():
+        if not self.isStarted():
             raise RuntimeError('this Jam is not running')
 
         # Reset the Jam clock and start the Lineup clock
@@ -158,8 +158,14 @@ class Jam(Encodable, Timeable):
 
         self._stopTime = timestamp
 
-    def isRunning(self) -> bool:
+    def isStarted(self) -> bool:
         return self._startTime is not None
+
+    def isStopped(self) -> bool:
+        return self._stopTime is not None
+
+    def isRunning(self) -> bool:
+        return self.isStarted() and not self.isStopped()
 
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
