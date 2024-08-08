@@ -9,7 +9,7 @@ async def setTrip(uri: URI, team: TEAMS, tripNum: int, points: int,
                   timestamp: datetime, validPass: bool = True) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
-    jam: Jam = bout[uri.period][uri.jam]
+    jam: Jam = bout.jams[uri.period][uri.jam]
 
     # Attempt to set the lead jammer
     if jam.score[team].isLeadEligible() and validPass:
@@ -22,7 +22,7 @@ async def setTrip(uri: URI, team: TEAMS, tripNum: int, points: int,
 async def deleteTrip(uri: URI, team: TEAMS, tripNum: int) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
-    jam: Jam = bout[uri.period][uri.jam]
+    jam: Jam = bout.jams[uri.period][uri.jam]
 
     jam.score[team].deleteTrip(tripNum)
 
@@ -31,7 +31,7 @@ async def deleteTrip(uri: URI, team: TEAMS, tripNum: int) -> API:
 async def setLead(uri: URI, team: TEAMS, lead: bool) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
-    jam: Jam = bout[uri.period][uri.jam]
+    jam: Jam = bout.jams[uri.period][uri.jam]
 
     jam.score[team].setLead(lead)
 
@@ -40,7 +40,7 @@ async def setLead(uri: URI, team: TEAMS, lead: bool) -> API:
 async def setLost(uri: URI, team: TEAMS, lost: bool) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
-    jam: Jam = bout[uri.period][uri.jam]
+    jam: Jam = bout.jams[uri.period][uri.jam]
 
     jam.score[team].setLost(lost)
 
@@ -49,7 +49,7 @@ async def setLost(uri: URI, team: TEAMS, lost: bool) -> API:
 async def setStarPass(uri: URI, team: TEAMS, tripNum: None | int) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
-    jam: Jam = bout[uri.period][uri.jam]
+    jam: Jam = bout.jams[uri.period][uri.jam]
 
     jam.score[team].setStarPass(tripNum)
     if tripNum is not None:
