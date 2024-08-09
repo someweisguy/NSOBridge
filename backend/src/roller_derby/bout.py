@@ -170,8 +170,10 @@ class Jam(Encodable):
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
             'uuid': self.uuid,
-            'startTime': str(self._startTime),
-            'stopTime': str(self._stopTime),
+            'startTime': (str(self._startTime) if self._startTime is not None
+                          else None),
+            'stopTime': (str(self._stopTime) if self._stopTime is not None
+                         else None),
             'stopReason': self._stopReason,
             'score': self._score.encode()
         }
