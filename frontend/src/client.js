@@ -90,7 +90,7 @@ export function useJam(boutUuid, periodNum, jamNum) {
   const [jam, setJam] = React.useState(null);
 
   React.useEffect(() => {
-    if (boutUuid === null || periodNum === null || jamNum === null) {
+    if (boutUuid == null || periodNum == null || jamNum == null) {
       return;
     }
     
