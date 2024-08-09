@@ -1,7 +1,7 @@
 import "./JamComponent.css"
 import React from "react";
 import PropTypes from 'prop-types';
-import { onEvent, sendRequest, useBout, useJam } from "../client.js";
+import { sendRequest, useBout, useJam } from "../client.js";
 import { HalftimeClock } from "./TimerComponent.jsx"
 
 const HOME = "home";
@@ -12,27 +12,69 @@ const CALLED = "called";
 const INJURY = "injury";
 const TIME = "time";
 
-const NULL_JAM_SCORE = {
-  uuid: null,
-  trips: [],
-  lead: false,
-  lost: false,
-  starPass: null,
-  isLeadEligible: true
-};
+function useNextUri(bout, uri) {
+  const [nextUri, setNextUri] = React.useState(null);
 
-const NULL_STOPPAGE = {
-  uuid: null,
-  current: null,
-  home: {
-    officialReviewRemaining: 1,
-    timeoutsRemaining: 3
-  },
-  away: {
-    officialReviewRemaining: 1,
-    timeoutsRemaining: 3
-  }
+  React.useEffect(() => {
+    if (bout == null || uri == null) {
+      setNextUri(null);
+      return;
+    }
+
+    const newUri = { ...uri };
+    newUri.jam++;
+
+    // Ensure the next Jam exists
+    const jamCounts = bout.jamCounts;
+    if (newUri.jam >= jamCounts[newUri.period]) {
+      if (newUri.period == 1) {
+        return null;  // Can't have more than 2 Periods
+      }
+      newUri.period++;
+      if (jamCounts[newUri.period] == 0) {
+        return null;  // There are no Jams in the next Period
+      }
+      newUri.jam = 0;
+    }
+
+    setNextUri(newUri);
+  }, [bout, uri]);
+
+
+  return nextUri;
 }
+
+
+function usePreviousUri(bout, uri) {
+  const [previousUri, setPreviousUri] = React.useState(null);
+
+  React.useEffect(() => {
+    if (bout == null || uri == null) {
+      setPreviousUri(null);
+      return;
+    }
+
+    const newUri = { ...uri };
+    newUri.jam--;
+
+    // Ensure the previous Jam exists
+    const jamCounts = bout.jamCounts;
+    if (newUri.jam < 0) {
+      if (newUri.period == 0) {
+        return null;  // Already on the zeroeth Period
+      }
+      newUri.period--;
+      newUri.jam = jamCounts[newUri.period];
+    }
+
+    setPreviousUri(newUri);
+  }, [bout, uri]);
+
+
+  return previousUri;
+}
+
+
 
 export function ScoreboardEditor({ boutUuid }) {
 
@@ -41,67 +83,25 @@ export function ScoreboardEditor({ boutUuid }) {
   const [uri, setUri] = React.useState(null);
   const jam = useJam(boutUuid, uri?.period, uri?.jam)
 
-  if (uri === null && bout !== null) {
-    const period = bout.currentPeriodNum;
-    const jam = bout.jamCounts[period] - 1;
-    setUri({ period, jam })
+  const nextUri = useNextUri(bout, uri);
+  const previousUri = usePreviousUri(bout, uri);
+
+  // Ensure the Jam URI is valid
+  if (bout != null) {
+    const jamDoesNotExist = uri?.jam >= bout.jamCounts[bout.currentPeriodNum];
+    if (jamDoesNotExist) {
+      // TODO: Notify the user that the Jam does not exist
+    }
+    if (uri == null || jamDoesNotExist) {
+      const period = bout.currentPeriodNum;
+      const jam = bout.jamCounts[period] - 1;
+      setUri({ period, jam })
+    }
   }
 
-  console.log(bout)
-  console.log(uri)
-  console.log(jam)
-  console.log("--------------------------")
-  
-
-  // const goToNextJam = React.useCallback(() => {
-  //   const newUri = { ...uri };
-  //   newUri.jam++;
-  //   if (newUri.jam === bout?.jamCounts[newUri.period]) {
-  //     newUri.period++;
-  //     newUri.jam = 0;
-  //   }
-  //   sendRequest("jam", { uri: newUri })
-  //     .then((newJam) => {
-  //       setJam(newJam);
-  //       setUri(newUri);
-  //     })
-  // }, [uri, bout]);
-
-  // const goToPreviousJam = React.useCallback(() => {
-  //   const newUri = { ...uri };
-  //   newUri.jam--;
-  //   if (newUri.jam < 0) {
-  //     newUri.period--;
-  //     newUri.jam = bout?.jamCounts[newUri.period] - 1;
-  //   }
-  //   sendRequest("jam", { uri: newUri })
-  //     .then((newJam) => {
-  //       setJam(newJam);
-  //       setUri(newUri);
-  //     })
-  // }, [uri, bout]);
-
-  // const goToNextPeriod = React.useCallback(() => {
-  //   const newUri = { ...uri };
-  //   newUri.period++;
-  //   newUri.jam = 0;
-  //   sendRequest("period", { uri: newUri })
-  //     .then((newPeriod) => {
-  //       sendRequest("jam", { uri: newUri })
-  //         .then((newJam) => {
-  //           setPeriod(newPeriod);
-  //           setJam(newJam);
-  //           setUri(newUri);
-  //         });
-  //     })
-  // }, [uri])
 
 
 
-  // Determine button visibility
-  // const previousJamVisible = uri?.jam > 0 || uri?.period > 0 ? "visible" : "hidden";
-  // const nextJamVisible = uri?.jam + 1 < bout?.jamCounts[uri?.period]
-  //   || uri?.period + 1 < bout?.periodCount ? "visible" : "hidden";
 
   // const jamIsRunning = jam?.hasStarted && jam?.clock.running;
   // const readyForNextPeriod = period?.clock.elapsed >= period?.clock.alarm;
@@ -117,9 +117,29 @@ export function ScoreboardEditor({ boutUuid }) {
   // }
 
   return (
-    <>
+    <div>
 
-    </>
+
+      <div>
+        {uri != null && 
+          <p>
+            {previousUri != null && "<"}
+            P{uri.period + 1} J{uri.jam + 1}
+            {nextUri != null && ">"}
+          </p>
+        }
+      </div>
+
+      <div>
+        {jam != null &&
+          <>
+            <JamScore state={jam.score.home} team={HOME} />
+            <JamScore state={jam.score.away} team={AWAY} />
+          </>
+        }
+      </div>
+
+    </div>
   );
 }
 ScoreboardEditor.propTypes = {
@@ -127,57 +147,31 @@ ScoreboardEditor.propTypes = {
 }
 
 
-function JamScore({ uri, team }) {
-  const [state, setState] = React.useState(NULL_JAM_SCORE);
+function JamScore({ uri, state, team }) {
   const [selectedTrip, setSelectedTrip] = React.useState(0);
   const latestTripIsSelected = React.useRef(true);
   const scrollBar = React.useRef(null);
 
-  // Request new data when the Jam changes
-  React.useEffect(() => {
-    if (uri === null) {
-      return;
-    }
-    let ignore = false;
-    sendRequest("jamScore", { uri, team })
-      .then((newState) => {
-        if (!ignore) {
-          setSelectedTrip(newState.trips.length);
-          setState(newState)
-        }
-      });
-    return () => ignore = true;
-  }, [uri, team]);
 
-  React.useEffect(() => {
-    if (uri === null) {
-      return;
-    }
-    const unsubscribeFunction = onEvent("jamScore", (newState) => {
-      if (newState.uuid === state.uuid && newState.team === team) {
-        setState(newState);
-      }
-    });
-    return () => unsubscribeFunction();
-  }, [state, team])
+
 
   // Ensure the new latest Trip is selected when adding a new Trip
-  React.useEffect(() => {
-    if (latestTripIsSelected.current) {
-      setSelectedTrip(state.trips.length);
-    }
-  }, [state.trips]);
-  React.useEffect(() => {
-    latestTripIsSelected.current = selectedTrip === state.trips.length;
-  }, [selectedTrip, state.trips]);
+  // React.useEffect(() => {
+  //   if (latestTripIsSelected.current) {
+  //     setSelectedTrip(state.trips.length);
+  //   }
+  // }, [state.trips]);
+  // React.useEffect(() => {
+  //   latestTripIsSelected.current = selectedTrip === state.trips.length;
+  // }, [selectedTrip, state.trips]);
 
   // Scroll to the selected Trip
-  React.useEffect(() => {
-    const buttonWidth = scrollBar.current.children[0].offsetWidth;
-    const scrollBarWidth = scrollBar.current.offsetWidth;
-    const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
-    scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
-  }, [selectedTrip])
+  // React.useEffect(() => {
+  //   const buttonWidth = scrollBar.current.children[0].offsetWidth;
+  //   const scrollBarWidth = scrollBar.current.offsetWidth;
+  //   const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
+  //   scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
+  // }, [selectedTrip])
 
   const setTrip = React.useCallback((tripNum, points, validPass = true) => {
     sendRequest("setTrip", { uri, team, tripNum, points, validPass });
@@ -305,7 +299,7 @@ function JamScore({ uri, team }) {
   );
 }
 JamScore.propTypes = {
-  uri: PropTypes.object.isRequired,
+  state: PropTypes.object.isRequired,
   team: PropTypes.string.isRequired
 }
 
@@ -440,7 +434,7 @@ function IntermissionController({ uri }) {
 
   return (
     <>
-      <HalftimeClock boutUuid={uri.bout}/>
+      <HalftimeClock boutUuid={uri.bout} />
     </>
   );
 }
