@@ -93,26 +93,30 @@ export function useJam(boutUuid, periodNum, jamNum) {
     if (boutUuid === null || periodNum === null || jamNum === null) {
       return;
     }
-
+    
     const uri = { bout: boutUuid, period: periodNum, jam: jamNum };
     sendRequest("jam", { uri }).then((newJam) => {
       setJam(newJam);
     });
-
+    
   }, [boutUuid, periodNum, jamNum]);
-
+  
+  let ignore = false;
   React.useEffect(() => {
     if (jam === null) {
       return;
     }
 
     const unsubscribe = onEvent("jam", (newJam) => {
-      if (newJam.uuid == jam.uuid) {
+      if (!ignore && newJam.uuid == jam.uuid) {
         setJam(newJam);
       }
     })
 
-    return unsubscribe;
+    return () => {
+      ignore = true;
+      unsubscribe()
+    };
   }, [jam])
 
 
