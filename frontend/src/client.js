@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import React from 'react';
 
 var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
@@ -57,4 +58,63 @@ export async function calculateLatency(iterations) {
   }
   latency = Math.round((latencySum / iterations) / 2);
   return latency;
+}
+
+export function useBout(boutUuid) {
+  const [bout, setBout] = React.useState(null);
+
+  React.useEffect(() => {
+    if (boutUuid === null) {
+      return;
+    }
+
+    const uri = { bout: boutUuid }
+    sendRequest("bout", { uri }).then((newBout) => {
+      setBout(newBout);
+    });
+  }, [boutUuid]);
+
+  React.useEffect(() => {
+    const unsubscribe = onEvent("bout", (newBout) => {
+      setBout(newBout);
+    })
+
+    return unsubscribe;
+  }, []);
+
+
+  return bout;
+}
+
+export function useJam(boutUuid, periodNum, jamNum) {
+  const [jam, setJam] = React.useState(null);
+
+  React.useEffect(() => {
+    if (boutUuid === null || periodNum === null || jamNum === null) {
+      return;
+    }
+
+    const uri = { bout: boutUuid, period: periodNum, jam: jamNum };
+    sendRequest("jam", { uri }).then((newJam) => {
+      setJam(newJam);
+    });
+
+  }, [boutUuid, periodNum, jamNum]);
+
+  React.useEffect(() => {
+    if (jam === null) {
+      return;
+    }
+
+    const unsubscribe = onEvent("jam", (newJam) => {
+      if (newJam.uuid == jam.uuid) {
+        setJam(newJam);
+      }
+    })
+
+    return unsubscribe;
+  }, [jam])
+
+
+  return jam;
 }
