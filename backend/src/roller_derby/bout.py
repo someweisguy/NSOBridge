@@ -32,6 +32,8 @@ class Series(Encodable):
 
 
 class Bout(Encodable):
+    API_NAME: str = 'bout'
+
     def __init__(self) -> None:
         super().__init__()
         self._intermissionClock: Timer = Timer(minutes=10)
@@ -89,6 +91,8 @@ class Bout(Encodable):
 
 
 class Jam(Encodable):
+    API_NAME: str = 'jam'
+
     def __init__(self, parent: Bout) -> None:
         super().__init__()
         self._parent: Bout = parent
