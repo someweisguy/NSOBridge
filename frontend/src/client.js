@@ -103,7 +103,7 @@ export function useJam(boutUuid, periodNum, jamNum) {
   
   let ignore = false;
   React.useEffect(() => {
-    if (jam === null) {
+    if (jam == null) {
       return;
     }
 
