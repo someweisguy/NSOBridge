@@ -1,15 +1,15 @@
 import './App.css';
-import React from 'react';
+import { React, useState, useEffect } from "react";
 import { ScoreboardEditor } from './components/JamComponent.jsx';
 import { PeriodClock, GameClock } from './components/TimerComponent.jsx';
 import { onEvent, calculateLatency, sendRequest } from './client.js';
 
 function App() {
-  const [isConnected, setIsConnected] = React.useState(false);
-  const [boutUuid, setBoutUuid] = React.useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [boutUuid, setBoutUuid] = useState(null);
 
   // Add connect and disconnect listeners
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribeConnect = onEvent("connect",
       () => setIsConnected(true)
     );
@@ -24,16 +24,14 @@ function App() {
   }, []);
 
   // Request server data on connection
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isConnected) {
       return;
     }
 
     // Calculate connection latency then get server information
     let ignore = false;
-    calculateLatency(10).then((latency) => {
-      console.log("One-way latency: " + latency + "ms")
-
+    calculateLatency(10).then(() => {
       sendRequest("getBouts").then((series) => {
         if (ignore) {
           return;  // Ignore old requests

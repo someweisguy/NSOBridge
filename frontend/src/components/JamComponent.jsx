@@ -1,5 +1,5 @@
 import "./JamComponent.css"
-import React from "react";
+import { React, useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 import { sendRequest, useBout, useJam } from "../client.js";
 import { HalftimeClock } from "./TimerComponent.jsx"
@@ -13,9 +13,9 @@ const INJURY = "injury";
 const TIME = "time";
 
 function useNextUri(bout, uri) {
-  const [nextUri, setNextUri] = React.useState(null);
+  const [nextUri, setNextUri] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (bout == null || uri == null) {
       setNextUri(null);
       return;
@@ -46,9 +46,9 @@ function useNextUri(bout, uri) {
 
 
 function usePreviousUri(bout, uri) {
-  const [previousUri, setPreviousUri] = React.useState(null);
+  const [previousUri, setPreviousUri] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (bout == null || uri == null) {
       setPreviousUri(null);
       return;
@@ -80,7 +80,7 @@ export function ScoreboardEditor({ boutUuid }) {
 
   const bout = useBout(boutUuid);
 
-  const [uri, setUri] = React.useState(null);
+  const [uri, setUri] = useState(null);
   const jam = useJam(boutUuid, uri?.period, uri?.jam)
 
   const nextUri = useNextUri(bout, uri);
@@ -116,12 +116,14 @@ export function ScoreboardEditor({ boutUuid }) {
   //   )
   // }
 
+  const fullUri = { ...uri, bout: boutUuid };
+
   return (
     <div>
 
 
       <div>
-        {uri != null && 
+        {uri != null &&
           <p>
             {previousUri != null && "<"}
             P{uri.period + 1} J{uri.jam + 1}
@@ -133,8 +135,8 @@ export function ScoreboardEditor({ boutUuid }) {
       <div>
         {jam != null &&
           <>
-            <JamScore state={jam.score.home} team={HOME} />
-            <JamScore state={jam.score.away} team={AWAY} />
+            <JamScore uri={fullUri} state={jam.score.home} team={HOME} />
+            <JamScore uri={fullUri} state={jam.score.away} team={AWAY} />
           </>
         }
       </div>
@@ -156,22 +158,22 @@ function JamScore({ uri, state, team }) {
 
 
   // Ensure the new latest Trip is selected when adding a new Trip
-  // React.useEffect(() => {
-  //   if (latestTripIsSelected.current) {
-  //     setSelectedTrip(state.trips.length);
-  //   }
-  // }, [state.trips]);
-  // React.useEffect(() => {
-  //   latestTripIsSelected.current = selectedTrip === state.trips.length;
-  // }, [selectedTrip, state.trips]);
+  React.useEffect(() => {
+    if (latestTripIsSelected.current) {
+      setSelectedTrip(state.trips.length);
+    }
+  }, [state.trips]);
+  React.useEffect(() => {
+    latestTripIsSelected.current = selectedTrip === state.trips.length;
+  }, [selectedTrip, state.trips]);
 
   // Scroll to the selected Trip
-  // React.useEffect(() => {
-  //   const buttonWidth = scrollBar.current.children[0].offsetWidth;
-  //   const scrollBarWidth = scrollBar.current.offsetWidth;
-  //   const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
-  //   scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
-  // }, [selectedTrip])
+  React.useEffect(() => {
+    const buttonWidth = scrollBar.current.children[0].offsetWidth;
+    const scrollBarWidth = scrollBar.current.offsetWidth;
+    const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
+    scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
+  }, [selectedTrip])
 
   const setTrip = React.useCallback((tripNum, points, validPass = true) => {
     sendRequest("setTrip", { uri, team, tripNum, points, validPass });
