@@ -1,6 +1,5 @@
 from __future__ import annotations
 from abc import ABC
-from copy import copy
 from typing import Self, TYPE_CHECKING
 from server import Encodable
 
@@ -31,11 +30,12 @@ class AbstractAttribute[T: (Bout, Jam)](Encodable, ABC):
 
 
 class TeamAttribute[U: AbstractAttribute](Encodable):
-    def __init__(self, attribute: U) -> None:
+    def __init__(self, home: U, away: U) -> None:
         # Don't call super().__init__() to avoid creating a UUID
-        attribute._teamParent = self
-        self._home: U = attribute
-        self._away: U = copy(attribute)
+        home._teamParent = self
+        away._teamParent = self
+        self._home: U = home
+        self._away: U = away
 
     def __getitem__(self, team: TEAMS) -> U:
         if team == 'home':

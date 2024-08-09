@@ -101,7 +101,8 @@ class Jam(Encodable):
         self._stopTime: None | datetime = None
         self._stopReason: None | STOP_REASONS = None
 
-        self._score: TeamAttribute[Score] = TeamAttribute(Score(self))
+        self._score: TeamAttribute[Score] = TeamAttribute(Score(self),
+                                                          Score(self))
         # TODO: self._lineup
 
     @property
