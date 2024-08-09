@@ -1,112 +1,101 @@
 from __future__ import annotations
-from dataclasses import dataclass
 from datetime import datetime
-from roller_derby.attribute import AbstractAttribute, JamTeamAttribute
+from roller_derby.attribute import AbstractAttribute
 from server import Encodable
+from typing import TYPE_CHECKING
 import server
 
+if TYPE_CHECKING:
+    from roller_derby.bout import Jam
 
-class Score(AbstractAttribute[JamTeamAttribute]):
-    API_NAME: str = "jamScore"
 
-    @dataclass
-    class Trip(Encodable):
-        points: int
-        timestamp: datetime
+class Trip(Encodable):
+    def __init__(self, points: int, timestamp: datetime) -> None:
+        super().__init__()
+        self.points: int = points
+        self.timestamp: datetime = timestamp
 
-        def __init__(self, points: int, timestamp: datetime) -> None:
-            super().__init__()
-            self.points = points
-            self.timestamp = timestamp
+    def encode(self) -> dict[str, Encodable.PRIMITIVE]:
+        return {
+            'uuid': self.uuid,
+            'points': self.points,
+            'timestamp': str(self.timestamp)
+        }
 
-        def encode(self) -> dict[str, Encodable.PRIMITIVE]:
-            return {
-                "uuid": self.uuid,
-                "points": self.points,
-                "timestamp": str(self.timestamp),
-            }
 
-    def __init__(self, parent: JamTeamAttribute[Score]) -> None:
+class Score(AbstractAttribute[Jam]):
+    def __init__(self, parent: Jam) -> None:
         super().__init__(parent)
-        self._trips: list[Score.Trip] = []
+        self._trips: list[Trip] = []
         self._lead: bool = False
         self._lost: bool = False
         self._starPass: None | int = None
 
-    def setTrip(self, tripNum: int, points: int, timestamp: datetime) -> None:
-        if not isinstance(tripNum, int):
-            raise TypeError(f"Trip Index must be int not {
-                            type(tripNum).__name__}.")
-        if not isinstance(points, int):
-            raise TypeError(f"Points must be int not {type(points).__name__}.")
+    @property
+    def lead(self) -> bool:
+        return self._lead
 
+    @lead.setter
+    def lead(self, lead: bool) -> None:
+        if lead and not self.isLeadEligible():
+            raise RuntimeError('this team is not eligible for lead')
+        self._lead = lead
+
+        server.update(self)
+        server.update(self.getOther())  # Update lead eligibility
+
+    @property
+    def lost(self) -> bool:
+        return self._lost
+
+    @lost.setter
+    def lost(self, lost: bool) -> None:
+        self._lost = lost
+
+        server.update(self)
+
+    @property
+    def starPass(self) -> None | int:
+        return self._starPass
+
+    @starPass.setter
+    def starPass(self, starPass: None | int) -> None:
+        if starPass is not None:
+            self._lost = True
+        self._starPass = starPass
+
+        server.update(self)
+
+    def setTrip(self, tripNum: int, points: int, timestamp: datetime) -> None:
         # Check if the tripIndex is a valid value
         if tripNum > len(self._trips):
-            raise IndexError("list index out of range")
+            raise IndexError('Trip index out of range')
 
         # Append or edit the desired Trip
         if tripNum == len(self._trips):
-            self._trips.append(Score.Trip(points, timestamp))
+            self._trips.append(Trip(points, timestamp))
         else:
             self._trips[tripNum].points = points
 
         server.update(self)
 
-    def getTrips(self) -> list[Score.Trip]:
-        return self._trips
-
     def deleteTrip(self, tripNum: int) -> None:
+        # Check if the tripIndex is a valid value
+        if tripNum > len(self._trips):
+            raise IndexError('Trip index out of range')
         del self._trips[tripNum]
 
         server.update(self)
 
     def isLeadEligible(self) -> bool:
         other: Score = self.getOther()
-        return not other.getLead() and not self.getLost()
-
-    def getLead(self) -> bool:
-        return self._lead
-
-    def setLead(self, lead: bool) -> None:
-        if not isinstance(lead, bool):
-            raise TypeError(f"Lead must be bool not {type(lead).__name__}.")
-        if lead and not self.isLeadEligible():
-            raise server.ClientException(
-                "This team is not eligible for lead jammer.")
-        self._lead = lead
-
-        server.update(self)
-        server.update(self.getOther())  # Update lead eligibility
-
-    def getLost(self) -> bool:
-        return self._lost
-
-    def setLost(self, lost: bool) -> None:
-        if not isinstance(lost, bool):
-            raise TypeError(f"Lost must be bool not {type(lost).__name__}.")
-        self._lost = lost
-
-        server.update(self)
-
-    def getStarPass(self) -> None | int:
-        return self._starPass
-
-    def setStarPass(self, starPass: None | int) -> None:
-        if starPass is not None and not isinstance(starPass, int):
-            raise TypeError(
-                f"Star Pass must be None or int not {type(starPass).__name__}."
-            )
-        self._starPass = starPass
-
-        server.update(self)
+        return not other._lead and not self._lost
 
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
-            "uuid": self.uuid,
-            "team": self.getTeam(),
-            "trips": [trip.encode() for trip in self.getTrips()],
-            "lead": self.getLead(),
-            "lost": self.getLost(),
-            "starPass": self.getStarPass(),
-            "isLeadEligible": self.isLeadEligible(),
+            'trips': [trip.encode() for trip in self._trips],
+            'lead': self._lead,
+            'lost': self._lost,
+            'starPass': self._starPass,
+            'isLeadEligible': self.isLeadEligible()
         }

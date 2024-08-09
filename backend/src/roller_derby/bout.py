@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
-from roller_derby.attribute import JamTeamAttribute
+from roller_derby.attribute import TeamAttribute
 from roller_derby.score import Score
 from roller_derby.timeout import BoutTimeout
 from roller_derby.timer import Timer
@@ -89,20 +89,20 @@ class Bout(Encodable):
 
 
 class Jam(Encodable):
-    def __init__(self, parentBout: Bout) -> None:
+    def __init__(self, parent: Bout) -> None:
         super().__init__()
-        self._parentBout: Bout = parentBout
+        self._parent: Bout = parent
 
         self._startTime: None | datetime = None
         self._stopTime: None | datetime = None
         self._stopReason: None | STOP_REASONS = None
 
-        self._score: JamTeamAttribute[Score] = JamTeamAttribute[Score](
-            self, Score)
+        self._score: TeamAttribute[Score] = TeamAttribute(Score(self))
+        # TODO: self._lineup
 
     @property
-    def parentBout(self) -> Bout:
-        return self._parentBout
+    def parent(self) -> Bout:
+        return self._parent
 
     @property
     def stopReason(self) -> None | STOP_REASONS:
@@ -116,7 +116,7 @@ class Jam(Encodable):
         self._stopReason = stopReason
 
     @property
-    def score(self) -> JamTeamAttribute[Score]:
+    def score(self) -> TeamAttribute[Score]:
         return self._score
 
     def start(self, timestamp: datetime) -> None:
@@ -124,15 +124,15 @@ class Jam(Encodable):
             raise RuntimeError('this Jam is already running')
 
         # Start the Period clock if it is not running
-        periodClock: Timer = self._parentBout._periodClock
+        periodClock: Timer = self._parent._periodClock
         if not periodClock.isStarted():
             periodClock.start(timestamp)
 
         # Reset the Lineup clock and start the Jam clock
-        lineupClock: Timer = self._parentBout._lineupClock
+        lineupClock: Timer = self._parent._lineupClock
         lineupClock.stop(timestamp)
         lineupClock.setElapsed(seconds=0)
-        self._parentBout._jamClock.start(timestamp)
+        self._parent._jamClock.start(timestamp)
 
         self._startTime = timestamp
 
@@ -141,20 +141,20 @@ class Jam(Encodable):
             raise RuntimeError('this Jam is not running')
 
         # Reset the Jam clock and start the Lineup clock
-        jamClock: Timer = self._parentBout._jamClock
+        jamClock: Timer = self._parent._jamClock
         jamClock.stop(timestamp)
         jamClock.setElapsed(seconds=0)
-        self._parentBout._lineupClock.start(timestamp)
+        self._parent._lineupClock.start(timestamp)
 
         # Attempt to determine the probable stop reason
-        if self._parentBout._jamClock.getRemaining().total_seconds() <= 0:
+        if self._parent._jamClock.getRemaining().total_seconds() <= 0:
             self._stopReason = 'time'
-        elif self._score.home.getLead() or self._score.away.getLead():
+        elif self._score.home.lead or self._score.away.lead:
             self._stopReason = 'called'
 
         # Instantiate a new Jam
-        periodIndex: int = self._parentBout._currentPeriod
-        self._parentBout._jams[periodIndex].append(Jam(self._parentBout))
+        periodIndex: int = self._parent._currentPeriod
+        self._parent._jams[periodIndex].append(Jam(self._parent))
 
         self._stopTime = timestamp
 
@@ -173,7 +173,7 @@ class Jam(Encodable):
             'startTime': str(self._startTime),
             'stopTime': str(self._stopTime),
             'stopReason': self._stopReason,
-            # TODO: score
+            'score': self._score.encode()
         }
 
 

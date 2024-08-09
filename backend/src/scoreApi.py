@@ -13,7 +13,7 @@ async def setTrip(uri: URI, team: TEAMS, tripNum: int, points: int,
 
     # Attempt to set the lead jammer
     if jam.score[team].isLeadEligible() and validPass:
-        jam.score[team].setLead(True)
+        jam.score[team].lead = True
 
     jam.score[team].setTrip(tripNum, points, timestamp)
 
@@ -33,7 +33,7 @@ async def setLead(uri: URI, team: TEAMS, lead: bool) -> API:
     bout: Bout = series.currentBout
     jam: Jam = bout.jams[uri.period][uri.jam]
 
-    jam.score[team].setLead(lead)
+    jam.score[team].lead = lead
 
 
 @server.register
@@ -42,7 +42,7 @@ async def setLost(uri: URI, team: TEAMS, lost: bool) -> API:
     bout: Bout = series.currentBout
     jam: Jam = bout.jams[uri.period][uri.jam]
 
-    jam.score[team].setLost(lost)
+    jam.score[team].lost = lost
 
 
 @server.register
@@ -51,6 +51,6 @@ async def setStarPass(uri: URI, team: TEAMS, tripNum: None | int) -> API:
     bout: Bout = series.currentBout
     jam: Jam = bout.jams[uri.period][uri.jam]
 
-    jam.score[team].setStarPass(tripNum)
+    jam.score[team].starPass = tripNum
     if tripNum is not None:
-        jam.score[team].setLost(True)
+        jam.score[team].lost = True
