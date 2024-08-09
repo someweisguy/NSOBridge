@@ -41,8 +41,7 @@ class Score(AbstractAttribute):
             raise RuntimeError('this team is not eligible for lead')
         self._lead = lead
 
-        server.update(self)
-        server.update(self.getOther())  # Update lead eligibility
+        server.update(self.parent)
 
     @property
     def lost(self) -> bool:
@@ -52,7 +51,7 @@ class Score(AbstractAttribute):
     def lost(self, lost: bool) -> None:
         self._lost = lost
 
-        server.update(self)
+        server.update(self.parent)
 
     @property
     def starPass(self) -> None | int:
@@ -64,7 +63,7 @@ class Score(AbstractAttribute):
             self._lost = True
         self._starPass = starPass
 
-        server.update(self)
+        server.update(self.parent)
 
     def setTrip(self, tripNum: int, points: int, timestamp: datetime) -> None:
         # Check if the tripIndex is a valid value
@@ -77,7 +76,7 @@ class Score(AbstractAttribute):
         else:
             self._trips[tripNum].points = points
 
-        server.update(self)
+        server.update(self.parent)
 
     def deleteTrip(self, tripNum: int) -> None:
         # Check if the tripIndex is a valid value
@@ -85,7 +84,7 @@ class Score(AbstractAttribute):
             raise IndexError('Trip index out of range')
         del self._trips[tripNum]
 
-        server.update(self)
+        server.update(self.parent)
 
     def isLeadEligible(self) -> bool:
         other: Score = self.getOther()
