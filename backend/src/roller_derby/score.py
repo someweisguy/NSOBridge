@@ -93,6 +93,7 @@ class Score(AbstractAttribute[Jam]):
 
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
+            'uuid': self.uuid,
             'trips': [trip.encode() for trip in self._trips],
             'lead': self._lead,
             'lost': self._lost,
