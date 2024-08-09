@@ -90,10 +90,6 @@ function App() {
 
   return (
     <div className="App">
-      <GameClock boutUuid={boutUuid} />
-      &nbsp;
-      <PeriodClock boutUuid={boutUuid} />
-      <br />
       <ScoreboardEditor boutUuid={boutUuid} />
     </div>
   );

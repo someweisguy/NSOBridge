@@ -1,7 +1,7 @@
 import "./JamComponent.css"
 import React from "react";
 import PropTypes from 'prop-types';
-import { onEvent, sendRequest } from "../client.js";
+import { onEvent, sendRequest, useBout, useJam } from "../client.js";
 import { HalftimeClock } from "./TimerComponent.jsx"
 
 const HOME = "home";
@@ -35,180 +35,90 @@ const NULL_STOPPAGE = {
 }
 
 export function ScoreboardEditor({ boutUuid }) {
+
+  const bout = useBout(boutUuid);
+
   const [uri, setUri] = React.useState(null);
-  const [bout, setBout] = React.useState(null);
-  const [period, setPeriod] = React.useState(null);
-  const [jam, setJam] = React.useState(null);
-  const [timeout, setTimeout] = React.useState(NULL_STOPPAGE);
+  const jam = useJam(boutUuid, uri?.period, uri?.jam)
 
-  const [readyForIntermission, setReadyForIntermission] = React.useState(false);
+  if (uri === null && bout !== null) {
+    const period = bout.currentPeriodNum;
+    const jam = bout.jamCounts[period] - 1;
+    setUri({ period, jam })
+  }
 
-  // Get information about the current Timeout, Period, and Jam
-  React.useEffect(() => {
-    let ignore = false;
-    sendRequest("bout", { uri: { bout: boutUuid } })
-      .then((newBout) => {
-        if (!ignore) {
-          const newUri = {
-            bout: boutUuid, period: newBout.periodCount - 1,
-            jam: newBout.currentJamNum
-          };
-          sendRequest("period", { uri: newUri }).then((newPeriod) => setPeriod(newPeriod));
-          sendRequest("jam", { uri: newUri }).then((newJam) => setJam(newJam));
-          // TODO: add current timeout to bout API
-          setBout(newBout);
-          setUri(newUri);
-        }
-      });
-    sendRequest("boutTimeout", { uri: { bout: boutUuid } })
-      .then((newTimeout) => {
-        if (!ignore) {
-          setTimeout(newTimeout);
-        }
-      });
-    return () => ignore = true;
-  }, [boutUuid]);
+  console.log(bout)
+  console.log(uri)
+  console.log(jam)
+  console.log("--------------------------")
+  
 
-  // Subscribe to changes of the current Timeout, Period, and Jam
-  React.useEffect(() => {
-    const unsubscribeStoppage = onEvent("boutTimeout", (newStoppage) => {
-      setTimeout(newStoppage);
-    });
-    return unsubscribeStoppage;
-  }, []);
-  React.useEffect(() => {
-    if (bout === null) {
-      return;
-    }
-    const unsubscribeBout = onEvent("bout", (newBout) => {
-      if (newBout.uuid === bout.uuid) {
-        setBout(newBout);
-      }
-    });
-    return unsubscribeBout;
-  }, [bout]);
-  React.useEffect(() => {
-    if (period === null) {
-      return;
-    }
-    const unsubscribePeriod = onEvent("period", (newPeriod) => {
-      const ready = newPeriod.clock.elapsed >= newPeriod.clock.alarm;
-      setReadyForIntermission(ready);
-      if (newPeriod.uuid === period.uuid) {
-        setPeriod(newPeriod);
-      }
-    });
-    return unsubscribePeriod;
-  }, [period]);
-  React.useEffect(() => {
-    if (jam === null) {
-      return;
-    }
-    const unsubscribeJam = onEvent("jam", (newJam) => {
-      if (newJam.uuid === jam.uuid) {
-        setJam(newJam);
-      }
-    });
-    return unsubscribeJam;
-  }, [jam])
+  // const goToNextJam = React.useCallback(() => {
+  //   const newUri = { ...uri };
+  //   newUri.jam++;
+  //   if (newUri.jam === bout?.jamCounts[newUri.period]) {
+  //     newUri.period++;
+  //     newUri.jam = 0;
+  //   }
+  //   sendRequest("jam", { uri: newUri })
+  //     .then((newJam) => {
+  //       setJam(newJam);
+  //       setUri(newUri);
+  //     })
+  // }, [uri, bout]);
 
-  const goToNextJam = React.useCallback(() => {
-    const newUri = { ...uri };
-    newUri.jam++;
-    if (newUri.jam === bout?.jamCounts[newUri.period]) {
-      newUri.period++;
-      newUri.jam = 0;
-    }
-    sendRequest("jam", { uri: newUri })
-      .then((newJam) => {
-        setJam(newJam);
-        setUri(newUri);
-      })
-  }, [uri, bout]);
+  // const goToPreviousJam = React.useCallback(() => {
+  //   const newUri = { ...uri };
+  //   newUri.jam--;
+  //   if (newUri.jam < 0) {
+  //     newUri.period--;
+  //     newUri.jam = bout?.jamCounts[newUri.period] - 1;
+  //   }
+  //   sendRequest("jam", { uri: newUri })
+  //     .then((newJam) => {
+  //       setJam(newJam);
+  //       setUri(newUri);
+  //     })
+  // }, [uri, bout]);
 
-  const goToPreviousJam = React.useCallback(() => {
-    const newUri = { ...uri };
-    newUri.jam--;
-    if (newUri.jam < 0) {
-      newUri.period--;
-      newUri.jam = bout?.jamCounts[newUri.period] - 1;
-    }
-    sendRequest("jam", { uri: newUri })
-      .then((newJam) => {
-        setJam(newJam);
-        setUri(newUri);
-      })
-  }, [uri, bout]);
+  // const goToNextPeriod = React.useCallback(() => {
+  //   const newUri = { ...uri };
+  //   newUri.period++;
+  //   newUri.jam = 0;
+  //   sendRequest("period", { uri: newUri })
+  //     .then((newPeriod) => {
+  //       sendRequest("jam", { uri: newUri })
+  //         .then((newJam) => {
+  //           setPeriod(newPeriod);
+  //           setJam(newJam);
+  //           setUri(newUri);
+  //         });
+  //     })
+  // }, [uri])
 
-  const goToNextPeriod = React.useCallback(() => {
-    const newUri = { ...uri };
-    newUri.period++;
-    newUri.jam = 0;
-    sendRequest("period", { uri: newUri })
-      .then((newPeriod) => {
-        sendRequest("jam", { uri: newUri })
-          .then((newJam) => {
-            setPeriod(newPeriod);
-            setJam(newJam);
-            setUri(newUri);
-          });
-      })
-  }, [uri])
+
 
   // Determine button visibility
-  const previousJamVisible = uri?.jam > 0 || uri?.period > 0 ? "visible" : "hidden";
-  const nextJamVisible = uri?.jam + 1 < bout?.jamCounts[uri?.period]
-    || uri?.period + 1 < bout?.periodCount ? "visible" : "hidden";
+  // const previousJamVisible = uri?.jam > 0 || uri?.period > 0 ? "visible" : "hidden";
+  // const nextJamVisible = uri?.jam + 1 < bout?.jamCounts[uri?.period]
+  //   || uri?.period + 1 < bout?.periodCount ? "visible" : "hidden";
 
-  const jamIsRunning = jam?.hasStarted && jam?.clock.running;
-  const readyForNextPeriod = period?.clock.elapsed >= period?.clock.alarm;
+  // const jamIsRunning = jam?.hasStarted && jam?.clock.running;
+  // const readyForNextPeriod = period?.clock.elapsed >= period?.clock.alarm;
 
-  const timeoutIsRunning = timeout?.current !== null;
+  // const timeoutIsRunning = timeout?.current !== null;
 
-  const halftimeIsRunning = period !== null ? !period.hasStarted : false;
+  // const halftimeIsRunning = period !== null ? !period.hasStarted : false;
 
-  if (halftimeIsRunning) {
-    return (
-      <IntermissionController uri={uri} period={period}/>
-    )
-  }
+  // if (halftimeIsRunning) {
+  //   return (
+  //     <IntermissionController uri={uri} period={period}/>
+  //   )
+  // }
 
   return (
     <>
-      <div>
-        {previousJamVisible &&
-          <button onClick={goToPreviousJam} style={{ visibility: previousJamVisible }}>
-            Previous Jam
-          </button>}
 
-        &nbsp;
-        {uri && ("P" + (uri.period + 1) + " J" + (uri.jam + 1))}
-        &nbsp;
-
-        {nextJamVisible &&
-          <button onClick={goToNextJam} style={{ visibility: nextJamVisible }}>
-            Next Jam
-          </button>}
-      </div>
-
-      {!jamIsRunning && readyForNextPeriod &&
-        <button onClick={goToNextPeriod} style={{ visibility: readyForIntermission }}>
-          End Period
-        </button>}
-
-      <br />
-
-      {timeoutIsRunning ? (
-        <TimeoutController timeout={timeout.current} />
-      ) : (
-        <JamController uri={uri} hasStarted={jam?.hasStarted}
-          jamClock={jam?.clock} stopReason={jam?.stopReason} />
-      )}
-
-      <div>
-        <JamScore uri={uri} team={HOME} />
-        <JamScore uri={uri} team={AWAY} />
-      </div>
     </>
   );
 }
