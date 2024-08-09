@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from server import Encodable
-from roller_derby.attribute import AbstractAttribute, BoutTeamAttribute
+from roller_derby.attribute import AbstractAttribute, TeamAttribute
 from roller_derby.timer import Timer
 from typing import get_args, Literal, Self, TypeAlias, TYPE_CHECKING
 import roller_derby.bout as bout
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 OFFICIAL: TypeAlias = Literal["official"]
 
 
-class TimeoutAttribute(AbstractAttribute[BoutTeamAttribute]):
+class TimeoutAttribute(AbstractAttribute):
     API_NAME: str = "teamTimeout"
 
     @dataclass
@@ -37,7 +37,7 @@ class TimeoutAttribute(AbstractAttribute[BoutTeamAttribute]):
                 "notes": self.notes,
             }
 
-    def __init__(self, parent: BoutTeamAttribute[Self]) -> None:
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self._timeoutsRemaining: int = 3
         self._officialReviewsRemaining: int = 1
@@ -81,11 +81,11 @@ class TimeoutAttribute(AbstractAttribute[BoutTeamAttribute]):
         }
 
 
-class BoutTimeout(BoutTeamAttribute[TimeoutAttribute]):
+class BoutTimeout(TeamAttribute[TimeoutAttribute]):
     API_NAME: str = "boutTimeout"
 
     def __init__(self, parent: Bout) -> None:
-        super().__init__(parent, TimeoutAttribute)
+        super().__init__(parent)
         self._current: None | TimeoutAttribute.Timeout = None
         self._officialTimeouts: list[TimeoutAttribute.Timeout] = []
 

@@ -23,7 +23,7 @@ class Trip(Encodable):
         }
 
 
-class Score(AbstractAttribute[Jam]):
+class Score(AbstractAttribute):
     def __init__(self, parent: Jam) -> None:
         super().__init__(parent)
         self._trips: list[Trip] = []
