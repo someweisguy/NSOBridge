@@ -164,6 +164,7 @@ class Jam(Encodable):
         # Instantiate a new Jam
         periodIndex: int = self._parent._currentPeriod
         self._parent._jams[periodIndex].append(Jam(self._parent))
+        server.update(self.parent)
 
         self._stopTime = timestamp
         server.update(self)
