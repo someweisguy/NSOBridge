@@ -22,17 +22,17 @@ function useNextUri(bout, uri) {
     }
 
     const newUri = { ...uri };
-    newUri.jam++;
+    newUri.jam += 1;
 
     // Ensure the next Jam exists
     const jamCounts = bout.jamCounts;
     if (newUri.jam >= jamCounts[newUri.period]) {
-      if (newUri.period == 1) {
-        return null;  // Can't have more than 2 Periods
+      if (newUri.period > 0) {
+        return;  // Can't have more than 2 Periods
       }
-      newUri.period++;
-      if (jamCounts[newUri.period] == 0) {
-        return null;  // There are no Jams in the next Period
+      newUri.period += 1;
+      if (jamCounts[newUri.period] < 1) {
+        return;  // There are no Jams in the next Period
       }
       newUri.jam = 0;
     }
@@ -55,15 +55,15 @@ function usePreviousUri(bout, uri) {
     }
 
     const newUri = { ...uri };
-    newUri.jam--;
+    newUri.jam -= 1;
 
     // Ensure the previous Jam exists
     const jamCounts = bout.jamCounts;
     if (newUri.jam < 0) {
       if (newUri.period == 0) {
-        return null;  // Already on the zeroeth Period
+        return;  // Already on the zeroeth Period
       }
-      newUri.period--;
+      newUri.period -= 1;
       newUri.jam = jamCounts[newUri.period];
     }
 
@@ -77,10 +77,8 @@ function usePreviousUri(bout, uri) {
 
 
 export function ScoreboardEditor({ boutUuid }) {
-
-  const bout = useBout(boutUuid);
-
   const [uri, setUri] = useState(null);
+  const bout = useBout(boutUuid);
   const jam = useJam(boutUuid, uri?.period, uri?.jam)
 
   const nextUri = useNextUri(bout, uri);
@@ -93,14 +91,11 @@ export function ScoreboardEditor({ boutUuid }) {
       // TODO: Notify the user that the Jam does not exist
     }
     if (uri == null || jamDoesNotExist) {
-      const period = bout.currentPeriodNum;
-      const jam = bout.jamCounts[period] - 1;
-      setUri({ bout: boutUuid, period, jam })
+      const periodNum = bout.currentPeriodNum;
+      const jamNum = bout.jamCounts[periodNum] - 1;
+      setUri({ bout: boutUuid, period: periodNum, jam: jamNum });
     }
   }
-
-
-
 
 
   // const jamIsRunning = jam?.hasStarted && jam?.clock.running;
@@ -127,6 +122,12 @@ export function ScoreboardEditor({ boutUuid }) {
             P{uri.period + 1} J{uri.jam + 1}
             {nextUri != null && ">"}
           </p>
+        }
+      </div>
+
+      <div>
+        {uri != null && jam != null &&
+          <JamController uri={uri} jam={jam} />
         }
       </div>
 
@@ -304,8 +305,7 @@ JamScore.propTypes = {
   team: PropTypes.string.isRequired
 }
 
-function JamController({ uri, hasStarted, jamClock, stopReason }) {
-  const isFinished = hasStarted && !jamClock?.running;
+function JamController({ uri, jam }) {
 
   const startJam = useCallback(() => {
     sendRequest("startJam", { uri });
@@ -323,33 +323,37 @@ function JamController({ uri, hasStarted, jamClock, stopReason }) {
     sendRequest("callTimeout", {});
   }, [])
 
+
+  const jamIsRunning = jam.startTime != null;
+  const jamIsFinished = jam.stopTime != null;
+
   let label = null;
   const buttons = [];
-  if (!hasStarted) {
+  if (!jamIsRunning) {
     buttons.push(
-      <button onClick={startJam}>Start Jam</button>
+      <button onClick={() => sendRequest("startJam", { uri })}>Start Jam</button>
     );
     buttons.push(
       <button onClick={callTimeout}>Timeout/OR</button>
     )
-  } else if (!isFinished) {
+  } else if (!jamIsFinished) {
     buttons.push(
-      <button onClick={stopJam}>Stop Jam</button>
+      <button onClick={() => sendRequest("stopJam", { uri })}>Stop Jam</button>
     );
   } else {
-    label = (<small>Set stop reason: </small>);
-    buttons.push(
-      <button onClick={() => setJamStopReason(CALLED)}
-        disabled={stopReason === CALLED}>Called</button>
-    );
-    buttons.push(
-      <button onClick={() => setJamStopReason(TIME)}
-        disabled={stopReason === TIME}>Time</button>
-    );
-    buttons.push(
-      <button onClick={() => setJamStopReason(INJURY)}
-        disabled={stopReason === INJURY}>Injury</button>
-    );
+    // label = (<small>Set stop reason: </small>);
+    // buttons.push(
+    //   <button onClick={() => setJamStopReason(CALLED)}
+    //     disabled={jam.stopReason == CALLED}>Called</button>
+    // );
+    // buttons.push(
+    //   <button onClick={() => setJamStopReason(TIME)}
+    //     disabled={jam.stopReason == TIME}>Time</button>
+    // );
+    // buttons.push(
+    //   <button onClick={() => setJamStopReason(INJURY)}
+    //     disabled={jam.stopReason == INJURY}>Injury</button>
+    // );
   }
 
   return (
@@ -365,9 +369,7 @@ function JamController({ uri, hasStarted, jamClock, stopReason }) {
 }
 JamController.propTypes = {
   uri: PropTypes.object.isRequired,
-  hasStarted: PropTypes.bool.isRequired,
-  jamClock: PropTypes.object.isRequired,
-  stopReason: PropTypes.string
+  jam: PropTypes.object.isRequired,
 }
 
 function TimeoutController({ timeout }) {
