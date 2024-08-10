@@ -331,29 +331,29 @@ function JamController({ uri, jam }) {
   const buttons = [];
   if (!jamIsRunning) {
     buttons.push(
-      <button onClick={() => sendRequest("startJam", { uri })}>Start Jam</button>
+      <button onClick={startJam}>Start Jam</button>
     );
     buttons.push(
       <button onClick={callTimeout}>Timeout/OR</button>
     )
   } else if (!jamIsFinished) {
     buttons.push(
-      <button onClick={() => sendRequest("stopJam", { uri })}>Stop Jam</button>
+      <button onClick={stopJam}>Stop Jam</button>
     );
   } else {
-    // label = (<small>Set stop reason: </small>);
-    // buttons.push(
-    //   <button onClick={() => setJamStopReason(CALLED)}
-    //     disabled={jam.stopReason == CALLED}>Called</button>
-    // );
-    // buttons.push(
-    //   <button onClick={() => setJamStopReason(TIME)}
-    //     disabled={jam.stopReason == TIME}>Time</button>
-    // );
-    // buttons.push(
-    //   <button onClick={() => setJamStopReason(INJURY)}
-    //     disabled={jam.stopReason == INJURY}>Injury</button>
-    // );
+    label = (<small>Set stop reason: </small>);
+    buttons.push(
+      <button onClick={() => setJamStopReason(CALLED)}
+        disabled={jam.stopReason == CALLED}>Called</button>
+    );
+    buttons.push(
+      <button onClick={() => setJamStopReason(TIME)}
+        disabled={jam.stopReason == TIME}>Time</button>
+    );
+    buttons.push(
+      <button onClick={() => setJamStopReason(INJURY)}
+        disabled={jam.stopReason == INJURY}>Injury</button>
+    );
   }
 
   return (
