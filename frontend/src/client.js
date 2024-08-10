@@ -9,7 +9,8 @@ export async function sendRequest(api, payload = {}) {
   payload.latency = getLatency();
   return socket.emitWithAck(api, payload).then((response) => {
     if (response.status === "error") {
-      throw Error(response.error.name + ": '" + response.error.message + "'");
+      throw Error("Python " + response.error.name + ": '" + 
+        response.error.message + "'");
     }
     return response.data;
   });
@@ -64,7 +65,7 @@ export function useBout(boutUuid) {
   const [bout, setBout] = React.useState(null);
 
   React.useEffect(() => {
-    if (boutUuid === null) {
+    if (boutUuid == null) {
       return;
     }
 
@@ -93,14 +94,14 @@ export function useJam(boutUuid, periodNum, jamNum) {
     if (boutUuid == null || periodNum == null || jamNum == null) {
       return;
     }
-    
+
     const uri = { bout: boutUuid, period: periodNum, jam: jamNum };
     sendRequest("jam", { uri }).then((newJam) => {
       setJam(newJam);
     });
-    
+
   }, [boutUuid, periodNum, jamNum]);
-  
+
   let ignore = false;
   React.useEffect(() => {
     if (jam == null) {
@@ -115,7 +116,7 @@ export function useJam(boutUuid, periodNum, jamNum) {
 
     return () => {
       ignore = true;
-      unsubscribe()
+      unsubscribe();
     };
   }, [jam])
 
