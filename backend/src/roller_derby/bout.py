@@ -6,6 +6,7 @@ from roller_derby.score import Score
 from roller_derby.timer import Timer
 from server import Encodable
 from typing import get_args, Literal, TypeAlias
+import server
 
 
 TEAMS: TypeAlias = Literal['home', 'away']
@@ -119,6 +120,7 @@ class Jam(Encodable):
             raise ValueError((f'stopReason must be None or one of '
                               f'{get_args(STOP_REASONS)}'))
         self._stopReason = stopReason
+        server.update(self)
 
     @property
     def score(self) -> TeamAttribute[Score]:
@@ -141,6 +143,7 @@ class Jam(Encodable):
         self._parent._jamClock.start(timestamp)
 
         self._startTime = timestamp
+        server.update(self)
 
     def stop(self, timestamp: datetime) -> None:
         if not self.isStarted():
@@ -163,6 +166,7 @@ class Jam(Encodable):
         self._parent._jams[periodIndex].append(Jam(self._parent))
 
         self._stopTime = timestamp
+        server.update(self)
 
     def isStarted(self) -> bool:
         return self._startTime is not None
