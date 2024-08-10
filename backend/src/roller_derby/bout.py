@@ -135,7 +135,8 @@ class Jam(Encodable):
 
         # Reset the Lineup clock and start the Jam clock
         lineupClock: Timer = self._parent._lineupClock
-        lineupClock.stop(timestamp)
+        if lineupClock.isStarted():
+            lineupClock.stop(timestamp)
         lineupClock.setElapsed(seconds=0)
         self._parent._jamClock.start(timestamp)
 
