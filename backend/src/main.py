@@ -67,18 +67,6 @@ async def jam(uri: URI) -> API:
 
 
 @server.register
-async def jamScore(uri: URI, team: None | TEAMS = None) -> API:
-    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
-    if team is None:
-        return {
-            "home": jam.score.home.encode(),
-            "away": jam.score.away.encode(),
-        }
-    else:
-        return jam.score[team].encode()
-
-
-@server.register
 async def startJam(uri: URI, timestamp: datetime) -> API:
     # Start the Jam
     jam: Jam = series.currentBout.jams[uri.period][uri.jam]
