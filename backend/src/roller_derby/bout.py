@@ -87,6 +87,7 @@ class Bout(Encodable):
             },
             'currentPeriodNum': self._currentPeriod,
             'jamCounts': [len(period) for period in self._jams],
+            'overtimeJamNum': self._overtimeJamNum,
             'timeout': self._timeout.encode()
         }
 
