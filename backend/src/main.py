@@ -19,38 +19,27 @@ async def getBouts() -> API:
 
 
 @server.register
-async def boutTimeout() -> API:
-    bout: Bout = series.currentBout
-    return bout.timeout.encode()
-
-
-@server.register
-async def callTimeout(timestamp: datetime) -> API:
+async def callTimeout(uri: URI, timestamp: datetime) -> API:
     bout: Bout = series.currentBout
     bout.timeout.call(timestamp)
 
-    # FIXME: stop period from timeout
-    # period: Period = bout[-1]
-    # if period.isRunning():
-    #     period.stop(timestamp)
-
 
 @server.register
-async def setTimeout(caller: TEAMS | OFFICIAL, isOfficialReview: bool,
-                     isRetained: bool, notes: str) -> API:
-    bout: Bout = series.currentBout
-    bout.timeout.assign(caller)
-    if isOfficialReview:
-        bout.timeout.convertToOfficialReview()
-    else:
-        bout.timeout.convertToTimeout()
-    bout.timeout.resolve(isRetained, notes)
-
-
-@server.register
-async def endTimeout(timestamp: datetime) -> API:
+async def endTimeout(uri: URI, timestamp: datetime) -> API:
     bout: Bout = series.currentBout
     bout.timeout.end(timestamp)
+
+
+@server.register
+async def assignTimeout(uri: URI, team: TEAMS | OFFICIAL) -> API:
+    bout: Bout = series.currentBout
+    bout.timeout.assign(team)
+
+
+@server.register
+async def setTimeoutIsOfficialReview(uri: URI, isOfficialReview: bool) -> API:
+    bout: Bout = series.currentBout
+    bout.timeout.setIsOfficialReview(isOfficialReview)
 
 
 @server.register

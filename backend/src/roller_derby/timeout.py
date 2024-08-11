@@ -88,21 +88,12 @@ class TimeoutAttribute(TeamAttribute[_TimeoutCounter]):
 
         server.update(self._parent)
 
-    def convertToOfficialReview(self) -> None:
+    def setIsOfficialReview(self, isOfficialReview: bool) -> None:
         if len(self._timeouts) == 0 or not self._timeouts[-1].isRunning():
             raise RuntimeError('there is no Timeout currently running')
         if self._timeouts[-1].isOfficialReview:
             return  # Do nothing
-        self._timeouts[-1].isOfficialReview = True
-
-        server.update(self._parent)
-
-    def convertToTimeout(self) -> None:
-        if len(self._timeouts) == 0 or not self._timeouts[-1].isRunning():
-            raise RuntimeError('there is no Timeout currently running')
-        if not self._timeouts[-1].isOfficialReview:
-            return  # Do nothing
-        self._timeouts[-1].isOfficialReview = False
+        self._timeouts[-1].isOfficialReview = isOfficialReview
 
         server.update(self._parent)
 
