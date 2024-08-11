@@ -150,11 +150,9 @@ function JamPointButtons({ uri, jamScore, team, selectedTrip }) {
       </>
     );
   } else {
-    // Get the current Trip points so that the appropriate button is disabled
-    const currentTripPoints = jamScore.trips[selectedTrip];
-
     // Instantiate the Trip point buttons
     const pointButtons = [];
+    const currentTripPoints = jamScore.trips[selectedTrip]?.points;
     for (let i = 0; i <= 4; i++) {
       const disabled = (i == currentTripPoints);
       pointButtons.push(
@@ -288,17 +286,15 @@ function JamScore({ uri, state, team }) {
     }
   }, [state.trips]);
   useEffect(() => {
-    latestTripIsSelected.current = (selectedTrip == state.trips.length);
+    latestTripIsSelected.current = (selectedTrip == state.trips.length)
   }, [selectedTrip, state.trips]);
 
-  const setLead = useCallback(() => {
-    sendRequest("setLead", { uri, team, lead: !state.lead });
-  }, [uri, team, state.lead]);
-
-  const setLost = useCallback(() => {
-    sendRequest("setLost", { uri, team, lost: !state.lost });
-  }, [uri, team, state.lost]);
-
+  const setLead = useCallback(() => 
+    sendRequest("setLead", { uri, team, lead: !state.lead }), 
+    [uri, team, state.lead]);
+  const setLost = useCallback(() => 
+    sendRequest("setLost", { uri, team, lost: !state.lost }),
+    [uri, team, state.lost]);
   const setStarPass = useCallback(() => {
     const tripNum = state.starPass == null ? selectedTrip : null
     sendRequest("setStarPass", { uri, team, tripNum });
