@@ -43,7 +43,7 @@ class Timer(Encodable):
                 self._task = None
 
     def start(self, timestamp: datetime) -> None:
-        if self.isStarted():
+        if self.isRunning():
             raise RuntimeError("timer has already been started")
 
         # Increment the elapsed time if the Timer has already been running
@@ -58,7 +58,7 @@ class Timer(Encodable):
             self._task = asyncio.create_task(Timer._alarmTask(self))
 
     def stop(self, timestamp: datetime) -> None:
-        if not self.isStarted():
+        if not self.isRunning():
             raise RuntimeError("timer has already been stopped")
 
         self._stopTime = timestamp
@@ -69,7 +69,13 @@ class Timer(Encodable):
             self._task = None
 
     def isStarted(self) -> bool:
-        return self._startTime is not None and self._stopTime is None
+        return self._startTime is not None
+
+    def isFinished(self) -> bool:
+        return self._stopTime is not None
+
+    def isRunning(self) -> bool:
+        return self.isStarted() and not self.isFinished()
 
     def setCallback(self, callback: None | Callable[[datetime], None]) -> None:
         self._callback = callback
@@ -89,7 +95,7 @@ class Timer(Encodable):
         self._elapsed = elapsed
 
         # Reset the current lap
-        if not self.isStarted():
+        if not self.isRunning():
             self._startTime = None
             self._stopTime = None
 
@@ -120,5 +126,5 @@ class Timer(Encodable):
             "uuid": self.uuid,
             "alarm": Timer.getMilliseconds(self._alarm),
             "elapsed": Timer.getMilliseconds(self.getElapsed()),
-            "running": self.isStarted(),  # FIXME: rename to isRunning
+            "running": self.isRunning(),  # FIXME: rename to isRunning
         }
