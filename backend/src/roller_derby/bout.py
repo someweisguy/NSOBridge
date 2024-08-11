@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 from roller_derby.attribute import TeamAttribute
 from roller_derby.score import Score
-# from roller_derby.timeout import BoutTimeout
+from roller_derby.timeout import TimeoutAttribute
 from roller_derby.timer import Timer
 from server import Encodable
 from typing import get_args, Literal, TypeAlias
@@ -48,7 +48,7 @@ class Bout(Encodable):
         self._jams: tuple[list[Jam], list[Jam]] = ([Jam(self)], [])
         self._overtimeJamNum: None | int = None
 
-        # self._timeout: BoutTimeout = BoutTimeout(self)
+        self._timeout: TimeoutAttribute = TimeoutAttribute(self)
 
     @property
     def currentPeriod(self) -> int:
@@ -58,9 +58,9 @@ class Bout(Encodable):
     def jams(self) -> tuple[list[Jam], list[Jam]]:
         return self._jams
 
-    # @property
-    # def timeout(self) -> BoutTimeout:
-    #     return self._timeout
+    @property
+    def timeout(self) -> TimeoutAttribute:
+        return self._timeout
 
     def endPeriod(self, timestamp: datetime) -> None:
         if not self._periodClock.isStarted():
@@ -86,8 +86,8 @@ class Bout(Encodable):
                 'timeout': self._timeoutClock.encode()
             },
             'currentPeriodNum': self._currentPeriod,
-            'jamCounts': [len(period) for period in self._jams]
-            # TODO: timeouts
+            'jamCounts': [len(period) for period in self._jams],
+            'timeout': self._timeout.encode()
         }
 
 
