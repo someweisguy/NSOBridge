@@ -29,6 +29,7 @@ function useUriNavigation(bout, uri) {
     const jamCounts = bout.jamCounts;
     if (newUri.jam < 0) {
       if (newUri.period == 0) {
+        setPreviousUri(null);
         return;  // Already on the zeroeth Period
       }
       newUri.period -= 1;
@@ -52,10 +53,12 @@ function useUriNavigation(bout, uri) {
     const jamCounts = bout.jamCounts;
     if (newUri.jam >= jamCounts[newUri.period]) {
       if (newUri.period > 0) {
+        setNextUri(null);
         return;  // Can't have more than 2 Periods
       }
       newUri.period += 1;
       if (jamCounts[newUri.period] < 1) {
+        setNextUri(null);
         return;  // There are no Jams in the next Period
       }
       newUri.jam = 0;
@@ -89,20 +92,6 @@ export function ScoreboardEditor({ boutUuid }) {
     }
   }
 
-
-  // const jamIsRunning = jam?.hasStarted && jam?.clock.running;
-  // const readyForNextPeriod = period?.clock.elapsed >= period?.clock.alarm;
-
-  // const timeoutIsRunning = timeout?.current !== null;
-
-  // const halftimeIsRunning = period !== null ? !period.hasStarted : false;
-
-  // if (halftimeIsRunning) {
-  //   return (
-  //     <IntermissionController uri={uri} period={period}/>
-  //   )
-  // }
-
   return (
     <div>
 
@@ -110,21 +99,25 @@ export function ScoreboardEditor({ boutUuid }) {
       <div>
         {uri != null &&
           <p>
-            {previousUri != null && "<"}
+            {previousUri != null &&
+              <button onClick={() => setUri(previousUri)}>&lt;</button>
+            }
             P{uri.period + 1} J{uri.jam + 1}
-            {nextUri != null && ">"}
+            {nextUri != null &&
+              <button onClick={() => setUri(nextUri)}>&gt;</button>
+            }
           </p>
         }
       </div>
 
       <div>
-        {uri != null && jam != null &&
+        {uri && jam &&
           <JamController uri={uri} jam={jam} />
         }
       </div>
 
       <div>
-        {jam != null &&
+        {uri && jam &&
           <>
             <JamScore uri={uri} state={jam.score.home} team={HOME} />
             <JamScore uri={uri} state={jam.score.away} team={AWAY} />
@@ -139,14 +132,53 @@ ScoreboardEditor.propTypes = {
   boutUuid: PropTypes.string.isRequired
 }
 
+function JamPointButtons({ uri, jamScore, team, selectedTrip }) {
+  const setTrip = useCallback((points, validPass = true) => {
+    sendRequest("setTrip", { uri, team, selectedTrip, points, validPass });
+  }, [uri, team, selectedTrip]);
+
+  if (selectedTrip == 0) {
+    const className = "initial";
+    return (
+      <>
+        <button key={-1} className={className} onClick={() => setTrip(0, false)}>
+          NP/NP
+        </button>
+        <button key={-2} className={className} onClick={() => setTrip(0)}>
+          Initial
+        </button>
+      </>
+    );
+  } else {
+    // Get the current Trip points so that the appropriate button is disabled
+    const currentTripPoints = jamScore.trips[selectedTrip];
+
+    // Instantiate the Trip point buttons
+    const pointButtons = [];
+    for (let i = 0; i <= 4; i++) {
+      const disabled = (i == currentTripPoints);
+      pointButtons.push(
+        <button key={i} className="points" onClick={() => setTrip(i)}
+          disabled={disabled}>
+          {i}
+        </button>
+      );
+    }
+    return pointButtons;
+  }
+}
+JamPointButtons.propTypes = {
+  uri: PropTypes.object.isRequired,
+  jamScore: PropTypes.object.isRequired,
+  team: PropTypes.string.isRequired,
+  selectedTrip: PropTypes.number.isRequired
+}
+
 
 function JamScore({ uri, state, team }) {
   const [selectedTrip, setSelectedTrip] = useState(0);
   const latestTripIsSelected = useRef(true);
   const scrollBar = useRef(null);
-
-
-
 
   // Ensure the new latest Trip is selected when adding a new Trip
   useEffect(() => {
@@ -166,10 +198,6 @@ function JamScore({ uri, state, team }) {
     scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
   }, [selectedTrip])
 
-  const setTrip = useCallback((tripNum, points, validPass = true) => {
-    sendRequest("setTrip", { uri, team, tripNum, points, validPass });
-  }, [uri, team]);
-
   const deleteTrip = useCallback((tripNum) => {
     sendRequest("deleteTrip", { uri, team, tripNum });
   }, [uri, team])
@@ -185,38 +213,6 @@ function JamScore({ uri, state, team }) {
   const setStarPass = useCallback((tripNum) => {
     sendRequest("setStarPass", { uri, team, tripNum });
   }, [uri, team]);
-
-  // Render the Trip point buttons
-  let pointButtons = [];
-  if (selectedTrip === 0) {
-    const className = "initial";
-    pointButtons = (
-      <>
-        <button key={-1} className={className} onClick={() => setTrip(0, 0, false)}>
-          NP/NP
-        </button>
-        <button key={-2} className={className} onClick={() => setTrip(0, 0)}>
-          Initial
-        </button>
-      </>
-    );
-  } else {
-    // When editing a Trip disable the score button of the current Trip points
-    const disableIndex = selectedTrip < state.trips.length
-      ? state.trips[selectedTrip].points
-      : null;
-
-    // Instantiate the Trip point buttons
-    for (let i = 0; i <= 4; i++) {
-      const disabled = i === disableIndex;
-      pointButtons.push(
-        <button key={i} className="points" onClick={() => setTrip(selectedTrip, i)}
-          disabled={disabled} >
-          {i}
-        </button>
-      );
-    }
-  }
 
   // Render the Trip edit/delete component
   // TODO: Change dialog when editing initial Trip
@@ -246,7 +242,7 @@ function JamScore({ uri, state, team }) {
     <div className="tripComponent">
 
       <div className="tripInput">
-        {pointButtons}
+        <JamPointButtons uri={uri} jamScore={state} team={team} selectedTrip={selectedTrip} />
       </div>
 
       <div className="tripEdit" style={{ visibility: tripEditDialogVisibility }}>
