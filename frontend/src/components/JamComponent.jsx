@@ -178,11 +178,6 @@ function JamTripEditor({ uri, jamScore, team, selectedTripState }) {
   const [selectedTrip, setSelectedTrip] = selectedTripState;
   const scrollBar = useRef(null);
 
-  const deleteTrip = useCallback((tripNum) => {
-    sendRequest("deleteTrip", { uri, team, tripNum });
-  }, [uri, team])
-
-
   // Scroll to the selected Trip
   useEffect(() => {
     const buttonWidth = scrollBar.current.children[0].offsetWidth;
@@ -200,6 +195,10 @@ function JamTripEditor({ uri, jamScore, team, selectedTripState }) {
       throw Error("unknown scroll direction")
     }
   }, [])
+
+  const deleteTrip = useCallback((tripNum) => {
+    sendRequest("deleteTrip", { uri, team, tripNum });
+  }, [uri, team])
 
   // Render the Trip edit/delete component
   // TODO: Change dialog when editing initial Trip
@@ -225,7 +224,7 @@ function JamTripEditor({ uri, jamScore, team, selectedTripState }) {
       </button>
     );
   });
-  
+
   // Highlight the selected Trip
   if (selectedTrip > jamScore.trips.length) {
     const newSelectedTrip = jamScore.trips.length;
@@ -234,7 +233,7 @@ function JamTripEditor({ uri, jamScore, team, selectedTripState }) {
   } else {
     tripButtons[selectedTrip].props.className = "activeTrip";
   }
-  
+
   return (
     <>
       <div className="tripEdit" style={{ visibility: tripEditDialogVisibility }}>
@@ -273,23 +272,27 @@ function JamScore({ uri, state, team }) {
     }
   }, [state.trips]);
   useEffect(() => {
-    latestTripIsSelected.current = selectedTrip === state.trips.length;
+    latestTripIsSelected.current = (selectedTrip == state.trips.length);
   }, [selectedTrip, state.trips]);
 
+  const setLead = useCallback(() => {
+    sendRequest("setLead", { uri, team, lead: !state.lead });
+  }, [uri, team, state.lead]);
 
-  const setLead = useCallback((lead) => {
-    sendRequest("setLead", { uri, team, lead });
-  }, [uri, team]);
+  const setLost = useCallback(() => {
+    sendRequest("setLost", { uri, team, lost: !state.lost });
+  }, [uri, team, state.lost]);
 
-  const setLost = useCallback((lost) => {
-    sendRequest("setLost", { uri, team, lost });
-  }, [uri, team]);
-
-  const setStarPass = useCallback((tripNum) => {
+  const setStarPass = useCallback(() => {
+    const tripNum = state.starPass == null ? selectedTrip : null
     sendRequest("setStarPass", { uri, team, tripNum });
-  }, [uri, team]);
+  }, [uri, team, state.starPass, selectedTrip]);
 
-
+  // Render constants
+  const leadChecked = state.lead;
+  const leadDisabled = !state.isLeadEligible;
+  const lostChecked = state.lost;
+  const starPassChecked = state.starPass != null;
 
   return (
     <div className="tripComponent">
@@ -305,20 +308,16 @@ function JamScore({ uri, state, team }) {
       </div>
 
       <div>
-        <div>
-          Lead&nbsp;
-          <input type="checkbox" checked={state.lead} onClick={() => setLead(!state.lead)}
-            disabled={!state.isLeadEligible || state.lost} />
-        </div>
-        <div>
-          Lost&nbsp;
-          <input type="checkbox" checked={state.lost} onClick={() => setLost(!state.lost)} />
-        </div>
-        <div>
-          Star Pass&nbsp;
-          <input type="checkbox" checked={state.starPass !== null}
-            onClick={() => setStarPass(state.starPass === null ? selectedTrip : null)} />
-        </div>
+        Lead &nbsp;
+        <input type="checkbox" checked={leadChecked} onClick={setLead}
+          disabled={leadDisabled} />
+        <br />
+        Lost &nbsp;
+        <input type="checkbox" checked={lostChecked} onClick={setLost} />
+        <br />
+        Star Pass &nbsp;
+        <input type="checkbox" checked={starPassChecked}
+          onClick={setStarPass} />
       </div>
 
     </div>
