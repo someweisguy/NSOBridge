@@ -134,7 +134,8 @@ ScoreboardEditor.propTypes = {
 
 function JamPointButtons({ uri, jamScore, team, selectedTrip }) {
   const setTrip = useCallback((points, validPass = true) => {
-    sendRequest("setTrip", { uri, team, tripNum: selectedTrip, points, validPass });
+    const tripNum = selectedTrip;
+    sendRequest("setTrip", { uri, team, tripNum, points, validPass });
   }, [uri, team, selectedTrip]);
 
   if (selectedTrip == 0) {
@@ -351,10 +352,10 @@ function JamController({ uri, jam }) {
   const callTimeout = useCallback(() => sendRequest("callTimeout", {}), [])
 
   // Render constants
-  const jamIsRunning = jam.startTime != null;
+  const jamIsStarted = jam.startTime != null;
   const jamIsFinished = jam.stopTime != null;
 
-  if (!jamIsRunning) {
+  if (!jamIsStarted) {
     return (
       <>
         <button onClick={startJam}>Start Jam</button>
