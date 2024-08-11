@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC
 from typing import Self, TYPE_CHECKING
+from backend.src.roller_derby.timeout import OFFICIAL
 from server import Encodable
 
 if TYPE_CHECKING:
@@ -57,4 +58,27 @@ class TeamAttribute[U: AbstractAttribute](Encodable):
         return {
             'home': self._home.encode(),
             'away': self._away.encode()
+        }
+
+
+class TeamOfficialAttribute[U: AbstractAttribute](TeamAttribute[U]):
+    def __init__(self, home: U, away: U, official: U) -> None:
+        super().__init__(home, away)
+        official._teamParent = self
+        self._official: U = official
+
+    def __getitem__(self, team: TEAMS | OFFICIAL) -> U:
+        if team == 'official':
+            return self._official
+        else:
+            return super().__getitem__(team)
+
+    @property
+    def official(self) -> U:
+        return self._official
+
+    def encode(self) -> dict[str, Encodable.PRIMITIVE]:
+        return {
+            **super().encode(),
+            'official': self._official.encode()
         }
