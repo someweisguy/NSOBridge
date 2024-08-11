@@ -260,7 +260,7 @@ JamTripEditor.propTypes = {
   selectedTripState: PropTypes.object.isRequired
 }
 
-function JamAttributeCheckbox({ checked, disabled = false, onClick, children}) {
+function AttributeCheckbox({ checked, disabled = false, onClick, children }) {
   return (
     <>
       {children} &nbsp;
@@ -269,7 +269,7 @@ function JamAttributeCheckbox({ checked, disabled = false, onClick, children}) {
     </>
   )
 }
-JamAttributeCheckbox.propTypes = {
+AttributeCheckbox.propTypes = {
   checked: PropTypes.bool.isRequired,
   disabled: PropTypes.bool.isRequired,
   onClick: PropTypes.func,
@@ -324,18 +324,18 @@ function JamScore({ uri, state, team }) {
       </div>
 
       <div>
-        <JamAttributeCheckbox checked={leadChecked} onClick={setLead}
+        <AttributeCheckbox checked={leadChecked} onClick={setLead}
           disabled={leadDisabled}>
           Lead
-        </JamAttributeCheckbox>
+        </AttributeCheckbox>
         <br />
-        <JamAttributeCheckbox checked={lostChecked} onClick={setLost}>
+        <AttributeCheckbox checked={lostChecked} onClick={setLost}>
           Lost
-        </JamAttributeCheckbox>
+        </AttributeCheckbox>
         <br />
-        <JamAttributeCheckbox checked={starPassChecked} onClick={setStarPass}>
+        <AttributeCheckbox checked={starPassChecked} onClick={setStarPass}>
           Star Pass
-        </JamAttributeCheckbox>
+        </AttributeCheckbox>
       </div>
 
     </div>
@@ -348,22 +348,11 @@ JamScore.propTypes = {
 }
 
 function JamController({ uri, jam }) {
-
-  const startJam = useCallback(() => {
-    sendRequest("startJam", { uri });
-  }, [uri]);
-
-  const stopJam = useCallback(() => {
-    sendRequest("stopJam", { uri });
-  }, [uri]);
-
-  const setJamStopReason = useCallback((stopReason) => {
-    sendRequest("setJamStopReason", { uri, stopReason });
-  }, [uri]);
-
-  const callTimeout = useCallback(() => {
-    sendRequest("callTimeout", {});
-  }, [])
+  const startJam = useCallback(() => sendRequest("startJam", { uri }), [uri]);
+  const stopJam = useCallback(() => sendRequest("stopJam", { uri }), [uri]);
+  const setJamStopReason = useCallback((stopReason) =>
+    sendRequest("setJamStopReason", { uri, stopReason }), [uri]);
+  const callTimeout = useCallback(() => sendRequest("callTimeout", {}), [])
 
   // Render constants
   const jamIsRunning = jam.startTime != null;
