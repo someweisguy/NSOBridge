@@ -1,11 +1,11 @@
 from __future__ import annotations
 from abc import ABC
-from typing import Self, TYPE_CHECKING
-from backend.src.roller_derby.timeout import OFFICIAL
 from server import Encodable
+from typing import Self, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from roller_derby.bout import Bout, Jam, TEAMS
+    from roller_derby.timeout import OFFICIAL
 
 
 class AbstractAttribute[T: (Bout, Jam)](Encodable, ABC):
