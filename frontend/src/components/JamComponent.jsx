@@ -12,8 +12,32 @@ const CALLED = "called";
 const INJURY = "injury";
 const TIME = "time";
 
-function useNextUri(bout, uri) {
+function useUriNavigation(bout, uri) {
+  const [previousUri, setPreviousUri] = useState(null);
   const [nextUri, setNextUri] = useState(null);
+
+  useEffect(() => {
+    if (bout == null || uri == null) {
+      setPreviousUri(null);
+      return;
+    }
+
+    const newUri = { ...uri };
+    newUri.jam -= 1;
+
+    // Ensure the previous Jam exists
+    const jamCounts = bout.jamCounts;
+    if (newUri.jam < 0) {
+      if (newUri.period == 0) {
+        return;  // Already on the zeroeth Period
+      }
+      newUri.period -= 1;
+      newUri.jam = jamCounts[newUri.period];
+    }
+
+    setPreviousUri(newUri);
+  }, [bout, uri]);
+
 
   useEffect(() => {
     if (bout == null || uri == null) {
@@ -41,39 +65,8 @@ function useNextUri(bout, uri) {
   }, [bout, uri]);
 
 
-  return nextUri;
+  return [previousUri, nextUri];
 }
-
-
-function usePreviousUri(bout, uri) {
-  const [previousUri, setPreviousUri] = useState(null);
-
-  useEffect(() => {
-    if (bout == null || uri == null) {
-      setPreviousUri(null);
-      return;
-    }
-
-    const newUri = { ...uri };
-    newUri.jam -= 1;
-
-    // Ensure the previous Jam exists
-    const jamCounts = bout.jamCounts;
-    if (newUri.jam < 0) {
-      if (newUri.period == 0) {
-        return;  // Already on the zeroeth Period
-      }
-      newUri.period -= 1;
-      newUri.jam = jamCounts[newUri.period];
-    }
-
-    setPreviousUri(newUri);
-  }, [bout, uri]);
-
-
-  return previousUri;
-}
-
 
 
 export function ScoreboardEditor({ boutUuid }) {
@@ -81,8 +74,7 @@ export function ScoreboardEditor({ boutUuid }) {
   const bout = useBout(boutUuid);
   const jam = useJam(boutUuid, uri?.period, uri?.jam)
 
-  const nextUri = useNextUri(bout, uri);
-  const previousUri = usePreviousUri(bout, uri);
+  const [previousUri, nextUri] = useUriNavigation(bout, uri);
 
   // Ensure the Jam URI is valid
   if (bout != null) {
