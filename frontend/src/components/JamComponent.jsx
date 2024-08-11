@@ -134,7 +134,7 @@ ScoreboardEditor.propTypes = {
 
 function JamPointButtons({ uri, jamScore, team, selectedTrip }) {
   const setTrip = useCallback((points, validPass = true) => {
-    sendRequest("setTrip", { uri, team, selectedTrip, points, validPass });
+    sendRequest("setTrip", { uri, team, tripNum: selectedTrip, points, validPass });
   }, [uri, team, selectedTrip]);
 
   if (selectedTrip == 0) {
