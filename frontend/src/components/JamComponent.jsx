@@ -347,49 +347,39 @@ function JamController({ uri, jam }) {
     sendRequest("callTimeout", {});
   }, [])
 
-
+  // Render constants
   const jamIsRunning = jam.startTime != null;
   const jamIsFinished = jam.stopTime != null;
 
-  let label = null;
-  const buttons = [];
   if (!jamIsRunning) {
-    buttons.push(
-      <button onClick={startJam}>Start Jam</button>
+    return (
+      <>
+        <button onClick={startJam}>Start Jam</button>
+        <button onClick={callTimeout}>Timeout/OR</button>
+      </>
     );
-    buttons.push(
-      <button onClick={callTimeout}>Timeout/OR</button>
-    )
   } else if (!jamIsFinished) {
-    buttons.push(
+    return (
       <button onClick={stopJam}>Stop Jam</button>
     );
   } else {
-    label = (<small>Set stop reason: </small>);
-    buttons.push(
-      <button onClick={() => setJamStopReason(CALLED)}
-        disabled={jam.stopReason == CALLED}>Called</button>
-    );
-    buttons.push(
-      <button onClick={() => setJamStopReason(TIME)}
-        disabled={jam.stopReason == TIME}>Time</button>
-    );
-    buttons.push(
-      <button onClick={() => setJamStopReason(INJURY)}
-        disabled={jam.stopReason == INJURY}>Injury</button>
+    // Stop reason button render constants
+    const calledDisabled = jam.stopReason == CALLED;
+    const timeDisabled = jam.stopReason == TIME;
+    const injuryDisabled = jam.StopReason == INJURY;
+
+    return (
+      <>
+        Set stop reason: &nbsp;
+        <button onClick={() => setJamStopReason(CALLED)}
+          disabled={calledDisabled}>Called</button>
+        <button onClick={() => setJamStopReason(TIME)}
+          disabled={timeDisabled}>Time</button>
+        <button onClick={() => setJamStopReason(INJURY)}
+          disabled={injuryDisabled}>Injury</button>
+      </>
     );
   }
-
-  return (
-    <div>
-      <div>
-        {label}{buttons}
-      </div>
-      <div>
-
-      </div>
-    </div>
-  );
 }
 JamController.propTypes = {
   uri: PropTypes.object.isRequired,
