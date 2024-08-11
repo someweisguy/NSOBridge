@@ -43,6 +43,18 @@ async def setTimeoutIsOfficialReview(uri: URI, isOfficialReview: bool) -> API:
 
 
 @server.register
+async def setTimeoutIsRetained(uri: URI, isRetained: bool) -> API:
+    bout: Bout = series.currentBout
+    bout.timeout.setIsRetained(isRetained)
+
+
+@server.register
+async def setTimeoutNotes(uri: URI, notes: str) -> API:
+    bout: Bout = series.currentBout
+    bout.timeout.setNotes(notes)
+
+
+@server.register
 async def bout(uri: URI) -> API:
     # TODO: query different bouts
     bout: Bout = series.currentBout
