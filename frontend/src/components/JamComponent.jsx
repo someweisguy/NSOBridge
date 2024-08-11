@@ -174,11 +174,97 @@ JamPointButtons.propTypes = {
   selectedTrip: PropTypes.number.isRequired
 }
 
+function JamTripEditor({ uri, jamScore, team, selectedTripState }) {
+  const [selectedTrip, setSelectedTrip] = selectedTripState;
+  const scrollBar = useRef(null);
+
+  const deleteTrip = useCallback((tripNum) => {
+    sendRequest("deleteTrip", { uri, team, tripNum });
+  }, [uri, team])
+
+
+  // Scroll to the selected Trip
+  useEffect(() => {
+    const buttonWidth = scrollBar.current.children[0].offsetWidth;
+    const scrollBarWidth = scrollBar.current.offsetWidth;
+    const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
+    scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
+  }, [selectedTrip])
+
+  const scroll = useCallback((direction) => {
+    if (direction == "left") {
+      scrollBar.current.scrollLeft -= scrollBar.current.children[0].offsetWidth
+    } else if (direction == "right") {
+      scrollBar.current.scrollLeft += scrollBar.current.children[0].offsetWidth
+    } else {
+      throw Error("unknown scroll direction")
+    }
+  }, [])
+
+  // Render the Trip edit/delete component
+  // TODO: Change dialog when editing initial Trip
+  const tripEditDialog = (
+    <>
+      Editing trip {selectedTrip + 1}.&nbsp;
+      <button onClick={() => deleteTrip(selectedTrip)}>Delete</button>
+    </>
+  );
+  const tripEditDialogVisibility = selectedTrip < jamScore.trips.length
+    ? "visible" : "hidden";
+
+
+  // Render the Trip buttons
+  const tripButtons = []
+  const currentTrip = { uuid: null, points: "\u00A0" };
+  [...jamScore.trips, currentTrip].forEach((trip, i) => {
+    tripButtons.push(
+      <button key={trip.uuid} onClick={() => setSelectedTrip(i)}>
+        <small>Trip {i + 1}</small>
+        <br />
+        {trip.points}
+      </button>
+    );
+  });
+  
+  // Highlight the selected Trip
+  if (selectedTrip > jamScore.trips.length) {
+    const newSelectedTrip = jamScore.trips.length;
+    setSelectedTrip(newSelectedTrip);
+    tripButtons[newSelectedTrip].props.className = "activeTrip";
+  } else {
+    tripButtons[selectedTrip].props.className = "activeTrip";
+  }
+  
+  return (
+    <>
+      <div className="tripEdit" style={{ visibility: tripEditDialogVisibility }}>
+        {tripEditDialog}
+      </div>
+
+      <div className="scrollBar">
+        <button onClick={() => scroll("left")}>&lt;</button>
+
+        <div ref={scrollBar} className="trips">
+          {tripButtons}
+        </div>
+
+        <button onClick={() => scroll("right")}>&gt;</button>
+      </div>
+    </>
+  );
+
+}
+JamTripEditor.propTypes = {
+  uri: PropTypes.object.isRequired,
+  jamScore: PropTypes.object.isRequired,
+  team: PropTypes.string.isRequired,
+  selectedTripState: PropTypes.object.isRequired
+}
+
 
 function JamScore({ uri, state, team }) {
   const [selectedTrip, setSelectedTrip] = useState(0);
   const latestTripIsSelected = useRef(true);
-  const scrollBar = useRef(null);
 
   // Ensure the new latest Trip is selected when adding a new Trip
   useEffect(() => {
@@ -190,17 +276,6 @@ function JamScore({ uri, state, team }) {
     latestTripIsSelected.current = selectedTrip === state.trips.length;
   }, [selectedTrip, state.trips]);
 
-  // Scroll to the selected Trip
-  useEffect(() => {
-    const buttonWidth = scrollBar.current.children[0].offsetWidth;
-    const scrollBarWidth = scrollBar.current.offsetWidth;
-    const scrollOffset = (scrollBarWidth / 2) + (buttonWidth / 2);
-    scrollBar.current.scrollLeft = (buttonWidth * selectedTrip) - scrollOffset;
-  }, [selectedTrip])
-
-  const deleteTrip = useCallback((tripNum) => {
-    sendRequest("deleteTrip", { uri, team, tripNum });
-  }, [uri, team])
 
   const setLead = useCallback((lead) => {
     sendRequest("setLead", { uri, team, lead });
@@ -214,57 +289,19 @@ function JamScore({ uri, state, team }) {
     sendRequest("setStarPass", { uri, team, tripNum });
   }, [uri, team]);
 
-  // Render the Trip edit/delete component
-  // TODO: Change dialog when editing initial Trip
-  const tripEditDialog = (
-    <>
-      Editing trip {selectedTrip + 1}.&nbsp;
-      <button onClick={() => deleteTrip(selectedTrip)}>Delete</button>
-    </>
-  );
-  const tripEditDialogVisibility = selectedTrip < state.trips.length
-    ? "visible" : "hidden";
 
-  // Render the Trip buttons
-  const tripButtons = []
-  const currentTrip = { points: "\u00A0" };
-  [...state.trips, currentTrip].forEach((trip, i) => {
-    tripButtons.push(
-      <button key={trip.uuid} onClick={() => setSelectedTrip(i)}>
-        <small>Trip {i + 1}</small><br />
-        {trip.points}
-      </button>
-    );
-  });
-  tripButtons[selectedTrip].props.className = "activeTrip";
 
   return (
     <div className="tripComponent">
 
       <div className="tripInput">
-        <JamPointButtons uri={uri} jamScore={state} team={team} selectedTrip={selectedTrip} />
+        <JamPointButtons uri={uri} jamScore={state} team={team}
+          selectedTrip={selectedTrip} />
       </div>
 
-      <div className="tripEdit" style={{ visibility: tripEditDialogVisibility }}>
-        {tripEditDialog}
-      </div>
-
-      <div className="scrollBar">
-        <button onClick={() => {
-          const buttonWidth = scrollBar.current.children[0].offsetWidth;
-          scrollBar.current.scrollLeft -= buttonWidth;
-        }}>
-          &lt;
-        </button>
-        <div ref={scrollBar} className="trips">
-          {tripButtons}
-        </div>
-        <button onClick={() => {
-          const buttonWidth = scrollBar.current.children[0].offsetWidth;
-          scrollBar.current.scrollLeft += buttonWidth;
-        }}>
-          &gt;
-        </button>
+      <div>
+        <JamTripEditor uri={uri} jamScore={state} team={team}
+          selectedTripState={[selectedTrip, setSelectedTrip]} />
       </div>
 
       <div>
