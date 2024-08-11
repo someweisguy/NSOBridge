@@ -290,10 +290,10 @@ function JamScore({ uri, state, team }) {
     latestTripIsSelected.current = (selectedTrip == state.trips.length)
   }, [selectedTrip, state.trips]);
 
-  const setLead = useCallback(() => 
-    sendRequest("setLead", { uri, team, lead: !state.lead }), 
+  const setLead = useCallback(() =>
+    sendRequest("setLead", { uri, team, lead: !state.lead }),
     [uri, team, state.lead]);
-  const setLost = useCallback(() => 
+  const setLost = useCallback(() =>
     sendRequest("setLost", { uri, team, lost: !state.lost }),
     [uri, team, state.lost]);
   const setStarPass = useCallback(() => {
