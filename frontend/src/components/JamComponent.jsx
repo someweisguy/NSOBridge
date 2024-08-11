@@ -260,6 +260,22 @@ JamTripEditor.propTypes = {
   selectedTripState: PropTypes.object.isRequired
 }
 
+function JamAttributeCheckbox({ checked, disabled = false, onClick, children}) {
+  return (
+    <>
+      {children} &nbsp;
+      <input type="checkbox" checked={checked} disabled={disabled}
+        onClick={onClick} />
+    </>
+  )
+}
+JamAttributeCheckbox.propTypes = {
+  checked: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool.isRequired,
+  onClick: PropTypes.func,
+  children: PropTypes.string.isRequired
+}
+
 
 function JamScore({ uri, state, team }) {
   const [selectedTrip, setSelectedTrip] = useState(0);
@@ -308,16 +324,18 @@ function JamScore({ uri, state, team }) {
       </div>
 
       <div>
-        Lead &nbsp;
-        <input type="checkbox" checked={leadChecked} onClick={setLead}
-          disabled={leadDisabled} />
+        <JamAttributeCheckbox checked={leadChecked} onClick={setLead}
+          disabled={leadDisabled}>
+          Lead
+        </JamAttributeCheckbox>
         <br />
-        Lost &nbsp;
-        <input type="checkbox" checked={lostChecked} onClick={setLost} />
+        <JamAttributeCheckbox checked={lostChecked} onClick={setLost}>
+          Lost
+        </JamAttributeCheckbox>
         <br />
-        Star Pass &nbsp;
-        <input type="checkbox" checked={starPassChecked}
-          onClick={setStarPass} />
+        <JamAttributeCheckbox checked={starPassChecked} onClick={setStarPass}>
+          Star Pass
+        </JamAttributeCheckbox>
       </div>
 
     </div>
