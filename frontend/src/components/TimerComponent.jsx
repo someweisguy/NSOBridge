@@ -60,37 +60,30 @@ export function useClock(bout, virtualType, stopAtZero = true) {
     }
 
     // Translate virtual clock types
-    if (virtualType == GAME) {
-      if (bout.clocks.intermission.running) {
-        setClock(bout.clocks.intermission);
-        virtualType = INTERMISSION;
-      } else {
-        setClock(bout.clocks.period);
-        virtualType = PERIOD;
-      }
-    } else if (virtualType == ACTION) {
+    let concreteType = virtualType;
+    if (concreteType == GAME) {
       if (bout.clocks.timeout.running) {
-        setClock(bout.clocks.timeout);
-        virtualType = TIMEOUT;
+        concreteType = TIMEOUT;
       } else if (bout.clocks.lineup.running) {
-        setClock(bout.clocks.lineup);
-        virtualType = LINEUP;
+        concreteType = LINEUP;
       } else {
-        setClock(bout.clocks.jam);
-        virtualType = JAM;
+        concreteType = JAM;
       }
+    }
+    if (!Object.hasOwn(bout.clocks, concreteType)) {
+      throw Error("unknown clock type");
     }
     
     // Set the new clock and set the initial lap
-    const newClock = bout.clocks[virtualType];
+    const newClock = bout.clocks[concreteType];
     setClock(newClock);
     setLap(0);
 
     // Update the clock type
-    if (virtualType != type) {
-      setType(virtualType);
+    if (concreteType != type) {
+      setType(concreteType);
     }
-  }, [bout, virtualType, stopAtZero]);
+  }, [bout, virtualType]);
 
   // Update the clock if it is running
   useEffect(() => {
