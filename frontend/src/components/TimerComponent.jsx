@@ -58,7 +58,7 @@ export function useClock(bout, virtualType, showRemaining = true, stopAtZero = t
       return;
     }
 
-    // Translate virtual clock types
+    // Translate virtual clock types and set the clock
     if (virtualType == GAME) {
       if (bout.clocks.intermission.running) {
         setClock(bout.clocks.intermission);
@@ -82,14 +82,14 @@ export function useClock(bout, virtualType, showRemaining = true, stopAtZero = t
     const newClock = bout.clocks[virtualType];
     setClock(newClock);
 
+    // Set the initial lap for the new clock and update the type
+    if (stopAtZero && newClock.alarm != null
+      && newClock.elapsed >= newClock.alarm) {
+      setLap(newClock.alarm - newClock.elapsed);
+    } else {
+      setLap(0);
+    }
     if (virtualType != type) {
-      // Set the initial lap for the new clock
-      if (stopAtZero && newClock.alarm != null
-        && newClock.elapsed >= newClock.alarm) {
-        setLap(newClock.alarm - newClock.elapsed);
-      } else {
-        setLap(0);
-      }
       setType(virtualType);
     }
 
