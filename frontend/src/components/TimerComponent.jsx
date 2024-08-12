@@ -11,6 +11,7 @@ const ACTION = "action";
 
 
 export function formatTimeString(millisRemaining, showMillis = true) {
+  // FIXME: show negative numbers
   let timeString = "";
   if (millisRemaining > 0) {
     let hours = Math.floor((millisRemaining / (1000 * 60 * 60)) % 24);
