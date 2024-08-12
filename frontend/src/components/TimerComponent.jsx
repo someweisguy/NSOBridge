@@ -100,22 +100,18 @@ export function useClock(bout, type, showRemaining = true, stopAtZero = true) {
 
     const lastUpdate = Date.now() - getLatency();
 
-      const intervalId = setInterval(() => {
-
-        const newLap = Date.now() - lastUpdate;
-        if (stopAtZero && clock.alarm != null 
-          && clock.elapsed + newLap >= clock.alarm) {
-          clearInterval(intervalId);
-          setLap(clock.alarm - clock.elapsed);
-        } else {
-          setLap(newLap);
-        }
+    const intervalId = setInterval(() => {
+      const newLap = Date.now() - lastUpdate;
+      if (stopAtZero && clock.alarm != null
+        && clock.elapsed + newLap >= clock.alarm) {
+        clearInterval(intervalId);
+        setLap(clock.alarm - clock.elapsed);
+      } else {
+        setLap(newLap);
+      }
     }, 50);
 
-    return () => {
-      clearInterval(intervalId);
-    }
-
+    return () => clearInterval(intervalId);
   }, [clock, stopAtZero]);
 
   let milliseconds = 0;
