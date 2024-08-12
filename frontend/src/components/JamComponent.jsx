@@ -90,8 +90,8 @@ export function ScoreboardEditor({ boutUuid }) {
     }
   }
 
-  const gameClock = useClock(bout, "game");
-  const actionClock = useClock(bout, "action");
+  const gameClock = useClock(bout, "period");
+  const actionClock = useClock(bout, "game");
 
   const [previousUri, nextUri] = useUriNavigation(bout, uri);
 
