@@ -133,15 +133,16 @@ class Jam(Encodable):
 
         # Start the Period clock if it is not running
         periodClock: Timer = self._parent._periodClock
-        if not periodClock.isStarted():
+        if not periodClock.isRunning():
             periodClock.start(timestamp)
 
         # Reset the Lineup clock and start the Jam clock
         lineupClock: Timer = self._parent._lineupClock
-        if lineupClock.isStarted():
+        if lineupClock.isRunning():
             lineupClock.stop(timestamp)
         lineupClock.setElapsed(seconds=0)
         self._parent._jamClock.start(timestamp)
+        server.update(self._parent)
 
         self._startTime = timestamp
         server.update(self)
