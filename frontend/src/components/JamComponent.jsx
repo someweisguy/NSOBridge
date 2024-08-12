@@ -2,7 +2,7 @@ import "./JamComponent.css"
 import { React, useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from 'prop-types';
 import { sendRequest, useBout, useJam } from "../client.js";
-import { HalftimeClock } from "./TimerComponent.jsx"
+import { HalftimeClock, useClock } from "./TimerComponent.jsx"
 
 const HOME = "home";
 const AWAY = "away";
@@ -76,9 +76,7 @@ export function ScoreboardEditor({ boutUuid }) {
   const [uri, setUri] = useState(null);
   const bout = useBout(boutUuid);
   const jam = useJam(boutUuid, uri?.period, uri?.jam)
-
-  const [previousUri, nextUri] = useUriNavigation(bout, uri);
-
+  
   // Ensure the Jam URI is valid
   if (bout != null) {
     const jamDoesNotExist = uri?.jam >= bout.jamCounts[bout.currentPeriodNum];
@@ -92,8 +90,22 @@ export function ScoreboardEditor({ boutUuid }) {
     }
   }
 
+  const gameClock = useClock(bout, "game");
+  const actionClock = useClock(bout, "action");
+
+  const [previousUri, nextUri] = useUriNavigation(bout, uri);
+
+
+
+
   return (
     <div>
+
+      <div>
+        Game: {gameClock.milliseconds} &nbsp; {gameClock.type}
+        <br />
+        Action: {actionClock.milliseconds} &nbsp; {actionClock.type}
+      </div>
 
 
       <div>
@@ -114,6 +126,10 @@ export function ScoreboardEditor({ boutUuid }) {
         {uri && jam &&
           <JamController uri={uri} jam={jam} />
         }
+      </div>
+
+      <div>
+        <p></p>
       </div>
 
       <div>
