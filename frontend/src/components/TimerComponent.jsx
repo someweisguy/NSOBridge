@@ -7,7 +7,6 @@ const LINEUP = "lineup";
 const JAM = "jam";
 const TIMEOUT = "timeout";
 const GAME = "game";
-const ACTION = "action";
 
 
 export function formatTimeString(millisRemaining, showMillis = true) {
