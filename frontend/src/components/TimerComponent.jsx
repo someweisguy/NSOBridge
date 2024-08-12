@@ -107,9 +107,6 @@ export function useClock(bout, virtualType, stopAtZero = true) {
         clearInterval(intervalId);
       }
       setLap(newLap);
-      if (virtualType == "action") {
-        console.log("here")
-      }
     }, 50);
 
     return () => clearInterval(intervalId);
