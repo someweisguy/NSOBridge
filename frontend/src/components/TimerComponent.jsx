@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { getLatency, } from "../client.js"
 
-const PERIOD = "period";
-const INTERMISSION = "intermission";
-const LINEUP = "lineup";
-const JAM = "jam";
-const TIMEOUT = "timeout";
-const GAME = "game";
-
+export const PERIOD_CLOCK = "period";
+export const INTERMISSION_CLOCK = "intermission";
+export const LINEUP_CLOCK = "lineup";
+export const JAM_CLOCK = "jam";
+export const TIMEOUT_CLOCK = "timeout";
+export const GAME_CLOCK = "game";
 
 export function formatTimeString(millisRemaining, showMillis = true) {
   // FIXME: show negative numbers
@@ -60,19 +59,19 @@ export function useClock(bout, virtualType, stopAtZero = true) {
 
     // Translate virtual clock types
     let concreteType = virtualType;
-    if (concreteType == GAME) {
+    if (concreteType == GAME_CLOCK) {
       if (bout.clocks.timeout.running) {
-        concreteType = TIMEOUT;
+        concreteType = TIMEOUT_CLOCK;
       } else if (bout.clocks.lineup.running) {
-        concreteType = LINEUP;
+        concreteType = LINEUP_CLOCK;
       } else {
-        concreteType = JAM;
+        concreteType = JAM_CLOCK;
       }
     }
     if (!Object.hasOwn(bout.clocks, concreteType)) {
       throw Error("unknown clock type");
     }
-    
+
     // Set the new clock and set the initial lap
     const newClock = bout.clocks[concreteType];
     setClock(newClock);
