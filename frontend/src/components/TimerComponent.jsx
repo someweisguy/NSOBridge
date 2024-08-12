@@ -47,7 +47,7 @@ export function formatTimeString(millisRemaining, showMillis = true) {
   return timeString;
 }
 
-export function useClock(bout, virtualType, showRemaining = true, stopAtZero = true) {
+export function useClock(bout, virtualType, stopAtZero = true) {
   const [lap, setLap] = useState(0);
   const [clock, setClock] = useState(null);
   const [type, setType] = useState(null);
@@ -58,7 +58,7 @@ export function useClock(bout, virtualType, showRemaining = true, stopAtZero = t
       return;
     }
 
-    // Translate virtual clock types and set the clock
+    // Translate virtual clock types
     if (virtualType == GAME) {
       if (bout.clocks.intermission.running) {
         setClock(bout.clocks.intermission);
@@ -79,20 +79,16 @@ export function useClock(bout, virtualType, showRemaining = true, stopAtZero = t
         virtualType = JAM;
       }
     }
+    
+    // Set the new clock and set the initial lap
     const newClock = bout.clocks[virtualType];
     setClock(newClock);
+    setLap(0);
 
-    // Set the initial lap for the new clock and update the type
-    if (stopAtZero && newClock.alarm != null
-      && newClock.elapsed >= newClock.alarm) {
-      setLap(newClock.alarm - newClock.elapsed);
-    } else {
-      setLap(0);
-    }
+    // Update the clock type
     if (virtualType != type) {
       setType(virtualType);
     }
-
   }, [bout, virtualType, stopAtZero]);
 
   // Update the clock if it is running
@@ -108,9 +104,10 @@ export function useClock(bout, virtualType, showRemaining = true, stopAtZero = t
       if (stopAtZero && clock.alarm != null
         && clock.elapsed + newLap >= clock.alarm) {
         clearInterval(intervalId);
-        setLap(clock.alarm - clock.elapsed);
-      } else {
-        setLap(newLap);
+      }
+      setLap(newLap);
+      if (virtualType == "action") {
+        console.log("here")
       }
     }, 50);
 
@@ -118,16 +115,20 @@ export function useClock(bout, virtualType, showRemaining = true, stopAtZero = t
   }, [clock, stopAtZero]);
 
   // Render the number of milliseconds elapsed/remaining
-  let milliseconds = 0;
+  let elapsed = 0;
+  let remaining = null;
   if (clock != null) {
-    milliseconds = clock.elapsed;
+    elapsed = clock.elapsed;
     if (clock.running) {
-      milliseconds += lap;
+      elapsed += lap;
     }
-    if (showRemaining && clock.alarm != null) {
-      milliseconds = clock.alarm - milliseconds;
+    if (clock.alarm != null) {
+      remaining = clock.alarm - elapsed;
+      if (stopAtZero && remaining < 0) {
+        remaining = 0;
+      }
     }
   }
 
-  return { milliseconds, type };
+  return { elapsed, remaining, alarm: clock?.alarm, type };
 }
