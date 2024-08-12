@@ -1,6 +1,15 @@
-import React from "react";
+import { React, useState, useEffect } from "react";
 import PropTypes from "prop-types"
 import { getLatency, sendRequest, onEvent } from "../client.js"
+
+const PERIOD = "period";
+const INTERMISSION = "intermission";
+const LINEUP = "lineup";
+const JAM = "jam";
+const TIMEOUT = "timeout";
+const GAME = "game";
+const ACTION = "action";
+
 
 function formatTimeString(millisRemaining, showMillis = true) {
   let timeString = "";
@@ -39,6 +48,79 @@ function formatTimeString(millisRemaining, showMillis = true) {
   return timeString;
 }
 
+export function useClock(bout, type, showRemaining = true) {
+  const [lap, setLap] = useState(0);
+
+  // Determine which clock to use
+  let clock;
+  if (bout != null) {
+    switch (type) {
+      case PERIOD:
+      case INTERMISSION:
+      case LINEUP:
+      case JAM:
+      case TIMEOUT:
+        clock = bout.clocks[type]
+        break;
+      case GAME:
+        if (bout.clocks.intermission.running) {
+          clock = bout.clocks.intermisison;
+          type = INTERMISSION;
+        } else {
+          clock = bout.clocks.period;
+          type = PERIOD;
+        }
+        break;
+      case ACTION:
+        if (bout.clocks.timeout.running) {
+          clock = bout.clocks.timeout;
+          type = TIMEOUT;
+        } else if (bout.clocks.lineup.running) {
+          clock = bout.clocks.lineup;
+          type = LINEUP;
+        } else {
+          clock = bout.clocks.jam;
+          type = JAM;
+        }
+        break;
+      default:
+        throw Error("unknown clock type");
+    }
+  }
+
+  useEffect(() => {
+    const latency = getLatency();
+    setLap(latency);
+
+    if (bout == null) {
+      return;
+    }
+    
+    const lastUpdate = Date.now() - latency;
+
+    if (clock.running) {
+      const intervalId = setInterval(() => {
+        const now = Date.now() - getLatency();
+        setLap(now - lastUpdate);
+      }, 50);
+      return () => clearInterval(intervalId);
+    }
+  }, [bout]);
+
+  let milliseconds = 0;
+
+  if (clock != null) {
+    milliseconds = clock.elapsed;
+    if (clock.running) {
+      milliseconds += lap;
+    }
+    if (showRemaining && clock.alarm != null) {
+      milliseconds = clock.alarm - milliseconds;
+    }
+  }
+
+  return {milliseconds, type}; // TODO: get clock type as string
+}
 
 export function PeriodClock({ boutUuid }) {
   const [periodClock, setPeriodClock] = React.useState(null);
