@@ -2,7 +2,7 @@ import "./JamComponent.css"
 import { React, useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from 'prop-types';
 import { sendRequest, useBout, useJam } from "../client.js";
-import { HalftimeClock, useClock } from "./TimerComponent.jsx"
+import { useClock, formatTimeString } from "./TimerComponent.jsx"
 
 const HOME = "home";
 const AWAY = "away";
@@ -102,9 +102,9 @@ export function ScoreboardEditor({ boutUuid }) {
     <div>
 
       <div>
-        Game: {gameClock.milliseconds} &nbsp; {gameClock.type}
+        Game: {formatTimeString(gameClock.milliseconds)} &nbsp; ({gameClock.type})
         <br />
-        Action: {actionClock.milliseconds} &nbsp; {actionClock.type}
+        Action: {formatTimeString(actionClock.milliseconds)} &nbsp; ({actionClock.type})
       </div>
 
 
