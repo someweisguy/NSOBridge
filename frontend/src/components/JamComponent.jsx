@@ -2,7 +2,7 @@ import "./JamComponent.css"
 import { React, useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from 'prop-types';
 import { sendRequest, useBout, useJam } from "../client.js";
-import { useClock, formatTimeString } from "./TimerComponent.jsx"
+import { useClock, formatTimeString, GAME_CLOCK, PERIOD_CLOCK } from "./TimerComponent.jsx"
 
 const HOME = "home";
 const AWAY = "away";
@@ -90,12 +90,10 @@ export function ScoreboardEditor({ boutUuid }) {
     }
   }
 
-  const gameClock = useClock(bout, "period");
-  const actionClock = useClock(bout, "game");
+  const gameClock = useClock(bout, PERIOD_CLOCK);
+  const actionClock = useClock(bout, GAME_CLOCK);
 
   const [previousUri, nextUri] = useUriNavigation(bout, uri);
-
-
 
 
   return (
