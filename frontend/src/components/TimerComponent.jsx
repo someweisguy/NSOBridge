@@ -1,6 +1,5 @@
-import { React, useState, useEffect } from "react";
-import PropTypes from "prop-types"
-import { getLatency, sendRequest, onEvent } from "../client.js"
+import { useState, useEffect } from "react";
+import { getLatency, } from "../client.js"
 
 const PERIOD = "period";
 const INTERMISSION = "intermission";
@@ -11,7 +10,7 @@ const GAME = "game";
 const ACTION = "action";
 
 
-function formatTimeString(millisRemaining, showMillis = true) {
+export function formatTimeString(millisRemaining, showMillis = true) {
   let timeString = "";
   if (millisRemaining > 0) {
     let hours = Math.floor((millisRemaining / (1000 * 60 * 60)) % 24);
@@ -48,64 +47,76 @@ function formatTimeString(millisRemaining, showMillis = true) {
   return timeString;
 }
 
-export function useClock(bout, type, showRemaining = true) {
+export function useClock(bout, type, showRemaining = true, stopAtZero = true) {
   const [lap, setLap] = useState(0);
+  const [clock, setClock] = useState(null);
 
   // Determine which clock to use
-  let clock;
-  if (bout != null) {
+  useEffect(() => {
+    if (bout == null) {
+      setClock(null);
+      return;
+    }
+
     switch (type) {
       case PERIOD:
       case INTERMISSION:
       case LINEUP:
       case JAM:
       case TIMEOUT:
-        clock = bout.clocks[type]
+        setClock(bout.clocks[type]);
         break;
       case GAME:
         if (bout.clocks.intermission.running) {
-          clock = bout.clocks.intermisison;
+          setClock(bout.clocks.intermission);
           type = INTERMISSION;
         } else {
-          clock = bout.clocks.period;
+          setClock(bout.clocks.period);
           type = PERIOD;
         }
         break;
       case ACTION:
         if (bout.clocks.timeout.running) {
-          clock = bout.clocks.timeout;
+          setClock(bout.clocks.timeout);
           type = TIMEOUT;
         } else if (bout.clocks.lineup.running) {
-          clock = bout.clocks.lineup;
+          setClock(bout.clocks.lineup);
           type = LINEUP;
         } else {
-          clock = bout.clocks.jam;
+          setClock(bout.clocks.jam);
           type = JAM;
         }
         break;
       default:
         throw Error("unknown clock type");
     }
-  }
+  }, [bout, type]);
 
+  // Update the clock if it is running
   useEffect(() => {
-    const latency = getLatency();
-    setLap(latency);
-
-    if (bout == null) {
+    if (clock == null || !clock.running) {
       return;
     }
-    
-    const lastUpdate = Date.now() - latency;
 
-    if (clock.running) {
+    const lastUpdate = Date.now() - getLatency();
+
       const intervalId = setInterval(() => {
-        const now = Date.now() - getLatency();
-        setLap(now - lastUpdate);
-      }, 50);
-      return () => clearInterval(intervalId);
+
+        const newLap = Date.now() - lastUpdate;
+        if (stopAtZero && clock.alarm != null 
+          && clock.elapsed + newLap >= clock.alarm) {
+          clearInterval(intervalId);
+          setLap(clock.alarm - clock.elapsed);
+        } else {
+          setLap(newLap);
+        }
+    }, 50);
+
+    return () => {
+      clearInterval(intervalId);
     }
-  }, [bout]);
+
+  }, [clock, stopAtZero]);
 
   let milliseconds = 0;
 
@@ -119,235 +130,5 @@ export function useClock(bout, type, showRemaining = true) {
     }
   }
 
-  return {milliseconds, type}; // TODO: get clock type as string
-}
-
-export function PeriodClock({ boutUuid }) {
-  const [periodClock, setPeriodClock] = React.useState(null);
-  const [lap, setLap] = React.useState(0);
-
-  // Get the initial Period clock state
-  React.useEffect(() => {
-    let ignore = false;
-    sendRequest("period", { uri: { bout: boutUuid } })
-      .then((newPeriod) => {
-        if (!ignore) {
-          // TODO: Handle halftime and pre-game timers
-          newPeriod.clock.timestamp = Date.now();
-          if (newPeriod.clock.running) {
-            newPeriod.clock.elapsed += getLatency();
-          }
-          setPeriodClock(newPeriod.clock);
-        }
-      });
-
-    return () => ignore = true;
-  }, [boutUuid]);
-
-  // Subscribe to any changes of the Period clock
-  React.useEffect(() => {
-    const unsubscribe = onEvent("period", (newPeriod) => {
-      // TODO: Handle halftime and pre-game timers
-      newPeriod.clock.timestamp = Date.now();
-      if (newPeriod.clock.running) {
-        newPeriod.clock.elapsed += getLatency();
-      }
-      setPeriodClock(newPeriod.clock);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  React.useEffect(() => {
-    if (!periodClock || !periodClock.running) {
-      return;  // Don't update the Lap time if the clock isn't running
-    }
-
-    // Setup an interval to track the game clock
-    const intervalId = setInterval(() => {
-      if (lap + periodClock.elapsed >= periodClock.alarm) {
-        clearInterval(intervalId);
-      } else {
-        setLap(Date.now() - periodClock.timestamp);
-      }
-    }, 50);
-
-    return () => {
-      clearInterval(intervalId);
-      setLap(0);  // Reset the currently running Lap
-    };
-  }, [periodClock]);
-
-  const totalElapsed = lap + periodClock?.elapsed;
-
-  // Get the number of milliseconds remaining on the Period clock
-  const clockMilliseconds = periodClock?.alarm > periodClock?.elapsed
-    ? periodClock?.alarm - totalElapsed
-    : 0;
-
-  return (
-    <span className={clockMilliseconds ? "timerComplete" : ""}>
-      {formatTimeString(clockMilliseconds)}
-    </span>
-  );
-}
-PeriodClock.propTypes = {
-  boutUuid: PropTypes.string.isRequired
-}
-
-export function GameClock({ boutUuid }) {
-  const [jamClock, setJamClock] = React.useState(null);
-  const [timeoutClock, setTimeoutClock] = React.useState(null);
-  const [lap, setLap] = React.useState(0);
-
-  // Get the initial Jam and Timeout state
-  React.useEffect(() => {
-    // Send requests to the get Jam clock and current Timeout
-    const getJamClock = sendRequest("jam", { uri: { bout: boutUuid } })
-      .then((newJam) => { return { ...newJam.clock, timestamp: Date.now() } });
-    const getTimeout = sendRequest("boutTimeout", { uri: { bout: boutUuid } })
-      .then((newTimeout) => {
-        if (newTimeout.current === null) {
-          return null;
-        }
-        return { ...newTimeout.current, timestamp: Date.now() }
-      });
-
-    // Update the component state at the same time to avoid clock jitter
-    let ignore = false;  // Avoid race conditions
-    Promise.all([getJamClock, getTimeout]).then(([newJamClock, newTimeout]) => {
-      if (!ignore) {
-        setJamClock(newJamClock);
-        setTimeoutClock(newTimeout);
-      }
-    });
-    return () => ignore = true;
-  }, [boutUuid]);
-
-  // Subscribe to any changes to the Jam and Timeout state
-  React.useEffect(() => {
-    const unsubscribeJam = onEvent("jam", (newJam) => {
-      if (!newJam.clock.running) {
-        return;  // Only use clocks that are running
-      }
-      newJam.clock.timestamp = Date.now();
-      setJamClock(newJam.clock);
-    });
-    const unsubscribeTimeout = onEvent("boutTimeout", (newTimeout) => {
-      if (newTimeout.current !== null) {
-        newTimeout.current.timestamp = Date.now();
-      }
-      setTimeoutClock(newTimeout.current);
-    });
-
-    return () => {
-      unsubscribeJam();
-      unsubscribeTimeout()
-    };
-  }, [])
-
-  React.useEffect(() => {
-    // Get the active clock - return early if there is no active clock
-    const gameClock = timeoutClock?.running ? timeoutClock : jamClock;
-    if (!gameClock || !gameClock.running) {
-      return;
-    }
-
-    // Calculate the clock's expiry to know when to stop the tracking interval
-    const stopTime = gameClock.timestamp + gameClock.alarm - gameClock.elapsed;
-
-    // Setup an interval to track the game clock
-    const intervalId = setInterval(() => {
-      const NOW = Date.now();
-      if (gameClock.alarm && gameClock !== timeoutClock && NOW >= stopTime) {
-        clearInterval(intervalId);
-      } else {
-        setLap(NOW - gameClock.timestamp);
-      }
-    }, 50);
-
-    return () => {
-      clearInterval(intervalId);
-      setLap(0);  // Reset the current Lap
-    }
-  }, [jamClock, timeoutClock]);
-
-  // Determine which clock to use and get the elapsed milliseconds
-  const gameClock = timeoutClock?.running ? timeoutClock : jamClock;
-  let clockMilliseconds = gameClock?.elapsed + lap;
-
-  // Make the clock count down, if applicable
-  if (gameClock !== timeoutClock && gameClock.alarm !== null) {
-    clockMilliseconds = gameClock.alarm > clockMilliseconds
-      ? gameClock.alarm - clockMilliseconds
-      : 0;
-  }
-
-  return (
-    <span className={clockMilliseconds ? "timerComplete" : ""}>
-      {formatTimeString(clockMilliseconds, (gameClock !== timeoutClock))}
-    </span>
-  );
-}
-GameClock.propTypes = {
-  boutUuid: PropTypes.string.isRequired
-}
-
-
-export function HalftimeClock({ boutUuid }) {
-  const [halftimeClock, setHalftimeClock] = React.useState(null);
-  const [lap, setLap] = React.useState(0);
-
-  React.useEffect(() => {
-    sendRequest("period", { uri: { bout: boutUuid } })
-      .then((newPeriod) => {
-        setHalftimeClock(newPeriod.timeToDerby);
-      });
-  }, [boutUuid]);
-
-  React.useEffect(() => {
-    const unsubscribePeriod = onEvent("period", (newPeriod) => {
-      setHalftimeClock(newPeriod.timeToDerby);
-    });
-
-    return unsubscribePeriod;
-  }, []);
-
-  React.useEffect(() => {
-    if (!halftimeClock || !halftimeClock.running) {
-      return;
-    }
-
-    // Calculate the clock's expiry to know when to stop the tracking interval
-    const stopTime = halftimeClock.timestamp + halftimeClock.alarm
-      - halftimeClock.elapsed;
-
-    // Setup an interval to track the game clock
-    const intervalId = setInterval(() => {
-      const NOW = Date.now();
-      if (NOW >= stopTime) {
-        clearInterval(intervalId);
-      } else {
-        setLap(NOW - halftimeClock.timestamp);
-      }
-    }, 50);
-
-    return () => {
-      clearInterval(intervalId);
-      setLap(0);  // Reset the current Lap
-    }
-  }, [halftimeClock]);
-
-  
-  let clockMilliseconds = halftimeClock?.alarm - (halftimeClock?.elapsed + lap);
-  if (clockMilliseconds < 0) {
-    clockMilliseconds = 0;
-  }
-  
-  return (
-    <>{formatTimeString(clockMilliseconds)}</>
-  );
-}
-HalftimeClock.propTypes = {
-  boutUuid: PropTypes.string.isRequired
+  return { milliseconds, type }; // TODO: get clock type as string
 }
