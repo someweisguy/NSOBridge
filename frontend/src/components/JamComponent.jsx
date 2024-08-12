@@ -102,9 +102,9 @@ export function ScoreboardEditor({ boutUuid }) {
     <div>
 
       <div>
-        Game: {formatTimeString(gameClock.milliseconds)} &nbsp; ({gameClock.type})
+        Game: {formatTimeString(gameClock.remaining)} &nbsp; ({gameClock.type})
         <br />
-        Action: {formatTimeString(actionClock.milliseconds)} &nbsp; ({actionClock.type})
+        Action: {formatTimeString(actionClock.remaining)} &nbsp; ({actionClock.type})
       </div>
 
 
