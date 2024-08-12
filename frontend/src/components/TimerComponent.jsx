@@ -47,50 +47,53 @@ export function formatTimeString(millisRemaining, showMillis = true) {
   return timeString;
 }
 
-export function useClock(bout, type, showRemaining = true, stopAtZero = true) {
+export function useClock(bout, virtualType, showRemaining = true, stopAtZero = true) {
   const [lap, setLap] = useState(0);
   const [clock, setClock] = useState(null);
+  const [type, setType] = useState(null);
 
   // Determine which clock to use
   useEffect(() => {
     if (bout == null) {
-      setClock(null);
       return;
     }
 
-    switch (type) {
-      case PERIOD:
-      case INTERMISSION:
-      case LINEUP:
-      case JAM:
-      case TIMEOUT:
-        setClock(bout.clocks[type]);
-        break;
-      case GAME:
-        if (bout.clocks.intermission.running) {
-          setClock(bout.clocks.intermission);
-          type = INTERMISSION;
-        } else {
-          setClock(bout.clocks.period);
-          type = PERIOD;
-        }
-        break;
-      case ACTION:
-        if (bout.clocks.timeout.running) {
-          setClock(bout.clocks.timeout);
-          type = TIMEOUT;
-        } else if (bout.clocks.lineup.running) {
-          setClock(bout.clocks.lineup);
-          type = LINEUP;
-        } else {
-          setClock(bout.clocks.jam);
-          type = JAM;
-        }
-        break;
-      default:
-        throw Error("unknown clock type");
+    // Translate virtual clock types
+    if (virtualType == GAME) {
+      if (bout.clocks.intermission.running) {
+        setClock(bout.clocks.intermission);
+        virtualType = INTERMISSION;
+      } else {
+        setClock(bout.clocks.period);
+        virtualType = PERIOD;
+      }
+    } else if (virtualType == ACTION) {
+      if (bout.clocks.timeout.running) {
+        setClock(bout.clocks.timeout);
+        virtualType = TIMEOUT;
+      } else if (bout.clocks.lineup.running) {
+        setClock(bout.clocks.lineup);
+        virtualType = LINEUP;
+      } else {
+        setClock(bout.clocks.jam);
+        virtualType = JAM;
+      }
     }
-  }, [bout, type]);
+    const newClock = bout.clocks[virtualType];
+    setClock(newClock);
+
+    if (virtualType != type) {
+      // Set the initial lap for the new clock
+      if (stopAtZero && newClock.alarm != null
+        && newClock.elapsed >= newClock.alarm) {
+        setLap(newClock.alarm - newClock.elapsed);
+      } else {
+        setLap(0);
+      }
+      setType(virtualType);
+    }
+
+  }, [bout, virtualType, stopAtZero]);
 
   // Update the clock if it is running
   useEffect(() => {
@@ -114,8 +117,8 @@ export function useClock(bout, type, showRemaining = true, stopAtZero = true) {
     return () => clearInterval(intervalId);
   }, [clock, stopAtZero]);
 
+  // Render the number of milliseconds elapsed/remaining
   let milliseconds = 0;
-
   if (clock != null) {
     milliseconds = clock.elapsed;
     if (clock.running) {
@@ -126,5 +129,5 @@ export function useClock(bout, type, showRemaining = true, stopAtZero = true) {
     }
   }
 
-  return { milliseconds, type }; // TODO: get clock type as string
+  return { milliseconds, type };
 }
