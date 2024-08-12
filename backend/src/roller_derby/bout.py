@@ -136,6 +136,11 @@ class Jam(Encodable):
         if not periodClock.isRunning():
             periodClock.start(timestamp)
 
+        # Stop the intermission clock if it is running
+        intermissionClock: Timer = self._parent._periodClock
+        if intermissionClock.isRunning():
+            intermissionClock.stop(timestamp)
+
         # Reset the Lineup clock and start the Jam clock
         lineupClock: Timer = self._parent._lineupClock
         if lineupClock.isRunning():
