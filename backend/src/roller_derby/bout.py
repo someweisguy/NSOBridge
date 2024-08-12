@@ -42,6 +42,7 @@ class Bout(Encodable):
         self._lineupClock: Timer = Timer(seconds=30)
         self._jamClock: Timer = Timer(minutes=2)
         self._timeoutClock: Timer = Timer(minutes=1)
+        # FIXME: set update alarms for each clock
 
         self._currentPeriod: int = 0
 
