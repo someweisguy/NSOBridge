@@ -137,7 +137,7 @@ class Jam(Encodable):
             periodClock.start(timestamp)
 
         # Stop the intermission clock if it is running
-        intermissionClock: Timer = self._parent._periodClock
+        intermissionClock: Timer = self._parent._intermissionClock
         if intermissionClock.isRunning():
             intermissionClock.stop(timestamp)
 
