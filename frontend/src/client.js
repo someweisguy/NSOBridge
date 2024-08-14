@@ -75,17 +75,17 @@ function getStore(api, args) {
       renderCallbacks.forEach(cb => cb());
     }
   }
-  const fetchData = () => {  // TODO: move this to store declaration
-    sendRequest(api, args).then((newData) => {
-      data = newData;
-      renderCallbacks.forEach(cb => cb());
-    });
-  }
 
   // Instantiate a new store object
   const store = {
-    isStale: !socket.connected,
-    fetchData,
+    isStale: true,
+    fetchData() {
+      sendRequest(api, args).then((newData) => {
+        data = newData;
+        this.isStale = false;
+        renderCallbacks.forEach(cb => cb());
+      });
+    },
     subscribe(callback) {
       // Add this render callback - this must done first!
       renderCallbacks.push(callback);
@@ -97,7 +97,7 @@ function getStore(api, args) {
           timeoutId = null;
         }
         if (socket.connected) {
-          fetchData();  // TODO: make asynchronous?
+          this.fetchData();  // TODO: make asynchronous?
         }
         socket.on(api, updateData);
       }
