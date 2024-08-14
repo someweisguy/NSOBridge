@@ -1,31 +1,13 @@
 import { io } from 'socket.io-client';
-import React from 'react';
+import React, { useSyncExternalStore } from 'react';
 
+var latency = 0;
+var latencyIntervalId = null;
 var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
-var latency = 0;
+var allStores = new Map();
 
-export async function sendRequest(api, payload = {}) {
-  payload.latency = getLatency();
-  return socket.emitWithAck(api, payload).then((response) => {
-    if (response.status === "error") {
-      throw Error("Python " + response.error.name + ": '" + 
-        response.error.message + "'");
-    }
-    return response.data;
-  });
-}
-
-export function onEvent(api, callback) {
-  socket.on(api, callback);
-  return () => socket.off(api, callback);
-}
-
-export function getLatency() {
-  return latency;
-}
-
-export async function calculateLatency(iterations) {
+async function calculateLatency(iterations) {
   if (socket.disconnected) {
     return;
   }
@@ -61,65 +43,112 @@ export async function calculateLatency(iterations) {
   return latency;
 }
 
-export function useBout(boutUuid) {
-  const [bout, setBout] = React.useState(null);
-
-  React.useEffect(() => {
-    if (boutUuid == null) {
-      return;
+export async function sendRequest(api, payload = {}) {
+  payload.latency = latency;
+  return socket.emitWithAck(api, payload).then((response) => {
+    if (response.status === "error") {
+      throw Error("Python " + response.error.name + ": '" +
+        response.error.message + "'");
     }
-
-    const uri = { bout: boutUuid }
-    sendRequest("bout", { uri }).then((newBout) => {
-      setBout(newBout);
-    });
-  }, [boutUuid]);
-
-  React.useEffect(() => {
-    const unsubscribe = onEvent("bout", (newBout) => {
-      setBout(newBout);
-    })
-
-    return unsubscribe;
-  }, []);
-
-
-  return bout;
+    return response.data;
+  });
 }
 
-export function useJam(boutUuid, periodNum, jamNum) {
-  const [jam, setJam] = React.useState(null);
+export function onEvent(api, callback) {
+  socket.on(api, callback);
+  return () => socket.off(api, callback);
+}
 
-  React.useEffect(() => {
-    if (boutUuid == null || periodNum == null || jamNum == null) {
-      return;
+function getStore(api, args) {
+  const key = [api, args].toString();
+  if (allStores.has(key)) {
+    return allStores.get(key);
+  }
+
+  // Declare variables to be used by the store
+  var data = null;
+  var timeoutId = null;
+  var renderCallbacks = [];
+  const updateData = (newData) => {
+    if (newData.uuid == data?.uuid) {
+      data = newData;
+      renderCallbacks.forEach(cb => cb());
     }
-
-    const uri = { bout: boutUuid, period: periodNum, jam: jamNum };
-    sendRequest("jam", { uri }).then((newJam) => {
-      setJam(newJam);
+  }
+  const fetchData = () => {  // TODO: move this to store declaration
+    sendRequest(api, args).then((newData) => {
+      data = newData
+      renderCallbacks.forEach(cb => cb());
     });
+  }
 
-  }, [boutUuid, periodNum, jamNum]);
+  // Instantiate a new store object
+  const store = {
+    isStale: !socket.connected,
+    fetchData,
+    subscribe(callback) {
+      // Add this render callback - this must done first!
+      renderCallbacks.concat(callback);
 
-  let ignore = false;
-  React.useEffect(() => {
-    if (jam == null) {
-      return;
-    }
-
-    const unsubscribe = onEvent("jam", (newJam) => {
-      if (!ignore && newJam.uuid == jam.uuid) {
-        setJam(newJam);
+      // Perform first-time setup
+      if (renderCallbacks.length == 0) {
+        if (timeoutId != null) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+        if (socket.connected) {
+          fetchData();  // TODO: make asynchronous?
+        }
+        socket.on(api, updateData);
       }
-    })
 
-    return () => {
-      ignore = true;
-      unsubscribe();
-    };
-  }, [jam])
+      // Return a function which will unsubscribe this listener
+      return () => {
+        renderCallbacks = renderCallbacks.filter(cb => cb !== callback);
+        if (renderCallbacks.length == 0) {
+          // Temporarily cache stores in case they are needed again
+          timeoutId = setTimeout(() => {
+            socket.off(api, updateData);
+            allStores.delete(key);
+          }, 10000);
+        }
+      }
+    },
 
+    getSnapshot() {
+      return data;
+    }
+  }
+  allStores.set(key, store);
 
-  return jam;
+  return store;
 }
+
+export function useGenericStore(api, args = {}) {
+  const store = getStore(api, args);
+  return useSyncExternalStore(store.subscribe, store.getSnapshot);
+}
+
+socket.on("connect", () => {
+  // Update client-server latency
+  calculateLatency(10);
+  latencyIntervalId = setInterval(async () => {
+    calculateLatency(10);
+  }, 25000);
+
+
+  // Update all stores
+  allStores.forEach(store => {
+    if (store.isStale) {
+      store.fetchData()
+      store.isStale = false;
+    }
+  });
+});
+
+socket.on("disconnect", () => {
+  clearInterval(latencyIntervalId);
+  allStores.forEach(store => {
+    store.isStale = true;
+  });
+});
