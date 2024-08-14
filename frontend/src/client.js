@@ -141,7 +141,6 @@ socket.on("connect", () => {
   allStores.forEach(store => {
     if (store.isStale) {
       store.fetchData()
-      store.isStale = false;
     }
   });
 });
