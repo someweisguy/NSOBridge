@@ -5,7 +5,7 @@ var latency = 0;
 var latencyIntervalId = null;
 var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
-var allStores = new Map();
+var serverStores = new Map();
 
 async function calculateLatency(iterations) {
   if (socket.disconnected) {
@@ -61,8 +61,8 @@ export function onEvent(api, callback) {
 
 function getStore(api, args) {
   const key = [api, args].toString();
-  if (allStores.has(key)) {
-    return allStores.get(key);
+  if (serverStores.has(key)) {
+    return serverStores.get(key);
   }
 
   // Declare variables to be used by the store
@@ -79,25 +79,18 @@ function getStore(api, args) {
   // Instantiate a new store object
   const store = {
     isStale: true,
-    fetchData() {
-      sendRequest(api, args).then((newData) => {
-        data = newData;
-        this.isStale = false;
-        renderCallbacks.forEach(cb => cb());
-      });
-    },
     subscribe(callback) {
       // Add this render callback - this must done first!
       renderCallbacks.push(callback);
 
       // Perform first-time setup
-      if (renderCallbacks.length == 0) {
+      if (renderCallbacks.length == 1) {
         if (timeoutId != null) {
           clearTimeout(timeoutId);
           timeoutId = null;
         }
         if (socket.connected) {
-          this.fetchData();  // TODO: make asynchronous?
+          store.getSnapshot();  // TODO: make asynchronous?
         }
         socket.on(api, updateData);
       }
@@ -109,17 +102,23 @@ function getStore(api, args) {
           // Temporarily cache stores in case they are needed again
           timeoutId = setTimeout(() => {
             socket.off(api, updateData);
-            allStores.delete(key);
+            serverStores.delete(key);
           }, 10000);
         }
       }
     },
-
     getSnapshot() {
+      if (store.isStale) {
+        sendRequest(api, args).then((newData) => {
+          data = newData;
+          renderCallbacks.forEach(cb => cb());
+        });
+        store.isStale = false;
+      }
       return data;
     }
   }
-  allStores.set(key, store);
+  serverStores.set(key, store);
 
   return store;
 }
@@ -136,18 +135,11 @@ socket.on("connect", () => {
     calculateLatency(10);
   }, 25000);
 
-
   // Update all stores
-  allStores.forEach(store => {
-    if (store.isStale) {
-      store.fetchData()
-    }
-  });
+  serverStores.forEach(store => store.getSnapshot());
 });
 
 socket.on("disconnect", () => {
   clearInterval(latencyIntervalId);
-  allStores.forEach(store => {
-    store.isStale = true;
-  });
+  serverStores.forEach(store => store.isStale = true);
 });
