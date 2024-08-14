@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import React, { useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 
 var latency = 0;
 var latencyIntervalId = null;
@@ -77,7 +77,7 @@ function getStore(api, args) {
   }
   const fetchData = () => {  // TODO: move this to store declaration
     sendRequest(api, args).then((newData) => {
-      data = newData
+      data = newData;
       renderCallbacks.forEach(cb => cb());
     });
   }
@@ -88,7 +88,7 @@ function getStore(api, args) {
     fetchData,
     subscribe(callback) {
       // Add this render callback - this must done first!
-      renderCallbacks.concat(callback);
+      renderCallbacks.push(callback);
 
       // Perform first-time setup
       if (renderCallbacks.length == 0) {
