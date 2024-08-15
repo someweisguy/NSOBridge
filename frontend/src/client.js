@@ -1,11 +1,15 @@
 import { io } from 'socket.io-client';
 import { useSyncExternalStore } from 'react';
 
+var isOnline = false;
+var onlineListeners = [];
+
 var latency = 0;
 var latencyIntervalId = null;
 var userId = localStorage.getItem("userId");
-const socket = io(window.location.host, { auth: { token: userId } });
 var serverStores = new Map();
+
+const socket = io(window.location.host, { auth: { token: userId } });
 
 async function calculateLatency(iterations) {
   if (socket.disconnected) {
@@ -128,6 +132,15 @@ export function useGenericStore(api, args = {}) {
   return useSyncExternalStore(store.subscribe, store.getSnapshot);
 }
 
+export function useOnlineListner() {
+  return useSyncExternalStore((callback) => {
+    onlineListeners.push(callback);
+    return () => {
+      onlineListeners = onlineListeners.filter(cb => cb !== callback);
+    }
+  }, () => isOnline);
+}
+
 socket.on("connect", () => {
   // Update client-server latency
   calculateLatency(10);
@@ -137,9 +150,19 @@ socket.on("connect", () => {
 
   // Update all stores
   serverStores.forEach(store => store.getSnapshot());
+
+  // Update online listeners
+  isOnline = true;
+  onlineListeners.forEach(cb => cb());
 });
 
 socket.on("disconnect", () => {
   clearInterval(latencyIntervalId);
+
+  // Flag stores as stale
   serverStores.forEach(store => store.isStale = true);
+
+  // Update online listeners
+  isOnline = false;
+  onlineListeners.forEach(cb => cb());
 });
