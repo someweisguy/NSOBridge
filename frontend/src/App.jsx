@@ -1,8 +1,7 @@
 import './App.css';
 import { React, useState, useEffect } from "react";
 import { ScoreboardEditor } from './components/JamComponent.jsx';
-import { PeriodClock, GameClock } from './components/TimerComponent.jsx';
-import { onEvent, calculateLatency, sendRequest } from './client.js';
+import { onEvent, sendRequest } from './client.js';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { getLatency, } from "../client.js"
 
 export const PERIOD_CLOCK = "period";
 export const INTERMISSION_CLOCK = "intermission";
