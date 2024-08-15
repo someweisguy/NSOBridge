@@ -464,15 +464,15 @@ TimeoutController.propTypes = {
   timeout: PropTypes.object.isRequired
 }
 
-function IntermissionController({ uri }) {
+// TODO
+// function IntermissionController({ uri }) {
 
 
-  return (
-    <>
-      <HalftimeClock boutUuid={uri.bout} />
-    </>
-  );
-}
-IntermissionController.propTypes = {
-  uri: PropTypes.object.isRequired
-}
+//   return (
+//     <>
+//     </>
+//   );
+// }
+// IntermissionController.propTypes = {
+//   uri: PropTypes.object.isRequired
+// }

@@ -1,15 +1,24 @@
 import { io } from 'socket.io-client';
-import { useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 
-var isOnline = false;
-var onlineListeners = [];
+// Clock constants
+export const PERIOD_CLOCK = "period";
+export const INTERMISSION_CLOCK = "intermission";
+export const LINEUP_CLOCK = "lineup";
+export const JAM_CLOCK = "jam";
+export const TIMEOUT_CLOCK = "timeout";
+export const GAME_CLOCK = "game";
 
+// Client connection variables
 var latency = 0;
 var latencyIntervalId = null;
+const socket = io(window.location.host, { auth: { token: userId } });
+
+// External store objects
+var isOnline = false;
+var onlineListeners = [];
 var userId = localStorage.getItem("userId");
 var serverStores = new Map();
-
-const socket = io(window.location.host, { auth: { token: userId } });
 
 async function calculateLatency(iterations) {
   if (socket.disconnected) {
@@ -166,3 +175,79 @@ socket.on("disconnect", () => {
   isOnline = false;
   onlineListeners.forEach(cb => cb());
 });
+
+export function useClock(bout, virtualType, stopAtZero = true) {
+  const [lap, setLap] = useState(0);
+  const [clock, setClock] = useState(null);
+  const [type, setType] = useState(null);
+
+  // Determine which clock to use
+  useEffect(() => {
+    if (bout == null) {
+      return;
+    }
+
+    // Translate virtual clock types
+    let concreteType = virtualType;
+    if (concreteType == GAME_CLOCK) {
+      if (bout.clocks.timeout.running) {
+        concreteType = TIMEOUT_CLOCK;
+      } else if (bout.clocks.lineup.running) {
+        concreteType = LINEUP_CLOCK;
+      } else {
+        concreteType = JAM_CLOCK;
+      }
+    }
+    if (!Object.hasOwn(bout.clocks, concreteType)) {
+      throw Error("unknown clock type");
+    }
+
+    // Set the new clock and set the initial lap
+    const newClock = bout.clocks[concreteType];
+    setClock(newClock);
+    setLap(0);
+
+    // Update the clock type
+    if (concreteType != type) {
+      setType(concreteType);
+    }
+  }, [bout, virtualType]);
+
+  // Update the clock if it is running
+  useEffect(() => {
+    if (clock == null || !clock.running) {
+      return;
+    }
+
+    const lastUpdate = Date.now() - latency;
+
+    const intervalId = setInterval(() => {
+      const newLap = Date.now() - lastUpdate;
+      if (stopAtZero && clock.alarm != null
+        && clock.elapsed + newLap >= clock.alarm) {
+        clearInterval(intervalId);
+      }
+      setLap(newLap);
+    }, 50);
+
+    return () => clearInterval(intervalId);
+  }, [clock, stopAtZero]);
+
+  // Render the number of milliseconds elapsed/remaining
+  let elapsed = 0;
+  let remaining = null;
+  if (clock != null) {
+    elapsed = clock.elapsed;
+    if (clock.running) {
+      elapsed += lap;
+    }
+    if (clock.alarm != null) {
+      remaining = clock.alarm - elapsed;
+      if (stopAtZero && remaining < 0) {
+        remaining = 0;
+      }
+    }
+  }
+
+  return { elapsed, remaining, alarm: clock?.alarm, type };
+}
