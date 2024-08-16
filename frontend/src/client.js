@@ -141,7 +141,7 @@ export function useGenericStore(api, args = {}) {
   return useSyncExternalStore(store.subscribe, store.getSnapshot);
 }
 
-export function useOnlineListner() {
+export function useOnlineListener() {
   return useSyncExternalStore((callback) => {
     onlineListeners.push(callback);
     return () => {
