@@ -80,6 +80,7 @@ function getStore(api, args) {
 
   // Declare variables to be used by the store
   var data = null;
+  var promise = null;
   var timeoutId = null;
   var renderCallbacks = [];
   const updateData = (newData) => {
@@ -92,6 +93,7 @@ function getStore(api, args) {
   // Instantiate a new store object
   const store = {
     isStale: true,
+    isPending: false,
     subscribe(callback) {
       // Add this render callback - this must done first!
       renderCallbacks.push(callback);
@@ -101,9 +103,6 @@ function getStore(api, args) {
         if (timeoutId != null) {
           clearTimeout(timeoutId);
           timeoutId = null;
-        }
-        if (socket.connected) {
-          store.getSnapshot();  // TODO: make asynchronous?
         }
         socket.on(api, updateData);
       }
@@ -116,17 +115,25 @@ function getStore(api, args) {
           timeoutId = setTimeout(() => {
             socket.off(api, updateData);
             serverStores.delete(key);
+            timeoutId = null;
           }, 10000);
         }
       }
     },
     getSnapshot() {
       if (store.isStale) {
-        sendRequest(api, args).then((newData) => {
-          data = newData;
-          renderCallbacks.forEach(cb => cb());
-        });
-        store.isStale = false;
+        if (promise == null) {
+          store.isPending = true;
+          promise = sendRequest(api, args)
+            .then((newData) => data = newData)
+            .then(() => {
+              store.isStale = false;
+              store.isPending = false;
+              promise = null;
+            })
+            .then(() => renderCallbacks.forEach(cb => cb()));
+        }
+        throw promise;
       }
       return data;
     }
@@ -158,7 +165,11 @@ socket.on("connect", () => {
   }, 25000);
 
   // Update all stores
-  serverStores.forEach(store => store.getSnapshot());
+  serverStores.forEach(store => {
+    if (store.isStale && !store.isPending) {
+      store.getSnapshot();
+    }
+  });
 
   // Update online listeners
   isOnline = true;
