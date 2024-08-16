@@ -12,12 +12,12 @@ export const GAME_CLOCK = "game";
 // Client connection variables
 var latency = 0;
 var latencyIntervalId = null;
+var userId = localStorage.getItem("userId");
 const socket = io(window.location.host, { auth: { token: userId } });
 
 // External store objects
 var isOnline = false;
 var onlineListeners = [];
-var userId = localStorage.getItem("userId");
 var serverStores = new Map();
 
 async function calculateLatency(iterations) {
