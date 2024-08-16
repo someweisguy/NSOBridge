@@ -1,8 +1,8 @@
 import "./JamComponent.css"
 import { React, useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from 'prop-types';
-import { sendRequest } from "../client.js";
-import { useClock, formatTimeString, GAME_CLOCK, PERIOD_CLOCK } from "./TimerComponent.jsx"
+import { sendRequest, useClock,  GAME_CLOCK, PERIOD_CLOCK  } from "../client.js";
+import { formatTimeString} from "./TimerComponent.jsx"
 
 const HOME = "home";
 const AWAY = "away";
