@@ -216,7 +216,7 @@ async def _handleConnect(sessionId: str, environ: dict[str, Any],
         environ (dict): The web browser environment of the connection.
         auth (dict): The auth dictionary from the connection.
     """
-    userId: None | str = auth.get("token", None)
+    userId: None | str = None if auth is None else auth.get("token", None)
     if userId is None:
         environStr: bytes = str(environ.items()).encode()
         userId = hashlib.md5(environStr, usedforsecurity=False).hexdigest()
