@@ -20,8 +20,8 @@ export function ScoreboardEditor({ bout }) {
     period: bout.currentPeriodNum,
     jam: bout.jamCounts[bout.currentPeriodNum] - 1
   });
-  const [previousUri, nextUri] = useJamNavigation(bout, uri);  
-  
+  const [previousUri, nextUri] = useJamNavigation(bout, uri);
+
 
   // Ensure the Jam URI is valid
   useEffect(() => {
@@ -32,7 +32,7 @@ export function ScoreboardEditor({ bout }) {
     if (uri == null || jamDoesNotExist) {
       const period = bout.currentPeriodNum;
       const jam = bout.jamCounts[period] - 1;
-      setUri({bout: bout.uuid, period, jam})
+      setUri({ bout: bout.uuid, period, jam })
       return;
     }
   }, [bout]);
@@ -50,19 +50,19 @@ export function ScoreboardEditor({ bout }) {
       </div>
 
 
-        <div>
-          {uri != null &&
-            <p>
-              {previousUri != null &&
-                <button onClick={() => setUri(previousUri)}>&lt;</button>
-              }
-              P{uri.period + 1} J{uri.jam + 1}
-              {nextUri != null &&
-                <button onClick={() => setUri(nextUri)}>&gt;</button>
-              }
-            </p>
-          }
-        </div>
+      <div>
+        {uri != null &&
+          <p>
+            {previousUri != null &&
+              <button onClick={() => setUri(previousUri)}>&lt;</button>
+            }
+            P{uri.period + 1} J{uri.jam + 1}
+            {nextUri != null &&
+              <button onClick={() => setUri(nextUri)}>&gt;</button>
+            }
+          </p>
+        }
+      </div>
 
       <Suspense fallback={<h1>LOADING</h1>}>
 
