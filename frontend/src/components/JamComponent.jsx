@@ -1,9 +1,8 @@
 import "./JamComponent.css"
 import { React, useState, useEffect, useRef, useCallback, useDeferredValue, Suspense } from "react";
-import PropTypes from 'prop-types';
 import { sendRequest } from "../client.js";
-import { useJam, useClock, GAME_CLOCK, PERIOD_CLOCK, useJamNavigation } from "../customHooks.jsx";
-import { formatTimeString } from "./TimerComponent.jsx"
+import { useJam, GAME_CLOCK, PERIOD_CLOCK, useJamNavigation } from "../customHooks.jsx";
+import Clock from "./TimerComponent.jsx"
 
 const HOME = "home";
 const AWAY = "away";
@@ -22,7 +21,6 @@ export function ScoreboardEditor({ bout }) {
   });
   const [previousUri, nextUri] = useJamNavigation(bout, uri);
 
-
   // Ensure the Jam URI is valid
   useEffect(() => {
     const jamDoesNotExist = uri?.jam >= bout.jamCounts[bout.currentPeriodNum];
@@ -37,53 +35,34 @@ export function ScoreboardEditor({ bout }) {
     }
   }, [bout]);
 
-  const gameClock = useClock(bout, PERIOD_CLOCK);
-  const actionClock = useClock(bout, GAME_CLOCK);
-
   return (
     <div>
 
       <div>
-        Game: {formatTimeString(gameClock.remaining)} &nbsp; ({gameClock.type})
+        Game: <Clock bout={bout} type={PERIOD_CLOCK} />
         <br />
-        Action: {formatTimeString(actionClock.remaining)} &nbsp; ({actionClock.type})
+        Action: <Clock bout={bout} type={GAME_CLOCK} />
       </div>
 
-
       <div>
-        {uri != null &&
-          <p>
-            {previousUri != null &&
-              <button onClick={() => setUri(previousUri)}>&lt;</button>
-            }
-            P{uri.period + 1} J{uri.jam + 1}
-            {nextUri != null &&
-              <button onClick={() => setUri(nextUri)}>&gt;</button>
-            }
-          </p>
-        }
+        <p>
+          {previousUri != null &&
+            <button onClick={() => setUri(previousUri)}>&lt;</button>
+          }
+          P{uri.period + 1} J{uri.jam + 1}
+          {nextUri != null &&
+            <button onClick={() => setUri(nextUri)}>&gt;</button>
+          }
+        </p>
       </div>
 
       <Suspense fallback={<h1>LOADING</h1>}>
-
-
         <div>
-          {uri &&
-            <JamController uri={uri} />
-          }
+          <JamController uri={uri} />
         </div>
-
         <div>
-          <p></p>
-        </div>
-
-        <div>
-          {uri &&
-            <>
-              <JamScore uri={uri} team={HOME} />
-              <JamScore uri={uri} team={AWAY} />
-            </>
-          }
+          <JamScore uri={uri} team={HOME} />
+          <JamScore uri={uri} team={AWAY} />
         </div>
       </Suspense>
 
@@ -289,7 +268,7 @@ function JamController({ uri }) {
   const stopJam = useCallback(() => sendRequest("stopJam", { uri }), [uri]);
   const setJamStopReason = useCallback((stopReason) =>
     sendRequest("setJamStopReason", { uri, stopReason }), [uri]);
-  const callTimeout = useCallback(() => sendRequest("callTimeout", {}), [])
+  const callTimeout = useCallback(() => sendRequest("callTimeout", { uri }), [uri]);
   const jam = useJam(uri);
 
   // Render constants
