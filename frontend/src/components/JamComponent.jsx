@@ -1,8 +1,9 @@
 import "./JamComponent.css"
-import { React, useState, useEffect, useRef, useCallback } from "react";
+import { React, useState, useEffect, useRef, useCallback, useDeferredValue, Suspense } from "react";
 import PropTypes from 'prop-types';
-import { sendRequest, useClock,  GAME_CLOCK, PERIOD_CLOCK  } from "../client.js";
-import { formatTimeString} from "./TimerComponent.jsx"
+import { sendRequest } from "../client.js";
+import { useJam, useClock, GAME_CLOCK, PERIOD_CLOCK, useJamNavigation } from "../customHooks.jsx";
+import { formatTimeString } from "./TimerComponent.jsx"
 
 const HOME = "home";
 const AWAY = "away";
@@ -12,89 +13,33 @@ const CALLED = "called";
 const INJURY = "injury";
 const TIME = "time";
 
-function useUriNavigation(bout, uri) {
-  const [previousUri, setPreviousUri] = useState(null);
-  const [nextUri, setNextUri] = useState(null);
 
-  useEffect(() => {
-    if (bout == null || uri == null) {
-      setPreviousUri(null);
-      return;
-    }
-
-    const newUri = { ...uri };
-    newUri.jam -= 1;
-
-    // Ensure the previous Jam exists
-    const jamCounts = bout.jamCounts;
-    if (newUri.jam < 0) {
-      if (newUri.period == 0) {
-        setPreviousUri(null);
-        return;  // Already on the zeroeth Period
-      }
-      newUri.period -= 1;
-      newUri.jam = jamCounts[newUri.period];
-    }
-
-    setPreviousUri(newUri);
-  }, [bout, uri]);
-
-
-  useEffect(() => {
-    if (bout == null || uri == null) {
-      setNextUri(null);
-      return;
-    }
-
-    const newUri = { ...uri };
-    newUri.jam += 1;
-
-    // Ensure the next Jam exists
-    const jamCounts = bout.jamCounts;
-    if (newUri.jam >= jamCounts[newUri.period]) {
-      if (newUri.period > 0) {
-        setNextUri(null);
-        return;  // Can't have more than 2 Periods
-      }
-      newUri.period += 1;
-      if (jamCounts[newUri.period] < 1) {
-        setNextUri(null);
-        return;  // There are no Jams in the next Period
-      }
-      newUri.jam = 0;
-    }
-
-    setNextUri(newUri);
-  }, [bout, uri]);
-
-
-  return [previousUri, nextUri];
-}
-
-
-export function ScoreboardEditor({ boutUuid }) {
-  const [uri, setUri] = useState(null);
-  const bout = useBout(boutUuid);
-  const jam = useJam(boutUuid, uri?.period, uri?.jam)
+export function ScoreboardEditor({ bout }) {
+  const [uri, setUri] = useState({
+    bout: bout.uuid,
+    period: bout.currentPeriodNum,
+    jam: bout.jamCounts[bout.currentPeriodNum] - 1
+  });
+  const [previousUri, nextUri] = useJamNavigation(bout, uri);  
+  const jam = useJam(uri);
   
+
   // Ensure the Jam URI is valid
-  if (bout != null) {
+  useEffect(() => {
     const jamDoesNotExist = uri?.jam >= bout.jamCounts[bout.currentPeriodNum];
     if (jamDoesNotExist) {
-      // TODO: Notify the user that the Jam does not exist
+      // TODO: notify the user that the Jam does not exist
     }
     if (uri == null || jamDoesNotExist) {
-      const periodNum = bout.currentPeriodNum;
-      const jamNum = bout.jamCounts[periodNum] - 1;
-      setUri({ bout: boutUuid, period: periodNum, jam: jamNum });
+      const period = bout.currentPeriodNum;
+      const jam = bout.jamCounts[period] - 1;
+      setUri({bout: bout.uuid, period, jam})
+      return;
     }
-  }
+  }, [bout]);
 
   const gameClock = useClock(bout, PERIOD_CLOCK);
   const actionClock = useClock(bout, GAME_CLOCK);
-
-  const [previousUri, nextUri] = useUriNavigation(bout, uri);
-
 
   return (
     <div>
@@ -105,45 +50,45 @@ export function ScoreboardEditor({ boutUuid }) {
         Action: {formatTimeString(actionClock.remaining)} &nbsp; ({actionClock.type})
       </div>
 
+      <Suspense fallback={<></>}>
 
-      <div>
-        {uri != null &&
-          <p>
-            {previousUri != null &&
-              <button onClick={() => setUri(previousUri)}>&lt;</button>
-            }
-            P{uri.period + 1} J{uri.jam + 1}
-            {nextUri != null &&
-              <button onClick={() => setUri(nextUri)}>&gt;</button>
-            }
-          </p>
-        }
-      </div>
 
-      <div>
-        {uri && jam &&
-          <JamController uri={uri} jam={jam} />
-        }
-      </div>
+        <div>
+          {uri != null &&
+            <p>
+              {previousUri != null &&
+                <button onClick={() => setUri(previousUri)}>&lt;</button>
+              }
+              P{uri.period + 1} J{uri.jam + 1}
+              {nextUri != null &&
+                <button onClick={() => setUri(nextUri)}>&gt;</button>
+              }
+            </p>
+          }
+        </div>
 
-      <div>
-        <p></p>
-      </div>
+        <div>
+          {uri && jam &&
+            <JamController uri={uri} jam={jam} />
+          }
+        </div>
 
-      <div>
-        {uri && jam &&
-          <>
-            <JamScore uri={uri} state={jam.score.home} team={HOME} />
-            <JamScore uri={uri} state={jam.score.away} team={AWAY} />
-          </>
-        }
-      </div>
+        <div>
+          <p></p>
+        </div>
+
+        <div>
+          {uri && jam &&
+            <>
+              <JamScore uri={uri} state={jam.score.home} team={HOME} />
+              <JamScore uri={uri} state={jam.score.away} team={AWAY} />
+            </>
+          }
+        </div>
+      </Suspense>
 
     </div>
   );
-}
-ScoreboardEditor.propTypes = {
-  boutUuid: PropTypes.string.isRequired
 }
 
 function JamPointButtons({ uri, jamScore, team, selectedTrip }) {
