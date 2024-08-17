@@ -11,4 +11,5 @@ export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   pluginReactConfig,
+  'react/prop-types',  // Don't lint PropTypes
 ];
