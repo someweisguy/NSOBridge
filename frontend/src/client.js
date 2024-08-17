@@ -52,8 +52,7 @@ async function calculateLatency(iterations) {
   if (iterations < 1) {
     return;  // Avoid divide-by-zero error
   }
-  latency = Math.round((latencySum / iterations) / 2);
-  return latency;
+  return Math.round((latencySum / iterations) / 2);
 }
 
 export async function sendRequest(api, payload = {}) {
@@ -157,11 +156,11 @@ export function useOnlineListener() {
   }, () => isOnline);
 }
 
-socket.on("connect", () => {
+socket.on("connect", async () => {
   // Update client-server latency
-  calculateLatency(10);
+  calculateLatency(10).then(newLatency => latency = newLatency);
   latencyIntervalId = setInterval(async () => {
-    calculateLatency(10);
+    latency = await calculateLatency(10);
   }, 25000);
 
   // Update all stores
