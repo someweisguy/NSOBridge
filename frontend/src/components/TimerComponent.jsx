@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useClock } from "../customHooks";
 
 export function formatTimeString(millisRemaining, showMillis = true) {
   // FIXME: show negative numbers
@@ -37,3 +39,39 @@ export function formatTimeString(millisRemaining, showMillis = true) {
   return timeString;
 }
 
+export default function Clock({ bout, type, placeholder = "0", delay = 1250 }) {
+  const [showPlaceholder, setShowPlaceholder] = useState(false);
+  const clock = useClock(bout, type);
+
+  // Show placeholder immediately if clock is elapsed on initial render
+  useEffect(() => {
+    if (clock.remaining <= 0) {
+      setShowPlaceholder(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (clock.remaining > 0) {
+      if (showPlaceholder) {
+        setShowPlaceholder(false);
+      }
+      return;
+    }
+
+    if (showPlaceholder) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setShowPlaceholder(true);
+    }, delay);
+    return () => clearTimeout(timeoutId);
+  }, [clock, delay]);
+
+  const displayValue = showPlaceholder ? placeholder.toString()
+    : formatTimeString(clock.remaining);
+
+  return (
+    <span>{displayValue}</span>
+  );
+}
