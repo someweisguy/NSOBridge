@@ -42,7 +42,13 @@ class Bout(Encodable):
         self._lineupClock: Timer = Timer(seconds=30)
         self._jamClock: Timer = Timer(minutes=2)
         self._timeoutClock: Timer = Timer(minutes=1)
-        # FIXME: set update alarms for each clock
+
+        # Set update alarms for each clock
+        allClocks: tuple[Timer, ...] = (self._intermissionClock,
+                                        self._periodClock, self._lineupClock,
+                                        self._jamClock, self._timeoutClock)
+        for clock in allClocks:
+            clock.setCallback(lambda _: server.update(self))
 
         self._currentPeriod: int = 0
 
