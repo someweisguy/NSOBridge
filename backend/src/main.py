@@ -13,7 +13,7 @@ async def startTimeToDerby(uri: URI, timestamp: datetime) -> API:
     pass
 
 
-@server.register
+@server.register(name='series')
 async def getBouts() -> API:
     return [bout.encode() for bout in series._bouts]
 
