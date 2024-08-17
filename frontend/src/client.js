@@ -20,41 +20,6 @@ var isOnline = false;
 var onlineListeners = [];
 var serverStores = new Map();
 
-async function calculateLatency(iterations) {
-  if (socket.disconnected) {
-    return;
-  }
-
-  let latencySum = 0;
-  for (let i = 0; i < iterations; i++) {
-    // Calculate the round-trip latency
-    let success = true;
-    const start = window.performance.now();
-    await socket.timeout(5000).emitWithAck("ping").then(
-      null,  // Do nothing on success
-      () => { success = false; }
-    );
-    const stop = window.performance.now();
-    if (start > stop) {
-      success = false;  // Guard against negative latency value
-    }
-
-    if (success) {
-      // Add round-trip latency to the accumulator
-      latencySum += stop - start;
-    } else {
-      // Decrement the iterations value for accurate averaging
-      iterations--;
-    }
-  }
-
-  // Compute one-way latency (in milliseconds) using mathematical average
-  if (iterations < 1) {
-    return;  // Avoid divide-by-zero error
-  }
-  return Math.round((latencySum / iterations) / 2);
-}
-
 export async function sendRequest(api, payload = {}) {
   payload.latency = latency;
   return socket.emitWithAck(api, payload).then((response) => {
@@ -154,6 +119,37 @@ export function useOnlineListener() {
       onlineListeners = onlineListeners.filter(cb => cb !== callback);
     }
   }, () => isOnline);
+}
+
+async function calculateLatency(iterations) {
+  let latencySum = 0;
+  for (let i = 0; i < iterations; i++) {
+    // Calculate the round-trip latency
+    let success = true;
+    const start = window.performance.now();
+    await socket.timeout(5000).emitWithAck("ping").then(
+      null,  // Do nothing on success
+      () => { success = false; }
+    );
+    const stop = window.performance.now();
+    if (start > stop) {
+      success = false;  // Guard against negative latency value
+    }
+
+    if (success) {
+      // Add round-trip latency to the accumulator
+      latencySum += stop - start;
+    } else {
+      // Decrement the iterations value for accurate averaging
+      iterations--;
+    }
+  }
+
+  // Compute one-way latency (in milliseconds) using mathematical average
+  if (iterations < 1) {
+    return;  // Avoid divide-by-zero error
+  }
+  return Math.round((latencySum / iterations) / 2);
 }
 
 socket.on("connect", async () => {
