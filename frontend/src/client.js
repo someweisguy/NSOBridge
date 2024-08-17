@@ -29,7 +29,7 @@ export function onEvent(api, callback) {
 }
 
 function getStore(api, args) {
-  const key = [api, args].toString();
+  const key = [api, JSON.stringify(args)].toString();
   if (serverStores.has(key)) {
     return serverStores.get(key);
   }
