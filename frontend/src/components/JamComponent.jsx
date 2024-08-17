@@ -21,7 +21,6 @@ export function ScoreboardEditor({ bout }) {
     jam: bout.jamCounts[bout.currentPeriodNum] - 1
   });
   const [previousUri, nextUri] = useJamNavigation(bout, uri);  
-  const jam = useJam(uri);
   
 
   // Ensure the Jam URI is valid
@@ -50,8 +49,6 @@ export function ScoreboardEditor({ bout }) {
         Action: {formatTimeString(actionClock.remaining)} &nbsp; ({actionClock.type})
       </div>
 
-      <Suspense fallback={<></>}>
-
 
         <div>
           {uri != null &&
@@ -67,9 +64,12 @@ export function ScoreboardEditor({ bout }) {
           }
         </div>
 
+      <Suspense fallback={<h1>LOADING</h1>}>
+
+
         <div>
-          {uri && jam &&
-            <JamController uri={uri} jam={jam} />
+          {uri &&
+            <JamController uri={uri} />
           }
         </div>
 
@@ -78,10 +78,10 @@ export function ScoreboardEditor({ bout }) {
         </div>
 
         <div>
-          {uri && jam &&
+          {uri &&
             <>
-              <JamScore uri={uri} state={jam.score.home} team={HOME} />
-              <JamScore uri={uri} state={jam.score.away} team={AWAY} />
+              <JamScore uri={uri} team={HOME} />
+              <JamScore uri={uri} team={AWAY} />
             </>
           }
         </div>
@@ -125,12 +125,7 @@ function JamPointButtons({ uri, jamScore, team, selectedTrip }) {
     return pointButtons;
   }
 }
-JamPointButtons.propTypes = {
-  uri: PropTypes.object.isRequired,
-  jamScore: PropTypes.object.isRequired,
-  team: PropTypes.string.isRequired,
-  selectedTrip: PropTypes.number.isRequired
-}
+
 
 function JamTripEditor({ uri, jamScore, team, selectedTripState }) {
   const [selectedTrip, setSelectedTrip] = selectedTripState;
@@ -211,12 +206,7 @@ function JamTripEditor({ uri, jamScore, team, selectedTripState }) {
   );
 
 }
-JamTripEditor.propTypes = {
-  uri: PropTypes.object.isRequired,
-  jamScore: PropTypes.object.isRequired,
-  team: PropTypes.string.isRequired,
-  selectedTripState: PropTypes.object.isRequired
-}
+
 
 function AttributeCheckbox({ checked, disabled = false, onClick, children }) {
   return (
@@ -227,17 +217,13 @@ function AttributeCheckbox({ checked, disabled = false, onClick, children }) {
     </>
   )
 }
-AttributeCheckbox.propTypes = {
-  checked: PropTypes.bool.isRequired,
-  disabled: PropTypes.bool.isRequired,
-  onClick: PropTypes.func,
-  children: PropTypes.string.isRequired
-}
 
 
-function JamScore({ uri, state, team }) {
+
+function JamScore({ uri, team }) {
   const [selectedTrip, setSelectedTrip] = useState(0);
   const latestTripIsSelected = useRef(true);
+  const state = useJam(uri).score[team];
 
   // Ensure the new latest Trip is selected when adding a new Trip
   useEffect(() => {
@@ -297,18 +283,14 @@ function JamScore({ uri, state, team }) {
     </div>
   );
 }
-JamScore.propTypes = {
-  uri: PropTypes.object.isRequired,
-  state: PropTypes.object.isRequired,
-  team: PropTypes.string.isRequired
-}
 
-function JamController({ uri, jam }) {
+function JamController({ uri }) {
   const startJam = useCallback(() => sendRequest("startJam", { uri }), [uri]);
   const stopJam = useCallback(() => sendRequest("stopJam", { uri }), [uri]);
   const setJamStopReason = useCallback((stopReason) =>
     sendRequest("setJamStopReason", { uri, stopReason }), [uri]);
   const callTimeout = useCallback(() => sendRequest("callTimeout", {}), [])
+  const jam = useJam(uri);
 
   // Render constants
   const jamIsStarted = jam.startTime != null;
@@ -343,10 +325,6 @@ function JamController({ uri, jam }) {
       </>
     );
   }
-}
-JamController.propTypes = {
-  uri: PropTypes.object.isRequired,
-  jam: PropTypes.object.isRequired,
 }
 
 function TimeoutController({ timeout }) {
@@ -405,9 +383,7 @@ function TimeoutController({ timeout }) {
     </div>
   );
 }
-TimeoutController.propTypes = {
-  timeout: PropTypes.object.isRequired
-}
+
 
 // TODO
 // function IntermissionController({ uri }) {
