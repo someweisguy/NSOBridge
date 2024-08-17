@@ -95,8 +95,7 @@ export function useBout(boutUuid) {
   return useGenericStore("bout", { uri })
 }
 
-export function useJam(bout, periodNum, jamNum) {
-  const uri = { bout: bout.uuid, period: periodNum, jam: jamNum };
+export function useJam(uri) {
   return useGenericStore("jam", { uri })
 }
 
