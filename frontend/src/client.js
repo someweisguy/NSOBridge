@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore, useState, useDeferredValue } from 'react';
 
 // Client connection variables
 var latency = 0;
@@ -100,8 +100,15 @@ function getStore(api, args) {
 }
 
 export default function useGenericStore(api, args = {}) {
-  const store = getStore(api, args);
-  return useSyncExternalStore(store.subscribe, store.getSnapshot);
+  const [store, setStore] = useState(getStore(api, args));
+  const deferredStore = useDeferredValue(store);
+
+  useEffect(() => {
+    setStore(getStore(api, args));
+  }, [api, args])
+
+  return useSyncExternalStore(deferredStore.subscribe, 
+    deferredStore.getSnapshot);
 }
 
 export function useOnlineListener() {
