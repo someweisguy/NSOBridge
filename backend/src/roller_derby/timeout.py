@@ -74,6 +74,7 @@ class TimeoutAttribute(TeamAttribute[_TimeoutCounter]):
         # Start the Timeout clock
         if self._parent._periodClock.isRunning():
             self._parent._periodClock.stop(timestamp)
+        self._parent._timeoutClock.setElapsed(seconds=0)
         self._parent._timeoutClock.start(timestamp)
 
         server.update(self._parent)
