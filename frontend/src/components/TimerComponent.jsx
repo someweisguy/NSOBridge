@@ -45,12 +45,16 @@ export default function Clock({ bout, type, placeholder = "0", delay = 1250 }) {
 
   // Show placeholder immediately if clock is elapsed on initial render
   useEffect(() => {
-    if (clock.remaining <= 0) {
+    if (clock.alarm != null && clock.remaining <= 0) {
       setShowPlaceholder(true);
     }
   }, []);
 
   useEffect(() => {
+    if (clock.alarm == null) {
+      return;
+    }
+
     if (clock.remaining > 0) {
       if (showPlaceholder) {
         setShowPlaceholder(false);
@@ -72,6 +76,6 @@ export default function Clock({ bout, type, placeholder = "0", delay = 1250 }) {
     : formatTimeString(clock.remaining);
 
   return (
-    <span>{displayValue}</span>
+    <span>{displayValue}&nbsp;({clock.type})</span>
   );
 }
