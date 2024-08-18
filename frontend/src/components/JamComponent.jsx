@@ -1,7 +1,7 @@
 import "./JamComponent.css"
 import { React, useState, useEffect, useRef, useCallback, useDeferredValue, Suspense } from "react";
 import { sendRequest } from "../client.js";
-import { useJam, GAME_CLOCK, PERIOD_CLOCK, useJamNavigation } from "../customHooks.jsx";
+import { useBout, useJam, GAME_CLOCK, PERIOD_CLOCK, useJamNavigation } from "../customHooks.jsx";
 import Clock from "./TimerComponent.jsx"
 
 const HOME = "home";
@@ -42,6 +42,8 @@ export function ScoreboardEditor({ bout }) {
         Game: <Clock bout={bout} type={PERIOD_CLOCK} />
         <br />
         Action: <Clock bout={bout} type={GAME_CLOCK} />
+        <br />
+        <TimeoutController bout={bout} />
       </div>
 
       <div>
@@ -268,19 +270,18 @@ function JamController({ uri }) {
   const stopJam = useCallback(() => sendRequest("stopJam", { uri }), [uri]);
   const setJamStopReason = useCallback((stopReason) =>
     sendRequest("setJamStopReason", { uri, stopReason }), [uri]);
-  const callTimeout = useCallback(() => sendRequest("callTimeout", { uri }), [uri]);
   const jam = useJam(uri);
+
+  const bout = useBout(uri);
 
   // Render constants
   const jamIsStarted = jam.startTime != null;
   const jamIsFinished = jam.stopTime != null;
 
   if (!jamIsStarted) {
+    const disabled = (bout.timeout.current != null);
     return (
-      <>
-        <button onClick={startJam}>Start Jam</button>
-        <button onClick={callTimeout}>Timeout/OR</button>
-      </>
+      <button onClick={startJam} disabled={disabled}>Start Jam</button>
     );
   } else if (!jamIsFinished) {
     return (
@@ -306,61 +307,80 @@ function JamController({ uri }) {
   }
 }
 
-function TimeoutController({ timeout }) {
+function TimeoutController({ bout }) {
+  const callTimeout = useCallback(() => {
+    const uri = { bout: bout.uuid }
+    sendRequest("callTimeout", { uri });
+  }, [bout]);
+
   const setTimeout = useCallback(() => {
-    const newTimeoutState = { ...timeout };
-    newTimeoutState.isOfficialReview = false;
+    // TODO
+    // const newTimeoutState = { ...timeout };
+    // newTimeoutState.isOfficialReview = false;
     sendRequest("setTimeout", newTimeoutState);
-  }, [timeout]);
+  }, [bout]);
 
   const setOfficialReview = useCallback(() => {
-    const newTimeoutState = { ...timeout };
-    newTimeoutState.isOfficialReview = true;
+    // TODO
+    // const newTimeoutState = { ...timeout };
+    // newTimeoutState.isOfficialReview = true;
     sendRequest("setTimeout", newTimeoutState);
-  }, [timeout]);
+  }, [bout]);
 
   const setCaller = useCallback((caller) => {
-    const newTimeoutState = { ...timeout };
-    newTimeoutState.caller = caller;
+    // TODO
+    // const newTimeoutState = { ...timeout };
+    // newTimeoutState.caller = caller;
     sendRequest("setTimeout", newTimeoutState);
-  }, [timeout]);
+  }, [bout]);
 
   const endTimeout = useCallback(() => {
-    sendRequest("endTimeout");
-  }, []);
-
-
-  return (
-    <div>
-      <span>
-        <button onClick={setTimeout} disabled={!timeout.isOfficialReview}>
-          Timeout
+    const uri = { bout: bout.uuid }
+    sendRequest("endTimeout", { uri });
+  }, [bout]);
+  
+  if (bout.timeout.current == null) {
+    const canCallTimeout = !bout.clocks.jam.running;
+    return (
+      <div>
+        <button onClick={callTimeout} disabled={!canCallTimeout}>
+          Call Timeout
         </button>
-        <button onClick={setOfficialReview}
-          disabled={timeout.isOfficialReview || timeout.caller === OFFICIAL}>
-          Official Review
-        </button>
-      </span>
-
-      <span>
-        <button onClick={() => setCaller(HOME)} disabled={timeout.caller === HOME}>
-          Home
-        </button>
-        <button onClick={() => setCaller(OFFICIAL)}
-          disabled={timeout.caller === OFFICIAL || timeout.isOfficialReview}>
-          Official
-        </button>
-        <button onClick={() => setCaller(AWAY)} disabled={timeout.caller === AWAY}>
-          Away
-        </button>
-      </span>
-
-      <span>
-        <button onClick={endTimeout}>End {timeout.isOfficialReview ? "O/R" : "T/O"}</button>
-      </span>
-
-    </div>
-  );
+      </div>
+    );
+  } else {
+    const timeout = bout.timeout.current;
+    return (
+      <div>
+        <span>
+          <button onClick={setTimeout} disabled={!timeout.isOfficialReview}>
+            Timeout
+          </button>
+          <button onClick={setOfficialReview}
+            disabled={timeout.isOfficialReview || timeout.caller === OFFICIAL}>
+            Official Review
+          </button>
+        </span>
+        &nbsp;
+        <span>
+          <button onClick={() => setCaller(HOME)} disabled={timeout.caller === HOME}>
+            Home
+          </button>
+          <button onClick={() => setCaller(OFFICIAL)}
+            disabled={timeout.caller === OFFICIAL || timeout.isOfficialReview}>
+            Official
+          </button>
+          <button onClick={() => setCaller(AWAY)} disabled={timeout.caller === AWAY}>
+            Away
+          </button>
+        </span>
+        &nbsp;
+        <span>
+          <button onClick={endTimeout}>End {timeout.isOfficialReview ? "O/R" : "T/O"}</button>
+        </span>
+      </div>
+    );
+  }
 }
 
 
