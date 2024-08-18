@@ -83,10 +83,10 @@ class TimeoutAttribute(TeamAttribute[_TimeoutCounter]):
     def assign(self, team: TEAMS | OFFICIAL) -> None:
         if len(self._timeouts) == 0 or not self._timeouts[-1].isRunning():
             raise RuntimeError('there is no Timeout currently running')
-        # FIXME
-        # if team not in get_args(TEAMS) + get_args(OFFICIAL):
-        #     raise TypeError(f'team must be one of '
-        #                     f'{get_args(TEAMS) + get_args(OFFICIAL)}')
+        from roller_derby.bout import TEAMS
+        if team not in get_args(TEAMS) + get_args(OFFICIAL):
+            raise TypeError(f'team must be one of '
+                            f'{get_args(TEAMS) + get_args(OFFICIAL)}')
         self._timeouts[-1].team = team
 
         # Set the Timeout alarm
