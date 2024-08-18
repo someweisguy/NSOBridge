@@ -313,32 +313,21 @@ function TimeoutController({ bout }) {
     sendRequest("callTimeout", { uri });
   }, [bout]);
 
-  const setTimeout = useCallback(() => {
-    // TODO
-    // const newTimeoutState = { ...timeout };
-    // newTimeoutState.isOfficialReview = false;
-    sendRequest("setTimeout", newTimeoutState);
+  const setIsOfficialReview = useCallback((isOfficialReview) => {
+    const uri = { bout: bout.uuid };
+    sendRequest("setTimeoutIsOfficialReview", { uri, isOfficialReview });
   }, [bout]);
 
-  const setOfficialReview = useCallback(() => {
-    // TODO
-    // const newTimeoutState = { ...timeout };
-    // newTimeoutState.isOfficialReview = true;
-    sendRequest("setTimeout", newTimeoutState);
-  }, [bout]);
-
-  const setCaller = useCallback((caller) => {
-    // TODO
-    // const newTimeoutState = { ...timeout };
-    // newTimeoutState.caller = caller;
-    sendRequest("setTimeout", newTimeoutState);
+  const setTeam = useCallback((team) => {
+    const uri = { bout: bout.uuid };
+    sendRequest("assignTimeout", { uri, team });
   }, [bout]);
 
   const endTimeout = useCallback(() => {
     const uri = { bout: bout.uuid }
     sendRequest("endTimeout", { uri });
   }, [bout]);
-  
+
   if (bout.timeout.current == null) {
     const canCallTimeout = !bout.clocks.jam.running;
     return (
@@ -353,24 +342,24 @@ function TimeoutController({ bout }) {
     return (
       <div>
         <span>
-          <button onClick={setTimeout} disabled={!timeout.isOfficialReview}>
+          <button onClick={() => setIsOfficialReview(false)} disabled={!timeout.isOfficialReview}>
             Timeout
           </button>
-          <button onClick={setOfficialReview}
-            disabled={timeout.isOfficialReview || timeout.caller === OFFICIAL}>
+          <button onClick={() => setIsOfficialReview(true)}
+            disabled={timeout.isOfficialReview || timeout.team === OFFICIAL}>
             Official Review
           </button>
         </span>
         &nbsp;
         <span>
-          <button onClick={() => setCaller(HOME)} disabled={timeout.caller === HOME}>
+          <button onClick={() => setTeam(HOME)} disabled={timeout.team === HOME}>
             Home
           </button>
-          <button onClick={() => setCaller(OFFICIAL)}
-            disabled={timeout.caller === OFFICIAL || timeout.isOfficialReview}>
+          <button onClick={() => setTeam(OFFICIAL)}
+            disabled={timeout.team === OFFICIAL || timeout.isOfficialReview}>
             Official
           </button>
-          <button onClick={() => setCaller(AWAY)} disabled={timeout.caller === AWAY}>
+          <button onClick={() => setTeam(AWAY)} disabled={timeout.team === AWAY}>
             Away
           </button>
         </span>
