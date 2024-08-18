@@ -303,11 +303,16 @@ async def _handleEvent(command: str, sessionId: str,
         # If the exception was not caused by the client, log a traceback
         traceback: None | TracebackType = e.__traceback__
         if not isinstance(e, ClientException) and traceback is not None:
+            # Get the source of the traceback
+            while traceback.tb_next is not None:
+                traceback = traceback.tb_next
+
+            # Log an error message
             fileName: str = os.path.split(
                 traceback.tb_frame.f_code.co_filename)[-1]
             lineNumber: int = traceback.tb_lineno
             log.error(f'{type(e).__name__}: {
-                      str(e)} ({fileName}, {lineNumber})')
+                str(e)} ({fileName}, {lineNumber})')
     finally:
         log.debug(f'Ack: {str(response)}')
         # Return the current timestamp
