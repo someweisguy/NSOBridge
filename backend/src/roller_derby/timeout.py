@@ -75,6 +75,7 @@ class TimeoutAttribute(TeamAttribute[_TimeoutCounter]):
         if self._parent._periodClock.isRunning():
             self._parent._periodClock.stop(timestamp)
         self._parent._timeoutClock.setElapsed(seconds=0)
+        self._parent._timeoutClock.setAlarm(None)
         self._parent._timeoutClock.start(timestamp)
 
         server.update(self._parent)
@@ -88,14 +89,26 @@ class TimeoutAttribute(TeamAttribute[_TimeoutCounter]):
         #                     f'{get_args(TEAMS) + get_args(OFFICIAL)}')
         self._timeouts[-1].team = team
 
+        # Set the Timeout alarm
+        if team == 'official' or self._timeouts[-1].isOfficialReview:
+            self._parent._timeoutClock.setAlarm(None)
+        else:
+            self._parent._timeoutClock.setAlarm(minutes=1)
+
         server.update(self._parent)
 
     def setIsOfficialReview(self, isOfficialReview: bool) -> None:
         if len(self._timeouts) == 0 or not self._timeouts[-1].isRunning():
             raise RuntimeError('there is no Timeout currently running')
-        if self._timeouts[-1].isOfficialReview:
+        if self._timeouts[-1].isOfficialReview == isOfficialReview:
             return  # Do nothing
         self._timeouts[-1].isOfficialReview = isOfficialReview
+
+        # Set the Timeout alarm
+        if isOfficialReview or self._timeouts[-1].team == 'official':
+            self._parent._timeoutClock.setAlarm(None)
+        else:
+            self._parent._timeoutClock.setAlarm(minutes=1)
 
         server.update(self._parent)
 
@@ -123,16 +136,13 @@ class TimeoutAttribute(TeamAttribute[_TimeoutCounter]):
 
         self._parent._timeoutClock.stop(timestamp)
 
-        if timeout.team == 'official':
-            server.update(self._parent)
-            return  # Don't need to track Official Timeouts
-
         # Update the Timeout and Official Review counter
-        if timeout.isOfficialReview:
-            count: int = int(not timeout.isRetained)
-            self[timeout.team]._officialReviewsRemaining -= count
-        else:
-            self[timeout.team]._timeoutsRemaining -= 1
+        if timeout.team != 'official':
+            if timeout.isOfficialReview:
+                count: int = int(not timeout.isRetained)
+                self[timeout.team]._officialReviewsRemaining -= count
+            else:
+                self[timeout.team]._timeoutsRemaining -= 1
 
         server.update(self._parent)
 
