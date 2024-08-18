@@ -65,7 +65,7 @@ export function useClock(bout, virtualType, stopAtZero = true) {
     }, 50);
 
     return () => clearInterval(intervalId);
-  }, [clock, stopAtZero]);
+  }, [bout, clock, stopAtZero]);
 
   // Render the number of milliseconds elapsed/remaining
   let elapsed = 0;
