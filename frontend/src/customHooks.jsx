@@ -99,9 +99,10 @@ export function useJam(uri) {
   return useGenericStore("jam", { uri })
 }
 
-export function useJamNavigation(bout, uri) {
+export function useJamNavigation(uri) {
   const [previousUri, setPreviousUri] = useState(null);
   const [nextUri, setNextUri] = useState(null);
+  const bout = useBout(uri.bout);
 
   useEffect(() => {
     if (bout == null || uri == null) {

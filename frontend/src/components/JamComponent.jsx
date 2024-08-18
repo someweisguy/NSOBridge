@@ -13,13 +13,14 @@ const INJURY = "injury";
 const TIME = "time";
 
 
-export function ScoreboardEditor({ bout }) {
+export function ScoreboardEditor({ boutUuid }) {
+  const bout = useBout(boutUuid);
   const [uri, setUri] = useState({
-    bout: bout.uuid,
+    bout: boutUuid,
     period: bout.currentPeriodNum,
     jam: bout.jamCounts[bout.currentPeriodNum] - 1
   });
-  const [previousUri, nextUri] = useJamNavigation(bout, uri);
+  const [previousUri, nextUri] = useJamNavigation(uri);
 
   // Ensure the Jam URI is valid
   useEffect(() => {
@@ -30,10 +31,10 @@ export function ScoreboardEditor({ bout }) {
     if (uri == null || jamDoesNotExist) {
       const period = bout.currentPeriodNum;
       const jam = bout.jamCounts[period] - 1;
-      setUri({ bout: bout.uuid, period, jam })
+      setUri({ bout: boutUuid, period, jam })
       return;
     }
-  }, [bout]);
+  }, [boutUuid]);
 
   return (
     <div>
