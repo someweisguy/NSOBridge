@@ -59,7 +59,7 @@ export function ScoreboardEditor({ boutUuid }) {
         </p>
       </div>
 
-      <Suspense fallback={<h1>LOADING</h1>}>
+      <Suspense>
         <div>
           <JamController uri={uri} />
         </div>
