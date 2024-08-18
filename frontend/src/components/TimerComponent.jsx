@@ -72,8 +72,12 @@ export default function Clock({ bout, type, placeholder = "0", delay = 1250 }) {
     return () => clearTimeout(timeoutId);
   }, [clock, delay]);
 
+  // Determine which clock value to use
+  const clockValue = clock.alarm == null ? clock.elapsed : clock.remaining;
+  const showMillis = clockValue === clock.remaining;
+
   const displayValue = showPlaceholder ? placeholder.toString()
-    : formatTimeString(clock.remaining);
+    : formatTimeString(clockValue, showMillis);
 
   return (
     <span>{displayValue}&nbsp;({clock.type})</span>
