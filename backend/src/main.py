@@ -86,18 +86,18 @@ async def setJamStopReason(uri: URI, stopReason: STOP_REASONS) -> API:
     jam.stopReason = stopReason
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import scoreApi  # noqa: F401
     import asyncio
     import socket
 
     port: int = 8000
-    serverAddress: str = "0.0.0.0"
+    serverAddress: str = '0.0.0.0'
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.settimeout(0)
-        sock.connect(("1.1.1.1", 1))  # Doesn't actually send network data
+        sock.connect(('1.1.1.1', 1))  # Doesn't actually send network data
         serverAddress = sock.getsockname()[0]
-    httpStr: str = f"http://{serverAddress}:{port}"
-    server.log.info(f"Starting server at '{httpStr}'.")
+    httpStr: str = f'http://{serverAddress}:{port}'
+    server.log.info(f'Starting server at \'{httpStr}\'.')
 
     asyncio.run(server.serve(port, debug=True))
