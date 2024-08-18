@@ -137,5 +137,8 @@ class TimeoutAttribute(TeamAttribute[_TimeoutCounter]):
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
             **super().encode(),
-            'timeouts': [timeout.encode() for timeout in self._timeouts]
+            'current': (self._timeouts[-1].encode()
+                        if len(self._timeouts) > 0
+                        and self._timeouts[-1].isRunning()
+                        else None)
         }
