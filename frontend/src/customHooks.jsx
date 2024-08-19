@@ -7,7 +7,8 @@ export const INTERMISSION_CLOCK = "intermission";
 export const LINEUP_CLOCK = "lineup";
 export const JAM_CLOCK = "jam";
 export const TIMEOUT_CLOCK = "timeout";
-export const GAME_CLOCK = "game";
+export const GAME_CLOCK = "game"
+export const ACTION_CLOCK = "action";
 
 
 export function useClock(bout, virtualType, stopAtZero = true) {
@@ -24,6 +25,12 @@ export function useClock(bout, virtualType, stopAtZero = true) {
     // Translate virtual clock types
     let concreteType = virtualType;
     if (concreteType == GAME_CLOCK) {
+      if (bout.clocks.intermission.running) {
+        concreteType = INTERMISSION_CLOCK;
+      } else {
+        concreteType = PERIOD_CLOCK;
+      }
+    } else if (concreteType == ACTION_CLOCK) {
       if (bout.clocks.timeout.running) {
         concreteType = TIMEOUT_CLOCK;
       } else if (bout.clocks.lineup.running) {
