@@ -1,7 +1,7 @@
 import "./JamComponent.css"
 import { React, useState, useEffect, useRef, useCallback, useDeferredValue, Suspense } from "react";
 import { sendRequest } from "../client.js";
-import { useBout, useJam, GAME_CLOCK, PERIOD_CLOCK, useJamNavigation } from "../customHooks.jsx";
+import { useBout, useJam, ACTION_CLOCK, GAME_CLOCK, useJamNavigation } from "../customHooks.jsx";
 import Clock from "./TimerComponent.jsx"
 
 const HOME = "home";
@@ -40,9 +40,9 @@ export function ScoreboardEditor({ boutUuid }) {
     <div>
 
       <div>
-        Game: <Clock bout={bout} type={PERIOD_CLOCK} />
+        Game: <Clock bout={bout} type={GAME_CLOCK} />
         <br />
-        Action: <Clock bout={bout} type={GAME_CLOCK} />
+        Action: <Clock bout={bout} type={ACTION_CLOCK} />
         <br />
         <PeriodController uri={uri} />
         <br />
@@ -313,23 +313,40 @@ function JamController({ uri }) {
 function PeriodController({ uri }) {
   const bout = useBout(uri.bout);
 
-  const beginPeriod = useCallback(() => sendRequest("beginPeriod", { uri }),
-    [uri]);
-  const endPeriod = useCallback(() => sendRequest("endPeriod", { uri }), [uri]);
+  const beginPeriod = useCallback(() =>
+    sendRequest("beginPeriod", { uri }), [uri]);
+  const startIntermission = useCallback(() =>
+    sendRequest("startIntermission", { uri }), [uri])
+  const stopIntermission = useCallback(() =>
+    sendRequest("stopIntermission", { uri }), [uri])
+  const endPeriod = useCallback(() =>
+    sendRequest("endPeriod", { uri }), [uri]);
 
   const periodHasStarted = bout.clocks.lineup.running || bout.clocks.jam.running
     || bout.clocks.timeout.running;
 
   if (!periodHasStarted) {
+    const intermissionIsRunning = bout.clocks.intermission.running;
     return (
-      <button onClick={beginPeriod}>Start Period</button>
+      <>
+        <button onClick={beginPeriod}>Start Period</button>
+        &nbsp;
+        {!intermissionIsRunning ?
+          <button onClick={startIntermission}>Start Intermission</button> :
+          <button onClick={stopIntermission}>Stop Intermission</button>
+        }
+      </>
     );
   } else {
-    const disabled = bout.clocks.period.elapsed < bout.clocks.period.alarm;
+    const disabled = bout.clocks.period.elapsed < bout.clocks.period.alarm
+      || bout.clocks.jam.running;
     return (
-      <button disabled={disabled} onClick={endPeriod}>End Period</button>
+      <button disabled={disabled} onClick={endPeriod}>
+        End Period
+      </button>
     );
   }
+
 }
 
 function TimeoutController({ bout }) {

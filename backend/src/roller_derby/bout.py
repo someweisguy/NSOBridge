@@ -69,6 +69,25 @@ class Bout(Encodable):
     def timeout(self) -> TimeoutAttribute:
         return self._timeout
 
+    def startIntermission(self, timestamp: datetime) -> None:
+        if self._periodClock.isStarted():
+            raise RuntimeError('this Period has already started')
+        if self._intermissionClock.isRunning():
+            raise RuntimeError('this Intermission is already running')
+
+        self._intermissionClock.setElapsed(seconds=0)
+        self._intermissionClock.start(timestamp)
+
+        server.update(self)
+
+    def stopIntermission(self, timestamp: datetime) -> None:
+        if not self._intermissionClock.isRunning():
+            raise RuntimeError('this Intermission is not running')
+
+        self._intermissionClock.stop(timestamp)
+
+        server.update(self)
+
     def beginPeriod(self, timestamp: datetime) -> None:
         if self._periodClock.isStarted():
             raise RuntimeError('this Period has already started')
