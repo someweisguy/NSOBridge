@@ -44,6 +44,8 @@ export function ScoreboardEditor({ boutUuid }) {
         <br />
         Action: <Clock bout={bout} type={GAME_CLOCK} />
         <br />
+        <PeriodController uri={uri} />
+        <br />
         <TimeoutController bout={bout} />
       </div>
 
@@ -304,6 +306,28 @@ function JamController({ uri }) {
         <button onClick={() => setJamStopReason(INJURY)}
           disabled={injuryDisabled}>Injury</button>
       </>
+    );
+  }
+}
+
+function PeriodController({ uri }) {
+  const bout = useBout(uri.bout);
+
+  const beginPeriod = useCallback(() => sendRequest("beginPeriod", { uri }),
+    [uri]);
+  const endPeriod = useCallback(() => sendRequest("endPeriod", { uri }), [uri]);
+
+  const periodHasStarted = bout.clocks.lineup.running || bout.clocks.jam.running
+    || bout.clocks.timeout.running;
+
+  if (!periodHasStarted) {
+    return (
+      <button onClick={beginPeriod}>Start Period</button>
+    );
+  } else {
+    const disabled = bout.clocks.period.elapsed < bout.clocks.period.alarm;
+    return (
+      <button disabled={disabled} onClick={endPeriod}>End Period</button>
     );
   }
 }

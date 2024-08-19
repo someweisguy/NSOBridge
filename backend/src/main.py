@@ -6,11 +6,15 @@ import server
 
 
 @server.register
-async def startTimeToDerby(uri: URI, timestamp: datetime) -> API:
-    # period: Period = series.currentBout[uri.period]
-    # period.startTimeToDerby(timestamp)
-    # TODO
-    pass
+async def beginPeriod(uri: URI, timestamp: datetime) -> API:
+    bout: Bout = series.currentBout
+    bout.beginPeriod(timestamp)
+
+
+@server.register
+async def endPeriod(uri: URI, timestamp: datetime) -> API:
+    bout: Bout = series.currentBout
+    bout.endPeriod(timestamp)
 
 
 @server.register(name='series')

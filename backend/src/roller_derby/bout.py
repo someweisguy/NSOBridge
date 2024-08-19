@@ -69,6 +69,16 @@ class Bout(Encodable):
     def timeout(self) -> TimeoutAttribute:
         return self._timeout
 
+    def beginPeriod(self, timestamp: datetime) -> None:
+        if self._periodClock.isStarted():
+            raise RuntimeError('this Period has already started')
+
+        if not self._lineupClock.isRunning():
+            self._lineupClock.setElapsed(seconds=0)
+            self._lineupClock.start(timestamp)
+
+        server.update(self)
+
     def endPeriod(self, timestamp: datetime) -> None:
         if not self._periodClock.isStarted():
             raise RuntimeError('this Period is not running')
@@ -81,6 +91,8 @@ class Bout(Encodable):
         # Add a Jam to the next Period
         if self._currentPeriod < len(self._jams):
             self._jams[self._currentPeriod].append(Jam(self))
+
+        server.update(self)
 
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
