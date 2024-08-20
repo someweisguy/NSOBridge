@@ -44,7 +44,7 @@ export function ScoreboardEditor({ boutUuid }) {
         <br />
         Action: <Clock bout={bout} type={ACTION_CLOCK} />
         <br />
-        <PeriodController uri={uri} />
+        <PeriodController boutUuid={boutUuid} />
         <br />
         <TimeoutController bout={bout} />
       </div>
@@ -285,7 +285,8 @@ function JamController({ uri }) {
   const jamIsFinished = jam.stopTime != null;
 
   if (!jamIsStarted) {
-    const showLineup = (bout.periods[bout.currentPeriodNum].startTime == null
+    const currentPeriod = bout.periods[0].stopTime != null ? 1 : 0;
+    const showLineup = (bout.periods[currentPeriod].startTime == null
       && !bout.clocks.lineup.isRunning);
     const disabled = (bout.timeout.current != null);
     return (
@@ -322,15 +323,26 @@ function JamController({ uri }) {
   }
 }
 
-function PeriodController({ uri }) {
-  const bout = useBout(uri.bout);
+function PeriodController({ boutUuid }) {
+  const bout = useBout(boutUuid);
+  const [currentPeriod, setCurrentPeriod] = useState(null);
 
-  const startIntermission = useCallback(() =>
-    sendRequest("startIntermission", { uri }), [uri])
-  const stopIntermission = useCallback(() =>
-    sendRequest("stopIntermission", { uri }), [uri])
-  const endPeriod = useCallback(() =>
-    sendRequest("endPeriod", { uri }), [uri]);
+  useEffect(() => {
+    setCurrentPeriod(bout.periods[0].stopTime != null ? 1 : 0);
+  }, [bout]);
+
+  const startIntermission = useCallback(() => {
+    const uri = { bout: boutUuid, period: currentPeriod};
+    sendRequest("startIntermission", { uri });
+  }, [boutUuid, currentPeriod]);
+  const stopIntermission = useCallback(() => {
+    const uri = { bout: boutUuid, period: currentPeriod};
+    sendRequest("stopIntermission", { uri });
+  }, [boutUuid, currentPeriod]);
+  const endPeriod = useCallback(() => {
+    const uri = { bout: boutUuid, period: currentPeriod};
+    sendRequest("endPeriod", { uri });
+  }, [boutUuid, currentPeriod]);
 
   const periodHasStarted = bout.clocks.lineup.isRunning
     || bout.clocks.jam.isRunning || bout.clocks.timeout.isRunning;

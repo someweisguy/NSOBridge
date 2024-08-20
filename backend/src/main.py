@@ -8,13 +8,13 @@ import server
 @server.register
 async def startIntermission(uri: URI, timestamp: datetime) -> API:
     bout: Bout = series.currentBout
-    bout.startIntermission(timestamp)
+    bout[uri.period].startIntermission(timestamp)
 
 
 @server.register
 async def stopIntermission(uri: URI, timestamp: datetime) -> API:
     bout: Bout = series.currentBout
-    bout.stopIntermission(timestamp)
+    bout[uri.period].stopIntermission(timestamp)
 
 
 @server.register
