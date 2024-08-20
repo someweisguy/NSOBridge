@@ -109,31 +109,6 @@ class Bout(Encodable):
 
         server.update(self)
 
-    def beginPeriod(self, timestamp: datetime) -> None:
-        if self._periodClock.isStarted():
-            raise RuntimeError('this Period has already started')
-
-        if not self._lineupClock.isRunning():
-            self._lineupClock.setElapsed(seconds=0)
-            self._lineupClock.start(timestamp)
-
-        server.update(self)
-
-    def endPeriod(self, timestamp: datetime) -> None:
-        if not self._periodClock.isStarted():
-            raise RuntimeError('this Period is not running')
-        elif self._jamClock.isStarted():
-            raise RuntimeError('cannot end the Period while a Jam is running')
-
-        self._lineupClock.stop(timestamp)
-        self._periodClock.stop(timestamp)
-
-        # Add a Jam to the next Period
-        if self.currentPeriod < len(self._periods):
-            self._periods[self.currentPeriod].addJam()
-
-        server.update(self)
-
     def update(self) -> None:
         server.update(self)
 
@@ -174,14 +149,37 @@ class Period(Encodable):
 
     def start(self, timestamp: datetime) -> None:
         if self.isStarted():
-            raise RuntimeError('')
+            raise RuntimeError('this Period has already started')
+
         self._startTime = timestamp
+
+        # Start the Lineup clock
+        if (not self._jams[-1].isRunning()
+                and not self.parentBout.lineupClock.isRunning()):
+            self.parentBout.lineupClock.setElapsed(seconds=0)
+            self.parentBout.lineupClock.start(timestamp)
+
         self.update()
 
     def stop(self, timestamp: datetime) -> None:
         if not self.isRunning():
-            raise RuntimeError('')
+            raise RuntimeError('this Period is not running')
+        if self._jams[-1].isStarted():
+            raise RuntimeError('cannot end the Period while a Jam is running')
+
+        # Stop the clocks and the Period
+        self.parentBout.lineupClock.stop(timestamp)
+        self.parentBout.periodClock.stop(timestamp)
         self._stopTime = timestamp
+
+        # Delete all unstarted Jams, if they exist
+        if len(self._jams) > 0 and self._jams[0].isStarted():
+            self._jams = [jam for jam in self._jams if jam.isStarted()]
+
+        # Instantiate a Jam for the second Period
+        if self is self.parentBout._periods[0]:
+            self.parentBout._periods[1].addJam()
+
         self.update()
 
     def isStarted(self) -> bool:
@@ -266,17 +264,17 @@ class Jam(Encodable):
             intermissionClock.stop(timestamp)
 
         # Reset the Lineup clock and start the Jam clock
-        lineupClock: Timer = self.parentBout.lineupClock
-        if lineupClock.isRunning():
-            lineupClock.stop(timestamp)
-        lineupClock.setElapsed(seconds=0)
+        if self.parentBout.lineupClock.isRunning():
+            self.parentBout.lineupClock.stop(timestamp)
+            self.parentBout.lineupClock.setElapsed(seconds=0)
         self.parentBout.jamClock.start(timestamp)
+
+        self._startTime = timestamp
 
         # Start the Period if it isn't started already
         if not self.parentPeriod.isStarted():
             self.parentPeriod.start(timestamp)
 
-        self._startTime = timestamp
         self.update()
 
     def stop(self, timestamp: datetime) -> None:
@@ -284,8 +282,9 @@ class Jam(Encodable):
             raise RuntimeError('this Jam is not running')
 
         # Reset the Jam clock and start the Lineup clock
-        self.parentBout.jamClock.stop(timestamp)
-        self.parentBout.jamClock.setElapsed(seconds=0)
+        if self.parentBout.jamClock.isRunning():
+            self.parentBout.jamClock.stop(timestamp)
+            self.parentBout.jamClock.setElapsed(seconds=0)
         self.parentBout.lineupClock.start(timestamp)
 
         # Attempt to determine the probable stop reason

@@ -20,13 +20,13 @@ async def stopIntermission(uri: URI, timestamp: datetime) -> API:
 @server.register
 async def beginPeriod(uri: URI, timestamp: datetime) -> API:
     bout: Bout = series.currentBout
-    bout.beginPeriod(timestamp)
+    bout[bout.currentPeriod].start(timestamp)
 
 
 @server.register
 async def endPeriod(uri: URI, timestamp: datetime) -> API:
     bout: Bout = series.currentBout
-    bout.endPeriod(timestamp)
+    bout[bout.currentPeriod].stop(timestamp)
 
 
 @server.register(name='series')
