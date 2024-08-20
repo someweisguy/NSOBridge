@@ -75,6 +75,7 @@ export function ScoreboardEditor({ boutUuid }) {
   );
 }
 
+
 function JamPointButtons({ uri, jamScore, team, selectedTrip }) {
   const setTrip = useCallback((points, validPass = true) => {
     const tripNum = selectedTrip;
@@ -203,7 +204,6 @@ function AttributeCheckbox({ checked, disabled = false, onClick, children }) {
 }
 
 
-
 function JamScore({ uri, team }) {
   const [selectedTrip, setSelectedTrip] = useState(0);
   const latestTripIsSelected = useRef(true);
@@ -268,7 +268,10 @@ function JamScore({ uri, team }) {
   );
 }
 
+
 function JamController({ uri }) {
+  const startLineup = useCallback(() => sendRequest("beginPeriod", { uri }, 
+    [uri]));
   const startJam = useCallback(() => sendRequest("startJam", { uri }), [uri]);
   const stopJam = useCallback(() => sendRequest("stopJam", { uri }), [uri]);
   const setJamStopReason = useCallback((stopReason) =>
@@ -282,9 +285,18 @@ function JamController({ uri }) {
   const jamIsFinished = jam.stopTime != null;
 
   if (!jamIsStarted) {
+    const showLineup = (bout.periods[bout.currentPeriodNum].startTime == null
+      && !bout.clocks.lineup.isRunning);
     const disabled = (bout.timeout.current != null);
     return (
-      <button onClick={startJam} disabled={disabled}>Start Jam</button>
+      <>
+        {showLineup && 
+          <button onClick={startLineup} disabled={disabled}>
+            Start Lineup
+          </button> 
+        }
+        <button onClick={startJam} disabled={disabled}>Start Jam</button>
+      </>
     );
   } else if (!jamIsFinished) {
     return (
@@ -313,8 +325,6 @@ function JamController({ uri }) {
 function PeriodController({ uri }) {
   const bout = useBout(uri.bout);
 
-  const beginPeriod = useCallback(() =>
-    sendRequest("beginPeriod", { uri }), [uri]);
   const startIntermission = useCallback(() =>
     sendRequest("startIntermission", { uri }), [uri])
   const stopIntermission = useCallback(() =>
@@ -331,8 +341,6 @@ function PeriodController({ uri }) {
       : "Halftime"
     return (
       <>
-        <button onClick={beginPeriod}>Start Period</button>
-        &nbsp;
         {!intermissionIsRunning ?
           <button onClick={startIntermission}>Start {intermissionText}</button>
           : <button onClick={stopIntermission}>Stop {intermissionText}</button>
