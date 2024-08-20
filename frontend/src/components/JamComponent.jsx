@@ -34,7 +34,7 @@ export function ScoreboardEditor({ boutUuid }) {
       setUri({ bout: boutUuid, period, jam })
       return;
     }
-  }, [boutUuid]);
+  }, [bout]);
 
   return (
     <div>
