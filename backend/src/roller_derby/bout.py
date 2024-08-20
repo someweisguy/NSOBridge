@@ -44,10 +44,13 @@ class Bout(Encodable):
         self._timeoutClock: Timer = Timer(minutes=1)
 
         # Set update alarms for each clock
-        allClocks: tuple[Timer, ...] = (self._intermissionClock,
-                                        self._periodClock, self._lineupClock,
-                                        self._jamClock, self._timeoutClock)
-        for clock in allClocks:
+        def intermissionCallback(now: datetime) -> None:
+            self._intermissionClock.stop(now)
+            server.update(self)
+        self._intermissionClock.setCallback(intermissionCallback)
+        clocks: tuple[Timer, ...] = (self._periodClock, self._lineupClock,
+                                     self._jamClock, self._timeoutClock)
+        for clock in clocks:
             clock.setCallback(lambda _: server.update(self))
 
         self._currentPeriod: int = 0
