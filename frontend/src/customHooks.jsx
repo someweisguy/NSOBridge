@@ -127,7 +127,7 @@ export function useJamNavigation(uri) {
         return;  // Already on the zeroeth Period
       }
       newUri.period -= 1;
-      newUri.jam = bout.periods[newUri.period].jamCount;
+      newUri.jam = bout.periods[newUri.period].jamCount - 1;
     }
 
     setPreviousUri(newUri);
