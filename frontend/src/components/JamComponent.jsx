@@ -1,5 +1,5 @@
 import "./JamComponent.css"
-import { React, useState, useEffect, useRef, useCallback, useDeferredValue, Suspense } from "react";
+import { React, useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { sendRequest } from "../client.js";
 import { useBout, useJam, ACTION_CLOCK, GAME_CLOCK, useJamNavigation } from "../customHooks.jsx";
 import Clock from "./TimerComponent.jsx"
@@ -322,8 +322,8 @@ function PeriodController({ uri }) {
   const endPeriod = useCallback(() =>
     sendRequest("endPeriod", { uri }), [uri]);
 
-  const periodHasStarted = bout.clocks.lineup.isRunning || bout.clocks.jam.isRunning
-    || bout.clocks.timeout.isRunning;
+  const periodHasStarted = bout.clocks.lineup.isRunning
+    || bout.clocks.jam.isRunning || bout.clocks.timeout.isRunning;
 
   if (!periodHasStarted) {
     const intermissionIsRunning = bout.clocks.intermission.isRunning;
@@ -386,7 +386,8 @@ function TimeoutController({ bout }) {
     return (
       <div>
         <span>
-          <button onClick={() => setIsOfficialReview(false)} disabled={!timeout.isOfficialReview}>
+          <button onClick={() => setIsOfficialReview(false)}
+            disabled={!timeout.isOfficialReview}>
             Timeout
           </button>
           <button onClick={() => setIsOfficialReview(true)}
@@ -396,20 +397,24 @@ function TimeoutController({ bout }) {
         </span>
         &nbsp;
         <span>
-          <button onClick={() => setTeam(HOME)} disabled={timeout.team === HOME}>
+          <button onClick={() => setTeam(HOME)}
+            disabled={timeout.team === HOME}>
             Home
           </button>
           <button onClick={() => setTeam(OFFICIAL)}
             disabled={timeout.team === OFFICIAL || timeout.isOfficialReview}>
             Official
           </button>
-          <button onClick={() => setTeam(AWAY)} disabled={timeout.team === AWAY}>
+          <button onClick={() => setTeam(AWAY)}
+            disabled={timeout.team === AWAY}>
             Away
           </button>
         </span>
         &nbsp;
         <span>
-          <button onClick={endTimeout}>End {timeout.isOfficialReview ? "O/R" : "T/O"}</button>
+          <button onClick={endTimeout}>
+            End {timeout.isOfficialReview ? "O/R" : "T/O"}
+          </button>
         </span>
       </div>
     );
