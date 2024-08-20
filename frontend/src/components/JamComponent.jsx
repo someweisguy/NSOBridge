@@ -18,19 +18,19 @@ export function ScoreboardEditor({ boutUuid }) {
   const [uri, setUri] = useState({
     bout: boutUuid,
     period: bout.currentPeriodNum,
-    jam: bout.jamCounts[bout.currentPeriodNum] - 1
+    jam: bout.periods[bout.currentPeriodNum].jamCount - 1
   });
   const [previousUri, nextUri] = useJamNavigation(uri);
 
   // Ensure the Jam URI is valid
   useEffect(() => {
-    const jamDoesNotExist = uri?.jam >= bout.jamCounts[bout.currentPeriodNum];
+    const period = bout.currentPeriodNum;
+    const jamDoesNotExist = uri?.jam >= bout.periods[period].jamCount;
     if (jamDoesNotExist) {
       // TODO: notify the user that the Jam does not exist
     }
     if (uri == null || jamDoesNotExist) {
-      const period = bout.currentPeriodNum;
-      const jam = bout.jamCounts[period] - 1;
+      const jam = bout.periods[period].jamCount - 1;
       setUri({ bout: boutUuid, period, jam })
       return;
     }
@@ -327,13 +327,15 @@ function PeriodController({ uri }) {
 
   if (!periodHasStarted) {
     const intermissionIsRunning = bout.clocks.intermission.running;
+    const intermissionText = bout.currentPeriodNum == 0 ? "Time to Derby"
+      : "Halftime"
     return (
       <>
         <button onClick={beginPeriod}>Start Period</button>
         &nbsp;
         {!intermissionIsRunning ?
-          <button onClick={startIntermission}>Start Intermission</button> :
-          <button onClick={stopIntermission}>Stop Intermission</button>
+          <button onClick={startIntermission}>Start {intermissionText}</button>
+          : <button onClick={stopIntermission}>Stop {intermissionText}</button>
         }
       </>
     );

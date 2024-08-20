@@ -121,14 +121,13 @@ export function useJamNavigation(uri) {
     newUri.jam -= 1;
 
     // Ensure the previous Jam exists
-    const jamCounts = bout.jamCounts;
     if (newUri.jam < 0) {
       if (newUri.period == 0) {
         setPreviousUri(null);
         return;  // Already on the zeroeth Period
       }
       newUri.period -= 1;
-      newUri.jam = jamCounts[newUri.period];
+      newUri.jam = bout.periods[newUri.period].jamCount;
     }
 
     setPreviousUri(newUri);
@@ -145,14 +144,13 @@ export function useJamNavigation(uri) {
     newUri.jam += 1;
 
     // Ensure the next Jam exists
-    const jamCounts = bout.jamCounts;
-    if (newUri.jam >= jamCounts[newUri.period]) {
+    if (newUri.jam >= bout.periods[newUri.period].jamCount) {
       if (newUri.period > 0) {
         setNextUri(null);
         return;  // Can't have more than 2 Periods
       }
       newUri.period += 1;
-      if (jamCounts[newUri.period] < 1) {
+      if (bout.periods[newUri.period].jamCount < 1) {
         setNextUri(null);
         return;  // There are no Jams in the next Period
       }

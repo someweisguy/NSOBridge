@@ -79,26 +79,26 @@ async def bout(uri: URI) -> API:
 
 @server.register
 async def jam(uri: URI) -> API:
-    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
+    jam: Jam = series.currentBout[uri.period][uri.jam]
     return jam.encode()
 
 
 @server.register
 async def startJam(uri: URI, timestamp: datetime) -> API:
     # Start the Jam
-    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
+    jam: Jam = series.currentBout[uri.period][uri.jam]
     jam.start(timestamp)
 
 
 @server.register
 async def stopJam(uri: URI, timestamp: datetime) -> API:
-    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
+    jam: Jam = series.currentBout[uri.period][uri.jam]
     jam.stop(timestamp)
 
 
 @server.register
 async def setJamStopReason(uri: URI, stopReason: STOP_REASONS) -> API:
-    jam: Jam = series.currentBout.jams[uri.period][uri.jam]
+    jam: Jam = series.currentBout[uri.period][uri.jam]
     jam.stopReason = stopReason
 
 

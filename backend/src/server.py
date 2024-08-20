@@ -159,8 +159,11 @@ def update(encodable: Encodable) -> None:
     eventName: str = type(encodable).__name__
     if hasattr(encodable, 'API_NAME'):
         eventName = getattr(encodable, 'API_NAME')
-    loop = asyncio.get_running_loop()
-    loop.create_task(emit(eventName, encodable.encode()))
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(emit(eventName, encodable.encode()))
+    except RuntimeError:
+        pass  # Don't emit updates if there isn't an event loop
 
 
 async def emit(event: str, data: dict[str, Any], to: None | str = None,

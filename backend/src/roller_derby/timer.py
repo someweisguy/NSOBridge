@@ -1,8 +1,36 @@
 from __future__ import annotations
+from abc import ABC
 from datetime import datetime, timedelta
 from server import Encodable
 from typing import Callable
 import asyncio
+
+
+class Timeable(ABC):
+    def __init__(self) -> None:
+        self._startTime: None | datetime = None
+        self._stopTime: None | datetime = None
+
+    def start(self, timestamp: datetime) -> None:
+        if self.isStarted():
+            raise RuntimeError(f'this {self.__class__.__name__} has already '
+                               'started')
+        self._startTime = timestamp
+
+    def stop(self, timestamp: datetime) -> None:
+        if not self.isRunning():
+            raise RuntimeError(f'this {self.__class__.__name__} is not '
+                               'running')
+        self._stopTime = timestamp
+
+    def isStarted(self) -> bool:
+        return self._startTime is not None
+
+    def isStopped(self) -> bool:
+        return self._stopTime is not None
+
+    def isRunning(self) -> bool:
+        return self.isStarted() and not self.isStopped()
 
 
 class Timer(Encodable):
@@ -23,15 +51,17 @@ class Timer(Encodable):
         return round(time.total_seconds() * 1000) if time is not None else None
 
     async def _alarmTask(self) -> None:
-        if self.getRemaining() == timedelta.max:
-            self._task = None
+        if self._alarm is None:
+            self._task = None  # This Timer does not have an alarm
             return
         secondsRemaining: float = self.getRemaining().total_seconds()
         while secondsRemaining > 0:
             await asyncio.sleep(secondsRemaining)
             secondsRemaining = self.getRemaining().total_seconds()
         if self._callback is not None:
+            # TODO: hold server updates
             self._callback(datetime.now())
+            # TODO: flush server updates
         self._task = None
 
     def _restartTask(self) -> None:
