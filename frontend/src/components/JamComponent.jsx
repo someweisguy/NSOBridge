@@ -322,11 +322,11 @@ function PeriodController({ uri }) {
   const endPeriod = useCallback(() =>
     sendRequest("endPeriod", { uri }), [uri]);
 
-  const periodHasStarted = bout.clocks.lineup.running || bout.clocks.jam.running
-    || bout.clocks.timeout.running;
+  const periodHasStarted = bout.clocks.lineup.isRunning || bout.clocks.jam.isRunning
+    || bout.clocks.timeout.isRunning;
 
   if (!periodHasStarted) {
-    const intermissionIsRunning = bout.clocks.intermission.running;
+    const intermissionIsRunning = bout.clocks.intermission.isRunning;
     const intermissionText = bout.currentPeriodNum == 0 ? "Time to Derby"
       : "Halftime"
     return (
@@ -341,7 +341,7 @@ function PeriodController({ uri }) {
     );
   } else {
     const disabled = bout.clocks.period.elapsed < bout.clocks.period.alarm
-      || bout.clocks.jam.running;
+      || bout.clocks.jam.isRunning;
     return (
       <button disabled={disabled} onClick={endPeriod}>
         End Period
@@ -373,7 +373,7 @@ function TimeoutController({ bout }) {
   }, [bout]);
 
   if (bout.timeout.current == null) {
-    const canCallTimeout = !bout.clocks.jam.running;
+    const canCallTimeout = !bout.clocks.jam.isRunning;
     return (
       <div>
         <button onClick={callTimeout} disabled={!canCallTimeout}>

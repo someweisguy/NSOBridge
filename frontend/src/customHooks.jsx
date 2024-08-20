@@ -25,15 +25,15 @@ export function useClock(bout, virtualType, stopAtZero = true) {
     // Translate virtual clock types
     let concreteType = virtualType;
     if (concreteType == GAME_CLOCK) {
-      if (bout.clocks.intermission.running) {
+      if (bout.clocks.intermission.isRunning) {
         concreteType = INTERMISSION_CLOCK;
       } else {
         concreteType = PERIOD_CLOCK;
       }
     } else if (concreteType == ACTION_CLOCK) {
-      if (bout.clocks.timeout.running) {
+      if (bout.clocks.timeout.isRunning) {
         concreteType = TIMEOUT_CLOCK;
-      } else if (bout.clocks.lineup.running) {
+      } else if (bout.clocks.lineup.isRunning) {
         concreteType = LINEUP_CLOCK;
       } else {
         concreteType = JAM_CLOCK;
@@ -56,7 +56,7 @@ export function useClock(bout, virtualType, stopAtZero = true) {
 
   // Update the clock if it is running
   useEffect(() => {
-    if (clock == null || !clock.running) {
+    if (clock == null || !clock.isRunning) {
       return;
     }
 
@@ -79,7 +79,7 @@ export function useClock(bout, virtualType, stopAtZero = true) {
   let remaining = null;
   if (clock != null) {
     elapsed = clock.elapsed;
-    if (clock.running) {
+    if (clock.isRunning) {
       elapsed += lap;
     }
     if (clock.alarm != null) {
