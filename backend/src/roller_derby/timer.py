@@ -74,7 +74,7 @@ class Timer(Encodable):
 
     def start(self, timestamp: datetime) -> None:
         if self.isRunning():
-            raise RuntimeError("timer has already been started")
+            raise RuntimeError('this Timer has already started')
 
         # Increment the elapsed time if the Timer has already been running
         if self._startTime is not None and self._stopTime is not None:
@@ -89,7 +89,7 @@ class Timer(Encodable):
 
     def stop(self, timestamp: datetime) -> None:
         if not self.isRunning():
-            raise RuntimeError("timer has already been stopped")
+            raise RuntimeError('this Timer is not running')
 
         self._stopTime = timestamp
 
@@ -153,8 +153,8 @@ class Timer(Encodable):
 
     def encode(self) -> dict[str, Encodable.PRIMITIVE]:
         return {
-            "uuid": self.uuid,
-            "alarm": Timer.getMilliseconds(self._alarm),
-            "elapsed": Timer.getMilliseconds(self.getElapsed()),
-            "isRunning": self.isRunning(),
+            'uuid': self.uuid,
+            'alarm': Timer.getMilliseconds(self._alarm),
+            'elapsed': Timer.getMilliseconds(self.getElapsed()),
+            'isRunning': self.isRunning(),
         }
