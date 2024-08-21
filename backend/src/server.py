@@ -156,12 +156,18 @@ def register(
 
 def update(encodable: Encodable) -> None:
     # TODO: documentation
-    eventName: str = type(encodable).__name__
-    if hasattr(encodable, 'API_NAME'):
-        eventName = getattr(encodable, 'API_NAME')
+    _updates.add(encodable)
+
+
+def flush() -> None:
+    # TODO: documentation
     try:
         loop = asyncio.get_running_loop()
-        loop.create_task(emit(eventName, encodable.encode()))
+        for encodeable in _updates:
+            eventName: str = type(encodeable).__name__
+            if hasattr(encodeable, 'API_NAME'):
+                eventName = getattr(encodeable, 'API_NAME')
+            loop.create_task(emit(eventName, encodeable.encode()))
     except RuntimeError:
         pass  # Don't emit updates if there isn't an event loop
 
@@ -318,15 +324,14 @@ async def _handleEvent(command: str, sessionId: str,
                 str(e)} ({fileName}, {lineNumber})')
     finally:
         log.debug(f'Ack: {str(response)}')
-        # Return the current timestamp
+        flush()
         return response
 
 
 # The server logging instance
 log: logging.Logger = logging.getLogger(__name__)
 
-# The series manager which handles the game logic
-# bouts: bout.Series = bout.Series()
+_updates: set[Encodable] = set()
 
 _commandTable: dict[str, Callable[..., Awaitable[None | Collection]]] = dict()
 _socket: socketio.AsyncServer = socketio.AsyncServer(cors_allowed_origins='*',

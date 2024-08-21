@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from server import Encodable
 from typing import Callable
 import asyncio
+import server
 
 
 class Timeable(ABC):
@@ -59,9 +60,8 @@ class Timer(Encodable):
             await asyncio.sleep(secondsRemaining)
             secondsRemaining = self.getRemaining().total_seconds()
         if self._callback is not None:
-            # TODO: hold server updates
             self._callback(datetime.now())
-            # TODO: flush server updates
+            server.flush()
         self._task = None
 
     def _restartTask(self) -> None:
