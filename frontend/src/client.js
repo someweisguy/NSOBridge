@@ -72,7 +72,7 @@ function getStore(api, args) {
             socket.off(api, updateData);
             serverStores.delete(key);
             timeoutId = null;
-          }, 10000);
+          }, 0);  // TODO: allow data caching
         }
       }
     },
