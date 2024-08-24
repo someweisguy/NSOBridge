@@ -116,6 +116,7 @@ class Period(Encodable):
         self._parent: Bout = parent
         self._startTime: None | datetime = None
         self._stopTime: None | datetime = None
+        self.isFinal: bool = False
         self._jams: list[Jam] = []
 
     def __getitem__(self, item: int) -> Jam:
@@ -202,6 +203,8 @@ class Period(Encodable):
     def addJam(self) -> None:
         if len(self._jams) > 0 and not self._jams[-1].isStopped():
             raise RuntimeError('the latest Jam is not finished')
+        if self.isFinal:
+            raise RuntimeError('cannot add a Jam to a finalized Period')
         self._jams.append(Jam(self))
         self.update()
 
@@ -214,6 +217,7 @@ class Period(Encodable):
                           else None),
             'stopTime': (str(self._stopTime) if self._stopTime is not None
                          else None),
+            'isFinal': self.isFinal,
             'jamCount': len(self._jams)
         }
 
