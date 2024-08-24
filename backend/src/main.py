@@ -32,7 +32,8 @@ async def endPeriod(uri: URI, timestamp: datetime) -> API:
 @server.register
 async def finalizePeriod(uri: URI, timestamp: datetime) -> API:
     bout: Bout = series.currentBout
-    bout[bout.currentPeriod].isFinal = True
+    bout[bout.currentPeriod].finalize(timestamp)
+
 
 @server.register(name='series')
 async def getBouts() -> API:
