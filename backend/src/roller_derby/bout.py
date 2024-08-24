@@ -116,8 +116,8 @@ class Period(Encodable):
         self._parent: Bout = parent
         self._startTime: None | datetime = None
         self._stopTime: None | datetime = None
-        self.isFinal: bool = False
         self._jams: list[Jam] = []
+        self.isFinal: bool = False
 
     def __getitem__(self, item: int) -> Jam:
         return self._jams[item]
@@ -217,8 +217,8 @@ class Period(Encodable):
                           else None),
             'stopTime': (str(self._stopTime) if self._stopTime is not None
                          else None),
-            'isFinal': self.isFinal,
-            'jamCount': len(self._jams)
+            'jamCount': len(self._jams),
+            'isFinal': self.isFinal
         }
 
 
