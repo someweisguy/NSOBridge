@@ -138,6 +138,10 @@ class Period(Encodable):
         self.parentBout.intermissionClock.setElapsed(seconds=0)
         self.parentBout.intermissionClock.start(timestamp)
 
+        # Automaticaly finalize the Period when starting Intermission
+        if not self.isFinalized():
+            self.finalize(timestamp)
+
         self.update()
 
     def stopIntermission(self, timestamp: datetime) -> None:
