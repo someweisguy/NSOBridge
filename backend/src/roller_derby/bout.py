@@ -10,7 +10,7 @@ import server
 
 
 TEAMS: TypeAlias = Literal['home', 'away']
-STOP_REASONS: TypeAlias = Literal['time', 'called', 'injury']
+STOP_REASONS: TypeAlias = Literal['time', 'called', 'injury', 'other']
 
 
 class Series(Encodable):
@@ -317,6 +317,8 @@ class Jam(Encodable):
             self._stopReason = 'time'
         elif self._score.home.lead or self._score.away.lead:
             self._stopReason = 'called'
+        else:
+            self._stopReason = 'other'
 
         # Stop this Jam and instantiate a new one
         self._stopTime = timestamp
