@@ -478,8 +478,6 @@ function IntermissionController({ uri }) {
 
   const startIntermission = useCallback(() =>
     sendRequest("startIntermission", { uri }), [uri]);
-  const startPeriod = useCallback(() => sendRequest("beginPeriod", { uri }),
-    [uri]);
   const stopPeriod = useCallback(() => sendRequest("endPeriod", { uri }),
     [uri]);
   const finalizePeriod = useCallback(() => {
