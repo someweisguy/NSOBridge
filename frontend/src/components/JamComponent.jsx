@@ -1,7 +1,7 @@
 import "./JamComponent.css"
 import { React, useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { sendRequest } from "../client.js";
-import { useBout, useJam, ACTION_CLOCK, GAME_CLOCK, useJamNavigation } from "../customHooks.jsx";
+import { useBout, useJam, ACTION_CLOCK, GAME_CLOCK, useJamNavigation, useClock, PERIOD_CLOCK } from "../customHooks.jsx";
 import Clock from "./TimerComponent.jsx"
 
 const HOME = "home";
@@ -44,7 +44,8 @@ export function ScoreboardEditor({ boutUuid }) {
         <br />
         Action: <Clock bout={bout} type={ACTION_CLOCK} />
         <br />
-        <PeriodController boutUuid={boutUuid} />
+        {/* <PeriodController boutUuid={boutUuid} /> */}
+        <IntermissionController uri={uri} />
         <br />
         <TimeoutController bout={bout} />
       </div>
@@ -270,7 +271,7 @@ function JamScore({ uri, team }) {
 
 
 function JamController({ uri }) {
-  const startLineup = useCallback(() => sendRequest("beginPeriod", { uri }, 
+  const startLineup = useCallback(() => sendRequest("beginPeriod", { uri },
     [uri]));
   const startJam = useCallback(() => sendRequest("startJam", { uri }), [uri]);
   const stopJam = useCallback(() => sendRequest("stopJam", { uri }), [uri]);
@@ -291,10 +292,10 @@ function JamController({ uri }) {
     const disabled = (bout.timeout.current != null);
     return (
       <>
-        {showLineup && 
+        {showLineup &&
           <button onClick={startLineup} disabled={disabled}>
             Start Lineup
-          </button> 
+          </button>
         }
         <button onClick={startJam} disabled={disabled}>Start Jam</button>
       </>
@@ -332,15 +333,15 @@ function PeriodController({ boutUuid }) {
   }, [bout]);
 
   const startIntermission = useCallback(() => {
-    const uri = { bout: boutUuid, period: currentPeriod};
+    const uri = { bout: boutUuid, period: currentPeriod };
     sendRequest("startIntermission", { uri });
   }, [boutUuid, currentPeriod]);
   const stopIntermission = useCallback(() => {
-    const uri = { bout: boutUuid, period: currentPeriod};
+    const uri = { bout: boutUuid, period: currentPeriod };
     sendRequest("stopIntermission", { uri });
   }, [boutUuid, currentPeriod]);
   const endPeriod = useCallback(() => {
-    const uri = { bout: boutUuid, period: currentPeriod};
+    const uri = { bout: boutUuid, period: currentPeriod };
     sendRequest("endPeriod", { uri });
   }, [boutUuid, currentPeriod]);
 
@@ -441,16 +442,85 @@ function TimeoutController({ bout }) {
   }
 }
 
+const STATE_PREGAME = "pregame";
+const STATE_P1_RUNNING = "p1running";
+const STATE_HALFTIME = "halftime";
+const STATE_UNOFFICIAL_SCORE = "unofficial";
+const STATE_OFFICIAL_SCORE = "official";
+const STATE_P2_RUNNING = "p2running"
+
 
 // TODO
-// function IntermissionController({ uri }) {
+function IntermissionController({ uri }) {
+  const [gameState, setGameState] = useState(null);
+  const bout = useBout(uri.bout);
+  const periodClock = useClock(bout, PERIOD_CLOCK);
 
+  useEffect(() => {
+    if (bout.periods[1].startTime == null) {
+      if (bout.periods[0].startTime == null) {
+        setGameState(STATE_PREGAME);
+      } else if (bout.periods[0].stopTime == null) {
+        setGameState(STATE_P1_RUNNING);  // First Period
+      } else {
+        setGameState(STATE_HALFTIME);
+      }
+    } else {
+      if (bout.periods[1].stopTime == null) {
+        setGameState(STATE_P2_RUNNING);  // Second Period
+      } else if (bout.periods[1].finalizedTime == null) {
+        setGameState(STATE_UNOFFICIAL_SCORE);
+      } else {
+        setGameState(STATE_OFFICIAL_SCORE);
+      }
+    }
+  }, [bout]);
 
-//   return (
-//     <>
-//     </>
-//   );
-// }
-// IntermissionController.propTypes = {
-//   uri: PropTypes.object.isRequired
-// }
+  const startIntermission = useCallback(() =>
+    sendRequest("startIntermission", { uri }), [uri]);
+  const startPeriod = useCallback(() => sendRequest("beginPeriod", { uri }),
+    [uri]);
+  const stopPeriod = useCallback(() => sendRequest("endPeriod", { uri }),
+    [uri]);
+  const finalizePeriod = useCallback(() => {
+    const api = bout.currentPeriod == 0 ? "startIntermission" : "finalizePeriod";
+    sendRequest(api, { uri });
+  }, [uri]);
+
+  let disabled;
+  switch (gameState) {
+    case STATE_PREGAME:
+      // TODO: Start, edit pre-game timer
+      return (
+        <button onClick={startIntermission}>Start Time to Derby Timer</button>
+      );
+    case STATE_P1_RUNNING:
+      // TODO: If Period clock elapsed, show "end Period"
+      disabled = bout.clocks.jam.isRunning || periodClock.remaining >= 5000;
+      return (
+        <button onClick={stopPeriod} disabled={disabled}>
+          End Period
+        </button>
+      );
+    case STATE_HALFTIME:
+      // TODO: Stop, start, edit halftime timer
+      return (
+        <button onClick={startIntermission}>Halftime</button>
+      );
+    case STATE_P2_RUNNING:
+      disabled = bout.clocks.jam.isRunning || periodClock.remaining >= 5000;
+      return (
+        <button onClick={stopPeriod} disabled={disabled}>End Period</button>
+      );
+    case STATE_UNOFFICIAL_SCORE:
+      // TODO: Show "end Bout"
+      return (
+        <button onClick={finalizePeriod}>End Bout</button>
+      );
+    case STATE_OFFICIAL_SCORE:
+    default:
+      return (
+        <></>
+      );
+  }
+}
