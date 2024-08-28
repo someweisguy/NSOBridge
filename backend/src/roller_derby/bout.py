@@ -38,7 +38,7 @@ class Bout(Encodable):
     def __init__(self) -> None:
         super().__init__()
         self._intermissionClock: Timer = Timer(minutes=10)
-        self._periodClock: Timer = Timer(seconds=4)  # TODO: 30min
+        self._periodClock: Timer = Timer(seconds=15)  # TODO: 30min
         self._lineupClock: Timer = Timer(seconds=30)
         self._jamClock: Timer = Timer(minutes=2)
         self._timeoutClock: Timer = Timer(minutes=1)
@@ -139,7 +139,7 @@ class Period(Encodable):
         self.parentBout.intermissionClock.start(timestamp)
 
         # Automaticaly finalize the Period when starting Intermission
-        if not self.isFinalized():
+        if self.isStopped() and not self.isFinalized():
             self.finalize(timestamp)
 
         self.update()
