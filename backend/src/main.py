@@ -10,6 +10,10 @@ async def startIntermission(uri: URI, timestamp: datetime) -> API:
     bout: Bout = series.currentBout
     bout[uri.period].startIntermission(timestamp)
 
+    if uri.period == 1 and not bout[0].isFinalized():
+        bout[0].finalize(timestamp)
+        bout.intermissionClock.setElapsed(seconds=0)
+
 
 @server.register
 async def stopIntermission(uri: URI, timestamp: datetime) -> API:

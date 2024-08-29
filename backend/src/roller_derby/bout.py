@@ -84,7 +84,7 @@ class Bout(Encodable):
 
     @property
     def currentPeriod(self) -> int:
-        return int(self._periods[1].isStarted())
+        return int(self._periods[0].isFinalized())
 
     @property
     def timeout(self) -> TimeoutAttribute:
@@ -137,10 +137,6 @@ class Period(Encodable):
 
         self.parentBout.intermissionClock.setElapsed(seconds=0)
         self.parentBout.intermissionClock.start(timestamp)
-
-        # Automaticaly finalize the Period when starting Intermission
-        if self.isStopped() and not self.isFinalized():
-            self.finalize(timestamp)
 
         self.update()
 

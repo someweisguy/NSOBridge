@@ -45,7 +45,7 @@ export function ScoreboardEditor({ boutUuid }) {
         Action: <Clock bout={bout} type={ACTION_CLOCK} />
         <br />
         {/* <PeriodController boutUuid={boutUuid} /> */}
-        <IntermissionController uri={uri} />
+        <IntermissionController boutUuid={boutUuid} />
         <br />
         <TimeoutController bout={bout} />
       </div>
@@ -451,9 +451,10 @@ const STATE_P2_RUNNING = "p2running"
 
 
 // TODO
-function IntermissionController({ uri }) {
+function IntermissionController({ boutUuid }) {
   const [gameState, setGameState] = useState(null);
-  const bout = useBout(uri.bout);
+  const [uri, setUri] = useState(null);
+  const bout = useBout(boutUuid);
   const periodClock = useClock(bout, PERIOD_CLOCK);
 
   useEffect(() => {
@@ -476,12 +477,21 @@ function IntermissionController({ uri }) {
     }
   }, [bout]);
 
+  useEffect(() => {
+    if (gameState == STATE_PREGAME || gameState == STATE_P1_RUNNING) {
+      setUri({ bout: boutUuid, period: 0 });
+    } else {
+      setUri({ bout: boutUuid, period: 1 });
+    }
+  }, [gameState]);
+
   const startIntermission = useCallback(() =>
     sendRequest("startIntermission", { uri }), [uri]);
   const stopPeriod = useCallback(() => sendRequest("endPeriod", { uri }),
     [uri]);
   const finalizePeriod = useCallback(() => {
-    const api = bout.currentPeriod == 0 ? "startIntermission" : "finalizePeriod";
+    const api = bout.currentPeriod == 0 ? "startIntermission"
+      : "finalizePeriod";
     sendRequest(api, { uri });
   }, [uri]);
 
