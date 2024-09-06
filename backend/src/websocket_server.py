@@ -10,7 +10,7 @@ from starlette.responses import Response
 from starlette.routing import Route, WebSocketRoute
 from starlette.websockets import WebSocket
 from types import UnionType
-from typing import Any, Callable, Collection, Literal, Type
+from typing import Any, Callable, Collection, Iterable, Literal, Mapping, Type
 from uuid import UUID, uuid4
 import asyncio
 import json
@@ -94,8 +94,7 @@ class WebSocketClient(WebSocketEndpoint):
             # Validate that the JSON request contains the required keys
             required_keys: tuple[str, ...] = ('action', 'clientTimestamp')
             if not all([key in request.keys() for key in required_keys]):
-                raise WebSocketException(code=1011, reason='Request is '
-                                         'missing required properties')
+                raise UserWarning('Request is missing required properties')
             if 'args' not in request.keys() or request['args'] is None:
                 request['args'] = {}
 
@@ -105,9 +104,8 @@ class WebSocketClient(WebSocketEndpoint):
 
             # Ensure that the requested action has a callback
             if request['action'] not in WebSocketClient.callbacks.keys():
-                raise WebSocketException(code=1011, reason='API action '
-                                         f'\'{request['action']}\' does not '
-                                         'exist')
+                raise UserWarning(f'API action \'{request['action']}\' does '
+                                  'not exist')
             callback: Callable = WebSocketClient.callbacks[request['action']]
 
             # Get only the required arguments for the callback
@@ -123,11 +121,9 @@ class WebSocketClient(WebSocketEndpoint):
             for arg in callback_signature:
                 if arg.name not in args.keys():
                     if arg.default is Parameter.empty:
-                        raise WebSocketException(code=1011, reason='API '
-                                                 'action '
-                                                 f'\'{request['action']}\' is '
-                                                 'missing argument '
-                                                 f'\'{arg.name}\'')
+                        raise UserWarning('API action '
+                                          f'\'{request['action']}\' is '
+                                          f'missing argument \'{arg.name}\'')
                     continue  # Missing argument is optional
                 provided_type: Type = type(args[arg.name])
                 required_type: Type | UnionType = arg.annotation
@@ -139,38 +135,46 @@ class WebSocketClient(WebSocketEndpoint):
                 elif ((isinstance(required_type, UnionType) and
                        provided_type not in required_type.__args__)
                       or provided_type is not required_type):
-                    raise WebSocketException(code=1011, reason='API action '
-                                             f'\'{request['action']}\' '
-                                             f'argument \'{arg.name}\' type '
-                                             'is invalid')
+                    raise UserWarning(f'API action \'{request['action']}\' '
+                                      f'argument \'{arg.name}\' type is '
+                                      'invalid')
 
             # Execute the API action and get the response
             response: dict[str, Any] = {
                 'action': request['action'],
                 'data': callback(**args),
-                'clientTimestamp': self.context.sent,
-                'serverTimestamp': self.context.received,
+                'clientTimestamp': (None if self.context.sent is None
+                                    else self.context.sent.isoformat()),
+                'serverTimestamp': self.context.received.isoformat(),
                 'latencyMilliseconds': round(self.context.latency
                                              .total_seconds() * 1000),
                 'updateLatency': (self.context._last_latency_check is None or
                                   (now - self.context._last_latency_check)
                                   > timedelta(seconds=20)),
             }
-        except JSONDecodeError as e:
-            # JSON is malformed
-            pass
+
+            # Verify that the JSON response can be encoded
+            elements: list[Iterable] = [response.values()]
+            for element in elements:
+                if isinstance(element, Mapping):
+                    elements.extend(element.values())
+                elif (isinstance(element, Iterable)
+                      and not isinstance(element, str)):
+                    elements.extend(element)
+                elif (not isinstance(element, (int, float, str, bytes, bool))
+                      and element is not None):
+                    raise EncodingWarning('The response is not valid')
+        except (JSONDecodeError, UserWarning) as e:
+            # The request was invalid
             print(e)
-        except WebSocketException as e:
-            # API error, similar to HTTP 400 - Bad Request
-            pass
+        except EncodingWarning as e:
+            # The response could not be encoded properly
             print(e)
         except Exception as e:
             # An error occurred with the game logic
-            pass
             print(e)
-        else:
-            await socket.send_json(response)
-            print('Sent response')
+
+        await socket.send_json(response)
 
     async def on_disconnect(self, socket: WebSocket, close_code: int):
         print(f'Disconnected: {socket}, {close_code}')
