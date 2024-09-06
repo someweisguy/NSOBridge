@@ -4,7 +4,6 @@ from inspect import Parameter, signature
 from json import JSONDecodeError
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
-from starlette.exceptions import WebSocketException
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.routing import Route, WebSocketRoute
@@ -70,13 +69,14 @@ def updateLatency(clientTimestamp: datetime, serverTimestamp: datetime,
 class WebSocketClient(WebSocketEndpoint):
     encoding: Literal['text', 'bytes', 'json'] = 'text'
     callbacks: dict[str, Callable[..., Collection | None]] = {
-        'logMessage': lambda message: print(message),
+        'logMessage': lambda message: print(str(message)),
         'updateLatency': updateLatency,
     }
 
-    async def on_connect(self, socket: WebSocket):
+    async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
 
+        # Create a socket context
         self.context = MessageContext()
 
         print(f'Socket \'{self.context.socket_id}\' connected at '
@@ -85,7 +85,18 @@ class WebSocketClient(WebSocketEndpoint):
     async def on_receive(self, socket: WebSocket, payload: bytes) -> None:
         now: datetime = datetime.now()
 
-        # print(f'Got: {payload}')
+        # TODO: Log the received payload
+        print(payload)
+
+        # Instantiate a boilerplate JSON response
+        response: dict[str, Any] = {
+            'serverTimestamp': now.isoformat(),
+            'latencyMilliseconds': round(self.context.latency
+                                         .total_seconds() * 1000),
+            'updateLatency': (self.context._last_latency_check is None or
+                              (now - self.context._last_latency_check)
+                              > timedelta(seconds=20)),
+        }
 
         try:
             # Attempt to parse the request payload as JSON
@@ -94,9 +105,18 @@ class WebSocketClient(WebSocketEndpoint):
             # Validate that the JSON request contains the required keys
             required_keys: tuple[str, ...] = ('action', 'clientTimestamp')
             if not all([key in request.keys() for key in required_keys]):
-                raise UserWarning('Request is missing required properties')
+                raise UserWarning('Request must contain all of: '
+                                  f'{required_keys}')
             if 'args' not in request.keys() or request['args'] is None:
                 request['args'] = {}
+            response['action'] = request['action']  # Update response
+            try:
+                iso_format: str = request['clientTimestamp']
+                request['clientTimestamp'] = datetime.fromisoformat(iso_format)
+                response['clientTimestamp'] = iso_format  # Update response
+            except Exception:
+                raise UserWarning('\'clientTimestamp\' is invalid: '
+                                  f'\'{request['clientTimestamp']}\'')
 
             # Update the client context
             self.context._received = now
@@ -139,19 +159,8 @@ class WebSocketClient(WebSocketEndpoint):
                                       f'argument \'{arg.name}\' type is '
                                       'invalid')
 
-            # Execute the API action and get the response
-            response: dict[str, Any] = {
-                'action': request['action'],
-                'data': callback(**args),
-                'clientTimestamp': (None if self.context.sent is None
-                                    else self.context.sent.isoformat()),
-                'serverTimestamp': self.context.received.isoformat(),
-                'latencyMilliseconds': round(self.context.latency
-                                             .total_seconds() * 1000),
-                'updateLatency': (self.context._last_latency_check is None or
-                                  (now - self.context._last_latency_check)
-                                  > timedelta(seconds=20)),
-            }
+            # Execute the API action and get the response data
+            response['data'] = callback(**args)
 
             # Verify that the JSON response can be encoded
             elements: list[Iterable] = [response.values()]
@@ -163,7 +172,9 @@ class WebSocketClient(WebSocketEndpoint):
                     elements.extend(element)
                 elif (not isinstance(element, (int, float, str, bytes, bool))
                       and element is not None):
-                    raise EncodingWarning('The response is not valid')
+                    raise EncodingWarning('The API action '
+                                          f'\'{request['action']}\' response '
+                                          'is not valid')
         except (JSONDecodeError, UserWarning) as e:
             # The request was invalid
             print(e)
@@ -174,24 +185,29 @@ class WebSocketClient(WebSocketEndpoint):
             # An error occurred with the game logic
             print(e)
 
+        print(response)
         await socket.send_json(response)
 
-    async def on_disconnect(self, socket: WebSocket, close_code: int):
-        print(f'Disconnected: {socket}, {close_code}')
+    async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
+        print(f'Socket \'{self.context.socket_id}\' disconnected at '
+              f'{datetime.now().isoformat()}')
 
 
 async def start_server(port: int = 8000, *, host: str = '0.0.0.0') -> None:
-    instance: Starlette = Starlette(routes=(
-        Route('/', HelloEndpoint),
-        WebSocketRoute('/ws', WebSocketClient, name='ws')
-    )
+    # Instantiate the application
+    instance: Starlette = Starlette(
+        routes=(
+            Route('/', HelloEndpoint),
+            WebSocketRoute('/ws', WebSocketClient, name='ws')
+        )
     )
     instance.debug = True
 
-    config: uvicorn.Config = uvicorn.Config(
-        instance, host=host, port=port, log_level='critical'
-    )
+    # Start the web server
+    config: uvicorn.Config = uvicorn.Config(instance, host=host, port=port,
+                                            log_level='critical')
     server: uvicorn.Server = uvicorn.Server(config)
+    print('Starting the web server')
     await server.serve()
 
 
