@@ -16,7 +16,7 @@ import json
 import logging
 import uvicorn
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class HelloEndpoint(HTTPEndpoint):
@@ -85,8 +85,8 @@ class WebSocketClient(WebSocketEndpoint):
     async def on_receive(self, socket: WebSocket, payload: bytes) -> None:
         now: datetime = datetime.now()
 
-        # TODO: Log the received payload
-        print(payload)
+        # Log the received payload
+        log.debug(f'{payload} ({self.context.socket_id})')
 
         # Instantiate a boilerplate JSON response
         response: dict[str, Any] = {
@@ -181,26 +181,27 @@ class WebSocketClient(WebSocketEndpoint):
                                           'is not valid')
         except (JSONDecodeError, UserWarning) as e:
             # The request was invalid
+            log.debug('An invalid request was received from '
+                      f'{self.context.socket_id}')
             response['error'] = {
                 'title': 'Bad Request',
                 'detail': str(e)
             }
         except EncodingWarning as e:
             # The response could not be encoded properly
-            # TODO: log the error
+            log.critical(str(e), exc_info=e)
             response['error'] = {
                 'title': 'Internal Server Error',
                 'detail': str(e)
             }
         except Exception as e:
             # An error occurred with the game logic
-            # TODO: log the error
+            log.error(str(e), exc_info=e)
             response['error'] = {
                 'title': type(e).__name__,
                 'detail': str(e)
             }
 
-        print(response)
         await socket.send_json(response)
 
     async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
@@ -208,7 +209,7 @@ class WebSocketClient(WebSocketEndpoint):
               f'{datetime.now().isoformat()}')
 
 
-async def start_server(port: int = 8000, *, host: str = '0.0.0.0') -> None:
+async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
     # Instantiate the application
     instance: Starlette = Starlette(
         routes=(
@@ -227,4 +228,4 @@ async def start_server(port: int = 8000, *, host: str = '0.0.0.0') -> None:
 
 
 if __name__ == '__main__':
-    asyncio.run(start_server())
+    asyncio.run(serve())
