@@ -151,7 +151,11 @@ class WebSocketClient(WebSocketEndpoint):
                     continue  # Required type is not specified
                 elif provided_type is str and required_type is datetime:
                     # ISO 8601 strings can be converted to datetime objects
-                    args[arg.name] = datetime.fromisoformat(args[arg.name])
+                    try:
+                        args[arg.name] = datetime.fromisoformat(args[arg.name])
+                    except Exception:
+                        raise UserWarning(f'\'{arg.name}\' is invalid: '
+                                          f'\'{args[arg.name]}\'')
                 elif ((isinstance(required_type, UnionType) and
                        provided_type not in required_type.__args__)
                       or provided_type is not required_type):
