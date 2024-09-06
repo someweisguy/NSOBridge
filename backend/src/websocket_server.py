@@ -106,7 +106,7 @@ class WebSocketClient(WebSocketEndpoint):
             required_keys: tuple[str, ...] = ('action', 'clientTimestamp')
             if not all([key in request.keys() for key in required_keys]):
                 raise UserWarning('Request must contain all of: '
-                                  f'{required_keys}')
+                                  f'{str(required_keys)[1:-1]}')
             if 'args' not in request.keys() or request['args'] is None:
                 request['args'] = {}
             response['action'] = request['action']  # Update response
@@ -181,13 +181,24 @@ class WebSocketClient(WebSocketEndpoint):
                                           'is not valid')
         except (JSONDecodeError, UserWarning) as e:
             # The request was invalid
-            print(e)
+            response['error'] = {
+                'title': 'Bad Request',
+                'detail': str(e)
+            }
         except EncodingWarning as e:
             # The response could not be encoded properly
-            print(e)
+            # TODO: log the error
+            response['error'] = {
+                'title': 'Internal Server Error',
+                'detail': str(e)
+            }
         except Exception as e:
             # An error occurred with the game logic
-            print(e)
+            # TODO: log the error
+            response['error'] = {
+                'title': type(e).__name__,
+                'detail': str(e)
+            }
 
         print(response)
         await socket.send_json(response)
