@@ -9,13 +9,13 @@ from starlette.responses import FileResponse
 from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
-from types import UnionType
-from typing import Any, Callable, Collection, Iterable, Literal, Mapping, Type
+from typing import Any, Callable, Collection, Iterable, Literal, Mapping
 from pathlib import Path
 from uuid import UUID, uuid4
 import asyncio
 import json
 import logging
+import socket
 import uvicorn
 
 log = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ logging.basicConfig(
     format='{levelname}: {message}',
     datefmt='%m/%d/%Y %H:%M:%S',
     style='{',
-    level=logging.INFO,
+    level=logging.DEBUG,
 )
 
 
@@ -68,10 +68,11 @@ class WebSocketClient(WebSocketEndpoint):
     def updateLatency(clientTimestamp: datetime, serverTimestamp: datetime,
                       context: MessageContext) -> None:
         if context.sent is None:
-            # This branch should be unreachable
-            raise RuntimeError('an unexpected error occurred')
+            raise RuntimeError('an unexpected error occurred')  # Unreachable
         context.latency = ((context.sent - clientTimestamp) -
                            ((context.received - serverTimestamp) / 2))
+        log.debug(f'Socket \'{context.socket_id}\' latency set to '
+                  f'{round(context.latency.total_seconds() * 1000)}ms')
 
     sockets: set[WebSocket] = set()
     callbacks: dict[str, Callable[..., Collection | None]] = {
@@ -149,20 +150,20 @@ class WebSocketClient(WebSocketEndpoint):
                                           f'\'{request['action']}\' is '
                                           f'missing argument \'{arg.name}\'')
                     continue  # Missing argument is optional
-                provided_type: Type = type(args[arg.name])
-                required_type: Type | UnionType = arg.annotation
-                if required_type is Parameter.empty:
+                provided_type: str = type(args[arg.name]).__name__
+                required_types: list[str] = (arg.annotation.split(' | ')
+                                             if (arg.annotation is not
+                                                 Parameter.empty) else [])
+                if len(required_types) == 0:
                     continue  # Required type is not specified
-                elif provided_type is str and required_type is datetime:
+                elif provided_type == 'str' and 'datetime' in required_types:
                     # ISO 8601 strings can be converted to datetime objects
                     try:
                         args[arg.name] = datetime.fromisoformat(args[arg.name])
                     except Exception:
                         raise UserWarning(f'\'{arg.name}\' is invalid: '
                                           f'\'{args[arg.name]}\'')
-                elif ((isinstance(required_type, UnionType) and
-                       provided_type not in required_type.__args__)
-                      or provided_type is not required_type):
+                elif provided_type not in required_types:
                     raise UserWarning(f'API action \'{request['action']}\' '
                                       f'argument \'{arg.name}\' type is '
                                       'invalid')
@@ -199,7 +200,7 @@ class WebSocketClient(WebSocketEndpoint):
                 'detail': str(e)
             }
         except Exception as e:
-            # An error occurred with the game logic
+            # An error occurred in the game logic
             log.error(str(e), exc_info=e)
             response['error'] = {
                 'title': type(e).__name__,
@@ -209,6 +210,7 @@ class WebSocketClient(WebSocketEndpoint):
         await socket.send_json(response)
 
         # TODO: Return early if there is no need to broadcast updates
+        return
 
         # Remove extraneous properties for broadcast
         del response['ackId']
@@ -227,6 +229,9 @@ class WebSocketClient(WebSocketEndpoint):
 
 
 async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
+    if 1 > port > 65535:
+        raise ValueError('invalid server port number')
+
     # TODO: clean this path up
     dir: Path = Path(__file__).parent.parent.parent / 'frontend' / 'build'
 
@@ -248,11 +253,18 @@ async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
     )
     instance.debug = True
 
+    # Determine the address of the server
+    address: str = f'http://localhost:{port}'
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.settimeout(0)
+        sock.connect(('1.1.1.1', 1))  # Doesn't actually send network data
+        address = f'http://{sock.getsockname()[0]}:{port}'
+
     # Start the web server
     config: uvicorn.Config = uvicorn.Config(instance, host=host, port=port,
                                             log_level='critical')
     server: uvicorn.Server = uvicorn.Server(config)
-    log.info(f'Starting the web server at {datetime.now()}')
+    log.info(f'Starting server at \'{address}\'')
     await server.serve()
 
 
