@@ -73,6 +73,7 @@ class WebSocketClient(WebSocketEndpoint):
         context.latency = ((context.sent - clientTimestamp) -
                            ((context.received - serverTimestamp) / 2))
 
+    sockets: set[WebSocket] = set()
     callbacks: dict[str, Callable[..., Collection | None]] = {
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': updateLatency,
@@ -81,6 +82,7 @@ class WebSocketClient(WebSocketEndpoint):
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
         self.context = MessageContext()
+        WebSocketClient.sockets.add(socket)
 
         log.info(f'Socket \'{self.context.socket_id}\' connected at '
                  f'{datetime.now().isoformat()}')
@@ -109,13 +111,13 @@ class WebSocketClient(WebSocketEndpoint):
             if not all([key in request.keys() for key in required_keys]):
                 raise UserWarning('Request must contain all of: '
                                   f'{str(required_keys)[1:-1]}')
+            response['action'] = request['action']  # Update response
+            response['ackId'] = request['ackId']    # Update response
             if 'args' not in request.keys() or request['args'] is None:
                 request['args'] = {}
-            response['action'] = request['action']  # Update response
             try:
                 iso_format: str = request['clientTimestamp']
                 request['clientTimestamp'] = datetime.fromisoformat(iso_format)
-                response['clientTimestamp'] = iso_format  # Update response
             except Exception:
                 raise UserWarning('\'clientTimestamp\' is invalid: '
                                   f'\'{request['clientTimestamp']}\'')
@@ -206,7 +208,20 @@ class WebSocketClient(WebSocketEndpoint):
 
         await socket.send_json(response)
 
+        # TODO: Return early if there is no need to broadcast updates
+
+        # Remove extraneous properties for broadcast
+        del response['ackId']
+        del response['updateLatency']
+
+        log.info(f'Broadcasting to {len(self.sockets)} clients')
+        for socket in WebSocketClient.sockets:
+            asyncio.create_task(socket.send_json(response))
+
     async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
+        if socket in WebSocketClient.sockets:
+            WebSocketClient.sockets.remove(socket)
+
         log.info(f'Socket \'{self.context.socket_id}\' disconnected at '
                  f'{datetime.now().isoformat()}')
 
