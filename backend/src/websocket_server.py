@@ -79,6 +79,7 @@ class WebSocketClient(WebSocketEndpoint):
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': updateLatency,
     }
+    UPDATE_LATENCY_INTERVAL: timedelta = timedelta(seconds=20)
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
@@ -98,9 +99,6 @@ class WebSocketClient(WebSocketEndpoint):
             'serverTimestamp': now.isoformat(),
             'latencyMilliseconds': round(self.context.latency
                                          .total_seconds() * 1000),
-            'updateLatency': (self.context._last_latency_check is None or
-                              (now - self.context._last_latency_check)
-                              > timedelta(seconds=20)),
         }
 
         try:
@@ -108,12 +106,14 @@ class WebSocketClient(WebSocketEndpoint):
             request: dict[str, Any] = json.loads(payload)
 
             # Validate that the JSON request contains the required keys
-            required_keys: tuple[str, ...] = ('action', 'clientTimestamp')
+            required_keys: tuple[str, ...] = ('action', 'clientTimestamp',
+                                              'ackId')
             if not all([key in request.keys() for key in required_keys]):
                 raise UserWarning('Request must contain all of: '
                                   f'{str(required_keys)[1:-1]}')
-            response['action'] = request['action']  # Update response
-            response['ackId'] = request['ackId']    # Update response
+            response['action'] = request['action']
+            response['clientTimestamp'] = request['clientTimestamp']
+            response['ackId'] = request['ackId']
             if 'args' not in request.keys() or request['args'] is None:
                 request['args'] = {}
             try:
@@ -171,6 +171,13 @@ class WebSocketClient(WebSocketEndpoint):
             # Execute the API action and get the response data
             response['data'] = callback(**args)
 
+            # Determine if the client latency needs to be updated
+            if (callback is not WebSocketClient.updateLatency
+                and (self.context._last_latency_check is None
+                     or ((now - self.context._last_latency_check) >
+                         WebSocketClient.UPDATE_LATENCY_INTERVAL))):
+                response['updateLatency'] = True
+
             # Verify that the JSON response can be encoded
             elements: list[Iterable] = [response.values()]
             for element in elements:
@@ -215,6 +222,7 @@ class WebSocketClient(WebSocketEndpoint):
         # Remove extraneous properties for broadcast
         del response['ackId']
         del response['updateLatency']
+        del response['clientTimestamp']
 
         log.info(f'Broadcasting to {len(self.sockets)} clients')
         for socket in WebSocketClient.sockets:
