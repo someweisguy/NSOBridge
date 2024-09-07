@@ -1,12 +1,10 @@
 const socket = new WebSocket('ws://' + window.location.host + '/ws');
 const ackResolutions = new Map()
-var lastSent = null;
 
 export async function send(action, args = undefined) {
-  lastSent = new Date();
-
+  const clientTimestamp = new Date();
   const ackId = crypto.randomUUID();
-  const request = { action, args, clientTimestamp: lastSent, ackId };
+  const request = { action, args, clientTimestamp, ackId };
   socket.send(JSON.stringify(request));
 
   return new Promise((resolve) => ackResolutions.set(ackId, resolve))
@@ -34,7 +32,7 @@ socket.onmessage = (event) => {
 
     if (response.updateLatency) {
       send('updateLatency', {
-        clientTimestamp: lastSent,
+        clientTimestamp: response.clientTimestamp,
         serverTimestamp: response.serverTimestamp
       });
     }
