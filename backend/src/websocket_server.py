@@ -3,13 +3,15 @@ from datetime import datetime, timedelta
 from inspect import Parameter, signature
 from json import JSONDecodeError
 from starlette.applications import Starlette
-from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
+from starlette.endpoints import WebSocketEndpoint
 from starlette.requests import Request
-from starlette.responses import Response
-from starlette.routing import Route, WebSocketRoute
+from starlette.responses import FileResponse
+from starlette.routing import Mount, Route, WebSocketRoute
+from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
 from types import UnionType
 from typing import Any, Callable, Collection, Iterable, Literal, Mapping, Type
+from pathlib import Path
 from uuid import UUID, uuid4
 import asyncio
 import json
@@ -18,10 +20,12 @@ import uvicorn
 
 log = logging.getLogger(__name__)
 
-
-class HelloEndpoint(HTTPEndpoint):
-    def get(self, request: Request):
-        return Response('<h1>Hello, World!</h1>')
+logging.basicConfig(
+    format='{levelname}: {message}',
+    datefmt='%m/%d/%Y %H:%M:%S',
+    style='{',
+    level=logging.INFO,
+)
 
 
 class MessageContext:
@@ -69,23 +73,20 @@ def updateLatency(clientTimestamp: datetime, serverTimestamp: datetime,
 class WebSocketClient(WebSocketEndpoint):
     encoding: Literal['text', 'bytes', 'json'] = 'text'
     callbacks: dict[str, Callable[..., Collection | None]] = {
-        'logMessage': lambda message: print(str(message)),
+        'logMessage': lambda message: log.info(str(message)),
         'updateLatency': updateLatency,
     }
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
-
-        # Create a socket context
         self.context = MessageContext()
 
-        print(f'Socket \'{self.context.socket_id}\' connected at '
-              f'{datetime.now().isoformat()}')
+        log.info(f'Socket \'{self.context.socket_id}\' connected at '
+                 f'{datetime.now().isoformat()}')
 
     async def on_receive(self, socket: WebSocket, payload: bytes) -> None:
         now: datetime = datetime.now()
 
-        # Log the received payload
         log.debug(f'{payload} ({self.context.socket_id})')
 
         # Instantiate a boilerplate JSON response
@@ -205,16 +206,28 @@ class WebSocketClient(WebSocketEndpoint):
         await socket.send_json(response)
 
     async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
-        print(f'Socket \'{self.context.socket_id}\' disconnected at '
-              f'{datetime.now().isoformat()}')
+        log.info(f'Socket \'{self.context.socket_id}\' disconnected at '
+                 f'{datetime.now().isoformat()}')
 
 
 async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
+    # TODO: clean this path up
+    dir: Path = Path(__file__).parent.parent.parent / 'frontend' / 'build'
+
+    def renderPage(request: Request):
+        path: Path = Path('index.html' if 'page'
+                          not in request.path_params.keys()
+                          else request.path_params['page'])
+        log.debug(f'Handling request for \'{path}\'.')
+        return FileResponse(dir/path)
+
     # Instantiate the application
     instance: Starlette = Starlette(
         routes=(
-            Route('/', HelloEndpoint),
-            WebSocketRoute('/ws', WebSocketClient, name='ws')
+            Route('/', renderPage),
+            WebSocketRoute('/ws', WebSocketClient),
+            Mount('/assets', StaticFiles(directory=dir/'assets')),
+            Route('/{page:str}', renderPage),
         )
     )
     instance.debug = True
@@ -223,7 +236,7 @@ async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
     config: uvicorn.Config = uvicorn.Config(instance, host=host, port=port,
                                             log_level='critical')
     server: uvicorn.Server = uvicorn.Server(config)
-    print('Starting the web server')
+    log.info(f'Starting the web server at {datetime.now()}')
     await server.serve()
 
 
