@@ -61,17 +61,18 @@ class MessageContext:
         return self._received
 
 
-def updateLatency(clientTimestamp: datetime, serverTimestamp: datetime,
-                  context: MessageContext) -> None:
-    if context.sent is None:
-        # This branch should be unreachable
-        raise RuntimeError('an unexpected error occurred')
-    context.latency = ((context.sent - clientTimestamp) -
-                       ((context.received - serverTimestamp) / 2))
-
-
 class WebSocketClient(WebSocketEndpoint):
     encoding: Literal['text', 'bytes', 'json'] = 'text'
+
+    @staticmethod
+    def updateLatency(clientTimestamp: datetime, serverTimestamp: datetime,
+                      context: MessageContext) -> None:
+        if context.sent is None:
+            # This branch should be unreachable
+            raise RuntimeError('an unexpected error occurred')
+        context.latency = ((context.sent - clientTimestamp) -
+                           ((context.received - serverTimestamp) / 2))
+
     callbacks: dict[str, Callable[..., Collection | None]] = {
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': updateLatency,
