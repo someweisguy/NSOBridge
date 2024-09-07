@@ -1,9 +1,11 @@
+import { v4 as uuid4 } from 'uuid';
+
 const socket = new WebSocket('ws://' + window.location.host + '/ws');
 const ackResolutions = new Map();
 
 export async function send(action, args = undefined) {
   const clientTimestamp = new Date();
-  const ackId = crypto.randomUUID();
+  const ackId = uuid4();
   const request = { action, args, clientTimestamp, ackId };
   socket.send(JSON.stringify(request));
 
