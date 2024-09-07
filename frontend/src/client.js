@@ -15,7 +15,7 @@ export async function send(action, args = undefined) {
 }
 
 socket.onopen = async (event) => {
-  console.log('WebSocket connection established.');
+  console.log('WebSocket connection established');
 
   let ret = await send('logMessage', { message: 'This is my message!' });
   console.log('Got AcK: ' + ret)
@@ -46,6 +46,6 @@ socket.onmessage = (event) => {
 };
 
 socket.onclose = (event) => {
-  console.log('WebSocket connection closed:', event.reason);
+  console.log('WebSocket connection closed');
   ackResolutions.clear();
 };
