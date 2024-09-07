@@ -33,7 +33,10 @@ socket.onmessage = (event) => {
     resolveMessage(response.data);
 
     if (response.updateLatency) {
-      send('updateLatency')
+      send('updateLatency', {
+        clientTimestamp: lastSent,
+        serverTimestamp: response.serverTimestamp
+      });
     }
 
     return;
