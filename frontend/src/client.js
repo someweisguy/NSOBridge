@@ -22,9 +22,7 @@ async function updateLatency() {
   return (stop - start) / 2;
 }
 
-socket.onopen = async (event) => {
-  console.log('WebSocket connection established');
-
+socket.addEventListener('open', async (event) => {
   // Wait for a random delay up to 100ms before starting latency checks
   const randomDelay = Math.floor(Math.random() * 100);
   await new Promise(resolve => setTimeout(resolve, randomDelay))
@@ -36,29 +34,26 @@ socket.onopen = async (event) => {
   }, 15000);
 
 
-};
+});
 
-socket.onclose = (event) => {
-  console.log('WebSocket connection closed');
+socket.addEventListener('close', (event) => {
   clearInterval(latencyIntervalId);
   latencyIntervalId = null;
   ackResolutions.clear();
-};
+});
 
 
-socket.onmessage = (event) => {
-  const response = JSON.parse(event.data)
-  console.log(event);
+socket.addEventListener('message', (event) => {
+  const message = JSON.parse(event.data)
 
   // Check if this message is an ACK to a previous message
-  const resolveMessage = ackResolutions.get(response.transactionId);
+  const resolveMessage = ackResolutions.get(message.transactionId);
   if (resolveMessage) {
-    ackResolutions.delete(response.transactionId);
-    resolveMessage(response.data);
+    ackResolutions.delete(message.transactionId);
+    resolveMessage(message.data);
     return;
   }
 
   // Handle non-ACK message
   // TODO
-
-};
+});
