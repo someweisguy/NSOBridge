@@ -172,6 +172,19 @@ class WebSocketClient(WebSocketEndpoint):
                  f'{datetime.now().isoformat()}')
 
 
+def register(callback: str | Callable = '') -> Callable:
+    def inner(command: Callable) -> Callable:
+        key: str = (command.__name__ if isinstance(
+            callback, Callable) or callback == '' else callback)
+        if key in WebSocketClient.callbacks.keys():
+            raise ValueError(f'\'{key}\' is already a server action key')
+        log.info(f'Registering \'{key}\' as a server action key')
+        WebSocketClient.callbacks[key] = command
+        return command
+
+    return inner(callback) if callable(callback) else inner
+
+
 async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
     if 1 > port > 65535:
         raise ValueError('invalid server port number')
