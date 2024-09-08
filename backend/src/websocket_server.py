@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import datetime
+from datetime import datetime, timedelta
 from inspect import Parameter, signature
 from json import JSONDecodeError
 from starlette.applications import Starlette
@@ -24,7 +24,7 @@ logging.basicConfig(
     format='{levelname}: {message}',
     datefmt='%m/%d/%Y %H:%M:%S',
     style='{',
-    level=logging.DEBUG,
+    level=logging.INFO,
 )
 
 
@@ -96,6 +96,10 @@ class WebSocketClient(WebSocketEndpoint):
                                                  Parameter.empty) else [])
                 if len(required_types) == 0:
                     continue  # Required type is not specified
+                elif (provided_type in ('int', 'float') and
+                      'timedelta' in required_types):
+                    # Convert numbers to timedelta objects
+                    args[arg.name] = timedelta(milliseconds=args[arg.name])
                 elif provided_type == 'str' and 'datetime' in required_types:
                     # ISO 8601 strings can be converted to datetime objects
                     try:
