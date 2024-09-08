@@ -1,25 +1,24 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import datetime, timedelta
-from pathlib import Path
+from inspect import Parameter, signature
+from json import JSONDecodeError
 from starlette.applications import Starlette
+from starlette.endpoints import WebSocketEndpoint
 from starlette.requests import Request
-from starlette.responses import HTMLResponse
-from starlette.routing import Mount, Route
+from starlette.responses import FileResponse
+from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
-from starlette.templating import Jinja2Templates
-from types import TracebackType
-from typing import Callable, Any, Awaitable, Collection, TypeAlias
+from starlette.websockets import WebSocket
+from typing import Any, Callable, Collection, Iterable, Literal, Mapping
+from pathlib import Path
+from uuid import UUID, uuid4
 import asyncio
-import hashlib
-import inspect
+import json
 import logging
-import os
-import socketio
-import uuid
+import socket
 import uvicorn
 
+log = logging.getLogger(__name__)
 
 logging.basicConfig(
     format='{levelname}: {message}',
@@ -28,329 +27,203 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
-'''Type alias for the types of values that can be serialized into JSON. '''
-API: TypeAlias = (
-    None
-    | dict[str, None | int | float | str | bool | dict | list]
-    | list[None | int | float | str | bool | dict | list]
-)
 
+class WebSocketClient(WebSocketEndpoint):
+    encoding: Literal['text', 'bytes', 'json'] = 'text'
 
-class ClientException(Exception):
-    pass
+    sockets: set[WebSocket] = set()
+    callbacks: dict[str, Callable[..., Collection | None]] = {
+        'logMessage': lambda message: log.info(str(message)),
+        'updateLatency': lambda: None,
+    }
 
+    async def on_connect(self, socket: WebSocket) -> None:
+        await socket.accept()
+        self.id: UUID = uuid4()
+        WebSocketClient.sockets.add(socket)
 
-@dataclass
-class URI:
-    bout: str
-    period: int = -1
-    jam: int = -1
+        log.info(f'Socket \'{self.id}\' connected at '
+                 f'{datetime.now().isoformat()}')
 
+    async def on_receive(self, socket: WebSocket, payload: bytes) -> None:
+        now: datetime = datetime.now()
 
-class Encodable(ABC):
-    PRIMITIVE: TypeAlias = (None | int | float | str | bool | dict[str, Any] |
-                            list[Any])
+        log.debug(f'{payload} ({self.id})')
 
-    def __init__(self) -> None:
-        self._uuid: uuid.UUID = uuid.uuid4()
-
-    @property
-    def uuid(self) -> str:
-        return str(self._uuid)
-
-    @abstractmethod
-    def encode(self) -> dict[str, Encodable.PRIMITIVE]:
-        '''Encodes the Encodable into a dictionary which can then be sent to a
-        client. This method is called recursively so that each sub-class is
-        encoded into a sub-dictionary. All private members of the Encodable
-        (i.e. members prefixed with an underscore) are converted to public
-        members.
-
-        Returns:
-            dict: A dictionary representing the Encodable.
-        '''
-        raise NotImplementedError()
-
-    @staticmethod
-    # @abstractmethod # TODO
-    def decode(json: Encodable.PRIMITIVE) -> Encodable:
-        '''Creates a new Encodable object from a dictionary.
-
-        Args:
-            json (dict): A dictionary object created from a JSON object.
-
-        Returns:
-            Encodable: A new Encodable with the same attributes as the JSON
-            object.
-        '''
-        raise NotImplementedError()
-
-
-async def serve(port: int, *, debug: bool = False) -> None:
-    '''Start and serve the scoreboard app on the specified port.
-
-    Args:
-        port (int): The port number to serve the scoreboard.
-        debug (bool, optional): Turns on debug log messages. Defaults to False.
-
-    Raises:
-        TypeError: if the port number is is not an int or the debug arg is not
-        a bool.
-        ValueError: if the port number is not between 1 and 65535 (inclusive).
-    '''
-    if not isinstance(port, int):
-        raise TypeError(f'port must be int, not {type(port).__name__}')
-    if not 1 <= port <= 65535:
-        raise ValueError('port number is invalid')
-    if not isinstance(debug, bool):
-        raise TypeError(f'debug must be bool, not {type(port).__name__}')
-    if debug:
-        log.setLevel(logging.DEBUG)
-    _app.debug = debug
-    log.info(f'Starting NSO Bridge on port {port}')
-    config: uvicorn.Config = uvicorn.Config(
-        _app, host='0.0.0.0', port=port, log_level='critical'
-    )
-    server: uvicorn.Server = uvicorn.Server(config)
-    await server.serve()
-    log.info('NSO Bridge was successfully shut down.')
-
-
-def register(
-    command: None | Callable = None,
-    *,
-    name: str = '',
-    overwrite: bool = False,
-) -> Callable:
-    '''A decorator to register server command methods. Server command methods
-    must not be asynchronous functions.
-
-    Args:
-        command (None | Callable, optional): The method to decorate. Defaults
-        to None.
-        name (str, optional): The to which to refer to the API. Defaults to the
-        method name in Python.
-        overwrite (bool, optional): Set to True to overwrite any currently
-        registered method name. Methods which are overwritten without setting
-        this flag to True will raise a LookupError exception. Defaults to
-        False.
-
-    Returns:
-        Callable: The original method.
-    '''
-
-    def decorator(
-        command: Callable[[dict[str, Any]], Any],
-    ) -> Callable[[dict[str, Any]], Any]:
-        commandName: str = name if name != '' else command.__name__
-        if overwriting := (commandName in _commandTable) and not overwrite:
-            raise LookupError(
-                f'The command \'{commandName}\' is already registered.')
-        gerund: str = 'Adding' if not overwriting else 'Overwriting'
-        log.debug(f'{gerund} \'{commandName}\' command')
-        _commandTable[commandName] = command
-        return command
-
-    return decorator(command) if callable(command) else decorator
-
-
-def update(encodable: Encodable) -> None:
-    # TODO: documentation
-    _updates.add(encodable)
-
-
-def flush() -> None:
-    # TODO: documentation
-    try:
-        loop = asyncio.get_running_loop()
-        for encodeable in _updates:
-            eventName: str = type(encodeable).__name__
-            if hasattr(encodeable, 'API_NAME'):
-                eventName = getattr(encodeable, 'API_NAME')
-            loop.create_task(emit(eventName, encodeable.encode()))
-    except RuntimeError:
-        pass  # Don't emit updates if there isn't an event loop
-
-
-async def emit(event: str, data: dict[str, Any], to: None | str = None,
-               room: None | str = None, skip: None | str = None,
-               namespace: None | str = None) -> None:
-    '''Sends a Socket.IO message with the desired event name and data.
-
-    Args:
-        event (str): The name of the event to send.
-        data (Any): The data payload.
-        to (None | str, optional): The session ID to which to send the message.
-        If None, the message is broadcast to all clients. Defaults to None.
-        room (None | str, optional): The Socket.IO room to which to send the
-        message. Defaults to None.
-        skip (None | str, optional): The session ID which should be skipped in
-        a broadcast. Allows the server to send a message to all clients in a
-        group except for one. Defaults to None.
-        namespace (None | str, optional): The Socket.IO namespace in which to
-        send the message. Defaults to None.
-        timestamp (None | int, optional): The server epoch at which the action
-        originated. Defaults to None.
-    '''
-    log.debug(f'Emit: \'{event}\' {data}')
-    await _socket.emit(
-        event, data, to=to, room=room, skip_sid=skip, namespace=namespace
-    )
-
-
-async def _renderTemplate(request: Request) -> HTMLResponse:
-    '''Renders the HTML response using the Jinja2 templating engine. All HTML
-    templates must be found in the `web/templates/` directory.
-
-    Args:
-        request (Request): The Request object received from the Starlette app.
-
-    Returns:
-        HTMLResponse: An HTML response rendered from the Jinja2 templating
-        engine.
-    '''
-    file: str = 'index.html'
-    if 'file' in request.path_params:
-        file = f'{request.path_params['file']}'
-    log.debug(f'Handling request for \'{file}\'.')
-    return _jinja.TemplateResponse(request, file)
-
-
-async def _handleConnect(sessionId: str, environ: dict[str, Any],
-                         auth: dict[str, Any]) -> None:
-    '''Handles a socket.io connection event.
-
-    Args:
-        sessionId (str): The session ID of the corresponding connection.
-        environ (dict): The web browser environment of the connection.
-        auth (dict): The auth dictionary from the connection.
-    '''
-    userId: None | str = None if auth is None else auth.get('token', None)
-    if userId is None:
-        environStr: bytes = str(environ.items()).encode()
-        userId = hashlib.md5(environStr, usedforsecurity=False).hexdigest()
-        await _socket.emit('userId', userId, to=sessionId)
-    async with _socket.session(sessionId) as session:
-        session['userId'] = userId
-
-
-async def _dummyHandler(*_, **__) -> None:
-    '''A dummy function to handle miscellaneous Socket.IO API. This is needed
-    to ensure that there aren't any argument exceptions with catch-all
-    Socket.IO event handlers.
-    '''
-    pass
-
-
-async def _handleEvent(command: str, sessionId: str,
-                       json: dict[str, Any]) -> dict[str, Any]:
-    '''Handles all socket.io events except for connection, disconnection, and
-    sync. This handler looks up the received command in a command table and
-    calls the appropriate function, if it exists.
-
-    If an exception occurs while handling a command, the traceback is logged
-    using the server logger instance. If the exception was a ClientException,
-    the error message is returned to the client.
-
-    Args:
-        command (str): The name of the command to call.
-        sessionId (str): The session ID of the corresponding connection.
-
-    Returns:
-        dict: A dictionary of the command response.
-    '''
-    NOW: datetime = datetime.now()
-    log.debug(f'Handling event \'{command}\' with args: {json}.')
-    response: dict[str, Any] = dict()
-    try:
-        # Validate the request payload has all the required JSON keys
-        requiredKeys: tuple[str, ...] = ('latency',)
-        if not all(key in json for key in requiredKeys):
-            raise ClientException('Invalid request payload.')
-
-        # Validate the latency value is between 0 and 5 seconds
-        if not isinstance(json['latency'], int) or 0 > json['latency'] > 5000:
-            raise ClientException('Client latency is invalid')
-
-        # Validate the command exists
-        if command not in _commandTable:
-            log.debug(f'The \'{command}\' handler does not exist.')
-            raise ClientException(f'Unknown command \'{command}\'.')
-
-        # Add commonly used arguments
-        json['timestamp'] = NOW - timedelta(milliseconds=json['latency'])
-        json['session'] = sessionId
-        if 'uri' in json.keys() and isinstance(json['uri'], dict):
-            rawURI: dict[str, Any] = json['uri']
-            if 'bout' not in rawURI:
-                raise ClientException('bout must be specified')
-            period: int = rawURI['period'] if 'period' in rawURI else -1
-            jam: int = rawURI['jam'] if 'jam' in rawURI else -1
-            json['uri'] = URI(rawURI['bout'], period, jam)
-
-        # Get the function and call it with only the required arguments
-        func: Callable[..., Awaitable[None | Collection]
-                       ] = _commandTable[command]
-        params: set[str] = set(
-            [param.name for param in inspect.signature(
-                func).parameters.values()]
-        )
-        json = {k: v for k, v in json.items() if k in params}
-        data: None | Collection = await func(**json)
-
-        # Build the response payload
-        response['status'] = 'ok'
-        response['data'] = data
-    except (Exception, ClientException) as e:
-        # Return the exception and exception message
-        response['status'] = 'error'
-        response['error'] = {
-            'name': type(e).__name__,
-            'message': str(e),
+        # Instantiate a boilerplate JSON response
+        response: dict[str, Any] = {
+            'serverTimestamp': now.isoformat(),
         }
 
-        # If the exception was not caused by the client, log a traceback
-        traceback: None | TracebackType = e.__traceback__
-        if not isinstance(e, ClientException) and traceback is not None:
-            # Get the source of the traceback
-            while traceback.tb_next is not None:
-                traceback = traceback.tb_next
+        try:
+            # Attempt to parse the request payload as JSON
+            request: dict[str, Any] = json.loads(payload)
 
-            # Log an error message
-            fileName: str = os.path.split(
-                traceback.tb_frame.f_code.co_filename)[-1]
-            lineNumber: int = traceback.tb_lineno
-            log.error(f'{type(e).__name__}: {
-                str(e)} ({fileName}, {lineNumber})')
-    finally:
-        log.debug(f'Ack: {str(response)}')
-        flush()
-        return response
+            # Validate that the JSON request contains the required keys
+            required_keys: tuple[str, ...] = ('action', 'transactionId')
+            if not all([key in request.keys() for key in required_keys]):
+                raise UserWarning('Request must contain all of: '
+                                  f'{str(required_keys)[1:-1]}')
+            if 'args' not in request.keys() or request['args'] is None:
+                request['args'] = {}
+            response['action'] = request['action']
+            response['transactionId'] = request['transactionId']
+
+            # Ensure that the requested action has a callback
+            if request['action'] not in WebSocketClient.callbacks.keys():
+                raise UserWarning(f'API action \'{request['action']}\' does '
+                                  'not exist')
+            callback: Callable = WebSocketClient.callbacks[request['action']]
+
+            # Get only the required arguments for the callback
+            callback_signature: set[Parameter] = set(signature(callback)
+                                                     .parameters.values())
+            args: dict[str, Any] = {k: v for k, v in request['args'].items()
+                                    if k in set([arg.name for arg in
+                                                 callback_signature])}
+
+            # Validate that the types of each argument is correct
+            for arg in callback_signature:
+                if arg.name not in args.keys():
+                    if arg.default is Parameter.empty:
+                        raise UserWarning('API action '
+                                          f'\'{request['action']}\' is '
+                                          f'missing argument \'{arg.name}\'')
+                    continue  # Missing argument is optional
+                provided_type: str = type(args[arg.name]).__name__
+                required_types: list[str] = (arg.annotation.split(' | ')
+                                             if (arg.annotation is not
+                                                 Parameter.empty) else [])
+                if len(required_types) == 0:
+                    continue  # Required type is not specified
+                elif (provided_type in ('int', 'float') and
+                      'timedelta' in required_types):
+                    # Convert numbers to timedelta objects
+                    args[arg.name] = timedelta(milliseconds=args[arg.name])
+                elif provided_type == 'str' and 'datetime' in required_types:
+                    # ISO 8601 strings can be converted to datetime objects
+                    try:
+                        args[arg.name] = datetime.fromisoformat(args[arg.name])
+                    except Exception:
+                        raise UserWarning(f'\'{arg.name}\' is invalid: '
+                                          f'\'{args[arg.name]}\'')
+                elif provided_type not in required_types:
+                    raise UserWarning(f'API action \'{request['action']}\' '
+                                      f'argument \'{arg.name}\' type is '
+                                      'invalid')
+
+            # Execute the API action and get the response data
+            response['data'] = callback(**args)
+
+            # Verify that the JSON response can be encoded
+            elements: list[Iterable] = [response.values()]
+            for element in elements:
+                if isinstance(element, Mapping):
+                    elements.extend(element.values())
+                elif (isinstance(element, Iterable)
+                      and not isinstance(element, str)):
+                    elements.extend(element)
+                elif (not isinstance(element, (int, float, str, bytes, bool))
+                      and element is not None):
+                    raise EncodingWarning('The API action '
+                                          f'\'{request['action']}\' response '
+                                          'is not valid')
+        except (JSONDecodeError, UserWarning) as e:
+            # The request was invalid
+            log.info(f'An invalid request was received from \'{self.id}\'')
+            if 'transactionId' not in request.keys():
+                return  # Don't respond without a transaction ID
+            response['error'] = {
+                'title': 'Bad Request',
+                'detail': str(e)
+            }
+        except EncodingWarning as e:
+            # The response could not be encoded properly
+            log.critical(str(e), exc_info=e)
+            response['error'] = {
+                'title': 'Internal Server Error',
+                'detail': str(e)
+            }
+        except Exception as e:
+            # An error occurred in the game logic
+            log.error(str(e), exc_info=e)
+            response['error'] = {
+                'title': type(e).__name__,
+                'detail': str(e)
+            }
+
+        await socket.send_json(response)
+
+        # TODO: Return early if there is no need to broadcast updates
+        return
+
+        # Remove extraneous properties for broadcast
+        del response['transactionId']
+
+        log.info(f'Broadcasting to {len(self.sockets)} clients')
+        for socket in WebSocketClient.sockets:
+            asyncio.create_task(socket.send_json(response))
+
+    async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
+        if socket in WebSocketClient.sockets:
+            WebSocketClient.sockets.remove(socket)
+
+        log.info(f'Socket \'{self.id}\' disconnected at '
+                 f'{datetime.now().isoformat()}')
 
 
-# The server logging instance
-log: logging.Logger = logging.getLogger(__name__)
+def register(callback: str | Callable = '') -> Callable:
+    def inner(command: Callable) -> Callable:
+        key: str = (command.__name__ if isinstance(
+            callback, Callable) or callback == '' else callback)
+        if key in WebSocketClient.callbacks.keys():
+            raise ValueError(f'\'{key}\' is already a server action key')
+        log.info(f'Registering \'{key}\' as a server action key')
+        WebSocketClient.callbacks[key] = command
+        return command
 
-_updates: set[Encodable] = set()
+    return inner(callback) if callable(callback) else inner
 
-_commandTable: dict[str, Callable[..., Awaitable[None | Collection]]] = dict()
-_socket: socketio.AsyncServer = socketio.AsyncServer(cors_allowed_origins='*',
-                                                     async_mode='asgi')
-_socket.on('connect', _handleConnect)
-_socket.on('disconnect', _dummyHandler)
-_socket.on('ping', _dummyHandler)
-_socket.on('*', _handleEvent)
 
-_webDir: Path = Path(__file__).parent.parent.parent / 'frontend' / 'build'
-_jinja: Jinja2Templates = Jinja2Templates(directory=_webDir)
-_app: Starlette = Starlette(
-    routes=[
-        Route('/', _renderTemplate),
-        # Mount('/static', app=StaticFiles(directory=f'{_webDir}/static'),
-        # name='static'),
-        Mount('/assets', app=StaticFiles(directory=_webDir / 'assets'),
-              name='assets'),
-        Mount('/socket.io', app=socketio.ASGIApp(_socket)),
-        Route('/{file:str}', _renderTemplate),
-    ],
-)
+async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
+    if 1 > port > 65535:
+        raise ValueError('invalid server port number')
+
+    # TODO: clean this path up
+    dir: Path = Path(__file__).parent.parent.parent / 'frontend' / 'dist'
+
+    def renderPage(request: Request):
+        path: Path = Path('index.html' if 'page'
+                          not in request.path_params.keys()
+                          else request.path_params['page'])
+        log.debug(f'Handling request for \'{path}\'.')
+        return FileResponse(dir/path)
+
+    # Instantiate the application
+    instance: Starlette = Starlette(
+        routes=(
+            Route('/', renderPage),
+            WebSocketRoute('/ws', WebSocketClient),
+            Mount('/assets', StaticFiles(directory=dir/'assets')),
+            Route('/{page:str}', renderPage),
+        )
+    )
+    instance.debug = True
+
+    # Determine the address of the server
+    address: str = f'http://localhost:{port}'
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.settimeout(0)
+        sock.connect(('1.1.1.1', 1))  # Doesn't actually send network data
+        address = f'http://{sock.getsockname()[0]}:{port}'
+
+    # Start the web server
+    config: uvicorn.Config = uvicorn.Config(instance, host=host, port=port,
+                                            log_level='critical')
+    server: uvicorn.Server = uvicorn.Server(config)
+    log.info(f'Starting server at \'{address}\'')
+    await server.serve()
+
+
+if __name__ == '__main__':
+    asyncio.run(serve())
