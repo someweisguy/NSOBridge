@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import datetime, timedelta
+from datetime import datetime
 from inspect import Parameter, signature
 from json import JSONDecodeError
 from starlette.applications import Starlette
@@ -28,77 +28,31 @@ logging.basicConfig(
 )
 
 
-class MessageContext:
-    def __init__(self) -> None:
-        self._socket_id: UUID = uuid4()
-        self._last_latency_check: datetime | None = None
-        self._latency: timedelta = timedelta(milliseconds=0)
-        self._sent: datetime | None = None
-        self._received: datetime = datetime.min
-
-    @property
-    def socket_id(self) -> UUID:
-        return self._socket_id
-
-    @property
-    def latency(self) -> timedelta:
-        return self._latency
-
-    @latency.setter
-    def latency(self, new_latency: timedelta) -> None:
-        if 0 > new_latency.total_seconds() > 5:
-            raise ValueError('latency must be greater than 0 and less than '
-                             '5000 milliseconds')
-        self._latency = new_latency
-        self._last_latency_check = datetime.now()
-
-    @property
-    def sent(self) -> datetime | None:
-        return self._sent
-
-    @property
-    def received(self) -> datetime:
-        return self._received
-
-
 class WebSocketClient(WebSocketEndpoint):
     encoding: Literal['text', 'bytes', 'json'] = 'text'
-
-    @staticmethod
-    def updateLatency(clientTimestamp: datetime, serverTimestamp: datetime,
-                      context: MessageContext) -> None:
-        if context.sent is None:
-            raise RuntimeError('an unexpected error occurred')  # Unreachable
-        context.latency = ((context.sent - clientTimestamp) -
-                           ((context.received - serverTimestamp) / 2))
-        log.debug(f'Socket \'{context.socket_id}\' latency set to '
-                  f'{round(context.latency.total_seconds() * 1000)}ms')
 
     sockets: set[WebSocket] = set()
     callbacks: dict[str, Callable[..., Collection | None]] = {
         'logMessage': lambda message: log.info(str(message)),
-        'updateLatency': updateLatency,
+        'updateLatency': lambda: None,
     }
-    UPDATE_LATENCY_INTERVAL: timedelta = timedelta(seconds=20)
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
-        self.context = MessageContext()
+        self.id: UUID = uuid4()
         WebSocketClient.sockets.add(socket)
 
-        log.info(f'Socket \'{self.context.socket_id}\' connected at '
+        log.info(f'Socket \'{self.id}\' connected at '
                  f'{datetime.now().isoformat()}')
 
     async def on_receive(self, socket: WebSocket, payload: bytes) -> None:
         now: datetime = datetime.now()
 
-        log.debug(f'{payload} ({self.context.socket_id})')
+        log.debug(f'{payload} ({self.id})')
 
         # Instantiate a boilerplate JSON response
         response: dict[str, Any] = {
             'serverTimestamp': now.isoformat(),
-            'latencyMilliseconds': round(self.context.latency
-                                         .total_seconds() * 1000),
         }
 
         try:
@@ -106,26 +60,14 @@ class WebSocketClient(WebSocketEndpoint):
             request: dict[str, Any] = json.loads(payload)
 
             # Validate that the JSON request contains the required keys
-            required_keys: tuple[str, ...] = ('action', 'clientTimestamp',
-                                              'ackId')
+            required_keys: tuple[str, ...] = ('action', 'transactionId')
             if not all([key in request.keys() for key in required_keys]):
                 raise UserWarning('Request must contain all of: '
                                   f'{str(required_keys)[1:-1]}')
-            response['action'] = request['action']
-            response['clientTimestamp'] = request['clientTimestamp']
-            response['ackId'] = request['ackId']
             if 'args' not in request.keys() or request['args'] is None:
                 request['args'] = {}
-            try:
-                iso_format: str = request['clientTimestamp']
-                request['clientTimestamp'] = datetime.fromisoformat(iso_format)
-            except Exception:
-                raise UserWarning('\'clientTimestamp\' is invalid: '
-                                  f'\'{request['clientTimestamp']}\'')
-
-            # Update the client context
-            self.context._received = now
-            self.context._sent = request['clientTimestamp']
+            response['action'] = request['action']
+            response['transactionId'] = request['transactionId']
 
             # Ensure that the requested action has a callback
             if request['action'] not in WebSocketClient.callbacks.keys():
@@ -139,8 +81,6 @@ class WebSocketClient(WebSocketEndpoint):
             args: dict[str, Any] = {k: v for k, v in request['args'].items()
                                     if k in set([arg.name for arg in
                                                  callback_signature])}
-            if 'context' in [arg.name for arg in callback_signature]:
-                args['context'] = self.context
 
             # Validate that the types of each argument is correct
             for arg in callback_signature:
@@ -171,13 +111,6 @@ class WebSocketClient(WebSocketEndpoint):
             # Execute the API action and get the response data
             response['data'] = callback(**args)
 
-            # Determine if the client latency needs to be updated
-            if (callback is not WebSocketClient.updateLatency
-                and (self.context._last_latency_check is None
-                     or ((now - self.context._last_latency_check) >
-                         WebSocketClient.UPDATE_LATENCY_INTERVAL))):
-                response['updateLatency'] = True
-
             # Verify that the JSON response can be encoded
             elements: list[Iterable] = [response.values()]
             for element in elements:
@@ -193,8 +126,9 @@ class WebSocketClient(WebSocketEndpoint):
                                           'is not valid')
         except (JSONDecodeError, UserWarning) as e:
             # The request was invalid
-            log.debug('An invalid request was received from '
-                      f'{self.context.socket_id}')
+            log.info(f'An invalid request was received from \'{self.id}\'')
+            if 'transactionId' not in request.keys():
+                return  # Don't respond without a transaction ID
             response['error'] = {
                 'title': 'Bad Request',
                 'detail': str(e)
@@ -220,9 +154,7 @@ class WebSocketClient(WebSocketEndpoint):
         return
 
         # Remove extraneous properties for broadcast
-        del response['ackId']
-        del response['updateLatency']
-        del response['clientTimestamp']
+        del response['transactionId']
 
         log.info(f'Broadcasting to {len(self.sockets)} clients')
         for socket in WebSocketClient.sockets:
@@ -232,7 +164,7 @@ class WebSocketClient(WebSocketEndpoint):
         if socket in WebSocketClient.sockets:
             WebSocketClient.sockets.remove(socket)
 
-        log.info(f'Socket \'{self.context.socket_id}\' disconnected at '
+        log.info(f'Socket \'{self.id}\' disconnected at '
                  f'{datetime.now().isoformat()}')
 
 
