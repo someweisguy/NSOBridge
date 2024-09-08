@@ -116,18 +116,11 @@ class WebSocketClient(WebSocketEndpoint):
             response['data'] = callback(**args)
 
             # Verify that the JSON response can be encoded
-            elements: list[Iterable] = [response.values()]
-            for element in elements:
-                if isinstance(element, Mapping):
-                    elements.extend(element.values())
-                elif (isinstance(element, Iterable)
-                      and not isinstance(element, str)):
-                    elements.extend(element)
-                elif (not isinstance(element, (int, float, str, bytes, bool))
-                      and element is not None):
-                    raise EncodingWarning('The API action '
-                                          f'\'{request['action']}\' response '
-                                          'is not valid')
+            try:
+                json.dumps(response)
+            except TypeError as e:
+                del response['data']
+                raise EncodingWarning from e
         except (JSONDecodeError, UserWarning) as e:
             # The request was invalid
             log.info(f'An invalid request was received from \'{self.id}\'')
