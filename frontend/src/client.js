@@ -19,7 +19,6 @@ async function updateLatency() {
   const start = Date.now();
   await send('updateLatency');
   const stop = Date.now();
-
   return (stop - start) / 2;
 }
 
@@ -39,6 +38,14 @@ socket.onopen = async (event) => {
 
 };
 
+socket.onclose = (event) => {
+  console.log('WebSocket connection closed');
+  clearInterval(latencyIntervalId);
+  latencyIntervalId = null;
+  ackResolutions.clear();
+};
+
+
 socket.onmessage = (event) => {
   const response = JSON.parse(event.data)
   console.log(event);
@@ -54,11 +61,4 @@ socket.onmessage = (event) => {
   // Handle non-ACK message
   // TODO
 
-};
-
-socket.onclose = (event) => {
-  console.log('WebSocket connection closed');
-  clearInterval(latencyIntervalId);
-  latencyIntervalId = null;
-  ackResolutions.clear();
 };
