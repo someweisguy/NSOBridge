@@ -178,7 +178,7 @@ def register(callback: str | Callable = '') -> Callable:
     return inner(callback) if callable(callback) else inner
 
 
-async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
+async def serve(port: int = 8000) -> None:
     if 1 > port > 65535:
         raise ValueError('invalid server port number')
 
@@ -211,6 +211,7 @@ async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
         address = f'http://{sock.getsockname()[0]}:{port}'
 
     # Start the web server
+    host: str = '0.0.0.0'
     config: uvicorn.Config = uvicorn.Config(instance, host=host, port=port,
                                             log_level='critical')
     server: uvicorn.Server = uvicorn.Server(config)
