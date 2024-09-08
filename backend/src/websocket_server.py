@@ -190,7 +190,7 @@ async def serve(port: int = 8000, *, host: str = '0.0.0.0') -> None:
         raise ValueError('invalid server port number')
 
     # TODO: clean this path up
-    dir: Path = Path(__file__).parent.parent.parent / 'frontend' / 'build'
+    dir: Path = Path(__file__).parent.parent.parent / 'frontend' / 'dist'
 
     def renderPage(request: Request):
         path: Path = Path('index.html' if 'page'
