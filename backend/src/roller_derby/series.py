@@ -22,7 +22,3 @@ class Series(Requestable):
 
     def serve(self) -> dict[str, Any]:
         return {str(k): v.serve() for k, v in self._bouts.items()}
-
-
-bouts = Series()
-print(bouts.serve())
