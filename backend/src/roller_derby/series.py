@@ -10,14 +10,16 @@ class Series(Requestable):
     _bouts: dict[UUID, Bout] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        self._bouts[uuid4()] = Bout()
+        id: UUID = uuid4()
+        self._bouts[id] = Bout(id)
 
     def __getitem__(self, boutId: UUID) -> Bout:
         return self._bouts[boutId]
 
     def new_bout(self) -> Bout:
-        bout: Bout = Bout()
-        self._bouts[uuid4()] = bout
+        id: UUID = uuid4()
+        bout: Bout = Bout(id)
+        self._bouts[id] = bout
         return bout
 
     def serve(self) -> dict[str, Any]:

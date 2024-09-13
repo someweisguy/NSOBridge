@@ -115,9 +115,10 @@ class Clocks(Requestable):
 
 
 class Bout(Requestable):
-    __slots__ = '_clocks', '_jams'
+    __slots__ = '_id', '_clocks', '_jams'
 
-    def __init__(self) -> None:
+    def __init__(self, id: UUID) -> None:
+        self._id: UUID = id
         self._clocks: Clocks = Clocks()
         self._jams: tuple[list[Jam], list[Jam]] = ([Jam()], [])
 
