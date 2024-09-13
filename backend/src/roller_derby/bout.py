@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from uuid import UUID, uuid4
 from jam import Jam
 from interface import Requestable
 from typing import Any, Callable
@@ -129,6 +130,22 @@ class Bout(Requestable):
     @property
     def jams(self) -> tuple[list[Jam], list[Jam]]:
         return self._jams
+
+    def copy(self) -> Bout:
+        copy: Bout = Bout(self._id)
+        copy._clocks = self._clocks
+        copy._jams = self._jams
+        return copy
+
+    def restore(self, copy: Bout) -> None:
+        self._id = copy._id
+        self._clocks = copy._clocks
+
+    def add_jam(self) -> None:
+        self._jams[0].append(Jam())
+
+    def delete_jam(self) -> None:
+        self._jams[0].pop()
 
     def serve(self) -> dict[str, Any]:
         return {
