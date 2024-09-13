@@ -33,6 +33,7 @@ class WebSocketClient(WebSocketEndpoint):
 
     sockets: set[WebSocket] = set()
     callbacks: dict[str, Callable[..., Collection | None]] = {
+        'getServerInfo': lambda: {'api': '0.1.0'},
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': lambda: None,
     }
