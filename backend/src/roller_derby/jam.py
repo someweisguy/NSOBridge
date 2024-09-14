@@ -1,14 +1,18 @@
 from __future__ import annotations
+from copy import copy
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
-from interface import Requestable
+from interface import Copyable, Requestable
 
 
 @dataclass(slots=True, eq=False)
-class Trip(Requestable):
+class Trip(Requestable, Copyable):
     timestamp: datetime
     points: int
+
+    def __copy__(self) -> Trip:
+        return Trip(copy(self.timestamp), copy(self.points))
 
     def serve(self) -> dict[str, Any]:
         return {
@@ -18,11 +22,16 @@ class Trip(Requestable):
 
 
 @dataclass(slots=True, eq=False)
-class Score(Requestable):
+class Score(Requestable, Copyable):
     lead: bool = False
     lost: bool = False
     star_pass: int | None = None
     trips: list[Trip] = field(default_factory=list)
+
+    def __copy__(self) -> Score:
+        snapshot: Score = Score()
+        self._copy_to(snapshot)
+        return snapshot
 
     def serve(self) -> dict[str, Any]:
         return {
@@ -33,12 +42,17 @@ class Score(Requestable):
         }
 
 
-class Team(Requestable):
+class Team(Requestable, Copyable):
     __slots__ = '_jam', '_score'
 
     def __init__(self, parent_jam: Jam) -> None:
         self._jam: Jam = parent_jam
         self._score: Score = Score()
+
+    def __copy__(self) -> Team:
+        snapshot: Team = Team(self._jam)
+        snapshot._score = copy(self._score)
+        return snapshot
 
     @property
     def other(self) -> Team:
@@ -76,15 +90,11 @@ class Team(Requestable):
     def add_trip(self, timestamp: datetime, points: int) -> None:
         if 0 > points > 4:
             raise RuntimeError('Trip points must be between 0 and 4')
-        if len(self._score.trips) == 0 and points > 0:  # TODO: check in OT
-            raise RuntimeError('The initial Trip cannot score points')
         self._score.trips.append(Trip(timestamp, points))
 
     def edit_trip(self, index: int, points: int) -> None:
         if 0 > points > 4:
             raise RuntimeError('Trip points must be between 0 and 4')
-        if index == 0 and points > 0:  # TODO: check in OT
-            raise RuntimeError('The initial Trip cannot score points')
         self._score.trips[index].points = points
 
     def delete_trip(self, index: int):
@@ -96,7 +106,7 @@ class Team(Requestable):
         }
 
 
-class Jam(Requestable):
+class Jam(Copyable):
     __slots__ = '_start', '_stop', '_stop_reason', '_home', '_away'
 
     def __init__(self):
@@ -113,6 +123,11 @@ class Jam(Requestable):
             return self._away
         else:
             raise KeyError(f'Unknown team \'{team}\'')
+
+    def __copy__(self) -> Jam:
+        snapshot: Jam = Jam()
+        self._copy_to(snapshot)
+        return snapshot
 
     def start(self, timestamp: datetime) -> None:
         if self._start is not None:

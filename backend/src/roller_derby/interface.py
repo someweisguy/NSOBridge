@@ -1,4 +1,6 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
+from copy import copy
 from typing import Any, Self
 
 
@@ -13,7 +15,15 @@ class Copyable(ABC):
     def __copy__(self) -> Self:
         ...
 
-    def restore(self, copy: Self) -> None:
+    def _copy_to(self, snapshot: Copyable) -> None:
+        if hasattr(self, '__slots__'):
+            for slot in self.__slots__:
+                setattr(snapshot, slot, copy(getattr(self, slot)))
+        if hasattr(self, '__dict__'):
+            for key in self.__dict__.keys():
+                setattr(snapshot, key, copy(getattr(self, key)))
+
+    def restore(self, copy: Copyable) -> None:
         if hasattr(self, '__slots__'):
             for slot in self.__slots__:
                 setattr(self, slot, getattr(copy, slot))

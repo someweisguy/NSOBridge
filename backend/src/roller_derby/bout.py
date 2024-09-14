@@ -25,8 +25,7 @@ class Timer(Requestable, Copyable):
 
     def __copy__(self) -> Timer:
         snapshot: Timer = Timer()
-        for slot in self.__slots__:
-            setattr(snapshot, slot, copy(getattr(self, slot)))
+        self._copy_to(snapshot)
         return snapshot
 
     async def _alarm_task(self) -> None:
@@ -118,8 +117,7 @@ class Clocks(Requestable, Copyable):
 
     def __copy__(self) -> Clocks:
         snapshot: Clocks = Clocks()
-        for slot in self.__slots__:
-            setattr(snapshot, slot, copy(getattr(self, slot)))
+        self._copy_to(snapshot)
         return snapshot
 
     def serve(self) -> dict[str, Any]:
