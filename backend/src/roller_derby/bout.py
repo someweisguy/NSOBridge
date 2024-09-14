@@ -1,14 +1,15 @@
 from __future__ import annotations
+from copy import copy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from interface import Requestable
+from interface import Copyable, Requestable
 from jam import Jam
-from typing import Any, Callable
+from typing import Any, Callable, Self
 from uuid import UUID
 import asyncio
 
 
-class Timer(Requestable):
+class Timer(Requestable, Copyable):
     __slots__ = '_start', '_stop', '_elapsed', '_alarm', '_callback', '_task'
 
     def __init__(self, *, hours: float = 0, minutes: float = 0,
@@ -21,6 +22,12 @@ class Timer(Requestable):
         self._task: asyncio.Task | None = None
         self.set_alarm(hours=hours, minutes=minutes, seconds=seconds,
                        milliseconds=milliseconds)
+
+    def __copy__(self) -> Timer:
+        snapshot: Timer = Timer()
+        for slot in self.__slots__:
+            setattr(snapshot, slot, copy(getattr(self, slot)))
+        return snapshot
 
     async def _alarm_task(self) -> None:
         seconds_remaining: timedelta | None = self.get_remaining()
@@ -88,6 +95,10 @@ class Timer(Requestable):
         return (self._alarm - self.get_elapsed()
                 if self._alarm is not None else None)
 
+    def restore(self, snapshot: Self) -> None:
+        super().restore(snapshot)
+        self._reset_alarm_task()
+
     def serve(self) -> dict[str, Any]:
         return {
             'alarm': (None if self._alarm is None
@@ -98,12 +109,18 @@ class Timer(Requestable):
 
 
 @dataclass(slots=True, eq=False, frozen=True)
-class Clocks(Requestable):
+class Clocks(Requestable, Copyable):
     intermission: Timer = Timer(minutes=15)
     period: Timer = Timer(minutes=30)
     lineup: Timer = Timer(seconds=30)
     jam: Timer = Timer(minutes=2)
     timeout: Timer = Timer()
+
+    def __copy__(self) -> Clocks:
+        snapshot: Clocks = Clocks()
+        for slot in self.__slots__:
+            setattr(snapshot, slot, copy(getattr(self, slot)))
+        return snapshot
 
     def serve(self) -> dict[str, Any]:
         return {
@@ -115,7 +132,7 @@ class Clocks(Requestable):
         }
 
 
-class Bout(Requestable):
+class Bout(Requestable, Copyable):
     __slots__ = '_id', '_clocks', '_jams'
 
     def __init__(self, id: UUID) -> None:
@@ -131,15 +148,11 @@ class Bout(Requestable):
     def jams(self) -> tuple[list[Jam], list[Jam]]:
         return self._jams
 
-    def copy(self) -> Bout:
-        copy: Bout = Bout(self._id)
-        copy._clocks = self._clocks
-        copy._jams = self._jams
-        return copy
-
-    def restore(self, copy: Bout) -> None:
-        self._id = copy._id
-        self._clocks = copy._clocks
+    def __copy__(self) -> Bout:
+        snapshot: Bout = Bout(self._id)
+        snapshot._clocks = copy(self._clocks)
+        snapshot._jams = (self._jams[0][:], self._jams[1][:])
+        return snapshot
 
     def add_jam(self) -> None:
         self._jams[0].append(Jam())
