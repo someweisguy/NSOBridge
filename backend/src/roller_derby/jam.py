@@ -3,11 +3,11 @@ from copy import copy
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
-from interface import Copyable, Requestable
+from interface import Copyable, Servable
 
 
 @dataclass(slots=True, eq=False)
-class Trip(Requestable, Copyable):
+class Trip(Servable, Copyable):
     timestamp: datetime
     points: int
 
@@ -22,7 +22,7 @@ class Trip(Requestable, Copyable):
 
 
 @dataclass(slots=True, eq=False)
-class Score(Requestable, Copyable):
+class Score(Servable, Copyable):
     lead: bool = False
     lost: bool = False
     star_pass: int | None = None
@@ -42,7 +42,7 @@ class Score(Requestable, Copyable):
         }
 
 
-class Team(Requestable, Copyable):
+class Team(Servable, Copyable):
     __slots__ = '_jam', '_score'
 
     def __init__(self, parent_jam: Jam) -> None:
@@ -106,7 +106,7 @@ class Team(Requestable, Copyable):
         }
 
 
-class Jam(Copyable):
+class Jam(Servable, Copyable):
     __slots__ = '_start', '_stop', '_stop_reason', '_home', '_away'
 
     def __init__(self):

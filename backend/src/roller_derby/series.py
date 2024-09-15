@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 from bout import Bout
-from interface import Requestable
+from interface import Servable
 from typing import Any
 from uuid import UUID, uuid4
 
 
 @dataclass(slots=True, eq=False, frozen=True)
-class Series(Requestable):
+class Series(Servable):
     _bouts: dict[UUID, Bout] = field(default_factory=dict)
 
     def __post_init__(self) -> None:

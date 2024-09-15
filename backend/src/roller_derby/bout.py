@@ -2,14 +2,14 @@ from __future__ import annotations
 from copy import copy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from interface import Copyable, Requestable
+from interface import Copyable, Servable
 from jam import Jam
 from typing import Any, Callable, Self
 from uuid import UUID
 import asyncio
 
 
-class Timer(Requestable, Copyable):
+class Timer(Servable, Copyable):
     __slots__ = '_start', '_stop', '_elapsed', '_alarm', '_callback', '_task'
 
     def __init__(self, *, hours: float = 0, minutes: float = 0,
@@ -108,7 +108,7 @@ class Timer(Requestable, Copyable):
 
 
 @dataclass(slots=True, eq=False, frozen=True)
-class Clocks(Requestable, Copyable):
+class Clocks(Servable, Copyable):
     intermission: Timer = Timer(minutes=15)
     period: Timer = Timer(minutes=30)
     lineup: Timer = Timer(seconds=30)
@@ -130,7 +130,7 @@ class Clocks(Requestable, Copyable):
         }
 
 
-class Bout(Requestable, Copyable):
+class Bout(Servable, Copyable):
     __slots__ = '_id', '_clocks', '_jams'
 
     def __init__(self, id: UUID) -> None:

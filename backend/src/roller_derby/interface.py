@@ -4,7 +4,7 @@ from copy import copy
 from typing import Any, Self
 
 
-class Requestable(ABC):
+class Servable(ABC):
     @abstractmethod
     def serve(self) -> dict[str, Any]:
         ...
