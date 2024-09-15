@@ -46,15 +46,13 @@ class WebSocketClient(WebSocketEndpoint):
         self.id: UUID = uuid4()
         WebSocketClient.sockets.add(socket)
 
-        log.info(f'Socket \'{self.id}\' connected at '
-                 f'{datetime.now().isoformat()}')
+        log.info(f'Socket \'{self.id}\' connected at {datetime.now()}')
 
     async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
         if socket in WebSocketClient.sockets:
             WebSocketClient.sockets.remove(socket)
 
-        log.info(f'Socket \'{self.id}\' disconnected at '
-                 f'{datetime.now().isoformat()}')
+        log.info(f'Socket \'{self.id}\' disconnected at {datetime.now()}')
 
     async def on_receive(self, socket: WebSocket, payload: bytes) -> None:
         now: datetime = datetime.now()
