@@ -2,9 +2,9 @@ from __future__ import annotations
 from copy import copy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from interface import Copyable, Servable
-from jam import Jam
-from typing import Any, Callable, Self
+from roller_derby.interface import Copyable, Servable
+from roller_derby.jam import Jam
+from typing import Any, Callable, Generator, Self
 from uuid import UUID
 import asyncio
 import server
@@ -95,6 +95,9 @@ class Timer(Servable, Copyable):
         return (self._alarm - self.get_elapsed()
                 if self._alarm is not None else None)
 
+    def set_callback(self, callback: Callable[[datetime]] | None) -> None:
+        self._callback = callback
+
     def restore(self, snapshot: Self) -> None:
         if self._task is not None:
             self._task.cancel()
@@ -118,6 +121,13 @@ class Clocks(Servable, Copyable):
     jam: Timer = Timer(minutes=2)
     timeout: Timer = Timer()
 
+    def __iter__(self) -> Generator[Timer]:
+        return next(self)
+
+    def __next__(self) -> Generator[Timer]:
+        for slot in self.__slots__:
+            yield getattr(self, slot)
+
     def __copy__(self) -> Clocks:
         snapshot: Clocks = Clocks()
         self._copy_to(snapshot)
@@ -139,6 +149,9 @@ class Bout(Servable, Copyable):
     def __init__(self, id: UUID) -> None:
         self._id: UUID = id
         self._clocks: Clocks = Clocks()
+        for clock in self._clocks:
+            clock.set_callback(lambda _: server.queue_update(self))
+
         self._jams: tuple[list[Jam], list[Jam]] = ([Jam()], [])
 
     @property

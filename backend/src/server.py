@@ -230,4 +230,5 @@ async def serve(port: int = 8000) -> None:
 
 
 if __name__ == '__main__':
+    import roller_derby.series  # noqa
     asyncio.run(serve())

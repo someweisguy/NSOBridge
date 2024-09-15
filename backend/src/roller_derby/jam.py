@@ -2,8 +2,8 @@ from __future__ import annotations
 from copy import copy
 from dataclasses import dataclass, field
 from datetime import datetime
+from roller_derby.interface import Copyable, Servable
 from typing import Any
-from interface import Copyable, Servable
 
 
 @dataclass(slots=True, eq=False)
