@@ -49,6 +49,13 @@ class WebSocketClient(WebSocketEndpoint):
         log.info(f'Socket \'{self.id}\' connected at '
                  f'{datetime.now().isoformat()}')
 
+    async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
+        if socket in WebSocketClient.sockets:
+            WebSocketClient.sockets.remove(socket)
+
+        log.info(f'Socket \'{self.id}\' disconnected at '
+                 f'{datetime.now().isoformat()}')
+
     async def on_receive(self, socket: WebSocket, payload: bytes) -> None:
         now: datetime = datetime.now()
 
@@ -154,13 +161,6 @@ class WebSocketClient(WebSocketEndpoint):
         # Flush the update set
         if len(WebSocketClient.updates) > 0:
             broadcast_updates()
-
-    async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
-        if socket in WebSocketClient.sockets:
-            WebSocketClient.sockets.remove(socket)
-
-        log.info(f'Socket \'{self.id}\' disconnected at '
-                 f'{datetime.now().isoformat()}')
 
 
 def register(callback: str | Callable = '') -> Callable:
