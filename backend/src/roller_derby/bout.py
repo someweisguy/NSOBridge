@@ -7,6 +7,7 @@ from jam import Jam
 from typing import Any, Callable, Self
 from uuid import UUID
 import asyncio
+import server
 
 
 class Timer(Servable, Copyable):
@@ -37,7 +38,7 @@ class Timer(Servable, Copyable):
 
         if self._callback is not None:
             self._callback(datetime.now())
-            # TODO: server flush here
+            server.broadcast_updates()
         self._task = None
 
     def _reset_alarm_task(self) -> None:
