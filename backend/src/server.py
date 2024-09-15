@@ -2,6 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from inspect import Parameter, signature
 from json import JSONDecodeError
+from roller_derby.interface import Servable
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
 from starlette.requests import Request
@@ -17,6 +18,7 @@ import json
 import logging
 import socket
 import uvicorn
+
 
 log = logging.getLogger(__name__)
 
@@ -37,6 +39,7 @@ class WebSocketClient(WebSocketEndpoint):
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': lambda: None,
     }
+    updates: set[Servable] = set()
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
@@ -148,15 +151,9 @@ class WebSocketClient(WebSocketEndpoint):
 
         await socket.send_json(response)
 
-        # TODO: Return early if there is no need to broadcast updates
-        return
-
-        # Remove extraneous properties for broadcast
-        del response['transactionId']
-
-        log.info(f'Broadcasting to {len(self.sockets)} clients')
-        for socket in WebSocketClient.sockets:
-            asyncio.create_task(socket.send_json(response))
+        # Flush the update set
+        if len(WebSocketClient.updates) > 0:
+            broadcast_updates()
 
     async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
         if socket in WebSocketClient.sockets:
@@ -177,6 +174,18 @@ def register(callback: str | Callable = '') -> Callable:
         return command
 
     return inner(callback) if callable(callback) else inner
+
+
+def queue_update(servable: Servable) -> None:
+    WebSocketClient.updates.add(servable)
+
+
+def broadcast_updates() -> None:
+    for update in WebSocketClient.updates:
+        for sock in WebSocketClient.sockets:
+            asyncio.create_task(sock.send_json(update.serve()))
+    else:
+        WebSocketClient.updates.clear()
 
 
 async def serve(port: int = 8000) -> None:
