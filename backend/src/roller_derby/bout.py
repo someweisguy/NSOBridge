@@ -95,6 +95,8 @@ class Timer(Servable, Copyable):
                 if self._alarm is not None else None)
 
     def restore(self, snapshot: Self) -> None:
+        if self._task is not None:
+            self._task.cancel()
         super().restore(snapshot)
         self._reset_alarm_task()
 
