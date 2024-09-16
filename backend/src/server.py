@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from inspect import Parameter, signature
 from json import JSONDecodeError
-from roller_derby.interface import MajorResource, ResourceId
+from roller_derby.interface import Resource, ResourceId
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
 from starlette.requests import Request
@@ -39,7 +39,7 @@ class WebSocketClient(WebSocketEndpoint):
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': lambda: None,
     }
-    updates: set[tuple[ResourceId, MajorResource]] = set()
+    updates: set[tuple[ResourceId, Resource]] = set()
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
@@ -174,7 +174,7 @@ def register(callback: str | Callable = '') -> Callable:
     return inner(callback) if callable(callback) else inner
 
 
-def queue_update(id: tuple | ResourceId, resource: MajorResource) -> None:
+def queue_update(id: tuple | ResourceId, resource: Resource) -> None:
     if isinstance(id, tuple):
         id = ResourceId(*id)
     WebSocketClient.updates.add((id, resource))
