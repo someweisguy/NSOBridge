@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 from roller_derby.bout import Bout
-from roller_derby.interface import Servable
+from roller_derby.interface import MinorResource
 from typing import Any
 from uuid import UUID, uuid4
 
 
 @dataclass(slots=True, eq=False, frozen=True)
-class Series(Servable):
+class Series(MinorResource):
     _bouts: dict[UUID, Bout] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -22,8 +22,8 @@ class Series(Servable):
         self._bouts[id] = bout
         return bout
 
-    def serve(self) -> dict[str, Any]:
-        return {str(k): v.serve() for k, v in self._bouts.items()}
+    def get_detailed(self) -> dict[str, Any]:
+        return {str(k): v.get_simple() for k, v in self._bouts.items()}
 
 
 bouts: Series = Series()

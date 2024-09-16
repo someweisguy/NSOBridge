@@ -2,19 +2,19 @@ from __future__ import annotations
 from copy import copy
 from dataclasses import dataclass, field
 from datetime import datetime
-from roller_derby.interface import Copyable, Servable
+from roller_derby.interface import Copyable, MajorResource, MinorResource
 from typing import Any
 
 
 @dataclass(slots=True, eq=False)
-class Trip(Servable, Copyable):
+class Trip(MajorResource, Copyable):
     timestamp: datetime
     points: int
 
     def __copy__(self) -> Trip:
         return Trip(copy(self.timestamp), copy(self.points))
 
-    def serve(self) -> dict[str, Any]:
+    def get_simple(self) -> dict[str, Any]:
         return {
             'timestamp': str(self.timestamp),
             'points': self.points
@@ -22,7 +22,7 @@ class Trip(Servable, Copyable):
 
 
 @dataclass(slots=True, eq=False)
-class Score(Servable, Copyable):
+class Score(MajorResource, Copyable):
     lead: bool = False
     lost: bool = False
     star_pass: int | None = None
@@ -33,16 +33,16 @@ class Score(Servable, Copyable):
         self._copy_to(snapshot)
         return snapshot
 
-    def serve(self) -> dict[str, Any]:
+    def get_simple(self) -> dict[str, Any]:
         return {
             'lead': self.lead,
             'lost': self.lost,
             'starPass': self.star_pass,
-            'trips': [trip.serve() for trip in self.trips]
+            'trips': [trip.get_simple() for trip in self.trips]
         }
 
 
-class Team(Servable, Copyable):
+class Team(MajorResource, Copyable):
     __slots__ = '_jam', '_score'
 
     def __init__(self, parent_jam: Jam) -> None:
@@ -100,13 +100,13 @@ class Team(Servable, Copyable):
     def delete_trip(self, index: int):
         del self._score.trips[index]
 
-    def serve(self) -> dict[str, Any]:
+    def get_simple(self) -> dict[str, Any]:
         return {
-            'score': self._score.serve()
+            'score': self._score.get_simple()
         }
 
 
-class Jam(Servable, Copyable):
+class Jam(MinorResource, Copyable):
     __slots__ = '_start', '_stop', '_stop_reason', '_home', '_away'
 
     def __init__(self):
@@ -145,12 +145,33 @@ class Jam(Servable, Copyable):
     def is_stopped(self) -> bool:
         return self._start is not None and self._start is not None
 
-    def serve(self) -> dict[str, Any]:
+    def get_detailed(self) -> dict[str, Any]:
         return {
-            'startTimestamp': (None if self._start is None
-                               else str(self._start)),
-            'stopTimestamp': None if self._stop is None else str(self._stop),
+            'startTimestamp': (str(self._start) if self._start is not None
+                               else None),
+            'stopTimestamp': (str(self._stop) if self._stop is not None
+                              else None),
             'stopReason': self._stop_reason,
-            'home': self._home.serve(),
-            'away': self._away.serve()
+            'home': self._home.get_detailed(),
+            'away': self._away.get_detailed()
+        }
+
+
+class Jams(MajorResource):
+    def __init__(self) -> None:
+        self._jams: tuple[list[Jam], list[Jam]] = ([Jam()], [])
+
+    def append(self, period_id: int) -> None:
+        self._jams[period_id].append(Jam())
+
+    def pop(self, period_id: int) -> Jam:
+        return self._jams[period_id].pop()
+
+    def get_simple(self) -> dict[str, Any]:
+        return {
+            'score': {
+                'home': 0,  # TODO
+                'away': 0   # TODO
+            },
+            'jamCounts': [len(period) for period in self._jams],
         }

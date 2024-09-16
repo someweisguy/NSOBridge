@@ -1,181 +1,43 @@
 from __future__ import annotations
 from copy import copy
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-from roller_derby.interface import Copyable, Servable
-from roller_derby.jam import Jam
-from typing import Any, Callable, Generator, Self
+from roller_derby.clocks import Clocks
+from roller_derby.interface import Copyable, MajorResource
+from roller_derby.jam import Jams
+from typing import Any
 from uuid import UUID
-import asyncio
 import server
 
 
-class Timer(Servable, Copyable):
-    __slots__ = '_start', '_stop', '_elapsed', '_alarm', '_callback', '_task'
-
-    def __init__(self, *, hours: float = 0, minutes: float = 0,
-                 seconds: float = 0, milliseconds: float = 0) -> None:
-        self._start: datetime | None = None
-        self._stop: datetime | None = None
-        self._elapsed: timedelta = timedelta(milliseconds=0)
-        self._alarm: timedelta | None = None
-        self._callback: Callable[[datetime], None] | None = None
-        self._task: asyncio.Task | None = None
-        self.set_alarm(hours=hours, minutes=minutes, seconds=seconds,
-                       milliseconds=milliseconds)
-
-    def __copy__(self) -> Timer:
-        snapshot: Timer = Timer()
-        self._copy_to(snapshot)
-        return snapshot
-
-    async def _alarm_task(self) -> None:
-        seconds_remaining: timedelta | None = self.get_remaining()
-        while (seconds_remaining is not None
-               and seconds_remaining.total_seconds() > 0):
-            await asyncio.sleep(seconds_remaining.total_seconds())
-            seconds_remaining = self.get_remaining()
-
-        if self._callback is not None:
-            self._callback(datetime.now())
-            server.broadcast_updates()
-        self._task = None
-
-    def _reset_alarm_task(self) -> None:
-        if self._task is not None:
-            self._task.cancel()
-            self._task = (asyncio.create_task(self._alarm_task())
-                          if self._alarm is not None else None)
-
-    def start(self, timestamp: datetime) -> None:
-        if self._start is not None:
-            raise RuntimeError('This Timer is already running')
-        self._start = timestamp
-
-    def stop(self, timestamp: datetime) -> None:
-        if self._stop is not None:
-            raise RuntimeError('This Timer is already stopped')
-        self._stop = timestamp
-
-    def is_running(self) -> bool:
-        return self._start is not None and self._stop is None
-
-    def is_stopped(self) -> bool:
-        return self._start is not None and self._stop is not None
-
-    def get_alarm(self) -> timedelta | None:
-        return self._alarm
-
-    def set_alarm(self, *, hours: float = 0, minutes: float = 0,
-                  seconds: float = 0, milliseconds: float = 0) -> None:
-        new_alarm: timedelta = timedelta(hours=hours, minutes=minutes,
-                                         seconds=seconds,
-                                         milliseconds=milliseconds)
-        if new_alarm.total_seconds() > 0:
-            self._alarm = new_alarm
-        self._reset_alarm_task()
-
-    def get_elapsed(self) -> timedelta:
-        if self._start is not None and self._stop is not None:
-            return self._stop - self._stop + self._elapsed
-        elif self._start is not None:
-            return datetime.now() - self._start + self._elapsed
-        else:
-            return self._elapsed
-
-    def set_elapsed(self, *, hours: float = 0, minutes: float = 0,
-                    seconds: float = 0, milliseconds: float = 0) -> None:
-        new_elapsed: timedelta = timedelta(hours=hours, minutes=minutes,
-                                           seconds=seconds,
-                                           milliseconds=milliseconds)
-        self._elapsed = new_elapsed
-        self._reset_alarm_task()
-
-    def get_remaining(self) -> timedelta | None:
-        return (self._alarm - self.get_elapsed()
-                if self._alarm is not None else None)
-
-    def set_callback(self, callback: Callable[[datetime]] | None) -> None:
-        self._callback = callback
-
-    def restore(self, snapshot: Self) -> None:
-        if self._task is not None:
-            self._task.cancel()
-        super().restore(snapshot)
-        self._reset_alarm_task()
-
-    def serve(self) -> dict[str, Any]:
-        return {
-            'alarm': (None if self._alarm is None
-                      else self._alarm.total_seconds() * 1000),
-            'elapsed': self.get_elapsed().total_seconds() * 1000,
-            'isRunning': self.is_running(),
-        }
-
-
-@dataclass(slots=True, eq=False, frozen=True)
-class Clocks(Servable, Copyable):
-    intermission: Timer = Timer(minutes=15)
-    period: Timer = Timer(minutes=30)
-    lineup: Timer = Timer(seconds=30)
-    jam: Timer = Timer(minutes=2)
-    timeout: Timer = Timer()
-
-    def __iter__(self) -> Generator[Timer]:
-        return next(self)
-
-    def __next__(self) -> Generator[Timer]:
-        for slot in self.__slots__:
-            yield getattr(self, slot)
-
-    def __copy__(self) -> Clocks:
-        snapshot: Clocks = Clocks()
-        self._copy_to(snapshot)
-        return snapshot
-
-    def serve(self) -> dict[str, Any]:
-        return {
-            'intermission': self.intermission.serve(),
-            'period': self.period.serve(),
-            'lineup': self.lineup.serve(),
-            'jam': self.jam.serve(),
-            'timeout': self.timeout.serve()
-        }
-
-
-class Bout(Servable, Copyable):
+class Bout(MajorResource, Copyable):
     __slots__ = '_id', '_clocks', '_jams'
 
     def __init__(self, id: UUID) -> None:
         self._id: UUID = id
         self._clocks: Clocks = Clocks()
-        for clock in self._clocks:
-            clock.set_callback(lambda _: server.queue_update(self))
-
-        self._jams: tuple[list[Jam], list[Jam]] = ([Jam()], [])
+        self._clocks.set_callback(lambda _: server.queue_update(self))
+        self._jams: Jams = Jams()
 
     @property
     def clocks(self) -> Clocks:
         return self._clocks
 
     @property
-    def jams(self) -> tuple[list[Jam], list[Jam]]:
+    def jams(self) -> Jams:
         return self._jams
 
     def __copy__(self) -> Bout:
+        # FIXME
         snapshot: Bout = Bout(self._id)
         snapshot._clocks = copy(self._clocks)
-        snapshot._jams = (self._jams[0][:], self._jams[1][:])
+        snapshot._jams = copy(self._jams)
         return snapshot
 
-    def add_jam(self) -> None:
-        self._jams[0].append(Jam())
-
-    def delete_jam(self) -> None:
-        self._jams[0].pop()
-
-    def serve(self) -> dict[str, Any]:
+    def get_simple(self) -> dict[str, Any]:
         return {
-            'clocks': self._clocks.serve(),
-            'jams': [[jam.serve() for jam in jams] for jams in self._jams]
+            # TODO: 'info'
+            # TODO: 'roster'
+            'timeouts': None,  # TODO
+            'clocks': self._clocks,
+            'jams': self._clocks,
+            # TODO: 'penalties'
         }
