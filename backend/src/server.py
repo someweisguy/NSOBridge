@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from inspect import Parameter, signature
 from json import JSONDecodeError
-from roller_derby.interface import Servable
+from roller_derby.interface import MajorResource, ResourceId
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
 from starlette.requests import Request
@@ -39,7 +39,7 @@ class WebSocketClient(WebSocketEndpoint):
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': lambda: None,
     }
-    updates: set[Servable] = set()
+    updates: set[tuple[ResourceId, MajorResource]] = set()
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
@@ -126,7 +126,7 @@ class WebSocketClient(WebSocketEndpoint):
 
             # Verify that the JSON response can be encoded
             try:
-                json.dumps(response)
+                json.dumps(response, default=lambda obj: obj.get_simple())
             except TypeError as e:
                 del response['data']
                 raise EncodingWarning from e
@@ -174,16 +174,22 @@ def register(callback: str | Callable = '') -> Callable:
     return inner(callback) if callable(callback) else inner
 
 
-def queue_update(servable: Servable) -> None:
-    WebSocketClient.updates.add(servable)
+def queue_update(id: tuple | ResourceId, resource: MajorResource) -> None:
+    if isinstance(id, tuple):
+        id = ResourceId(*id)
+    WebSocketClient.updates.add((id, resource))
 
 
 def broadcast_updates() -> None:
-    for update in WebSocketClient.updates:
-        for sock in WebSocketClient.sockets:
-            asyncio.create_task(sock.send_json(update.serve()))
-    else:
-        WebSocketClient.updates.clear()
+    payload: list[dict[str, Any]] = []
+    for id, resource in WebSocketClient.updates:
+        payload.append({
+            'id': id,
+            'data': resource,
+        })
+    for sock in WebSocketClient.sockets:
+        asyncio.create_task(sock.send_json(payload))
+    WebSocketClient.updates.clear()
 
 
 async def serve(port: int = 8000) -> None:
