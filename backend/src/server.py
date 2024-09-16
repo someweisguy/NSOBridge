@@ -39,7 +39,7 @@ class WebSocketClient(WebSocketEndpoint):
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': lambda: None,
     }
-    updates: set[tuple[ResourceId, Resource]] = set()
+    updates: set[tuple[ResourceId, Resource | None]] = set()
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
@@ -126,7 +126,7 @@ class WebSocketClient(WebSocketEndpoint):
 
             # Verify that the JSON response can be encoded
             try:
-                json.dumps(response, default=lambda obj: obj.get_simple())
+                json.dumps(response, default=lambda obj: obj.serve(now))
             except TypeError as e:
                 del response['data']
                 raise EncodingWarning from e
@@ -174,7 +174,7 @@ def register(callback: str | Callable = '') -> Callable:
     return inner(callback) if callable(callback) else inner
 
 
-def queue_update(id: tuple | ResourceId, resource: Resource) -> None:
+def queue_update(id: tuple | ResourceId, resource: Resource | None) -> None:
     if isinstance(id, tuple):
         id = ResourceId(*id)
     WebSocketClient.updates.add((id, resource))
