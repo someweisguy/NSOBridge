@@ -7,22 +7,16 @@ from typing import Any, Iterator
 
 
 @dataclass(slots=True, eq=False)
-class Trip(Resource, Copyable):
+class Trip(Copyable):
     timestamp: datetime
     points: int
 
     def __copy__(self) -> Trip:
         return Trip(copy(self.timestamp), copy(self.points))
 
-    def serve(self) -> dict[str, Any]:
-        return {
-            'timestamp': str(self.timestamp),
-            'points': self.points
-        }
-
 
 @dataclass(slots=True, eq=False)
-class Score(Resource, Copyable):
+class Score(Copyable):
     lead: bool = False
     lost: bool = False
     star_pass: int | None = None
@@ -32,14 +26,6 @@ class Score(Resource, Copyable):
         snapshot: Score = Score()
         self._copy_to(snapshot)
         return snapshot
-
-    def serve(self) -> dict[str, Any]:
-        return {
-            'lead': self.lead,
-            'lost': self.lost,
-            'starPass': self.star_pass,
-            'trips': [trip.serve() for trip in self.trips]
-        }
 
 
 class Team(Resource, Copyable):
@@ -100,9 +86,18 @@ class Team(Resource, Copyable):
     def delete_trip(self, index: int):
         del self._score.trips[index]
 
-    def serve(self) -> dict[str, Any]:
+    def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
         return {
-            'score': self._score.serve()
+            'lead': self.lead,
+            'lost': self.lost,
+            'starPass': self.star_pass,
+            'trips': [{
+                'timestamp': str(trip.timestamp),
+                'points': trip.points
+            } for trip in self._score.trips],
+            'jammer': None,  # TODO
+            'blockers': [None, None, None, None],  # TODO
+            'noPivot': False,  # TODO
         }
 
 
@@ -129,6 +124,14 @@ class Jam(Resource, Copyable):
         self._copy_to(snapshot)
         return snapshot
 
+    @property
+    def home(self) -> Team:
+        return self._home
+
+    @property
+    def away(self) -> Team:
+        return self._away
+
     def start(self, timestamp: datetime) -> None:
         if self._start is not None:
             raise RuntimeError('This Jam is already running')
@@ -145,15 +148,15 @@ class Jam(Resource, Copyable):
     def is_stopped(self) -> bool:
         return self._start is not None and self._start is not None
 
-    def serve(self) -> dict[str, Any]:
+    def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
         return {
             'startTimestamp': (str(self._start) if self._start is not None
                                else None),
             'stopTimestamp': (str(self._stop) if self._stop is not None
                               else None),
             'stopReason': self._stop_reason,
-            'home': self._home.serve(),
-            'away': self._away.serve()
+            'home': self.home.serve(timestamp),
+            'away': self.away.serve(timestamp)
         }
 
 

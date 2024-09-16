@@ -233,6 +233,11 @@ async def serve(port: int = 8000) -> None:
     await server.serve()
 
 
+context = None
+
+
 if __name__ == '__main__':
-    import roller_derby.series  # noqa
+    from roller_derby.series import Series
+
+    context = Series()
     asyncio.run(serve())

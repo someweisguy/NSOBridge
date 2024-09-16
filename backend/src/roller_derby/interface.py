@@ -61,7 +61,7 @@ series:              getSeries
         info         getInfo       boutId
         roster       getRoster     boutId
         timeouts     getTimeouts   boutId
-        jams:        getJams       boutId
+        jams:        getJam        boutId, periodId, jamId
             score    getScores     boutId, periodId, jamId, team
             lineup   getLineups    boutId, periodId, jamId, team
         penalties    getPenalties  boutId
@@ -74,8 +74,7 @@ detailed information.
 JSON encoder should strip leading underscores, and convert from snake_case to
 camelCase.
 
-(bout_id, period_id, jam_id, team), resource
-
-
+Updates should be broadcast as:
+    (bout_id, period_id, jam_id, team), resource
 
 '''
