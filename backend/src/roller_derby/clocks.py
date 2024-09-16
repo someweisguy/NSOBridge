@@ -1,13 +1,13 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from roller_derby.interface import Copyable, MajorResource, MinorResource
+from roller_derby.interface import Copyable, Resource
 from typing import Any, Callable, Generator, Self
 import asyncio
 import server
 
 
-class Timer(MinorResource, Copyable):
+class Timer(Resource, Copyable):
     __slots__ = '_start', '_stop', '_elapsed', '_alarm', '_callback', '_task'
 
     def __init__(self, *, hours: float = 0, minutes: float = 0,
@@ -72,11 +72,13 @@ class Timer(MinorResource, Copyable):
             self._alarm = new_alarm
         self._reset_alarm_task()
 
-    def get_elapsed(self) -> timedelta:
+    def get_elapsed(self, timestamp: datetime | None = None) -> timedelta:
         if self._start is not None and self._stop is not None:
             return self._stop - self._stop + self._elapsed
         elif self._start is not None:
-            return datetime.now() - self._start + self._elapsed
+            if timestamp is None:
+                timestamp = datetime.now()
+            return timestamp - self._start + self._elapsed
         else:
             return self._elapsed
 
@@ -101,18 +103,18 @@ class Timer(MinorResource, Copyable):
         super().restore(snapshot)
         self._reset_alarm_task()
 
-    def get_detailed(self) -> dict[str, Any]:
+    def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
         return {
-            'start': str(self._start) if self._start is not None else None,
-            'stop': str(self._stop) if self._stop is not None else None,
-            'elapsed': round(self._elapsed.total_seconds() * 1000),
+            'elapsed': round(self.get_elapsed(timestamp).total_seconds()
+                             * 1000),
             'alarm': (round(self._alarm.total_seconds() * 1000)
-                      if self._alarm is not None else None)
+                      if self._alarm is not None else None),
+            'isRunning': self.is_running()
         }
 
 
 @dataclass(slots=True, eq=False, frozen=True)
-class Clocks(MajorResource, Copyable):
+class Clocks(Resource, Copyable):
     intermission: Timer = Timer(minutes=15)
     period: Timer = Timer(minutes=30)
     lineup: Timer = Timer(seconds=30)
@@ -135,7 +137,11 @@ class Clocks(MajorResource, Copyable):
         for clock in self:
             clock.set_callback(callback)
 
-    def get_simple(self) -> dict[str, Any]:
+    def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
         return {
-            'gameState': None  # TODO
+            'intermission': self.intermission.serve(timestamp),
+            'period': self.period.serve(timestamp),
+            'lineup': self.lineup.serve(timestamp),
+            'jam': self.jam.serve(timestamp),
+            'timeout': self.timeout.serve(timestamp)
         }
