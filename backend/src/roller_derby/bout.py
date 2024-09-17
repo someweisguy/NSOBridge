@@ -3,11 +3,8 @@ from copy import copy
 from datetime import datetime
 from roller_derby.clocks import Clocks
 from roller_derby.interface import Copyable, Resource
-from roller_derby.jam import Jam, Jams
+from roller_derby.jam import Periods
 from typing import Any
-from uuid import UUID
-from server import context as bouts
-import server
 
 
 class Bout(Resource, Copyable):
@@ -15,14 +12,14 @@ class Bout(Resource, Copyable):
 
     def __init__(self) -> None:
         self._clocks: Clocks = Clocks()
-        self._jams: Jams = Jams()
+        self._jams: Periods = Periods()
 
     @property
     def clocks(self) -> Clocks:
         return self._clocks
 
     @property
-    def jams(self) -> Jams:
+    def jams(self) -> Periods:
         return self._jams
 
     def __copy__(self) -> Bout:
@@ -71,13 +68,3 @@ class Bout(Resource, Copyable):
             },
             'penalties': None  # TODO
         }
-
-
-@server.register
-def getBout(boutId: UUID) -> Bout:
-    return bouts[boutId]
-
-
-@server.register
-def getJam(boutId: UUID, periodId: int, jamId: int) -> Jam:
-    return bouts[boutId].jams[periodId][jamId]

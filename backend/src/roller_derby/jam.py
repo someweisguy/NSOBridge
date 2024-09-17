@@ -160,7 +160,7 @@ class Jam(Resource, Copyable):
         }
 
 
-class Jams(Resource):
+class Periods(Resource):
     def __init__(self) -> None:
         self._jams: tuple[list[Jam], list[Jam]] = ([Jam()], [])
 

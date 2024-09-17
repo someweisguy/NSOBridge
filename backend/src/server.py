@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, timedelta
 from inspect import Parameter, signature
-from json import JSONDecodeError
+from json import JSONDecodeError, JSONEncoder
 from roller_derby.interface import Resource, ResourceId
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
@@ -32,6 +32,10 @@ logging.basicConfig(
 
 class WebSocketClient(WebSocketEndpoint):
     encoding: Literal['text', 'bytes', 'json'] = 'text'
+    encoder: JSONEncoder = JSONEncoder(separators=(',', ':'),
+                                       default=lambda o:
+                                           o.serve(datetime.now()))
+    debug: bool = False
 
     sockets: set[WebSocket] = set()
     callbacks: dict[str, Callable[..., Collection | None]] = {
@@ -124,12 +128,13 @@ class WebSocketClient(WebSocketEndpoint):
             # Execute the API action and get the response data
             response['data'] = callback(**args)
 
-            # Verify that the JSON response can be encoded
-            try:
-                json.dumps(response, default=lambda obj: obj.serve(now))
-            except TypeError as e:
-                del response['data']
-                raise EncodingWarning from e
+            # When debugging, verify that the JSON response can be encoded
+            if WebSocketClient.debug:
+                try:
+                    WebSocketClient.encoder.encode(response)
+                except TypeError as e:
+                    del response['data']
+                    raise EncodingWarning from e
         except (JSONDecodeError, UserWarning) as e:
             # The request was invalid
             log.info(f'An invalid request was received from \'{self.id}\'')
@@ -154,7 +159,8 @@ class WebSocketClient(WebSocketEndpoint):
                 'detail': str(e)
             }
 
-        await socket.send_json(response)
+        text: str = WebSocketClient.encoder.encode(response)
+        await socket.send_text(text)
 
         # Flush the update set
         if len(WebSocketClient.updates) > 0:
@@ -167,7 +173,7 @@ def register(callback: str | Callable = '') -> Callable:
             callback, Callable) or callback == '' else callback)
         if key in WebSocketClient.callbacks.keys():
             raise ValueError(f'\'{key}\' is already a server action key')
-        log.info(f'Registering \'{key}\' as a server action key')
+        log.debug(f'Registering \'{key}\' as a server action key')
         WebSocketClient.callbacks[key] = command
         return command
 
@@ -192,9 +198,12 @@ def broadcast_updates() -> None:
     WebSocketClient.updates.clear()
 
 
-async def serve(port: int = 8000) -> None:
+async def serve(port: int = 8000, *, debug: bool = False) -> None:
     if 1 > port > 65535:
         raise ValueError('invalid server port number')
+    if debug:
+        WebSocketClient.debug = True
+        log.setLevel(logging.DEBUG)
 
     # TODO: clean this path up
     dir: Path = Path(__file__).parent.parent.parent / 'frontend' / 'dist'
@@ -231,13 +240,3 @@ async def serve(port: int = 8000) -> None:
     server: uvicorn.Server = uvicorn.Server(config)
     log.info(f'Starting server at \'{address}\'')
     await server.serve()
-
-
-context = None
-
-
-if __name__ == '__main__':
-    from roller_derby.series import Series
-
-    context = Series()
-    asyncio.run(serve())
