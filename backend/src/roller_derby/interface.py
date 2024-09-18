@@ -43,7 +43,7 @@ class ResourceId(Resource):
     team: Literal['home', 'away', 'official'] | None = None
 
     def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
-        output: dict[str, Any] = {'boutId': self.bout_id}
+        output: dict[str, Any] = {'boutId': str(self.bout_id)}
         if self.period_id is not None:
             output['periodId'] = self.period_id
         if self.jam_id is not None:

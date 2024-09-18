@@ -190,8 +190,8 @@ def broadcast_updates() -> None:
     payload: list[dict[str, Any]] = []
     for id, resource in WebSocketClient.updates:
         payload.append({
-            'id': id,
-            'data': resource,
+            'id': id.serve(),
+            'data': resource.serve() if resource is not None else None,
         })
     for sock in WebSocketClient.sockets:
         asyncio.create_task(sock.send_json(payload))
