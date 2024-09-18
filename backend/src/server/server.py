@@ -206,7 +206,8 @@ async def serve(port: int = 8000, *, debug: bool = False) -> None:
         log.setLevel(logging.DEBUG)
 
     # TODO: clean this path up
-    dir: Path = Path(__file__).parent.parent.parent / 'frontend' / 'dist'
+    dir: Path = (Path(__file__).parent.parent.parent.parent / 'frontend'
+                 / 'dist')
 
     def renderPage(request: Request):
         path: Path = Path('index.html' if 'page'
