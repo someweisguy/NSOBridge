@@ -1,3 +1,4 @@
+from datetime import datetime
 from roller_derby import Series, Bout, Jam, BoutId, bouts
 import asyncio
 import server
@@ -11,7 +12,14 @@ def getSeries() -> Series:
 @server.register
 def addBout() -> None:
     new_bout_id: BoutId = bouts.add()
-    server.queue_update((new_bout_id,), bouts[new_bout_id])
+    bout: Bout = bouts[new_bout_id]
+
+    def default_clock_callback(_: datetime) -> None:
+        server.queue_update((new_bout_id, ), bout)
+        server.broadcast_updates()
+
+    bout.clocks.set_callback(default_clock_callback)
+    server.queue_update((new_bout_id,), bout)
 
 
 @server.register
@@ -31,4 +39,5 @@ def getJam(boutId: BoutId, periodId: int, jamId: int) -> Jam:
 
 
 if __name__ == '__main__':
+    addBout()
     asyncio.run(server.serve())

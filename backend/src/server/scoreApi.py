@@ -1,6 +1,5 @@
-from roller_derby.bout import series, Bout, Jam, TEAMS
 from datetime import datetime
-from server import API, URI
+from roller_derby import Series, Bout, Jam, TEAMS
 import server
 
 

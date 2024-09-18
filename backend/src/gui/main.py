@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QSystemTrayIcon,
 )
-import src.server
+import backend.src.controller.server
 import requests
 import socket
 import sys

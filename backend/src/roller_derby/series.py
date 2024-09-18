@@ -4,7 +4,6 @@ from roller_derby.bout import Bout
 from roller_derby.interface import Resource
 from typing import Any
 from uuid import UUID, uuid4
-import server
 
 
 @dataclass(slots=True, eq=False, frozen=True)
@@ -19,9 +18,7 @@ class Series(Resource):
 
     def add(self) -> UUID:
         id: UUID = uuid4()
-        bout: Bout = Bout()
-        self._bouts[id] = bout
-        bout.clocks.set_callback(lambda _: server.queue_update((id, ), bout))
+        self._bouts[id] = Bout()
         return id
 
     def delete(self, bout_id: UUID) -> None:

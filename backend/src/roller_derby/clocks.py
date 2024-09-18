@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from roller_derby.interface import Copyable, Resource
 from typing import Any, Callable, Generator, Self
 import asyncio
-import server
 
 
 class Timer(Resource, Copyable):
@@ -35,7 +34,6 @@ class Timer(Resource, Copyable):
 
         if self._callback is not None:
             self._callback(datetime.now())
-            server.broadcast_updates()
         self._task = None
 
     def _reset_alarm_task(self) -> None:
