@@ -1,9 +1,9 @@
 from datetime import datetime
 from roller_derby import Series, Bout, Jam, TEAMS
-import server
+import backend.src.server.host as host
 
 
-@server.register
+@host.register
 async def setTrip(uri: URI, team: TEAMS, tripNum: int, points: int,
                   timestamp: datetime, validPass: bool = True) -> API:
     # Get the desired Bout and Jam
@@ -17,7 +17,7 @@ async def setTrip(uri: URI, team: TEAMS, tripNum: int, points: int,
     jam.score[team].setTrip(tripNum, points, timestamp)
 
 
-@server.register
+@host.register
 async def deleteTrip(uri: URI, team: TEAMS, tripNum: int) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
@@ -26,7 +26,7 @@ async def deleteTrip(uri: URI, team: TEAMS, tripNum: int) -> API:
     jam.score[team].deleteTrip(tripNum)
 
 
-@server.register
+@host.register
 async def setLead(uri: URI, team: TEAMS, lead: bool) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
@@ -35,7 +35,7 @@ async def setLead(uri: URI, team: TEAMS, lead: bool) -> API:
     jam.score[team].lead = lead
 
 
-@server.register
+@host.register
 async def setLost(uri: URI, team: TEAMS, lost: bool) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
@@ -44,7 +44,7 @@ async def setLost(uri: URI, team: TEAMS, lost: bool) -> API:
     jam.score[team].lost = lost
 
 
-@server.register
+@host.register
 async def setStarPass(uri: URI, team: TEAMS, tripNum: None | int) -> API:
     # Get the desired Bout and Jam
     bout: Bout = series.currentBout
