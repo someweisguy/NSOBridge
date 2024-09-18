@@ -10,9 +10,6 @@ from uuid import UUID, uuid4
 class Series(Resource):
     _bouts: dict[UUID, Bout] = field(default_factory=dict)
 
-    def __post_init__(self) -> None:
-        self.add()
-
     def __getitem__(self, boutId: UUID) -> Bout:
         return self._bouts[boutId]
 
