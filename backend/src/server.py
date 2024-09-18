@@ -224,7 +224,7 @@ async def serve(port: int = 8000, *, debug: bool = False) -> None:
             Route('/{page:str}', renderPage),
         )
     )
-    instance.debug = True
+    instance.debug = debug
 
     # Determine the address of the server
     address: str = f'http://localhost:{port}'
@@ -236,7 +236,8 @@ async def serve(port: int = 8000, *, debug: bool = False) -> None:
     # Start the web server
     host: str = '0.0.0.0'
     config: uvicorn.Config = uvicorn.Config(instance, host=host, port=port,
-                                            log_level='critical')
+                                            log_config=None, access_log=False,
+                                            log_level='warning')
     server: uvicorn.Server = uvicorn.Server(config)
     log.info(f'Starting server at \'{address}\'')
     await server.serve()
