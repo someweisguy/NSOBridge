@@ -1,4 +1,5 @@
 from datetime import datetime
+from backend.src.roller_derby.jam import Team
 from roller_derby import Bout, BoutId, bouts, Jam, Timer
 from typing import Any
 import asyncio
@@ -93,8 +94,32 @@ def getBout(boutId: BoutId) -> dict[str, Any]:
 
 
 @server.register
-def getJam(boutId: BoutId, periodId: int, jamId: int) -> Jam:
-    return bouts[boutId].jams[periodId][jamId]
+def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
+    jam: Jam = bouts[boutId].jams[periodId][jamId]
+
+    def encode_team(t: Team) -> dict[str, Any]:
+        return {
+            'lead': t.lead,
+            'lost': t.lost,
+            'starPass': t.star_pass,
+            'trips': [{
+                'timestamp': str(trip.timestamp),
+                'points': trip.points
+            } for trip in t.trips],
+            'jammer': None,  # TODO
+            'blockers': [None, None, None, None],  # TODO
+            'noPivot': False,  # TODO
+        }
+
+    return {
+        'startTimestamp': (str(jam.start) if jam.start is not None
+                           else None),
+        'stopTimestamp': (str(jam.stop) if jam.stop is not None
+                          else None),
+        'stopReason': jam.stop_reason,
+        'home': encode_team(jam.home),
+        'away': encode_team(jam.away)
+    }
 
 
 if __name__ == '__main__':

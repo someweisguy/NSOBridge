@@ -3,7 +3,7 @@ from copy import copy
 from dataclasses import dataclass, field
 from datetime import datetime
 from roller_derby.interface import Copyable
-from typing import Any, Iterator
+from typing import Iterator
 
 
 @dataclass(slots=True, eq=False)
@@ -73,6 +73,10 @@ class Team(Copyable):
             self.lost = True
         self._score.star_pass = star_pass
 
+    @property
+    def trips(self) -> list[Trip]:
+        return self._score.trips
+
     def add_trip(self, timestamp: datetime, points: int) -> None:
         if 0 > points > 4:
             raise RuntimeError('Trip points must be between 0 and 4')
@@ -85,21 +89,6 @@ class Team(Copyable):
 
     def delete_trip(self, index: int):
         del self._score.trips[index]
-
-    def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
-        # FIXME
-        return {
-            'lead': self.lead,
-            'lost': self.lost,
-            'starPass': self.star_pass,
-            'trips': [{
-                'timestamp': str(trip.timestamp),
-                'points': trip.points
-            } for trip in self._score.trips],
-            'jammer': None,  # TODO
-            'blockers': [None, None, None, None],  # TODO
-            'noPivot': False,  # TODO
-        }
 
 
 class Jam(Copyable):
@@ -126,6 +115,10 @@ class Jam(Copyable):
         return snapshot
 
     @property
+    def stop_reason(self) -> int | None:
+        return self._stop_reason
+
+    @property
     def home(self) -> Team:
         return self._home
 
@@ -148,18 +141,6 @@ class Jam(Copyable):
 
     def is_stopped(self) -> bool:
         return self._start is not None and self._start is not None
-
-    def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
-        # FIXME
-        return {
-            'startTimestamp': (str(self._start) if self._start is not None
-                               else None),
-            'stopTimestamp': (str(self._stop) if self._stop is not None
-                              else None),
-            'stopReason': self._stop_reason,
-            'home': self.home.serve(timestamp),
-            'away': self.away.serve(timestamp)
-        }
 
 
 class Periods():
