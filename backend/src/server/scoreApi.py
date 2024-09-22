@@ -1,4 +1,4 @@
-from datetime import datetime
+'''from datetime import datetime
 from roller_derby import Series, Bout, Jam, TEAMS
 import backend.src.server.host as host
 
@@ -53,3 +53,4 @@ async def setStarPass(uri: URI, team: TEAMS, tripNum: None | int) -> API:
     jam.score[team].starPass = tripNum
     if tripNum is not None:
         jam.score[team].lost = True
+'''
