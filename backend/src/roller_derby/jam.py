@@ -1,43 +1,28 @@
 from __future__ import annotations
-from copy import copy
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from roller_derby.interface import Copyable
 from typing import Iterator
 
 
-@dataclass(slots=True, eq=False)
-class Trip(Copyable):
-    timestamp: datetime
-    points: int
-
-    def __copy__(self) -> Trip:
-        return Trip(copy(self.timestamp), copy(self.points))
-
-
-@dataclass(slots=True, eq=False)
-class Score(Copyable):
-    lead: bool = False
-    lost: bool = False
-    star_pass: int | None = None
-    trips: list[Trip] = field(default_factory=list)
-
-    def __copy__(self) -> Score:
-        snapshot: Score = Score()
-        self._copy_to(snapshot)
-        return snapshot
-
-
 class Team(Copyable):
-    __slots__ = '_jam', '_score'
+    __slots__ = '_jam', '_lead', '_lost', '_star_pass', '_trips'
+
+    @dataclass(slots=True)
+    class Trip():
+        timestamp: datetime
+        points: int
 
     def __init__(self, parent_jam: Jam) -> None:
         self._jam: Jam = parent_jam
-        self._score: Score = Score()
+
+        self._lead: bool = False
+        self._lost: bool = False
+        self._star_pass: int | None = None
+        self._trips: list[Team.Trip] = []
 
     def __copy__(self) -> Team:
         snapshot: Team = Team(self._jam)
-        snapshot._score = copy(self._score)
         return snapshot
 
     @property
@@ -47,48 +32,48 @@ class Team(Copyable):
 
     @property
     def lead(self) -> bool:
-        return self._score.lead
+        return self.lead
 
     @lead.setter
     def lead(self, lead: bool) -> None:
-        if lead is True and self.other._score.lead is True:
+        if lead is True and self.other.lead is True:
             raise RuntimeError('This team is not eligible for lead')
-        self._score.lead = lead
+        self.lead = lead
 
     @property
     def lost(self) -> bool:
-        return self._score.lost
+        return self.lost
 
     @lost.setter
     def lost(self, lost: bool) -> None:
-        self._score.lost = lost
+        self.lost = lost
 
     @property
     def star_pass(self) -> int | None:
-        return self._score.star_pass
+        return self.star_pass
 
     @star_pass.setter
     def star_pass(self, star_pass: int | None) -> None:
         if star_pass is not None:
             self.lost = True
-        self._score.star_pass = star_pass
+        self.star_pass = star_pass
 
     @property
     def trips(self) -> list[Trip]:
-        return self._score.trips
+        return self.trips
 
     def add_trip(self, timestamp: datetime, points: int) -> None:
         if 0 > points > 4:
             raise RuntimeError('Trip points must be between 0 and 4')
-        self._score.trips.append(Trip(timestamp, points))
+        self.trips.append(Team.Trip(timestamp, points))
 
     def edit_trip(self, index: int, points: int) -> None:
         if 0 > points > 4:
             raise RuntimeError('Trip points must be between 0 and 4')
-        self._score.trips[index].points = points
+        self.trips[index].points = points
 
     def delete_trip(self, index: int):
-        del self._score.trips[index]
+        del self.trips[index]
 
 
 class Jam(Copyable):
