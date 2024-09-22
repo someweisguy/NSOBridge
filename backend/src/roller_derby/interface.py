@@ -7,12 +7,6 @@ from typing import Any, Literal, Self
 from uuid import UUID
 
 
-class Resource(ABC):
-    @abstractmethod
-    def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
-        ...
-
-
 class Copyable(ABC):
     @abstractmethod
     def __copy__(self) -> Self:
@@ -36,7 +30,7 @@ class Copyable(ABC):
 
 
 @dataclass(slots=True, frozen=True)
-class ResourceId(Resource):
+class ResourceId():
     bout_id: UUID
     period_id: int | None = None
     jam_id: int | None = None

@@ -2,7 +2,7 @@ from __future__ import annotations
 from copy import copy
 from dataclasses import dataclass, field
 from datetime import datetime
-from roller_derby.interface import Copyable, Resource
+from roller_derby.interface import Copyable
 from typing import Any, Iterator
 
 
@@ -28,7 +28,7 @@ class Score(Copyable):
         return snapshot
 
 
-class Team(Resource, Copyable):
+class Team(Copyable):
     __slots__ = '_jam', '_score'
 
     def __init__(self, parent_jam: Jam) -> None:
@@ -87,6 +87,7 @@ class Team(Resource, Copyable):
         del self._score.trips[index]
 
     def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
+        # FIXME
         return {
             'lead': self.lead,
             'lost': self.lost,
@@ -101,7 +102,7 @@ class Team(Resource, Copyable):
         }
 
 
-class Jam(Resource, Copyable):
+class Jam(Copyable):
     __slots__ = '_start', '_stop', '_stop_reason', '_home', '_away'
 
     def __init__(self):
@@ -149,6 +150,7 @@ class Jam(Resource, Copyable):
         return self._start is not None and self._start is not None
 
     def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
+        # FIXME
         return {
             'startTimestamp': (str(self._start) if self._start is not None
                                else None),
@@ -160,7 +162,7 @@ class Jam(Resource, Copyable):
         }
 
 
-class Periods(Resource):
+class Periods():
     def __init__(self) -> None:
         self._jams: tuple[list[Jam], list[Jam]] = ([Jam()], [])
 
@@ -175,6 +177,3 @@ class Periods(Resource):
 
     def pop(self, period_id: int) -> Jam:
         return self._jams[period_id].pop()
-
-    def serve(self, timestamp: datetime | None = None) -> dict[str, Any]:
-        return {}  # TODO
