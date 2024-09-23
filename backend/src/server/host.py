@@ -12,6 +12,7 @@ from starlette.websockets import WebSocket
 from typing import Any, Callable, Collection, Literal, TypeAlias
 from pathlib import Path
 from uuid import UUID, uuid4
+import asyncio
 import json
 import logging
 import os
@@ -222,6 +223,11 @@ def broadcast_updates() -> None:
             })
         except Exception:
             log.error(f'Unable to fetch \'{id['type']}\'')
+    WebSocketClient.updates.clear()
+
+    text: str = WebSocketClient.encoder.encode(payload)
+    for sock in WebSocketClient.sockets:
+        asyncio.create_task(sock.send_text(text))
 
 
 def load_api(path: str = 'api') -> None:

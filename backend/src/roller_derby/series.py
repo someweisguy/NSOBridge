@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from roller_derby.bout import Bout
-from typing import Self
+from typing import Iterable, Iterator
 from uuid import UUID, uuid4
 
 
@@ -11,11 +11,13 @@ class Series():
     def __getitem__(self, boutId: UUID) -> Bout:
         return self._bouts[boutId]
 
-    def __iter__(self) -> Self:
-        return self
+    def __iter__(self):
+        return next(self)
 
-    def __next__(self) -> UUID:
-        return next(self._bouts.__iter__())
+    def __next__(self) -> Iterator[UUID]:
+        uuids: Iterable[UUID] = self._bouts.keys()
+        for uuid in uuids:
+            yield uuid
 
     def add(self) -> UUID:
         id: UUID = uuid4()

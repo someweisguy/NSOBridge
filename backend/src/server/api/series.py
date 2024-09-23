@@ -5,8 +5,8 @@ import server
 
 
 @server.getter(Series)
-def getSeries() -> list[dict[str, Any]]:
-    return [getBout(id) for id in bouts]
+def getSeries() -> dict[str, Any]:
+    return {str(id): getBout(id) for id in bouts}
 
 
 @server.register
