@@ -239,23 +239,21 @@ async def serve(port: int = 8000, *, debug: bool = False) -> None:
         WebSocketClient.debug = True
         log.setLevel(logging.DEBUG)
 
-    # TODO: clean this path up
-    dir: Path = (Path(__file__).parent.parent.parent.parent / 'frontend'
-                 / 'dist')
+    directory: Path = (Path(os.getcwd()) / 'frontend' / 'dist')
 
     def renderPage(request: Request):
         path: Path = Path('index.html' if 'page'
                           not in request.path_params.keys()
                           else request.path_params['page'])
         log.debug(f'Handling request for \'{path}\'.')
-        return FileResponse(dir/path)
+        return FileResponse(directory / path)
 
     # Instantiate the application
     instance: Starlette = Starlette(
         routes=(
             Route('/', renderPage),
             WebSocketRoute('/ws', WebSocketClient),
-            Mount('/assets', StaticFiles(directory=dir/'assets')),
+            Mount('/assets', StaticFiles(directory=directory / 'assets')),
             Route('/{page:str}', renderPage),
         )
     )
