@@ -14,6 +14,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 import json
 import logging
+import os
 import socket
 import uvicorn
 
@@ -221,6 +222,14 @@ def broadcast_updates() -> None:
             })
         except Exception:
             log.error(f'Unable to fetch \'{id['type']}\'')
+
+
+def load_api(path: str = 'api') -> None:
+    for module in os.listdir(Path(os.path.dirname(__file__)) / path):
+        if module == '__init__.py' or not module.endswith('.py'):
+            continue
+        log.info(f'Loading API \'{module}\'')
+        __import__(f'server.{path}.{module[:-3]}', locals(), globals())
 
 
 async def serve(port: int = 8000, *, debug: bool = False) -> None:
