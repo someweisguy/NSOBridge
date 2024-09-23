@@ -125,4 +125,4 @@ def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
 
 if __name__ == '__main__':
     addBout()
-    asyncio.run(server.serve(debug=True))
+    asyncio.run(server.serve())
