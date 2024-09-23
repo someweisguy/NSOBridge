@@ -1,5 +1,5 @@
 from .bout import getBout
-from roller_derby import Bout, BoutId, bouts, Series, Timer
+from roller_derby import Bout, BoutId, bouts, Series
 from typing import Any
 import server
 
@@ -20,8 +20,8 @@ def addBout() -> None:
     }
 
     # Ensure the server broadcasts updates whenever a Timer has elapsed
-    for clock_name in ('intermission', 'period', 'lineup', 'jam', 'timeout'):
-        clock: Timer = getattr(bout, f'{clock_name}_clock')
+    for clock in (bout.intermission_clock, bout.period_clock,
+                  bout.lineup_clock, bout.jam_clock, bout.timeout_clock):
         clock.set_callback(lambda _: server.queue_update(resource_id,
                                                          send_now=True))
 
