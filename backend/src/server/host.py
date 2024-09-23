@@ -2,7 +2,6 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from inspect import Parameter, signature
 from json import JSONDecodeError, JSONEncoder
-from roller_derby.interface import ResourceId
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
 from starlette.requests import Request
@@ -10,10 +9,9 @@ from starlette.responses import FileResponse
 from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
-from typing import Any, Callable, Collection, Literal
+from typing import Any, Callable, Collection, Literal, TypeAlias
 from pathlib import Path
 from uuid import UUID, uuid4
-import asyncio
 import json
 import logging
 import socket
@@ -30,6 +28,9 @@ logging.basicConfig(
 )
 
 
+resource_id: TypeAlias = dict[str, type | str | int | float | bool | None]
+
+
 class WebSocketClient(WebSocketEndpoint):
     encoding: Literal['text', 'bytes', 'json'] = 'text'
     encoder: JSONEncoder = JSONEncoder(separators=(',', ':'),
@@ -43,7 +44,8 @@ class WebSocketClient(WebSocketEndpoint):
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': lambda: None,
     }
-    updates: set[tuple[ResourceId, Any]] = set()
+    updates: list[resource_id] = []
+    getters: dict[type, Callable] = {}
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
@@ -167,35 +169,58 @@ class WebSocketClient(WebSocketEndpoint):
             broadcast_updates()
 
 
-def register(callback: str | Callable = '') -> Callable:
+def getter(cls: type, *, name: str = '') -> Callable:
     def inner(command: Callable) -> Callable:
-        key: str = (command.__name__ if isinstance(
-            callback, Callable) or callback == '' else callback)
+        if cls in WebSocketClient.getters:
+            raise ValueError(f'\'{cls.__name__}\' already has a server getter')
+        WebSocketClient.getters[cls] = command
+        key: str = name
+        register(command, name=key)
+        return command
+    return inner
+
+
+def register(callback: Callable | None = None, name: str = '') -> Callable:
+    def inner(command: Callable) -> Callable:
+        key: str = (command.__name__ if name == '' else name)
+        log.debug(f'Registering \'{key}\' as a server action')
         if key in WebSocketClient.callbacks.keys():
             raise ValueError(f'\'{key}\' is already a server action key')
-        log.debug(f'Registering \'{key}\' as a server action key')
         WebSocketClient.callbacks[key] = command
         return command
 
     return inner(callback) if callable(callback) else inner
 
 
-def queue_update(id: tuple | ResourceId, resource: Any) -> None:
-    if isinstance(id, tuple):
-        id = ResourceId(*id)
-    WebSocketClient.updates.add((id, resource))
+def queue_update(ids: tuple[resource_id] | list[resource_id] | resource_id, *,
+                 send_now: bool = False) -> None:
+    if not isinstance(ids, (tuple, list)):
+        ids = (ids, )
+    for id in ids:
+        if id not in WebSocketClient.updates:
+            WebSocketClient.updates.append(id)
+    if send_now:
+        broadcast_updates()
 
 
 def broadcast_updates() -> None:
     payload: list[dict[str, Any]] = []
-    for id, resource in WebSocketClient.updates:
-        payload.append({
-            'id': id.serve(),
-            'data': resource.serve() if resource is not None else None,
-        })
-    for sock in WebSocketClient.sockets:
-        asyncio.create_task(sock.send_json(payload))
-    WebSocketClient.updates.clear()
+    for id in WebSocketClient.updates:
+        if 'type' not in id.keys():
+            log.error('Malformed resource ID: missing \'type\'')
+            continue
+        if not isinstance(id['type'], type):
+            log.error('Malformed resource ID: invalid class type')
+            continue
+        getter: Callable = WebSocketClient.getters[id['type']]
+        id['type'] = id['type'].__name__
+        try:
+            payload.append({
+                'id': id,
+                'data': getter(**id)
+            })
+        except Exception:
+            log.error(f'Unable to fetch \'{id['type']}\'')
 
 
 async def serve(port: int = 8000, *, debug: bool = False) -> None:

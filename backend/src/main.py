@@ -1,40 +1,41 @@
 from datetime import datetime
-from backend.src.roller_derby.jam import Team
-from roller_derby import Bout, BoutId, bouts, Jam, Timer
+from roller_derby import Bout, BoutId, bouts, Jam, Series, Timer
 from typing import Any
 import asyncio
 import server
 
 
-@server.register
+@server.getter(Series)
 def getSeries() -> list[dict[str, Any]]:
     return [getBout(id) for id in bouts]
 
 
 @server.register
 def addBout() -> None:
-    new_bout_id: BoutId = BoutId()
+    new_bout_id: BoutId = bouts.add()
     bout: Bout = bouts[new_bout_id]
 
-    def default_clock_callback(_: datetime) -> None:
-        server.queue_update((new_bout_id, ), bout)
-        server.broadcast_updates()
+    resource_id: server.resource_id = {
+        'name': type(bout),
+        'boutId': str(new_bout_id)
+    }
 
     # Ensure the server broadcasts updates whenever a Timer has elapsed
     for clock_name in ('intermission', 'period', 'lineup', 'jam', 'timeout'):
         clock: Timer = getattr(bout, f'{clock_name}_clock')
-        clock.set_callback(default_clock_callback)
+        clock.set_callback(lambda _: server.queue_update(resource_id,
+                                                         send_now=True))
 
-    server.queue_update((new_bout_id,), bout)
+    server.queue_update(resource_id)
 
 
 @server.register
 def deleteBout(boutId: BoutId) -> None:
     bouts.delete(boutId)
-    server.queue_update((boutId,), None)
+    server.queue_update({'name': Bout, 'boutId': str(boutId)})
 
 
-@server.register
+@server.getter(Bout)
 def getBout(boutId: BoutId) -> dict[str, Any]:
     bout: Bout = bouts[boutId]
     now: datetime = datetime.now()
@@ -93,11 +94,11 @@ def getBout(boutId: BoutId) -> dict[str, Any]:
     }
 
 
-@server.register
+@server.getter(Jam)
 def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
-    def encode_team(t: Team) -> dict[str, Any]:
+    def encode_team(t: Jam.Team) -> dict[str, Any]:
         return {
             'lead': t.lead,
             'lost': t.lost,
@@ -124,4 +125,4 @@ def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
 
 if __name__ == '__main__':
     addBout()
-    asyncio.run(server.serve())
+    asyncio.run(server.serve(debug=True))
