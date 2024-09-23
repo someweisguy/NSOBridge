@@ -1,8 +1,8 @@
 from __future__ import annotations
 from copy import copy
+from datetime import datetime, timedelta
 from roller_derby.interface import Copyable
 from roller_derby.jam import Periods
-from datetime import datetime, timedelta
 from typing import Callable, Self
 import asyncio
 
