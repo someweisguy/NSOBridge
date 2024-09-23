@@ -9,12 +9,12 @@ def getBout(boutId: BoutId) -> dict[str, Any]:
     bout: Bout = bouts[boutId]
     now: datetime = datetime.now()
 
-    def encode_timer(t: Timer) -> dict[str, int | bool | None]:
+    def encode_timer(timer: Timer) -> dict[str, int | bool | None]:
         return {
-            'elapsed': round(t.get_elapsed(now).total_seconds() * 1000),
-            'alarm': (round(t.alarm.total_seconds() * 1000)
-                      if t.alarm is not None else None),
-            'isRunning': t.is_running()
+            'elapsed': round(timer.get_elapsed(now).total_seconds() * 1000),
+            'alarm': (round(timer.alarm.total_seconds() * 1000)
+                      if timer.alarm is not None else None),
+            'isRunning': timer.is_running()
         }
 
     return {
