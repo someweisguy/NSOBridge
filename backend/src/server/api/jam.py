@@ -7,15 +7,15 @@ import server
 def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
-    def encode_team(t: Jam.Team) -> dict[str, Any]:
+    def encode_team(team: Jam.Team) -> dict[str, Any]:
         return {
-            'lead': t.lead,
-            'lost': t.lost,
-            'starPass': t.star_pass,
+            'lead': team.lead,
+            'lost': team.lost,
+            'starPass': team.star_pass,
             'trips': [{
                 'timestamp': str(trip.timestamp),
                 'points': trip.points
-            } for trip in t.trips],
+            } for trip in team.trips],
             'jammer': None,  # TODO
             'blockers': [None, None, None, None],  # TODO
             'noPivot': False,  # TODO
