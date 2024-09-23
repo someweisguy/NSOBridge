@@ -79,8 +79,8 @@ class Jam(Copyable):
             del self.trips[index]
 
     def __init__(self):
-        self._start: datetime | None = None
-        self._stop: datetime | None = None
+        self._start_timestamp: datetime | None = None
+        self._stop_timestamp: datetime | None = None
         self._stop_reason: int | None = None
         self._home = Jam.Team(self)
         self._away = Jam.Team(self)
@@ -99,6 +99,14 @@ class Jam(Copyable):
         return snapshot
 
     @property
+    def start_timestamp(self) -> datetime | None:
+        return self._start_timestamp
+
+    @property
+    def stop_timestamp(self) -> datetime | None:
+        return self._stop_timestamp
+
+    @property
     def stop_reason(self) -> int | None:
         return self._stop_reason
 
@@ -111,20 +119,22 @@ class Jam(Copyable):
         return self._away
 
     def start(self, timestamp: datetime) -> None:
-        if self._start is not None:
+        if self._start_timestamp is not None:
             raise RuntimeError('This Jam is already running')
-        self._start = timestamp
+        self._start_timestamp = timestamp
 
     def stop(self, timestamp: datetime) -> None:
-        if self._stop is not None:
+        if self._stop_timestamp is not None:
             raise RuntimeError('This Jam is already stopped')
-        self._stop = timestamp
+        self._stop_timestamp = timestamp
 
     def is_running(self) -> bool:
-        return self._start is not None and self._start is None
+        return (self._start_timestamp is not None
+                and self._start_timestamp is None)
 
     def is_stopped(self) -> bool:
-        return self._start is not None and self._start is not None
+        return (self._start_timestamp is not None
+                and self._start_timestamp is not None)
 
 
 class Periods():

@@ -22,10 +22,10 @@ def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
         }
 
     return {
-        'startTimestamp': (str(jam.start) if jam.start is not None
-                           else None),
-        'stopTimestamp': (str(jam.stop) if jam.stop is not None
-                          else None),
+        'startTimestamp': (str(jam.start_timestamp)
+                           if jam.start_timestamp is not None else None),
+        'stopTimestamp': (str(jam.stop_timestamp)
+                          if jam.stop_timestamp is not None else None),
         'stopReason': jam.stop_reason,
         'home': encode_team(jam.home),
         'away': encode_team(jam.away)
