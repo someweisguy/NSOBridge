@@ -117,6 +117,9 @@ class WebSocketClient(WebSocketEndpoint):
                       'timedelta' in required_types):
                     # Convert numbers to timedelta objects
                     args[arg.name] = timedelta(milliseconds=args[arg.name])
+                elif provided_type == 'str' and 'UUID' in required_types:
+                    # Convert strings to UUIDs
+                    args[arg.name] = UUID(args[arg.name])
                 elif provided_type == 'str' and 'datetime' in required_types:
                     # ISO 8601 strings can be converted to datetime objects
                     try:
