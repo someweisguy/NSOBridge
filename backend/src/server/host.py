@@ -35,9 +35,7 @@ resource_id: TypeAlias = dict[str, type | str | int | float | bool | None]
 
 class WebSocketClient(WebSocketEndpoint):
     encoding: Literal['text', 'bytes', 'json'] = 'text'
-    encoder: JSONEncoder = JSONEncoder(separators=(',', ':'),
-                                       default=lambda o:
-                                           o.serve(datetime.now()))
+    encoder: JSONEncoder = JSONEncoder(separators=(',', ':'))
     debug: bool = False
 
     sockets: set[WebSocket] = set()
