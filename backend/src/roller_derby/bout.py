@@ -145,6 +145,10 @@ class Bout(Copyable):
     def __copy__(self) -> Bout:
         # FIXME
         snapshot: Bout = Bout()
-        snapshot._clocks = copy(self._clocks)
+        snapshot._intermission_clock = copy(self._intermission_clock)
+        snapshot._period_clock = copy(self._period_clock)
+        snapshot._lineup_clock = copy(self._lineup_clock)
+        snapshot._jam_clock = copy(self._jam_clock)
+        snapshot._timeout_clock = copy(self._timeout_clock)
         snapshot._jams = copy(self._jams)
         return snapshot
