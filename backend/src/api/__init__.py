@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Literal
 from uuid import UUID
 import roller_derby
 
@@ -10,7 +9,7 @@ class Id:
     bout: UUID
     period: int | None = None
     jam: int | None = None
-    team: Literal['home', 'away', 'official'] | None = None
+    team: str | None = None
 
     def __dict__(self) -> dict[str, str | int | float | bool | None]:
         dictionary: dict = {
