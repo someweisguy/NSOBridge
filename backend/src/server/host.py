@@ -10,7 +10,8 @@ from starlette.responses import FileResponse
 from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
-from typing import Any, Callable, Collection, Literal
+from types import UnionType
+from typing import Any, Callable, Collection, get_args, Literal
 from pathlib import Path
 from uuid import UUID, uuid4
 import asyncio
@@ -95,38 +96,23 @@ class WebSocketClient(WebSocketEndpoint):
                                     if k in set([arg.name for arg in
                                                  callback_signature])}
 
-            # Validate that the types of each argument is correct
+            # Automatically convert certain compatible types
             for arg in callback_signature:
-                if arg.name not in args.keys():
-                    if arg.default is Parameter.empty:
-                        raise UserWarning('API action '
-                                          f'\'{request['action']}\' is '
-                                          f'missing argument \'{arg.name}\'')
-                    continue  # Missing argument is optional
-                provided_type: str = type(args[arg.name]).__name__
-                required_types: list[str] = (arg.annotation.split(' | ')
-                                             if (arg.annotation is not
-                                                 Parameter.empty) else [])
-                if len(required_types) == 0:
-                    continue  # Required type is not specified
-                elif (provided_type in ('int', 'float') and
-                      'timedelta' in required_types):
+                provided_type: type = type(args[arg.name])
+                required_types: tuple[type, ...] = (arg.annotation,)
+                if isinstance(required_types[0], UnionType):
+                    required_types = get_args(arg.annotation)
+                if (provided_type in (int, float)
+                        and timedelta in required_types):
                     # Convert numbers to timedelta objects
                     args[arg.name] = timedelta(milliseconds=args[arg.name])
-                elif provided_type == 'str' and 'UUID' in required_types:
-                    # Convert strings to UUIDs
-                    args[arg.name] = UUID(args[arg.name])
-                elif provided_type == 'str' and 'datetime' in required_types:
-                    # ISO 8601 strings can be converted to datetime objects
-                    try:
+                elif provided_type == str:
+                    if UUID in required_types:
+                        # Convert strings to UUIDs
+                        args[arg.name] = UUID(args[arg.name])
+                    elif datetime in required_types:
+                        # ISO 8601 strings can be converted to datetime objects
                         args[arg.name] = datetime.fromisoformat(args[arg.name])
-                    except Exception:
-                        raise UserWarning(f'\'{arg.name}\' is invalid: '
-                                          f'\'{args[arg.name]}\'')
-                elif provided_type not in required_types:
-                    raise UserWarning(f'API action \'{request['action']}\' '
-                                      f'argument \'{arg.name}\' type is '
-                                      'invalid')
 
             # Execute the API action and get the response data
             response['data'] = callback(**args)
@@ -173,7 +159,7 @@ class WebSocketClient(WebSocketEndpoint):
 def register(callback: Callable | None = None, name: str = '') -> Callable:
     def inner(command: Callable) -> Callable:
         key: str = (command.__name__ if name == '' else name)
-        log.debug(f'Registering \'{key}\' as a server action')
+        log.info(f'Registering \'{key}\' as a server action')
         if key in WebSocketClient.callbacks.keys():
             raise ValueError(f'\'{key}\' is already a server action key')
         WebSocketClient.callbacks[key] = command
