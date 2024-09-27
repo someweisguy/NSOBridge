@@ -98,6 +98,8 @@ class WebSocketClient(WebSocketEndpoint):
 
             # Automatically convert certain compatible types
             for arg in callback_signature:
+                if arg.name not in args.keys():
+                    continue  # Ignore unused args
                 provided_type: type = type(args[arg.name])
                 required_types: tuple[type, ...] = (arg.annotation,)
                 if isinstance(required_types[0], UnionType):
