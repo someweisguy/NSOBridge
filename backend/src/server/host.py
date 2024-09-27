@@ -1,5 +1,5 @@
 from __future__ import annotations
-from dataclasses import asdict, is_dataclass
+from dataclasses import is_dataclass
 from datetime import datetime, timedelta
 from inspect import Parameter, signature
 from json import JSONDecodeError, JSONEncoder
