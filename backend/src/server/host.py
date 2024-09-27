@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import asdict, is_dataclass
 from datetime import datetime, timedelta
 from inspect import Parameter, signature
 from json import JSONDecodeError, JSONEncoder
@@ -9,7 +10,7 @@ from starlette.responses import FileResponse
 from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
-from typing import Any, Callable, Collection, Literal, TypeAlias
+from typing import Any, Callable, Collection, Literal
 from pathlib import Path
 from uuid import UUID, uuid4
 import asyncio
@@ -30,9 +31,6 @@ logging.basicConfig(
 )
 
 
-resource_id: TypeAlias = dict[str, type | str | int | float | bool | None]
-
-
 class WebSocketClient(WebSocketEndpoint):
     encoding: Literal['text', 'bytes', 'json'] = 'text'
     encoder: JSONEncoder = JSONEncoder(separators=(',', ':'))
@@ -44,8 +42,8 @@ class WebSocketClient(WebSocketEndpoint):
         'logMessage': lambda message: log.info(str(message)),
         'updateLatency': lambda: None,
     }
-    updates: list[resource_id] = []
-    getters: dict[type, Callable] = {}
+    updates: list[Any] = []
+    getter: Callable | None = None
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
@@ -172,17 +170,6 @@ class WebSocketClient(WebSocketEndpoint):
             broadcast_updates()
 
 
-def getter(cls: type, *, name: str = '') -> Callable:
-    def inner(command: Callable) -> Callable:
-        if cls in WebSocketClient.getters:
-            raise ValueError(f'\'{cls.__name__}\' already has a server getter')
-        WebSocketClient.getters[cls] = command
-        key: str = name
-        register(command, name=key)
-        return command
-    return inner
-
-
 def register(callback: Callable | None = None, name: str = '') -> Callable:
     def inner(command: Callable) -> Callable:
         key: str = (command.__name__ if name == '' else name)
@@ -195,11 +182,23 @@ def register(callback: Callable | None = None, name: str = '') -> Callable:
     return inner(callback) if callable(callback) else inner
 
 
-def queue_update(ids: tuple[resource_id] | list[resource_id] | resource_id, *,
+def set_adapter(getter: Callable[[Any], dict]) -> None:
+    if WebSocketClient.getter is None:
+        log.debug('Model adapter function has been set')
+    else:
+        log.warning('Model adapter function has been overwritten')
+    WebSocketClient.getter = getter
+
+
+def queue_update(ids: tuple[Any] | list[Any] | Any, *,
                  send_now: bool = False) -> None:
     if not isinstance(ids, (tuple, list)):
         ids = (ids, )
     for id in ids:
+        if not is_dataclass(id):
+            log.warning('Server update ID must be a dataclass, '
+                        f'not \'{type(id).__name__}\'')
+            continue
         if id not in WebSocketClient.updates:
             WebSocketClient.updates.append(id)
     if send_now:
@@ -208,35 +207,22 @@ def queue_update(ids: tuple[resource_id] | list[resource_id] | resource_id, *,
 
 def broadcast_updates() -> None:
     payload: list[dict[str, Any]] = []
-    for id in WebSocketClient.updates:
-        if 'type' not in id.keys():
-            log.error('Malformed resource ID: missing \'type\'')
-            continue
-        if not isinstance(id['type'], type):
-            log.error('Malformed resource ID: invalid class type')
-            continue
-        getter: Callable = WebSocketClient.getters[id['type']]
-        id['type'] = id['type'].__name__
+    if WebSocketClient.getter is None:
+        log.error('No object getter defined for the server')
+        return
+    while len(WebSocketClient.updates) > 0:
+        id: Any = WebSocketClient.updates.pop()
         try:
             payload.append({
-                'id': id,
-                'data': getter(**id)
+                'id': asdict(id),
+                'data': WebSocketClient.getter(id)
             })
         except Exception:
-            log.error(f'Unable to fetch \'{id['type']}\'')
-    WebSocketClient.updates.clear()
+            log.error('Unable to fetch model object')
 
     text: str = WebSocketClient.encoder.encode(payload)
     for sock in WebSocketClient.sockets:
         asyncio.create_task(sock.send_text(text))
-
-
-def load_api(path: str = 'api') -> None:
-    for module in os.listdir(Path(os.path.dirname(__file__)) / path):
-        if module == '__init__.py' or not module.endswith('.py'):
-            continue
-        log.info(f'Loading API \'{module}\'')
-        __import__(f'server.{path}.{module[:-3]}', locals(), globals())
 
 
 async def serve(port: int = 8000, *, debug: bool = False) -> None:
