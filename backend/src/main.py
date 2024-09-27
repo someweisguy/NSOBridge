@@ -5,5 +5,5 @@ import api
 
 if __name__ == '__main__':
     roller_derby.bouts.add()
-    server.set_adapter(api.model_adapter)
+    server.set_adapter(api.adapter)
     asyncio.run(server.serve())

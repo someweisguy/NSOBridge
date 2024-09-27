@@ -28,7 +28,7 @@ class Id:
         return dictionary
 
 
-def model_adapter(id: Id) -> dict:
+def adapter(id: Id) -> dict:
     match id.type:
         case roller_derby.Bout:
             return bout.getBout(id.bout)
