@@ -1,5 +1,5 @@
 from . import Id
-from datetime import datetime
+from datetime import datetime, timedelta
 from roller_derby import BoutId, bouts, Jam
 from typing import Any
 import server
@@ -36,15 +36,16 @@ def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
 
 @server.register
 def setTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
-            tripNum: int, points: int, timestamp: datetime,
+            tripNum: int, points: int, latency: timedelta,
             validPass: bool = True) -> None:
+    now: datetime = datetime.now() - latency
     id: Id = Id(Jam, boutId, periodId, jamId)
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     # Attempt to set the lead jammer and add the Trip
     if not jam[team].lost and validPass:
         jam[team].lead = True
-    jam[team].add_trip(timestamp, points)  # FIXME: add Trip vs edit Trip
+    jam[team].add_trip(now, points)  # FIXME: add Trip vs edit Trip
 
     server.queue_update(id)
 
