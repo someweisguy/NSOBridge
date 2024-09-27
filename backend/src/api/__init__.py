@@ -1,5 +1,3 @@
-from . import *  # noqa
-from . import bout, jam
 from dataclasses import dataclass
 from typing import Literal
 from uuid import UUID
@@ -36,3 +34,7 @@ def adapter(id: Id) -> dict:
             return jam.getJam(id.bout, id.period, id.jam)
         case _:
             raise KeyError(f'Unknown type \'{id.type.__name__}\'')
+
+
+if __name__ != '__main__':
+    from . import bout, jam, series  # noqa
