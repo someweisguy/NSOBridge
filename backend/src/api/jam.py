@@ -38,7 +38,7 @@ def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
 def setTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
             tripNum: int, points: int, timestamp: datetime,
             validPass: bool = True) -> None:
-    id: Id = Id(Jam, boutId, periodId, jamId, team)
+    id: Id = Id(Jam, boutId, periodId, jamId)
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     # Attempt to set the lead jammer and add the Trip
@@ -52,7 +52,7 @@ def setTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
 @server.register
 def deleteTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
                tripNum: int) -> None:
-    id: Id = Id(Jam, boutId, periodId, jamId, team)
+    id: Id = Id(Jam, boutId, periodId, jamId)
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     jam[team].delete_trip(tripNum)
@@ -63,7 +63,7 @@ def deleteTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
 @server.register
 def setLead(boutId: BoutId, periodId: int, jamId: int, team: str,
             lead: bool) -> None:
-    id: Id = Id(Jam, boutId, periodId, jamId, team)
+    id: Id = Id(Jam, boutId, periodId, jamId)
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     if jam[team].other.lead:
@@ -76,7 +76,7 @@ def setLead(boutId: BoutId, periodId: int, jamId: int, team: str,
 @server.register
 def setLost(boutId: BoutId, periodId: int, jamId: int, team: str,
             lost: bool) -> None:
-    id: Id = Id(Jam, boutId, periodId, jamId, team)
+    id: Id = Id(Jam, boutId, periodId, jamId)
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     jam[team].lost = lost
@@ -87,7 +87,7 @@ def setLost(boutId: BoutId, periodId: int, jamId: int, team: str,
 @server.register
 def setStarPass(boutId: BoutId, periodId: int, jamId: int, team: str,
                 tripNum: int) -> None:
-    id: Id = Id(Jam, boutId, periodId, jamId, team)
+    id: Id = Id(Jam, boutId, periodId, jamId)
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     jam[team].star_pass = tripNum
