@@ -35,48 +35,48 @@ class Jam(Copyable):
 
         @property
         def lead(self) -> bool:
-            return self.lead
+            return self._lead
 
         @lead.setter
         def lead(self, lead: bool) -> None:
             if lead is True and self.other.lead is True:
                 raise RuntimeError('This team is not eligible for lead')
-            self.lead = lead
+            self._lead = lead
 
         @property
         def lost(self) -> bool:
-            return self.lost
+            return self._lost
 
         @lost.setter
         def lost(self, lost: bool) -> None:
-            self.lost = lost
+            self._lost = lost
 
         @property
         def star_pass(self) -> int | None:
-            return self.star_pass
+            return self._star_pass
 
         @star_pass.setter
         def star_pass(self, star_pass: int | None) -> None:
             if star_pass is not None:
                 self.lost = True
-            self.star_pass = star_pass
+            self._star_pass = star_pass
 
         @property
         def trips(self) -> list[Trip]:
-            return self.trips
+            return self._trips
 
         def add_trip(self, timestamp: datetime, points: int) -> None:
             if 0 > points > 4:
                 raise RuntimeError('Trip points must be between 0 and 4')
-            self.trips.append(Jam.Team.Trip(timestamp, points))
+            self._trips.append(Jam.Team.Trip(timestamp, points))
 
         def edit_trip(self, index: int, points: int) -> None:
             if 0 > points > 4:
                 raise RuntimeError('Trip points must be between 0 and 4')
-            self.trips[index].points = points
+            self._trips[index].points = points
 
         def delete_trip(self, index: int):
-            del self.trips[index]
+            del self._trips[index]
 
     def __init__(self):
         self._start_timestamp: datetime | None = None
