@@ -200,7 +200,7 @@ def broadcast_updates() -> None:
         id: Any = WebSocketClient.updates.pop()
         try:
             payload.append({
-                'id': asdict(id),
+                'id': id.__dict__(),
                 'data': WebSocketClient.getter(id)
             })
         except Exception:
