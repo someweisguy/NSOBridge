@@ -60,13 +60,11 @@ class WebSocketClient(WebSocketEndpoint):
         log.info(f'Socket \'{self.id}\' disconnected at {datetime.now()}')
 
     async def on_receive(self, socket: WebSocket, payload: bytes) -> None:
-        now: datetime = datetime.now()
-
         log.debug(f'{payload} ({self.id})')
 
         # Instantiate a boilerplate JSON response
         response: dict[str, Any] = {
-            'serverTimestamp': now.isoformat(),
+            'serverTimestamp': str(datetime.now()),
         }
 
         try:
