@@ -13,8 +13,8 @@ class Id:
 
     def __dict__(self) -> dict[str, str | int | float | bool | None]:
         dictionary: dict = {
-            'type': str(type),
-            'bout': str(UUID),
+            'type': str(self.type.__name__),
+            'bout': str(self.bout),
         }
         if self.period is not None:
             dictionary['period'] = self.period
