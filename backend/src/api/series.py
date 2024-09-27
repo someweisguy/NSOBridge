@@ -7,6 +7,7 @@ import server
 
 @server.register
 def getSeries() -> dict[str, Any]:
+    # TODO: return abstract of bouts
     return {str(id): getBout(id) for id in bouts}
 
 
