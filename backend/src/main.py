@@ -1,9 +1,9 @@
 import asyncio
 import server
-import roller_derby
 
 
 if __name__ == '__main__':
+    import roller_derby
     roller_derby.bouts.add()
 
     import api
