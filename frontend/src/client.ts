@@ -1,9 +1,19 @@
 import { v4 as uuid4 } from 'uuid';
+import { BoutAbstract, getSeries } from './api/series';
+import { Bout, getBout } from './api/bout'
 
 const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
 const ackResolutions: Map<string, (msg: Message) => void> = new Map();
 let latencyIntervalId: number | null = null;
 let latency: number = 0;
+
+export interface Id {
+  type?: string,
+  boutId: string,
+  periodId?: number,
+  jamId?: number,
+  team?: string
+};
 
 interface Message {
   readonly action: string,
@@ -71,6 +81,20 @@ socket.addEventListener('open', async () => {
   }, 15000);
 
 
+  // TODO: this section is just for testing
+  const series: [string, BoutAbstract][] = await getSeries();
+  if (series.length == 1) {
+    const [boutId,] = series[0];
+    const bout: Bout = await getBout(boutId);
+    console.log(bout);
+  } else if (series.length > 1) {
+    // TODO
+    console.log('There are multiple Bouts available.');
+  } else {
+    // TODO: create a new Bout
+  }
+
+
 });
 
 socket.addEventListener('close', () => {
@@ -98,3 +122,55 @@ socket.addEventListener('message', (event) => {
   // Handle non-ACK message
   // TODO
 });
+
+interface Store {
+  isStale: boolean,
+  subscribe: (cb: () => void) => void,
+  getSnapshot: () => unknown,
+};
+
+const syncStore: Map<string, Map<Id, object>> = new Map()
+
+export function getStore(type: string, id: Id): Store {
+  if (!syncStore.has(type)) {
+    syncStore.set(type, new Map());
+  }
+  const stores = <Map<Id, object>>syncStore.get(type);
+
+  if (stores.has(id)) {
+    return <Store>stores.get(id);
+  }
+
+  let data: unknown | null = null;
+  let promise: Promise<unknown> | null = null;
+  let renderCallbacks: (() => void)[] = [];
+
+  const store: Store = {
+    isStale: true,
+    subscribe(cb: () => void): () => void {
+      renderCallbacks.push(cb);
+      return () => {
+        renderCallbacks = renderCallbacks.filter(fn => fn !== cb);
+      }
+    },
+    getSnapshot(): unknown {
+      if (!store.isStale) {
+        return data;
+      }
+
+      if (promise == null) {
+        promise = send('get' + type, id)
+          .then((newData) => {
+            data = newData;
+            store.isStale = false;
+            promise = null;
+            renderCallbacks.forEach(cb => cb());
+          });
+      }
+      throw promise;
+    }
+  }
+  stores.set(id, store);
+  return store;
+}
+

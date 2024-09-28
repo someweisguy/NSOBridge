@@ -1,20 +1,12 @@
-import { send } from './client'
+import { send } from '../client'
 
-
-interface StoreArgs {
-  boutId: string,
-  periodId?: number,
-  jamId?: number,
-  team?: string
-};
-
-interface Timer {
+export interface Timer {
   elapsed: number,
   alarm: number | null,
   isRunning: boolean
 };
 
-interface Bout {
+export interface Bout {
   clocks: {
     intermission: Timer,
     period: Timer,
@@ -69,11 +61,13 @@ interface Bout {
   }
 };
 
+const bouts: Map<string, Bout> = new Map();
 
-const seriesStore: Map<string, Bout> = new Map();
-
-
-async function getStore(name: string, args: StoreArgs) {
-
-
+export async function getBout(boutId: string): Promise<Bout> {
+  if (bouts.has(boutId)) {
+    return <Bout>bouts.get(boutId);
+  }
+  const bout = <Bout>await send('getBout', { boutId });
+  bouts.set(boutId, bout);
+  return bout;
 }
