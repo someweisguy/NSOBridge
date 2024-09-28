@@ -85,7 +85,7 @@ socket.addEventListener('open', async () => {
   const series: [string, BoutAbstract][] = await getSeries();
   if (series.length == 1) {
     const [boutId,] = series[0];
-    const bout: Bout = await getBout(boutId);
+    const bout: Bout = await getStore('Bout', { boutId })
     console.log(bout);
   } else if (series.length > 1) {
     // TODO
@@ -136,6 +136,8 @@ export function getStore(type: string, id: Id): Store {
     syncStore.set(type, new Map());
   }
   const stores = <Map<Id, object>>syncStore.get(type);
+
+  // FIXME: id must be stringified? different objects get different values
 
   if (stores.has(id)) {
     return <Store>stores.get(id);
