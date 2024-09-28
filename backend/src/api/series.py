@@ -1,5 +1,4 @@
 from . import Id
-from .bout import getBout
 from roller_derby import Bout, BoutId, bouts
 from typing import Any
 import server
@@ -8,7 +7,12 @@ import server
 @server.register
 def getSeries() -> dict[str, Any]:
     # TODO: return abstract of bouts
-    return {str(id): getBout(id) for id in bouts}
+    series: dict[str, Any] = {}
+    for bout_id in bouts:
+        series[str(bout_id)] = {
+            # TODO
+        }
+    return series
 
 
 @server.register
