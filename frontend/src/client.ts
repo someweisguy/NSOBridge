@@ -13,7 +13,7 @@ interface Message {
   data: object,
 }
 
-export async function send(action: string, args: object = {}): Promise<object> {
+export async function send(action: string, args: object = {}): Promise<unknown> {
   const transactionId: string = uuid4();
   socket.send(JSON.stringify({ action, args, transactionId }));
   return new Promise<Message>((resolve) => {
