@@ -8,7 +8,9 @@ from uuid import UUID, uuid4
 class Series():
     _bouts: dict[UUID, Bout] = field(default_factory=dict)
 
-    def __getitem__(self, boutId: UUID) -> Bout:
+    def __getitem__(self, boutId: str | UUID) -> Bout:
+        if isinstance(boutId, str):
+            boutId = UUID(boutId)
         return self._bouts[boutId]
 
     def __iter__(self):
