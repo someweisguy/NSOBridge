@@ -1,6 +1,6 @@
 import { v4 as uuid4 } from 'uuid';
 import { BoutAbstract, getSeries } from './api/series';
-import { Bout, getBout } from './api/bout'
+import { Bout } from './api/bout'
 
 const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
 const ackResolutions: Map<string, (msg: Message) => void> = new Map();
@@ -85,7 +85,7 @@ socket.addEventListener('open', async () => {
   const series: [string, BoutAbstract][] = await getSeries();
   if (series.length == 1) {
     const [boutId,] = series[0];
-    const bout: Bout = await getStore('Bout', { boutId })
+    const bout: Bout = <Bout>getStore('Bout', { boutId }).getSnapshot()
     console.log(bout);
   } else if (series.length > 1) {
     // TODO
@@ -129,18 +129,19 @@ interface Store {
   getSnapshot: () => unknown,
 };
 
-const syncStore: Map<string, Map<Id, object>> = new Map()
+const syncStore: Map<string, Map<string, object>> = new Map()
 
 export function getStore(type: string, id: Id): Store {
   if (!syncStore.has(type)) {
     syncStore.set(type, new Map());
   }
-  const stores = <Map<Id, object>>syncStore.get(type);
+  const stores = <Map<string, object>>syncStore.get(type);
 
-  // FIXME: id must be stringified? different objects get different values
+  // ID must be stringified to get data from map
+  const key: string = JSON.stringify(id);
 
-  if (stores.has(id)) {
-    return <Store>stores.get(id);
+  if (stores.has(key)) {
+    return <Store>stores.get(key);
   }
 
   let data: unknown | null = null;
@@ -172,7 +173,7 @@ export function getStore(type: string, id: Id): Store {
       throw promise;
     }
   }
-  stores.set(id, store);
+  stores.set(key, store);
   return store;
 }
 
