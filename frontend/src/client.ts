@@ -51,6 +51,49 @@ export function getLatency(): number {
   return latency;
 }
 
+export function getStore(id: Id): Store {
+  const key: string = JSON.stringify(id);
+  if (stores.has(key)) {
+    return <Store>stores.get(key);
+  }
+
+  let data: unknown | null = null;
+  let promise: Promise<unknown> | null = null;
+  let renderCallbacks: (() => void)[] = [];
+
+  const store: Store = {
+    isStale: true,
+    subscribe(cb: () => void): () => void {
+      renderCallbacks.push(cb);
+      return () => {
+        renderCallbacks = renderCallbacks.filter(fn => fn !== cb);
+      }
+    },
+    getSnapshot(): unknown {
+      if (!store.isStale) {
+        return data;
+      }
+
+      if (promise == null) {
+        promise = send('get' + id.type, id)
+          .then((newData) => {
+            data = newData;
+            store.isStale = false;
+            promise = null;
+            renderCallbacks.forEach(cb => cb());
+          });
+      }
+      throw promise;
+    },
+    update(newData: unknown | null): void {
+      data = newData;
+      renderCallbacks.forEach(cb => cb());
+    }
+  }
+  stores.set(key, store);
+  return store;
+}
+
 async function updateLatency(iterations: number): Promise<number> {
   let latencySum: number = 0;
   let successes: number = iterations;
@@ -136,46 +179,3 @@ socket.addEventListener('message', (event) => {
     store.update(message.data);
   }
 });
-
-export function getStore(id: Id): Store {
-  const key: string = JSON.stringify(id);
-  if (stores.has(key)) {
-    return <Store>stores.get(key);
-  }
-
-  let data: unknown | null = null;
-  let promise: Promise<unknown> | null = null;
-  let renderCallbacks: (() => void)[] = [];
-
-  const store: Store = {
-    isStale: true,
-    subscribe(cb: () => void): () => void {
-      renderCallbacks.push(cb);
-      return () => {
-        renderCallbacks = renderCallbacks.filter(fn => fn !== cb);
-      }
-    },
-    getSnapshot(): unknown {
-      if (!store.isStale) {
-        return data;
-      }
-
-      if (promise == null) {
-        promise = send('get' + id.type, id)
-          .then((newData) => {
-            data = newData;
-            store.isStale = false;
-            promise = null;
-            renderCallbacks.forEach(cb => cb());
-          });
-      }
-      throw promise;
-    },
-    update(newData: unknown | null): void {
-      data = newData;
-      renderCallbacks.forEach(cb => cb());
-    }
-  }
-  stores.set(key, store);
-  return store;
-}
