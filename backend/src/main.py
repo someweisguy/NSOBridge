@@ -8,5 +8,6 @@ if __name__ == '__main__':
 
     import api
     server.set_adapter(api.adapter)
+    server.register(api.adapter, 'get')
 
     asyncio.run(server.serve())
