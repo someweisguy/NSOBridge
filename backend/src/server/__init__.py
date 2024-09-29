@@ -1,2 +1,2 @@
-# flake8: noqa
-from .host import broadcast_updates, queue_update, register, set_adapter, serve
+from .host import (broadcast_updates, getter, Identifier, queue_update,  # noqa
+                   register, serve)

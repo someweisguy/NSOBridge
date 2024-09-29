@@ -1,10 +1,10 @@
 from . import Id
-from roller_derby import Bout, BoutId, bouts
+from roller_derby import Bout, BoutId, bouts, Series
 from typing import Any
 import server
 
 
-@server.register
+@server.getter(Series)
 def getSeries() -> dict[str, Any]:
     # TODO: return abstract of bouts
     series: dict[str, Any] = {}

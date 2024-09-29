@@ -4,7 +4,7 @@ from typing import Any
 import server
 
 
-@server.register
+@server.getter(Bout)
 def getBout(boutId: BoutId) -> dict[str, Any]:
     bout: Bout = bouts[boutId]
     now: datetime = datetime.now()

@@ -1,38 +1,35 @@
-from dataclasses import dataclass
+from __future__ import annotations
+from typing import Any
 from uuid import UUID
-import roller_derby
+import server
 
 
-@dataclass
-class Id:
-    type: type
-    bout: UUID
-    period: int | None = None
-    jam: int | None = None
-    team: str | None = None
+class Id(server.Identifier):
+    __slots__ = 'type', 'bout', 'period', 'jam'
+
+    @staticmethod
+    def from_dict(dictionary: dict[str, Any]) -> Id:
+        return Id(**dictionary)
+
+    def __init__(self, type: type | str, bout_id: UUID | str | None = None,
+                 period_id: int | None = None,
+                 jam_id: int | None = None) -> None:
+        super().__init__(type)
+        self.bout: UUID | None = (UUID(bout_id) if isinstance(bout_id, str)
+                                  else bout_id)
+        self.period: int | None = period_id
+        self.jam: int | None = jam_id
 
     def __dict__(self) -> dict[str, str | int | float | bool | None]:
         dictionary: dict = {
-            'type': str(self.type.__name__),
+            'type': self.type,
             'bout': str(self.bout),
         }
         if self.period is not None:
             dictionary['period'] = self.period
         if self.jam is not None:
             dictionary['jam'] = self.jam
-        if self.team is not None:
-            dictionary['team'] = self.team
         return dictionary
-
-
-def adapter(id: Id) -> dict:
-    match id.type:
-        case roller_derby.Bout:
-            return bout.getBout(id.bout)
-        case roller_derby.Jam:
-            return jam.getJam(id.bout, id.period, id.jam)
-        case _:
-            raise KeyError(f'Unknown type \'{id.type.__name__}\'')
 
 
 if __name__ != '__main__':

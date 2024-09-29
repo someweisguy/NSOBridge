@@ -5,7 +5,7 @@ from typing import Any
 import server
 
 
-@server.register
+@server.getter(Jam)
 def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
