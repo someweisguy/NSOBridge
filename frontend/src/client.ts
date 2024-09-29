@@ -4,15 +4,23 @@ import { Bout } from './api/bout'
 
 const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
 const ackResolutions: Map<string, (msg: Message) => void> = new Map();
+const stores: Map<string, Store> = new Map();
 let latencyIntervalId: number | null = null;
 let latency: number = 0;
 
 export interface Id {
-  type?: string,
+  type: string,
   boutId: string,
   periodId?: number,
   jamId?: number,
   team?: string
+};
+
+export interface Store {
+  isStale: boolean,
+  subscribe: (cb: () => void) => void,
+  getSnapshot: () => unknown,
+  update: (newData: unknown) => void
 };
 
 interface Message {
@@ -20,6 +28,7 @@ interface Message {
   readonly transactionId?: string,
   readonly serverTimestamp: string,
   readonly error?: { title: string, detail: string },
+  readonly id?: Id,
   data: object,
 }
 
@@ -85,7 +94,7 @@ socket.addEventListener('open', async () => {
   const series: [string, BoutAbstract][] = await getSeries();
   if (series.length == 1) {
     const [boutId,] = series[0];
-    const bout: Bout = <Bout>getStore('Bout', { boutId }).getSnapshot()
+    const bout: Bout = <Bout>getStore({ type: 'Bout', boutId }).getSnapshot()
     console.log(bout);
   } else if (series.length > 1) {
     // TODO
@@ -105,7 +114,6 @@ socket.addEventListener('close', () => {
   ackResolutions.clear();
 });
 
-
 socket.addEventListener('message', (event) => {
   const message: Message = JSON.parse(event.data)
 
@@ -120,26 +128,17 @@ socket.addEventListener('message', (event) => {
   }
 
   // Handle non-ACK message
-  // TODO
+  if (message.id) {
+    const store: Store | null = getStore(message.id)
+    if (!store) {
+      return;  // Store does not exist
+    }
+    store.update(message.data);
+  }
 });
 
-interface Store {
-  isStale: boolean,
-  subscribe: (cb: () => void) => void,
-  getSnapshot: () => unknown,
-};
-
-const syncStore: Map<string, Map<string, object>> = new Map()
-
-export function getStore(type: string, id: Id): Store {
-  if (!syncStore.has(type)) {
-    syncStore.set(type, new Map());
-  }
-  const stores = <Map<string, object>>syncStore.get(type);
-
-  // ID must be stringified to get data from map
+export function getStore(id: Id): Store {
   const key: string = JSON.stringify(id);
-
   if (stores.has(key)) {
     return <Store>stores.get(key);
   }
@@ -162,7 +161,7 @@ export function getStore(type: string, id: Id): Store {
       }
 
       if (promise == null) {
-        promise = send('get' + type, id)
+        promise = send('get' + id.type, id)
           .then((newData) => {
             data = newData;
             store.isStale = false;
@@ -171,9 +170,12 @@ export function getStore(type: string, id: Id): Store {
           });
       }
       throw promise;
+    },
+    update(newData: unknown | null): void {
+      data = newData;
+      renderCallbacks.forEach(cb => cb());
     }
   }
   stores.set(key, store);
   return store;
 }
-
