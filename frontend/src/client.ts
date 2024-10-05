@@ -1,26 +1,10 @@
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { v4 as uuid4 } from 'uuid';
-import { BoutAbstract, getSeries } from './api/series';
-import { Bout } from './api/bout'
-
-const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
-const ackResolutions: Map<string, (msg: Message) => void> = new Map();
-const stores: Map<string, Store> = new Map();
-let latencyIntervalId: number | null = null;
-let latency: number = 0;
 
 export interface Id {
-  type: string,
   boutId: string,
   periodId?: number,
   jamId?: number,
-  team?: string
-};
-
-export interface Store {
-  isStale: boolean,
-  subscribe: (cb: () => void) => void,
-  getSnapshot: () => unknown,
-  update: (newData: unknown) => void
 };
 
 interface Message {
@@ -32,76 +16,22 @@ interface Message {
   data: object,
 }
 
-export async function send(action: string, args: object = {}): Promise<unknown> {
-  const transactionId: string = uuid4();
-  socket.send(JSON.stringify({ action, args, transactionId }));
-  return new Promise<Message>((resolve) => {
-    ackResolutions.set(transactionId, resolve);
-  }).then((message) => {
-    if (message.error) {
-      const error: Error = new Error(message.error.detail);
-      error.name = message.error.title;
-      throw error;
-    }
-    return message.data;
-  });
-}
+const onlineListeners: (() => void)[] = [];
+const ackResolutions: Map<string, (msg: Message) => void> = new Map();
+const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
 
-export function getLatency(): number {
-  return latency;
-}
+const latencyListeners: (() => void)[] = [];
+let latencyIntervalId: number | null = null;
+let latency: number = 0;
 
-export function getStore(id: Id): Store {
-  const key: string = JSON.stringify(id);
-  if (stores.has(key)) {
-    return <Store>stores.get(key);
-  }
-
-  let data: unknown | null = null;
-  let promise: Promise<unknown> | null = null;
-  let renderCallbacks: (() => void)[] = [];
-
-  const store: Store = {
-    isStale: true,
-    subscribe(cb: () => void): () => void {
-      renderCallbacks.push(cb);
-      return () => {
-        renderCallbacks = renderCallbacks.filter(fn => fn !== cb);
-      }
-    },
-    getSnapshot(): unknown {
-      if (!store.isStale) {
-        return data;
-      }
-
-      if (promise == null) {
-        promise = send('get' + id.type, id)
-          .then((newData) => {
-            data = newData;
-            store.isStale = false;
-            promise = null;
-            renderCallbacks.forEach(cb => cb());
-          });
-      }
-      throw promise;
-    },
-    update(newData: unknown | null): void {
-      data = newData;
-      renderCallbacks.forEach(cb => cb());
-    }
-  }
-  stores.set(key, store);
-  return store;
-}
-
-async function updateLatency(iterations: number): Promise<number> {
+async function updateLatency(iterations: number): Promise<void> {
   let latencySum: number = 0;
   let successes: number = iterations;
   for (let i = 0; i < iterations; i++) {
     // Calculate the round-trip latency
     let success: boolean = true;
     const start: number = window.performance.now();
-    await send('updateLatency');
+    await sendRequest('host', 'updateLatency');
     const stop: number = window.performance.now();
     if (start > stop) {
       success = false;  // Guard against negative latency value
@@ -114,11 +44,16 @@ async function updateLatency(iterations: number): Promise<number> {
     }
   }
 
-  // Compute one-way latency (in milliseconds) using mathematical average
-  if (successes < 1) {
-    return latency;  // Avoid divide-by-zero error
+  if (!successes) {
+    return;  // Avoid divide-by-zero error
   }
-  return Math.round((latencySum / successes) / 2);
+
+  // Compute one-way latency (in milliseconds) using mathematical average
+  const oldLatency = latency;
+  latency = Math.round((latencySum / successes) / 2);
+  if (latency != oldLatency) {
+    latencyListeners.forEach(cb => cb());
+  }
 }
 
 socket.addEventListener('open', async () => {
@@ -127,26 +62,11 @@ socket.addEventListener('open', async () => {
   await new Promise<void>(resolve => setTimeout(resolve, randomDelay));
 
   // Get the socket latency and perform periodic updates
-  latency = await updateLatency(5);
-  latencyIntervalId = setInterval(async () => {
-    latency = await updateLatency(5);
-  }, 15000);
+  updateLatency(5);
+  latencyIntervalId = setInterval(() => updateLatency(5), 15000);
 
-
-  // TODO: this section is just for testing
-  const series: [string, BoutAbstract][] = await getSeries();
-  if (series.length == 1) {
-    const [boutId,] = series[0];
-    const bout: Bout = <Bout>getStore({ type: 'Bout', boutId }).getSnapshot()
-    console.log(bout);
-  } else if (series.length > 1) {
-    // TODO
-    console.log('There are multiple Bouts available.');
-  } else {
-    // TODO: create a new Bout
-  }
-
-
+  // Update all online listeners
+  onlineListeners.forEach(cb => cb());
 });
 
 socket.addEventListener('close', () => {
@@ -155,6 +75,9 @@ socket.addEventListener('close', () => {
     latencyIntervalId = null;
   }
   ackResolutions.clear();
+
+  // Update all online listeners
+  onlineListeners.forEach(cb => cb());
 });
 
 socket.addEventListener('message', (event) => {
@@ -169,13 +92,60 @@ socket.addEventListener('message', (event) => {
       return;
     }
   }
-
-  // Handle non-ACK message
-  if (message.id) {
-    const store: Store | null = getStore(message.id)
-    if (!store) {
-      return;  // Store does not exist
-    }
-    store.update(message.data);
-  }
 });
+
+export function useConnectionStatus() {
+  return useSyncExternalStore<boolean>((onStoreChange) => {
+    onlineListeners.push(onStoreChange);
+    return () => onlineListeners.filter(cb => cb !== onStoreChange);
+  }, () => socket.readyState == WebSocket.OPEN);
+}
+
+export function useLatency(): number {
+  return useSyncExternalStore<number>((onStoreChange) => {
+    latencyListeners.push(onStoreChange);
+    return () => latencyListeners.filter(cb => cb !== onStoreChange);
+  }, () => latency);
+}
+
+export async function sendRequest(type: string, action: string,
+  args: object = {}): Promise<unknown> {
+  const transactionId: string = uuid4();
+  socket.send(JSON.stringify({ type, action, args, transactionId }));
+  return new Promise<Message>((resolve) => {
+    ackResolutions.set(transactionId, resolve);
+  }).then((message) => {
+    if (message.error) {
+      const error: Error = new Error(message.error.detail);
+      error.name = message.error.title;
+      throw error;
+    }
+    return message.data;
+  });
+}
+
+export function useGenericResource(type: string, id: Id): unknown {
+  const isConnected = useConnectionStatus();
+  const [isPending, setPending] = useState(false);
+  const [value, setValue] = useState<unknown>(null);
+
+  useEffect(() => {
+    if (!isConnected) {
+      return;
+    }
+
+    sendRequest(type, 'get', id)
+      .then((value) => {
+        setValue(value);
+        setPending(false);
+      });
+    setPending(true);
+
+  }, [isConnected, type, id])
+
+  if (isPending) {
+    throw Promise;
+  }
+
+  return value;
+}
