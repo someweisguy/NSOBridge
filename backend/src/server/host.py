@@ -32,6 +32,11 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+type Encodable = (str | float | int | bool | None | list[Encodable] |
+                  tuple[Encodable] | dict[str | float | int, Encodable])
+
+type Decodable = Encodable | timedelta
+
 
 class Identifier(ABC):
     def __init__(self, type: type | str) -> None:
