@@ -5,8 +5,8 @@ from typing import Any
 import server
 
 
-@server.getter(Jam)
-def getJam(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
+@server.register
+def get(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     def encode_team(team: Jam.Team) -> dict[str, Any]:
@@ -39,7 +39,7 @@ def setTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
             tripNum: int, points: int, latency: timedelta,
             validPass: bool = True) -> None:
     now: datetime = datetime.now() - latency
-    id: Id = Id(Jam, boutId, periodId, jamId)
+    id: Id = Id(boutId, (periodId, jamId))
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     # Attempt to set the lead jammer and add the Trip
@@ -47,52 +47,52 @@ def setTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
         jam[team].lead = True
     jam[team].add_trip(now, points)  # FIXME: add Trip vs edit Trip
 
-    server.queue_update(id)
+    server.queue_update('bout', id)
 
 
 @server.register
 def deleteTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
                tripNum: int) -> None:
-    id: Id = Id(Jam, boutId, periodId, jamId)
+    id: Id = Id(boutId, (periodId, jamId))
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     jam[team].delete_trip(tripNum)
 
-    server.queue_update(id)
+    server.queue_update('jam', id)
 
 
 @server.register
 def setLead(boutId: BoutId, periodId: int, jamId: int, team: str,
             lead: bool) -> None:
-    id: Id = Id(Jam, boutId, periodId, jamId)
+    id: Id = Id(boutId, (periodId, jamId))
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     if jam[team].other.lead:
         raise RuntimeError('There is already a lead Jammer for this Jam')
     jam[team].lead = lead
 
-    server.queue_update(id)
+    server.queue_update('jam', id)
 
 
 @server.register
 def setLost(boutId: BoutId, periodId: int, jamId: int, team: str,
             lost: bool) -> None:
-    id: Id = Id(Jam, boutId, periodId, jamId)
+    id: Id = Id(boutId, (periodId, jamId))
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     jam[team].lost = lost
 
-    server.queue_update(id)
+    server.queue_update('jam', id)
 
 
 @server.register
 def setStarPass(boutId: BoutId, periodId: int, jamId: int, team: str,
                 tripNum: int) -> None:
-    id: Id = Id(Jam, boutId, periodId, jamId)
+    id: Id = Id(boutId, (periodId, jamId))
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
     jam[team].star_pass = tripNum
     if tripNum is not None:
         jam[team].lost = True
 
-    server.queue_update(id)
+    server.queue_update('jam', id)

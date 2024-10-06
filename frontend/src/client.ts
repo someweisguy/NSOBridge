@@ -31,7 +31,7 @@ async function updateLatency(iterations: number): Promise<void> {
     // Calculate the round-trip latency
     let success: boolean = true;
     const start: number = window.performance.now();
-    await sendRequest('host', 'updateLatency');
+    await sendRequest('server', 'updateLatency');
     const stop: number = window.performance.now();
     if (start > stop) {
       success = false;  // Guard against negative latency value
@@ -67,6 +67,11 @@ socket.addEventListener('open', async () => {
 
   // Update all online listeners
   onlineListeners.forEach(cb => cb());
+
+  // FIXME: Temporary test code
+  sendRequest('series', 'get').then((series) => {
+    console.log(series);
+  });
 });
 
 socket.addEventListener('close', () => {

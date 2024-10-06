@@ -1,8 +1,6 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from dataclasses import is_dataclass
 from datetime import datetime, timedelta
-from inspect import Parameter, signature
+from inspect import getmodule, Parameter, signature
 from json import JSONDecodeError, JSONEncoder
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
@@ -11,8 +9,8 @@ from starlette.responses import FileResponse
 from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
-from types import UnionType
-from typing import Any, Callable, Collection, get_args, Literal
+from types import ModuleType, UnionType
+from typing import Any, Callable, get_args, Literal
 from pathlib import Path
 from uuid import UUID, uuid4
 import asyncio
@@ -33,18 +31,9 @@ logging.basicConfig(
 )
 
 type Encodable = (str | float | int | bool | None | list[Encodable] |
-                  tuple[Encodable] | dict[str | float | int, Encodable])
+                  tuple[Encodable, ...] | dict[str, Encodable])
 
 type Decodable = Encodable | timedelta
-
-
-class Identifier(ABC):
-    def __init__(self, type: type | str) -> None:
-        self.type: str = type if isinstance(type, str) else type.__name__
-
-    @abstractmethod
-    def __dict__(self) -> dict[str, Any]:
-        ...
 
 
 class WebSocketClient(WebSocketEndpoint):
@@ -53,14 +42,12 @@ class WebSocketClient(WebSocketEndpoint):
     debug: bool = False
 
     sockets: set[WebSocket] = set()
-    actions: dict[str, Callable[..., Collection | None]] = {
-        'getServerInfo': lambda: {'api': '0.1.0'},
-        'logMessage': lambda message: log.info(str(message)),
-        'updateLatency': lambda: None,
-        'get': lambda id: get(id)
+    actions: dict[tuple[str, str], Callable[..., Encodable]] = {
+        ('server', 'getInfo'): lambda: {'api': '0.1.0'},
+        ('server', 'logMessage'): lambda message: log.info(str(message)),
+        ('server', 'updateLatency'): lambda: None,
     }
-    getters: dict[str, Callable[[], dict[str, Any]]] = dict()
-    updates: list[Any] = []
+    updates: set[tuple[str, dict[str, Encodable]]] = set()
 
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
@@ -98,10 +85,11 @@ class WebSocketClient(WebSocketEndpoint):
             response['transactionId'] = request['transactionId']
 
             # Ensure that the requested action has a callback
-            if request['action'] not in WebSocketClient.actions.keys():
-                raise UserWarning(f'API action \'{request['action']}\' does '
+            key: tuple[str, str] = (request['type'], request['action'])
+            if key not in WebSocketClient.actions.keys():
+                raise UserWarning(f'API action \'{key[0]}/{key[1]}\' does '
                                   'not exist')
-            callback: Callable = WebSocketClient.actions[request['action']]
+            callback: Callable = WebSocketClient.actions[key]
 
             # Get only the required arguments for the callback
             callback_signature: set[Parameter] = set(signature(callback)
@@ -172,23 +160,15 @@ class WebSocketClient(WebSocketEndpoint):
             broadcast_updates()
 
 
-def getter(type: type) -> Callable:
-    def inner(command: Callable) -> Callable:
-        key: str = type.__name__
-        log.info(f'Registering \'{key}\' as a server getter')
-        if key in WebSocketClient.actions.keys():
-            raise ValueError(f'\'{key}\' is already a server getter key')
-        WebSocketClient.getters[key] = command
-        return command
-
-    return inner
-
-
 def register(callback: Callable | None = None, name: str = '') -> Callable:
     def inner(command: Callable) -> Callable:
-        key: str = (command.__name__ if name == '' else name)
-        log.info(f'Registering \'{key}\' as a server action')
-        if key in WebSocketClient.actions.keys():
+        action: str = (command.__name__ if name == '' else name)
+        module: ModuleType | None = getmodule(command)
+        type: str = (module.__name__.split('.')[-1] if module is not None
+                     else 'host')
+        log.info(f'Registering \'{type}/{action}\' as a server action')
+        key: tuple[str, str] = (type, action)
+        if action in WebSocketClient.actions.keys():
             raise ValueError(f'\'{key}\' is already a server action key')
         WebSocketClient.actions[key] = command
         return command
@@ -196,41 +176,19 @@ def register(callback: Callable | None = None, name: str = '') -> Callable:
     return inner(callback) if callable(callback) else inner
 
 
-def queue_update(ids: tuple[Any] | list[Any] | Any, *,
-                 send_now: bool = False) -> None:
-    if not isinstance(ids, (tuple, list)):
-        ids = (ids, )
-    for id in ids:
-        if not is_dataclass(id):
-            log.warning('Server update ID must be a dataclass, '
-                        f'not \'{type(id).__name__}\'')
-            continue
-        if id not in WebSocketClient.updates:
-            WebSocketClient.updates.append(id)
-    if send_now:
-        broadcast_updates()
-
-
-def get(id: dict) -> Any:
-    callback: Callable = WebSocketClient.getters[id['type']]
-
-    # Get only the required arguments for the callback
-    callback_signature: set[Parameter] = set(signature(callback)
-                                             .parameters.values())
-    args: dict[str, Any] = {k: v for k, v in id.items()
-                            if k in set([arg.name for arg in
-                                         callback_signature])}
-    return callback(**args)
+def queue_update(type: str, id: dict[str, Encodable]) -> None:
+    key: tuple[str, dict[str, Encodable]] = (type, id)
+    WebSocketClient.updates.add(key)
 
 
 def broadcast_updates() -> None:
-    payload: list[dict[str, Any]] = []
+    payload: list[dict[str, Encodable]] = []
     while len(WebSocketClient.updates) > 0:
-        id: Any = WebSocketClient.updates.pop()
+        type, id = WebSocketClient.updates.pop()
         try:
             payload.append({
-                'id': id.__dict__(),
-                'data': WebSocketClient.getters[id.type](**id)
+                'id': id,
+                'data': WebSocketClient.actions[(type, 'get')](**id)
             })
         except Exception:
             log.error('Unable to fetch model object')

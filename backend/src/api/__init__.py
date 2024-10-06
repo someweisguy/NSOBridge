@@ -1,35 +1,28 @@
 from __future__ import annotations
 from typing import Any
 from uuid import UUID
-import server
 
 
-class Id(server.Identifier):
-    __slots__ = 'type', 'bout', 'period', 'jam'
+class Id(dict[str, Any]):
+    def __init__(self, bout_id: UUID | str | None = None,
+                 jam_id: tuple[int, int] | None = None) -> None:
+        super().__init__()
+        if bout_id is not None:
+            self['boutId'] = str(bout_id)
+        if jam_id is not None:
+            self['jamId'] = jam_id
 
-    @staticmethod
-    def from_dict(dictionary: dict[str, Any]) -> Id:
-        return Id(**dictionary)
+    @property
+    def bout_id(self) -> str | None:
+        if 'boutId' in self.keys():
+            return self['boutId']
+        return None
 
-    def __init__(self, type: type | str, bout_id: UUID | str | None = None,
-                 period_id: int | None = None,
-                 jam_id: int | None = None) -> None:
-        super().__init__(type)
-        self.bout: UUID | None = (UUID(bout_id) if isinstance(bout_id, str)
-                                  else bout_id)
-        self.period: int | None = period_id
-        self.jam: int | None = jam_id
-
-    def __dict__(self) -> dict[str, str | int | float | bool | None]:
-        dictionary: dict = {
-            'type': self.type,
-            'bout': str(self.bout),
-        }
-        if self.period is not None:
-            dictionary['period'] = self.period
-        if self.jam is not None:
-            dictionary['jam'] = self.jam
-        return dictionary
+    @property
+    def jam_id(self) -> tuple[int, int] | None:
+        if 'jamId' in self.keys():
+            return self['jamId']
+        return None
 
 
 if __name__ != '__main__':
