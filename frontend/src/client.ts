@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
 export interface Id {
@@ -8,6 +8,7 @@ export interface Id {
 };
 
 interface Message {
+  readonly type: string,
   readonly action: string,
   readonly transactionId?: string,
   readonly serverTimestamp: string,
@@ -67,11 +68,6 @@ socket.addEventListener('open', async () => {
 
   // Update all online listeners
   onlineListeners.forEach(cb => cb());
-
-  // FIXME: Temporary test code
-  sendRequest('series', 'get').then((series) => {
-    console.log(series);
-  });
 });
 
 socket.addEventListener('close', () => {
@@ -88,12 +84,12 @@ socket.addEventListener('close', () => {
 socket.addEventListener('message', (event) => {
   const message: Message = JSON.parse(event.data)
 
+
   // Check if this message is an ACK to a previous message
   if (message.transactionId) {
-    const resolution = ackResolutions.get(message.transactionId);
-    if (resolution) {
-      ackResolutions.delete(message.transactionId);
-      resolution(message);
+    const resolve = ackResolutions.get(message.transactionId);
+    if (resolve) {
+      resolve(message);
       return;
     }
   }
@@ -113,44 +109,44 @@ export function useLatency(): number {
   }, () => latency);
 }
 
-export async function sendRequest(type: string, action: string,
-  args: object = {}): Promise<unknown> {
+export async function sendRequest<T = object>(type: string, action: string,
+  args: object = {}): Promise<T> {
   const transactionId: string = uuid4();
   socket.send(JSON.stringify({ type, action, args, transactionId }));
-  return new Promise<Message>((resolve) => {
-    ackResolutions.set(transactionId, resolve);
-  }).then((message) => {
-    if (message.error) {
-      const error: Error = new Error(message.error.detail);
-      error.name = message.error.title;
-      throw error;
-    }
-    return message.data;
+  return new Promise<T>((resolve) => {
+    new Promise<Message>((innerResolve) => {
+      ackResolutions.set(transactionId, innerResolve);
+    }).then((message: Message) => {
+      resolve(<T>message.data)
+    });
   });
 }
 
-export function useGenericResource(type: string, id: Id): unknown {
-  const isConnected = useConnectionStatus();
-  const [isPending, setPending] = useState(false);
-  const [value, setValue] = useState<unknown>(null);
+export function useGenericResource(type: string, id?: Id): object {
+  console.log(type, id);
+  // const isConnected = useConnectionStatus();
+  // const [isPending, setPending] = useState<boolean>(true);
+  // const [value, setValue] = useState<object>();
 
-  useEffect(() => {
-    if (!isConnected) {
-      return;
-    }
+  // useLayoutEffect(() => {
+  //   console.log("running effect")
+  //   if (!isConnected) {
+  //     return;
+  //   }
 
-    sendRequest(type, 'get', id)
-      .then((value) => {
-        setValue(value);
-        setPending(false);
-      });
-    setPending(true);
+  //   setValue(
+  //     sendRequest<object>(type, 'get', id)
+  //       .then((value: object) => {
+  //         console.log('here')
+  //         return value;
+  //       })
+  //   );
 
-  }, [isConnected, type, id])
+  // }, [isConnected, type, id])
 
-  if (isPending) {
-    throw Promise;
-  }
+  // if (isPending) {
+  //   throw value;
+  // }
 
-  return value;
+  return {};
 }
