@@ -1,23 +1,19 @@
 import { Suspense } from "react";
+import { useConnectionStatus, useLatency, useRequest, client } from "./client";
+import { QueryClientProvider } from "@tanstack/react-query";
 import "./App.css";
-import { useConnectionStatus, useLatency, sendRequest } from "./client";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
 
-const queryClient = new QueryClient();
+
 
 function App() {
-  const latency: number = useLatency();
+  const latency = useLatency();
   const isConnected: boolean = useConnectionStatus();
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={client}>
       Connected: {isConnected.toString()}
       <br />
-      Latency: {latency}ms
+      Latency: {latency.data}ms
       <br />
       <Suspense fallback={<h1>Loading...</h1>}>
         <Body />
@@ -27,10 +23,7 @@ function App() {
 }
 
 function Body() {
-  const { data } = useSuspenseQuery({
-    queryKey: ["series"],
-    queryFn: () => sendRequest("series", "get"),
-  });
+  const { data } = useRequest('series');
 
   return <body>{JSON.stringify(data)}</body>;
 }

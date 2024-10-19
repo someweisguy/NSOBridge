@@ -1,152 +1,128 @@
-import { useSyncExternalStore } from 'react';
+import {
+  onlineManager, QueryClient, useQuery, useSuspenseQuery
+} from "@tanstack/react-query";
 import { v4 as uuid4 } from 'uuid';
-
-export interface Id {
-  boutId: string,
-  periodId?: number,
-  jamId?: number,
-};
 
 interface Message {
   readonly type: string,
   readonly action: string,
   readonly transactionId?: string,
-  readonly serverTimestamp: string,
-  readonly error?: { title: string, detail: string },
-  readonly id?: Id,
+  readonly error?: ErrorMessage,
+  readonly id?: { boutId: string, periodId?: number, jamId?: number },
   data: object,
 }
 
-const onlineListeners: (() => void)[] = [];
-const ackResolutions: Map<string, (msg: Message) => void> = new Map();
-const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
-
-const latencyListeners: (() => void)[] = [];
-let latencyIntervalId: number | null = null;
-let latency: number = 0;
-
-async function updateLatency(iterations: number): Promise<void> {
-  let latencySum: number = 0;
-  let successes: number = iterations;
-  for (let i = 0; i < iterations; i++) {
-    // Calculate the round-trip latency
-    let success: boolean = true;
-    const start: number = window.performance.now();
-    await sendRequest('server', 'updateLatency');
-    const stop: number = window.performance.now();
-    if (start > stop) {
-      success = false;  // Guard against negative latency value
-    }
-
-    if (success) {
-      latencySum += stop - start;
-    } else {
-      successes--;
-    }
-  }
-
-  if (!successes) {
-    return;  // Avoid divide-by-zero error
-  }
-
-  // Compute one-way latency (in milliseconds) using mathematical average
-  const oldLatency = latency;
-  latency = Math.round((latencySum / successes) / 2);
-  if (latency != oldLatency) {
-    latencyListeners.forEach(cb => cb());
-  }
+interface ErrorMessage {
+  title: string,
+  detail: string
 }
 
-socket.addEventListener('open', async () => {
-  // Wait for a random delay up to 100ms before starting latency checks
-  const randomDelay: number = Math.floor(Math.random() * 100);
-  await new Promise<void>(resolve => setTimeout(resolve, randomDelay));
 
-  // Get the socket latency and perform periodic updates
-  updateLatency(5);
-  latencyIntervalId = setInterval(() => updateLatency(5), 15000);
+export function useRequest(type: string, id?: {
+  boutId: string,
+  periodId?: number,
+  jamId: number
+}) {
+  return useSuspenseQuery({
+    queryKey: [type, id], queryFn: () => {
+      return new Promise((resolve, reject) => {
+        const payload = { type, action: 'get', args: id, transactionId: uuid4() };
+        ackResolutions.set(payload.transactionId, [resolve, reject]);
+        socket.send(JSON.stringify(payload));
+      })
+    }
+  })
+}
 
-  // Update all online listeners
-  onlineListeners.forEach(cb => cb());
-});
+export const client = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: async ({ queryKey }) => {
+        const payload = {
+          type: queryKey[0],
+          action: 'get',
+          args: queryKey[1],
+          transactionId: uuid4()
+        };
 
-socket.addEventListener('close', () => {
-  if (latencyIntervalId !== null) {
-    clearInterval(latencyIntervalId);
-    latencyIntervalId = null;
+        return new Promise((resolve, reject) => {
+          ackResolutions.set(payload.transactionId, [resolve, reject]);
+        });
+      },
+    }
+
   }
-  ackResolutions.clear();
-
-  // Update all online listeners
-  onlineListeners.forEach(cb => cb());
 });
 
-socket.addEventListener('message', (event) => {
-  const message: Message = JSON.parse(event.data)
 
+const ackResolutions: Map<string, [(msg: object) => void,
+  (msg: ErrorMessage) => void]> = new Map();
+const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
+
+socket.onopen = () => {
+  onlineManager.setOnline(true);
+}
+
+socket.onclose = () => {
+  onlineManager.setOnline(false);
+  ackResolutions.clear();
+}
+
+socket.onmessage = (event: MessageEvent) => {
+  const message: Message = JSON.parse(event.data);
 
   // Check if this message is an ACK to a previous message
   if (message.transactionId) {
-    const resolve = ackResolutions.get(message.transactionId);
-    if (resolve) {
-      resolve(message);
+    const functions = ackResolutions.get(message.transactionId);
+    if (functions) {
+      const [resolve, reject] = functions;
+      if (!message.error) {
+        resolve(message.data);
+      } else {
+        reject(message.error)
+      }
       return;
     }
   }
-});
+
+  // Update data state if no errors exist
+  if (!message.error) {
+    client.setQueryData([message.type, message.id], () => message.data);
+  }
+}
 
 export function useConnectionStatus() {
-  return useSyncExternalStore<boolean>((onStoreChange) => {
-    onlineListeners.push(onStoreChange);
-    return () => onlineListeners.filter(cb => cb !== onStoreChange);
-  }, () => socket.readyState == WebSocket.OPEN);
+  return onlineManager.isOnline();  // TODO: validate this works
 }
 
-export function useLatency(): number {
-  return useSyncExternalStore<number>((onStoreChange) => {
-    latencyListeners.push(onStoreChange);
-    return () => latencyListeners.filter(cb => cb !== onStoreChange);
-  }, () => latency);
-}
+export function useLatency() {
+  return useQuery<number>({
+    queryKey: ['serverLatency'], queryFn: async () => {
+      const iterations: number = 5;
 
-export async function sendRequest<T = object>(type: string, action: string,
-  args: object = {}): Promise<T> {
-  const transactionId: string = uuid4();
-  socket.send(JSON.stringify({ type, action, args, transactionId }));
-  return new Promise<T>((resolve) => {
-    new Promise<Message>((innerResolve) => {
-      ackResolutions.set(transactionId, innerResolve);
-    }).then((message: Message) => {
-      resolve(<T>message.data)
-    });
-  });
-}
+      let latencySum: number = 0;
+      let successes: number = iterations;
+      for (let i = 0; i < iterations; i++) {
+        let success: boolean = true;
 
-export function useGenericResource(type: string, id?: Id): object {
-  console.log(type, id);
-  // const isConnected = useConnectionStatus();
-  // const [isPending, setPending] = useState<boolean>(true);
-  // const [value, setValue] = useState<object>();
+        // Time the round-trip duration of a packet
+        const start: number = window.performance.now();
+        await new Promise((resolve, reject) => {
+          const payload = { action: 'getLatency', transactionId: uuid4() };
+          ackResolutions.set(payload.transactionId, [resolve, reject]);
+          socket.send(JSON.stringify(payload));
+        }).catch(() => success = false);
+        const stop: number = window.performance.now();
 
-  // useLayoutEffect(() => {
-  //   console.log("running effect")
-  //   if (!isConnected) {
-  //     return;
-  //   }
+        if (success) {
+          latencySum += stop - start;
+        } else {
+          successes--;
+        }
+      }
 
-  //   setValue(
-  //     sendRequest<object>(type, 'get', id)
-  //       .then((value: object) => {
-  //         console.log('here')
-  //         return value;
-  //       })
-  //   );
-
-  // }, [isConnected, type, id])
-
-  // if (isPending) {
-  //   throw value;
-  // }
-
-  return {};
+      // Compute one-way latency (in milliseconds) using mathematical average
+      return successes > 0 ? Math.round((latencySum / successes) / 2) : 0;
+    }, refetchInterval: 10000, initialData: 0,
+  }, client);
 }
