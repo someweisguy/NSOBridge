@@ -227,10 +227,13 @@ async def serve(port: int = 8000, *, debug: bool = False) -> None:
 
     # Determine the address of the server
     address: str = f'http://localhost:{port}'
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-        sock.settimeout(0)
-        sock.connect(('1.1.1.1', 1))  # Doesn't actually send network data
-        address = f'http://{sock.getsockname()[0]}:{port}'
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.settimeout(0)
+            sock.connect(('1.1.1.1', 1))  # Doesn't actually send network data
+            address = f'http://{sock.getsockname()[0]}:{port}'
+    except OSError:
+        pass
 
     # Start the web server
     host: str = '0.0.0.0'
