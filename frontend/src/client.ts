@@ -4,61 +4,11 @@ import {
 import { useEffect, useState } from "react";
 import { v4 as uuid4 } from 'uuid';
 
-interface Message {
-  readonly type: string,
-  readonly action: string,
-  readonly transactionId?: string,
-  readonly error?: ErrorMessage,
-  readonly id?: { boutId: string, periodId?: number, jamId?: number },
-  data: object,
-}
-
-interface ErrorMessage {
-  title: string,
-  detail: string
-}
-
-
-export function useRequest(type: string, id?: {
-  boutId: string,
-  periodId?: number,
-  jamId: number
-}) {
-  return useSuspenseQuery({
-    queryKey: [type, id], queryFn: () => {
-      return new Promise((resolve, reject) => {
-        const payload = { type, action: 'get', args: id, transactionId: uuid4() };
-        ackResolutions.set(payload.transactionId, [resolve, reject]);
-        socket.send(JSON.stringify(payload));
-      })
-    }
-  })
-}
-
-export const client = new QueryClient({
-  defaultOptions: {
-    queries: {
-      queryFn: async ({ queryKey }) => {
-        const payload = {
-          type: queryKey[0],
-          action: 'get',
-          args: queryKey[1],
-          transactionId: uuid4()
-        };
-
-        return new Promise((resolve, reject) => {
-          ackResolutions.set(payload.transactionId, [resolve, reject]);
-        });
-      },
-    }
-
-  }
-});
-
-
+const client = new QueryClient();
 const ackResolutions: Map<string, [(msg: object) => void,
-  (msg: ErrorMessage) => void]> = new Map();
+  (msg: { title: string, details: string }) => void]> = new Map();
 const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
+const latencyIterations: number = 5;
 
 socket.onopen = () => {
   onlineManager.setOnline(true);
@@ -70,7 +20,14 @@ socket.onclose = () => {
 }
 
 socket.onmessage = (event: MessageEvent) => {
-  const message: Message = JSON.parse(event.data);
+  const message: {
+    type: string,
+    action: string,
+    transactionId?: string,
+    error?: { title: string, details: string },
+    id?: { boutId: string, periodId: number, jamId: number },
+    data: object
+  } = JSON.parse(event.data);
 
   // Check if this message is an ACK to a previous message
   if (message.transactionId) {
@@ -92,26 +49,24 @@ socket.onmessage = (event: MessageEvent) => {
   }
 }
 
-export function useConnectionStatus() {
-  const [isOnline, setIsOnline] = useState(false);
+export function useOnlineState() {
+  const [isOnline, setIsOnline] = useState(onlineManager.isOnline());
 
   useEffect(() => {
-    return onlineManager.subscribe((newOnlineState) => {
-      setIsOnline(newOnlineState);
-    })
+    return onlineManager.subscribe((onlineState) => {
+      setIsOnline(onlineState);
+    });
   }, []);
 
   return isOnline;
 }
 
 export function useLatency() {
-  return useQuery<number>({
-    queryKey: ['serverLatency'], queryFn: async () => {
-      const iterations: number = 5;
-
+  const { data } = useQuery<number>({
+    queryKey: ['latency'], queryFn: async () => {
       let latencySum: number = 0;
-      let successes: number = iterations;
-      for (let i = 0; i < iterations; i++) {
+      let successes: number = latencyIterations;
+      for (let i = 0; i < latencyIterations; i++) {
         let success: boolean = true;
 
         // Time the round-trip duration of a packet
@@ -134,4 +89,22 @@ export function useLatency() {
       return successes > 0 ? Math.round((latencySum / successes) / 2) : 0;
     }, refetchInterval: 10000, initialData: 0,
   }, client);
+
+  return data;
+}
+
+export function useRequest(type: string, id?: {
+  boutId: string,
+  periodId?: number,
+  jamId: number
+}) {
+  return useSuspenseQuery({
+    queryKey: [type, id], queryFn: () => {
+      return new Promise((resolve, reject) => {
+        const payload = { type, action: 'get', args: id, transactionId: uuid4() };
+        ackResolutions.set(payload.transactionId, [resolve, reject]);
+        socket.send(JSON.stringify(payload));
+      })
+    }
+  }, client)
 }
