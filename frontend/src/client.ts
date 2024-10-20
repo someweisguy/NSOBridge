@@ -1,6 +1,7 @@
 import {
   onlineManager, QueryClient, useQuery, useSuspenseQuery
 } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { v4 as uuid4 } from 'uuid';
 
 interface Message {
@@ -92,7 +93,15 @@ socket.onmessage = (event: MessageEvent) => {
 }
 
 export function useConnectionStatus() {
-  return onlineManager.isOnline();  // TODO: validate this works
+  const [isOnline, setIsOnline] = useState(false);
+
+  useEffect(() => {
+    return onlineManager.subscribe((newOnlineState) => {
+      setIsOnline(newOnlineState);
+    })
+  }, []);
+
+  return isOnline;
 }
 
 export function useLatency() {
