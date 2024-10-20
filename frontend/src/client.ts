@@ -17,6 +17,7 @@ socket.onopen = () => {
 socket.onclose = () => {
   onlineManager.setOnline(false);
   ackResolutions.clear();
+  client.invalidateQueries();
 }
 
 socket.onmessage = (event: MessageEvent) => {
