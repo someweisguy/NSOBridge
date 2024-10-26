@@ -1,8 +1,6 @@
-import { useOnlineState, useLatency, useRequest } from "./client";
+import { useOnlineState, useLatency, useGetter } from "./client";
 import { Suspense } from "react";
 import "./App.css";
-
-
 
 function App() {
   const latency: number = useLatency();
@@ -22,11 +20,18 @@ function App() {
 }
 
 function Body() {
-  const { data } = useRequest('series');
-  
-  
+  const series: object = useGetter("series");
+  const boutIds: Array<string> = Object.keys(series);
 
-  return <body>{JSON.stringify(data)}</body>;
+  if (boutIds.length > 1) {
+    // TODO: display bout selection screen
+  } else if (boutIds.length == 1) {
+    // Automatically select the only bout
+  } else {
+    // TODO: go to the bout creation page
+  }
+
+  return <body>{JSON.stringify(series)}</body>;
 }
 
 export default App;
