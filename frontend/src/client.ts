@@ -1,8 +1,14 @@
 import {
-  onlineManager, QueryClient, useQuery, useSuspenseQuery
+  onlineManager, QueryClient, useMutation, useQuery, useSuspenseQuery
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { v4 as uuid4 } from 'uuid';
+
+interface queryId {
+  boutId: string,
+  periodId?: number,
+  jamId?: number
+};
 
 const client = new QueryClient();
 const ackResolutions: Map<string, [(msg: object) => void,
@@ -12,12 +18,12 @@ const latencyIterations: number = 5;
 
 socket.onopen = () => {
   onlineManager.setOnline(true);
+  client.refetchQueries();
 }
 
 socket.onclose = () => {
   onlineManager.setOnline(false);
   ackResolutions.clear();
-  client.invalidateQueries();
 }
 
 socket.onmessage = (event: MessageEvent) => {
@@ -73,7 +79,10 @@ export function useLatency() {
         // Time the round-trip duration of a packet
         const start: number = window.performance.now();
         await new Promise((resolve, reject) => {
-          const payload = { action: 'getLatency', transactionId: uuid4() };
+          const payload = {
+            type: 'server', action: 'latency',
+            transactionId: uuid4()
+          };
           ackResolutions.set(payload.transactionId, [resolve, reject]);
           socket.send(JSON.stringify(payload));
         }).catch(() => success = false);
@@ -94,18 +103,33 @@ export function useLatency() {
   return data;
 }
 
-export function useRequest(type: string, id?: {
-  boutId: string,
-  periodId?: number,
-  jamId: number
-}) {
-  return useSuspenseQuery({
+
+export function useGetter(type: string, id?: queryId): object {
+  const { data } = useSuspenseQuery({
     queryKey: [type, id], queryFn: () => {
       return new Promise((resolve, reject) => {
         const payload = { type, action: 'get', args: id, transactionId: uuid4() };
         ackResolutions.set(payload.transactionId, [resolve, reject]);
         socket.send(JSON.stringify(payload));
-      })
+      });
     }
-  }, client)
+  }, client);
+
+  return <object>data;
+}
+
+
+export function useSetter(type: string, action: string, id?: queryId, args?: object) {
+  useMutation({
+    mutationFn: () => {
+      return new Promise((resolve, reject) => {
+        const payload = {
+          type, action, args: { ...args, ...id },
+          transactionId: uuid4()
+        };
+        ackResolutions.set(payload.transactionId, [resolve, reject]);
+        socket.send(JSON.stringify(payload));
+      });
+    }
+  }, client);
 }
