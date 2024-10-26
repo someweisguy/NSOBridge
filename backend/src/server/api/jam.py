@@ -1,11 +1,9 @@
-from . import Id
 from datetime import datetime, timedelta
 from roller_derby import BoutId, bouts, Jam
 from typing import Any
 import server
 
 
-@server.register
 def get(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
     jam: Jam = bouts[boutId].jams[periodId][jamId]
 
@@ -34,7 +32,6 @@ def get(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
     }
 
 
-@server.register
 def setTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
             tripNum: int, points: int, latency: timedelta,
             validPass: bool = True) -> None:
@@ -50,7 +47,6 @@ def setTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
     server.queue_update('bout', id)
 
 
-@server.register
 def deleteTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
                tripNum: int) -> None:
     id: Id = Id(boutId, (periodId, jamId))
@@ -61,7 +57,6 @@ def deleteTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
     server.queue_update('jam', id)
 
 
-@server.register
 def setLead(boutId: BoutId, periodId: int, jamId: int, team: str,
             lead: bool) -> None:
     id: Id = Id(boutId, (periodId, jamId))
@@ -74,7 +69,6 @@ def setLead(boutId: BoutId, periodId: int, jamId: int, team: str,
     server.queue_update('jam', id)
 
 
-@server.register
 def setLost(boutId: BoutId, periodId: int, jamId: int, team: str,
             lost: bool) -> None:
     id: Id = Id(boutId, (periodId, jamId))
@@ -85,7 +79,6 @@ def setLost(boutId: BoutId, periodId: int, jamId: int, team: str,
     server.queue_update('jam', id)
 
 
-@server.register
 def setStarPass(boutId: BoutId, periodId: int, jamId: int, team: str,
                 tripNum: int) -> None:
     id: Id = Id(boutId, (periodId, jamId))

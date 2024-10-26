@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, timedelta
-from inspect import getmodule, Parameter, signature
+from importlib import import_module
+from inspect import Parameter, signature
 from json import JSONDecodeError, JSONEncoder
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
@@ -9,7 +10,7 @@ from starlette.responses import FileResponse
 from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
-from types import ModuleType, UnionType
+from types import UnionType
 from typing import Any, Callable, get_args, Literal
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -42,11 +43,6 @@ class WebSocketClient(WebSocketEndpoint):
     debug: bool = False
 
     sockets: set[WebSocket] = set()
-    actions: dict[tuple[str, str], Callable[..., Encodable]] = {
-        ('server', 'getInfo'): lambda: {'api': '0.1.0'},
-        ('server', 'logMessage'): lambda message: log.info(str(message)),
-        ('server', 'updateLatency'): lambda: None,
-    }
     updates: set[tuple[str, dict[str, Encodable]]] = set()
 
     async def on_connect(self, socket: WebSocket) -> None:
@@ -66,7 +62,7 @@ class WebSocketClient(WebSocketEndpoint):
         log.debug(f'{payload} ({self.id})')
 
         # Instantiate a boilerplate JSON response
-        response: dict[str, Any] = {
+        response: dict[str, Encodable] = {
             'serverTimestamp': str(datetime.now()),
         }
 
@@ -84,12 +80,16 @@ class WebSocketClient(WebSocketEndpoint):
             response['action'] = request['action']
             response['transactionId'] = request['transactionId']
 
-            # Ensure that the requested action has a callback
-            key: tuple[str, str] = (request['type'], request['action'])
-            if key not in WebSocketClient.actions.keys():
-                raise UserWarning(f'API action \'{key[0]}/{key[1]}\' does '
-                                  'not exist')
-            callback: Callable = WebSocketClient.actions[key]
+            try:
+                module = import_module(f'server.api.{request['type']}', '.')
+                callback: Callable = getattr(module, request['action'])
+                if not callable(callback):
+                    raise UserWarning(f'\'{request['action']}\' is not '
+                                      'callable')
+            except ModuleNotFoundError:
+                raise UserWarning(f'Unknown module \'{request['type']}\'')
+            except AttributeError:
+                raise UserWarning(f'Unknown action \'{request['action']}\'')
 
             # Get only the required arguments for the callback
             callback_signature: set[Parameter] = set(signature(callback)
@@ -160,22 +160,6 @@ class WebSocketClient(WebSocketEndpoint):
             broadcast_updates()
 
 
-def register(callback: Callable | None = None, name: str = '') -> Callable:
-    def inner(command: Callable) -> Callable:
-        action: str = (command.__name__ if name == '' else name)
-        module: ModuleType | None = getmodule(command)
-        type: str = (module.__name__.split('.')[-1] if module is not None
-                     else 'host')
-        log.info(f'Registering \'{type}/{action}\' as a server action')
-        key: tuple[str, str] = (type, action)
-        if action in WebSocketClient.actions.keys():
-            raise ValueError(f'\'{key}\' is already a server action key')
-        WebSocketClient.actions[key] = command
-        return command
-
-    return inner(callback) if callable(callback) else inner
-
-
 def queue_update(type: str, id: dict[str, Encodable]) -> None:
     key: tuple[str, dict[str, Encodable]] = (type, id)
     WebSocketClient.updates.add(key)
@@ -188,7 +172,7 @@ def broadcast_updates() -> None:
         try:
             payload.append({
                 'id': id,
-                'data': WebSocketClient.actions[(type, 'get')](**id)
+                'data': WebSocketClient.actions[(type, 'get')](**id)  # FIXME
             })
         except Exception:
             log.error('Unable to fetch model object')

@@ -80,7 +80,7 @@ export function useLatency() {
         const start: number = window.performance.now();
         await new Promise((resolve, reject) => {
           const payload = {
-            type: 'server', action: 'latency',
+            type: 'info', action: 'getLatency',
             transactionId: uuid4()
           };
           ackResolutions.set(payload.transactionId, [resolve, reject]);

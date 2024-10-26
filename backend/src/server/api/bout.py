@@ -1,10 +1,8 @@
 from datetime import datetime
 from roller_derby import Bout, BoutId, bouts, Timer
 from typing import Any
-import server
 
 
-@server.register
 def get(boutId: BoutId) -> dict[str, Any]:
     bout: Bout = bouts[boutId]
     now: datetime = datetime.now()
