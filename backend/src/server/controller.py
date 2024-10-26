@@ -10,7 +10,7 @@ from starlette.responses import FileResponse
 from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
-from types import UnionType
+from types import ModuleType, UnionType
 from typing import Any, Callable, get_args, Literal
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -37,7 +37,20 @@ type Encodable = (str | float | int | bool | None | list[Encodable] |
 type Decodable = Encodable | timedelta
 
 
-class WebSocketClient(WebSocketEndpoint):
+def _fetch_method(module_name: str, method_name: str) -> Callable:
+    try:
+        module: ModuleType = import_module(f'server.api.{module_name}')
+        method: Callable = getattr(module, method_name)
+        if not callable(method):
+            raise UserWarning(f'\'{method_name}\' is not callable')
+    except ModuleNotFoundError:
+        raise UserWarning(f'Unknown module \'{module_name}\'')
+    except AttributeError:
+        raise UserWarning(f'Unknown action \'{method_name}\'')
+    return method
+
+
+class _WebSocketClient(WebSocketEndpoint):
     encoding: Literal['text', 'bytes', 'json'] = 'text'
     encoder: JSONEncoder = JSONEncoder(separators=(',', ':'))
     debug: bool = False
@@ -48,13 +61,13 @@ class WebSocketClient(WebSocketEndpoint):
     async def on_connect(self, socket: WebSocket) -> None:
         await socket.accept()
         self.id: UUID = uuid4()
-        WebSocketClient.sockets.add(socket)
+        _WebSocketClient.sockets.add(socket)
 
         log.info(f'Socket \'{self.id}\' connected at {datetime.now()}')
 
     async def on_disconnect(self, socket: WebSocket, close_code: int) -> None:
-        if socket in WebSocketClient.sockets:
-            WebSocketClient.sockets.remove(socket)
+        if socket in _WebSocketClient.sockets:
+            _WebSocketClient.sockets.remove(socket)
 
         log.info(f'Socket \'{self.id}\' disconnected at {datetime.now()}')
 
@@ -80,19 +93,10 @@ class WebSocketClient(WebSocketEndpoint):
             response['action'] = request['action']
             response['transactionId'] = request['transactionId']
 
-            try:
-                module = import_module(f'server.api.{request['type']}', '.')
-                callback: Callable = getattr(module, request['action'])
-                if not callable(callback):
-                    raise UserWarning(f'\'{request['action']}\' is not '
-                                      'callable')
-            except ModuleNotFoundError:
-                raise UserWarning(f'Unknown module \'{request['type']}\'')
-            except AttributeError:
-                raise UserWarning(f'Unknown action \'{request['action']}\'')
-
-            # Get only the required arguments for the callback
-            callback_signature: set[Parameter] = set(signature(callback)
+            # Get only the required arguments for the method
+            method: Callable = _fetch_method(request['type'],
+                                             request['action'])
+            callback_signature: set[Parameter] = set(signature(method)
                                                      .parameters.values())
             args: dict[str, Any] = {k: v for k, v in request['args'].items()
                                     if k in set([arg.name for arg in
@@ -119,12 +123,12 @@ class WebSocketClient(WebSocketEndpoint):
                         args[arg.name] = datetime.fromisoformat(args[arg.name])
 
             # Execute the API action and get the response data
-            response['data'] = callback(**args)
+            response['data'] = method(**args)
 
             # When debugging, verify that the JSON response can be encoded
-            if WebSocketClient.debug:
+            if _WebSocketClient.debug:
                 try:
-                    WebSocketClient.encoder.encode(response)
+                    _WebSocketClient.encoder.encode(response)
                 except TypeError as e:
                     del response['data']
                     raise EncodingWarning from e
@@ -152,33 +156,34 @@ class WebSocketClient(WebSocketEndpoint):
                 'detail': str(e)
             }
 
-        text: str = WebSocketClient.encoder.encode(response)
+        text: str = _WebSocketClient.encoder.encode(response)
         await socket.send_text(text)
 
         # Flush the update set
-        if len(WebSocketClient.updates) > 0:
-            broadcast_updates()
+        if len(_WebSocketClient.updates) > 0:
+            emit_updates()
 
 
-def queue_update(type: str, id: dict[str, Encodable]) -> None:
+def add_update(type: str, id: dict[str, Encodable]) -> None:
     key: tuple[str, dict[str, Encodable]] = (type, id)
-    WebSocketClient.updates.add(key)
+    _WebSocketClient.updates.add(key)
 
 
-def broadcast_updates() -> None:
+def emit_updates() -> None:
     payload: list[dict[str, Encodable]] = []
-    while len(WebSocketClient.updates) > 0:
-        type, id = WebSocketClient.updates.pop()
+    while len(_WebSocketClient.updates) > 0:
+        type, id = _WebSocketClient.updates.pop()
+        getter: Callable = _fetch_method(type, 'get')
         try:
             payload.append({
                 'id': id,
-                'data': WebSocketClient.actions[(type, 'get')](**id)  # FIXME
+                'data': getter(**id)
             })
         except Exception:
             log.error('Unable to fetch model object')
 
-    text: str = WebSocketClient.encoder.encode(payload)
-    for sock in WebSocketClient.sockets:
+    text: str = _WebSocketClient.encoder.encode(payload)
+    for sock in _WebSocketClient.sockets:
         asyncio.create_task(sock.send_text(text))
 
 
@@ -186,7 +191,7 @@ async def serve(port: int = 8000, *, debug: bool = False) -> None:
     if 1 > port > 65535:
         raise ValueError('invalid server port number')
     if debug:
-        WebSocketClient.debug = True
+        _WebSocketClient.debug = True
         log.setLevel(logging.DEBUG)
 
     directory: Path = (Path(os.getcwd()) / 'frontend' / 'dist')
@@ -202,7 +207,7 @@ async def serve(port: int = 8000, *, debug: bool = False) -> None:
     instance: Starlette = Starlette(
         routes=(
             Route('/', renderPage),
-            WebSocketRoute('/ws', WebSocketClient),
+            WebSocketRoute('/ws', _WebSocketClient),
             Mount('/assets', StaticFiles(directory=directory / 'assets')),
             Route('/{page:str}', renderPage),
         )

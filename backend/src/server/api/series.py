@@ -22,11 +22,11 @@ def addBout() -> None:
     # Ensure the server broadcasts updates whenever a Timer has elapsed
     for clock in (bout.intermission_clock, bout.period_clock,
                   bout.lineup_clock, bout.jam_clock, bout.timeout_clock):
-        clock.set_callback(lambda _: server.queue_update('bout', id))
+        clock.set_callback(lambda _: server.add_update('bout', id))
 
-    server.queue_update('bout', id)
+    server.add_update('bout', id)
 
 
 def deleteBout(boutId: BoutId) -> None:
     bouts.delete(boutId)
-    server.queue_update('bout', {'boutId': str(boutId)})
+    server.add_update('bout', {'boutId': str(boutId)})

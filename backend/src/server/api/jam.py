@@ -44,7 +44,7 @@ def setTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
         jam[team].lead = True
     jam[team].add_trip(now, points)  # FIXME: add Trip vs edit Trip
 
-    server.queue_update('bout', id)
+    server.add_update('bout', id)
 
 
 def deleteTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
@@ -54,7 +54,7 @@ def deleteTrip(boutId: BoutId, periodId: int, jamId: int, team: str,
 
     jam[team].delete_trip(tripNum)
 
-    server.queue_update('jam', id)
+    server.add_update('jam', id)
 
 
 def setLead(boutId: BoutId, periodId: int, jamId: int, team: str,
@@ -66,7 +66,7 @@ def setLead(boutId: BoutId, periodId: int, jamId: int, team: str,
         raise RuntimeError('There is already a lead Jammer for this Jam')
     jam[team].lead = lead
 
-    server.queue_update('jam', id)
+    server.add_update('jam', id)
 
 
 def setLost(boutId: BoutId, periodId: int, jamId: int, team: str,
@@ -76,7 +76,7 @@ def setLost(boutId: BoutId, periodId: int, jamId: int, team: str,
 
     jam[team].lost = lost
 
-    server.queue_update('jam', id)
+    server.add_update('jam', id)
 
 
 def setStarPass(boutId: BoutId, periodId: int, jamId: int, team: str,
@@ -88,4 +88,4 @@ def setStarPass(boutId: BoutId, periodId: int, jamId: int, team: str,
     if tripNum is not None:
         jam[team].lost = True
 
-    server.queue_update('jam', id)
+    server.add_update('jam', id)

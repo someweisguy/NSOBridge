@@ -1,1 +1,1 @@
-from .controller import broadcast_updates, queue_update, serve  # noqa
+from .controller import emit_updates, add_update, serve  # noqa
