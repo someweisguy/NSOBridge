@@ -1,4 +1,5 @@
-import { useOnlineState, useLatency, useGetter } from "./client";
+import { useOnlineState, useLatency } from "./client";
+import { useSeries } from "./api/series";
 import { Suspense } from "react";
 import "./App.css";
 
@@ -19,14 +20,22 @@ function App() {
   );
 }
 
-function Body() {
-  const series: object = useGetter("series");
-  const boutIds: Array<string> = Object.keys(series);
 
-  if (boutIds.length > 1) {
+
+function Body() {
+  const series: Map<string, object> = useSeries();
+
+  if (series.size > 1) {
     // TODO: display bout selection screen
-  } else if (boutIds.length == 1) {
+  } else if (series.size == 1) {
     // Automatically select the only bout
+    const boutId: string = Array.from(series.keys())[0];
+    const bout: object | undefined = series.get(boutId)
+    return (
+    <>
+      {boutId}: {JSON.stringify(bout)}
+    </>
+    );
   } else {
     // TODO: go to the bout creation page
   }

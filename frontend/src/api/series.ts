@@ -1,16 +1,12 @@
-// import { sendRequest } from '../client'
+import { useEffect, useState } from "react";
+import { useGetter } from "../client";
 
-// // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-// export interface BoutAbstract {
-//   // TODO: define this
-// };
 
-// let series: [string, BoutAbstract][] | null = null;
-
-// export async function getSeries(): Promise<[string, BoutAbstract][]> {
-//   if (series == null) {
-//     const seriesObj = <object> await sendRequest('getSeries');
-//     series = Array.from(new Map(Object.entries(seriesObj)));
-//   }
-//   return series;
-// }
+export function useSeries(): Map<string, object> {
+    const series: object = useGetter("series");
+    const [seriesMap, setSeriesMap] = useState<Map<string, object>>(new Map());
+  
+    useEffect(() => setSeriesMap(new Map(Object.entries(series))), [series]);
+  
+    return seriesMap 
+  }
