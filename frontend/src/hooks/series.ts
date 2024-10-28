@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useGetter } from "../client";
+import { useGetter } from "./client";
 
 
 export function useSeries(): Map<string, object> {
