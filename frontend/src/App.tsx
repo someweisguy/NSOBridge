@@ -1,5 +1,6 @@
 import Topbar from "./components/Topbar.tsx";
 import Sidebar from "./components/Sidebar.tsx";
+import { Suspense } from "react";
 
 export default function App() {
   return (
@@ -7,18 +8,20 @@ export default function App() {
       <Topbar />
 
       <Sidebar>
-        First <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
-        Hello <br /> hello <br /> hello <br /> hello <br />
+        <Suspense>
+          First <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+          Hello <br /> hello <br /> hello <br /> hello <br />
+        </Suspense>
       </Sidebar>
     </div>
   );

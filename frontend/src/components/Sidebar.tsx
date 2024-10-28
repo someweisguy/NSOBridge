@@ -1,4 +1,4 @@
-import { Suspense, PropsWithChildren, ReactNode } from "react";
+import { PropsWithChildren, ReactNode } from "react";
 
 export default function Sidebar({ children }: PropsWithChildren): ReactNode {
   return (
@@ -13,7 +13,7 @@ export default function Sidebar({ children }: PropsWithChildren): ReactNode {
       </div>
 
       <div className="flex-auto p-4 bg-white shadow-inner">
-        <Suspense>{children}</Suspense>
+        {children}
       </div>
     </div>
   );
