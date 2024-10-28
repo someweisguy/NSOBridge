@@ -1,6 +1,6 @@
-import { Suspense, PropsWithChildren } from "react";
+import { Suspense, PropsWithChildren, ReactNode } from "react";
 
-export default function Sidebar({ children }: PropsWithChildren) {
+export default function Sidebar({ children }: PropsWithChildren): ReactNode {
   return (
     <div className="flex flex-row">
       <div className="flex flex-row w-1/6 h-full bg-green-500">

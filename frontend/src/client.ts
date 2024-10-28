@@ -108,7 +108,9 @@ export function useGetter(type: string, id?: queryId): object {
   const { data } = useSuspenseQuery({
     queryKey: [type, id], queryFn: () => {
       return new Promise((resolve, reject) => {
-        const payload = { type, action: 'get', args: id, transactionId: uuid4() };
+        const payload = {
+          type, action: 'get', args: id, transactionId: uuid4()
+        };
         ackResolutions.set(payload.transactionId, [resolve, reject]);
         socket.send(JSON.stringify(payload));
       });
@@ -119,7 +121,8 @@ export function useGetter(type: string, id?: queryId): object {
 }
 
 
-export function useSetter(type: string, action: string, id?: queryId, args?: object) {
+export function useSetter(type: string, action: string, id?: queryId,
+  args?: object) {
   useMutation({
     mutationFn: () => {
       return new Promise((resolve, reject) => {

@@ -1,7 +1,7 @@
-import Header from "./components/header";
-import Sidebar from "./components/sidebar";
+import Header from "./components/Header.tsx";
+import Sidebar from "./components/Sidebar.tsx";
 
-function App() {
+export default function App() {
   return (
     <div className="container flex flex-col w-full h-svh max-h-svh">
       <Header />
@@ -23,5 +23,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
