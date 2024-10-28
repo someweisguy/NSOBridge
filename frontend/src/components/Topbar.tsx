@@ -7,5 +7,3 @@ export default function Topbar(): ReactNode {
     </div>
   );
 }
-
-
