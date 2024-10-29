@@ -101,8 +101,7 @@ socket.onmessage = (event: MessageEvent) => {
   }
 }
 
-
-export function useGetter(type: string, id?: queryId): object {
+export function useGetter<T = object>(type: string, id?: queryId): T {
   const { data } = useSuspenseQuery({
     queryKey: [type, id], queryFn: () => {
       return new Promise((resolve, reject) => {
@@ -115,7 +114,7 @@ export function useGetter(type: string, id?: queryId): object {
     }
   }, client);
 
-  return <object>data;
+  return <T>data;
 }
 
 
