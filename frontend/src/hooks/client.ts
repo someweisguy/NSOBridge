@@ -4,52 +4,6 @@ import {
 import { useEffect, useState } from "react";
 import { v4 as uuid4 } from 'uuid';
 
-const latencyIterations: number = 5;
-
-export function useConnection() {
-  const [isOnline, setIsOnline] = useState(onlineManager.isOnline());
-
-  useEffect(() => {
-    return onlineManager.subscribe((onlineState) => {
-      setIsOnline(onlineState);
-    });
-  }, []);
-
-  const { data } = useQuery<number>({
-    queryKey: ['latency'], queryFn: async () => {
-      let latencySum: number = 0;
-      let successes: number = latencyIterations;
-      for (let i = 0; i < latencyIterations; i++) {
-        let success: boolean = true;
-
-        // Time the round-trip duration of a packet
-        const start: number = window.performance.now();
-        await new Promise((resolve, reject) => {
-          const payload = {
-            type: 'info', action: 'get',
-            transactionId: uuid4()
-          };
-          ackResolutions.set(payload.transactionId, [resolve, reject]);
-          socket.send(JSON.stringify(payload));
-        }).catch(() => success = false);
-        const stop: number = window.performance.now();
-
-        if (success) {
-          latencySum += stop - start;
-        } else {
-          successes--;
-        }
-      }
-
-      // Compute one-way latency (in milliseconds) using mathematical average
-      return successes > 0 ? Math.round((latencySum / successes) / 2) : 0;
-    }, refetchInterval: 10000, initialData: 0,
-  }, client);
-
-  return { latency: data, isOnline };
-}
-
-
 interface queryId {
   boutId: string,
   periodId?: number,
@@ -60,29 +14,14 @@ const client = new QueryClient();
 const ackResolutions: Map<string, [(msg: object) => void,
   (msg: { title: string, details: string }) => void]> = new Map();
 const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
-
-// Get the Bout data from the HTML root
-const rootNode: HTMLElement | null = document.getElementById('root');
-if (rootNode && rootNode.dataset.bouts) {
-  try {
-    const boutsObject: object = JSON.parse(rootNode.dataset.bouts);
-    client.setQueryData(['series', undefined],
-      new Map(Object.entries(boutsObject)));
-  } catch {
-    // Ignore error
-  }
-}
-
 socket.onopen = () => {
   onlineManager.setOnline(true);
   client.refetchQueries();
 }
-
 socket.onclose = () => {
   onlineManager.setOnline(false);
   ackResolutions.clear();
 }
-
 socket.onmessage = (event: MessageEvent) => {
   const message: {
     type: string,
@@ -112,6 +51,19 @@ socket.onmessage = (event: MessageEvent) => {
     client.setQueryData([message.type, message.id], () => message.data);
   }
 }
+
+// Get the Bout data from the HTML root
+const rootNode: HTMLElement | null = document.getElementById('root');
+if (rootNode?.dataset?.bouts) {
+  try {
+    const boutsObject: object = JSON.parse(rootNode.dataset.bouts);
+    client.setQueryData(['series', undefined],
+      new Map(Object.entries(boutsObject)));
+  } catch {
+    // Ignore error
+  }
+}
+
 
 export function useGetter<T = object>(type: string, id?: queryId): T {
   const { data } = useSuspenseQuery({
@@ -144,4 +96,49 @@ export function useSetter(type: string, action: string, id?: queryId,
       });
     }
   }, client);
+}
+
+
+export function useConnection() {
+  const [isOnline, setIsOnline] = useState(onlineManager.isOnline());
+
+  useEffect(() => {
+    return onlineManager.subscribe((onlineState) => {
+      setIsOnline(onlineState);
+    });
+  }, []);
+
+  const { data } = useQuery<number>({
+    queryKey: ['latency'], queryFn: async () => {
+      const latencyIterations: number = 5;
+      let latencySum: number = 0;
+      let successes: number = latencyIterations;
+      for (let i = 0; i < latencyIterations; i++) {
+        let success: boolean = true;
+
+        // Time the round-trip duration of a packet
+        const start: number = window.performance.now();
+        await new Promise((resolve, reject) => {
+          const payload = {
+            type: 'info', action: 'get',
+            transactionId: uuid4()
+          };
+          ackResolutions.set(payload.transactionId, [resolve, reject]);
+          socket.send(JSON.stringify(payload));
+        }).catch(() => success = false);
+        const stop: number = window.performance.now();
+
+        if (success) {
+          latencySum += stop - start;
+        } else {
+          successes--;
+        }
+      }
+
+      // Compute one-way latency (in milliseconds) using mathematical average
+      return successes > 0 ? Math.round((latencySum / successes) / 2) : 0;
+    }, refetchInterval: 10000, initialData: 0,
+  }, client);
+
+  return { latency: data, isOnline };
 }
