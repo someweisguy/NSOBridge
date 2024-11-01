@@ -61,6 +61,18 @@ const ackResolutions: Map<string, [(msg: object) => void,
   (msg: { title: string, details: string }) => void]> = new Map();
 const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
 
+// Get the Bout data from the HTML root
+const rootNode: HTMLElement | null = document.getElementById('root');
+if (rootNode && rootNode.dataset.bouts) {
+  try {
+    const boutsObject: object = JSON.parse(rootNode.dataset.bouts);
+    client.setQueryData(['series', undefined],
+      new Map(Object.entries(boutsObject)));
+  } catch {
+    // Ignore error
+  }
+}
+
 socket.onopen = () => {
   onlineManager.setOnline(true);
   client.refetchQueries();
