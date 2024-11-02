@@ -56,9 +56,8 @@ socket.onmessage = (event: MessageEvent) => {
 const rootNode: HTMLElement | null = document.getElementById('root');
 if (rootNode?.dataset?.bouts) {
   try {
-    const boutsObject: object = JSON.parse(rootNode.dataset.bouts);
     client.setQueryData(['series', undefined],
-      new Map(Object.entries(boutsObject)));
+      JSON.parse(rootNode.dataset.bouts));
   } catch {
     // Ignore error
   }

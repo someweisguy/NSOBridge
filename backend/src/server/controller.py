@@ -6,8 +6,9 @@ from json import JSONDecodeError, JSONEncoder
 from starlette.applications import Starlette
 from starlette.endpoints import WebSocketEndpoint
 from starlette.requests import Request
-from starlette.responses import FileResponse
+from starlette.responses import FileResponse, Response
 from starlette.routing import Mount, Route, WebSocketRoute
+from starlette.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
 from types import ModuleType, UnionType
@@ -187,7 +188,8 @@ def emit_updates() -> None:
         asyncio.create_task(sock.send_text(text))
 
 
-async def serve(port: int = 8000, *, debug: bool = False) -> None:
+async def serve(port: int = 8000, *, context: dict[str, Any] | None = None,
+                debug: bool = False) -> None:
     if 1 > port > 65535:
         raise ValueError('invalid server port number')
     if debug:
@@ -195,13 +197,18 @@ async def serve(port: int = 8000, *, debug: bool = False) -> None:
         log.setLevel(logging.DEBUG)
 
     directory: Path = (Path(os.getcwd()) / 'frontend' / 'dist')
+    template: Jinja2Templates = Jinja2Templates(directory)
 
-    def renderPage(request: Request):
+    def renderPage(request: Request) -> Response:
         path: Path = Path('index.html' if 'page'
                           not in request.path_params.keys()
                           else request.path_params['page'])
         log.debug(f'Handling request for \'{path}\'.')
-        return FileResponse(directory / path)
+        match path.suffix:
+            case '.html':
+                return template.TemplateResponse(request, str(path), context)
+            case _:
+                return FileResponse(directory / path)
 
     # Instantiate the application
     instance: Starlette = Starlette(
