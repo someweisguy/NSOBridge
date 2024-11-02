@@ -10,6 +10,8 @@ if __name__ == '__main__':
     roller_derby.bouts.add()
 
     series: dict[str, Any] = server.api.series.get()
-    asyncio.run(server.serve(context={
-        'bouts': json.dumps(series)
-    }))
+    asyncio.run(
+        server.serve(context={
+            'bouts': json.dumps(series)
+        })
+    )
