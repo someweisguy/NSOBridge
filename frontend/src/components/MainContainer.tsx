@@ -1,7 +1,6 @@
-import { createContext, PropsWithChildren, ReactNode } from "react";
+import { PropsWithChildren, ReactNode } from "react";
 import { useSeries } from "../hooks/series";
-
-const BoutContext = createContext(new Map<string, object>());
+import { SeriesContext } from "../App";
 
 export default function MainContainer({
   children,
@@ -18,9 +17,7 @@ export default function MainContainer({
         </div>
       </div>
 
-      <BoutContext.Provider value={bouts}>
-        {children}
-      </BoutContext.Provider>
+      <SeriesContext.Provider value={bouts}>{children}</SeriesContext.Provider>
     </div>
   );
 }
