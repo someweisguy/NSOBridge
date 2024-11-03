@@ -23,7 +23,7 @@ export default function MainContainer({
   }, [boutId, series]);
 
   return (
-    <div className="container flex flex-col w-full h-svh max-h-svh">
+    <div className="container flex flex-col w-full min-w-full h-svh max-h-svh">
       {/* Header items go here */}
       <div className="container sticky top-0 flex flex-row items-center p-4 shadow-md place-content-start bg-slate-400 max-h-16">
         <img src="skate.svg" className="flex-initial h-full pl-2"></img>
