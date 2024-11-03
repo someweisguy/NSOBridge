@@ -10,11 +10,10 @@ export default function MainContainer({
 
   // Automatically select a Bout with which to interact
   useEffect(() => {
-    if (boutId && boutId in series.keys()) {
+    if (boutId && series.has(boutId)) {
       return; // Do nothing
     } else if (series.size > 0) {
       if (boutId) {
-        console.log("Bout ID has been updated");
         // TODO: notify client that the Bout has been deleted
       }
       setBoutId(series.keys().next().value!);
