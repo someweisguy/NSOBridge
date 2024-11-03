@@ -6,7 +6,7 @@ export const SeriesContext = createContext(new Map<string, object>());
 
 export default function App() {
   return (
-    <Suspense fallback={<h1>Loading...</h1>}>
+
       <MainContainer>
         <Sidebar>
           <Suspense>
@@ -25,6 +25,5 @@ export default function App() {
           </Suspense>
         </Sidebar>
       </MainContainer>
-    </Suspense>
   );
 }
