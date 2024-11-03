@@ -6,7 +6,9 @@ export default function MainContainer({
   children,
 }: PropsWithChildren): ReactNode {
   const series: Map<string, object> = useSeries();
-  const [boutId, setBoutId] = useState<string>("");
+  const [boutId, setBoutId] = useState<string>(
+    series.size > 0 ? series.keys().next().value! : ""
+  );
 
   // Automatically select a Bout with which to interact
   useEffect(() => {
