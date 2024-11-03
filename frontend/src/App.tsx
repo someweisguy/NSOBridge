@@ -1,26 +1,16 @@
-import Sidebar from "./components/Sidebar.tsx";
 import { createContext, Suspense } from "react";
+import Sidebar from "./components/Sidebar.tsx";
 import MainContainer from "./components/MainContainer.tsx";
+import TestPage from "./pages/TestPage.tsx";
 
-export const BoutContext = createContext({});
+export const BoutContext = createContext<string>("");
 
 export default function App() {
   return (
     <MainContainer>
       <Sidebar>
-        <Suspense>
-          First <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
-          Hello <br /> hello <br /> hello <br /> hello <br />
+        <Suspense fallback={<h1>Loading...</h1>}>
+          <TestPage />
         </Suspense>
       </Sidebar>
     </MainContainer>
