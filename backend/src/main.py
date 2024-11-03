@@ -12,6 +12,6 @@ if __name__ == '__main__':
     series: dict[str, Any] = server.api.series.get()
     asyncio.run(
         server.serve(context={
-            'bouts': json.dumps(series)
+            'series': json.dumps(series)
         })
     )

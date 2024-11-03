@@ -53,14 +53,16 @@ socket.onmessage = (event: MessageEvent) => {
 }
 
 // Get the Bout data from the HTML root
-const rootNode: HTMLElement | null = document.getElementById('root');
-if (rootNode?.dataset?.bouts) {
-  try {
+try {
+  const rootNode: HTMLElement | null = document.getElementById('root');
+  if (rootNode?.dataset?.series) {
     client.setQueryData(['series', undefined],
-      JSON.parse(rootNode.dataset.bouts));
-  } catch {
-    // Ignore error
+      JSON.parse(rootNode.dataset.series));
+  } else {
+    throw new Error();  // Log error if data not found
   }
+} catch {
+  console.error('Series data not found in server response.');
 }
 
 
