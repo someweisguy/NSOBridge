@@ -1,11 +1,27 @@
-import { PropsWithChildren, ReactNode } from "react";
+import { PropsWithChildren, ReactNode, useEffect, useState } from "react";
 import { useSeries } from "../hooks/series";
-import { SeriesContext } from "../App";
+import { BoutContext } from "../App";
 
 export default function MainContainer({
   children,
 }: PropsWithChildren): ReactNode {
-  const bouts: Map<string, object> = useSeries();
+  const series: Map<string, object> = useSeries();
+  const [boutId, setBoutId] = useState<string>("");
+
+  // Automatically select a Bout with which to interact
+  useEffect(() => {
+    if (boutId && boutId in series.keys()) {
+      return; // Do nothing
+    } else if (series.size > 0) {
+      if (boutId) {
+        console.log("Bout ID has been updated");
+        // TODO: notify client that the Bout has been deleted
+      }
+      setBoutId(series.keys().next().value!);
+    } else {
+      // TODO: Go to Bout creation page
+    }
+  }, [boutId, series]);
 
   return (
     <div className="container flex flex-col w-full h-svh max-h-svh">
@@ -17,7 +33,7 @@ export default function MainContainer({
         </div>
       </div>
 
-      <SeriesContext.Provider value={bouts}>{children}</SeriesContext.Provider>
+      <BoutContext.Provider value={boutId}>{children}</BoutContext.Provider>
     </div>
   );
 }

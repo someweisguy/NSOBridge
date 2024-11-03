@@ -2,7 +2,7 @@ import Sidebar from "./components/Sidebar.tsx";
 import { createContext, Suspense } from "react";
 import MainContainer from "./components/MainContainer.tsx";
 
-export const SeriesContext = createContext(new Map<string, object>());
+export const BoutContext = createContext({});
 
 export default function App() {
   return (
