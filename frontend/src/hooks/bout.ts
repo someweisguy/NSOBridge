@@ -1,12 +1,12 @@
 import { useGetter } from "./client";
 
-export interface Timer {
+export type Timer = {
   elapsed: number,
   alarm: number | null,
   isRunning: boolean
 };
 
-export interface Bout {
+export type Bout = {
   clocks: {
     intermission: Timer,
     period: Timer,
