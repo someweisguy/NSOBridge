@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useGetter } from "./client";
 
+// TODO: add BoutAbstractType
 
 export function useSeries(): Map<string, object> {
   const series: object = useGetter("series");
