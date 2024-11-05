@@ -3,7 +3,7 @@ import { useGetter } from "./client";
 export type TeamType = {
   lead: boolean;
   lost: boolean;
-  starPas: number | null;
+  starPass: number | null;
   trips: { timestamp: string; points: number }[];
   jammer: null;
   blockers: [null, null, null, null];
