@@ -28,7 +28,7 @@ export default function MainContainer({
     <div className="flex flex-col w-full min-w-full h-svh max-h-svh">
       {/* Header items go here */}
       <div className="sticky top-0 flex flex-row items-center p-4 shadow-md place-content-start bg-slate-400 max-h-16">
-        <img src="skate.svg" className="flex-initial h-full pl-2"></img>
+        <img src="skate.svg" className="flex-none h-full pl-2"></img>
         <div className="flex-none h-full px-6 place-content-center">
           <strong>NSO Bridge</strong>
         </div>
