@@ -196,8 +196,8 @@ async def serve(port: int = 8000, *, context: dict[str, Any] | None = None,
         _WebSocketClient.debug = True
         log.setLevel(logging.DEBUG)
 
-    directory: Path = (Path(os.getcwd()) / 'frontend' / 'dist')
-    template: Jinja2Templates = Jinja2Templates(directory)
+    frontend: Path = (Path(os.getcwd()) / 'frontend' / 'dist')
+    template: Jinja2Templates = Jinja2Templates(frontend)
 
     def renderPage(request: Request) -> Response:
         path: Path = Path('index.html' if 'page'
@@ -208,18 +208,18 @@ async def serve(port: int = 8000, *, context: dict[str, Any] | None = None,
             case '.html':
                 return template.TemplateResponse(request, str(path), context)
             case _:
-                return FileResponse(directory / path)
+                return FileResponse(frontend / path)
 
     # Instantiate the application
     instance: Starlette = Starlette(
         routes=(
             Route('/', renderPage),
             WebSocketRoute('/ws', _WebSocketClient),
-            Mount('/assets', StaticFiles(directory=directory / 'assets')),
+            Mount('/assets', StaticFiles(directory=frontend / 'assets')),
             Route('/{page:str}', renderPage),
-        )
+        ),
+        debug=debug
     )
-    instance.debug = debug
 
     # Determine the address of the server
     address: str = f'http://localhost:{port}'
