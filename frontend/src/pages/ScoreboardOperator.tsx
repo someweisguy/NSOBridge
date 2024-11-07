@@ -7,13 +7,11 @@ export default function ScoreboardOperator() {
   const boutId: string = useContext(BoutContext);
 
   // Get the latest Jam ID and Jam
-  const [jamId, setJamId] = useState<[string, number, number]>(() => {
-    return [boutId, 0, 0];  // TODO: get active Jam
+  const [jamId, setJamId] = useState<[number, number]>(() => {
+    return [0, 0];  // TODO: get active Jam
   });
-  const [previousJamId, nextJamId] = useJamNavigation(jamId);
-  const jam: JamType = useJam(jamId);
-
-  console.log(previousJamId, nextJamId)
+  const [previousJamId, nextJamId] = useJamNavigation(boutId, jamId);
+  const jam: JamType = useJam(boutId, jamId);
 
   return (
     <>
@@ -22,7 +20,7 @@ export default function ScoreboardOperator() {
           <button disabled={previousJamId == null} onClick={() => setJamId(previousJamId!)}>
             Previous Jam
           </button>
-          P{jamId[1]} J{jamId[2]}
+          P{jamId[0]} J{jamId[1]}
           <button disabled={nextJamId == null} onClick={() => setJamId(nextJamId!)}>
             Next Jam
           </button>
