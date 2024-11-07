@@ -1,29 +1,35 @@
 import { useContext, useState } from "react";
 import { BoutContext } from "../App";
-import useBout, { Bout } from "../hooks/bout";
-import useJam, { JamType } from "../hooks/jam";
+import useJam, { JamType, useJamNavigation } from "../hooks/jam";
 
 export default function ScoreboardOperator() {
+  // Get the selected Bout ID
   const boutId: string = useContext(BoutContext);
-  const bout: Bout = useBout(boutId);
 
-  const [periodId, setPeriodId] = useState<number>(
-    bout.jams.jamCounts[1] == 0 ? 0 : 1
-  );
-  const [jamId, setJamId] = useState<number>(bout.jams.jamCounts[periodId] - 1);
+  // Get the latest Jam ID and Jam
+  const [jamId, setJamId] = useState<[string, number, number]>(() => {
+    return [boutId, 0, 0];  // TODO: get active Jam
+  });
+  const [previousJamId, nextJamId] = useJamNavigation(jamId);
+  const jam: JamType = useJam(jamId);
 
-  const jam: JamType = useJam(boutId, periodId, jamId);
-
-  // FIXME: remove this clause
-  if (periodId == 3) {
-    setPeriodId(0);
-    setJamId(0);
-  }
+  console.log(previousJamId, nextJamId)
 
   return (
     <>
-      <div></div>
-      {JSON.stringify(jam)}
+      <div>
+        <div>
+          <button disabled={previousJamId == null} onClick={() => setJamId(previousJamId!)}>
+            Previous Jam
+          </button>
+          P{jamId[1]} J{jamId[2]}
+          <button disabled={nextJamId == null} onClick={() => setJamId(nextJamId!)}>
+            Next Jam
+          </button>
+        </div>
+        {JSON.stringify(jam)}
+      </div>
+
     </>
   );
 }

@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import useBout, { BoutType } from "./bout";
 import { useGetter } from "./client";
 
 export type TeamType = {
@@ -18,7 +20,51 @@ export type JamType = {
   away: TeamType;
 }
 
-export default function useJam(boutId: string, periodId: number,
-  jamId: number): JamType {
-  return useGetter<JamType>("jam", { boutId, periodId, jamId });
+export default function useJam(jamId: [string, number, number]): JamType {
+  const [boutId, periodNum, jamNum] = jamId;
+  return useGetter<JamType>("jam", {
+    boutId, periodId: periodNum, jamId: jamNum
+  });
+}
+
+function getNextJamId(bout: BoutType, jamId: [string, number, number]): [string, number, number] | null {
+  const [boutId, periodNum, jamNum] = jamId;
+  if (jamNum >= bout.jams.jamCounts[periodNum] - 1) {
+    if (periodNum >= 1 || bout.jams.jamCounts[1] == 0) {
+      return null;  // There is no next Jam
+    }
+    return [boutId, 1, 0];
+  }
+  return [boutId, periodNum, jamNum + 1];
+}
+
+function getPreviousJamId(bout: BoutType, jamId: [string, number, number]): [string, number, number] | null {
+  const [boutId, periodNum, jamNum] = jamId;
+  if (jamNum == 0) {
+    if (periodNum == 0) {
+      return null;  // There is no previous Jam
+    }
+    return [boutId, 0, bout.jams.jamCounts[0] - 1];
+  }
+  return [boutId, periodNum, jamNum - 1];
+}
+
+export function useJamNavigation(jamId: [string, number, number]) {
+  const [boutId] = jamId;
+  const bout: BoutType = useBout(boutId);
+
+  const [nextJamId, setNextJamId] = useState<[string, number, number] | null>(
+    () => getNextJamId(bout, jamId)
+  );
+
+  const [previousJamId, setPreviousJamId] = useState<[string, number, number] | null>(
+    () => getPreviousJamId(bout, jamId)
+  );
+
+  useEffect(() => {
+    setNextJamId(getNextJamId(bout, jamId));
+    setPreviousJamId(getPreviousJamId(bout, jamId));
+  }, [jamId, bout]);
+
+  return [previousJamId, nextJamId];
 }

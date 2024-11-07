@@ -1,18 +1,18 @@
 import { useGetter } from "./client";
 
-export type Timer = {
+export type TimerType = {
   elapsed: number,
   alarm: number | null,
   isRunning: boolean
 };
 
-export type Bout = {
+export type BoutType = {
   clocks: {
-    intermission: Timer,
-    period: Timer,
-    lineup: Timer,
-    jam: Timer,
-    timeout: Timer
+    intermission: TimerType,
+    period: TimerType,
+    lineup: TimerType,
+    jam: TimerType,
+    timeout: TimerType
   },
   info: {
     date: string,
@@ -61,6 +61,6 @@ export type Bout = {
   }
 };
 
-export default function useBout(boutId: string): Bout {
-  return useGetter<Bout>("bout", { boutId });
+export default function useBout(boutId: string): BoutType {
+  return useGetter<BoutType>("bout", { boutId });
 }
