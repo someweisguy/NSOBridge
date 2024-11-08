@@ -23,9 +23,8 @@ export type JamType = {
 };
 
 export default function useJam(boutId: string, jamId: JamId): JamType {
-  const [periodNum, jamNum] = jamId;
   return useGetter<JamType>("jam", {
-    boutId, periodId: periodNum, jamId: jamNum
+    boutId, jamId
   });
 }
 

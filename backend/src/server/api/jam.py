@@ -4,8 +4,8 @@ from typing import Any
 import server
 
 
-def get(boutId: BoutId, periodId: int, jamId: int) -> dict[str, Any]:
-    jam: Jam = bouts[boutId].jams[periodId][jamId]
+def get(boutId: BoutId, jamId: tuple[int, int]) -> dict[str, Any]:
+    jam: Jam = bouts[boutId].jams[jamId]
 
     def encode_team(team: Jam.Team) -> dict[str, Any]:
         return {

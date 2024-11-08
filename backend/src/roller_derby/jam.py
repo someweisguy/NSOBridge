@@ -144,8 +144,8 @@ class Periods():
     def __iter__(self) -> Iterator[list[Jam]]:
         return self._jams.__iter__()
 
-    def __getitem__(self, item: int) -> list[Jam]:
-        return self._jams[item]
+    def __getitem__(self, item: tuple[int, int]) -> Jam:
+        return self._jams[item[0]][item[1]]
 
     def append(self, period_id: int) -> None:
         self._jams[period_id].append(Jam())

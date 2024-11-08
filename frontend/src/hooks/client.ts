@@ -3,11 +3,11 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { v4 as uuid4 } from 'uuid';
+import { JamId } from "./jam";
 
 interface queryId {
   boutId: string,
-  periodId?: number,
-  jamId?: number
+  jamId?: JamId
 };
 
 const client = new QueryClient();
@@ -142,4 +142,19 @@ export function useConnection() {
   }, client);
 
   return { latency: data, isOnline };
+}
+
+export function preFetch(type: string, id?: queryId) {
+  // FIXME
+  client.prefetchQuery({
+    queryKey: [type, id], queryFn: () => {
+      return new Promise((resolve, reject) => {
+        const payload = {
+          type, action: 'get', args: id, transactionId: uuid4()
+        };
+        ackResolutions.set(payload.transactionId, [resolve, reject]);
+        socket.send(JSON.stringify(payload));
+      });
+    }
+  });
 }
