@@ -9,12 +9,10 @@ function TripSquare({
   points?: number | null;
 }) {
   return (
-    <button className="flex-none w-[50px] h-[50px] justify-center align-middle">
-      <p className="justify-center text-center bg-white">
-        <i>Trip {Number(tripIndex) + 1}</i>
-        <br />
-        {points == null ? <>&nbsp;</> : points}
-      </p>
+    <button className="bg-white text-center flex-none w-[50px] h-[50px] justify-center align-middle">
+      <i>Trip {Number(tripIndex) + 1}</i>
+      <br />
+      {points == null ? <>&nbsp;</> : points}
     </button>
   );
 }
@@ -35,12 +33,12 @@ export default function TripSetter({
 
   const buttonRow: ReactNode =
     teamJam.trips.length == 1 && useInitial ? (
-      <div className="flex flex-row justify-center flex-1 max-w-lg px-2 space-x-12">
+      <div className="flex flex-row justify-center flex-1 max-w-lg pb-4 space-x-12">
         <button className="flex-none bg-slate-200">NP/NP</button>
         <button className="flex-none bg-slate-200">Initial</button>
       </div>
     ) : (
-      <div className="flex flex-row justify-between flex-1 max-w-lg px-8 space-x-8">
+      <div className="flex flex-row justify-between flex-1 max-w-lg px-8 pb-4 space-x-8">
         <button className="flex-none bg-slate-200">0</button>
         <button className="flex-none bg-slate-200">1</button>
         <button className="flex-none bg-slate-200">2</button>
@@ -60,8 +58,14 @@ export default function TripSetter({
   return (
     <span className="flex flex-col justify-center p-4 bg-green-400">
       {buttonRow}
-      <div className="flex flex-row min-w-[250px] w-[400px]">
-        {tripCarousel}
+      <div className="flex flex-row overflow-hidden rounded-2xl">
+        <button className="h-full text-center bg-white w-7">&lt;</button>
+        <div className="flex flex-auto flex-row min-w-[200px] w-[350px] overflow-x-scroll no-scrollbar bg-red-500">
+          {tripCarousel}
+        </div>
+        <button className="h-full text-center align-middle bg-white w-7">
+          &gt;
+        </button>
       </div>
     </span>
   );
