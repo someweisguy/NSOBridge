@@ -23,9 +23,7 @@ export type JamType = {
 };
 
 export default function useJam(boutId: string, jamId: JamId): JamType {
-  return useGetter<JamType>("jam", {
-    boutId, jamId
-  });
+  return useGetter<JamType>("jam", { boutId, jamId });
 }
 
 function getNextJamId(bout: BoutType, jamId: JamId): JamId | null {
@@ -53,13 +51,10 @@ function getPreviousJamId(bout: BoutType, jamId: JamId): JamId | null {
 export function useJamNavigation(boutId: string, jamId: JamId): [JamId | null, JamId | null] {
   const bout: BoutType = useBout(boutId);
 
-  const [nextJamId, setNextJamId] = useState<JamId | null>(
-    () => getNextJamId(bout, jamId)
-  );
-
-  const [previousJamId, setPreviousJamId] = useState<JamId | null>(
-    () => getPreviousJamId(bout, jamId)
-  );
+  const [nextJamId, setNextJamId] = useState<JamId | null>(() =>
+    getNextJamId(bout, jamId));
+  const [previousJamId, setPreviousJamId] = useState<JamId | null>(() =>
+    getPreviousJamId(bout, jamId));
 
   useEffect(() => {
     setNextJamId(getNextJamId(bout, jamId));
