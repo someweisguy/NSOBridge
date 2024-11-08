@@ -55,7 +55,7 @@ def get(boutId: BoutId) -> dict[str, Any]:
                 'home': 0,  # TODO
                 'away': 0   # TODO
             },
-            'jamCounts': [len(period) for period in bout.jams],
+            'counts': [len(period) for period in bout.jams],
         },
         'penalties': None  # TODO
     }

@@ -30,8 +30,8 @@ export default function useJam(boutId: string, jamId: JamId): JamType {
 
 function getNextJamId(bout: BoutType, jamId: JamId): JamId | null {
   const [periodNum, jamNum] = jamId;
-  if (jamNum >= bout.jams.jamCounts[periodNum] - 1) {
-    if (periodNum >= 1 || bout.jams.jamCounts[1] == 0) {
+  if (jamNum >= bout.jams.counts[periodNum] - 1) {
+    if (periodNum >= 1 || bout.jams.counts[1] == 0) {
       return null;  // There is no next Jam
     }
     return [1, 0];
@@ -45,7 +45,7 @@ function getPreviousJamId(bout: BoutType, jamId: JamId): JamId | null {
     if (periodNum == 0) {
       return null;  // There is no previous Jam
     }
-    return [0, bout.jams.jamCounts[0] - 1];
+    return [0, bout.jams.counts[0] - 1];
   }
   return [periodNum, jamNum - 1];
 }

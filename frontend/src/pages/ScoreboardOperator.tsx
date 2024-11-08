@@ -10,8 +10,8 @@ export default function ScoreboardOperator() {
 
   // Get the latest Jam ID and Jam
   const [jamId, setJamId] = useState<JamId>(() => {
-    const periodIndex: number = bout.jams.jamCounts[1] > 0 ? 1 : 0;
-    const jamIndex: number = bout.jams.jamCounts[periodIndex] - 1;
+    const periodIndex: number = bout.jams.counts[1] > 0 ? 1 : 0;
+    const jamIndex: number = bout.jams.counts[periodIndex] - 1;
     return [periodIndex, jamIndex];  // TODO: get active Jam, not latest Jam
   });
   const [previousJamId, nextJamId] = useJamNavigation(boutId, jamId);

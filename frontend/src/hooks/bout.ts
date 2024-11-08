@@ -20,7 +20,7 @@ export type BoutType = {
     venue: string,
   },
   jams: {
-    jamCounts: [number, number],
+    counts: [number, number],
     score: {
       home: number,
       away: number
