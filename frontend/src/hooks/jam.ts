@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import useBout, { BoutType } from "./bout";
 import { useGetter } from "./client";
 
+export type JamId = [number, number];
+
 export type TeamType = {
   lead: boolean;
   lost: boolean;
@@ -10,7 +12,7 @@ export type TeamType = {
   jammer: null;
   blockers: [null, null, null, null];
   noPivot: boolean;
-}
+};
 
 export type JamType = {
   startTimestamp: string;
@@ -18,16 +20,16 @@ export type JamType = {
   stopReason: string;
   home: TeamType;
   away: TeamType;
-}
+};
 
-export default function useJam(boutId: string, jamId: [number, number]): JamType {
+export default function useJam(boutId: string, jamId: JamId): JamType {
   const [periodNum, jamNum] = jamId;
   return useGetter<JamType>("jam", {
     boutId, periodId: periodNum, jamId: jamNum
   });
 }
 
-function getNextJamId(bout: BoutType, jamId: [number, number]): [number, number] | null {
+function getNextJamId(bout: BoutType, jamId: JamId): JamId | null {
   const [periodNum, jamNum] = jamId;
   if (jamNum >= bout.jams.jamCounts[periodNum] - 1) {
     if (periodNum >= 1 || bout.jams.jamCounts[1] == 0) {
@@ -38,7 +40,7 @@ function getNextJamId(bout: BoutType, jamId: [number, number]): [number, number]
   return [periodNum, jamNum + 1];
 }
 
-function getPreviousJamId(bout: BoutType, jamId: [number, number]): [number, number] | null {
+function getPreviousJamId(bout: BoutType, jamId: JamId): JamId | null {
   const [periodNum, jamNum] = jamId;
   if (jamNum == 0) {
     if (periodNum == 0) {
@@ -49,14 +51,14 @@ function getPreviousJamId(bout: BoutType, jamId: [number, number]): [number, num
   return [periodNum, jamNum - 1];
 }
 
-export function useJamNavigation(boutId: string, jamId: [number, number]) {
+export function useJamNavigation(boutId: string, jamId: JamId): [JamId | null, JamId | null] {
   const bout: BoutType = useBout(boutId);
 
-  const [nextJamId, setNextJamId] = useState<[number, number] | null>(
+  const [nextJamId, setNextJamId] = useState<JamId | null>(
     () => getNextJamId(bout, jamId)
   );
 
-  const [previousJamId, setPreviousJamId] = useState<[number, number] | null>(
+  const [previousJamId, setPreviousJamId] = useState<JamId | null>(
     () => getPreviousJamId(bout, jamId)
   );
 
