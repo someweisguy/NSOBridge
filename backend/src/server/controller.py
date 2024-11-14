@@ -75,35 +75,37 @@ class Controller:
 
         self._tasks[key] = asyncio.create_task(transmit(data, redeliver))
 
-    async def connect(self, socket: WebSocket) -> None:
-        await socket.accept()
-        self._active_sockets.append(socket)
-
-    async def disconnect(self, socket: WebSocket) -> None:
-        await socket.close()
-        self._active_sockets.remove(socket)
-
     async def handle_websocket(self, websocket: WebSocket) -> None:
+        # Accept the connection and save it as an active connection
+        await websocket.accept()
+        self._active_sockets.append(websocket)
+
         socket_is_connected: bool = True
         while socket_is_connected:
             try:
+                # Parse the JSON payload
                 payload: dict[str, Any] = await websocket.receive_json()
+
+                # Ensure that the payload has the required keys
                 if not all(key in {'action', 'args', 'transactionId'}
                            for key in payload.keys()):
                     raise UserWarning('Missing payload key.')
 
-                if payload['action'] not in controller.actions:
+                # Validate the desired action is defined
+                if payload['action'] not in self.actions:
                     raise UserWarning(f'No such action '
                                       f'\'{payload['action']}\'.')
 
-                response = controller.call(payload['action'], payload['args'])
+                # Call the desired API function
+                response = self.call(payload['action'], payload['args'])
 
                 # Fetch and handle any model updates that have occurred
                 for notification in model.get_notifications():
-                    controller.handle_notification(notification.data,
-                                                   notification.redeliver)
+                    self.handle_notification(notification.data,
+                                             notification.redeliver)
                 model.clear_notifications()
 
+                # Send a response
                 await websocket.send_text(response)
             except JSONDecodeError:
                 pass  # TODO
@@ -113,6 +115,10 @@ class Controller:
                 socket_is_connected = False  # TODO
             except Exception:
                 pass  # TODO
+
+        # Close the connection
+        await websocket.close()
+        self._active_sockets.remove(websocket)
 
 
 controller = Controller()

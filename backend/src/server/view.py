@@ -11,6 +11,4 @@ async def index():
 
 @view.websocket('/ws')
 async def ws(websocket: WebSocket):
-    await controller.connect(websocket)
     await controller.handle_websocket(websocket)
-    await controller.disconnect(websocket)
