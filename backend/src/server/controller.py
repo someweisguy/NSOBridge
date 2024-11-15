@@ -2,7 +2,7 @@ from asyncio import Task
 from datetime import datetime, timedelta
 from fastapi import WebSocket, WebSocketDisconnect
 from json import JSONDecodeError
-from typing import Any, Callable, Hashable, Iterable
+from typing import Any, Hashable
 from .model import model, Queryable
 import asyncio
 
@@ -12,32 +12,7 @@ class Controller:
 
     def __init__(self) -> None:
         self._active_sockets: list[WebSocket] = []
-        self._actions: dict[str, Callable] = {}
         self._tasks: dict[Any, Task] = {}
-
-    @property
-    def actions(self) -> Iterable[str]:
-        return self._actions.keys()
-
-    def action(self, action: str | Callable = '', *,
-               overwrite: bool = False) -> Callable:
-        name: str = action.__name__ if callable(action) else action
-        if name == '':
-            raise KeyError('WebSocket actions must have a name.')
-        elif name in self._actions.keys() and not overwrite:
-            raise KeyError(f'Cannot register \'{name}\'. '
-                           f'Action already exists.')
-
-        def inner_decorator(method: Callable) -> Callable:
-            self._actions[name] = method
-            return method
-
-        return (inner_decorator(action) if callable(action)
-                else inner_decorator)
-
-    def call(self, action_name: str, args: dict[str, Any]) -> Any:
-        method: Callable = self._actions[action_name]
-        return method(**args)
 
     async def broadcast(self, key: Hashable, data: dict):
         payload: dict[str, Any] = {'key': key, 'data': data}
@@ -45,8 +20,8 @@ class Controller:
             for socket in self._active_sockets:
                 task_group.create_task(socket.send_json(payload))
 
-    def get_preliminary_data(self) -> dict[str, Any]:
-        return {'abcd': 1234}  # FIXME
+    def get_preliminary_data(self) -> dict[str | float | int, Any]:
+        return model.data.get_data()
 
     def handle_notification(self, data: Queryable,
                             redeliver: datetime | None) -> None:
@@ -95,12 +70,12 @@ class Controller:
                     raise UserWarning('Missing payload key.')
 
                 # Validate the desired action is defined
-                if payload['action'] not in self.actions:
+                if payload['action'] not in model.actions:
                     raise UserWarning(f'No such action '
                                       f'\'{payload['action']}\'.')
 
                 # Call the desired API function
-                response = self.call(payload['action'], payload['args'])
+                response = model.call(payload['action'], payload['args'])
 
                 # Fetch and handle any model updates that have occurred
                 for notification in model.get_notifications():
