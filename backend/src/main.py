@@ -4,8 +4,7 @@ import server
 
 
 if __name__ == '__main__':
-    series: Series = Series()
-    server.controller.data = series
+    server.controller.data = Series()
     asyncio.run(
         server.serve()
     )
