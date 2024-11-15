@@ -20,12 +20,13 @@ class Queryable(ABC):
 
 
 class Controller:
-    __slots__ = 'actions', '_data', '_sockets', '_tasks'
+    __slots__ = 'actions', '_data', '_notifications', '_sockets', '_tasks'
 
     def __init__(self) -> None:
         self._data: Queryable | None = None
-        self._sockets: list[WebSocket] = []
-        self._tasks: dict[Any, Task] = {}
+        self._sockets: list[WebSocket] = list()
+        self._notifications: set[Queryable] = set()
+        self._tasks: dict[Hashable, Task] = dict()
         self.actions: dict[str, Callable] = dict()
 
     @property
@@ -36,6 +37,8 @@ class Controller:
 
     @data.setter
     def data(self, value: Queryable) -> None:
+        if self._data is not None:
+            pass  # TODO: Updates clients that data has changed
         self._data = value
 
     def action(self, action: str | Callable = '', *,
@@ -54,41 +57,40 @@ class Controller:
         return (inner_decorator(action) if callable(action)
                 else inner_decorator)
 
-    async def broadcast(self, key: Hashable, data: dict):
-        payload: dict[str, Any] = {'key': key, 'data': data}
+    def notify(self, notifier: Queryable,
+               renotify: datetime | None = None) -> None:
+        # Add the notification to the notifications set
+        self._notifications.add(notifier)
+
+        # If a broadcast timer has been set, cancel it
+        if notifier.get_key() in self._tasks.keys():
+            key: Hashable = notifier.get_key()
+            self._tasks[key].cancel()
+            self._tasks.pop(key)
+
+        if renotify is None:
+            return
+
+        async def reminder() -> None:
+            now: datetime = datetime.now()
+            while now < renotify:
+                sleep: timedelta = now - renotify
+                await asyncio.sleep(sleep.total_seconds())
+                now = datetime.now()
+            await self.broadcast({
+                'key': notifier.get_key(),
+                'data': notifier.get_data()
+            })
+
+        # Schedule a task to rebroadcast the data
+        task: Task[None] = asyncio.create_task(reminder())
+        self._tasks[notifier.get_key()] = task
+        task.add_done_callback(lambda _: self._tasks.pop(notifier.get_key()))
+
+    async def broadcast(self, data: Any):
         async with asyncio.TaskGroup() as task_group:
             for socket in self._sockets:
-                task_group.create_task(socket.send_json(payload))
-
-    def handle_notification(self, data: Queryable,
-                            redeliver: datetime | None) -> None:
-        # Cancel the previous task if it has not completed
-        key: Hashable = data.get_key()
-        if key in self._tasks.keys():
-            task: Task = self._tasks[key]
-            if not task.done():
-                task.cancel()
-
-        async def transmit(data: Queryable,
-                           redeliver: datetime | None) -> None:
-            # Broadcast the data at least once
-            key: Hashable = data.get_key()
-            await self.broadcast(key, data.get_data())
-
-            # Sleep until the data is ready to be redlivered
-            if redeliver is not None:
-                now: datetime = datetime.now()
-                while now < redeliver:
-                    sleep: timedelta = now - redeliver
-                    await asyncio.sleep(sleep.total_seconds())
-                    now = datetime.now()
-                await self.broadcast(key, data.get_data())
-
-            # Allow the task to be garbage collected
-            if key in self._tasks.keys():
-                del self._tasks[key]
-
-        self._tasks[key] = asyncio.create_task(transmit(data, redeliver))
+                task_group.create_task(socket.send_json(data))
 
     async def handle_websocket(self, websocket: WebSocket) -> None:
         # Accept the connection and save it as an active connection
@@ -106,22 +108,21 @@ class Controller:
                            for key in payload.keys()):
                     raise UserWarning('Missing payload key.')
 
-                # # Validate the desired action is defined
+                # Begin to construct the response payload
+                response: dict[str, Any] = {
+                    'transactionId': payload['transactionId']
+                }
+
+                # Validate the desired action is defined
                 if payload['action'] not in self.actions.keys():
                     raise UserWarning(f'No such action '
                                       f'\'{payload['action']}\'.')
 
-                # Call the desired API function
-                response = self.actions[payload['action']](**payload['args'])
+                # Call the desired API function and return the result
+                response['data'] = self.actions[payload['action']](
+                    **payload['args'])
+                await websocket.send_json(response)
 
-                # # Fetch and handle any model updates that have occurred
-                # for notification in self.model.get_notifications():
-                #     self.handle_notification(notification.data,
-                #                              notification.redeliver)
-                # self.model.clear_notifications()
-
-                # Send a response
-                await websocket.send_text(response)
             except JSONDecodeError:
                 pass  # TODO
             except UserWarning:
@@ -130,9 +131,19 @@ class Controller:
                 socket_is_connected = False  # TODO
             except Exception:
                 pass  # TODO
+            finally:
+                # Fetch and handle any model updates that have occurred
+                updates: list[dict[str | float | int, Any]] = []
+                for notifier in self._notifications:
+                    updates.append({
+                        'key': notifier.get_key(),
+                        'data': notifier.get_data()
+                    })
+                if len(updates) > 0:
+                    await self.broadcast(updates)
+                    self._notifications.clear()
 
         # Close the connection
-        await websocket.close()
         self._sockets.remove(websocket)
 
 
