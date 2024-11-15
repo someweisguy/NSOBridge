@@ -1,12 +1,22 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, Request, WebSocket
+from fastapi.routing import Mount
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
 from .controller import controller
+import os
 
-view: FastAPI = FastAPI()
+frontend: Path = Path(os.getcwd()) / 'frontend' / 'dist'
+view: FastAPI = FastAPI(debug=True, routes=[
+    Mount('/assets', StaticFiles(directory=frontend / 'assets'))],
+    extra=Jinja2Templates(frontend),
+)
 
 
 @view.get("/")
-async def index():
-    return {"Hello": "World"}
+async def index(request: Request):
+    templates: Jinja2Templates = view.extra['extra']
+    return templates.TemplateResponse("index.html", {'request': request})
 
 
 @view.websocket('/ws')
