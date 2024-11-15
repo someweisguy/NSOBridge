@@ -1,3 +1,4 @@
+from typing import Any
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
@@ -16,7 +17,9 @@ view: FastAPI = FastAPI(debug=True, routes=[
 @view.get("/")
 async def index(request: Request):
     templates: Jinja2Templates = view.extra['extra']
-    return templates.TemplateResponse("index.html", {'request': request})
+    data: dict[str, Any] = controller.get_preliminary_data()
+    return templates.TemplateResponse("index.html", {'request': request,
+                                                     'series': data})
 
 
 @view.websocket('/ws')

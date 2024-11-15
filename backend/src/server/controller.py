@@ -45,6 +45,9 @@ class Controller:
             for socket in self._active_sockets:
                 task_group.create_task(socket.send_json(payload))
 
+    def get_preliminary_data(self) -> dict[str, Any]:
+        return {'abcd': 1234}  # FIXME
+
     def handle_notification(self, data: Queryable,
                             redeliver: datetime | None) -> None:
         # Cancel the previous task if it has not completed
