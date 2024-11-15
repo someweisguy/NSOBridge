@@ -1,23 +1,58 @@
+from abc import ABC, abstractmethod
 from asyncio import Task
 from datetime import datetime, timedelta
 from fastapi import WebSocket, WebSocketDisconnect
 from json import JSONDecodeError
-from typing import Any, Hashable
-from .model import Model, Queryable
+from typing import Any, Callable, Hashable
 import asyncio
 
 
+class Queryable(ABC):
+    def __init__(self, key: Hashable) -> None:
+        self._key: Hashable = key
+
+    def get_key(self) -> Hashable:
+        return self._key
+
+    @abstractmethod
+    def get_data(self) -> dict[str | float | int, Any]:
+        ...
+
+
 class Controller:
-    __slots__ = '_sockets', '_model', '_tasks'
+    __slots__ = 'actions', '_data', '_sockets', '_tasks'
 
     def __init__(self) -> None:
+        self._data: Queryable | None = None
         self._sockets: list[WebSocket] = []
-        self._model: Model = Model()
         self._tasks: dict[Any, Task] = {}
+        self.actions: dict[str, Callable] = dict()
 
     @property
-    def model(self) -> Model:
-        return self._model
+    def data(self) -> Queryable:
+        if self._data is None:
+            raise RuntimeError('Data has not been set.')
+        return self._data
+
+    @data.setter
+    def data(self, value: Queryable) -> None:
+        self._data = value
+
+    def action(self, action: str | Callable = '', *,
+               overwrite: bool = False) -> Callable:
+        name: str = action.__name__ if callable(action) else action
+        if name == '':
+            raise KeyError('WebSocket actions must have a name.')
+        elif name in self.actions.keys() and not overwrite:
+            raise KeyError(f'Cannot register \'{name}\'. '
+                           f'Action already exists.')
+
+        def inner_decorator(method: Callable) -> Callable:
+            self.actions[name] = method
+            return method
+
+        return (inner_decorator(action) if callable(action)
+                else inner_decorator)
 
     async def broadcast(self, key: Hashable, data: dict):
         payload: dict[str, Any] = {'key': key, 'data': data}
@@ -71,19 +106,19 @@ class Controller:
                            for key in payload.keys()):
                     raise UserWarning('Missing payload key.')
 
-                # Validate the desired action is defined
-                if payload['action'] not in self.model.actions:
+                # # Validate the desired action is defined
+                if payload['action'] not in self.actions.keys():
                     raise UserWarning(f'No such action '
                                       f'\'{payload['action']}\'.')
 
                 # Call the desired API function
-                response = self.model.call(payload['action'], payload['args'])
+                response = self.actions[payload['action']](**payload['args'])
 
-                # Fetch and handle any model updates that have occurred
-                for notification in self.model.get_notifications():
-                    self.handle_notification(notification.data,
-                                             notification.redeliver)
-                self.model.clear_notifications()
+                # # Fetch and handle any model updates that have occurred
+                # for notification in self.model.get_notifications():
+                #     self.handle_notification(notification.data,
+                #                              notification.redeliver)
+                # self.model.clear_notifications()
 
                 # Send a response
                 await websocket.send_text(response)
@@ -99,3 +134,6 @@ class Controller:
         # Close the connection
         await websocket.close()
         self._sockets.remove(websocket)
+
+
+controller: Controller = Controller()

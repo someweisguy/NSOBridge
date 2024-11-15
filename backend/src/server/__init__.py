@@ -1,8 +1,4 @@
-from server.controller import Controller
-
-
-controller: Controller = Controller()
-
+from server.controller import controller, Queryable
 
 async def serve(host: str = '0.0.0.0', port: int = 8000) -> None:
     from server.view import app
