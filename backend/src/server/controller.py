@@ -100,26 +100,26 @@ class Controller:
         while socket_is_connected:
             try:
                 # Parse the JSON payload
-                payload: dict[str, Any] = await websocket.receive_json()
+                request: dict[str, Any] = await websocket.receive_json()
 
                 # Ensure that the payload has the required keys
                 if not all(key in {'action', 'args', 'transactionId'}
-                           for key in payload.keys()):
+                           for key in request.keys()):
                     raise UserWarning('Missing payload key.')
 
                 # Begin to construct the response payload
                 response: dict[str, Any] = {
-                    'transactionId': payload['transactionId']
+                    'transactionId': request['transactionId']
                 }
 
                 # Validate the desired action is defined
-                if payload['action'] not in self.actions.keys():
+                if request['action'] not in self.actions.keys():
                     raise UserWarning(f'No such action '
-                                      f'\'{payload['action']}\'.')
+                                      f'\'{request['action']}\'.')
 
                 # Call the desired API function and return the result
-                response['data'] = self.actions[payload['action']](
-                    **payload['args'])
+                response['data'] = self.actions[request['action']](
+                    **request['args'])
                 await websocket.send_json(response)
 
             except JSONDecodeError:
