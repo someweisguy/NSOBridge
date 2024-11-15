@@ -8,10 +8,10 @@ import asyncio
 
 
 class Controller:
-    __slots__ = '_active_sockets', '_model', '_tasks'
+    __slots__ = '_sockets', '_model', '_tasks'
 
     def __init__(self) -> None:
-        self._active_sockets: list[WebSocket] = []
+        self._sockets: list[WebSocket] = []
         self._model: Model = Model()
         self._tasks: dict[Any, Task] = {}
 
@@ -22,7 +22,7 @@ class Controller:
     async def broadcast(self, key: Hashable, data: dict):
         payload: dict[str, Any] = {'key': key, 'data': data}
         async with asyncio.TaskGroup() as task_group:
-            for socket in self._active_sockets:
+            for socket in self._sockets:
                 task_group.create_task(socket.send_json(payload))
 
     def handle_notification(self, data: Queryable,
@@ -58,7 +58,7 @@ class Controller:
     async def handle_websocket(self, websocket: WebSocket) -> None:
         # Accept the connection and save it as an active connection
         await websocket.accept()
-        self._active_sockets.append(websocket)
+        self._sockets.append(websocket)
 
         socket_is_connected: bool = True
         while socket_is_connected:
@@ -98,4 +98,4 @@ class Controller:
 
         # Close the connection
         await websocket.close()
-        self._active_sockets.remove(websocket)
+        self._sockets.remove(websocket)
