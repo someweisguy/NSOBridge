@@ -50,19 +50,18 @@ class Controller:
             raise KeyError(f'Cannot register \'{name}\'. '
                            f'Action already exists.')
 
-        def inner_decorator(method: Callable) -> Callable:
+        def inner(method: Callable) -> Callable:
             self.actions[name] = method
             return method
 
-        return (inner_decorator(action) if callable(action)
-                else inner_decorator)
+        return inner(action) if callable(action) else inner
 
     def notify(self, notifier: Queryable,
                renotify: datetime | None = None) -> None:
         # Add the notification to the notifications set
         self._notifications.add(notifier)
 
-        # If a broadcast timer has been set, cancel it
+        # If a reminder has been set, cancel it
         if notifier.get_key() in self._tasks.keys():
             key: Hashable = notifier.get_key()
             self._tasks[key].cancel()
