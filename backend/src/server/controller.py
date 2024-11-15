@@ -3,25 +3,27 @@ from datetime import datetime, timedelta
 from fastapi import WebSocket, WebSocketDisconnect
 from json import JSONDecodeError
 from typing import Any, Hashable
-from .model import model, Queryable
+from .model import Model, Queryable
 import asyncio
 
 
 class Controller:
-    __slots__ = '_actions', '_active_sockets', '_tasks'
+    __slots__ = '_active_sockets', '_model', '_tasks'
 
     def __init__(self) -> None:
         self._active_sockets: list[WebSocket] = []
+        self._model: Model = Model()
         self._tasks: dict[Any, Task] = {}
+
+    @property
+    def model(self) -> Model:
+        return self._model
 
     async def broadcast(self, key: Hashable, data: dict):
         payload: dict[str, Any] = {'key': key, 'data': data}
         async with asyncio.TaskGroup() as task_group:
             for socket in self._active_sockets:
                 task_group.create_task(socket.send_json(payload))
-
-    def get_preliminary_data(self) -> dict[str | float | int, Any]:
-        return model.data.get_data()
 
     def handle_notification(self, data: Queryable,
                             redeliver: datetime | None) -> None:
@@ -70,18 +72,18 @@ class Controller:
                     raise UserWarning('Missing payload key.')
 
                 # Validate the desired action is defined
-                if payload['action'] not in model.actions:
+                if payload['action'] not in self.model.actions:
                     raise UserWarning(f'No such action '
                                       f'\'{payload['action']}\'.')
 
                 # Call the desired API function
-                response = model.call(payload['action'], payload['args'])
+                response = self.model.call(payload['action'], payload['args'])
 
                 # Fetch and handle any model updates that have occurred
-                for notification in model.get_notifications():
+                for notification in self.model.get_notifications():
                     self.handle_notification(notification.data,
                                              notification.redeliver)
-                model.clear_notifications()
+                self.model.clear_notifications()
 
                 # Send a response
                 await websocket.send_text(response)
@@ -97,6 +99,3 @@ class Controller:
         # Close the connection
         await websocket.close()
         self._active_sockets.remove(websocket)
-
-
-controller = Controller()

@@ -4,8 +4,10 @@ from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
-from .controller import controller
+from .controller import Controller
+from . import controller
 import os
+
 
 frontend: Path = Path(os.getcwd()) / 'frontend' / 'dist'
 view: FastAPI = FastAPI(debug=True, routes=[
@@ -17,7 +19,7 @@ view: FastAPI = FastAPI(debug=True, routes=[
 @view.get("/")
 async def index(request: Request):
     templates: Jinja2Templates = view.extra['templates']
-    data: dict[str, Any] = controller.get_preliminary_data()
+    data: dict[str | float | int, Any] = controller.model.data.get_data()
     return templates.TemplateResponse("index.html", {'request': request,
                                                      'series': data})
 

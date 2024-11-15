@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from derby import Series
 from typing import Any, Callable, Hashable, Iterable
 
 
@@ -17,8 +16,8 @@ class Queryable(ABC):
         ...
 
 
-class Model[T: Queryable]:
-    __slots__ = '_data', '_notifications'
+class Model:
+    __slots__ = '_actions', '_data', '_notifications'
 
     @dataclass(slots=True)
     class Notification:
@@ -28,15 +27,21 @@ class Model[T: Queryable]:
         def __eq__(self, other: Any) -> bool:
             return self.data == other
 
-    def __init__(self, data: T) -> None:
-        self._data: T = data
+    def __init__(self) -> None:
+        self._data: Queryable | None = None
         self._notifications: set[Model.Notification] = set()
         self._actions: dict[str, Callable] = dict()
 
     @property
-    def data(self) -> T:
+    def data(self) -> Queryable:
+        if self._data is None:
+            raise RuntimeError('Model has not been instantiated.')
         return self._data
-    
+
+    @data.setter
+    def data(self, value: Queryable) -> None:
+        self._data = value
+
     @property
     def actions(self) -> Iterable[str]:
         return self._actions.keys()
@@ -56,7 +61,7 @@ class Model[T: Queryable]:
 
         return (inner_decorator(action) if callable(action)
                 else inner_decorator)
-    
+
     def call(self, action_name: str, args: dict[str, Any]) -> Any:
         method: Callable = self._actions[action_name]
         return method(**args)
@@ -72,6 +77,3 @@ class Model[T: Queryable]:
 
     def clear_notifications(self) -> None:
         self._notifications.clear()
-
-
-model: Model[Series] = Model(Series())
