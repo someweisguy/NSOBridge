@@ -10,13 +10,13 @@ import os
 frontend: Path = Path(os.getcwd()) / 'frontend' / 'dist'
 view: FastAPI = FastAPI(debug=True, routes=[
     Mount('/assets', StaticFiles(directory=frontend / 'assets'))],
-    extra=Jinja2Templates(frontend),
+    templates=Jinja2Templates(frontend),
 )
 
 
 @view.get("/")
 async def index(request: Request):
-    templates: Jinja2Templates = view.extra['extra']
+    templates: Jinja2Templates = view.extra['templates']
     data: dict[str, Any] = controller.get_preliminary_data()
     return templates.TemplateResponse("index.html", {'request': request,
                                                      'series': data})
