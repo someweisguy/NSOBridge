@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from asyncio import Task
 from datetime import datetime, timedelta
-from fastapi import WebSocket, WebSocketDisconnect
-from json import JSONDecodeError
+from fastapi import WebSocket
 from typing import Any, Callable, Hashable
 import asyncio
 
@@ -56,6 +55,17 @@ class Controller:
 
         return inner(action) if callable(action) else inner
 
+    async def connect(self, websocket: WebSocket) -> None:
+        await websocket.accept()
+        self._sockets.append(websocket)
+
+    async def disconnect(self, websocket: WebSocket) -> None:
+        try:
+            await websocket.close()
+        except RuntimeError:
+            pass
+        self._sockets.remove(websocket)
+
     def notify(self, notifier: Queryable,
                renotify: datetime | None = None) -> None:
         # Add the notification to the notifications set
@@ -86,64 +96,22 @@ class Controller:
         self._tasks[notifier.get_key()] = task
         task.add_done_callback(lambda _: self._tasks.pop(notifier.get_key()))
 
+    def get_notifications(self) -> list[dict[str | float | int, Any]]:
+        updates: list[dict[str | float | int, Any]] = []
+        for notifier in self._notifications:
+            updates.append({
+                'key': notifier.get_key(),
+                'data': notifier.get_data()
+            })
+        return updates
+
+    def clear_notifications(self) -> None:
+        self._notifications.clear()
+
     async def broadcast(self, data: Any):
         async with asyncio.TaskGroup() as task_group:
             for socket in self._sockets:
                 task_group.create_task(socket.send_json(data))
-
-    async def handle_websocket(self, websocket: WebSocket) -> None:
-        # Accept the connection and save it as an active connection
-        await websocket.accept()
-        self._sockets.append(websocket)
-
-        socket_is_connected: bool = True
-        while socket_is_connected:
-            try:
-                # Parse the JSON payload
-                request: dict[str, Any] = await websocket.receive_json()
-
-                # Ensure that the payload has the required keys
-                if not all(key in {'action', 'args', 'transactionId'}
-                           for key in request.keys()):
-                    raise UserWarning('Missing payload key.')
-
-                # Begin to construct the response payload
-                response: dict[str, Any] = {
-                    'transactionId': request['transactionId']
-                }
-
-                # Validate the desired action is defined
-                if request['action'] not in self.actions.keys():
-                    raise UserWarning(f'No such action '
-                                      f'\'{request['action']}\'.')
-
-                # Call the desired API function and return the result
-                response['data'] = self.actions[request['action']](
-                    **request['args'])
-                await websocket.send_json(response)
-
-            except JSONDecodeError:
-                pass  # TODO
-            except UserWarning:
-                pass  # TODO
-            except WebSocketDisconnect:
-                socket_is_connected = False  # TODO
-            except Exception:
-                pass  # TODO
-            finally:
-                # Fetch and handle any model updates that have occurred
-                updates: list[dict[str | float | int, Any]] = []
-                for notifier in self._notifications:
-                    updates.append({
-                        'key': notifier.get_key(),
-                        'data': notifier.get_data()
-                    })
-                if len(updates) > 0:
-                    await self.broadcast(updates)
-                    self._notifications.clear()
-
-        # Close the connection
-        self._sockets.remove(websocket)
 
 
 controller: Controller = Controller()
