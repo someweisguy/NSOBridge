@@ -1,5 +1,5 @@
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 from server import Queryable
 from .bout import Bout
 
@@ -13,3 +13,14 @@ class Series(Queryable):
         return {str(k): {
 
         } for k, v in self._bouts.items()}
+
+    def add_bout(self) -> Bout:
+        uuid: UUID = uuid4()
+        bout: Bout = Bout(uuid)
+        self._bouts[uuid] = bout
+        return bout
+    
+    def get_bout(self, uuid: str | UUID) -> Bout:
+        if isinstance(uuid, str):
+            uuid = UUID(uuid)
+        return self._bouts[uuid]
