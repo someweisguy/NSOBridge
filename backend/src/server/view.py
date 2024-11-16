@@ -45,26 +45,30 @@ async def ws(websocket: WebSocket):
 
             # Validate the desired action is defined
             if request['action'] not in controller.actions.keys():
-                raise UserWarning(f'No such action '
-                                  f'\'{request['action']}\'.')
+                raise KeyError(f'No such action \'{request['action']}\'.')
 
             # Call the desired API function and return the result
             response['data'] = controller.actions[request['action']](
                 **request['args'])
-            await websocket.send_json(response)
+            response['status'] = 'ok'
 
-        except JSONDecodeError:
-            pass  # TODO
-        except UserWarning:
-            pass  # TODO
         except WebSocketDisconnect:
-            socket_is_connected = False  # TODO
-        except Exception:
-            pass  # TODO
+            await controller.disconnect(websocket)
+            socket_is_connected = False
+        except JSONDecodeError:
+            await controller.disconnect(websocket, 1007, 'JSON decode error')
+            socket_is_connected = False
+        except UserWarning:
+            await controller.disconnect(websocket, 1007, 'Invalid request')
+            socket_is_connected = False
+        except (KeyError | Exception) as e:
+            response['status'] = 'error'
+            response['data'] = {'title': type(e).__name__, 'detail': str(e)}
         finally:
+            if socket_is_connected:
+                await websocket.send_json(response)
+
             notifications: list[dict] = controller.get_notifications()
             if len(notifications) > 0:
                 await controller.broadcast(notifications)
                 controller.clear_notifications()
-
-    await controller.disconnect(websocket)
