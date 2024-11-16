@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from json import JSONDecodeError
 from pathlib import Path
-from server.controller import controller
+from server.view_model import controller
 from typing import Any
 import os
 

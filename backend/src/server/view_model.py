@@ -4,7 +4,14 @@ from datetime import datetime, timedelta
 from fastapi import WebSocket
 from typing import Any, Callable, Hashable
 import asyncio
+import logging
 
+logging.basicConfig(
+    format='{levelname}: {message}',
+    datefmt='%m/%d/%Y %H:%M:%S',
+    style='{',
+    level=logging.INFO,
+)
 
 class Queryable(ABC):
     def __init__(self, key: Hashable) -> None:
@@ -18,8 +25,9 @@ class Queryable(ABC):
         ...
 
 
-class Controller:
+class ViewModel:
     __slots__ = 'actions', '_data', '_notifications', '_sockets', '_tasks'
+    log: logging.Logger = logging.getLogger(__name__)
 
     def __init__(self) -> None:
         self._data: Queryable | None = None
@@ -39,6 +47,7 @@ class Controller:
         if self._data is not None:
             pass  # TODO: Updates clients that data has changed
         self._data = value
+        self.log.info('Model data has been reloaded')
 
     def action(self, action: str | Callable = '', *,
                overwrite: bool = False) -> Callable:
@@ -53,11 +62,13 @@ class Controller:
             self.actions[name] = method
             return method
 
+        self.log.debug(f'Registering server action \'{name}\'')
         return inner(action) if callable(action) else inner
 
     async def connect(self, websocket: WebSocket) -> None:
         await websocket.accept()
         self._sockets.append(websocket)
+        self.log.info(f'Client \'{str(websocket)}\' has connected')
 
     async def disconnect(self, websocket: WebSocket, code: int = 1000,
                          reason: str | None = None) -> None:
@@ -66,6 +77,7 @@ class Controller:
         except RuntimeError:
             pass
         self._sockets.remove(websocket)
+        self.log.info(f'Client \'{str(websocket)}\' has disconnected')
 
     def notify(self, notifier: Queryable,
                renotify: datetime | None = None) -> None:
@@ -115,4 +127,4 @@ class Controller:
                 task_group.create_task(socket.send_json(data))
 
 
-controller: Controller = Controller()
+controller: ViewModel = ViewModel()
