@@ -36,7 +36,7 @@ export default function TripSetter({
   }, [boutId, jamId, team])
 
   const buttonRow: ReactNode =
-    teamScore.trips.length == 1 && useInitial ? (
+    teamScore.trips.length == 0 && useInitial ? (
       <div className="flex flex-row justify-center flex-1 max-w-lg pb-4 space-x-12">
         <button onClick={() => addTripCallback(0)} className="flex-none bg-slate-200">NP/NP</button>
         <button onClick={() => addTripCallback(0)} className="flex-none bg-slate-200">Initial</button>
