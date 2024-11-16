@@ -1,5 +1,5 @@
 from derby.jam import Jam
-from typing import Any, Hashable
+from typing import Any
 from server import Queryable
 from uuid import UUID
 
