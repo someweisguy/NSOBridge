@@ -34,7 +34,7 @@ export default function MainContainer({
         </div>
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 overflow-scroll">
         <BoutContext.Provider value={boutId}>{children}</BoutContext.Provider>
       </div>
     </div>
