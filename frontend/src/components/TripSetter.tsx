@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { JamId } from "../hooks/jam";
 import useScore, { ScoreType, setTrip } from "../hooks/score";
 
@@ -15,6 +15,21 @@ export default function TripSetter({
 }) {
   const teamScore: ScoreType = useScore(boutId, jamId, team);
   const [selectedTrip, setSelectedTrip] = useState(teamScore.trips.length);
+  const carousel = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (carousel.current) {
+      const { width } = carousel.current.children[0].getBoundingClientRect();
+      carousel.current.scrollLeft = width * (selectedTrip - 1)
+    }
+  }, [selectedTrip]);
+
+  const scrollCarousel = useCallback((amount: number) => {
+    if (carousel.current) {
+      const { width } = carousel.current.children[0].getBoundingClientRect();
+      carousel.current.scrollLeft += width * amount;
+    }
+  }, []);
 
   const addTripCallback = useCallback(
     (points: number) => {
@@ -98,11 +113,11 @@ export default function TripSetter({
     <span className="flex flex-col justify-center max-w-[350px] flex-1 p-4 bg-green-400">
       {buttonRow}
       <div className="flex flex-row flex-auto overflow-hidden rounded-2xl">
-        <button className="h-full text-center bg-white w-7">&lt;</button>
-        <div className="flex flex-auto flex-row min-w-[100px] w-[150px] max-w-full overflow-x-scroll no-scrollbar bg-red-500">
+        <button onClick={() => scrollCarousel(-1)} className="h-full text-center bg-white w-7">&lt;</button>
+        <div ref={carousel} className="scroll-smooth flex flex-auto flex-row min-w-[100px] w-[150px] max-w-full overflow-x-scroll no-scrollbar bg-red-500">
           {tripCarousel}
         </div>
-        <button className="h-full text-center align-middle bg-white w-7">
+        <button onClick={() => scrollCarousel(1)} className="h-full text-center align-middle bg-white w-7">
           &gt;
         </button>
       </div>
