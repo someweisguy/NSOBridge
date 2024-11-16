@@ -3,6 +3,9 @@ import asyncio
 import server
 
 
+import api.series
+
+
 if __name__ == '__main__':
     series: Series = Series()
     series.add_bout()
