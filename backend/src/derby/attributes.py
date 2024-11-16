@@ -20,6 +20,9 @@ class TeamAttribute[T: Queryable]:
     @property
     def away(self) -> T:
         return self._away
+    
+    def __getitem__(self, item: str) -> T:
+        return getattr(self, item)
 
 
 class TeamOfficialAttribute[T: Queryable](TeamAttribute[T]):
