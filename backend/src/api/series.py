@@ -4,4 +4,4 @@ from typing import Any
 
 @controller.action
 def get() -> dict[str | float | int, Any]:
-    return controller.data.get()
+    return controller.model.get()

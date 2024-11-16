@@ -72,9 +72,9 @@ class ViewModel:
         self._api_directory = value
 
     @property
-    def data(self) -> Model:
+    def model(self) -> Model:
         if self._data is None:
-            raise RuntimeError('Data has not been initialized')
+            raise RuntimeError('The data model has not been set')
         return self._data
 
     def set_model(self, value: Model, load_actor: Any = None) -> None:
@@ -84,7 +84,7 @@ class ViewModel:
         self._data = value
 
         load_str: str = 'set' if is_initial else 'reset'
-        actor_str: str = f'by \'{str(load_actor)}\'' if load_actor else ''
+        actor_str: str = f' by \'{str(load_actor)}\'' if load_actor else ''
         self.log.info(f'The data model has been {load_str}{actor_str}')
 
     def action(self, function: Callable | None = None, *, module: str = '',

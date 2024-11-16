@@ -21,7 +21,7 @@ app: FastAPI = FastAPI(debug=True, routes=[
 @app.get('/')
 async def index(request: Request):
     templates: Jinja2Templates = app.extra['templates']
-    data: str = json.dumps(controller.data.get(), separators=(',', ':'))
+    data: str = json.dumps(controller.model.get(), separators=(',', ':'))
     return templates.TemplateResponse('index.html', {'request': request,
                                                      'model': data})
 
