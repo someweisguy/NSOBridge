@@ -1,21 +1,33 @@
-import { ReactNode, useCallback } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import { JamId } from "../hooks/jam";
-import useScore, { ScoreType, addTrip } from "../hooks/score";
+import useScore, { ScoreType, setTrip } from "../hooks/score";
 
 function TripSquare({
   tripIndex,
   points = null,
+  tripState,
 }: {
   tripIndex: number | string;
   points?: number | null;
+  tripState: [number, (trip: number) => void];
 }) {
-  return (
-    <button className="bg-white text-center flex-none w-[50px] h-[50px] justify-center align-middle">
-      <i>Trip {Number(tripIndex) + 1}</i>
+  const [selectedTrip, setSelectedTrip] = tripState;
+  tripIndex = Number(tripIndex);
+
+  const button: ReactNode = (
+    <button
+      onClick={() => setSelectedTrip(tripIndex)}
+      className={
+        (tripIndex == selectedTrip ? "bg-red-100" : "bg-white") +
+        " text-center flex-none w-[50px] h-[50px] justify-center align-middle"
+      }
+    >
+      <i>Trip {tripIndex + 1}</i>
       <br />
       {points == null ? <>&nbsp;</> : points}
     </button>
   );
+  return button;
 }
 
 export default function TripSetter({
@@ -30,34 +42,85 @@ export default function TripSetter({
   useInitial?: boolean;
 }) {
   const teamScore: ScoreType = useScore(boutId, jamId, team);
+  const [selectedTrip, setSelectedTrip] = useState(teamScore.trips.length);
 
-  const addTripCallback = useCallback((points: number) => {
-    addTrip(boutId, jamId, team, points);
-  }, [boutId, jamId, team])
+  const addTripCallback = useCallback(
+    (points: number) => {
+      setTrip(boutId, jamId, team, selectedTrip, points);
+      if (selectedTrip == teamScore.trips.length) {
+        setSelectedTrip(selectedTrip + 1);
+      }
+    },
+    [boutId, jamId, team, teamScore, selectedTrip]
+  );
 
   const buttonRow: ReactNode =
     teamScore.trips.length == 0 && useInitial ? (
       <div className="flex flex-row justify-center flex-1 max-w-lg pb-4 space-x-12">
-        <button onClick={() => addTripCallback(0)} className="flex-none bg-slate-200">NP/NP</button>
-        <button onClick={() => addTripCallback(0)} className="flex-none bg-slate-200">Initial</button>
+        <button
+          onClick={() => addTripCallback(0)}
+          className="flex-none bg-slate-200"
+        >
+          NP/NP
+        </button>
+        <button
+          onClick={() => addTripCallback(0)}
+          className="flex-none bg-slate-200"
+        >
+          Initial
+        </button>
       </div>
     ) : (
       <div className="flex flex-row justify-between flex-1 max-w-lg px-8 pb-4 space-x-8">
-        <button onClick={() => addTripCallback(0)} className="flex-none bg-slate-200">0</button>
-        <button onClick={() => addTripCallback(1)} className="flex-none bg-slate-200">1</button>
-        <button onClick={() => addTripCallback(2)} className="flex-none bg-slate-200">2</button>
-        <button onClick={() => addTripCallback(3)} className="flex-none bg-slate-200">3</button>
-        <button onClick={() => addTripCallback(4)} className="flex-none bg-slate-200">4</button>
+        <button
+          onClick={() => addTripCallback(0)}
+          className="flex-none bg-slate-200"
+        >
+          0
+        </button>
+        <button
+          onClick={() => addTripCallback(1)}
+          className="flex-none bg-slate-200"
+        >
+          1
+        </button>
+        <button
+          onClick={() => addTripCallback(2)}
+          className="flex-none bg-slate-200"
+        >
+          2
+        </button>
+        <button
+          onClick={() => addTripCallback(3)}
+          className="flex-none bg-slate-200"
+        >
+          3
+        </button>
+        <button
+          onClick={() => addTripCallback(4)}
+          className="flex-none bg-slate-200"
+        >
+          4
+        </button>
       </div>
     );
 
   const tripCarousel: ReactNode[] = [];
   for (const i in teamScore.trips) {
     tripCarousel.push(
-      <TripSquare tripIndex={i} points={teamScore.trips[i].points} />
+      <TripSquare
+        tripIndex={i}
+        points={teamScore.trips[i].points}
+        tripState={[selectedTrip, setSelectedTrip]}
+      />
     );
   }
-  tripCarousel.push(<TripSquare tripIndex={tripCarousel.length} />);
+  tripCarousel.push(
+    <TripSquare
+      tripIndex={tripCarousel.length}
+      tripState={[selectedTrip, setSelectedTrip]}
+    />
+  );
 
   return (
     <span className="flex flex-col justify-center p-4 bg-green-400">
