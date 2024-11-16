@@ -13,7 +13,7 @@ type ServerAck = {
 type ServerNack = {
   transactionId: string;
   result: 'error';
-  data: { title: string, details: string }
+  data: { title: string, details: string, filename: string, lineno: number }
 }
 
 type ServerUpdate = {
@@ -70,7 +70,10 @@ export async function sendQuery<T = object>(type: string, action: string, args: 
     socket.send(JSON.stringify(payload));
   });
   if (response.result == 'error') {
-    throw new Error(response.data.details);
+    console.error("A server-side " + response.data.title + " occurred in "
+      + response.data.filename + " at line number " + response.data.lineno
+      + ": " + response.data.details);
+    throw new Error(response.data.title + ": " + response.data.details);
   }
   return response.data as T;
 }
