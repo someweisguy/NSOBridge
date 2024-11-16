@@ -1,4 +1,11 @@
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import {
+  PropsWithChildren,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { JamId } from "../hooks/jam";
 import useScore, { ScoreType, setTrip } from "../hooks/score";
 
@@ -11,27 +18,12 @@ export default function TripSetter({
   boutId: string;
   jamId: JamId;
   team: string;
-  useInitial: boolean;
+  useInitial?: boolean;
 }) {
-  const carousel = useRef<HTMLDivElement>(null);
   const teamScore: ScoreType = useScore(boutId, jamId, team);
   const [selectedTrip, setSelectedTrip] = useState<number>(
     teamScore.trips.length
   );
-
-  useEffect(() => {
-    if (carousel.current) {
-      const { width } = carousel.current.children[0].getBoundingClientRect();
-      carousel.current.scrollLeft = width * selectedTrip;
-    }
-  }, [selectedTrip]);
-
-  const scrollCarousel = useCallback((amount: number) => {
-    if (carousel.current) {
-      const { width } = carousel.current.children[0].getBoundingClientRect();
-      carousel.current.scrollLeft += width * amount;
-    }
-  }, []);
 
   const addTripCallback = useCallback(
     (points: number) => {
@@ -47,13 +39,13 @@ export default function TripSetter({
   const pointButtons: ReactNode[] = [];
   const buttonEntries =
     teamScore.trips.length == 0 && useInitial
-      ? { "NP/NP": 0, "Initial": 0 }
+      ? { "NP/NP": 0, Initial: 0 }
       : { "0": 0, "1": 1, "2": 2, "3": 3, "4": 4 };
   for (const [text, points] of Object.entries(buttonEntries)) {
     pointButtons.push(
       <button
         onClick={() => addTripCallback(points)}
-        className="flex-none bg-slate-200"
+        className="flex-none w-14 rounded-md h-7 last:scale-125 bg-slate-200"
       >
         {text}
       </button>
@@ -80,29 +72,50 @@ export default function TripSetter({
 
   return (
     <span className="flex flex-col justify-center max-w-[350px] flex-1 p-4 bg-green-400">
-      <div className="flex flex-row justify-center flex-1 max-w-lg px-4 pb-4 space-x-8 align-middle place-content-between">
+      <div className="flex flex-row justify-center content-between flex-1 max-w-lg pb-4 space-x-2">
         {pointButtons}
       </div>
-      <div className="flex flex-row flex-auto overflow-hidden rounded-2xl bg-white">
-        <button
-          onClick={() => scrollCarousel(-1)}
-          className="h-full text-center w-7"
-        >
-          &lt;
-        </button>
-        <div
-          ref={carousel}
-          className="scroll-smooth flex flex-auto flex-row min-w-[100px] w-[150px] max-w-full overflow-x-scroll no-scrollbar bg-slate-100"
-        >
-          {tripButtons}
-        </div>
-        <button
-          onClick={() => scrollCarousel(1)}
-          className="h-full text-center align-middle w-7"
-        >
-          &gt;
-        </button>
-      </div>
+      <TripCarousel selectedTrip={selectedTrip}>{tripButtons}</TripCarousel>
     </span>
+  );
+}
+
+function TripCarousel({
+  selectedTrip,
+  children,
+}: PropsWithChildren<{ selectedTrip: number }>) {
+  const carousel = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (carousel.current) {
+      const { width } = carousel.current.children[0].getBoundingClientRect();
+      carousel.current.scrollLeft = width * (selectedTrip + 1);
+    }
+  }, [selectedTrip]);
+
+  const scrollCarousel = useCallback((amount: number) => {
+    if (carousel.current) {
+      const { width } = carousel.current.children[0].getBoundingClientRect();
+      carousel.current.scrollLeft += width * amount;
+    }
+  }, []);
+
+  const scrollClassName: string = "h-full text-center w-7";
+
+  return (
+    <div className="flex flex-row flex-auto overflow-hidden bg-white rounded-2xl">
+      <button onClick={() => scrollCarousel(-1)} className={scrollClassName}>
+        &lt;
+      </button>
+      <div
+        className="scroll-smooth flex flex-auto flex-row min-w-[100px] w-[150px] max-w-full overflow-x-scroll no-scrollbar bg-slate-100"
+        ref={carousel}
+      >
+        {children}
+      </div>
+      <button onClick={() => scrollCarousel(1)} className={scrollClassName}>
+        &gt;
+      </button>
+    </div>
   );
 }
