@@ -1,4 +1,3 @@
-from derby.bout import Bout
 from derby.series import Series
 from server import controller
 from typing import Any
