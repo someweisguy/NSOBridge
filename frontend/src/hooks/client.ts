@@ -53,7 +53,7 @@ socket.onmessage = (event: MessageEvent<string>) => {
 const rootNode: HTMLElement | null = document.getElementById('root');
 if (rootNode?.dataset?.model) {
   try {
-    client.setQueryData(['series'],
+    client.setQueryData(['series', {}],
       JSON.parse(rootNode.dataset.model));
   } catch {
     console.error("Could not parse data model seed.")
