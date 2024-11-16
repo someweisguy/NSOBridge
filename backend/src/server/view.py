@@ -1,4 +1,3 @@
-import logging
 from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.routing import Mount
@@ -10,6 +9,7 @@ from server.view_model import controller
 from typing import Any
 import json
 import os
+import traceback
 
 
 build_dir: Path = Path(os.getcwd()) / 'frontend' / 'dist'
@@ -77,8 +77,11 @@ async def ws(websocket: WebSocket):
             await controller.disconnect(websocket, 1007, 'invalid payload')
             socket_is_connected = False
         except (KeyError, Exception) as e:
+            tb = traceback.extract_tb(e.__traceback__)
             response['result'] = 'error'
-            response['data'] = {'title': type(e).__name__, 'detail': str(e)}
+            response['data'] = {'title': type(e).__name__, 'detail': str(e),
+                                'filename': os.path.basename(tb[-1].filename),
+                                'lineno': tb[-1].lineno}
         finally:
             if socket_is_connected:
                 await websocket.send_json(response)
