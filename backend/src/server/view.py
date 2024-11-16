@@ -1,5 +1,6 @@
 import logging
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -19,11 +20,18 @@ app: FastAPI = FastAPI(debug=True, routes=[
 
 
 @app.get('/')
-async def index(request: Request):
+async def index(request: Request) -> Response:
     templates: Jinja2Templates = app.extra['templates']
     data: str = json.dumps(controller.model.get(), separators=(',', ':'))
     return templates.TemplateResponse('index.html', {'request': request,
                                                      'model': data})
+
+
+@app.get('/{path}')
+async def root(request: Request, path: str) -> Response:
+    if path.endswith('.html'):
+        return await index(request)
+    return FileResponse(build_dir / path)
 
 
 @app.websocket('/ws')
