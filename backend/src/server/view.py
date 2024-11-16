@@ -34,7 +34,7 @@ async def ws(websocket: WebSocket):
             request: dict[str, Any] = await websocket.receive_json()
 
             # Ensure that the payload has the required keys
-            if not all(key in {'action', 'args', 'transactionId'}
+            if not all(key in {'module', 'method', 'args', 'transactionId'}
                        for key in request.keys()):
                 raise UserWarning('Missing payload key.')
 
