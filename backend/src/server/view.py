@@ -6,6 +6,7 @@ from json import JSONDecodeError
 from pathlib import Path
 from server.view_model import controller
 from typing import Any
+import json
 import os
 
 
@@ -16,12 +17,12 @@ app: FastAPI = FastAPI(debug=True, routes=[
 )
 
 
-@app.get("/")
+@app.get('/')
 async def index(request: Request):
     templates: Jinja2Templates = app.extra['templates']
-    data: dict[str | float | int, Any] = controller.data.get()
-    return templates.TemplateResponse("index.html", {'request': request,
-                                                     'series': data})
+    data: str = json.dumps(controller.data.get(), separators=(',', ':'))
+    return templates.TemplateResponse('index.html', {'request': request,
+                                                     'model': data})
 
 
 @app.websocket('/ws')
@@ -34,7 +35,7 @@ async def ws(websocket: WebSocket):
             request: dict[str, Any] = await websocket.receive_json()
 
             # Ensure that the payload has the required keys
-            if not all(key in {'module', 'method', 'args', 'transactionId'}
+            if not all(key in {'module', 'method', 'transactionId'}
                        for key in request.keys()):
                 raise UserWarning('Missing payload key.')
 
@@ -54,7 +55,7 @@ async def ws(websocket: WebSocket):
             response['data'] = controller.call(request['module'],
                                                request['action'],
                                                request['args'])
-            response['status'] = 'ok'
+            response['result'] = 'ok'
 
         except WebSocketDisconnect:
             await controller.disconnect(websocket, 1000, 'Client disconnected')
@@ -66,7 +67,7 @@ async def ws(websocket: WebSocket):
             await controller.disconnect(websocket, 1007, 'Invalid payload')
             socket_is_connected = False
         except (KeyError | Exception) as e:
-            response['status'] = 'error'
+            response['result'] = 'error'
             response['data'] = {'title': type(e).__name__, 'detail': str(e)}
         finally:
             if socket_is_connected:
