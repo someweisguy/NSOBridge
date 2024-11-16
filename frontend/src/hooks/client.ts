@@ -1,18 +1,29 @@
 import {
-  onlineManager, QueryClient, useMutation, useQuery, useSuspenseQuery
+  onlineManager, QueryClient, useQuery, useSuspenseQuery
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { v4 as uuid4 } from 'uuid';
-import { JamId } from "./jam";
 
-interface queryId {
-  boutId: string,
-  jamId?: JamId
+type ServerAck = {
+  transactionId: string;
+  result: 'ok';
+  data: unknown;
+};
+
+type ServerNack = {
+  transactionId: string;
+  result: 'error';
+  data: { title: string, details: string }
+}
+
+type ServerUpdate = {
+  id: unknown;
+  type: string;
+  data: unknown;
 };
 
 const client = new QueryClient();
-const ackResolutions: Map<string, [(msg: object) => void,
-  (msg: { title: string, details: string }) => void]> = new Map();
+const ackResolutions: Map<string, (ack: ServerAck | ServerNack) => void> = new Map();
 const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
 socket.onopen = () => {
   onlineManager.setOnline(true);
@@ -22,83 +33,55 @@ socket.onclose = () => {
   onlineManager.setOnline(false);
   ackResolutions.clear();
 }
-socket.onmessage = (event: MessageEvent) => {
-  const message: {
-    type: string,
-    action: string,
-    transactionId?: string,
-    error?: { title: string, details: string },
-    id?: { boutId: string, periodId: number, jamId: number },
-    data: object
-  } = JSON.parse(event.data);
+socket.onmessage = (event: MessageEvent<string>) => {
+  const message: ServerAck | ServerNack | ServerUpdate = JSON.parse(event.data);
 
-  // Check if this message is an ACK to a previous message
-  if (message.transactionId) {
-    const functions = ackResolutions.get(message.transactionId);
-    if (functions) {
-      const [resolve, reject] = functions;
-      if (!message.error) {
-        resolve(message.data);
-      } else {
-        reject(message.error)
-      }
-      return;
+  // Handle responses to requests
+  if ('transactionId' in message) {
+    const resolve = ackResolutions.get(message.transactionId);
+    if (resolve) {
+      resolve(message);
     }
+    return;
   }
 
-  // Update data state if no errors exist
-  if (!message.error) {
-    client.setQueryData([message.type, message.id], () => message.data);
-  }
+  // Handle updates from the server
+  client.setQueryData([message.id, message.type], () => message.data);
 }
 
 // Get the Bout data from the HTML root
-try {
-  const rootNode: HTMLElement | null = document.getElementById('root');
-  if (rootNode?.dataset?.series) {
-    client.setQueryData(['series', undefined],
-      JSON.parse(rootNode.dataset.series));
-  } else {
-    throw new Error();  // Log error if data not found
+const rootNode: HTMLElement | null = document.getElementById('root');
+if (rootNode?.dataset?.model) {
+  try {
+    client.setQueryData(['series'],
+      JSON.parse(rootNode.dataset.model));
+  } catch {
+    console.error("Could not parse data model seed.")
   }
-} catch {
-  console.error('Series data not found in server response.');
+} else {
+  console.error('Data model not found in server response.');
 }
 
 
-export function useGetter<T = object>(type: string, id?: queryId): T {
+export async function sendQuery<T = object>(type: string, action: string, args?: object): Promise<T> {
+  const response: ServerAck | ServerNack = await new Promise((resolve) => {
+    const payload = { module: type, method: action, args, transactionId: uuid4() };
+    ackResolutions.set(payload.transactionId, resolve);
+    socket.send(JSON.stringify(payload));
+  });
+  if (response.result == 'error') {
+    throw new Error(response.data.details);
+  }
+  return response.data as T;
+}
+
+export function useGetter<T = object>(type: string, args: object = {}): T {
   const { data } = useSuspenseQuery({
-    queryKey: [type, id], queryFn: () => {
-      return new Promise((resolve, reject) => {
-        const payload = {
-          type, action: 'get', args: id, transactionId: uuid4()
-        };
-        ackResolutions.set(payload.transactionId, [resolve, reject]);
-        socket.send(JSON.stringify(payload));
-      });
-    }
-  }, client);
-
-  return <T>data;
+    queryKey: [type, args],
+    queryFn: () => sendQuery(type, "get", args)
+  });
+  return data as T;
 }
-
-
-export function useSetter(type: string, action: string, id?: queryId,
-  args?: object) {
-  useMutation({
-    mutationFn: () => {
-      return new Promise((resolve, reject) => {
-        const payload = {
-          type, action, args: { ...args, ...id },
-          transactionId: uuid4()
-        };
-        ackResolutions.set(payload.transactionId, [resolve, reject]);
-        socket.send(JSON.stringify(payload));
-      });
-    }
-  }, client);
-}
-
 
 export function useConnection() {
   const [isOnline, setIsOnline] = useState(onlineManager.isOnline());
@@ -119,14 +102,9 @@ export function useConnection() {
 
         // Time the round-trip duration of a packet
         const start: number = window.performance.now();
-        await new Promise((resolve, reject) => {
-          const payload = {
-            type: 'info', action: 'get',
-            transactionId: uuid4()
-          };
-          ackResolutions.set(payload.transactionId, [resolve, reject]);
-          socket.send(JSON.stringify(payload));
-        }).catch(() => success = false);
+        await sendQuery('server', 'latency').catch(() => {
+          success = false;
+        });
         const stop: number = window.performance.now();
 
         if (success) {
@@ -142,19 +120,4 @@ export function useConnection() {
   }, client);
 
   return { latency: data, isOnline };
-}
-
-export function preFetch(type: string, id?: queryId) {
-  // FIXME
-  client.prefetchQuery({
-    queryKey: [type, id], queryFn: () => {
-      return new Promise((resolve, reject) => {
-        const payload = {
-          type, action: 'get', args: id, transactionId: uuid4()
-        };
-        ackResolutions.set(payload.transactionId, [resolve, reject]);
-        socket.send(JSON.stringify(payload));
-      });
-    }
-  });
 }
