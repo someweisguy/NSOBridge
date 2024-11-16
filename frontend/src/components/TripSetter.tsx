@@ -20,7 +20,7 @@ export default function TripSetter({
   useEffect(() => {
     if (carousel.current) {
       const { width } = carousel.current.children[0].getBoundingClientRect();
-      carousel.current.scrollLeft = width * (selectedTrip - 1);
+      carousel.current.scrollLeft = width * selectedTrip;
     }
   }, [selectedTrip]);
 
