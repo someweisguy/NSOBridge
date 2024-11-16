@@ -1,10 +1,15 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from asyncio import Task
 from datetime import datetime, timedelta
 from fastapi import WebSocket
-from typing import Any, Callable, final, Hashable
+from typing import Any, Callable, final, Hashable, TYPE_CHECKING
 import asyncio
 import logging
+
+if TYPE_CHECKING:
+    from derby import Series as Model
+
 
 logging.basicConfig(
     format='{levelname}: {message}',
@@ -22,7 +27,7 @@ class Queryable[T: Hashable](ABC):
     @property
     def id(self) -> T:
         return self._id
-    
+
     @property
     def name(self) -> str:
         return type(self).__name__.lower()
@@ -37,27 +42,27 @@ class ViewModel:
     log: logging.Logger = logging.getLogger(__name__)
 
     def __init__(self) -> None:
-        self._data: Queryable | None = None
+        self._data: Model | None = None
         self._sockets: list[WebSocket] = list()
         self._notifications: set[Queryable] = set()
         self._tasks: dict[Hashable, Task] = dict()
         self.actions: dict[str, Callable] = dict()
 
     @property
-    def data(self) -> Queryable:
+    def data(self) -> Model:
         if self._data is None:
-            raise RuntimeError('Data has not been loaded.')
+            raise RuntimeError('Data has not been initialized')
         return self._data
 
-    def load_model(self, value: Queryable, load_actor: Any = None) -> None:
+    def set_model(self, value: Model, load_actor: Any = None) -> None:
         is_initial: bool = self._data is None
         if not is_initial:
             pass  # TODO: Updates clients that data has changed
         self._data = value
-        
-        load_str: str = 'loaded' if is_initial else 'reloaded'
+
+        load_str: str = 'set' if is_initial else 'reset'
         actor_str: str = f'by \'{str(load_actor)}\'' if load_actor else ''
-        self.log.info(f'Data model has been {load_str}{actor_str}')
+        self.log.info(f'The data model has been {load_str}{actor_str}')
 
     def action(self, action: str | Callable = '', *,
                overwrite: bool = False) -> Callable:
