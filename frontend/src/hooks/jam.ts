@@ -4,22 +4,10 @@ import { useGetter } from "./client";
 
 export type JamId = [number, number];
 
-export type TeamType = {
-  lead: boolean;
-  lost: boolean;
-  starPass: number | null;
-  trips: { timestamp: string; points: number }[];
-  jammer: null;
-  blockers: [null, null, null, null];
-  noPivot: boolean;
-};
-
 export type JamType = {
   startTimestamp: string;
   stopTimestamp: string;
   stopReason: string;
-  home: TeamType;
-  away: TeamType;
 };
 
 export default function useJam(boutId: string, jamId: JamId): JamType {
