@@ -47,10 +47,10 @@ async def ws(websocket: WebSocket):
             }
 
             # Validate the desired action is defined
-            if not controller.action_exists(request['module'],
-                                            request['method']):
+            key: tuple[str, str] = (request['module'], request['method'])
+            if key not in controller.actions:
                 raise KeyError(f'Action '
-                               f'\'{request['module'].request['method']}\' '
+                               f'\'{request['module']}, {request['method']}\' '
                                f'does not exist')
 
             # Call the desired API function and return the result

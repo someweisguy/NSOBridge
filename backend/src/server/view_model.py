@@ -9,6 +9,7 @@ from fastapi import WebSocket
 from typing import Any, Callable, final, Hashable, TYPE_CHECKING
 import asyncio
 import logging
+import inspect
 
 if TYPE_CHECKING:
     from derby import Series as Model
@@ -49,8 +50,9 @@ class Queryable[T: Hashable](ABC):
 
 
 class ViewModel:
-    __slots__ = ('_api_directory', '_data', '_notifications', '_sockets',
-                 '_tasks')
+    __slots__ = ('actions', '_api_directory', '_data', '_notifications',
+                 '_sockets', '_tasks')
+
     log: logging.Logger = logging.getLogger(__name__)
 
     def __init__(self) -> None:
@@ -59,6 +61,7 @@ class ViewModel:
         self._sockets: list[WebSocket] = list()
         self._notifications: set[Queryable] = set()
         self._tasks: dict[Hashable, Task] = dict()
+        self.actions: dict[tuple[str, str], Callable] = dict()
 
     @property
     def api_directory(self) -> str:
@@ -84,18 +87,33 @@ class ViewModel:
         actor_str: str = f'by \'{str(load_actor)}\'' if load_actor else ''
         self.log.info(f'The data model has been {load_str}{actor_str}')
 
-    def action_exists(self, module_name: str, method_name: str) -> bool:
-        if find_spec(f'{self._api_directory}.{module_name}') is None:
-            return False
-        module: ModuleType = import_module(
-            f'{self._api_directory}.{module_name}')
-        return hasattr(module, method_name)
+    def action(self, function: Callable | None = None, *, module: str = '',
+               method: str = '', overwrite: bool = False) -> Callable:
+        module_name, method_name = module, method
+
+        def inner(method: Callable) -> Callable:
+            nonlocal module_name, method_name
+            if not module_name:
+                module: ModuleType | None = inspect.getmodule(method)
+                if module is None:
+                    raise RuntimeError('Module was not found')
+                *_, module_name = module.__name__.split('.')
+            if not method_name:
+                method_name = method.__name__
+            key: tuple[str, str] = (module_name, method_name)
+            if key in self.actions.keys() and not overwrite:
+                raise RuntimeError(f'Action \'{module_name}, {method_name}\' '
+                                   'already exists')
+            self.actions[key] = method
+            self.log.debug(f'\'{module_name}, {method_name}\' has been '
+                           'registered as a server action')
+            return method
+
+        return inner if function is None else inner(function)
 
     def call(self, module_name: str, method_name: str,
              args: dict[str, Any] = {}) -> dict:
-        module: ModuleType = import_module(
-            f'{self._api_directory}.{module_name}')
-        method: Callable = getattr(module, method_name)
+        method: Callable = self.actions[(module_name, method_name)]
         return method(**args)
 
     async def connect(self, websocket: WebSocket) -> None:
@@ -110,7 +128,8 @@ class ViewModel:
         except RuntimeError:
             pass
         self._sockets.remove(websocket)
-        self.log.info(f'Client \'{str(websocket)}\' has disconnected ({reason})')
+        self.log.info(f'Client \'{str(websocket)
+                                  }\' has disconnected ({reason})')
 
     def notify(self, notifier: Queryable,
                renotify: datetime | None = None) -> None:
