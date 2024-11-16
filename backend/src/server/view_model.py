@@ -5,11 +5,13 @@ from datetime import datetime, timedelta
 from importlib import import_module
 from types import ModuleType
 from fastapi import WebSocket
+from fastapi.encoders import jsonable_encoder
 from typing import Any, Callable, final, Hashable, TYPE_CHECKING
 import asyncio
 import logging
 import inspect
 import os
+
 
 if TYPE_CHECKING:
     from derby import Series as Model
@@ -145,8 +147,8 @@ class ViewModel:
         self._notifications.add(notifier)
 
         # If a reminder has been set, cancel it
-        if notifier.id() in self._tasks.keys():
-            key: Hashable = notifier.id()
+        if notifier.id in self._tasks.keys():
+            key: Hashable = notifier.id
             self._tasks[key].cancel()
             self._tasks.pop(key)
 
@@ -163,13 +165,13 @@ class ViewModel:
 
         # Schedule a task to rebroadcast the data
         task: Task[None] = asyncio.create_task(reminder())
-        self._tasks[notifier.id()] = task
-        task.add_done_callback(lambda _: self._tasks.pop(notifier.id()))
+        self._tasks[notifier.id] = task
+        task.add_done_callback(lambda _: self._tasks.pop(notifier.id))
 
     def get_notifications(self) -> list[dict[str | float | int, Any]]:
         updates: list[dict[str | float | int, Any]] = []
         for notifier in self._notifications:
-            updates.append(notifier.encode())
+            updates.append(jsonable_encoder(notifier.encode()))
         return updates
 
     def clear_notifications(self) -> None:
