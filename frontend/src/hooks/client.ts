@@ -34,7 +34,8 @@ socket.onclose = () => {
   ackResolutions.clear();
 }
 socket.onmessage = (event: MessageEvent<string>) => {
-  const message: ServerAck | ServerNack | ServerUpdate = JSON.parse(event.data);
+  const message: ServerAck | ServerNack | ServerUpdate[] =
+    JSON.parse(event.data);
 
   // Handle responses to requests
   if ('transactionId' in message) {
@@ -46,7 +47,10 @@ socket.onmessage = (event: MessageEvent<string>) => {
   }
 
   // Handle updates from the server
-  client.setQueryData([message.id, message.type], () => message.data);
+  for (const notification of message) {
+    client.setQueryData([notification.id, notification.type],
+      () => notification.data);
+  }
 }
 
 // Get the Bout data from the HTML root
@@ -78,9 +82,9 @@ export async function sendQuery<T = object>(type: string, action: string, args: 
   return response.data as T;
 }
 
-export function useGetter<T = object>(type: string, args?: object): T {
+export function useGetter<T = object>(type: string, args: object = {}): T {
   const { data } = useSuspenseQuery({
-    queryKey: [type, args],
+    queryKey: [Object.values(args), type],
     queryFn: () => sendQuery(type, "get", args)
   }, client);
   return data as T;
