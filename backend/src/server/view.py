@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
@@ -32,11 +33,12 @@ async def ws(websocket: WebSocket):
     while socket_is_connected:
         try:
             # Parse the JSON payload
+            controller.log.info('Waiting...')
             request: dict[str, Any] = await websocket.receive_json()
 
             # Ensure that the payload has the required keys
-            if not all(key in {'module', 'method', 'transactionId'}
-                       for key in request.keys()):
+            if not all(key in request.keys() for key in
+                       ('module', 'method', 'args', 'transactionId')):
                 raise UserWarning('Missing payload key.')
 
             # Begin to construct the response payload
@@ -53,20 +55,20 @@ async def ws(websocket: WebSocket):
 
             # Call the desired API function and return the result
             response['data'] = controller.call(request['module'],
-                                               request['action'],
+                                               request['method'],
                                                request['args'])
             response['result'] = 'ok'
 
         except WebSocketDisconnect:
-            await controller.disconnect(websocket, 1000, 'Client disconnected')
+            await controller.disconnect(websocket, 1000, 'client disconnected')
             socket_is_connected = False
         except JSONDecodeError:
             await controller.disconnect(websocket, 1007, 'JSON decode error')
             socket_is_connected = False
         except UserWarning:
-            await controller.disconnect(websocket, 1007, 'Invalid payload')
+            await controller.disconnect(websocket, 1007, 'invalid payload')
             socket_is_connected = False
-        except (KeyError | Exception) as e:
+        except (KeyError, Exception) as e:
             response['result'] = 'error'
             response['data'] = {'title': type(e).__name__, 'detail': str(e)}
         finally:
