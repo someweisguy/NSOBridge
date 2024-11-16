@@ -95,11 +95,11 @@ export default function TripSetter({
   );
 
   return (
-    <span className="flex flex-col justify-center p-4 bg-green-400">
+    <span className="flex flex-col justify-center max-w-[350px] flex-1 p-4 bg-green-400">
       {buttonRow}
-      <div className="flex flex-row overflow-hidden rounded-2xl">
+      <div className="flex flex-row flex-auto overflow-hidden rounded-2xl">
         <button className="h-full text-center bg-white w-7">&lt;</button>
-        <div className="flex flex-auto flex-row min-w-[200px] w-[350px] overflow-x-scroll no-scrollbar bg-red-500">
+        <div className="flex flex-auto flex-row min-w-[100px] w-[150px] max-w-full overflow-x-scroll no-scrollbar bg-red-500">
           {tripCarousel}
         </div>
         <button className="h-full text-center align-middle bg-white w-7">
