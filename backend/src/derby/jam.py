@@ -1,29 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
+from derby.attributes import TeamAttribute
 from server import Queryable
-from typing import Any, Hashable, Sequence
+from typing import Any
 from uuid import UUID
-
-
-class TeamAttribute[T: Queryable]:
-    __slots__ = '_home', '_away'
-    
-    def __init__(self, home: T, away: T) -> None:
-        for team, name in zip((home, away), ('home', 'away')):
-            if isinstance(team._id, tuple):
-                team._id += (name, )
-            else:
-                team._id = (team._id, name)
-        self._home: T = home
-        self._away: T = away
-    
-    @property
-    def home(self) -> T:
-        return self._home
-    
-    @property
-    def away(self) -> T:
-        return self._away
 
 
 class Score(Queryable):
