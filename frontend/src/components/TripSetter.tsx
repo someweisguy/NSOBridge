@@ -11,11 +11,13 @@ export default function TripSetter({
   boutId: string;
   jamId: JamId;
   team: string;
-  useInitial?: boolean;
+  useInitial: boolean;
 }) {
-  const teamScore: ScoreType = useScore(boutId, jamId, team);
-  const [selectedTrip, setSelectedTrip] = useState(teamScore.trips.length);
   const carousel = useRef<HTMLDivElement>(null);
+  const teamScore: ScoreType = useScore(boutId, jamId, team);
+  const [selectedTrip, setSelectedTrip] = useState<number>(
+    teamScore.trips.length
+  );
 
   useEffect(() => {
     if (carousel.current) {
