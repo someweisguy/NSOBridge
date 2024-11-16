@@ -33,7 +33,6 @@ async def ws(websocket: WebSocket):
     while socket_is_connected:
         try:
             # Parse the JSON payload
-            controller.log.info('Waiting...')
             request: dict[str, Any] = await websocket.receive_json()
 
             # Ensure that the payload has the required keys
