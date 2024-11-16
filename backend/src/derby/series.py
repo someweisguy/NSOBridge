@@ -4,9 +4,9 @@ from server import Queryable
 from .bout import Bout
 
 
-class Series(Queryable):
+class Series(Queryable):   
     def __init__(self) -> None:
-        super().__init__(('series'))
+        super().__init__(None)
         self._bouts: dict[UUID, Bout] = {}
 
     def get(self) -> dict[str | float | int, Any]:
