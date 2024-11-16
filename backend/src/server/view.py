@@ -45,7 +45,8 @@ async def ws(websocket: WebSocket):
 
             # Validate the desired action is defined
             if request['action'] not in controller.actions.keys():
-                raise KeyError(f'No such action \'{request['action']}\'.')
+                raise KeyError(f'Action \'{request['action']}\' does not '
+                               f'exist')
 
             # Call the desired API function and return the result
             response['data'] = controller.actions[request['action']](
@@ -53,13 +54,13 @@ async def ws(websocket: WebSocket):
             response['status'] = 'ok'
 
         except WebSocketDisconnect:
-            await controller.disconnect(websocket)
+            await controller.disconnect(websocket, 1000, 'Client disconnected')
             socket_is_connected = False
         except JSONDecodeError:
             await controller.disconnect(websocket, 1007, 'JSON decode error')
             socket_is_connected = False
         except UserWarning:
-            await controller.disconnect(websocket, 1007, 'Invalid request')
+            await controller.disconnect(websocket, 1007, 'Invalid payload')
             socket_is_connected = False
         except (KeyError | Exception) as e:
             response['status'] = 'error'
