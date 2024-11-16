@@ -79,7 +79,7 @@ export function useGetter<T = object>(type: string, args: object = {}): T {
   const { data } = useSuspenseQuery({
     queryKey: [type, args],
     queryFn: () => sendQuery(type, "get", args)
-  });
+  }, client);
   return data as T;
 }
 
