@@ -1,5 +1,6 @@
-import { ReactNode } from "react";
-import useJam, { JamId, JamType, TeamType } from "../hooks/jam";
+import { ReactNode, useCallback } from "react";
+import { JamId } from "../hooks/jam";
+import useScore, { ScoreType, addTrip } from "../hooks/score";
 
 function TripSquare({
   tripIndex,
@@ -28,29 +29,32 @@ export default function TripSetter({
   team: string;
   useInitial?: boolean;
 }) {
-  const jam: JamType = useJam(boutId, jamId);
-  const teamJam: TeamType = team == "home" ? jam.home : jam.away;
+  const teamScore: ScoreType = useScore(boutId, jamId, team);
+
+  const addTripCallback = useCallback((points: number) => {
+    addTrip(boutId, jamId, team, points);
+  }, [boutId, jamId, team])
 
   const buttonRow: ReactNode =
-    teamJam.trips.length == 1 && useInitial ? (
+    teamScore.trips.length == 1 && useInitial ? (
       <div className="flex flex-row justify-center flex-1 max-w-lg pb-4 space-x-12">
-        <button className="flex-none bg-slate-200">NP/NP</button>
-        <button className="flex-none bg-slate-200">Initial</button>
+        <button onClick={() => addTripCallback(0)} className="flex-none bg-slate-200">NP/NP</button>
+        <button onClick={() => addTripCallback(0)} className="flex-none bg-slate-200">Initial</button>
       </div>
     ) : (
       <div className="flex flex-row justify-between flex-1 max-w-lg px-8 pb-4 space-x-8">
-        <button className="flex-none bg-slate-200">0</button>
-        <button className="flex-none bg-slate-200">1</button>
-        <button className="flex-none bg-slate-200">2</button>
-        <button className="flex-none bg-slate-200">3</button>
-        <button className="flex-none bg-slate-200">4</button>
+        <button onClick={() => addTripCallback(0)} className="flex-none bg-slate-200">0</button>
+        <button onClick={() => addTripCallback(1)} className="flex-none bg-slate-200">1</button>
+        <button onClick={() => addTripCallback(2)} className="flex-none bg-slate-200">2</button>
+        <button onClick={() => addTripCallback(3)} className="flex-none bg-slate-200">3</button>
+        <button onClick={() => addTripCallback(4)} className="flex-none bg-slate-200">4</button>
       </div>
     );
 
   const tripCarousel: ReactNode[] = [];
-  for (const i in teamJam.trips) {
+  for (const i in teamScore.trips) {
     tripCarousel.push(
-      <TripSquare tripIndex={i} points={teamJam.trips[i].points} />
+      <TripSquare tripIndex={i} points={teamScore.trips[i].points} />
     );
   }
   tripCarousel.push(<TripSquare tripIndex={tripCarousel.length} />);
