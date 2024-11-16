@@ -59,9 +59,10 @@ class Controller:
         await websocket.accept()
         self._sockets.append(websocket)
 
-    async def disconnect(self, websocket: WebSocket) -> None:
+    async def disconnect(self, websocket: WebSocket, code: int = 1000,
+                         reason: str | None = None) -> None:
         try:
-            await websocket.close()
+            await websocket.close(code, reason)
         except RuntimeError:
             pass
         self._sockets.remove(websocket)
