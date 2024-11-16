@@ -110,7 +110,7 @@ class ViewModel:
         except RuntimeError:
             pass
         self._sockets.remove(websocket)
-        self.log.info(f'Client \'{str(websocket)}\' has disconnected')
+        self.log.info(f'Client \'{str(websocket)}\' has disconnected ({reason})')
 
     def notify(self, notifier: Queryable,
                renotify: datetime | None = None) -> None:
