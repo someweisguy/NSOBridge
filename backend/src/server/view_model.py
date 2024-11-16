@@ -2,14 +2,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from asyncio import Task
 from datetime import datetime, timedelta
-from importlib import import_module, util
-from importlib.util import find_spec
+from importlib import import_module
 from types import ModuleType
 from fastapi import WebSocket
 from typing import Any, Callable, final, Hashable, TYPE_CHECKING
 import asyncio
 import logging
 import inspect
+import os
 
 if TYPE_CHECKING:
     from derby import Series as Model
@@ -111,6 +111,14 @@ class ViewModel:
 
         return inner if function is None else inner(function)
 
+    def load_api(self, package_name: str):
+        package: ModuleType = import_module(package_name)
+        for module_name in os.listdir(package.__path__[0]):
+            if module_name.endswith(".py") and module_name != "__init__.py":
+                module: ModuleType = import_module(
+                    f"{package_name}.{module_name[:-3]}")
+                globals()[module_name[:-3]] = module
+
     def call(self, module_name: str, method_name: str,
              args: dict[str, Any] = {}) -> dict:
         method: Callable = self.actions[(module_name, method_name)]
@@ -128,8 +136,8 @@ class ViewModel:
         except RuntimeError:
             pass
         self._sockets.remove(websocket)
-        self.log.info(f'Client \'{str(websocket)
-                                  }\' has disconnected ({reason})')
+        self.log.info(f'Client \'{str(websocket)}\' has disconnected '
+                      f'({reason})')
 
     def notify(self, notifier: Queryable,
                renotify: datetime | None = None) -> None:

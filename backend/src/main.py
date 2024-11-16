@@ -5,10 +5,11 @@ import server
 
 server.controller.log.setLevel(logging.DEBUG)
 
-from api import bout, series, jam, score
 
 
 if __name__ == '__main__':
+    server.controller.load_api('api')
+
     series: Series = Series()
     bout: Bout = series.add_bout()
 
