@@ -13,6 +13,7 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+
 class Queryable(ABC):
     def __init__(self, key: Hashable) -> None:
         self._key: Hashable = key
@@ -39,15 +40,18 @@ class ViewModel:
     @property
     def data(self) -> Queryable:
         if self._data is None:
-            raise RuntimeError('Data has not been set.')
+            raise RuntimeError('Data has not been loaded.')
         return self._data
 
-    @data.setter
-    def data(self, value: Queryable) -> None:
-        if self._data is not None:
+    def load_model(self, value: Queryable, load_actor: Any = None) -> None:
+        is_initial: bool = self._data is None
+        if not is_initial:
             pass  # TODO: Updates clients that data has changed
         self._data = value
-        self.log.info('Model data has been reloaded')
+        
+        load_str: str = 'loaded' if is_initial else 'reloaded'
+        actor_str: str = f'by \'{str(load_actor)}\'' if load_actor else ''
+        self.log.info(f'Data model has been {load_str}{actor_str}')
 
     def action(self, action: str | Callable = '', *,
                overwrite: bool = False) -> Callable:
