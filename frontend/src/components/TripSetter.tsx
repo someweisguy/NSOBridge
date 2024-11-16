@@ -47,7 +47,7 @@ export default function TripSetter({
   const pointButtons: ReactNode[] = [];
   const buttonEntries =
     teamScore.trips.length == 0 && useInitial
-      ? { "NP/NP": 0, Initial: 0 }
+      ? { "NP/NP": 0, "Initial": 0 }
       : { "0": 0, "1": 1, "2": 2, "3": 3, "4": 4 };
   for (const [text, points] of Object.entries(buttonEntries)) {
     pointButtons.push(
