@@ -2,34 +2,6 @@ import { ReactNode, useCallback, useState } from "react";
 import { JamId } from "../hooks/jam";
 import useScore, { ScoreType, setTrip } from "../hooks/score";
 
-function TripSquare({
-  tripIndex,
-  points = null,
-  tripState,
-}: {
-  tripIndex: number | string;
-  points?: number | null;
-  tripState: [number, (trip: number) => void];
-}) {
-  const [selectedTrip, setSelectedTrip] = tripState;
-  tripIndex = Number(tripIndex);
-
-  const button: ReactNode = (
-    <button
-      onClick={() => setSelectedTrip(tripIndex)}
-      className={
-        (tripIndex == selectedTrip ? "bg-red-100" : "bg-white") +
-        " text-center flex-none w-[50px] h-[50px] justify-center align-middle"
-      }
-    >
-      <i>Trip {tripIndex + 1}</i>
-      <br />
-      {points == null ? <>&nbsp;</> : points}
-    </button>
-  );
-  return button;
-}
-
 export default function TripSetter({
   boutId,
   jamId,
@@ -136,4 +108,32 @@ export default function TripSetter({
       </div>
     </span>
   );
+}
+
+function TripSquare({
+  tripIndex,
+  points = null,
+  tripState,
+}: {
+  tripIndex: number | string;
+  points?: number | null;
+  tripState: [number, (trip: number) => void];
+}) {
+  const [selectedTrip, setSelectedTrip] = tripState;
+  tripIndex = Number(tripIndex);
+
+  const button: ReactNode = (
+    <button
+      onClick={() => setSelectedTrip(tripIndex)}
+      className={
+        (tripIndex == selectedTrip ? "bg-red-100" : "bg-white") +
+        " text-center flex-none w-[50px] h-[50px] justify-center align-middle"
+      }
+    >
+      <i>Trip {tripIndex + 1}</i>
+      <br />
+      {points == null ? <>&nbsp;</> : points}
+    </button>
+  );
+  return button;
 }
