@@ -3,7 +3,7 @@ import asyncio
 import server
 
 
-import api.series
+import api
 
 
 if __name__ == '__main__':
