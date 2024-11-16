@@ -12,6 +12,9 @@ export default function useScore(boutId: string, jamId: JamId, team: string): Sc
   return useGetter<ScoreType>("score", { boutId, jamId, team });
 }
 
-export async function addTrip(boutId: string, jamId: JamId, team: string, points: number): Promise<undefined> {
-  return await sendQuery("score", "addTrip", { boutId, jamId, team, points });
+export async function setTrip(boutId: string, jamId: JamId, team: string, 
+  tripId: number, points: number): Promise<null> {
+  return await sendQuery<null>("score", "setTrip", 
+    { boutId, jamId, team, tripId, points }
+  );
 }

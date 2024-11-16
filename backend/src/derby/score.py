@@ -20,12 +20,20 @@ class Score(Queryable):
 
     def total_points(self) -> int:
         return sum(trip.points for trip in self._trips)
-    
-    def add_trip(self, points: int, timestamp: datetime | None = None) -> None:
-        if timestamp is None:
-            timestamp = datetime.now()
-        self._trips.append(Score.Trip(points, timestamp))
-        controller.notify(self)
+
+    def set_trip(self, trip_index: int, points: int, timestamp: datetime | None = None) -> None:
+        notify_controller: bool = False
+        if trip_index == len(self._trips):
+            if timestamp is None:
+                timestamp = datetime.now()
+            self._trips.append(Score.Trip(points, timestamp))
+            notify_controller = True
+        elif self._trips[trip_index].points != points:
+            self._trips[trip_index].points = points
+            notify_controller = True
+
+        if notify_controller:
+            controller.notify(self)
 
     def get(self) -> dict[str | float | int, Any]:
         return {
