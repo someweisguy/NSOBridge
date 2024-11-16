@@ -9,3 +9,10 @@ def get(boutId: str, jamId: tuple[int, int], team: str) -> dict[str | float | in
     series: Series = controller.model
     jam: Jam = series.get_bout(boutId).get_jam(jamId)
     return jam.score[team].get()
+
+
+@controller.action
+def addTrip(boutId: str, jamId: tuple[int, int], team: str, points: int) -> None:
+    series: Series = controller.model
+    jam: Jam = series.get_bout(boutId).get_jam(jamId)
+    jam.score[team].add_trip(points)
