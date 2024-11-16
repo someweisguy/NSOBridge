@@ -2,6 +2,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from asyncio import Task
 from datetime import datetime, timedelta
+from importlib import import_module, util
+from importlib.util import find_spec
+from types import ModuleType
 from fastapi import WebSocket
 from typing import Any, Callable, final, Hashable, TYPE_CHECKING
 import asyncio
@@ -36,17 +39,34 @@ class Queryable[T: Hashable](ABC):
     def get(self) -> dict[str | float | int, Any]:
         ...
 
+    @final
+    def encode(self) -> dict[str | float | int, Any]:
+        return {
+            'id': self._id,
+            'type': self.name,
+            'data': self.get()
+        }
+
 
 class ViewModel:
-    __slots__ = 'actions', '_data', '_notifications', '_sockets', '_tasks'
+    __slots__ = ('_api_directory', '_data', '_notifications', '_sockets',
+                 '_tasks')
     log: logging.Logger = logging.getLogger(__name__)
 
     def __init__(self) -> None:
         self._data: Model | None = None
+        self._api_directory: str = 'api'
         self._sockets: list[WebSocket] = list()
         self._notifications: set[Queryable] = set()
         self._tasks: dict[Hashable, Task] = dict()
-        self.actions: dict[str, Callable] = dict()
+
+    @property
+    def api_directory(self) -> str:
+        return self._api_directory
+
+    @api_directory.setter
+    def api_directory(self, value: str) -> None:
+        self._api_directory = value
 
     @property
     def data(self) -> Model:
@@ -64,21 +84,19 @@ class ViewModel:
         actor_str: str = f'by \'{str(load_actor)}\'' if load_actor else ''
         self.log.info(f'The data model has been {load_str}{actor_str}')
 
-    def action(self, action: str | Callable = '', *,
-               overwrite: bool = False) -> Callable:
-        name: str = action.__name__ if callable(action) else action
-        if name == '':
-            raise KeyError('WebSocket actions must have a name.')
-        elif name in self.actions.keys() and not overwrite:
-            raise KeyError(f'Cannot register \'{name}\'. '
-                           f'Action already exists.')
+    def action_exists(self, module_name: str, method_name: str) -> bool:
+        if find_spec(f'{self._api_directory}.{module_name}') is None:
+            return False
+        module: ModuleType = import_module(
+            f'{self._api_directory}.{module_name}')
+        return hasattr(module, method_name)
 
-        def inner(method: Callable) -> Callable:
-            self.actions[name] = method
-            return method
-
-        self.log.debug(f'Registering server action \'{name}\'')
-        return inner(action) if callable(action) else inner
+    def call(self, module_name: str, method_name: str,
+             args: dict[str, Any] = {}) -> dict:
+        module: ModuleType = import_module(
+            f'{self._api_directory}.{module_name}')
+        method: Callable = getattr(module, method_name)
+        return method(**args)
 
     async def connect(self, websocket: WebSocket) -> None:
         await websocket.accept()
@@ -114,10 +132,7 @@ class ViewModel:
                 sleep: timedelta = now - renotify
                 await asyncio.sleep(sleep.total_seconds())
                 now = datetime.now()
-            await self.broadcast({
-                'key': notifier.id(),
-                'data': notifier.get()
-            })
+            await self.broadcast(notifier.encode())
 
         # Schedule a task to rebroadcast the data
         task: Task[None] = asyncio.create_task(reminder())
@@ -127,10 +142,7 @@ class ViewModel:
     def get_notifications(self) -> list[dict[str | float | int, Any]]:
         updates: list[dict[str | float | int, Any]] = []
         for notifier in self._notifications:
-            updates.append({
-                'key': notifier.id(),
-                'data': notifier.get()
-            })
+            updates.append(notifier.encode())
         return updates
 
     def clear_notifications(self) -> None:

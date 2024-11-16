@@ -19,7 +19,7 @@ app: FastAPI = FastAPI(debug=True, routes=[
 @app.get("/")
 async def index(request: Request):
     templates: Jinja2Templates = app.extra['templates']
-    data: dict[str | float | int, Any] = controller.data.get_data()
+    data: dict[str | float | int, Any] = controller.data.get()
     return templates.TemplateResponse("index.html", {'request': request,
                                                      'series': data})
 
@@ -44,13 +44,16 @@ async def ws(websocket: WebSocket):
             }
 
             # Validate the desired action is defined
-            if request['action'] not in controller.actions.keys():
-                raise KeyError(f'Action \'{request['action']}\' does not '
-                               f'exist')
+            if not controller.action_exists(request['module'],
+                                            request['method']):
+                raise KeyError(f'Action '
+                               f'\'{request['module'].request['method']}\' '
+                               f'does not exist')
 
             # Call the desired API function and return the result
-            response['data'] = controller.actions[request['action']](
-                **request['args'])
+            response['data'] = controller.call(request['module'],
+                                               request['action'],
+                                               request['args'])
             response['status'] = 'ok'
 
         except WebSocketDisconnect:
