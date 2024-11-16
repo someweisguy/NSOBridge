@@ -53,7 +53,7 @@ socket.onmessage = (event: MessageEvent<string>) => {
 const rootNode: HTMLElement | null = document.getElementById('root');
 if (rootNode?.dataset?.model) {
   try {
-    client.setQueryData(['series', {}],
+    client.setQueryData(['series', undefined],
       JSON.parse(rootNode.dataset.model));
   } catch {
     console.error("Could not parse data model seed.")
@@ -63,7 +63,7 @@ if (rootNode?.dataset?.model) {
 }
 
 
-export async function sendQuery<T = object>(type: string, action: string, args?: object): Promise<T> {
+export async function sendQuery<T = object>(type: string, action: string, args: object = {}): Promise<T> {
   const response: ServerAck | ServerNack = await new Promise((resolve) => {
     const payload = { module: type, method: action, args, transactionId: uuid4() };
     ackResolutions.set(payload.transactionId, resolve);
@@ -75,7 +75,7 @@ export async function sendQuery<T = object>(type: string, action: string, args?:
   return response.data as T;
 }
 
-export function useGetter<T = object>(type: string, args: object = {}): T {
+export function useGetter<T = object>(type: string, args?: object): T {
   const { data } = useSuspenseQuery({
     queryKey: [type, args],
     queryFn: () => sendQuery(type, "get", args)
