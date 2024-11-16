@@ -14,8 +14,11 @@ class Series(Queryable):
 
         } for k, v in self._bouts.items()}
 
-    def add_bout(self) -> Bout:
-        uuid: UUID = uuid4()
+    def add_bout(self, uuid: str | UUID = '') -> Bout:
+        if not uuid:
+            uuid = uuid4()
+        elif isinstance(uuid, str):
+            uuid = UUID(uuid)
         bout: Bout = Bout(uuid)
         self._bouts[uuid] = bout
         return bout
