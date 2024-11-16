@@ -14,15 +14,18 @@ logging.basicConfig(
 )
 
 
-class Queryable(ABC):
-    def __init__(self, key: Hashable) -> None:
-        if not isinstance(key, tuple):
-            key = (key, )
-        self._key: Hashable = key
+class Queryable[T: Hashable](ABC):
+    def __init__(self, id: T) -> None:
+        self._id: T = id
 
     @final
-    def key(self) -> Hashable:
-        return self._key
+    @property
+    def id(self) -> T:
+        return self._id
+    
+    @property
+    def name(self) -> str:
+        return type(self).__name__.lower()
 
     @abstractmethod
     def get(self) -> dict[str | float | int, Any]:
@@ -92,8 +95,8 @@ class ViewModel:
         self._notifications.add(notifier)
 
         # If a reminder has been set, cancel it
-        if notifier.key() in self._tasks.keys():
-            key: Hashable = notifier.key()
+        if notifier.id() in self._tasks.keys():
+            key: Hashable = notifier.id()
             self._tasks[key].cancel()
             self._tasks.pop(key)
 
@@ -107,20 +110,20 @@ class ViewModel:
                 await asyncio.sleep(sleep.total_seconds())
                 now = datetime.now()
             await self.broadcast({
-                'key': notifier.key(),
+                'key': notifier.id(),
                 'data': notifier.get()
             })
 
         # Schedule a task to rebroadcast the data
         task: Task[None] = asyncio.create_task(reminder())
-        self._tasks[notifier.key()] = task
-        task.add_done_callback(lambda _: self._tasks.pop(notifier.key()))
+        self._tasks[notifier.id()] = task
+        task.add_done_callback(lambda _: self._tasks.pop(notifier.id()))
 
     def get_notifications(self) -> list[dict[str | float | int, Any]]:
         updates: list[dict[str | float | int, Any]] = []
         for notifier in self._notifications:
             updates.append({
-                'key': notifier.key(),
+                'key': notifier.id(),
                 'data': notifier.get()
             })
         return updates

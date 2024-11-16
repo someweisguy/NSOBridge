@@ -1,10 +1,13 @@
+from derby.jam import Jam
 from typing import Any, Hashable
 from server import Queryable
+from uuid import UUID
 
 
 class Bout(Queryable):
-    def __init__(self, key: Hashable) -> None:
-        super().__init__(key)
+    def __init__(self, id: UUID) -> None:
+        super().__init__(id)
+        self._jams: tuple[list[Jam], list[Jam]] = ([Jam(self.id, (0, 0))], [])
 
     def get(self) -> dict[str | float | int, Any]:
         return {
@@ -49,3 +52,12 @@ class Bout(Queryable):
             },
             'penalties': None  # TODO
         }
+
+    def get_current_period_index(self) -> int:
+        return int(len(self._jams[1]) > 0)
+    
+    def get_jam(self, jam_id: tuple[int, int]) -> Jam:
+        period_index, jam_index = jam_id
+        return self._jams[period_index][jam_index]
+    
+    
