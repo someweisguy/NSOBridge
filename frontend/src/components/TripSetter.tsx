@@ -15,12 +15,12 @@ export default function TripSetter({
 }) {
   const teamScore: ScoreType = useScore(boutId, jamId, team);
   const [selectedTrip, setSelectedTrip] = useState(teamScore.trips.length);
-  const carousel = useRef<HTMLDivElement>(null)
+  const carousel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (carousel.current) {
       const { width } = carousel.current.children[0].getBoundingClientRect();
-      carousel.current.scrollLeft = width * (selectedTrip - 1)
+      carousel.current.scrollLeft = width * (selectedTrip - 1);
     }
   }, [selectedTrip]);
 
@@ -113,11 +113,22 @@ export default function TripSetter({
     <span className="flex flex-col justify-center max-w-[350px] flex-1 p-4 bg-green-400">
       {buttonRow}
       <div className="flex flex-row flex-auto overflow-hidden rounded-2xl">
-        <button onClick={() => scrollCarousel(-1)} className="h-full text-center bg-white w-7">&lt;</button>
-        <div ref={carousel} className="scroll-smooth flex flex-auto flex-row min-w-[100px] w-[150px] max-w-full overflow-x-scroll no-scrollbar bg-red-500">
+        <button
+          onClick={() => scrollCarousel(-1)}
+          className="h-full text-center bg-white w-7"
+        >
+          &lt;
+        </button>
+        <div
+          ref={carousel}
+          className="scroll-smooth flex flex-auto flex-row min-w-[100px] w-[150px] max-w-full overflow-x-scroll no-scrollbar bg-slate-100"
+        >
           {tripCarousel}
         </div>
-        <button onClick={() => scrollCarousel(1)} className="h-full text-center align-middle bg-white w-7">
+        <button
+          onClick={() => scrollCarousel(1)}
+          className="h-full text-center align-middle bg-white w-7"
+        >
           &gt;
         </button>
       </div>
@@ -139,11 +150,9 @@ function TripSquare({
 
   const button: ReactNode = (
     <button
+      className="aria-selected:bg-red-400 hover:bg-red-700 even: bg-slate-400 odd:bg-inherit text-center flex-none w-[50px] h-[50px] justify-center align-middle"
+      aria-selected={tripIndex == selectedTrip}
       onClick={() => setSelectedTrip(tripIndex)}
-      className={
-        (tripIndex == selectedTrip ? "bg-red-100" : "bg-white") +
-        " text-center flex-none w-[50px] h-[50px] justify-center align-middle"
-      }
     >
       <i>Trip {tripIndex + 1}</i>
       <br />
