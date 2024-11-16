@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from asyncio import Task
 from datetime import datetime, timedelta
 from fastapi import WebSocket
-from typing import Any, Callable, Hashable
+from typing import Any, Callable, final, Hashable
 import asyncio
 import logging
 
@@ -16,13 +16,16 @@ logging.basicConfig(
 
 class Queryable(ABC):
     def __init__(self, key: Hashable) -> None:
+        if not isinstance(key, tuple):
+            key = (key, )
         self._key: Hashable = key
 
-    def get_key(self) -> Hashable:
+    @final
+    def key(self) -> Hashable:
         return self._key
 
     @abstractmethod
-    def get_data(self) -> dict[str | float | int, Any]:
+    def get(self) -> dict[str | float | int, Any]:
         ...
 
 
@@ -89,8 +92,8 @@ class ViewModel:
         self._notifications.add(notifier)
 
         # If a reminder has been set, cancel it
-        if notifier.get_key() in self._tasks.keys():
-            key: Hashable = notifier.get_key()
+        if notifier.key() in self._tasks.keys():
+            key: Hashable = notifier.key()
             self._tasks[key].cancel()
             self._tasks.pop(key)
 
@@ -104,21 +107,21 @@ class ViewModel:
                 await asyncio.sleep(sleep.total_seconds())
                 now = datetime.now()
             await self.broadcast({
-                'key': notifier.get_key(),
-                'data': notifier.get_data()
+                'key': notifier.key(),
+                'data': notifier.get()
             })
 
         # Schedule a task to rebroadcast the data
         task: Task[None] = asyncio.create_task(reminder())
-        self._tasks[notifier.get_key()] = task
-        task.add_done_callback(lambda _: self._tasks.pop(notifier.get_key()))
+        self._tasks[notifier.key()] = task
+        task.add_done_callback(lambda _: self._tasks.pop(notifier.key()))
 
     def get_notifications(self) -> list[dict[str | float | int, Any]]:
         updates: list[dict[str | float | int, Any]] = []
         for notifier in self._notifications:
             updates.append({
-                'key': notifier.get_key(),
-                'data': notifier.get_data()
+                'key': notifier.key(),
+                'data': notifier.get()
             })
         return updates
 
