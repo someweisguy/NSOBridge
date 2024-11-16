@@ -48,7 +48,7 @@ class Bout(Queryable):
                     'home': 0,  # TODO
                     'away': 0   # TODO
                 },
-                'counts': [0, 0],  # TODO
+                'counts': [len(period) for period in self._jams],
             },
             'penalties': None  # TODO
         }
