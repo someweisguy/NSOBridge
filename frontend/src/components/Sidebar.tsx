@@ -12,7 +12,7 @@ export default function Sidebar({
 }: SidebarProps): ReactNode {
   return (
     <div className="flex flex-row w-full h-full max-h-full min-h-full">
-      <div className="flex flex-row h-full max-h-full min-h-full w-72 bg-slate-200">
+      <div className="sticky left-0 flex flex-row flex-none h-full max-h-full min-h-full w-72 bg-slate-200">
         <nav className="fixed flex-col p-4">
           <p>Link 1</p>
           <p>Link 2</p>
