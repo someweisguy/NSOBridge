@@ -6,7 +6,7 @@ import server
 server.controller.log.setLevel(logging.DEBUG)
 
 if __name__ == '__main__':
-    server.controller.load_api('api')
+    server.controller.load_api()
 
     series: Series = Series()
     bout: Bout = series.add_bout()

@@ -111,7 +111,7 @@ class ViewModel:
 
         return inner if function is None else inner(function)
 
-    def load_api(self, package_name: str):
+    def load_api(self, package_name: str = 'api'):
         package: ModuleType = import_module(package_name)
         for module_name in os.listdir(package.__path__[0]):
             if module_name.endswith(".py") and module_name != "__init__.py":
