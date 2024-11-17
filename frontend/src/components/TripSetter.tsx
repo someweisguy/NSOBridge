@@ -100,7 +100,6 @@ function TripCarousel({
         carousel.current.scrollLeft = newScroll;
       }
     }
-    console.log('selected trip changed')
   }, [children, selectedTrip]);
   
   const scrollCarousel = useCallback((amount: number) => {
