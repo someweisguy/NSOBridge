@@ -88,8 +88,10 @@ function TripCarousel({
 
   useEffect(() => {
     if (carousel.current) {
-      const { width } = carousel.current.children[0].getBoundingClientRect();
-      carousel.current.scrollLeft = width * (selectedTrip + 1);
+      const width = carousel.current.children[0].getBoundingClientRect().width;
+      const divWidth: number = carousel.current.getBoundingClientRect().width;
+      carousel.current.scrollLeft =
+        width * selectedTrip - (divWidth - width) / 2;
     }
   }, [selectedTrip]);
 
