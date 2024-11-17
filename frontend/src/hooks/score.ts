@@ -12,9 +12,16 @@ export default function useScore(boutId: string, jamId: JamId, team: string): Sc
   return useGetter<ScoreType>("score", { boutId, jamId, team });
 }
 
-export async function setTrip(boutId: string, jamId: JamId, team: string, 
+export async function setTrip(boutId: string, jamId: JamId, team: string,
   tripId: number, points: number): Promise<null> {
-  return await sendQuery<null>("score", "setTrip", 
+  return await sendQuery<null>("score", "setTrip",
     { boutId, jamId, team, tripId, points }
+  );
+}
+
+export async function setLead(boutId: string, jamId: JamId, team: string,
+  lead: boolean): Promise<null> {
+  return await sendQuery<null>("score", "setLead",
+    { boutId, jamId, team, lead }
   );
 }

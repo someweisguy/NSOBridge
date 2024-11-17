@@ -25,4 +25,4 @@ def setLead(boutId: str, jamId: tuple[int, int], team: str, lead: bool) -> None:
     series: Series = controller.model
     jam: Jam = series.get_bout(boutId).get_jam(jamId)
 
-    jam.score[team].set_lead(lead)
+    jam.score[team].lead = lead
