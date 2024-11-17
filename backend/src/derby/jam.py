@@ -18,6 +18,7 @@ class Jam(Queryable):
         # Initialize the Scores
         starting_scores = (Score(bout_id, id), Score(bout_id, id))
         self._score: TeamAttribute = TeamAttribute(*starting_scores)
+        self.watch(starting_scores)
 
     @property
     def bout_id(self) -> UUID:
@@ -29,9 +30,7 @@ class Jam(Queryable):
 
     def get(self) -> dict[str | float | int, Any]:
         return {
-            'start': (str(self._start_timestamp) if self._start_timestamp
-                      else None),
-            'stop': (str(self._stop_timestamp) if self._stop_timestamp
-                     else None),
-            'stop_reason': self._stop_reason,
+            'start': self._start_timestamp,
+            'stop': self._stop_timestamp,
+            'stop_reason': self._stop_reason
         }

@@ -7,7 +7,8 @@ from uuid import UUID
 class Bout(Queryable):
     def __init__(self, id: UUID) -> None:
         super().__init__(id)
-        self._jams: tuple[list[Jam], list[Jam]] = ([Jam(self.id, (0, 0))], [])
+        self._jams: tuple[list[Jam], list[Jam]] = ([], [])
+        self.push_jam(0)  # At least 1 Jam is required
 
     def get(self) -> dict[str | float | int, Any]:
         return {
@@ -59,5 +60,17 @@ class Bout(Queryable):
     def get_jam(self, jam_id: tuple[int, int]) -> Jam:
         period_index, jam_index = jam_id
         return self._jams[period_index][jam_index]
+    
+    def push_jam(self, period: int) -> None:
+        next_jam_number: int = len(self._jams[period])
+        new_jam: Jam = Jam(self.id, (period, next_jam_number))
+        self._jams[period].append(new_jam)
+        self.watch(new_jam)
+    
+    def pop_jam(self, period: int) -> Jam:
+        popped_jam: Jam = self._jams[period].pop()
+        self.un_watch(popped_jam)
+        self.notify()
+        return popped_jam
     
     

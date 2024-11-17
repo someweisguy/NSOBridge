@@ -6,7 +6,8 @@ from importlib import import_module
 from types import ModuleType
 from fastapi import WebSocket
 from fastapi.encoders import jsonable_encoder
-from typing import Any, Callable, final, Hashable, TYPE_CHECKING
+from typing import Any, Callable, Iterable, final, Hashable, TYPE_CHECKING
+from weakref import WeakSet
 import asyncio
 import logging
 import inspect
@@ -28,6 +29,7 @@ logging.basicConfig(
 class Queryable[T: Hashable](ABC):
     def __init__(self, id: T) -> None:
         self._id: T = id
+        self._listeners: WeakSet[Queryable] = WeakSet()
 
     @final
     @property
@@ -37,6 +39,26 @@ class Queryable[T: Hashable](ABC):
     @property
     def name(self) -> str:
         return type(self).__name__.lower()
+
+    def watch(self, notifier: Queryable | Iterable[Queryable]) -> None:
+        if isinstance(notifier, Iterable):
+            for sub_notifier in notifier:
+                sub_notifier._listeners.add(self)
+        else:
+            notifier._listeners.add(self)
+    
+    def un_watch(self, notifier: Queryable | Iterable[Queryable]) -> None:
+        if isinstance(notifier, Iterable):
+            for sub_notifier in notifier:
+                sub_notifier._listeners.remove(self)
+        else:
+            notifier._listeners.remove(self)
+
+    def notify(self) -> None:
+        controller.log.debug(f'{type(self).__name__} is notifying')
+        controller._notifications.add(self)
+        for listener in self._listeners:
+            listener.notify()
 
     @abstractmethod
     def get(self) -> dict[str | float | int, Any]:

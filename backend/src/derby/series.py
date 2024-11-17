@@ -20,6 +20,7 @@ class Series(Queryable):
         elif isinstance(uuid, str):
             uuid = UUID(uuid)
         bout: Bout = Bout(uuid)
+        self.watch(bout)
         self._bouts[uuid] = bout
         return bout
     
