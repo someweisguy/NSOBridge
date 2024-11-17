@@ -5,7 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
-  Children
+  Children,
 } from "react";
 import { JamId } from "../hooks/jam";
 import useScore, { ScoreType, setTrip } from "../hooks/score";
@@ -46,7 +46,7 @@ export default function TripSetter({
     pointButtons.push(
       <button
         onClick={() => addTripCallback(points)}
-        className="flex-none w-14 rounded-md h-7 last:scale-125 bg-slate-200"
+        className="flex-none rounded-md w-14 h-7 last:scale-125 bg-slate-200"
       >
         {text}
       </button>
@@ -56,24 +56,23 @@ export default function TripSetter({
   // Create the buttons which represents the Jammer Trips so far
   const tripButtons: ReactNode[] = [];
   for (let i = 0; i <= teamScore.trips.length; ++i) {
-    const points =
-      i < teamScore.trips.length ? teamScore.trips[i].points : <>&nbsp;</>;
+    const points: number | undefined =
+      i < teamScore.trips.length ? teamScore.trips[i].points : undefined;
+    const isSelected = i == selectedTrip;
     tripButtons.push(
-      <button
-        aria-selected={i == selectedTrip}
+      <TripButton
+        selected={isSelected}
         onClick={() => setSelectedTrip(i)}
-        className="aria-selected:bg-red-400 hover:bg-red-700 even: bg-slate-400 odd:bg-inherit text-center flex-none w-[50px] h-[50px] justify-center align-middle"
-      >
-        <i>Trip {i + 1}</i>
-        <br />
-        {points}
-      </button>
+        tripIndex={i}
+        points={points}
+        hideDelete={i == teamScore.trips.length || !isSelected}
+      />
     );
   }
 
   return (
     <span className="flex flex-col justify-center max-w-[350px] flex-1 p-4 bg-green-400">
-      <div className="flex flex-row justify-center content-between flex-1 max-w-lg pb-4 space-x-2">
+      <div className="flex flex-row content-between justify-center flex-1 max-w-lg pb-4 space-x-2">
         {pointButtons}
       </div>
       <TripCarousel selectedTrip={selectedTrip}>{tripButtons}</TripCarousel>
@@ -91,17 +90,18 @@ function TripCarousel({
     if (carousel.current) {
       const width = carousel.current.children[0].getBoundingClientRect().width;
       const divWidth: number = carousel.current.getBoundingClientRect().width;
-      
+
       // Only scroll if outside of a desired "dead-zone"
       const newScroll: number = width * selectedTrip - (divWidth - width) / 2;
-      if (selectedTrip == Children.count(children) || 
+      if (
+        selectedTrip == Children.count(children) ||
         Math.abs(carousel.current.scrollLeft - newScroll) > 75
       ) {
         carousel.current.scrollLeft = newScroll;
       }
     }
   }, [children, selectedTrip]);
-  
+
   const scrollCarousel = useCallback((amount: number) => {
     if (carousel.current) {
       const width = carousel.current.children[0].getBoundingClientRect().width;
@@ -109,22 +109,82 @@ function TripCarousel({
     }
   }, []);
 
-  const scrollClassName: string = "h-full text-center w-7";
+  return (
+    <span className="flex flex-row w-full overflow-x-scroll no-scrollbar contet-box">
+        
+        <div className="flex flex-col">
+          <button className="flex-initial ">&lt;</button>
+       
+        </div>
+
+      {/* Button scrollbar */}
+        {children}
+
+    </span>
+
+  );
 
   return (
-    <div className="flex flex-row flex-auto overflow-hidden bg-white rounded-2xl">
-      <button onClick={() => scrollCarousel(-1)} className={scrollClassName}>
+    <div className="flex flex-row items-start w-full h-full grid-rows-1 mb-10 overflow-x-scroll scroll-smooth no-scrollbar">
+      <button
+        onClick={() => scrollCarousel(-1)}
+        className="flex-none h-full text-center bg-white w-7 rounded-l-2xl"
+      >
         &lt;
       </button>
       <div
-        className="scroll-smooth flex flex-auto flex-row min-w-[100px] w-[150px] max-w-full overflow-x-scroll no-scrollbar bg-slate-100"
         ref={carousel}
+        className="contents"
       >
         {children}
       </div>
-      <button onClick={() => scrollCarousel(1)} className={scrollClassName}>
+      {/* <button
+        onClick={() => scrollCarousel(1)}
+        className="right-0 text-center bg-white h-2/3 w-7 rounded-r-2xl"
+      >
         &gt;
-      </button>
+      </button> */}
     </div>
   );
 }
+
+function TripButton({
+  selected,
+  onClick,
+  tripIndex,
+  points,
+  hideDelete,
+}: {
+  selected: boolean;
+  onClick?: () => void;
+  tripIndex: number;
+  points?: number;
+  hideDelete: boolean;
+}) {
+  return (
+    <button
+      aria-expanded={!hideDelete}
+      aria-selected={selected}
+      onClick={onClick}
+      className="h-[50px] min-w-[50px] aria-expanded:mb-[30px] aria-selected:bg-red-400 even:bg-slate-500 odd:bg-white hover:bg-red-700"
+    >
+      <i>Trip {tripIndex + 1}</i>
+      <br />
+      {points ? points : <>&nbsp;</>}
+      <button
+        aria-hidden={hideDelete}
+        className="w-full bg-orange-500 rounded-b-2xl h-5/12 -bottom-full aria-hidden:invisible"
+      >
+        Del
+      </button>
+    </button>
+  );
+}
+
+/*
+
+
+
+
+
+*/
