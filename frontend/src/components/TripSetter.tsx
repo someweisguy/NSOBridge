@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  Children
 } from "react";
 import { JamId } from "../hooks/jam";
 import useScore, { ScoreType, setTrip } from "../hooks/score";
@@ -90,14 +91,21 @@ function TripCarousel({
     if (carousel.current) {
       const width = carousel.current.children[0].getBoundingClientRect().width;
       const divWidth: number = carousel.current.getBoundingClientRect().width;
-      carousel.current.scrollLeft =
-        width * selectedTrip - (divWidth - width) / 2;
+      
+      // Only scroll if outside of a desired "dead-zone"
+      const newScroll: number = width * selectedTrip - (divWidth - width) / 2;
+      if (selectedTrip == Children.count(children) || 
+        Math.abs(carousel.current.scrollLeft - newScroll) > 75
+      ) {
+        carousel.current.scrollLeft = newScroll;
+      }
     }
-  }, [selectedTrip]);
-
+    console.log('selected trip changed')
+  }, [children, selectedTrip]);
+  
   const scrollCarousel = useCallback((amount: number) => {
     if (carousel.current) {
-      const { width } = carousel.current.children[0].getBoundingClientRect();
+      const width = carousel.current.children[0].getBoundingClientRect().width;
       carousel.current.scrollLeft += width * amount;
     }
   }, []);
