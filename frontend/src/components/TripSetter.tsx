@@ -8,7 +8,7 @@ import {
   Children,
 } from "react";
 import { JamId } from "../hooks/jam";
-import useScore, { ScoreType, setTrip } from "../hooks/score";
+import useScore, { deleteTrip, ScoreType, setTrip } from "../hooks/score";
 
 export default function TripSetter({
   boutId,
@@ -36,6 +36,13 @@ export default function TripSetter({
     [boutId, jamId, team, teamScore, selectedTrip]
   );
 
+  const deleteTripCallback = useCallback(
+    (tripId: number) => {
+      deleteTrip(boutId, jamId, team, tripId);
+    },
+    [boutId, jamId, team]
+  );
+
   // Create the buttons which allow the user to add Trips
   const pointButtons: ReactNode[] = [];
   const buttonEntries =
@@ -58,14 +65,18 @@ export default function TripSetter({
   for (let i = 0; i <= teamScore.trips.length; ++i) {
     const points: number | undefined =
       i < teamScore.trips.length ? teamScore.trips[i].points : undefined;
+    const timestamp: string | undefined =
+      i < teamScore.trips.length ? teamScore.trips[i].timestamp : undefined;
     const isSelected = i == selectedTrip;
     tripButtons.push(
       <TripButton
-        selected={isSelected}
-        onClick={() => setSelectedTrip(i)}
         tripIndex={i}
         points={points}
-        hideDelete={i == teamScore.trips.length || !isSelected}
+        selected={isSelected}
+        timestamp={timestamp}
+        selectTrip={() => setSelectedTrip(i)}
+        deletable={i > 0 && i != teamScore.trips.length && isSelected}
+        deleteTrip={() => deleteTripCallback(i)}
       />
     );
   }
@@ -110,81 +121,83 @@ function TripCarousel({
   }, []);
 
   return (
-    <span className="flex flex-row w-full overflow-x-scroll no-scrollbar contet-box">
-        
-        <div className="flex flex-col">
-          <button className="flex-initial ">&lt;</button>
-       
-        </div>
+    <div className="relative flex items-center w-full h-24 grid-flow-col p-2 px-16 bg-slate-200">
+      <div className="z-10 text-center translate-x-1/2 size-10">
+        <button
+          onClick={() => scrollCarousel(-1)}
+          className="text-xl font-bold leading-loose transition duration-300 rounded-full shadow-md size-full bg-amber-300 text-amber-500 opacity-80 hover:-translate-x-1 hover:opacity-100"
+        >
+          &#10096;
+        </button>
+      </div>
 
-      {/* Button scrollbar */}
-        {children}
-
-    </span>
-
-  );
-
-  return (
-    <div className="flex flex-row items-start w-full h-full grid-rows-1 mb-10 overflow-x-scroll scroll-smooth no-scrollbar">
-      <button
-        onClick={() => scrollCarousel(-1)}
-        className="flex-none h-full text-center bg-white w-7 rounded-l-2xl"
-      >
-        &lt;
-      </button>
       <div
         ref={carousel}
-        className="contents"
+        className="flex flex-row items-start flex-1 w-full py-2 overflow-x-scroll bg-white rounded-md shadow-inner no-scrollbar scroll-smooth size-full gap-x-2 px-7"
       >
         {children}
       </div>
-      {/* <button
-        onClick={() => scrollCarousel(1)}
-        className="right-0 text-center bg-white h-2/3 w-7 rounded-r-2xl"
+
+      <div className="z-10 text-center -translate-x-1/2 size-10">
+        <button
+          onClick={() => scrollCarousel(1)}
+          className="text-xl font-bold leading-loose transition duration-300 rounded-full shadow-md size-full bg-amber-300 text-amber-500 opacity-80 hover:translate-x-1 hover:opacity-100"
+        >
+          &#10097;
+        </button>
+      </div>
+
+      <div
+        aria-hidden={selectedTrip < Children.count(children)}
+        className="absolute text-center transition duration-500 right-6 size-10 -translate-x-1/4 aria-hidden:hidden aria-hidden:-translate-x-full aria-hidden:opacity-0 aria-hidden:duration-0"
       >
-        &gt;
-      </button> */}
+        <button className="text-xl font-bold leading-loose transition rounded-full shadow-md size-full bg-amber-300 text-amber-500 opacity-80 hover:translate-x-1 hover:opacity-100">
+          &#10097;&#10097;
+        </button>
+      </div>
     </div>
   );
 }
 
 function TripButton({
-  selected,
-  onClick,
   tripIndex,
   points,
-  hideDelete,
+  timestamp,
+  selected,
+  deletable,
+  selectTrip,
+  deleteTrip,
 }: {
-  selected: boolean;
-  onClick?: () => void;
   tripIndex: number;
   points?: number;
-  hideDelete: boolean;
+  timestamp?: string;
+  selected: boolean;
+  deletable: boolean;
+  selectTrip?: () => void;
+  deleteTrip?: () => void;
 }) {
   return (
-    <button
-      aria-expanded={!hideDelete}
+    <div
+      id={timestamp}
       aria-selected={selected}
-      onClick={onClick}
-      className="h-[50px] min-w-[50px] aria-expanded:mb-[30px] aria-selected:bg-red-400 even:bg-slate-500 odd:bg-white hover:bg-red-700"
+      data-deletable={deletable}
+      className="group w-14 flex-none place-content-center transition data-[deletable=true]:hover:-translate-y-10 delay-700"
     >
-      <i>Trip {tripIndex + 1}</i>
-      <br />
-      {points ? points : <>&nbsp;</>}
-      <button
-        aria-hidden={hideDelete}
-        className="w-full bg-orange-500 rounded-b-2xl h-5/12 -bottom-full aria-hidden:invisible"
-      >
-        Del
-      </button>
-    </button>
+      <div className="relative aspect-[14/16] h-16 rounded-md outline outline-1 outline-slate-400 hover:scale-105 hover:shadow-lg group-odd:bg-slate-50 group-even:bg-slate-100 group-aria-selected:bg-amber-100 group-aria-selected:outline-amber-400">
+        <button onClick={selectTrip} className="size-full">
+          Trip {tripIndex + 1}
+          <br />
+          {points != null ? points : <>&nbsp;</>}
+        </button>
+      </div>
+      <div className="h-20 pt-3 text-center w-14">
+        <button
+          onClick={deleteTrip}
+          className="text-center text-red-100 bg-red-400 rounded-full shadow-md aspect-square size-7 hover:scale-95 hover:shadow-sm"
+        >
+          X
+        </button>
+      </div>
+    </div>
   );
 }
-
-/*
-
-
-
-
-
-*/
