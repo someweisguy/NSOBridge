@@ -68,14 +68,15 @@ export default function TripSetter({
     const timestamp: string | undefined =
       i < teamScore.trips.length ? teamScore.trips[i].timestamp : undefined;
     const isSelected = i == selectedTrip;
+    const isDeletable = i > 0 && i != teamScore.trips.length && isSelected;
     tripButtons.push(
       <TripButton
         tripIndex={i}
         points={points}
-        selected={isSelected}
         timestamp={timestamp}
+        selected={isSelected}
         selectTrip={() => setSelectedTrip(i)}
-        deletable={i > 0 && i != teamScore.trips.length && isSelected}
+        deletable={isDeletable}
         deleteTrip={() => deleteTripCallback(i)}
       />
     );
