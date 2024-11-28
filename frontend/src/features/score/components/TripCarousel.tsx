@@ -10,7 +10,7 @@ export default function TripCarousel({
         <div className="z-20 translate-x-1/2">
           <NavButton direction="left" />
         </div>
-        <div className="flex flex-row flex-1 gap-2 p-2 px-5 overflow-x-scroll overflow-y-hidden bg-white rounded-md shadow-inner size-full min-w-56 max-w-72 no-scrollbar">
+        <div className="flex flex-row grow-0 gap-2 p-2 px-5 overflow-x-scroll overflow-y-hidden bg-white rounded-md shadow-inner size-full w-72 no-scrollbar">
           {children}
         </div>
         <div className="z-20 -translate-x-1/2">
