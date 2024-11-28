@@ -83,7 +83,7 @@ export default function TripSetter({
   }
 
   return (
-    <span className="flex flex-col justify-center max-w-[350px] flex-1 p-4 bg-green-400">
+    <span className="flex flex-col w-1/4 justify-center p-4 bg-green-400">
       <div className="flex flex-row content-between justify-center flex-1 max-w-lg pb-4 space-x-2">
         {pointButtons}
       </div>

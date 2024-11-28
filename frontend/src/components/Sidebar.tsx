@@ -21,7 +21,7 @@ export default function Sidebar({
         </nav>
       </div>
 
-      <div className="flex-1 w-full p-4 shadow-inner">
+      <div className="p-4 shadow-inner size-full">
         <Suspense fallback={spinner}>{children}</Suspense>
       </div>
     </div>
