@@ -7,7 +7,7 @@ import DeleteReveal from "./DeleteReveal";
 import deleteTrip from "../api/deleteTrip";
 
 export default function TripCarousel({
-  className = "rounded-lg bg-slate-300",
+  className = "",
   boutId,
   jamId,
   team,
