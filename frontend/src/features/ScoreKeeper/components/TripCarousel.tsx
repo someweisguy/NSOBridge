@@ -73,7 +73,7 @@ export default function TripCarousel({
         </div>
         <div
           ref={carouselRef}
-          className="flex flex-row gap-2 p-2 px-5 overflow-x-scroll overflow-y-hidden bg-white rounded-md shadow-inner scroll-smooth grow-0 size-full w-72 no-scrollbar"
+          className="flex outline outline-1 outline-gray-300 flex-row gap-2 p-2 px-5 overflow-x-scroll overflow-y-hidden bg-white rounded-md shadow-inner scroll-smooth grow-0 size-full w-72 no-scrollbar"
         >
           {trips}
         </div>

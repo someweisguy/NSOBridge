@@ -44,7 +44,7 @@ export default function PointEditor({
 
   return (
     <div
-      className={`flex m-4 w-72 justify-between rounded-full bg-slate-300 ${
+      className={`flex m-4 w-72 justify-between rounded-full outline outline-1 outline-gray-300 ${
         reverse ? "flex-row-reverse" : "flex-row"
       }`}
     >

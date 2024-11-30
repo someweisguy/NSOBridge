@@ -20,7 +20,7 @@ export default function ScoreKeeper({
   const showInitial = useInitialPass(boutId, jamId, selectedTrip);
 
   return (
-    <div className="flex flex-col items-center bg-gray-200 rounded-lg">
+    <div className="flex flex-col items-center bg-gray-100 rounded-lg">
       <PointEditor
         boutId={boutId}
         jamId={jamId}
