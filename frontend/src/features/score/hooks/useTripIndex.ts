@@ -1,9 +1,9 @@
 import { useDeferredValue, useEffect, useState } from "react";
-import { JamId } from "../../../hooks/jam";
 import useScore from "./useScore";
 import { ScoreType } from "../types/ScoreType";
+import { JamIdType } from "../../../types/JamIdType";
 
-export default function useTripIndex(boutId: string, jamId: JamId, team: "home" | "away"): [number, React.Dispatch<React.SetStateAction<number>>] {
+export default function useTripIndex(boutId: string, jamId: JamIdType, team: "home" | "away"): [number, React.Dispatch<React.SetStateAction<number>>] {
   const score: ScoreType = useScore(boutId, jamId, team);
   const [tripIndex, setTripIndex] = useState<number>(score.trips.length);
   const deferredScore = useDeferredValue(score);

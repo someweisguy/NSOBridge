@@ -1,9 +1,9 @@
 import { ReactElement } from "react";
-import { JamId } from "../../../hooks/jam";
-import ScoreButtons from "./ScoreButtons";
+import PointEditor from "./PointEditor";
 import TripCarousel from "./TripCarousel";
 import useTripIndex from "../hooks/useTripIndex";
 import useInitialPass from "../hooks/useInitialPass";
+import { JamIdType } from "../../../types/JamIdType";
 
 export default function ScoreManager({
   boutId,
@@ -11,7 +11,7 @@ export default function ScoreManager({
   team,
 }: {
   boutId: string;
-  jamId: JamId;
+  jamId: JamIdType;
   team: "home" | "away";
 }): ReactElement {
   const [selectedTrip, setSelectedTrip] = useTripIndex(boutId, jamId, team);
@@ -19,7 +19,7 @@ export default function ScoreManager({
 
   return (
     <div className="flex flex-col items-center bg-gray-400 rounded-lg">
-      <ScoreButtons
+      <PointEditor
         boutId={boutId}
         jamId={jamId}
         team={team}

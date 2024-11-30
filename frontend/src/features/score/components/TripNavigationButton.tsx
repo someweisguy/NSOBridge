@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 
-export default function NavButton({
+export default function TripNavigationButton({
   direction,
   onClick
 }: {

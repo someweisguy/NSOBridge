@@ -1,8 +1,9 @@
 import { ReactElement, useCallback } from "react";
 import PointButton from "./PointButton";
 import setTrip from "../api/setTrip";
+import { JamIdType } from "../../../types/JamIdType";
 
-export default function ScoreButtons({
+export default function PointEditor({
   boutId,
   jamId,
   team,
@@ -11,7 +12,7 @@ export default function ScoreButtons({
   reverse = false,
 }: {
   boutId: string;
-  jamId: [number, number];
+  jamId: JamIdType;
   team: "home" | "away";
   selectedTrip: number;
   showInitial: boolean;

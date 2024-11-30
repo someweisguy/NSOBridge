@@ -1,6 +1,6 @@
 import { PropsWithChildren, ReactElement } from "react";
 
-export default function JamTraverse({
+export default function JamTraverseButton({
   disabled = false,
   onClick = undefined,
   children,

@@ -1,22 +1,22 @@
 import { useContext } from "react";
 import { BoutContext } from "../App";
 
-import JamNav from "../features/jamnav/components/JamNav";
+import JamNavigator from "../features/jamNavigation/components/JamNavigator";
 import ScoreManager from "../features/score/components/ScoreManager";
-import { JamIndex } from "../features/jamnav/types/JamIndex";
-import useJamIndex from "../features/jamnav/hooks/useJamIndex";
+import { JamNavigationType } from "../features/jamNavigation/types/JamNavigationType";
+import useJamNavigation from "../features/jamNavigation/hooks/useJamNavigation";
 
 export default function ScoreboardOperator() {
   // Get the selected Bout ID
   const boutId: string = useContext(BoutContext);
-  const jamIndex: JamIndex = useJamIndex(boutId);
+  const jamIndex: JamNavigationType = useJamNavigation(boutId);
 
   const jamId = jamIndex.currentJamId;
 
   return (
     <>
       <div className="flex flex-col items-center">
-        <JamNav jamIndex={jamIndex} />
+        <JamNavigator jamIndex={jamIndex} />
         <div className="flex flex-row gap-4">
           <div className="flex flex-col items-center">
             <ScoreManager boutId={boutId} jamId={jamId} team="home" />

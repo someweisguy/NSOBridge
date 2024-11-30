@@ -1,10 +1,11 @@
 import { ReactElement } from "react";
-import { JamId } from "../../../hooks/jam";
+import { JamIdType } from "../../../types/JamIdType";
+
 
 export default function CurrentJam({
   jamId
 }: {
-  jamId: JamId;
+  jamId: JamIdType;
 }): ReactElement {
   const [periodIndex, jamIndex] = jamId;
 

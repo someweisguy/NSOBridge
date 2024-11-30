@@ -1,7 +1,8 @@
-import { JamId } from "../../../hooks/jam";
+import { JamIdType } from "../../../types/JamIdType";
 
-export type JamIndex = {
-  currentJamId: JamId
+
+export type JamNavigationType = {
+  currentJamId: JamIdType
   nextJamExists: boolean;
   goToNextJam: () => void;
   previousJamExists: boolean;

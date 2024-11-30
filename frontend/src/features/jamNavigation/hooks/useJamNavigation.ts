@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import useBout, { BoutType } from "../../../hooks/bout";
-import { JamId } from "../../../hooks/jam";
-import { JamIndex } from "../types/JamIndex";
+import { JamNavigationType } from "../types/JamNavigationType";
+import { JamIdType } from "../../../types/JamIdType";
 
-export default function useJamIndex(boutId: string): JamIndex {
+export default function useJamNavigation(boutId: string): JamNavigationType {
   const bout: BoutType = useBout(boutId);
 
-  const [currentJamId, setCurrentJamId] = useState<JamId>(() => {
+  const [currentJamId, setCurrentJamId] = useState<JamIdType>(() => {
     const periodIndex: number = Number(bout.jams.counts[1] > 0);
     const jamIndex: number = bout.jams.counts[periodIndex] - 1;
     return [periodIndex, jamIndex]

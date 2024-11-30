@@ -1,10 +1,10 @@
 import { ReactElement, useCallback, useEffect, useRef } from "react";
-import NavButton from "./NavButton";
-import { JamId } from "../../../hooks/jam";
+import TripNavigationButton from "./TripNavigationButton";
 import TripCard from "./TripCard";
 import useScore from "../hooks/useScore";
 import DeleteReveal from "./DeleteReveal";
 import deleteTrip from "../api/deleteTrip";
+import { JamIdType } from "../../../types/JamIdType";
 
 export default function TripCarousel({
   className = "",
@@ -15,7 +15,7 @@ export default function TripCarousel({
 }: {
   className?: string;
   boutId: string;
-  jamId: JamId;
+  jamId: JamIdType;
   team: "home" | "away";
   tripState: [number, React.Dispatch<React.SetStateAction<number>>];
 }): ReactElement {
@@ -69,7 +69,7 @@ export default function TripCarousel({
     <div className={className}>
       <div className="flex flex-row items-center flex-initial h-24 min-w-full p-2 px-12">
         <div className="z-20 translate-x-1/2">
-          <NavButton direction="left" />
+          <TripNavigationButton direction="left" />
         </div>
         <div
           ref={carouselRef}
@@ -78,7 +78,7 @@ export default function TripCarousel({
           {trips}
         </div>
         <div className="z-20 -translate-x-1/2">
-          <NavButton direction="right" />
+          <TripNavigationButton direction="right" />
         </div>
         {/* TODO: add scroll to end button */}
       </div>
