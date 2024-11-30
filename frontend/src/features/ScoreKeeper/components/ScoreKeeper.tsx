@@ -4,6 +4,8 @@ import TripCarousel from "./TripCarousel";
 import useTripIndex from "../hooks/useTripIndex";
 import useInitialPass from "../hooks/useInitialPass";
 import { JamIdType } from "../../../types/JamIdType";
+import CheckboxButton from "./CheckboxButton";
+
 
 export default function ScoreKeeper({
   boutId,
@@ -32,6 +34,11 @@ export default function ScoreKeeper({
         team={team}
         tripState={[selectedTrip, setSelectedTrip]}
       />
+      <div className="flex flex-row">
+        <CheckboxButton>Lead</CheckboxButton>
+        <CheckboxButton>Lost</CheckboxButton>
+        <CheckboxButton>Star Pass</CheckboxButton>
+      </div>
     </div>
   );
 }
