@@ -1,4 +1,4 @@
-import { useGetter } from "../../../hooks/client";
+import { useGetter } from "../../../app/client";
 import { JamIdType } from "../../../types/JamIdType";
 import { ScoreType } from "../types/ScoreType";
 

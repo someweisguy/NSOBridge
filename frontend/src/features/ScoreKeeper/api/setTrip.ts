@@ -1,4 +1,4 @@
-import { sendQuery } from "../../../hooks/client";
+import { sendQuery } from "../../../app/client";
 import { JamIdType } from "../../../types/JamIdType";
 
 export default async function setTrip(boutId: string, jamId: JamIdType, team: string,

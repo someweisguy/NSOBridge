@@ -1,5 +1,5 @@
-import { JamIdType } from "../types/JamIdType";
-import { sendQuery } from "./client";
+import { sendQuery } from "../../../app/client";
+import { JamIdType } from "../../../types/JamIdType";
 
 
 export async function setLead(boutId: string, jamId: JamIdType, team: string,

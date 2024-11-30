@@ -14,7 +14,7 @@ type ServerNack = {
   transactionId: string;
   result: 'error';
   data: { title: string, details: string, filename: string, lineno: number }
-}
+};
 
 type ServerUpdate = {
   id: unknown;

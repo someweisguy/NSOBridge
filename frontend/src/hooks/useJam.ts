@@ -1,4 +1,4 @@
-import { useGetter } from "./client";
+import { useGetter } from "../app/client";
 import { JamIdType } from "../types/JamIdType";
 import { JamType } from "../types/JamType";
 

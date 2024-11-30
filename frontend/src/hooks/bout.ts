@@ -1,4 +1,4 @@
-import { useGetter } from "./client";
+import { useGetter } from "../app/client";
 
 export type TimerType = {
   elapsed: number,
