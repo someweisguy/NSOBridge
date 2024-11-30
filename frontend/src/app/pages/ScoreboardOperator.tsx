@@ -1,10 +1,9 @@
 import { useContext } from "react";
-import { BoutContext } from "../App";
-
-import JamNavigator from "../features/JamNavigator/components/JamNavigator";
-import ScoreKeeper from "../features/ScoreKeeper/components/ScoreKeeper";
-import { JamNavigationType } from "../features/JamNavigator/types/JamNavigationType";
-import useJamNavigation from "../features/JamNavigator/hooks/useJamNavigation";
+import { BoutContext } from "../../App";
+import JamNavigator from "../../features/JamNavigator/components/JamNavigator";
+import ScoreKeeper from "../../features/ScoreKeeper/components/ScoreKeeper";
+import { JamNavigationType } from "../../features/JamNavigator/types/JamNavigationType";
+import useJamNavigation from "../../features/JamNavigator/hooks/useJamNavigation";
 
 export default function ScoreboardOperator() {
   // Get the selected Bout ID
