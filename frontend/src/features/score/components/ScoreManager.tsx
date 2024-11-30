@@ -18,7 +18,7 @@ export default function ScoreManager({
   const showInitial = useInitialPass(boutId, jamId, selectedTrip);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center bg-gray-400 rounded-lg">
       <ScoreButtons
         boutId={boutId}
         jamId={jamId}
