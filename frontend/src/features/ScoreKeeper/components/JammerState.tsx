@@ -21,7 +21,7 @@ export default function JammerState({
   const setLeadState = useCallback(() => {
     const newLead: boolean = !score.lead;
     setLead(boutId, jamId, team, newLead);
-  }, [boutId, jamId, team, score]);
+  }, [boutId, jamId, team, score.lead]);
 
   const setLostState = useCallback(() => {
     const newLost: boolean = !score.lost;
@@ -32,7 +32,7 @@ export default function JammerState({
     const newStarPass: number | null =
       score.starPass == null ? score.trips.length : null;
     setStarPass(boutId, jamId, team, newStarPass);
-  }, [boutId, jamId, team, score]);
+  }, [boutId, jamId, team, score.starPass, score.trips]);
 
   return (
     <div className="flex flex-row items-center justify-center w-full">
