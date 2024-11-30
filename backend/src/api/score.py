@@ -34,3 +34,19 @@ def setLead(boutId: str, jamId: tuple[int, int], team: str, lead: bool) -> None:
     jam: Jam = series.get_bout(boutId).get_jam(jamId)
 
     jam.score[team].lead = lead
+
+
+@controller.action
+def setLost(boutId: str, jamId: tuple[int, int], team: str, lost: bool) -> None:
+    series: Series = controller.model
+    jam: Jam = series.get_bout(boutId).get_jam(jamId)
+
+    jam.score[team].lost = lost
+
+
+@controller.action
+def setStarPass(boutId: str, jamId: tuple[int, int], team: str, starPass: int | None) -> None:
+    series: Series = controller.model
+    jam: Jam = series.get_bout(boutId).get_jam(jamId)
+
+    jam.score[team].star_pass = starPass
