@@ -1,7 +1,7 @@
 import { createContext } from "react";
-import Sidebar from "./components/Sidebar.tsx";
-import MainContainer from "./components/MainContainer.tsx";
-import ScoreboardOperator from "./app/pages/ScoreboardOperator.tsx";
+import Sidebar from "../components/Sidebar.tsx";
+import MainContainer from "../components/MainContainer.tsx";
+import ScoreboardOperator from "./pages/ScoreboardOperator.tsx";
 
 export const BoutContext = createContext<string>("");
 

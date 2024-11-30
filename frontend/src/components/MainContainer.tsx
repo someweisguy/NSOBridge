@@ -1,6 +1,6 @@
 import { PropsWithChildren, ReactNode, useEffect, useState } from "react";
 import { useSeries } from "../hooks/useSeries";
-import { BoutContext } from "../App";
+import { BoutContext } from "../app/App";
 
 export default function MainContainer({
   children,

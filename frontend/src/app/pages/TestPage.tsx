@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { BoutContext } from "../../App";
+import { BoutContext } from "../App";
 
 
 export default function TestPage() {

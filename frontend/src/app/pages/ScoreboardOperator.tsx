@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { BoutContext } from "../../App";
+import { BoutContext } from "../App";
 import JamNavigator from "../../features/JamNavigator/components/JamNavigator";
 import ScoreKeeper from "../../features/ScoreKeeper/components/ScoreKeeper";
 import { JamNavigationType } from "../../features/JamNavigator/types/JamNavigationType";
