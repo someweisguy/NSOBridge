@@ -5,7 +5,7 @@ import useTripIndex from "../hooks/useTripIndex";
 import useInitialPass from "../hooks/useInitialPass";
 import { JamIdType } from "../../../types/JamIdType";
 
-export default function ScoreManager({
+export default function ScoreKeeper({
   boutId,
   jamId,
   team,

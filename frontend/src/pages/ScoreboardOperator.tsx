@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import { BoutContext } from "../App";
 
-import JamNavigator from "../features/jamNavigation/components/JamNavigator";
-import ScoreManager from "../features/score/components/ScoreManager";
-import { JamNavigationType } from "../features/jamNavigation/types/JamNavigationType";
-import useJamNavigation from "../features/jamNavigation/hooks/useJamNavigation";
+import JamNavigator from "../features/JamNavigator/components/JamNavigator";
+import ScoreKeeper from "../features/ScoreKeeper/components/ScoreKeeper";
+import { JamNavigationType } from "../features/JamNavigator/types/JamNavigationType";
+import useJamNavigation from "../features/JamNavigator/hooks/useJamNavigation";
 
 export default function ScoreboardOperator() {
   // Get the selected Bout ID
@@ -19,10 +19,10 @@ export default function ScoreboardOperator() {
         <JamNavigator jamIndex={jamIndex} />
         <div className="flex flex-row gap-4">
           <div className="flex flex-col items-center">
-            <ScoreManager boutId={boutId} jamId={jamId} team="home" />
+            <ScoreKeeper boutId={boutId} jamId={jamId} team="home" />
           </div>
           <div className="flex flex-col items-center">
-            <ScoreManager boutId={boutId} jamId={jamId} team="away" />
+            <ScoreKeeper boutId={boutId} jamId={jamId} team="away" />
           </div>
         </div>
       </div>
