@@ -2,15 +2,16 @@ import { PropsWithChildren, ReactElement } from "react";
 import NavButton from "./NavButton";
 
 export default function TripCarousel({
+  className = "rounded-lg bg-slate-300",
   children,
-}: PropsWithChildren): ReactElement {
+}: PropsWithChildren<{ className?: string }>): ReactElement {
   return (
-    <div className="bg-slate-300">
+    <div className={className}>
       <div className="flex flex-row items-center flex-initial h-24 min-w-full p-2 px-12">
         <div className="z-20 translate-x-1/2">
           <NavButton direction="left" />
         </div>
-        <div className="flex flex-row grow-0 gap-2 p-2 px-5 overflow-x-scroll overflow-y-hidden bg-white rounded-md shadow-inner size-full w-72 no-scrollbar">
+        <div className="flex flex-row gap-2 p-2 px-5 overflow-x-scroll overflow-y-hidden bg-white rounded-md shadow-inner grow-0 size-full w-72 no-scrollbar">
           {children}
         </div>
         <div className="z-20 -translate-x-1/2">
