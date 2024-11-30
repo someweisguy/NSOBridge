@@ -1,8 +1,10 @@
-import { ReactElement, useEffect, useRef } from "react";
+import { ReactElement, useCallback, useEffect, useRef } from "react";
 import NavButton from "./NavButton";
 import { JamId } from "../../../hooks/jam";
 import TripCard from "./TripCard";
 import useScore from "../hooks/useScore";
+import DeleteReveal from "./DeleteReveal";
+import deleteTrip from "../api/deleteTrip";
 
 export default function TripCarousel({
   className = "rounded-lg bg-slate-300",
@@ -28,12 +30,20 @@ export default function TripCarousel({
     }
   }, [selectedTrip, teamScore.trips.length]);
 
+  const removeTrip = useCallback(
+    (tripIndex: number) => {
+      return deleteTrip(boutId, jamId, team, tripIndex);
+    },
+    [boutId, jamId, team]
+  );
+
   const trips: ReactElement[] = [];
   for (let i = 0; i <= teamScore.trips.length; i++) {
     const points: number = teamScore.trips[i]?.points;
     const selected: boolean = i == selectedTrip;
     const id: string = teamScore.trips[i]?.timestamp;
-    trips.push(
+
+    let tripCard: ReactElement = (
       <TripCard
         tripIndex={i}
         points={points}
@@ -42,6 +52,17 @@ export default function TripCarousel({
         id={id}
       />
     );
+    if (
+      i == selectedTrip &&
+      i < teamScore.trips.length &&
+      (i > 0 || teamScore.trips.length > 0)
+    ) {
+      tripCard = (
+        <DeleteReveal onClick={() => removeTrip(i)}>{tripCard}</DeleteReveal>
+      );
+    }
+
+    trips.push(tripCard);
   }
 
   return (
