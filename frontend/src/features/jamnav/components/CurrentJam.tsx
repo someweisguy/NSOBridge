@@ -1,12 +1,13 @@
 import { ReactElement } from "react";
+import { JamId } from "../../../hooks/jam";
 
 export default function CurrentJam({
-  periodIndex,
-  jamIndex,
+  jamId
 }: {
-  periodIndex: number;
-  jamIndex: number;
+  jamId: JamId;
 }): ReactElement {
+  const [periodIndex, jamIndex] = jamId;
+
   return (
     <div className="size-full place-items-center">
       <div className="p-1 px-2 mx-4 font-semibold text-center bg-gray-200 rounded-full h-fit">
