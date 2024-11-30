@@ -55,7 +55,7 @@ export default function TripCarousel({
     if (
       i == selectedTrip &&
       i < teamScore.trips.length &&
-      (i > 0 || teamScore.trips.length > 0)
+      (i > 0 || teamScore.trips.length == 1)
     ) {
       tripCard = (
         <DeleteReveal onClick={() => removeTrip(i)}>{tripCard}</DeleteReveal>
