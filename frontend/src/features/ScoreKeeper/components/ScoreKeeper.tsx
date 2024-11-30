@@ -20,7 +20,7 @@ export default function ScoreKeeper({
   const showInitial = useInitialPass(boutId, jamId, selectedTrip);
 
   return (
-    <div className="flex flex-col items-center bg-gray-400 rounded-lg">
+    <div className="flex flex-col items-center bg-gray-200 rounded-lg">
       <PointEditor
         boutId={boutId}
         jamId={jamId}
@@ -34,7 +34,7 @@ export default function ScoreKeeper({
         team={team}
         tripState={[selectedTrip, setSelectedTrip]}
       />
-      <div className="flex flex-row">
+      <div className="flex flex-row items-center w-full justify-center">
         <CheckboxButton>Lead</CheckboxButton>
         <CheckboxButton>Lost</CheckboxButton>
         <CheckboxButton>Star Pass</CheckboxButton>
