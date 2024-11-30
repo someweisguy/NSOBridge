@@ -17,6 +17,11 @@ export default function JammerState({
   team: "home" | "away";
 }): ReactElement {
   const score: ScoreType = useScore(boutId, jamId, team);
+  const otherScore: ScoreType = useScore(
+    boutId,
+    jamId,
+    team == "home" ? "away" : "home"
+  );
 
   const setLeadState = useCallback(() => {
     const newLead: boolean = !score.lead;
@@ -36,7 +41,11 @@ export default function JammerState({
 
   return (
     <div className="flex flex-row items-center justify-center w-full">
-      <CheckboxButton selected={score.lead} onClick={setLeadState}>
+      <CheckboxButton
+        disabled={score.lost || otherScore.lead}
+        selected={score.lead}
+        onClick={setLeadState}
+      >
         Lead
       </CheckboxButton>
       <CheckboxButton selected={score.lost} onClick={setLostState}>
