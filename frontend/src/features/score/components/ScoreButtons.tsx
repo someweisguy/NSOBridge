@@ -1,36 +1,32 @@
 import { ReactElement, useCallback } from "react";
 import PointButton from "./PointButton";
-import { sendQuery } from "../../../hooks/client";
+import setTrip from "../api/setTrip";
 
 export default function ScoreButtons({
-  useInitial,
   boutId,
   jamId,
-  tripId,
+  team,
+  selectedTrip,
+  showInitial,
   reverse = false,
 }: {
-  useInitial: boolean;
   boutId: string;
   jamId: [number, number];
-  tripId: number;
+  team: "home" | "away";
+  selectedTrip: number;
+  showInitial: boolean;
   reverse?: boolean;
 }): ReactElement {
   const setPoints = useCallback(
     (points: number, validPass: boolean = false) => {
-      sendQuery("score", "setTrip", {
-        boutId,
-        jamId,
-        tripId,
-        points,
-        validPass,
-      });
+      setTrip(boutId, jamId, team, selectedTrip, points, validPass);
     },
-    [boutId, jamId, tripId]
+    [boutId, jamId, team, selectedTrip]
   );
 
   // Create the buttons, either points or Initial Pass
   const buttonArray: ReactElement[] = [];
-  if (useInitial) {
+  if (showInitial) {
     buttonArray.push(
       <PointButton onClick={() => setPoints(0, false)}>NP/NP</PointButton>
     );
