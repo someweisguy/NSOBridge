@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, useEffect, useRef } from "react";
 import NavButton from "./NavButton";
 import { JamId } from "../../../hooks/jam";
 import TripCard from "./TripCard";
@@ -19,8 +19,14 @@ export default function TripCarousel({
 }): ReactElement {
   const teamScore = useScore(boutId, jamId, team);
   const [selectedTrip, setSelectedTrip] = tripState;
+  const carouselRef = useRef<HTMLDivElement>(null);
 
-  
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (carousel) {
+      carousel.children[selectedTrip].scrollIntoView({ inline: "center" });
+    }
+  }, [selectedTrip, teamScore.trips.length]);
 
   const trips: ReactElement[] = [];
   for (let i = 0; i <= teamScore.trips.length; i++) {
@@ -44,7 +50,10 @@ export default function TripCarousel({
         <div className="z-20 translate-x-1/2">
           <NavButton direction="left" />
         </div>
-        <div className="flex flex-row gap-2 p-2 px-5 overflow-x-scroll overflow-y-hidden bg-white rounded-md shadow-inner grow-0 size-full w-72 no-scrollbar">
+        <div
+          ref={carouselRef}
+          className="flex flex-row gap-2 p-2 px-5 overflow-x-scroll overflow-y-hidden bg-white rounded-md shadow-inner scroll-smooth grow-0 size-full w-72 no-scrollbar"
+        >
           {trips}
         </div>
         <div className="z-20 -translate-x-1/2">
