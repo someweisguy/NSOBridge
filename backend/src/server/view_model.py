@@ -46,7 +46,7 @@ class Queryable[T: Hashable](ABC):
                 sub_notifier._listeners.add(self)
         else:
             notifier._listeners.add(self)
-    
+
     def un_watch(self, notifier: Queryable | Iterable[Queryable]) -> None:
         if isinstance(notifier, Iterable):
             for sub_notifier in notifier:
@@ -54,9 +54,9 @@ class Queryable[T: Hashable](ABC):
         else:
             notifier._listeners.remove(self)
 
-    def notify(self) -> None:
+    def notify(self, renotify: datetime | None = None) -> None:
         controller.log.debug(f'{type(self).__name__} is notifying')
-        controller._notifications.add(self)
+        controller.notify(self, renotify)
         for listener in self._listeners:
             listener.notify()
 
