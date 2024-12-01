@@ -55,7 +55,6 @@ class Queryable[T: Hashable](ABC):
             notifier._listeners.remove(self)
 
     def notify(self, renotify: datetime | None = None) -> None:
-        controller.log.debug(f'{type(self).__name__} is notifying')
         controller.notify(self, renotify)
         for listener in self._listeners:
             listener.notify()
@@ -165,6 +164,8 @@ class ViewModel:
 
     def notify(self, notifier: Queryable,
                renotify: datetime | None = None) -> None:
+        controller.log.debug(f'{type(notifier).__name__} is notifying')
+
         # Add the notification to the notifications set
         self._notifications.add(notifier)
 
@@ -180,15 +181,22 @@ class ViewModel:
         async def reminder() -> None:
             now: datetime = datetime.now()
             while now < renotify:
-                sleep: timedelta = now - renotify
+                sleep: timedelta = renotify - now
                 await asyncio.sleep(sleep.total_seconds())
                 now = datetime.now()
-            await self.broadcast(notifier.encode())
+            self.notify(notifier)
+
+            notifications: list[dict] = controller.get_notifications()
+            if len(notifications) > 0:
+                await controller.broadcast(notifications)
+                controller.clear_notifications()
+
+            if notifier.id in self._tasks.keys():
+                self._tasks.pop(notifier.id)
 
         # Schedule a task to rebroadcast the data
         task: Task[None] = asyncio.create_task(reminder())
         self._tasks[notifier.id] = task
-        task.add_done_callback(lambda _: self._tasks.pop(notifier.id))
 
     def get_notifications(self) -> list[dict[str | float | int, Any]]:
         updates: list[dict[str | float | int, Any]] = []
