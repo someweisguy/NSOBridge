@@ -48,6 +48,10 @@ class Score(Queryable):
     def star_pass(self, value: int | None) -> None:
         notify: bool = self._star_pass != value
         self._star_pass = value
+        if value is not None and not self._lost:
+            # Automatically set Lost when setting Star Pass
+            self._lost = True
+            notify = True
         if notify:
             self.notify()
 
