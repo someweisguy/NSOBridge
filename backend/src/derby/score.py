@@ -1,8 +1,12 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from server import Queryable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from derby.jam import Jam
 
 
 class Score(Queryable):
@@ -11,12 +15,13 @@ class Score(Queryable):
         points: int
         timestamp: datetime
 
-    def __init__(self, bout_id: UUID, id: tuple) -> None:
+    def __init__(self, bout_id: UUID, id: tuple, parent: Jam) -> None:
         super().__init__((bout_id, id))
         self._lead: bool = False
         self._lost: bool = False
         self._star_pass: int | None = None
         self._trips: list[Score.Trip] = []
+        self._parent: Jam = parent
 
     @property
     def lead(self) -> bool:
@@ -24,6 +29,8 @@ class Score(Queryable):
 
     @lead.setter
     def lead(self, value: bool) -> None:
+        if value == True and not self.is_lead_eligible():
+            raise RuntimeError('This Jammer is not eligible for lead')
         notify: bool = self._lead != value
         self._lead = value
         if notify:
@@ -55,6 +62,12 @@ class Score(Queryable):
         if notify:
             self.notify()
 
+    def is_lead_eligible(self) -> bool:
+        other: Score = (self._parent.score.home
+                        if self is self._parent.score.away
+                        else self._parent.score.home)
+        return not self.lost and not other.lead
+
     def total_points(self) -> int:
         return sum(trip.points for trip in self._trips)
 
@@ -65,6 +78,8 @@ class Score(Queryable):
             if timestamp is None:
                 timestamp = datetime.now()
             self._trips.append(Score.Trip(points, timestamp))
+            if not self.lead and self.is_lead_eligible():
+                self._lead = True
         elif self._trips[trip_index].points != points:
             self._trips[trip_index].points = points
         else:

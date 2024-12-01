@@ -16,7 +16,7 @@ class Jam(Queryable):
         self._stop_reason: int | None = None
 
         # Initialize the Scores
-        starting_scores = (Score(bout_id, id), Score(bout_id, id))
+        starting_scores = (Score(bout_id, id, self), Score(bout_id, id, self))
         self._score: TeamAttribute = TeamAttribute(*starting_scores)
         self.watch(starting_scores)
 
