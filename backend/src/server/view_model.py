@@ -84,7 +84,9 @@ class ViewModel:
         self._sockets: list[WebSocket] = list()
         self._notifications: set[Queryable] = set()
         self._tasks: dict[Hashable, Task] = dict()
-        self.actions: dict[tuple[str, str], Callable] = dict()
+        self.actions: dict[tuple[str, str], Callable] = {
+            ('server', 'latency'): lambda: None
+        }
 
     @property
     def api_directory(self) -> str:
