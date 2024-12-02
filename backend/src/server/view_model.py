@@ -60,7 +60,7 @@ class Queryable[T: Hashable](ABC):
             listener.notify()
 
     @abstractmethod
-    def get(self) -> dict[str | float | int, Any]:
+    def get(self, now: datetime | None = None) -> dict[str | float | int, Any]:
         ...
 
     @final

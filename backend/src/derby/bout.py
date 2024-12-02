@@ -1,16 +1,18 @@
+from datetime import datetime
 from derby.jam import Jam
+from derby.timer import Timer
 from typing import Any
 from server import Queryable
 from uuid import UUID
 
 
-class Bout(Queryable):
+class Bout(Queryable[UUID]):
     def __init__(self, id: UUID) -> None:
         super().__init__(id)
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
         self.push_jam(0)  # At least 1 Jam is required
 
-    def get(self) -> dict[str | float | int, Any]:
+    def get(self, now: datetime | None = None) -> dict[str | float | int, Any]:
         return {
             'info': {
                 'venue': None,
@@ -56,21 +58,19 @@ class Bout(Queryable):
 
     def get_current_period_index(self) -> int:
         return int(len(self._jams[1]) > 0)
-    
+
     def get_jam(self, jam_id: tuple[int, int]) -> Jam:
         period_index, jam_index = jam_id
         return self._jams[period_index][jam_index]
-    
+
     def push_jam(self, period: int) -> None:
         next_jam_number: int = len(self._jams[period])
         new_jam: Jam = Jam(self.id, (period, next_jam_number))
         self._jams[period].append(new_jam)
         self.watch(new_jam)
-    
+
     def pop_jam(self, period: int) -> Jam:
         popped_jam: Jam = self._jams[period].pop()
         self.un_watch(popped_jam)
         self.notify()
         return popped_jam
-    
-    
