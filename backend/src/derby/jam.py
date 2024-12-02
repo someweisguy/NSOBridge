@@ -34,3 +34,8 @@ class Jam(Queryable[tuple[UUID, tuple[int, int]]]):
             'stop': self._stop_timestamp,
             'stop_reason': self._stop_reason
         }
+    
+    def start(self, timestamp: datetime) -> None:
+        if self._start_timestamp is not None:
+            raise RuntimeError('This Jam has already started')
+        self._start_timestamp = timestamp
