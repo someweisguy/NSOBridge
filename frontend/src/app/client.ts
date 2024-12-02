@@ -82,10 +82,11 @@ export async function sendQuery<T = object>(type: string, action: string, args: 
   return response.data as T;
 }
 
-export function useGetter<T = object>(type: string, args: object = {}): T {
+// TODO: readability in this func's args
+export function useGetter<T = object>(type: string, args: object = {}, nonKeyArgs: object = {}): T {
   const { data } = useSuspenseQuery({
     queryKey: [Object.values(args), type],
-    queryFn: () => sendQuery(type, "get", args)
+    queryFn: () => sendQuery(type, "get", {...args, ...nonKeyArgs})
   }, client);
   return data as T;
 }

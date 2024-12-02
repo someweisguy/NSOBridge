@@ -1,6 +1,6 @@
 from datetime import datetime
 from derby.jam import Jam
-from derby.timer import Timer
+from derby.clock import Clock
 from typing import Any
 from server import Queryable
 from uuid import UUID
@@ -9,18 +9,18 @@ from uuid import UUID
 class Bout(Queryable[UUID]):
     def __init__(self, id: UUID) -> None:
         super().__init__(id)
-        
+
         # Instantiate Timers
-        self._period_timer: Timer = Timer(id, 'period')
-        self._intermission_timer: Timer = Timer(id, 'intermission')
-        self._lineup_timer: Timer = Timer(id, 'lineup')
-        self._jam_timer: Timer = Timer(id, 'jam')
-        self._timeout_timer: Timer = Timer(id, 'timeout')
-        
+        self._period_timer: Clock = Clock(id, 'period')
+        self._intermission_timer: Clock = Clock(id, 'intermission')
+        self._lineup_timer: Clock = Clock(id, 'lineup')
+        self._jam_timer: Clock = Clock(id, 'jam')
+        self._timeout_timer: Clock = Clock(id, 'timeout')
+
         self._period_timer.set_alarm(minutes=30)
         self._lineup_timer.set_alarm(seconds=30)
         self._jam_timer.set_alarm(minutes=2)
-        
+
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
         self.push_jam(0)  # At least 1 Jam is required
 
@@ -93,3 +93,12 @@ class Bout(Queryable[UUID]):
         current_period_index: int = self.get_current_period_index()
         self._jam_timer.start(timestamp)
         self._jams[current_period_index][-1].start(timestamp)
+
+    def get_clock(self, type: str) -> Clock:
+        match type:
+            case 'jam': return self._jam_timer
+            case 'lineup': return self._lineup_timer
+            case 'period': return self._period_timer
+            case 'intermission': return self._intermission_timer
+            case 'timeout': return self._timeout_timer
+            case _: raise ValueError(f'Timer \'{type}\' does not exist')
