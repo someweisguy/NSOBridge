@@ -6,7 +6,7 @@ from server.view_model import Queryable
 
 class Timer(Queryable):
     __slots__ = '_start', '_stop', '_elapsed', '_alarm'
-    
+
     def __init__(self, bout_id: UUID, id: str) -> None:
         super().__init__((bout_id, id))
         self._start: datetime | None = None
@@ -60,8 +60,18 @@ class Timer(Queryable):
         else:
             return self._elapsed
 
+    def set_elapsed(self, hours: float = 0, minutes: float = 0,
+                    seconds: float = 0, milliseconds: float = 0) -> None:
+        new_elapsed: timedelta = timedelta(hours=hours, minutes=minutes,
+                                           seconds=seconds,
+                                           milliseconds=milliseconds)
+        notify: bool = self._elapsed != new_elapsed
+        self._elapsed = new_elapsed
+        if notify:
+            self.notify()
+
     def get_remaining(self, timestamp: datetime | None = None) -> timedelta | None:
-        return (self._alarm - self.get_elapsed()
+        return (self._alarm - self.get_elapsed(timestamp)
                 if self._alarm is not None else None)
 
     def start(self, timestamp: datetime) -> None:
