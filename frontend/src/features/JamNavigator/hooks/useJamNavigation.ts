@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import useBout, { BoutType } from "../../../hooks/bout";
+import useBout from "../../../hooks/useBout";
 import { JamNavigationType } from "../types/JamNavigationType";
 import { JamIdType } from "../../../types/JamIdType";
+import { BoutType } from "../../../types/BoutType";
 
 export default function useJamNavigation(boutId: string): JamNavigationType {
   const bout: BoutType = useBout(boutId);

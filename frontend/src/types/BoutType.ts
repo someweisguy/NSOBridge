@@ -1,18 +1,12 @@
-import { useGetter } from "../app/client";
-
-export type TimerType = {
-  elapsed: number,
-  alarm: number | null,
-  isRunning: boolean
-};
+import { ClockType } from "../types/ClockType";
 
 export type BoutType = {
   clocks: {
-    intermission: TimerType,
-    period: TimerType,
-    lineup: TimerType,
-    jam: TimerType,
-    timeout: TimerType
+    intermission: ClockType,
+    period: ClockType,
+    lineup: ClockType,
+    jam: ClockType,
+    timeout: ClockType
   },
   info: {
     date: string,
@@ -60,7 +54,3 @@ export type BoutType = {
     } | null,
   }
 };
-
-export default function useBout(boutId: string): BoutType {
-  return useGetter<BoutType>("bout", { boutId });
-}
