@@ -5,6 +5,8 @@ from server.view_model import Queryable
 
 
 class Timer(Queryable):
+    __slots__ = '_start', '_stop', '_elapsed', '_alarm'
+    
     def __init__(self, bout_id: UUID, id: str) -> None:
         super().__init__((bout_id, id))
         self._start: datetime | None = None
