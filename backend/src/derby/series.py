@@ -4,7 +4,7 @@ from server import Queryable
 from .bout import Bout
 
 
-class Series(Queryable):   
+class Series(Queryable[None]):   
     def __init__(self) -> None:
         super().__init__(None)
         self._bouts: dict[UUID, Bout] = {}

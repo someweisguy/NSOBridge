@@ -4,7 +4,7 @@ from uuid import UUID
 from server.view_model import Queryable
 
 
-class Timer(Queryable):
+class Timer(Queryable[tuple[UUID, str]]):
     __slots__ = '_start', '_stop', '_elapsed', '_alarm'
 
     def __init__(self, bout_id: UUID, id: str) -> None:

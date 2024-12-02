@@ -7,7 +7,7 @@ from typing import Any
 from uuid import UUID
 
 
-class Jam(Queryable):
+class Jam(Queryable[tuple[UUID, tuple[int, int]]]):
     def __init__(self, bout_id: UUID, id: tuple[int, int]) -> None:
         super().__init__((bout_id, id))
         self._bout_id: UUID = bout_id
