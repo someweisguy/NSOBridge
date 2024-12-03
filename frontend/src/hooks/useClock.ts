@@ -3,7 +3,8 @@ import { useConnection, useGetter } from "../app/client";
 import { ClockType } from "../types/ClockType";
 
 
-export default function useClock(boutId: string, type: string): ClockType {
+export default function useClock(boutId: string, type: string,
+  refreshMillis: number = 1000 / 24): ClockType {
   const { latency } = useConnection();
   const clock: ClockType = useGetter<ClockType>("clock",
     { boutId, type }, { latency }
@@ -22,9 +23,9 @@ export default function useClock(boutId: string, type: string): ClockType {
       const additionalElapsed: number = Math.round(stopTime - startTime);
       setElapsed(elapsed => elapsed + additionalElapsed);
       startTime = stopTime;
-    }, 25);
+    }, refreshMillis);
     return () => clearInterval(intervalId);
-  }, [clock]);
+  }, [clock, refreshMillis]);
 
   return { ...clock, elapsed }
 }
