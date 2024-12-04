@@ -11,15 +11,22 @@ class Bout(Queryable[UUID]):
         super().__init__(id)
 
         # Instantiate Timers
-        self._period_timer: Clock = Clock(id, 'period')
-        self._intermission_timer: Clock = Clock(id, 'intermission')
-        self._lineup_timer: Clock = Clock(id, 'lineup')
-        self._jam_timer: Clock = Clock(id, 'jam')
-        self._timeout_timer: Clock = Clock(id, 'timeout')
+        self._period_clock: Clock = Clock(id, 'period')
+        self._intermission_clock: Clock = Clock(id, 'intermission')
+        self._lineup_clock: Clock = Clock(id, 'lineup')
+        self._jam_clock: Clock = Clock(id, 'jam')
+        self._timeout_clock: Clock = Clock(id, 'timeout')
 
-        self._period_timer.set_alarm(minutes=30)
-        self._lineup_timer.set_alarm(seconds=30)
-        self._jam_timer.set_alarm(minutes=2)
+        self._period_clock.set_alarm(minutes=30)
+        self._lineup_clock.set_alarm(seconds=30)
+        self._jam_clock.set_alarm(minutes=2)
+
+        clocks: tuple[Clock, ...] = (self._period_clock,
+                                     self._intermission_clock,
+                                     self._lineup_clock, self._jam_clock,
+                                     self._timeout_clock)
+        for clock in clocks:
+            self.watch(clock)
 
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
         self.push_jam(0)  # At least 1 Jam is required
@@ -38,11 +45,11 @@ class Bout(Queryable[UUID]):
                 'away': None
             },  # TODO
             'clocks': {
-                'intermission': self._intermission_timer.get(now),
-                'period': self._period_timer.get(now),
-                'lineup': self._lineup_timer.get(now),
-                'jam': self._jam_timer.get(now),
-                'timeout': self._timeout_timer.get(now)
+                'intermission': self._intermission_clock.get(now),
+                'period': self._period_clock.get(now),
+                'lineup': self._lineup_clock.get(now),
+                'jam': self._jam_clock.get(now),
+                'timeout': self._timeout_clock.get(now)
             },  # TODO
             'timeouts': {
                 'remaining': {
@@ -91,14 +98,14 @@ class Bout(Queryable[UUID]):
 
     def start_jam(self, timestamp: datetime) -> None:
         current_period_index: int = self.get_current_period_index()
-        self._jam_timer.start(timestamp)
+        self._jam_clock.start(timestamp)
         self._jams[current_period_index][-1].start(timestamp)
 
     def get_clock(self, type: str) -> Clock:
         match type:
-            case 'jam': return self._jam_timer
-            case 'lineup': return self._lineup_timer
-            case 'period': return self._period_timer
-            case 'intermission': return self._intermission_timer
-            case 'timeout': return self._timeout_timer
+            case 'jam': return self._jam_clock
+            case 'lineup': return self._lineup_clock
+            case 'period': return self._period_clock
+            case 'intermission': return self._intermission_clock
+            case 'timeout': return self._timeout_clock
             case _: raise ValueError(f'Timer \'{type}\' does not exist')
