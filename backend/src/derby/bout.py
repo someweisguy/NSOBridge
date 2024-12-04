@@ -19,7 +19,7 @@ class Bout(Queryable[UUID]):
         self._period_clock.set_alarm(minutes=30)
         self._lineup_clock.set_alarm(seconds=30)
         self._jam_clock.set_alarm(minutes=2)
-        
+
         # Subscribe to each clock
         clocks: tuple[Clock, ...] = (self._period_clock,
                                      self._intermission_clock,
@@ -31,51 +31,32 @@ class Bout(Queryable[UUID]):
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
         self.push_jam(0)  # At least 1 Jam is required
 
-    def get(self, now: datetime | None = None) -> dict[str | float | int, Any]:
-        if now is None:
-            now = datetime.now()
+    def get(self) -> dict[str | float | int, Any]:
         return {
-            'info': {
-                'venue': None,
-                'gameNumber': None,
-                'date': None
-            },  # TODO
+            'gameNumber': None,  # TODO
+            'gameState': self.get_game_state(),
+            'numJams': [len(period) for period in self._jams],
+            'score': {
+                'home': 0,  # TODO
+                'away': 0   # TODO
+            },
             'roster': {
                 'home': None,
                 'away': None
             },  # TODO
-            'clocks': {
-                'intermission': self._intermission_clock.get(now),
-                'period': self._period_clock.get(now),
-                'lineup': self._lineup_clock.get(now),
-                'jam': self._jam_clock.get(now),
-                'timeout': self._timeout_clock.get(now)
-            },  # TODO
-            'timeouts': {
-                'remaining': {
-                    'home': {
-                        'timeouts': 0,  # TODO
-                        'officialReviews': 0  # TODO
-                    },
-                    'away': {
-                        'timeouts': 0,  # TODO
-                        'officialReviews': 0  # TODO
-                    }
-                },
-                'ongoing': {
-                    'isOfficialReview': False,  # TODO
-                    'caller': None,  # TODO
-                }
-            },
-            'jams': {
-                'score': {
-                    'home': 0,  # TODO
-                    'away': 0   # TODO
-                },
-                'counts': [len(period) for period in self._jams],
-            },
-            'penalties': None  # TODO
         }
+
+    def get_game_state(self) -> str:
+        if self._intermission_clock.is_running():
+            return 'intermission'
+        elif self._jam_clock.is_running():
+            return 'jam'
+        elif self._lineup_clock.is_running():
+            return 'lineup'
+        elif self._timeout_clock.is_running():
+            return 'timeout'
+        else:
+            return 'unknown'
 
     def get_current_period_index(self) -> int:
         return int(len(self._jams[1]) > 0)
