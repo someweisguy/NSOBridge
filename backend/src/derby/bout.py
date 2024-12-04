@@ -1,7 +1,7 @@
 from datetime import datetime
 from derby.jam import Jam
 from derby.clock import Clock
-from typing import Any
+from typing import Any, Literal
 from server import Queryable
 from uuid import UUID
 
@@ -28,6 +28,7 @@ class Bout(Queryable[UUID]):
         for clock in clocks:
             self.watch(clock)
 
+        # Instantiate periods
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
         self.push_jam(0)  # At least 1 Jam is required
 
@@ -37,13 +38,13 @@ class Bout(Queryable[UUID]):
             'gameState': self.get_game_state(),
             'numJams': [len(period) for period in self._jams],
             'score': {
-                'home': 0,  # TODO
-                'away': 0   # TODO
+                'home': self.get_total_score('home'),
+                'away': self.get_total_score('away')
             },
             'roster': {
-                'home': None,
-                'away': None
-            },  # TODO
+                'home': None,  # TODO
+                'away': None   # TODO
+            },
         }
 
     def get_game_state(self) -> str:
@@ -57,6 +58,14 @@ class Bout(Queryable[UUID]):
             return 'timeout'
         else:
             return 'unknown'
+
+    def get_total_score(self, team: Literal['home', 'away']) -> int:
+        total_score: int = 0
+        for period in self._jams:
+            for jam in period:
+                total_score += jam.score[team].total_points()
+
+        return total_score
 
     def get_current_period_index(self) -> int:
         return int(len(self._jams[1]) > 0)
