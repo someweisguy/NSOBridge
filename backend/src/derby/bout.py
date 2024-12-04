@@ -7,6 +7,9 @@ from uuid import UUID
 
 
 class Bout(Queryable[UUID]):
+    __slots__ = ('_period_clock', '_intermission_clock', '_lineup_clock',
+                 '_jam_clock', '_timeout_clock', '_jams')
+    
     def __init__(self, id: UUID) -> None:
         super().__init__(id)
 
@@ -55,9 +58,10 @@ class Bout(Queryable[UUID]):
         elif self._lineup_clock.is_running():
             return 'lineup'
         elif self._timeout_clock.is_running():
+            # TODO: check timeout type?
             return 'timeout'
         else:
-            return 'unknown'
+            return 'stopped'
 
     def get_total_score(self, team: Literal['home', 'away']) -> int:
         total_score: int = 0
