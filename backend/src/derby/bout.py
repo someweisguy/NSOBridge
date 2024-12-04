@@ -10,17 +10,17 @@ class Bout(Queryable[UUID]):
     def __init__(self, id: UUID) -> None:
         super().__init__(id)
 
-        # Instantiate Timers
+        # Instantiate clocks
         self._period_clock: Clock = Clock(id, 'period')
         self._intermission_clock: Clock = Clock(id, 'intermission')
         self._lineup_clock: Clock = Clock(id, 'lineup')
         self._jam_clock: Clock = Clock(id, 'jam')
         self._timeout_clock: Clock = Clock(id, 'timeout')
-
         self._period_clock.set_alarm(minutes=30)
         self._lineup_clock.set_alarm(seconds=30)
         self._jam_clock.set_alarm(minutes=2)
-
+        
+        # Subscribe to each clock
         clocks: tuple[Clock, ...] = (self._period_clock,
                                      self._intermission_clock,
                                      self._lineup_clock, self._jam_clock,
