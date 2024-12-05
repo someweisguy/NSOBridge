@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from derby.jam import Jam
 from derby.clock import Clock
 from typing import Any, Literal
@@ -91,18 +91,29 @@ class Bout(Queryable[UUID]):
         return popped_jam
 
     def start_jam(self, timestamp: datetime) -> None:
-        current_period_index: int = self.get_current_period_index()
+        jam: Jam = self._jams[self.get_current_period_index()][-1]
+        jam.start(timestamp)
         self._jam_clock.start(timestamp)
-        self._jams[current_period_index][-1].start(timestamp)
         self.notify()
 
     def stop_jam(self, timestamp: datetime) -> None:
-        # TODO
         current_period_index: int = self.get_current_period_index()
+        jam: Jam = self._jams[current_period_index][-1]
+
+        # Attempt the guess the call-off reason
+        reason: str
+        remaining_time: timedelta | None = self._jam_clock.get_remaining()
+        if remaining_time is not None and remaining_time.total_seconds() <= 0:
+            reason = 'time'
+        elif ((jam.score.home.lead and not jam.score.home.lost)
+              or (jam.score.away.lead and not jam.score.away.lost)):
+            reason = 'called'
+        else:
+            reason = 'unknown'
+
+        jam.stop(timestamp, reason)
         self._jam_clock.pause(timestamp)
-        self._jams[current_period_index][-1]._stop_timestamp = timestamp
-        self._jams[current_period_index][-1]._stop_reason = "unknown"
-        self._jams[current_period_index][-1].notify()
+        self.push_jam(current_period_index)
         self.notify()
 
     def get_clock(self, type: str) -> Clock:
