@@ -4,7 +4,7 @@ import { ClockType } from "../types/ClockType";
 
 
 export default function useClock(boutId: string, type: string,
-  refreshMillis: number = 1000 / 24): ClockType {
+  stopAtZero: boolean = true, refreshMillis: number = 1000 / 24): ClockType {
   const { latency } = useConnection();
   const clock: ClockType = useGetter<ClockType>("clock",
     { boutId, type }, { latency }
@@ -23,9 +23,14 @@ export default function useClock(boutId: string, type: string,
       const additionalElapsed: number = Math.round(stopTime - startTime);
       setElapsed(elapsed => elapsed + additionalElapsed);
       startTime = stopTime;
+
+      if (stopAtZero && clock.alarm != null && clock.elapsed >= clock.alarm) {
+        clearInterval(intervalId);
+      }
+
     }, refreshMillis);
     return () => clearInterval(intervalId);
-  }, [clock, refreshMillis]);
+  }, [clock, stopAtZero, refreshMillis]);
 
   return { ...clock, elapsed }
 }

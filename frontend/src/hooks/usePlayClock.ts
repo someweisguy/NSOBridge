@@ -5,9 +5,9 @@ import useClock from "./useClock";
 
 export default function usePlayClock(boutId: string,
   stopAtZero: boolean = true): DurationType {
-  const jamClock: ClockType = useClock(boutId, "jam");
-  const lineupClock: ClockType = useClock(boutId, "lineup");
-  const timeoutClock: ClockType = useClock(boutId, "timeout");
+  const jamClock: ClockType = useClock(boutId, "jam", stopAtZero);
+  const lineupClock: ClockType = useClock(boutId, "lineup", stopAtZero);
+  const timeoutClock: ClockType = useClock(boutId, "timeout", stopAtZero);
 
   // Display the currently running clock or the Jam clock
   const activeClock: ClockType = timeoutClock.isRunning ? timeoutClock
