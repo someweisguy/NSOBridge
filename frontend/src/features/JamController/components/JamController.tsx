@@ -1,18 +1,18 @@
 import {
-  createContext,
   PropsWithChildren,
   ReactElement,
   useContext,
 } from "react";
-import { JamIdType } from "../../../types/JamIdType";
 import TraverseJamButton from "./TraverseJamButton";
 import CurrentJam from "./CurrentJam";
 import useJamNavigation from "../hooks/useJamNavigation";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import { BoutIdType } from "../../../types/BoutIdType";
 import StartJam from "./StartJam";
-
-export const JamIdContext = createContext<JamIdType>([0, 0]);
+import StopJam from "./StopJam";
+import { JamType } from "../../../types/JamType";
+import useJam from "../../../hooks/useJam";
+import { JamIdContext } from "../../../contexts/JamIdContext";
 
 export default function JamController({
   children,
@@ -28,13 +28,17 @@ export default function JamController({
     // goToCustomJam,  // TODO
   } = useJamNavigation(boutId);
 
+  const jam: JamType = useJam(boutId, currentJamId);
+  const jamHasStarted: boolean = jam.start != null;
+  const jamHasFinished: boolean = jam.stop != null;
+
   const [periodNum, jamNum] = currentJamId;
 
   return (
     <div className="flex flex-col">
       <div className="flex flex-row items-center">
         <div className="basis-1/2">
-          <StartJam />
+          {jamHasStarted ? (jamHasFinished ? <></> : <StopJam />) : <StartJam />}
         </div>
 
         <div className="basis-1/2 place-items-end">

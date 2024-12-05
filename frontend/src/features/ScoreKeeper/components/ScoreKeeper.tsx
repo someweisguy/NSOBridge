@@ -7,7 +7,7 @@ import { JamIdType } from "../../../types/JamIdType";
 import JammerState from "./JammerState";
 import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
-import { JamIdContext } from "../../JamController/components/JamController";
+import { JamIdContext } from "../../../contexts/JamIdContext";
 
 export default function ScoreKeeper({
   team,

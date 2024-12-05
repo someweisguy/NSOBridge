@@ -9,7 +9,7 @@ from uuid import UUID
 class Bout(Queryable[UUID]):
     __slots__ = ('_period_clock', '_intermission_clock', '_lineup_clock',
                  '_jam_clock', '_timeout_clock', '_jams')
-    
+
     def __init__(self, id: UUID) -> None:
         super().__init__(id)
 
@@ -94,6 +94,16 @@ class Bout(Queryable[UUID]):
         current_period_index: int = self.get_current_period_index()
         self._jam_clock.start(timestamp)
         self._jams[current_period_index][-1].start(timestamp)
+        self.notify()
+
+    def stop_jam(self, timestamp: datetime) -> None:
+        # TODO
+        current_period_index: int = self.get_current_period_index()
+        self._jam_clock.pause(timestamp)
+        self._jams[current_period_index][-1]._stop_timestamp = timestamp
+        self._jams[current_period_index][-1]._stop_reason = "unknown"
+        self._jams[current_period_index][-1].notify()
+        self.notify()
 
     def get_clock(self, type: str) -> Clock:
         match type:

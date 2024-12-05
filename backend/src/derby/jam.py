@@ -13,7 +13,7 @@ class Jam(Queryable[tuple[UUID, tuple[int, int]]]):
         self._bout_id: UUID = bout_id
         self._start_timestamp: datetime | None = None
         self._stop_timestamp: datetime | None = None
-        self._stop_reason: int | None = None
+        self._stop_reason: str | None = None
 
         # Initialize the Scores
         starting_scores = (Score(bout_id, id, self), Score(bout_id, id, self))
@@ -30,8 +30,8 @@ class Jam(Queryable[tuple[UUID, tuple[int, int]]]):
 
     def get(self) -> dict[str | float | int, Any]:
         return {
-            'start': self._start_timestamp,
-            'stop': self._stop_timestamp,
+            'start': str(self._start_timestamp) if self._start_timestamp is not None else None,
+            'stop': str(self._stop_timestamp) if self._stop_timestamp is not None else None,
             'stop_reason': self._stop_reason
         }
     
@@ -39,3 +39,4 @@ class Jam(Queryable[tuple[UUID, tuple[int, int]]]):
         if self._start_timestamp is not None:
             raise RuntimeError('This Jam has already started')
         self._start_timestamp = timestamp
+        self.notify()

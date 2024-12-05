@@ -1,5 +1,5 @@
 export type JamType = {
-  startTimestamp: string;
-  stopTimestamp: string;
-  stopReason: string;
+  start: string | null;
+  stop: string | null;
+  stopReason: string | null;
 };
