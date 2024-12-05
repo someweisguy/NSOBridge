@@ -1,9 +1,10 @@
 import { useContext } from "react";
-import { BoutContext } from "../App";
+import { BoutIdContext } from "../../contexts/BoutIdContext";
+
 
 
 export default function TestPage() {
-  const boutId: string = useContext(BoutContext);
+  const boutId: string = useContext(BoutIdContext);
 
   return (
     <>

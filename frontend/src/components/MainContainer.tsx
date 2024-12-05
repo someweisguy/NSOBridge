@@ -1,6 +1,6 @@
 import { PropsWithChildren, ReactNode, useEffect, useState } from "react";
 import { useSeries } from "../hooks/useSeries";
-import { BoutContext } from "../app/App";
+import { BoutIdContext } from "../contexts/BoutIdContext";
 
 export default function MainContainer({
   children,
@@ -35,7 +35,7 @@ export default function MainContainer({
       </div>
 
       <div className="overflow-clip">
-        <BoutContext.Provider value={boutId}>{children}</BoutContext.Provider>
+        <BoutIdContext.Provider value={boutId}>{children}</BoutIdContext.Provider>
       </div>
     </div>
   );

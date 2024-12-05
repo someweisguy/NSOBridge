@@ -1,20 +1,22 @@
-import { ReactElement } from "react";
+import { ReactElement, useContext } from "react";
 import PointEditor from "./PointEditor";
 import TripCarousel from "./TripCarousel";
 import useTripIndex from "../hooks/useTripIndex";
 import useInitialPass from "../hooks/useInitialPass";
 import { JamIdType } from "../../../types/JamIdType";
 import JammerState from "./JammerState";
+import { BoutIdType } from "../../../types/BoutIdType";
+import { BoutIdContext } from "../../../contexts/BoutIdContext";
+import { JamIdContext } from "../../JamController/components/JamController";
 
 export default function ScoreKeeper({
-  boutId,
-  jamId,
   team,
 }: {
-  boutId: string;
-  jamId: JamIdType;
   team: "home" | "away";
 }): ReactElement {
+  const boutId: BoutIdType = useContext(BoutIdContext);
+  const jamId: JamIdType = useContext(JamIdContext);
+
   const [selectedTrip, setSelectedTrip] = useTripIndex(boutId, jamId, team);
   const showInitial = useInitialPass(boutId, jamId, selectedTrip);
 
