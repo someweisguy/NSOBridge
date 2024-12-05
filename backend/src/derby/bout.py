@@ -83,6 +83,7 @@ class Bout(Queryable[UUID]):
         new_jam: Jam = Jam(self.id, (period, next_jam_number))
         self._jams[period].append(new_jam)
         self.watch(new_jam)
+        self.notify()
 
     def pop_jam(self, period: int) -> Jam:
         popped_jam: Jam = self._jams[period].pop()
@@ -92,6 +93,13 @@ class Bout(Queryable[UUID]):
 
     def start_jam(self, timestamp: datetime) -> None:
         jam: Jam = self._jams[self.get_current_period_index()][-1]
+
+        clocks: tuple[Clock, ...] = (
+            self._intermission_clock, self._lineup_clock, self._timeout_clock)
+        for clock in clocks:
+            if clock.is_running():
+                clock.pause(timestamp)
+
         jam.start(timestamp)
         self._jam_clock.start(timestamp)
         self.notify()
@@ -113,6 +121,8 @@ class Bout(Queryable[UUID]):
 
         jam.stop(timestamp, reason)
         self._jam_clock.pause(timestamp)
+        self._lineup_clock.reset()
+        self._lineup_clock.start(timestamp)
         self.push_jam(current_period_index)
         self.notify()
 
