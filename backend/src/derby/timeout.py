@@ -4,7 +4,7 @@ from server.view_model import Queryable
 from uuid import UUID
 
 
-class Timeout(Queryable[tuple[UUID, int]]):
+class Timeout(Queryable[int]):
     __slots__ = ('_caller', '_jam_id', '_duration', '_is_official_review',
                  '_period_clock_remaining', '_is_retained', '_detail',
                  '_result')

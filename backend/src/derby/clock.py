@@ -1,10 +1,10 @@
-from typing import Any, Callable
 from datetime import datetime, timedelta
-from uuid import UUID
 from server.view_model import Queryable
+from typing import Any
+from uuid import UUID
 
 
-class Clock(Queryable[tuple[UUID, str]]):
+class Clock(Queryable[str]):
     __slots__ = '_start', '_elapsed', '_alarm'
 
     def __init__(self, bout_id: UUID, id: str) -> None:
@@ -95,7 +95,6 @@ class Clock(Queryable[tuple[UUID, str]]):
         self.notify()
 
     def reset(self) -> None:
-        self._stop = None
         self._start = None
         self._elapsed = timedelta(seconds=0)
         self.notify()

@@ -9,15 +9,15 @@ if TYPE_CHECKING:
     from derby.jam import Jam
 
 
-class Score(Queryable):
+class Score(Queryable[Literal['home', 'away']]):
     @dataclass(slots=True)
     class Trip():
         points: int
         timestamp: datetime
 
-    def __init__(self, bout_id: UUID, id: tuple, team: Literal['home', 'away'],
-                 parent: Jam) -> None:
-        super().__init__((bout_id, id, team))
+    def __init__(self, bout_id: UUID, jam_id: tuple,
+                 team: Literal['home', 'away'], parent: Jam) -> None:
+        super().__init__((bout_id, jam_id, team))
         self._lead: bool = False
         self._lost: bool = False
         self._star_pass: int | None = None

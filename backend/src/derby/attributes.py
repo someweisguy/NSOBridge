@@ -2,7 +2,7 @@ from server import Queryable
 from typing import Any
 
 
-class TeamAttribute[T]:
+class TeamAttribute[T: Any]:
     __slots__ = '_home', '_away'
 
     def __init__(self, home: T, away: T) -> None:

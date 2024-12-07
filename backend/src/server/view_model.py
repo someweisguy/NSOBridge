@@ -12,6 +12,7 @@ import asyncio
 import logging
 import inspect
 import os
+import typing
 
 
 if TYPE_CHECKING:
@@ -27,17 +28,26 @@ logging.basicConfig(
 
 
 class Queryable[T: Hashable](ABC):
+    __slots__ = '_key', '_listeners', '__weakref__'
+
     _name: str | None = None
 
-    def __init__(self, id: T) -> None:
-        self._id: T = id
+    def __init__(self, id: tuple[Hashable, ...]) -> None:
+        self._key: tuple[Hashable, ...] = id
         self._listeners: WeakSet[Queryable] = WeakSet()
 
     @final
     @property
-    def id(self) -> T:
-        return self._id
+    def key(self) -> tuple[Hashable, ...]:
+        return self._key
 
+    @final
+    @property
+    def id(self) -> T:
+        id: Hashable = self._key[-1]
+        return typing.cast(T, id)
+
+    @final
     @property
     def name(self) -> str:
         return (self._name.lower() if self._name is not None
@@ -69,7 +79,7 @@ class Queryable[T: Hashable](ABC):
     @final
     def encode(self) -> dict[str | float | int, Any]:
         return {
-            'id': self._id,
+            'id': self._key,
             'type': self.name,
             'data': self.get()
         }

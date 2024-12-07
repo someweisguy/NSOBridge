@@ -14,7 +14,7 @@ class Bout(Queryable[UUID]):
                  '_official_reviews_remaining', '_timeouts')
 
     def __init__(self, id: UUID) -> None:
-        super().__init__(id)
+        super().__init__((id,))
 
         # Instantiate clocks
         self._period_clock: Clock = Clock(id, 'period')
