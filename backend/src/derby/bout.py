@@ -161,7 +161,6 @@ class Bout(Queryable[UUID]):
 
         # Assume the timeout is not an official review by default
         new_timeout: Timeout = Timeout(self.id, len(self._timeouts))
-        self.watch(new_timeout)
 
         # Set the period clock at which this timeout was called
         period_clock: timedelta | None = self._period_clock.get_remaining(
@@ -176,6 +175,7 @@ class Bout(Queryable[UUID]):
         # FIXME: get the current ACTIVE jam number
 
         self._timeouts.append(new_timeout)
+        self.watch(new_timeout)
         if self._period_clock.is_running():
             self._period_clock.stop(timestamp)
         self._timeout_clock.start(timestamp)
