@@ -1,15 +1,17 @@
 import { onlineManager, QueryClient } from "@tanstack/react-query";
-import { v4 as uuid4 } from 'uuid';
+import { v4 as uuid4 } from "uuid";
 
-type Response<T = unknown> = {
-  transactionId: string;
-  result: "ok";
-  data: T
-} | {
-  transactionId: string;
-  result: "error";
-  data: { title: string; details: string; }
-};
+type Response<T = unknown> =
+  | {
+      transactionId: string;
+      result: "ok";
+      data: T;
+    }
+  | {
+      transactionId: string;
+      result: "error";
+      data: { title: string; details: string };
+    };
 
 type Message = {
   type: string;
@@ -20,12 +22,12 @@ type Message = {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnReconnect: true
-    }
-  }
+      refetchOnReconnect: true,
+    },
+  },
 });
 
-const socket: WebSocket = new WebSocket('ws://' + window.location.host + '/ws');
+const socket: WebSocket = new WebSocket("ws://" + window.location.host + "/ws");
 const transactions: Map<string, (ack: Response<unknown>) => void> = new Map();
 
 socket.onopen = () => {
@@ -35,7 +37,7 @@ socket.onopen = () => {
 socket.onclose = () => {
   onlineManager.setOnline(false);
   transactions.clear();
-}
+};
 
 socket.onmessage = (event: MessageEvent<string>) => {
   const message: Response<unknown> | Message[] = JSON.parse(event.data);
@@ -48,14 +50,21 @@ socket.onmessage = (event: MessageEvent<string>) => {
     return;
   } else {
     for (const notification of message) {
-      queryClient.setQueryData([notification.type, ...notification.id],
-        notification.data);
+      const queryKey =
+        notification.id != null && 
+        notification.id.constructor == Array
+          ? [notification.type, ...notification.id]
+          : [notification.type, notification.id];
+      queryClient.setQueryData(queryKey, notification.data);
     }
   }
-}
+};
 
-export default async function dispatch<T = unknown>(module: string,
-  method: string, args: object = {}) {
+export default async function dispatch<T = unknown>(
+  module: string,
+  method: string,
+  args: object = {}
+) {
   const response: Response<unknown> = await new Promise((resolve) => {
     const payload = { module, method, args, transactionId: uuid4() };
     transactions.set(payload.transactionId, resolve);
