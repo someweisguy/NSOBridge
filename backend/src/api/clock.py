@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
-from typing import Any
-from derby.series import Series
 from derby.clock import Clock
+from derby.series import Series
 from server import controller
 
 
