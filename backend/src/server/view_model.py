@@ -27,6 +27,8 @@ logging.basicConfig(
 
 
 class Queryable[T: Hashable](ABC):
+    _name: str | None = None
+
     def __init__(self, id: T) -> None:
         self._id: T = id
         self._listeners: WeakSet[Queryable] = WeakSet()
@@ -38,7 +40,8 @@ class Queryable[T: Hashable](ABC):
 
     @property
     def name(self) -> str:
-        return type(self).__name__.lower()
+        return (self._name.lower() if self._name is not None
+                else type(self).__name__.lower())
 
     def watch(self, notifier: Queryable | Iterable[Queryable]) -> None:
         if isinstance(notifier, Iterable):
