@@ -1,4 +1,5 @@
 from server import Queryable
+from typing import Any
 
 
 class TeamAttribute[T]:
@@ -18,6 +19,9 @@ class TeamAttribute[T]:
     
     def __getitem__(self, item: str) -> T:
         return getattr(self, item)
+    
+    def __setitem__(self, item: str, value: T) -> None:
+        return setattr(self, item, value)
 
 
 class TeamOfficialAttribute[T: Queryable](TeamAttribute[T]):
