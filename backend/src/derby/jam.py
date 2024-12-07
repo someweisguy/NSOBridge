@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime
 from derby.attributes import TeamAttribute
 from derby.score import Score
@@ -16,7 +15,8 @@ class Jam(Queryable[tuple[int, int]]):
         self._stop_reason: str | None = None
 
         # Initialize the Scores
-        starting_scores = (Score(bout_id, id, 'home', self), Score(bout_id, id, 'away', self))
+        starting_scores = (Score(bout_id, id, 'home', self),
+                           Score(bout_id, id, 'away', self))
         self._score: TeamAttribute = TeamAttribute(*starting_scores)
         self.watch(starting_scores)
 
