@@ -5,12 +5,11 @@ from server.view_model import Queryable
 
 
 class Clock(Queryable[tuple[UUID, str]]):
-    __slots__ = '_start', '_stop', '_elapsed', '_alarm'
+    __slots__ = '_start', '_elapsed', '_alarm'
 
     def __init__(self, bout_id: UUID, id: str) -> None:
         super().__init__((bout_id, id))
         self._start: datetime | None = None
-        self._stop: datetime | None = None
         self._elapsed: timedelta = timedelta(milliseconds=0)
         self._alarm: timedelta | None = None
 
@@ -51,14 +50,17 @@ class Clock(Queryable[tuple[UUID, str]]):
             self.notify()
 
     def get_elapsed(self, timestamp: datetime | None = None) -> timedelta:
-        if self._start is not None and self._stop is not None:
-            return self._stop - self._stop + self._elapsed
-        elif self._start is not None:
-            if timestamp is None:
-                timestamp = datetime.now()
-            return timestamp - self._start + self._elapsed
-        else:
-            return self._elapsed
+        if timestamp is None:
+            timestamp = datetime.now()
+
+        elapsed: timedelta = self._elapsed
+        if self._start is not None:
+            if self._start > timestamp:
+                raise ValueError(
+                    'The timestamp must be after the Clock start time.')
+            elapsed += timestamp - self._start
+
+        return elapsed
 
     def set_elapsed(self, hours: float = 0, minutes: float = 0,
                     seconds: float = 0, milliseconds: float = 0) -> None:
@@ -75,19 +77,28 @@ class Clock(Queryable[tuple[UUID, str]]):
                 if self._alarm is not None else None)
 
     def start(self, timestamp: datetime) -> None:
-        if self._start is not None:
-            raise RuntimeError('This Timer is already running')
+        if self.is_running():
+            _, id = self.id
+            raise RuntimeError(f'The \'{id}\' Clock is already running')
         self._start = timestamp
         self.notify()
 
-    def pause(self, timestamp: datetime) -> None:
-        if self._stop is not None:
-            raise RuntimeError('This Timer is already paused')
-        self._stop = timestamp
+    def stop(self, timestamp: datetime) -> None:
+        if self._start is None:
+            _, id = self.id
+            raise RuntimeError(f'This \'{id}\' Clock is already stopped')
+        if self._start > timestamp:
+            raise ValueError(
+                'The timestamp must be after the Clock start time.')
+        self._elapsed += timestamp - self._start
+        self._start = None
         self.notify()
 
     def reset(self) -> None:
-        ...
+        self._stop = None
+        self._start = None if not self.is_running() else datetime.now()
+        self._elapsed = timedelta(seconds=0)
+        self.notify()
 
     def is_running(self) -> bool:
-        return self._start is not None and self._stop is None
+        return self._start is not None
