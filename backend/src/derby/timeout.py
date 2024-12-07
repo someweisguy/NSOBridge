@@ -132,15 +132,3 @@ class Timeout(Queryable[tuple[UUID, int]]):
 
     def is_running(self) -> bool:
         return self._duration is None
-
-
-class OfficialReview(Timeout):
-    __slots__ = ('_period_clock_remaining', '_is_retained', '_detail',
-                 '_result')
-
-    def __init__(self, bout_id: UUID, id: int) -> None:
-        super().__init__(bout_id, id)
-        self._period_clock_remaining: timedelta | None = None
-        self._is_retained: bool = False
-        self._detail: str = ''
-        self._result: str = ''
