@@ -94,11 +94,10 @@ class Bout(Queryable[UUID]):
     def start_jam(self, timestamp: datetime) -> None:
         jam: Jam = self._jams[self.get_current_period_index()][-1]
 
-        clocks: tuple[Clock, ...] = (
-            self._intermission_clock, self._lineup_clock, self._timeout_clock)
-        for clock in clocks:
+        for clock in (self._intermission_clock, self._lineup_clock,
+                      self._timeout_clock):
             if clock.is_running():
-                clock.pause(timestamp)
+                clock.stop(timestamp)
 
         jam.set_start(timestamp)
         self._jam_clock.start(timestamp)
@@ -120,7 +119,7 @@ class Bout(Queryable[UUID]):
             reason = 'unknown'
 
         jam.set_stop(timestamp, reason)
-        self._jam_clock.pause(timestamp)
+        self._jam_clock.stop(timestamp)
         self._lineup_clock.reset()
         self._lineup_clock.start(timestamp)
         self.push_jam(current_period_index)
