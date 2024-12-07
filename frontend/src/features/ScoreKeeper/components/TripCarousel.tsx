@@ -26,9 +26,16 @@ export default function TripCarousel({
   useEffect(() => {
     const carousel = carouselRef.current;
     if (carousel) {
-      carousel.children[selectedTrip].scrollIntoView({ inline: "center" });
+      let currentSelectedTrip: number = selectedTrip;
+      if (selectedTrip >= carousel.children.length) {
+        currentSelectedTrip = carousel.children.length - 1;
+        setSelectedTrip(currentSelectedTrip);
+      }
+      carousel.children[currentSelectedTrip].scrollIntoView({
+        inline: "center",
+      });
     }
-  }, [selectedTrip, teamScore.trips.length]);
+  }, [selectedTrip, setSelectedTrip, teamScore.trips.length]);
 
   const removeTrip = useCallback(
     (tripIndex: number) => {
