@@ -10,7 +10,7 @@ type Response<T = unknown> =
   | {
       transactionId: string;
       result: "error";
-      data: { title: string; details: string };
+      data: { title: string; detail: string };
     };
 
 type Message = {
@@ -72,7 +72,9 @@ export default async function dispatch<T = unknown>(
   transactions.delete(response.transactionId);
 
   if (response.result == "error") {
-    throw new Error(response.data.title + ": " + response.data.details);
+    throw new Error(
+      "Server " + response.data.title + ": " + response.data.detail
+    );
   }
 
   return response.data as T;
