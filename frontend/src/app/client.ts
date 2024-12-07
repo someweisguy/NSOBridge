@@ -51,8 +51,7 @@ socket.onmessage = (event: MessageEvent<string>) => {
   } else {
     for (const notification of message) {
       const queryKey =
-        notification.id != null && 
-        notification.id.constructor == Array
+        notification.id != null && notification.id.constructor == Array
           ? [notification.type, ...notification.id]
           : [notification.type, notification.id];
       queryClient.setQueryData(queryKey, notification.data);
