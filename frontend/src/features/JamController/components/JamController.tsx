@@ -1,8 +1,4 @@
-import {
-  PropsWithChildren,
-  ReactElement,
-  useContext,
-} from "react";
+import { PropsWithChildren, ReactElement, useContext } from "react";
 import TraverseJamButton from "./TraverseJamButton";
 import CurrentJam from "./CurrentJam";
 import useJamNavigation from "../hooks/useJamNavigation";
@@ -38,7 +34,7 @@ export default function JamController({
     <div className="flex flex-col">
       <div className="flex flex-row items-center">
         <div className="basis-1/2">
-          {jamHasStarted ? (jamHasFinished ? <></> : <StopJam />) : <StartJam />}
+          {jamHasStarted ? jamHasFinished ? <></> : <StopJam /> : <StartJam />}
         </div>
 
         <div className="basis-1/2 place-items-end">
