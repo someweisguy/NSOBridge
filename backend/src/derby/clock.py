@@ -10,7 +10,7 @@ class Clock(Queryable[tuple[UUID, str]]):
     def __init__(self, bout_id: UUID, id: str) -> None:
         super().__init__((bout_id, id))
         self._start: datetime | None = None
-        self._elapsed: timedelta = timedelta(milliseconds=0)
+        self._elapsed: timedelta = timedelta(seconds=0)
         self._alarm: timedelta | None = None
 
     def notify(self, renotify: datetime | None = None) -> None:
@@ -96,7 +96,7 @@ class Clock(Queryable[tuple[UUID, str]]):
 
     def reset(self) -> None:
         self._stop = None
-        self._start = None if not self.is_running() else datetime.now()
+        self._start = None
         self._elapsed = timedelta(seconds=0)
         self.notify()
 

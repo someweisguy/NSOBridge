@@ -100,6 +100,7 @@ class Bout(Queryable[UUID]):
                 clock.stop(timestamp)
 
         jam.set_start(timestamp)
+        self._jam_clock.reset()
         self._jam_clock.start(timestamp)
         self.notify()
 
