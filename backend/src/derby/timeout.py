@@ -1,17 +1,24 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any, Literal
 from server.view_model import Queryable
 from uuid import UUID
 
 
 class Timeout(Queryable[tuple[UUID, int]]):
-    __slots__ = '_caller', '_jam_id', '_duration'
+    __slots__ = ('_caller', '_jam_id', '_duration', '_is_official_review',
+                 '_period_clock_remaining', '_is_retained', '_detail',
+                 '_result')
 
     def __init__(self, bout_id: UUID, id: int) -> None:
         super().__init__((bout_id, id))
         self._caller: Literal['home', 'away', 'official'] = 'official'
         self._jam_id: tuple[int, int] | None = None
         self._duration: timedelta | None = None
+        self._is_official_review: bool = False
+        self._period_clock_remaining: timedelta | None = None
+        self._is_retained: bool = False
+        self._detail: str = ''
+        self._result: str = ''
 
     @property
     def caller(self) -> Literal['home', 'away', 'official']:
@@ -52,29 +59,16 @@ class Timeout(Queryable[tuple[UUID, int]]):
         if notify:
             self.notify()
 
-    def get(self) -> dict[str | float | int, Any]:
-        duration: int | None = (round(self._duration.total_seconds() * 1000)
-                                if self._duration is not None else None)
-        return {
-            'caller': self._caller,
-            'jamId': self._jam_id,
-            'duration': duration
-        }
+    @property
+    def is_official_review(self) -> bool:
+        return self._is_official_review
 
-    def is_running(self) -> bool:
-        return self._duration is None
-
-
-class OfficialReview(Timeout):
-    __slots__ = ('_period_clock_remaining', '_is_retained', '_detail',
-                 '_result')
-
-    def __init__(self, bout_id: UUID, id: int) -> None:
-        super().__init__(bout_id, id)
-        self._period_clock_remaining: timedelta | None = None
-        self._is_retained: bool = False
-        self._detail: str = ''
-        self._result: str = ''
+    @is_official_review.setter
+    def is_official_review(self, value: bool) -> None:
+        notify: bool = self._is_official_review != value
+        self._is_official_review = value
+        if notify:
+            self.notify()
 
     @property
     def period_clock(self) -> timedelta | None:
@@ -121,12 +115,32 @@ class OfficialReview(Timeout):
             self.notify()
 
     def get(self) -> dict[str | float | int, Any]:
+        duration: int | None = (round(self._duration.total_seconds() * 1000)
+                                if self._duration is not None else None)
         period_clock: int | None = (round(self._period_clock_remaining.total_seconds() * 1000)
                                     if self._period_clock_remaining is not None else None)
         return {
-            **super().get(),
+            'caller': self._caller,
+            'jamId': self._jam_id,
+            'duration': duration,
+            'isOfficialReview': self._is_official_review,
             'periodClock': period_clock,
             'isRetained': self._is_retained,
             'detail': self._detail,
             'result': self._result
         }
+
+    def is_running(self) -> bool:
+        return self._duration is None
+
+
+class OfficialReview(Timeout):
+    __slots__ = ('_period_clock_remaining', '_is_retained', '_detail',
+                 '_result')
+
+    def __init__(self, bout_id: UUID, id: int) -> None:
+        super().__init__(bout_id, id)
+        self._period_clock_remaining: timedelta | None = None
+        self._is_retained: bool = False
+        self._detail: str = ''
+        self._result: str = ''
