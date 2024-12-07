@@ -27,11 +27,8 @@ class Bout(Queryable[UUID]):
         self._jam_clock.set_alarm(minutes=2)
 
         # Subscribe to each clock
-        clocks: tuple[Clock, ...] = (self._period_clock,
-                                     self._intermission_clock,
-                                     self._lineup_clock, self._jam_clock,
-                                     self._timeout_clock)
-        for clock in clocks:
+        for clock in (self._period_clock, self._intermission_clock,
+                      self._lineup_clock, self._jam_clock, self._timeout_clock):
             self.watch(clock)
 
         # Instantiate Timeouts and Official Reviews
