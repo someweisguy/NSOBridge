@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { useConnection, useGetter } from "../app/client";
 import { ClockType } from "../types/ClockType";
+import { useSocketState } from "../app/hooks/useConnection";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import dispatch from "../app/client";
+
 
 
 export default function useClock(boutId: string, type: string,
   stopAtZero: boolean = true, refreshMillis: number = 1000 / 24): ClockType {
-  const { latency } = useConnection();
-  const clock: ClockType = useGetter<ClockType>("clock",
-    { boutId, type }, { latency }
-  );
+  const { latency } = useSocketState();
+  const { data: clock } = useSuspenseQuery<ClockType>({
+    queryKey: ["clock", boutId, type],
+    queryFn: () => dispatch("clock", "get", { boutId, type, latency })
+  });
   const [elapsed, setElapsed] = useState(clock.elapsed);
   const latencyRef = useRef(latency);  // Prevent useEffect from firing again
 

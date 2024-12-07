@@ -1,15 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
-import useBout from "../../../hooks/useBout";
 import { JamNavigationType } from "../types/JamNavigationType";
 import { JamIdType } from "../../../types/JamIdType";
 import { BoutType } from "../../../types/BoutType";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import dispatch from "../../../app/client";
 
 export default function useJamNavigation(boutId: string): JamNavigationType {
-  const bout: BoutType = useBout(boutId);
+
+  const { data: numJams } = useSuspenseQuery<BoutType, unknown, [number, number]>({
+    queryKey: ["bout", boutId],
+    queryFn: () => dispatch("bout", "get", { boutId }),
+    select: (data: BoutType) => data.numJams
+  });
 
   const [currentJamId, setCurrentJamId] = useState<JamIdType>(() => {
-    const periodIndex: number = Number(bout.numJams[1] > 0);
-    const jamIndex: number = bout.numJams[periodIndex] - 1;
+    const periodIndex: number = Number(numJams[1] > 0);
+    const jamIndex: number = numJams[periodIndex] - 1;
     return [periodIndex, jamIndex]
   });
 
@@ -18,35 +24,35 @@ export default function useJamNavigation(boutId: string): JamNavigationType {
 
   useEffect(() => {
     const [currentPeriodIndex, currentJamIndex] = currentJamId;
-    setNextJamExists(currentJamIndex + 1 < bout.numJams[currentPeriodIndex]
-      || (currentPeriodIndex == 0 && bout.numJams[1] > 0));
+    setNextJamExists(currentJamIndex + 1 < numJams[currentPeriodIndex]
+      || (currentPeriodIndex == 0 && numJams[1] > 0));
     setPreviousJamExists(currentJamIndex > 0 || currentPeriodIndex > 0);
-  }, [currentJamId, bout.numJams]);
+  }, [currentJamId, numJams]);
 
   const goToNextJam = useCallback(() => {
     const [currentPeriodIndex, currentJamIndex] = currentJamId;
-    if (currentJamIndex + 1 < bout.numJams[currentPeriodIndex]) {
+    if (currentJamIndex + 1 < numJams[currentPeriodIndex]) {
       setCurrentJamId([currentPeriodIndex, currentJamIndex + 1]);
-    } else if (currentPeriodIndex == 0 && bout.numJams[1] > 0) {
+    } else if (currentPeriodIndex == 0 && numJams[1] > 0) {
       setCurrentJamId([1, 0]);
     }
-  }, [currentJamId, bout.numJams]);
+  }, [currentJamId, numJams]);
 
   const goToPreviousJam = useCallback(() => {
     const [currentPeriodIndex, currentJamIndex] = currentJamId;
     if (currentJamIndex > 0) {
       setCurrentJamId([currentPeriodIndex, currentJamIndex - 1]);
     } else if (currentPeriodIndex > 0) {
-      setCurrentJamId([0, bout.numJams[0] - 1]);
+      setCurrentJamId([0, numJams[0] - 1]);
     }
-  }, [currentJamId, bout.numJams]);
+  }, [currentJamId, numJams]);
 
   const goToCustomJam = useCallback((periodIndex: number, jamIndex: number) => {
-    if (periodIndex > 1 || jamIndex >= bout.numJams[periodIndex]) {
+    if (periodIndex > 1 || jamIndex >= numJams[periodIndex]) {
       throw Error(`Jam [${periodIndex}, ${jamIndex}] does not exist`);
     }
     setCurrentJamId([periodIndex, jamIndex]);
-  }, [bout.numJams]);
+  }, [numJams]);
 
   return {
     currentJamId, nextJamExists, goToNextJam, previousJamExists,

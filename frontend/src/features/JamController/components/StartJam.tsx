@@ -1,14 +1,15 @@
 import { useCallback, useContext } from "react";
 import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
-import { sendQuery, useConnection } from "../../../app/client";
+import { useSocketState } from "../../../app/hooks/useConnection";
+import dispatch from "../../../app/client";
 
 export default function StartJam() {
   const boutId: BoutIdType = useContext(BoutIdContext);
-  const { latency } = useConnection();
+  const { latency } = useSocketState();
 
   const startJam = useCallback(() => {
-    sendQuery("bout", "startJam", { boutId, latency });
+    dispatch("bout", "startJam", { boutId, latency });
   }, [boutId, latency]);
 
   return (
