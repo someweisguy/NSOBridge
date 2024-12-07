@@ -1,15 +1,17 @@
 from datetime import datetime, timedelta
-from backend.src.derby.attributes import TeamAttribute, TeamOfficialAttribute
-from derby.jam import Jam
+from derby.attributes import TeamAttribute
 from derby.clock import Clock
-from typing import Any, Literal
+from derby.jam import Jam
+from derby.timeout import Timeout
 from server import Queryable
+from typing import Any, Literal
 from uuid import UUID
 
 
 class Bout(Queryable[UUID]):
     __slots__ = ('_period_clock', '_intermission_clock', '_lineup_clock',
-                 '_jam_clock', '_timeout_clock', '_jams')
+                 '_jam_clock', '_timeout_clock', '_jams', '_timeouts_remaining',
+                 '_official_reviews_remaining', '_timeouts')
 
     def __init__(self, id: UUID) -> None:
         super().__init__(id)
@@ -31,9 +33,12 @@ class Bout(Queryable[UUID]):
                                      self._timeout_clock)
         for clock in clocks:
             self.watch(clock)
-            
+
         # Instantiate Timeouts and Official Reviews
-        self._timeouts_remaining: TeamAttribute = TeamAttribute(3, 3)
+        self._timeouts_remaining: TeamAttribute[int] = TeamAttribute(3, 3)
+        self._official_reviews_remaining: TeamAttribute[int] = TeamAttribute(
+            1, 1)
+        self._timeouts: list[Timeout] = []
 
         # Instantiate periods
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
@@ -44,6 +49,15 @@ class Bout(Queryable[UUID]):
             'gameNumber': None,  # TODO
             'gameState': self.get_game_state(),
             'numJams': [len(period) for period in self._jams],
+            'numTimeouts': len(self._timeouts),
+            'timeoutsRemaining': {
+                'home': self._timeouts_remaining.home,
+                'away': self._timeouts_remaining.away
+            },
+            'officialReviewsRemaining': {
+                'home': self._official_reviews_remaining.home,
+                'away': self._official_reviews_remaining.away
+            },
             'score': {
                 'home': self.get_total_score('home'),
                 'away': self.get_total_score('away')
@@ -138,3 +152,108 @@ class Bout(Queryable[UUID]):
             case 'intermission': return self._intermission_clock
             case 'timeout': return self._timeout_clock
             case _: raise ValueError(f'Timer \'{type}\' does not exist')
+
+    def call_timeout(self, timestamp: datetime | None = None) -> None:
+        if len(self._timeouts) and self._timeouts[-1].is_running():
+            raise RuntimeError('A Timeout is already running')
+        if timestamp is None:
+            timestamp = datetime.now()
+
+        # Assume the timeout is not an official review by default
+        new_timeout: Timeout = Timeout(self.id, len(self._timeouts))
+        self.watch(new_timeout)
+
+        # Set the period clock at which this timeout was called
+        period_clock: timedelta | None = self._period_clock.get_remaining(
+            timestamp)
+        if period_clock is not None:
+            new_timeout.period_clock = period_clock
+
+        # Set the Jam number at which this timeout was called
+        current_period_index: int = self.get_current_period_index()
+        new_timeout.jam_id = (current_period_index,
+                              len(self._jams[current_period_index]))
+        # FIXME: get the current ACTIVE jam number
+
+        self._timeouts.append(new_timeout)
+        if self._period_clock.is_running():
+            self._period_clock.stop(timestamp)
+        self._timeout_clock.start(timestamp)
+        self.notify()
+
+    def set_timeout_caller(self, caller: Literal['home', 'away', 'official']) -> None:
+        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+            raise RuntimeError('There is no active Timeout running')
+        if caller not in ('home', 'away', 'official'):
+            raise ValueError('Caller is invalid')
+
+        timeout: Timeout = self._timeouts[-1]
+
+        if timeout.caller == caller:
+            return
+
+        team_attribute: TeamAttribute[int] = (self._official_reviews_remaining
+                                              if timeout.is_official_review
+                                              else self._timeouts_remaining)
+        if timeout.caller != 'official':
+            team_attribute[timeout.caller] += 1
+        if caller != 'official':
+            team_attribute[caller] -= 1
+
+        self._timeouts[-1].caller = caller
+        self.notify()
+
+    def set_official_review(self, is_official_review: bool) -> None:
+        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+            raise RuntimeError('There is no active Timeout running')
+        timeout: Timeout = self._timeouts[-1]
+        if timeout.caller == 'official':
+            raise RuntimeError('Officials cannot call an Official Review')
+
+        notify: bool = timeout.is_official_review != is_official_review
+        self._timeouts[-1].is_official_review = is_official_review
+        if notify:
+            self.notify()
+
+    def set_official_review_is_retained(self, is_retained: bool) -> None:
+        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+            raise RuntimeError('There is no active Timeout running')
+        timeout: Timeout = self._timeouts[-1]
+        notify: bool = timeout.is_retained != is_retained
+        timeout.is_retained = is_retained
+        if notify:
+            self.notify()
+
+    def set_official_review_detail(self, detail: str) -> None:
+        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+            raise RuntimeError('There is no active Timeout running')
+        timeout: Timeout = self._timeouts[-1]
+        notify: bool = timeout.detail != detail
+        timeout.detail = detail
+        if notify:
+            self.notify()
+
+    def set_official_review_result(self, result: str) -> None:
+        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+            raise RuntimeError('There is no active Timeout running')
+        timeout: Timeout = self._timeouts[-1]
+        notify: bool = timeout.result != result
+        timeout.result = result
+        if notify:
+            self.notify()
+
+    def end_timeout(self, timestamp: datetime | None = None) -> None:
+        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+            raise RuntimeError('There is no active Timeout running')
+        if timestamp is None:
+            timestamp = datetime.now()
+
+        timeout: Timeout = self._timeouts[-1]
+
+        # Replenish the Official Review if it was retained
+        if timeout.is_official_review and timeout.is_retained:
+            self._official_reviews_remaining[timeout.caller] += 1
+
+        elapsed: timedelta = self._period_clock.get_elapsed(timestamp)
+        timeout.duration = elapsed
+        self.notify()
