@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from backend.src.derby.attributes import TeamAttribute, TeamOfficialAttribute
 from derby.jam import Jam
 from derby.clock import Clock
 from typing import Any, Literal
@@ -30,6 +31,9 @@ class Bout(Queryable[UUID]):
                                      self._timeout_clock)
         for clock in clocks:
             self.watch(clock)
+            
+        # Instantiate Timeouts and Official Reviews
+        self._timeouts_remaining: TeamAttribute = TeamAttribute(3, 3)
 
         # Instantiate periods
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])

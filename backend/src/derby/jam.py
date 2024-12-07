@@ -16,7 +16,7 @@ class Jam(Queryable[tuple[UUID, tuple[int, int]]]):
         self._stop_reason: str | None = None
 
         # Initialize the Scores
-        starting_scores = (Score(bout_id, id, self), Score(bout_id, id, self))
+        starting_scores = (Score(bout_id, id, 'home', self), Score(bout_id, id, 'away', self))
         self._score: TeamAttribute = TeamAttribute(*starting_scores)
         self.watch(starting_scores)
 

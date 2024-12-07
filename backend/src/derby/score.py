@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from server import Queryable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -15,8 +15,9 @@ class Score(Queryable):
         points: int
         timestamp: datetime
 
-    def __init__(self, bout_id: UUID, id: tuple, parent: Jam) -> None:
-        super().__init__((bout_id, id))
+    def __init__(self, bout_id: UUID, id: tuple, team: Literal['home', 'away'],
+                 parent: Jam) -> None:
+        super().__init__((bout_id, id, team))
         self._lead: bool = False
         self._lost: bool = False
         self._star_pass: int | None = None
