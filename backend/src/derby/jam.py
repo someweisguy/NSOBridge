@@ -34,14 +34,14 @@ class Jam(Queryable[tuple[UUID, tuple[int, int]]]):
             'stop': str(self._stop_timestamp) if self._stop_timestamp is not None else None,
             'stop_reason': self._stop_reason
         }
-    
-    def start(self, timestamp: datetime) -> None:
+
+    def set_start(self, timestamp: datetime) -> None:
         if self._start_timestamp is not None:
             raise RuntimeError('This Jam has already started')
         self._start_timestamp = timestamp
         self.notify()
-        
-    def stop(self, timestamp: datetime, reason: str) -> None:
+
+    def set_stop(self, timestamp: datetime, reason: str) -> None:
         if self._stop_timestamp is not None:
             raise RuntimeError('This Jam has already ended')
         self._stop_timestamp = timestamp

@@ -100,7 +100,7 @@ class Bout(Queryable[UUID]):
             if clock.is_running():
                 clock.pause(timestamp)
 
-        jam.start(timestamp)
+        jam.set_start(timestamp)
         self._jam_clock.start(timestamp)
         self.notify()
 
@@ -119,7 +119,7 @@ class Bout(Queryable[UUID]):
         else:
             reason = 'unknown'
 
-        jam.stop(timestamp, reason)
+        jam.set_stop(timestamp, reason)
         self._jam_clock.pause(timestamp)
         self._lineup_clock.reset()
         self._lineup_clock.start(timestamp)
