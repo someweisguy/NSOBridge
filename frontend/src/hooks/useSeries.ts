@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
-import { useGetter } from "../app/client";
+import dispatch from "../app/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export function useSeries(): Map<string, object> {
-  const series: object = useGetter("series");
-  const [seriesMap, setSeriesMap] = useState<Map<string, object>>(
-    new Map(Object.entries(series))
-  );
+  const { data } = useSuspenseQuery<Map<string, object>>({
+    queryKey: ["series"],
+    queryFn: () => dispatch("series", "get"),
+    select: (data: object) => new Map(Object.entries(data)),
+  });
 
-  useEffect(() => setSeriesMap(new Map(Object.entries(series))), [series]);
-
-  return seriesMap
+  return data
 }
