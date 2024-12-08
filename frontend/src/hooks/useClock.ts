@@ -29,11 +29,12 @@ export default function useClock(
     const intervalId = setInterval(() => {
       const stopTime: number = performance.now();
       const additionalElapsed: number = Math.round(stopTime - startTime);
-      setElapsed((elapsed) => elapsed + additionalElapsed);
-      startTime = stopTime;
-
       if (stopAtZero && clock.alarm != null && clock.elapsed >= clock.alarm) {
         clearInterval(intervalId);
+        setElapsed(clock.alarm);
+      } else {
+        setElapsed((elapsed) => elapsed + additionalElapsed);
+        startTime = stopTime;
       }
     }, refreshMillis);
     return () => clearInterval(intervalId);
