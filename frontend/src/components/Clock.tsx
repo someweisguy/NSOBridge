@@ -19,7 +19,9 @@ export default function Clock({ type }: { type: string }): ReactElement {
   const hourString: string = duration.hours.toString();
   const minuteString: string = duration.minutes.toString().padStart(2, "0");
   const secondString: string = duration.seconds.toString().padStart(2, "0");
-  const millisString: string = Math.floor(duration.milliseconds / 100).toString();  // FIXME
+  const millisString: string = Math.floor(
+    duration.milliseconds / 100
+  ).toString();
 
   return (
     <>
