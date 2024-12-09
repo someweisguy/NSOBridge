@@ -107,6 +107,8 @@ class Bout(Queryable[UUID]):
         return popped_jam
 
     def start_jam(self, timestamp: datetime) -> None:
+        if self.get_game_state() == 'jam':
+            raise RuntimeError('A Jam is already running')
         jam: Jam = self._jams[self.get_current_period_index()][-1]
 
         for clock in (self._intermission_clock, self._lineup_clock,
@@ -120,6 +122,8 @@ class Bout(Queryable[UUID]):
         self.notify()
 
     def stop_jam(self, timestamp: datetime) -> None:
+        if self.get_game_state() != 'jam':
+            raise RuntimeError('There is no Jam running')
         current_period_index: int = self.get_current_period_index()
         jam: Jam = self._jams[current_period_index][-1]
 
@@ -153,6 +157,8 @@ class Bout(Queryable[UUID]):
     def call_timeout(self, timestamp: datetime | None = None) -> None:
         if len(self._timeouts) and self._timeouts[-1].is_running():
             raise RuntimeError('A Timeout is already running')
+        if self.get_game_state() != 'lineup':
+            raise RuntimeError('A Timeout cannot be called right now')
         if timestamp is None:
             timestamp = datetime.now()
 
