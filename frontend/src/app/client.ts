@@ -15,7 +15,7 @@ type Response<T = unknown> =
 
 type Message = {
   type: string;
-  id: [unknown];
+  id: unknown[];
   data: unknown;
 };
 
