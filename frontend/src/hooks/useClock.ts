@@ -21,7 +21,7 @@ export default function useClock(
 
   useEffect(() => {
     if (!clock.isRunning) {
-      setElapsed(0);
+      setElapsed(clock.elapsed);
       return;
     }
 
