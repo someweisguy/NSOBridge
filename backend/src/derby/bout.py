@@ -73,8 +73,7 @@ class Bout(Queryable[UUID]):
         elif self._lineup_clock.is_running():
             return 'lineup'
         elif self._timeout_clock.is_running():
-            return ('officialReview' if self._timeouts[-1].is_official_review
-                    else 'timeout')
+            return 'timeout'
         else:
             return 'stopped'
 
