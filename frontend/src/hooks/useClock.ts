@@ -20,8 +20,8 @@ export default function useClock(
   const latencyRef = useRef(latency); // Prevent useEffect from firing again
 
   useEffect(() => {
+    setElapsed(clock.elapsed);
     if (!clock.isRunning) {
-      setElapsed(clock.elapsed);
       return;
     }
 
