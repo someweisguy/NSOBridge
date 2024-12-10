@@ -108,12 +108,17 @@ class Bout(Queryable[UUID]):
     def start_jam(self, timestamp: datetime) -> None:
         if self.get_game_state() == 'jam':
             raise RuntimeError('A Jam is already running')
+        elif self.timeout_is_running():
+            raise RuntimeError('A Jam cannot start when a Timeout is ongoing')
         jam: Jam = self._jams[self.get_current_period_index()][-1]
 
         for clock in (self._intermission_clock, self._lineup_clock,
                       self._timeout_clock):
             if clock.is_running():
                 clock.stop(timestamp)
+        
+        if not self._period_clock.is_running():
+            self._period_clock.start(timestamp)
 
         jam.set_start(timestamp)
         self._jam_clock.reset()
@@ -152,9 +157,12 @@ class Bout(Queryable[UUID]):
             case 'intermission': return self._intermission_clock
             case 'timeout': return self._timeout_clock
             case _: raise ValueError(f'Timer \'{type}\' does not exist')
+            
+    def timeout_is_running(self) -> bool:
+        return len(self._timeouts) > 0 and self._timeouts[-1].is_running()
 
     def call_timeout(self, timestamp: datetime | None = None) -> None:
-        if len(self._timeouts) and self._timeouts[-1].is_running():
+        if self.timeout_is_running():
             raise RuntimeError('A Timeout is already running')
         if self.get_game_state() != 'lineup':
             raise RuntimeError('A Timeout cannot be called right now')
@@ -184,7 +192,7 @@ class Bout(Queryable[UUID]):
         self.notify()
 
     def set_timeout_caller(self, caller: Literal['home', 'away', 'official']) -> None:
-        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+        if not self.timeout_is_running():
             raise RuntimeError('There is no active Timeout running')
         if caller not in ('home', 'away', 'official'):
             raise ValueError('Caller is invalid')
@@ -206,7 +214,7 @@ class Bout(Queryable[UUID]):
         self.notify()
 
     def set_official_review(self, is_official_review: bool) -> None:
-        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+        if not self.timeout_is_running():
             raise RuntimeError('There is no active Timeout running')
         timeout: Timeout = self._timeouts[-1]
         if timeout.caller == 'official':
@@ -218,7 +226,7 @@ class Bout(Queryable[UUID]):
             self.notify()
 
     def set_official_review_is_retained(self, is_retained: bool) -> None:
-        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+        if not self.timeout_is_running():
             raise RuntimeError('There is no active Timeout running')
         timeout: Timeout = self._timeouts[-1]
         notify: bool = timeout.is_retained != is_retained
@@ -227,7 +235,7 @@ class Bout(Queryable[UUID]):
             self.notify()
 
     def set_official_review_detail(self, detail: str) -> None:
-        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+        if not self.timeout_is_running():
             raise RuntimeError('There is no active Timeout running')
         timeout: Timeout = self._timeouts[-1]
         notify: bool = timeout.detail != detail
@@ -236,7 +244,7 @@ class Bout(Queryable[UUID]):
             self.notify()
 
     def set_official_review_result(self, result: str) -> None:
-        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+        if not self.timeout_is_running():
             raise RuntimeError('There is no active Timeout running')
         timeout: Timeout = self._timeouts[-1]
         notify: bool = timeout.result != result
@@ -245,7 +253,7 @@ class Bout(Queryable[UUID]):
             self.notify()
 
     def end_timeout(self, timestamp: datetime | None = None) -> None:
-        if len(self._timeouts) == 0 or not self._timeouts[-1].is_running():
+        if not self.timeout_is_running():
             raise RuntimeError('There is no active Timeout running')
         if timestamp is None:
             timestamp = datetime.now()
