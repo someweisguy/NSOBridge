@@ -29,7 +29,7 @@ export default function Button({
   onClick?: () => void;
   isSelected?: boolean;
   disabled?: boolean;
-  color?: "red" | "blue" | "orange" | "green" | "none";
+  color?: "red" | "green" | "blue" | "orange" | "none";
 }>): ReactElement {
   const disabledContext: boolean = useContext(ButtonDisabledContext);
 
