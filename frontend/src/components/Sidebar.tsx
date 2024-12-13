@@ -33,7 +33,7 @@ export default function Sidebar({
 
   return (
     <div className="flex flex-row min-h-screen min-w-screen">
-      <div className="relative flex-initial min-h-full border-0 min-w-32 bg-raisin-100 border-e-1 border-raisin-300">
+      <div className="relative flex-initial min-h-full min-w-32 bg-raisin-50 border-e border-raisin-200">
         <div className="sticky top-0 left-0 flex flex-col items-start gap-2 p-4">
           <div className="text-2xl font-bold">NSO Bridge</div>
           <div>Sidebar 2</div>
@@ -42,7 +42,7 @@ export default function Sidebar({
           <div>Sidebar 5</div>
         </div>
       </div>
-      <div className="flex-1 p-4 h-fit bg-raisin-50">
+      <div className="flex-1 min-h-screen p-4 bg-white h-fit">
         <Suspense fallback={spinner}>
           <BoutIdContext.Provider value={boutId}>
             {children}
