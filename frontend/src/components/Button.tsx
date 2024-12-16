@@ -25,14 +25,14 @@ const colors = {
     "bg-orange-300 border-orange-600 text-orange-950 hover:bg-orange-400 aria-selected:bg-orange-500 aria-selected:text-orange-50 disabled:bg-orange-100 disabled:text-orange-400",
   green:
     "bg-green-300 border-green-600 text-green-950 hover:bg-green-400 aria-selected:bg-green-500 aria-selected:text-green-50 disabled:bg-green-100 disabled:text-green-400",
-  none: "bg-raisin-50 border-raisin-500 text-raisin-950 hover:bg-raisin-200 aria-selected:bg-raisin-300 aria-selected:text-raisin-50 disabled:border-raisin-300 disabled:text-raisin-300 disabled:hover:bg-raisin-100",
+  none: "bg-raisin-50 border-raisin-500 text-raisin-950 hover:bg-raisin-200 aria-selected:bg-raisin-300 aria-selected:text-raisin-50 disabled:border-raisin-300 disabled:text-raisin-300 disabled:hover:bg-raisin-50",
 };
 
 export default function Button({
-  color = "none",
   onClick,
   isSelected = false,
   disabled,
+  color = "none",
   children,
 }: PropsWithChildren<{
   onClick?: () => void;
