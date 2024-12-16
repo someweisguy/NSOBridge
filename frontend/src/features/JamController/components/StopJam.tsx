@@ -3,6 +3,8 @@ import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import dispatch from "../../../app/client";
 import { useSocketState } from "../../../app/hooks/useConnection";
+import Button from "../../../components/Button";
+import Clock from "../../../components/Clock";
 
 export default function StopJam() {
   const boutId: BoutIdType = useContext(BoutIdContext);
@@ -13,11 +15,8 @@ export default function StopJam() {
   }, [boutId, latency]);
 
   return (
-    <button
-      onClick={stopJam}
-      className="px-4 py-2 m-4 text-2xl font-semibold rounded-lg resize-none bg-rose-400 ring-1 ring-rose-500"
-    >
-      Stop Jam
-    </button>
+    <Button onClick={stopJam} color="red">
+      <Clock type="jam" />
+    </Button>
   );
 }
