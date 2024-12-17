@@ -1,11 +1,12 @@
 import ScoreKeeper from "../../features/ScoreKeeper/components/ScoreKeeper";
 import JamPaginator from "../../features/JamPaginator/components/JamPaginator";
 import Container from "../../components/Container";
+import JamController from "../../features/JamController/components/JamController";
 
 export default function ScoreboardOperator() {
   return (
     <>
-      <JamPaginator>
+      <JamPaginator left={<JamController />}>
         {/* <Clock type="lineup" />
           &nbsp;
           <Clock type="period" />
