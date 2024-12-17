@@ -40,8 +40,8 @@ export default function JamController(): ReactElement {
   } else {
     return (
     <ComboButton>
-      <Button>Time</Button>
       <Button>Call</Button>
+      <Button>Time</Button>
       <Button>Injury</Button>
       <Button>Other</Button>
     </ComboButton>
