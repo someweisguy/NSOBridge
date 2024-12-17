@@ -39,12 +39,14 @@ export default function JamController(): ReactElement {
     );
   } else {
     return (
-    <ComboButton>
-      <Button>Call</Button>
-      <Button>Time</Button>
-      <Button>Injury</Button>
-      <Button>Other</Button>
-    </ComboButton>
-  );
+      <div className="max-w-20">
+        <ComboButton>
+          <Button isSelected={jam.stopReason == "called"}>Called</Button>
+          <Button isSelected={jam.stopReason == "time"}>Time</Button>
+          <Button isSelected={jam.stopReason == "injury"}>Injury</Button>
+          <Button isSelected={jam.stopReason == "other"}>Other</Button>
+        </ComboButton>
+      </div>
+    );
   }
 }
