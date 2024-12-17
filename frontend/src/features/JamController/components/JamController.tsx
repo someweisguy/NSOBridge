@@ -28,18 +28,20 @@ export default function JamController(): ReactElement {
   if (jam.start == null) {
     return (
       <Button onClick={startStopJam} color="green">
-        Start Jam
+        <p className="min-w-20">Start Jam</p>
       </Button>
     );
   } else if (jam.stop == null) {
     return (
       <Button onClick={startStopJam} color="red">
-        <Clock type="jam" />
+        <p className="min-w-20">
+          <Clock type="jam" />
+        </p>
       </Button>
     );
   } else {
     return (
-      <div className="max-w-20">
+      <div className="max-w-fit">
         <ComboButton>
           <Button isSelected={jam.stopReason == "called"}>Called</Button>
           <Button isSelected={jam.stopReason == "time"}>Time</Button>
