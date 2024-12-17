@@ -2,7 +2,7 @@ from datetime import datetime
 from derby.attributes import TeamAttribute
 from derby.score import Score
 from server import Queryable
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 
@@ -12,7 +12,8 @@ class Jam(Queryable[tuple[int, int]]):
         self._bout_id: UUID = bout_id
         self._start_timestamp: datetime | None = None
         self._stop_timestamp: datetime | None = None
-        self._stop_reason: str | None = None
+        self._stop_reason: Literal['called',
+                                   'time', 'injury', 'other'] | None = None
 
         # Initialize the Scores
         starting_scores = (Score(bout_id, id, 'home', self),
@@ -32,7 +33,7 @@ class Jam(Queryable[tuple[int, int]]):
         return {
             'start': str(self._start_timestamp) if self._start_timestamp is not None else None,
             'stop': str(self._stop_timestamp) if self._stop_timestamp is not None else None,
-            'stop_reason': self._stop_reason
+            'stopReason': self._stop_reason
         }
 
     def set_start(self, timestamp: datetime) -> None:
@@ -41,7 +42,8 @@ class Jam(Queryable[tuple[int, int]]):
         self._start_timestamp = timestamp
         self.notify()
 
-    def set_stop(self, timestamp: datetime, reason: str) -> None:
+    def set_stop(self, timestamp: datetime,
+                 reason: Literal['called', 'time', 'injury', 'other']) -> None:
         if self._stop_timestamp is not None:
             raise RuntimeError('This Jam has already ended')
         self._stop_timestamp = timestamp

@@ -132,7 +132,7 @@ class Bout(Queryable[UUID]):
         jam: Jam = self._jams[current_period_index][-1]
 
         # Attempt the guess the call-off reason
-        reason: str
+        reason: Literal['called', 'time', 'injury', 'other']
         remaining_time: timedelta | None = self._jam_clock.get_remaining()
         if remaining_time is not None and remaining_time.total_seconds() <= 0:
             reason = 'time'
@@ -140,7 +140,7 @@ class Bout(Queryable[UUID]):
               or (jam.score.away.lead and not jam.score.away.lost)):
             reason = 'called'
         else:
-            reason = 'unknown'
+            reason = 'other'
 
         jam.set_stop(timestamp, reason)
         self._jam_clock.stop(timestamp)
