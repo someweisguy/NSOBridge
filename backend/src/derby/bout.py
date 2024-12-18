@@ -68,12 +68,12 @@ class Bout(Queryable[UUID]):
     def get_game_state(self) -> str:
         if self._intermission_clock.is_running():
             return 'intermission'
+        elif self._timeout_clock.is_running():
+            return 'timeout'
         elif self._jam_clock.is_running():
             return 'jam'
         elif self._lineup_clock.is_running():
             return 'lineup'
-        elif self._timeout_clock.is_running():
-            return 'timeout'
         else:
             return 'stopped'
 
@@ -265,6 +265,8 @@ class Bout(Queryable[UUID]):
         if timeout.is_official_review and timeout.is_retained:
             self._official_reviews_remaining[timeout.caller] += 1
 
-        elapsed: timedelta = self._period_clock.get_elapsed(timestamp)
+        elapsed: timedelta = self._timeout_clock.get_elapsed(timestamp)
+        self._timeout_clock.stop(timestamp)
+        self._timeout_clock.reset()
         timeout.duration = elapsed
         self.notify()
