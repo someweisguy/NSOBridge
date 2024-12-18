@@ -10,12 +10,15 @@ import useJam from "../../../hooks/useJam";
 import Button from "../../../components/Button";
 import Clock from "../../../components/Clock";
 import ComboButton from "../../../components/ComboButton";
+import useBout from "../../../hooks/useBout";
 
 export default function JamController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
   const jamId: JamIdType = useContext(JamIdContext);
   const jam: JamType = useJam(boutId, jamId);
   const { latency } = useSocketState();
+
+  const gameState = useBout<string>(boutId, (bout) => bout.gameState);
 
   const startStopJam = useCallback(() => {
     if (jam.start == null) {
@@ -34,7 +37,11 @@ export default function JamController(): ReactElement {
 
   if (jam.start == null) {
     return (
-      <Button onClick={startStopJam} color="green">
+      <Button
+        disabled={gameState == "timeout"}
+        onClick={startStopJam}
+        color="green"
+      >
         <p className="min-w-20">Start Jam</p>
       </Button>
     );
