@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from derby.bout import Bout
+from derby.jam import Jam
 from derby.series import Series
 from server import controller
 from typing import Any
@@ -33,6 +34,14 @@ def stopJam(boutId: str, latency: int | timedelta) -> None:
     series: Series = controller.model
     bout: Bout = series.get_bout(boutId)
     bout.stop_jam(now)
+
+
+@controller.action
+def setStopReason(boutId: str, jamId: tuple[int, int], stopReason: Jam.stop_reasons) -> None:
+    series: Series = controller.model
+    bout: Bout = series.get_bout(boutId)
+    jam: Jam = bout.get_jam(jamId)
+    jam.stop_reason = stopReason
 
 
 @controller.action

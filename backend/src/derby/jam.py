@@ -1,19 +1,21 @@
+from __future__ import annotations
 from datetime import datetime
 from derby.attributes import TeamAttribute
 from derby.score import Score
 from server import Queryable
-from typing import Any, Literal
+from typing import Any, get_args, Literal
 from uuid import UUID
 
 
 class Jam(Queryable[tuple[int, int]]):
+    stop_reasons = Literal['called', 'time', 'injury', 'other']
+
     def __init__(self, bout_id: UUID, id: tuple[int, int]) -> None:
         super().__init__((bout_id, id))
         self._bout_id: UUID = bout_id
         self._start_timestamp: datetime | None = None
         self._stop_timestamp: datetime | None = None
-        self._stop_reason: Literal['called',
-                                   'time', 'injury', 'other'] | None = None
+        self._stop_reason: Jam.stop_reasons | None = None
 
         # Initialize the Scores
         starting_scores = (Score(bout_id, id, 'home', self),
@@ -29,6 +31,20 @@ class Jam(Queryable[tuple[int, int]]):
     def score(self) -> TeamAttribute[Score]:
         return self._score
 
+    @property
+    def stop_reason(self) -> Jam.stop_reasons | None:
+        return self._stop_reason
+
+    @stop_reason.setter
+    def stop_reason(self, value: Jam.stop_reasons | None) -> None:
+        if value not in get_args(Jam.stop_reasons):
+            raise ValueError(f'Stop Reason must be one of '
+                             f'\'{get_args(Jam.stop_reasons)}\', not \'{value}\'')
+        notify: bool = value != self._stop_reason
+        self._stop_reason = value
+        if notify:
+            self.notify()
+
     def get(self) -> dict[str | float | int, Any]:
         return {
             'start': str(self._start_timestamp) if self._start_timestamp is not None else None,
@@ -42,10 +58,9 @@ class Jam(Queryable[tuple[int, int]]):
         self._start_timestamp = timestamp
         self.notify()
 
-    def set_stop(self, timestamp: datetime,
-                 reason: Literal['called', 'time', 'injury', 'other']) -> None:
+    def set_stop(self, timestamp: datetime) -> None:
         if self._stop_timestamp is not None:
             raise RuntimeError('This Jam has already ended')
         self._stop_timestamp = timestamp
-        self._stop_reason = reason
+        self._stop_reason = "other"
         self.notify()

@@ -25,6 +25,13 @@ export default function JamController(): ReactElement {
     }
   }, [boutId, jam, latency]);
 
+  const setStopReason = useCallback(
+    (stopReason: string) => {
+      dispatch("bout", "setStopReason", { boutId, jamId, stopReason });
+    },
+    [boutId, jamId]
+  );
+
   if (jam.start == null) {
     return (
       <Button onClick={startStopJam} color="green">
@@ -43,10 +50,30 @@ export default function JamController(): ReactElement {
     return (
       <div className="max-w-fit">
         <ComboButton>
-          <Button isSelected={jam.stopReason == "called"}>Called</Button>
-          <Button isSelected={jam.stopReason == "time"}>Time</Button>
-          <Button isSelected={jam.stopReason == "injury"}>Injury</Button>
-          <Button isSelected={jam.stopReason == "other"}>Other</Button>
+          <Button
+            onClick={() => setStopReason("called")}
+            isSelected={jam.stopReason == "called"}
+          >
+            Called
+          </Button>
+          <Button
+            onClick={() => setStopReason("time")}
+            isSelected={jam.stopReason == "time"}
+          >
+            Time
+          </Button>
+          <Button
+            onClick={() => setStopReason("injury")}
+            isSelected={jam.stopReason == "injury"}
+          >
+            Injury
+          </Button>
+          <Button
+            onClick={() => setStopReason("other")}
+            isSelected={jam.stopReason == "other"}
+          >
+            Other
+          </Button>
         </ComboButton>
       </div>
     );
