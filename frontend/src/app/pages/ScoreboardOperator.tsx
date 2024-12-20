@@ -8,12 +8,18 @@ import Clock from "../../components/Clock";
 export default function ScoreboardOperator() {
   return (
     <>
-      <JamPaginator left={<JamController />} right={<TimeoutController />}>
+      <div className="flex w-full spaced-between">
+        <div className="flex-1">
+          <JamController />
+        </div>
+        <div className="flex-1">
+          <TimeoutController />
+        </div>
+      </div>
+      <JamPaginator>
         <Clock type="lineup" />
-          &nbsp;
-          <Clock type="period" />
-          &nbsp;
-          <Clock type="timeout" />
+        &nbsp;
+        <Clock type="period" />
         <div className="flex flex-row gap-4">
           <Container>
             <ScoreKeeper team="home" />
