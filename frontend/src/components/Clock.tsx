@@ -23,8 +23,7 @@ export default function Clock({
     totalMillseconds = 0;
   }
 
-  // Calculate the hours, minutes, seconds, and milliseconds
-  const millis: number = Math.floor((totalMillseconds % 1000) / 100);
+  // Calculate the hours, minutes, seconds
   const seconds: number = Math.floor(totalMillseconds / 1000) % 60;
   const minutes: number = Math.floor(totalMillseconds / 60000) % 60;
   const hours: number = Math.floor(totalMillseconds / 3600000);
@@ -50,9 +49,9 @@ export default function Clock({
   // Add milliseconds if necessary
   const showMillis: boolean =
     millisStyle === "always" ||
-    millisStyle !== "never" ||
-    (clock.alarm != null && totalMillseconds < 10000);
+    (millisStyle === "auto" && clock.alarm != null && totalMillseconds < 10000);
   if (showMillis) {
+    const millis: number = Math.floor((totalMillseconds % 1000) / 100);
     timeString += "." + millis;
   }
 
