@@ -6,10 +6,9 @@ import server
 server.controller.log.setLevel(logging.DEBUG)
 
 if __name__ == '__main__':
-    server.controller.load_api()
-
     series: Series = Series()
     bout: Bout = series.add_bout()
-
     server.controller.set_model(series)
+    
+    server.controller.load_api()
     asyncio.run(server.serve())
