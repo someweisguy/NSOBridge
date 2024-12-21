@@ -5,7 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import dispatch from "../app/client";
 import { keyFactory } from "../utils/keyFactory";
 
-export default function useClock(
+export default function useDynamicClock(
   boutId: string,
   type: string,
   stopAtZero: boolean = true,

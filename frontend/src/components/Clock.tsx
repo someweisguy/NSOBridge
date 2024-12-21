@@ -1,6 +1,6 @@
 import { ReactElement, useContext } from "react";
 import { ClockType } from "../types/ClockType";
-import useClock from "../hooks/useClock";
+import useDynamicClock from "../hooks/useDynamicClock";
 import { BoutIdType } from "../types/BoutIdType";
 import { BoutIdContext } from "../contexts/BoutIdContext";
 
@@ -14,7 +14,7 @@ export default function Clock({
   millisStyle?: "never" | "always" | "auto";
 }): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
-  const clock: ClockType = useClock(boutId, type);
+  const clock: ClockType = useDynamicClock(boutId, type);
 
   // Calculate the time remaining
   let totalMillseconds: number =
