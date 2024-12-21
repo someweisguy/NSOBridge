@@ -18,8 +18,6 @@ export default function ScoreboardOperator() {
         </div>
       </div>
       <JamPaginator left={<JamEndReason />}>
-        <Clock type="lineup" />
-        &nbsp;
         <Clock type="period" />
         <div className="flex flex-row gap-4">
           <Container>
