@@ -4,7 +4,7 @@ import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import { useSocketState } from "../../../app/hooks/useConnection";
 import dispatch from "../../../app/client";
 import Button from "../../../components/Button";
-import Clock from "../../../components/Clock";
+import Clock from "../../DynamicClock/components/Clock";
 import useBout from "../../../hooks/useBout";
 
 export default function JamController(): ReactElement {

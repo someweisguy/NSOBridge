@@ -5,7 +5,7 @@ import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import useBout from "../../../hooks/useBout";
 import dispatch from "../../../app/client";
 import { useSocketState } from "../../../app/hooks/useConnection";
-import Clock from "../../../components/Clock";
+import Clock from "../../DynamicClock/components/Clock";
 import ComboButton from "../../../components/ComboButton";
 
 export default function TimeoutController(): ReactElement {

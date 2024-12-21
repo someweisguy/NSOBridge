@@ -14,7 +14,8 @@ import { ClockType } from "../../../types/ClockType";
 import dispatch from "../../../app/client";
 import useBout from "../../../hooks/useBout";
 import Button from "../../../components/Button";
-import Clock from "../../../components/Clock";
+import Clock from "../../DynamicClock/components/Clock";
+import { GameStates } from "../../../types/GameStates";
 
 const type = "period";
 
@@ -28,7 +29,12 @@ export default function IntermissionHandler(): ReactElement {
     queryFn: () => dispatch("clock", "get", { boutId, type, latency }),
   });
 
-  const gameState = useBout<string>(boutId, (bout) => bout.gameState);
+  const { data: intermissionClockSnapshot } = useSuspenseQuery<ClockType>({
+    queryKey: keyFactory.clock(boutId, "intermission"),
+    queryFn: () => dispatch("clock", "get", { boutId, type:"intermission", latency }),
+  });
+
+  const gameState = useBout<GameStates>(boutId, (bout) => bout.gameState);
   const [isReady, setIsReady] = useState<boolean>(
     ["stopped", "intermission"].includes(gameState) ||
       periodClockSnapshot.alarm! - periodClockSnapshot.elapsed < 5000
@@ -57,7 +63,7 @@ export default function IntermissionHandler(): ReactElement {
     return () => clearTimeout(timeoutId);
   }, [periodClockSnapshot, isReady]);
 
-  if (gameState !== "intermission") {
+  if (!intermissionClockSnapshot.isRunning) {
     return (
       <Button disabled={!isReady} onClick={startIntermission}>
         Start Intermission
