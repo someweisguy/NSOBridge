@@ -141,7 +141,7 @@ class Bout(Queryable[UUID]):
         # Attempt the guess the call-off reason
         reason: Jam.stop_reasons
         remaining_time: timedelta | None = self._jam_clock.get_remaining()
-        if remaining_time is not None and remaining_time.total_seconds() <= 0:
+        if remaining_time is not None and remaining_time.total_seconds() < 1:
             reason = 'time'
         elif ((jam.score.home.lead and not jam.score.home.lost)
               or (jam.score.away.lead and not jam.score.away.lost)):
