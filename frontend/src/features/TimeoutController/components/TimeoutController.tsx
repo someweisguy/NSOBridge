@@ -32,9 +32,9 @@ export default function TimeoutController(): ReactElement {
 
   return (
     <div className="flex w-full whitespace-nowrap">
-      <Button>Official Timeout</Button>
       <div className="max-w-fit">
         <ComboButton>
+          <Button>Official</Button>
           <Button>Home</Button>
           <Button>Away</Button>
         </ComboButton>
