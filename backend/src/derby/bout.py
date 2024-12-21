@@ -270,3 +270,19 @@ class Bout(Queryable[UUID]):
         self._timeout_clock.reset()
         timeout.duration = elapsed
         self.notify()
+
+    def start_intermission(self, timestamp: datetime) -> None:
+        if self.get_game_state() in ['intermission', 'timeout', 'jam']:
+            raise RuntimeError('Intermission cannot be started right now')
+        
+        if self._period_clock.is_running():
+            self._period_clock.stop(timestamp)
+        self._intermission_clock.start(timestamp)
+        self.notify()
+    
+    def stop_intermission(self, timestamp: datetime) -> None:
+        if self.get_game_state() != 'intermission':
+            raise RuntimeError('There is no Intermission running')
+        
+        self._intermission_clock.stop(timestamp)
+        self.notify()
