@@ -31,8 +31,9 @@ export default function IntermissionHandler(): ReactElement {
   );
 
   const startIntermission = useCallback(() => {
-    dispatch("bout", "startIntermission", { boutId, latency });
-  }, [boutId, latency]);
+    const advanceGameState = !["pregame", "final"].includes(gameState);
+    dispatch("bout", "startIntermission", { boutId, latency, advanceGameState });
+  }, [boutId, latency, gameState]);
 
   const stopIntermission = useCallback(() => {
     dispatch("bout", "stopIntermission", { boutId, latency });
