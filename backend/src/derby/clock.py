@@ -85,8 +85,7 @@ class Clock(Queryable[str]):
 
     def stop(self, timestamp: datetime) -> None:
         if self._start is None:
-            _, id = self.id
-            raise RuntimeError(f'The \'{id}\' Clock is already stopped')
+            raise RuntimeError(f'The \'{self.id}\' Clock is already stopped')
         if self._start > timestamp:
             raise ValueError(
                 'The timestamp must be after the Clock start time.')
