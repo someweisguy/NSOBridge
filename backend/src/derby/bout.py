@@ -11,7 +11,7 @@ from uuid import UUID
 class Bout(Queryable[UUID]):
     __slots__ = ('_period_clock', '_intermission_clock', '_lineup_clock',
                  '_jam_clock', '_timeout_clock', '_jams', '_timeouts_remaining',
-                 '_official_reviews_remaining', '_timeouts')
+                 '_official_reviews_remaining', '_timeouts', '_is_final')
 
     def __init__(self, id: UUID) -> None:
         super().__init__((id,))
@@ -40,6 +40,8 @@ class Bout(Queryable[UUID]):
         # Instantiate periods
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
         self.push_jam(0)  # At least 1 Jam is required
+        
+        self._is_final: bool = False
 
     def get(self) -> dict[str | float | int, Any]:
         return {
@@ -66,16 +68,18 @@ class Bout(Queryable[UUID]):
         }
 
     def get_game_state(self) -> str:
-        if self._intermission_clock.is_running():
-            return 'intermission'
-        elif self._timeout_clock.is_running():
-            return 'timeout'
+        if not self._jam_clock.is_running() and [len(period) for period in self._jams] == [1, 0]:
+            return 'pregame'
         elif self._jam_clock.is_running():
             return 'jam'
-        elif self._lineup_clock.is_running():
+        elif not self._timeout_clock.is_running():
             return 'lineup'
+        elif self._intermission_clock.is_running():
+            return 'halftime'
+        elif not self._is_final:
+            return 'unofficial'
         else:
-            return 'stopped'
+            return 'final'
 
     def get_total_score(self, team: Literal['home', 'away']) -> int:
         total_score: int = 0
@@ -286,3 +290,6 @@ class Bout(Queryable[UUID]):
         
         self._intermission_clock.stop(timestamp)
         self.notify()
+        
+    def advance_game(self) -> None:
+        ...
