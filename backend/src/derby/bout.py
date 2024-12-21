@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from operator import is_
 from derby.attributes import TeamAttribute
 from derby.clock import Clock
 from derby.jam import Jam
@@ -67,12 +68,14 @@ class Bout(Queryable[UUID]):
             },
         }
 
-    def get_game_state(self) -> str:
+    def get_game_state(self) -> Literal['pregame', 'jam', 'lineup', 'timeout', 'halftime', 'unofficial', 'final']:
         if not self._jam_clock.is_running() and [len(period) for period in self._jams] == [1, 0]:
             return 'pregame'
         elif self._jam_clock.is_running():
             return 'jam'
-        elif not self._timeout_clock.is_running():
+        elif self._timeout_clock.is_running():
+            return 'timeout'
+        elif self._lineup_clock.is_running():
             return 'lineup'
         elif self._intermission_clock.is_running():
             return 'halftime'
@@ -276,7 +279,9 @@ class Bout(Queryable[UUID]):
         self.notify()
 
     def start_intermission(self, timestamp: datetime) -> None:
-        if self.get_game_state() in ['intermission', 'timeout', 'jam']:
+        if self._intermission_clock.is_running():
+            raise RuntimeError('Intermission is already running')
+        elif self.get_game_state() not in ['pregame', 'lineup', 'halftime']:
             raise RuntimeError('Intermission cannot be started right now')
         
         if self._period_clock.is_running():
@@ -285,7 +290,7 @@ class Bout(Queryable[UUID]):
         self.notify()
     
     def stop_intermission(self, timestamp: datetime) -> None:
-        if self.get_game_state() != 'intermission':
+        if not self._intermission_clock.is_running():
             raise RuntimeError('There is no Intermission running')
         
         self._intermission_clock.stop(timestamp)

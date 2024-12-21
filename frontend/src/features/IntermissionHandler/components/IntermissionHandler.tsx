@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ReactElement,
   useCallback,
@@ -9,34 +8,25 @@ import {
 import { useSocketState } from "../../../app/hooks/useConnection";
 import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
-import { keyFactory } from "../../../utils/keyFactory";
-import { ClockType } from "../../../types/ClockType";
 import dispatch from "../../../app/client";
 import useBout from "../../../hooks/useBout";
 import Button from "../../../components/Button";
 import Clock from "../../DynamicClock/components/Clock";
 import { GameStates } from "../../../types/GameStates";
+import useClock from "../../../hooks/useClock";
 
-const type = "period";
 
 export default function IntermissionHandler(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
 
   // Get the Period and Intermission Clocks
   const { latency } = useSocketState();
-  const { data: periodClockSnapshot } = useSuspenseQuery<ClockType>({
-    queryKey: keyFactory.clock(boutId, type),
-    queryFn: () => dispatch("clock", "get", { boutId, type, latency }),
-  });
-
-  const { data: intermissionClockSnapshot } = useSuspenseQuery<ClockType>({
-    queryKey: keyFactory.clock(boutId, "intermission"),
-    queryFn: () => dispatch("clock", "get", { boutId, type:"intermission", latency }),
-  });
+  const periodClockSnapshot = useClock(boutId, "period");
+  const intermissionClockSnapshot = useClock(boutId, "intermission");
 
   const gameState = useBout<GameStates>(boutId, (bout) => bout.gameState);
   const [isReady, setIsReady] = useState<boolean>(
-    ["stopped", "intermission"].includes(gameState) ||
+    ["pregame", "halftime"].includes(gameState) ||
       periodClockSnapshot.alarm! - periodClockSnapshot.elapsed < 5000
   );
 
