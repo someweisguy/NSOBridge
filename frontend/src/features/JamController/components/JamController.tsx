@@ -21,17 +21,28 @@ export default function JamController(): ReactElement {
     }
   }, [boutId, gameState, latency]);
 
-  return (
-    <Button
-      disabled={gameState == "timeout"}
-      onClick={startStopJam}
-      color={gameState === "jam" ? "red" : "green"}
-    >
-      {gameState !== "jam" ? (
-        <p className="min-w-20">Start Jam</p>
-      ) : (
+  if (gameState !== "jam") {
+    return (
+      <Button
+        disabled={gameState === "timeout"}
+        onClick={startStopJam}
+        color="green"
+      >
+        <p className="min-w-20">
+          Start Jam{" "}
+          {gameState !== "stopped" && (
+            <>
+              &nbsp; <Clock type="lineup" millisStyle="never" />
+            </>
+          )}
+        </p>
+      </Button>
+    );
+  } else {
+    return (
+      <Button onClick={startStopJam} color="red">
         <Clock type="jam" />
-      )}
-    </Button>
-  );
+      </Button>
+    );
+  }
 }
