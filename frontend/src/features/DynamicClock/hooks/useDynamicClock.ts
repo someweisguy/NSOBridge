@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { ClockType } from "../../types/ClockType";
-import { useSocketState } from "../../app/hooks/useConnection";
+import { ClockType } from "../../../types/ClockType";
+import { useSocketState } from "../../../app/hooks/useConnection";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import dispatch from "../../app/client";
-import { keyFactory } from "../../utils/keyFactory";
+import dispatch from "../../../app/client";
+import { keyFactory } from "../../../utils/keyFactory";
 
 export default function useDynamicClock(
   boutId: string,
