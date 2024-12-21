@@ -4,6 +4,7 @@ import Container from "../../components/Container";
 import JamController from "../../features/JamController/components/JamController";
 import TimeoutController from "../../features/TimeoutController/components/TimeoutController";
 import Clock from "../../components/Clock";
+import JamEndReason from "../../features/JamEndReason/components/JamEndReason";
 
 export default function ScoreboardOperator() {
   return (
@@ -16,7 +17,7 @@ export default function ScoreboardOperator() {
           <TimeoutController />
         </div>
       </div>
-      <JamPaginator>
+      <JamPaginator left={<JamEndReason />}>
         <Clock type="lineup" />
         &nbsp;
         <Clock type="period" />
