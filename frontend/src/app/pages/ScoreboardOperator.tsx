@@ -10,7 +10,7 @@ import IntermissionHandler from "../../features/IntermissionHandler/components/I
 export default function ScoreboardOperator() {
   return (
     <>
-      <IntermissionHandler />
+      <IntermissionHandler /> &nbsp; <Clock type="period" />
       <div className="flex w-full spaced-between">
         <div className="flex-1">
           <JamController />
@@ -20,7 +20,6 @@ export default function ScoreboardOperator() {
         </div>
       </div>
       <JamPaginator left={<JamEndReason />}>
-        <Clock type="period" />
         <div className="flex flex-row gap-4">
           <Container>
             <ScoreKeeper team="home" />
