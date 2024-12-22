@@ -135,4 +135,12 @@ class Bout(Queryable[UUID]):
         self.notify()
 
     def advance_game(self) -> None:
-        ...
+        if self.get_game_state() in ['pregame', 'jam', 'timeout', 'halftime']:
+            raise RuntimeError('Game cannot be advanced right now')
+        if self.get_current_period_index() == 0:
+            self.jam.push(1)
+        elif self._score_state == 'live':
+            self._score_state = 'unofficial'
+        else:
+            self._score_state = 'final'
+            
