@@ -42,6 +42,7 @@ class Bout(Queryable[UUID]):
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
         self.push_jam(0)  # At least 1 Jam is required
 
+        # Set the initial score state
         self._score_state: Literal['live', 'unofficial', 'final'] = 'live'
 
     def get(self) -> dict[str | float | int, Any]:
