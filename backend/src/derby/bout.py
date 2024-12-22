@@ -42,7 +42,7 @@ class Bout(Queryable[UUID]):
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
         self.push_jam(0)  # At least 1 Jam is required
         
-        self._is_final: bool = False
+        self._state: Literal['live', 'unofficial', 'final'] = 'live'
 
     def get(self) -> dict[str | float | int, Any]:
         return {
