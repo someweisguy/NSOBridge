@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
+from derby.bout.clock_helper import ClockHelper
 from derby.bout.jam_helper import JamHelper
 from derby.bout.timeout_helper import TimeoutHelper
 from derby.attributes import TeamAttribute
@@ -25,7 +26,7 @@ class Bout(Queryable[UUID]):
         self._lineup_clock: Clock = Clock(id, 'lineup')
         self._jam_clock: Clock = Clock(id, 'jam')
         self._timeout_clock: Clock = Clock(id, 'timeout')
-        self._period_clock.set_alarm(minutes=30)
+        self._period_clock.set_alarm(seconds=30)
         self._lineup_clock.set_alarm(seconds=30)
         self._jam_clock.set_alarm(minutes=2)
 
@@ -45,7 +46,8 @@ class Bout(Queryable[UUID]):
         self.jam.push(0)  # At least 1 Jam is required
 
         # Set the initial score state
-        self._score_state: Literal['live', 'unofficial', 'final'] = 'live'
+        self._score_state: Literal['pregame', 'live', 'halftime', 'unofficial',
+                                   'final'] = 'pregame'
 
     def get(self) -> dict[str | float | int, Any]:
         return {
@@ -72,12 +74,16 @@ class Bout(Queryable[UUID]):
         }
 
     @property
-    def timeout(self) -> TimeoutHelper:
-        return TimeoutHelper(self)
+    def clock(self) -> ClockHelper:
+        return ClockHelper(self)
 
     @property
     def jam(self) -> JamHelper:
         return JamHelper(self)
+
+    @property
+    def timeout(self) -> TimeoutHelper:
+        return TimeoutHelper(self)
 
     def get_game_state(self) -> Literal['pregame', 'jam', 'lineup', 'timeout',
                                         'halftime', 'unofficial', 'final']:
@@ -107,40 +113,39 @@ class Bout(Queryable[UUID]):
     def get_current_period_index(self) -> int:
         return int(len(self._jams[1]) > 0)
 
-    def get_clock(self, type: str) -> Clock:
-        match type:
-            case 'jam': return self._jam_clock
-            case 'lineup': return self._lineup_clock
-            case 'period': return self._period_clock
-            case 'intermission': return self._intermission_clock
-            case 'timeout': return self._timeout_clock
-            case _: raise ValueError(f'Timer \'{type}\' does not exist')
-
     def start_intermission(self, timestamp: datetime) -> None:
-        if self._intermission_clock.is_running():
+        if self.clock.intermission.is_running():
             raise RuntimeError('Intermission is already running')
         elif self.get_game_state() not in ['pregame', 'lineup', 'halftime']:
             raise RuntimeError('Intermission cannot be started right now')
 
-        if self._period_clock.is_running():
-            self._period_clock.stop(timestamp)
+        for clock in (self._period_clock, self._lineup_clock):
+            if clock.is_running():
+                clock.stop(timestamp)
         self._intermission_clock.start(timestamp)
+
+        # TODO: determine if the game state is in pregame of halftime
+
         self.notify()
 
     def stop_intermission(self, timestamp: datetime) -> None:
-        if not self._intermission_clock.is_running():
+        if not self.clock.intermission.is_running():
             raise RuntimeError('There is no Intermission running')
 
-        self._intermission_clock.stop(timestamp)
+        self.clock.intermission.stop(timestamp)
         self.notify()
 
     def advance_game(self) -> None:
-        if self.get_game_state() in ['pregame', 'jam', 'timeout', 'halftime']:
-            raise RuntimeError('Game cannot be advanced right now')
+        if any(clock.is_running() for clock in (self._jam_clock,
+                                                self._timeout_clock)):
+            raise RuntimeError('The game can only advance during Lineup')
+        elif self._score_state == 'final':
+            raise RuntimeError('The game has already been finalized')
         if self.get_current_period_index() == 0:
             self.jam.push(1)
         elif self._score_state == 'live':
             self._score_state = 'unofficial'
         else:
             self._score_state = 'final'
-            
+        print('advancing game state')
+        self.notify()

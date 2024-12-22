@@ -12,5 +12,5 @@ def get(boutId: str, type: str, latency: int | timedelta) -> dict:
     now -= latency
 
     series: Series = controller.model
-    clock: Clock = series.get_bout(boutId).get_clock(type)
+    clock: Clock = series.get_bout(boutId).clock[type]
     return clock.get(now)
