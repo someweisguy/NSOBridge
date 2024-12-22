@@ -21,7 +21,7 @@ def startJam(boutId: str, latency: int | timedelta) -> None:
 
     series: Series = controller.model
     bout: Bout = series.get_bout(boutId)
-    bout.start_jam(now)
+    bout.jam.start(now)
 
 
 @controller.action
@@ -33,7 +33,7 @@ def stopJam(boutId: str, latency: int | timedelta) -> None:
 
     series: Series = controller.model
     bout: Bout = series.get_bout(boutId)
-    bout.stop_jam(now)
+    bout.jam.stop(now)
 
 
 @controller.action
@@ -41,7 +41,7 @@ def setStopReason(boutId: str, jamId: tuple[int, int],
                   stopReason: Jam.stop_reasons) -> None:
     series: Series = controller.model
     bout: Bout = series.get_bout(boutId)
-    jam: Jam = bout.get_jam(jamId)
+    jam: Jam = bout.jam.get(jamId)
     jam.stop_reason = stopReason
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
-from datetime import datetime, timedelta
+from datetime import datetime
+from derby.bout.jam_helper import JamHelper
 from derby.bout.timeout_helper import TimeoutHelper
 from derby.attributes import TeamAttribute
 from derby.clock import Clock
@@ -41,7 +42,7 @@ class Bout(Queryable[UUID]):
 
         # Instantiate periods
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
-        self.push_jam(0)  # At least 1 Jam is required
+        self.jam.push(0)  # At least 1 Jam is required
 
         # Set the initial score state
         self._score_state: Literal['live', 'unofficial', 'final'] = 'live'
@@ -69,10 +70,14 @@ class Bout(Queryable[UUID]):
                 'away': None   # TODO
             },
         }
-    
+
     @property
     def timeout(self) -> TimeoutHelper:
         return TimeoutHelper(self)
+
+    @property
+    def jam(self) -> JamHelper:
+        return JamHelper(self)
 
     def get_game_state(self) -> Literal['pregame', 'jam', 'lineup', 'timeout',
                                         'halftime', 'unofficial', 'final']:
@@ -101,68 +106,6 @@ class Bout(Queryable[UUID]):
 
     def get_current_period_index(self) -> int:
         return int(len(self._jams[1]) > 0)
-
-    def get_jam(self, jam_id: tuple[int, int]) -> Jam:
-        period_index, jam_index = jam_id
-        return self._jams[period_index][jam_index]
-
-    def push_jam(self, period: int) -> None:
-        next_jam_number: int = len(self._jams[period])
-        new_jam: Jam = Jam(self.id, (period, next_jam_number))
-        self._jams[period].append(new_jam)
-        self.watch(new_jam)
-        self.notify()
-
-    def pop_jam(self, period: int) -> Jam:
-        popped_jam: Jam = self._jams[period].pop()
-        self.un_watch(popped_jam)
-        self.notify()
-        return popped_jam
-
-    def start_jam(self, timestamp: datetime) -> None:
-        if self.get_game_state() == 'jam':
-            raise RuntimeError('A Jam is already running')
-        elif self._timeout_clock.is_running():
-            raise RuntimeError('A Jam cannot start when a Timeout is ongoing')
-        jam: Jam = self._jams[self.get_current_period_index()][-1]
-
-        for clock in (self._intermission_clock, self._lineup_clock,
-                      self._timeout_clock):
-            if clock.is_running():
-                clock.stop(timestamp)
-
-        if not self._period_clock.is_running():
-            self._period_clock.start(timestamp)
-
-        jam.set_start(timestamp)
-        self._jam_clock.reset()
-        self._jam_clock.start(timestamp)
-        self.notify()
-
-    def stop_jam(self, timestamp: datetime) -> None:
-        if self.get_game_state() != 'jam':
-            raise RuntimeError('There is no Jam running')
-        current_period_index: int = self.get_current_period_index()
-        jam: Jam = self._jams[current_period_index][-1]
-
-        # Attempt the guess the call-off reason
-        reason: Jam.stop_reasons
-        remaining_time: timedelta | None = self._jam_clock.get_remaining()
-        if remaining_time is not None and remaining_time.total_seconds() < 1:
-            reason = 'time'
-        elif ((jam.score.home.lead and not jam.score.home.lost)
-              or (jam.score.away.lead and not jam.score.away.lost)):
-            reason = 'called'
-        else:
-            reason = 'other'
-
-        jam.set_stop(timestamp)
-        jam.stop_reason = reason
-        self._jam_clock.stop(timestamp)
-        self._lineup_clock.reset()
-        self._lineup_clock.start(timestamp)
-        self.push_jam(current_period_index)
-        self.notify()
 
     def get_clock(self, type: str) -> Clock:
         match type:
