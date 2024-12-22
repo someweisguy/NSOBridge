@@ -37,7 +37,8 @@ def stopJam(boutId: str, latency: int | timedelta) -> None:
 
 
 @controller.action
-def setStopReason(boutId: str, jamId: tuple[int, int], stopReason: Jam.stop_reasons) -> None:
+def setStopReason(boutId: str, jamId: tuple[int, int],
+                  stopReason: Jam.stop_reasons) -> None:
     series: Series = controller.model
     bout: Bout = series.get_bout(boutId)
     jam: Jam = bout.get_jam(jamId)
@@ -53,7 +54,7 @@ def callTimeout(boutId: str, latency: int | timedelta) -> None:
 
     series: Series = controller.model
     bout: Bout = series.get_bout(boutId)
-    bout.call_timeout(now)
+    bout.timeout.call(now)
 
 
 @controller.action
@@ -65,7 +66,7 @@ def endTimeout(boutId: str, latency: int | timedelta) -> None:
 
     series: Series = controller.model
     bout: Bout = series.get_bout(boutId)
-    bout.end_timeout(now)
+    bout.timeout.end(now)
 
 
 @controller.action

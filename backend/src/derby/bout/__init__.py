@@ -1,5 +1,6 @@
+from __future__ import annotations
 from datetime import datetime, timedelta
-from operator import is_
+from derby.bout.timeout_helper import TimeoutHelper
 from derby.attributes import TeamAttribute
 from derby.clock import Clock
 from derby.jam import Jam
@@ -68,6 +69,10 @@ class Bout(Queryable[UUID]):
                 'away': None   # TODO
             },
         }
+    
+    @property
+    def timeout(self) -> TimeoutHelper:
+        return TimeoutHelper(self)
 
     def get_game_state(self) -> Literal['pregame', 'jam', 'lineup', 'timeout',
                                         'halftime', 'unofficial', 'final']:
@@ -117,7 +122,7 @@ class Bout(Queryable[UUID]):
     def start_jam(self, timestamp: datetime) -> None:
         if self.get_game_state() == 'jam':
             raise RuntimeError('A Jam is already running')
-        elif self.timeout_is_running():
+        elif self._timeout_clock.is_running():
             raise RuntimeError('A Jam cannot start when a Timeout is ongoing')
         jam: Jam = self._jams[self.get_current_period_index()][-1]
 
@@ -167,119 +172,6 @@ class Bout(Queryable[UUID]):
             case 'intermission': return self._intermission_clock
             case 'timeout': return self._timeout_clock
             case _: raise ValueError(f'Timer \'{type}\' does not exist')
-
-    def timeout_is_running(self) -> bool:
-        return len(self._timeouts) > 0 and self._timeouts[-1].is_running()
-
-    def call_timeout(self, timestamp: datetime | None = None) -> None:
-        if self.timeout_is_running():
-            raise RuntimeError('A Timeout is already running')
-        if self.get_game_state() != 'lineup':
-            raise RuntimeError('A Timeout cannot be called right now')
-        if timestamp is None:
-            timestamp = datetime.now()
-
-        # Assume the timeout is not an official review by default
-        new_timeout: Timeout = Timeout(self.id, len(self._timeouts))
-
-        # Set the period clock at which this timeout was called
-        period_clock: timedelta | None = self._period_clock.get_remaining(
-            timestamp)
-        if period_clock is not None:
-            new_timeout.period_clock = period_clock
-
-        # Set the Jam number at which this timeout was called
-        current_period_index: int = self.get_current_period_index()
-        new_timeout.jam_id = (current_period_index,
-                              len(self._jams[current_period_index]))
-        # FIXME: get the current ACTIVE jam number
-
-        self._timeouts.append(new_timeout)
-        self.watch(new_timeout)
-        if self._period_clock.is_running():
-            self._period_clock.stop(timestamp)
-        self._timeout_clock.start(timestamp)
-        self.notify()
-
-    def set_timeout_caller(self, caller: Literal['home', 'away',
-                                                 'official']) -> None:
-        if not self.timeout_is_running():
-            raise RuntimeError('There is no active Timeout running')
-        if caller not in ('home', 'away', 'official'):
-            raise ValueError('Caller is invalid')
-
-        timeout: Timeout = self._timeouts[-1]
-
-        if timeout.caller == caller:
-            return
-
-        team_attribute: TeamAttribute[int] = (self._official_reviews_remaining
-                                              if timeout.is_official_review
-                                              else self._timeouts_remaining)
-        if timeout.caller != 'official':
-            team_attribute[timeout.caller] += 1
-        if caller != 'official':
-            team_attribute[caller] -= 1
-
-        self._timeouts[-1].caller = caller
-        self.notify()
-
-    def set_official_review(self, is_official_review: bool) -> None:
-        if not self.timeout_is_running():
-            raise RuntimeError('There is no active Timeout running')
-        timeout: Timeout = self._timeouts[-1]
-        if timeout.caller == 'official':
-            raise RuntimeError('Officials cannot call an Official Review')
-
-        notify: bool = timeout.is_official_review != is_official_review
-        self._timeouts[-1].is_official_review = is_official_review
-        if notify:
-            self.notify()
-
-    def set_official_review_is_retained(self, is_retained: bool) -> None:
-        if not self.timeout_is_running():
-            raise RuntimeError('There is no active Timeout running')
-        timeout: Timeout = self._timeouts[-1]
-        notify: bool = timeout.is_retained != is_retained
-        timeout.is_retained = is_retained
-        if notify:
-            self.notify()
-
-    def set_official_review_detail(self, detail: str) -> None:
-        if not self.timeout_is_running():
-            raise RuntimeError('There is no active Timeout running')
-        timeout: Timeout = self._timeouts[-1]
-        notify: bool = timeout.detail != detail
-        timeout.detail = detail
-        if notify:
-            self.notify()
-
-    def set_official_review_result(self, result: str) -> None:
-        if not self.timeout_is_running():
-            raise RuntimeError('There is no active Timeout running')
-        timeout: Timeout = self._timeouts[-1]
-        notify: bool = timeout.result != result
-        timeout.result = result
-        if notify:
-            self.notify()
-
-    def end_timeout(self, timestamp: datetime | None = None) -> None:
-        if not self.timeout_is_running():
-            raise RuntimeError('There is no active Timeout running')
-        if timestamp is None:
-            timestamp = datetime.now()
-
-        timeout: Timeout = self._timeouts[-1]
-
-        # Replenish the Official Review if it was retained
-        if timeout.is_official_review and timeout.is_retained:
-            self._official_reviews_remaining[timeout.caller] += 1
-
-        elapsed: timedelta = self._timeout_clock.get_elapsed(timestamp)
-        self._timeout_clock.stop(timestamp)
-        self._timeout_clock.reset()
-        timeout.duration = elapsed
-        self.notify()
 
     def start_intermission(self, timestamp: datetime) -> None:
         if self._intermission_clock.is_running():
