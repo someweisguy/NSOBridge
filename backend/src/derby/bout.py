@@ -12,7 +12,7 @@ from uuid import UUID
 class Bout(Queryable[UUID]):
     __slots__ = ('_period_clock', '_intermission_clock', '_lineup_clock',
                  '_jam_clock', '_timeout_clock', '_jams', '_timeouts_remaining',
-                 '_official_reviews_remaining', '_timeouts', '_is_final')
+                 '_official_reviews_remaining', '_timeouts', '_score_state')
 
     def __init__(self, id: UUID) -> None:
         super().__init__((id,))
@@ -41,8 +41,8 @@ class Bout(Queryable[UUID]):
         # Instantiate periods
         self._jams: tuple[list[Jam], list[Jam]] = ([], [])
         self.push_jam(0)  # At least 1 Jam is required
-        
-        self._state: Literal['live', 'unofficial', 'final'] = 'live'
+
+        self._score_state: Literal['live', 'unofficial', 'final'] = 'live'
 
     def get(self) -> dict[str | float | int, Any]:
         return {
@@ -68,8 +68,10 @@ class Bout(Queryable[UUID]):
             },
         }
 
-    def get_game_state(self) -> Literal['pregame', 'jam', 'lineup', 'timeout', 'halftime', 'unofficial', 'final']:
-        if not self._jam_clock.is_running() and [len(period) for period in self._jams] == [1, 0]:
+    def get_game_state(self) -> Literal['pregame', 'jam', 'lineup', 'timeout',
+                                        'halftime', 'unofficial', 'final']:
+        if not self._jam_clock.is_running() and [len(period) for period
+                                                 in self._jams] == [1, 0]:
             return 'pregame'
         elif self._jam_clock.is_running():
             return 'jam'
@@ -79,10 +81,9 @@ class Bout(Queryable[UUID]):
             return 'lineup'
         elif self._intermission_clock.is_running():
             return 'halftime'
-        elif not self._is_final:
-            return 'unofficial'
         else:
-            return 'final'
+            assert self._score_state != 'live'
+            return self._score_state
 
     def get_total_score(self, team: Literal['home', 'away']) -> int:
         total_score: int = 0
@@ -123,7 +124,7 @@ class Bout(Queryable[UUID]):
                       self._timeout_clock):
             if clock.is_running():
                 clock.stop(timestamp)
-        
+
         if not self._period_clock.is_running():
             self._period_clock.start(timestamp)
 
@@ -165,7 +166,7 @@ class Bout(Queryable[UUID]):
             case 'intermission': return self._intermission_clock
             case 'timeout': return self._timeout_clock
             case _: raise ValueError(f'Timer \'{type}\' does not exist')
-            
+
     def timeout_is_running(self) -> bool:
         return len(self._timeouts) > 0 and self._timeouts[-1].is_running()
 
@@ -199,7 +200,8 @@ class Bout(Queryable[UUID]):
         self._timeout_clock.start(timestamp)
         self.notify()
 
-    def set_timeout_caller(self, caller: Literal['home', 'away', 'official']) -> None:
+    def set_timeout_caller(self, caller: Literal['home', 'away',
+                                                 'official']) -> None:
         if not self.timeout_is_running():
             raise RuntimeError('There is no active Timeout running')
         if caller not in ('home', 'away', 'official'):
@@ -283,18 +285,18 @@ class Bout(Queryable[UUID]):
             raise RuntimeError('Intermission is already running')
         elif self.get_game_state() not in ['pregame', 'lineup', 'halftime']:
             raise RuntimeError('Intermission cannot be started right now')
-        
+
         if self._period_clock.is_running():
             self._period_clock.stop(timestamp)
         self._intermission_clock.start(timestamp)
         self.notify()
-    
+
     def stop_intermission(self, timestamp: datetime) -> None:
         if not self._intermission_clock.is_running():
             raise RuntimeError('There is no Intermission running')
-        
+
         self._intermission_clock.stop(timestamp)
         self.notify()
-        
+
     def advance_game(self) -> None:
         ...
