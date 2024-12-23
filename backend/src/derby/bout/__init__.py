@@ -15,7 +15,7 @@ from uuid import UUID
 class Bout(Queryable[UUID]):
     __slots__ = ('_period_clock', '_intermission_clock', '_lineup_clock',
                  '_jam_clock', '_timeout_clock', '_jams', '_timeouts_remaining',
-                 '_official_reviews_remaining', '_timeouts', '_score_state')
+                 '_official_reviews_remaining', '_timeouts', '_state')
 
     def __init__(self, id: UUID) -> None:
         super().__init__((id,))
@@ -46,13 +46,12 @@ class Bout(Queryable[UUID]):
         self.jam.push(0)  # At least 1 Jam is required
 
         # Set the initial score state
-        self._score_state: Literal['pregame', 'live', 'halftime', 'unofficial',
-                                   'final'] = 'pregame'
+        self._state: Literal[0, 1, 'unofficial', 'final'] = 0
 
     def get(self) -> dict[str | float | int, Any]:
         return {
             'gameNumber': None,  # TODO
-            'gameState': self.get_game_state(),
+            'gameState': self.state,
             'numJams': [len(period) for period in self._jams],
             'numTimeouts': len(self._timeouts),
             'timeoutsRemaining': {
@@ -74,6 +73,10 @@ class Bout(Queryable[UUID]):
         }
 
     @property
+    def state(self) -> Literal[0, 1, 'unofficial', 'final']:
+        return self._state
+
+    @property
     def clock(self) -> ClockHelper:
         return ClockHelper(self)
 
@@ -84,23 +87,6 @@ class Bout(Queryable[UUID]):
     @property
     def timeout(self) -> TimeoutHelper:
         return TimeoutHelper(self)
-
-    def get_game_state(self) -> Literal['pregame', 'jam', 'lineup', 'timeout',
-                                        'halftime', 'unofficial', 'final']:
-        if not self._jam_clock.is_running() and [len(period) for period
-                                                 in self._jams] == [1, 0]:
-            return 'pregame'
-        elif self._jam_clock.is_running():
-            return 'jam'
-        elif self._timeout_clock.is_running():
-            return 'timeout'
-        elif self._lineup_clock.is_running():
-            return 'lineup'
-        elif self._intermission_clock.is_running():
-            return 'halftime'
-        else:
-            assert self._score_state != 'live'
-            return self._score_state
 
     def get_total_score(self, team: Literal['home', 'away']) -> int:
         total_score: int = 0
@@ -116,16 +102,14 @@ class Bout(Queryable[UUID]):
     def start_intermission(self, timestamp: datetime) -> None:
         if self.clock.intermission.is_running():
             raise RuntimeError('Intermission is already running')
-        elif self.get_game_state() not in ['pregame', 'lineup', 'halftime']:
-            raise RuntimeError('Intermission cannot be started right now')
+        elif any(clock.is_running() for clock in (self.clock.jam,
+                                                  self.clock.timeout)):
+            raise RuntimeError('Intermission cannot be started now')
 
         for clock in (self._period_clock, self._lineup_clock):
             if clock.is_running():
                 clock.stop(timestamp)
         self._intermission_clock.start(timestamp)
-
-        # TODO: determine if the game state is in pregame of halftime
-
         self.notify()
 
     def stop_intermission(self, timestamp: datetime) -> None:
@@ -135,17 +119,17 @@ class Bout(Queryable[UUID]):
         self.clock.intermission.stop(timestamp)
         self.notify()
 
-    def advance_game(self) -> None:
-        if any(clock.is_running() for clock in (self._jam_clock,
-                                                self._timeout_clock)):
+    def advance_state(self) -> None:
+        if any(clock.is_running() for clock in (self.clock.jam,
+                                                self.clock.timeout)):
             raise RuntimeError('The game can only advance during Lineup')
-        elif self._score_state == 'final':
+        elif self._state == 'final':
             raise RuntimeError('The game has already been finalized')
-        if self.get_current_period_index() == 0:
+        if self.state == 0:
             self.jam.push(1)
-        elif self._score_state == 'live':
-            self._score_state = 'unofficial'
+            self._state = 1
+        elif self._state == 'live':
+            self._state = 'unofficial'
         else:
-            self._score_state = 'final'
-        print('advancing game state')
+            self._state = 'final'
         self.notify()

@@ -16,6 +16,9 @@ class JamHelper:
     @property
     def bout(self) -> Bout:
         return self._bout
+    
+    def is_running(self) -> bool:
+        return self.bout.clock.jam.is_running()
 
     def get(self, jam_id: tuple[int, int]) -> Jam:
         period_index, jam_index = jam_id
@@ -35,7 +38,7 @@ class JamHelper:
         return popped_jam
 
     def start(self, timestamp: datetime) -> None:
-        if self.bout.get_game_state() == 'jam':
+        if self.is_running():
             raise RuntimeError('A Jam is already running')
         elif self.bout._timeout_clock.is_running():
             raise RuntimeError('A Jam cannot start when a Timeout is ongoing')
@@ -55,7 +58,7 @@ class JamHelper:
         self.bout.notify()
 
     def stop(self, timestamp: datetime) -> None:
-        if self.bout.get_game_state() != 'jam':
+        if not self.is_running():
             raise RuntimeError('There is no Jam running')
         current_period_index: int = self.bout.get_current_period_index()
         jam: Jam = self.bout._jams[current_period_index][-1]

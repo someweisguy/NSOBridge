@@ -25,7 +25,7 @@ class TimeoutHelper:
     def call(self, timestamp: datetime | None = None) -> None:
         if self.is_running():
             raise RuntimeError('A Timeout is already running')
-        if self.bout.get_game_state() != 'lineup':
+        if not self.bout.clock.lineup.is_running():
             raise RuntimeError('A Timeout cannot be called right now')
         if timestamp is None:
             timestamp = datetime.now()

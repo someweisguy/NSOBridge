@@ -82,7 +82,7 @@ def startIntermission(boutId: str, latency: int | timedelta,
     bout.start_intermission(now)
 
     if advanceGameState:
-        bout.advance_game()
+        bout.advance_state()
 
 
 @controller.action
