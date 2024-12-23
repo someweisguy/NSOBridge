@@ -5,32 +5,34 @@ import { useSocketState } from "../../../app/hooks/useConnection";
 import dispatch from "../../../app/client";
 import Button from "../../../components/Button";
 import Clock from "../../DynamicClock/components/Clock";
-import useBout from "../../../hooks/useBout";
+import useClock from "../../../hooks/useClock";
 
 export default function JamController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
   const { latency } = useSocketState();
 
-  const gameState = useBout<string>(boutId, (bout) => bout.gameState);
+  const jamIsRunning = useClock<boolean>(boutId, "jam", (clock) => clock.isRunning);
+  const timeoutIsRunning = useClock<boolean>(boutId, "timeout", (clock) => clock.isRunning);
+  const lineupIsRunning = useClock<boolean>(boutId, "lineup", (clock) => clock.isRunning);
 
   const startStopJam = useCallback(() => {
-    if (gameState !== "jam") {
+    if (!jamIsRunning) {
       dispatch("bout", "startJam", { boutId, latency });
     } else {
       dispatch("bout", "stopJam", { boutId, latency });
     }
-  }, [boutId, gameState, latency]);
+  }, [boutId, jamIsRunning, latency]);
 
-  if (gameState !== "jam") {
+  if (!jamIsRunning) {
     return (
       <Button
-        disabled={gameState === "timeout"}
+        disabled={timeoutIsRunning}
         onClick={startStopJam}
         color="green"
       >
         <p className="min-w-20">
           Start Jam{" "}
-          {gameState !== "stopped" && (
+          {lineupIsRunning && !timeoutIsRunning && (
             <>
               &nbsp; <Clock type="lineup" millisStyle="never" />
             </>

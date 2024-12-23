@@ -2,16 +2,19 @@ import { ReactElement, useCallback, useContext } from "react";
 import Button from "../../../components/Button";
 import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
-import useBout from "../../../hooks/useBout";
 import dispatch from "../../../app/client";
 import { useSocketState } from "../../../app/hooks/useConnection";
 import Clock from "../../DynamicClock/components/Clock";
 import ComboButton from "../../../components/ComboButton";
+import useClock from "../../../hooks/useClock";
 
 export default function TimeoutController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
 
-  const gameState = useBout<string>(boutId, (bout) => bout.gameState);
+  const timeoutIsRunning = useClock<boolean>(boutId, "timeout", (clock) => clock.isRunning);
+  const jamIsRunning = useClock<boolean>(boutId, "jam", (clock) => clock.isRunning);
+
+
   const { latency } = useSocketState();
 
   const callTimeout = useCallback(() => {
@@ -22,9 +25,9 @@ export default function TimeoutController(): ReactElement {
     dispatch("bout", "endTimeout", { boutId, latency });
   }, [boutId, latency]);
 
-  if (gameState != "timeout") {
+  if (!timeoutIsRunning) {
     return (
-      <Button onClick={callTimeout} disabled={gameState == "jam"}>
+      <Button onClick={callTimeout} disabled={jamIsRunning}>
         Call Timeout
       </Button>
     );
