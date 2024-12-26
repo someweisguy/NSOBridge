@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
+from operator import is_
 from derby.bout.clock_helper import ClockHelper
 from derby.bout.jam_helper import JamHelper
 from derby.bout.timeout_helper import TimeoutHelper
@@ -52,6 +53,7 @@ class Bout(Queryable[UUID]):
         return {
             'gameNumber': None,  # TODO
             'gameState': self.state,
+            'playState': self.get_play_state(),
             'numJams': [len(period) for period in self._jams],
             'numTimeouts': len(self._timeouts),
             'timeoutsRemaining': {
@@ -87,6 +89,16 @@ class Bout(Queryable[UUID]):
     @property
     def timeout(self) -> TimeoutHelper:
         return TimeoutHelper(self)
+    
+    def get_play_state(self) -> Literal['stopped', 'jam', 'lineup', 'timeout']:
+        if self.clock.jam.is_running():
+            return 'jam'
+        elif self.clock.timeout.is_running():
+            return 'timeout'
+        elif self.clock.lineup.is_running():
+            return 'lineup'
+        else:
+            return 'stopped'
 
     def get_total_score(self, team: Literal['home', 'away']) -> int:
         total_score: int = 0
