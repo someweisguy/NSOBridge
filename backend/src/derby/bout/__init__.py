@@ -16,7 +16,7 @@ from uuid import UUID
 class Bout(Queryable[UUID]):
     __slots__ = ('_period_clock', '_intermission_clock', '_lineup_clock',
                  '_jam_clock', '_timeout_clock', '_jams', '_timeouts_remaining',
-                 '_official_reviews_remaining', '_timeouts', '_state')
+                 '_official_reviews_remaining', '_timeouts', '_score_state')
 
     def __init__(self, id: UUID) -> None:
         super().__init__((id,))
@@ -47,12 +47,12 @@ class Bout(Queryable[UUID]):
         self.jam.push(0)  # At least 1 Jam is required
 
         # Set the initial score state
-        self._state: Literal[0, 1, 'unofficial', 'final'] = 0
+        self._score_state: Literal['live', 'unofficial', 'final'] = 'live'
 
     def get(self) -> dict[str | float | int, Any]:
         return {
             'gameNumber': None,  # TODO
-            'gameState': self.state,
+            'gameState': self.score_state,
             'playState': self.get_play_state(),
             'numJams': [len(period) for period in self._jams],
             'numTimeouts': len(self._timeouts),
@@ -75,8 +75,8 @@ class Bout(Queryable[UUID]):
         }
 
     @property
-    def state(self) -> Literal[0, 1, 'unofficial', 'final']:
-        return self._state
+    def score_state(self) -> Literal['live', 'unofficial', 'final']:
+        return self._score_state
 
     @property
     def clock(self) -> ClockHelper:
@@ -89,7 +89,7 @@ class Bout(Queryable[UUID]):
     @property
     def timeout(self) -> TimeoutHelper:
         return TimeoutHelper(self)
-    
+
     def get_play_state(self) -> Literal['stopped', 'jam', 'lineup', 'timeout']:
         if self.clock.jam.is_running():
             return 'jam'
@@ -114,14 +114,11 @@ class Bout(Queryable[UUID]):
     def start_intermission(self, timestamp: datetime) -> None:
         if self.clock.intermission.is_running():
             raise RuntimeError('Intermission is already running')
-        elif any(clock.is_running() for clock in (self.clock.jam,
-                                                  self.clock.timeout)):
-            raise RuntimeError('Intermission cannot be started now')
+        elif self.get_play_state() != 'stopped':
+            raise RuntimeError(
+                'The Intermission Clock cannot be started right now')
 
-        for clock in (self._period_clock, self._lineup_clock):
-            if clock.is_running():
-                clock.stop(timestamp)
-        self._intermission_clock.start(timestamp)
+        self.clock.intermission.start(timestamp)
         self.notify()
 
     def stop_intermission(self, timestamp: datetime) -> None:
@@ -131,17 +128,26 @@ class Bout(Queryable[UUID]):
         self.clock.intermission.stop(timestamp)
         self.notify()
 
-    def advance_state(self) -> None:
-        if any(clock.is_running() for clock in (self.clock.jam,
-                                                self.clock.timeout)):
+    def advance_game(self) -> None:
+        if self.get_play_state() != 'lineup':
             raise RuntimeError('The game can only advance during Lineup')
-        elif self._state == 'final':
-            raise RuntimeError('The game has already been finalized')
-        if self.state == 0:
-            self.jam.push(1)
-            self._state = 1
-        elif self._state == 'live':
-            self._state = 'unofficial'
+
+        # Stop and reset all clocks
+        for clock in (self.clock.period, self.clock.lineup):
+            if clock.is_running():
+                clock.stop(datetime.now())
+            clock.reset()
+        self.clock.jam.reset()  # Jam clock is not running
+
+        # Advance the game state
+        if self.score_state == 'live':
+            if self.get_current_period_index() == 0:
+                self.jam.push(1)
+            else:
+                self._score_state = 'unofficial'
+        elif self.score_state == 'unofficial':
+            self._score_state = 'final'
         else:
-            self._state = 'final'
+            raise RuntimeError('This Bout has already ended')
+
         self.notify()
