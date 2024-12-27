@@ -141,6 +141,12 @@ class Bout(Queryable[UUID]):
 
         # Advance the game state
         if self.score_state == 'live':
+            # Purge un-started Jams
+            period: list[Jam] = self._jams[self.get_current_period_index()]
+            if not period[-1].has_started():
+                period.pop()
+            
+            # Advance the game state
             if self.get_current_period_index() == 0:
                 self.jam.push(1)
             else:
@@ -149,5 +155,6 @@ class Bout(Queryable[UUID]):
             self._score_state = 'final'
         else:
             raise RuntimeError('This Bout has already ended')
+
 
         self.notify()

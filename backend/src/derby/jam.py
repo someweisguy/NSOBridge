@@ -52,6 +52,9 @@ class Jam(Queryable[tuple[int, int]]):
             'stopReason': self._stop_reason
         }
 
+    def has_started(self) -> bool:
+        return self._start_timestamp is not None
+
     def set_start(self, timestamp: datetime) -> None:
         if self._start_timestamp is not None:
             raise RuntimeError('This Jam has already started')
