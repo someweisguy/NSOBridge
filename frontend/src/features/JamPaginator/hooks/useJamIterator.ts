@@ -85,14 +85,12 @@ export default function useJamIterator(
   useEffect(() => {
     const [periodNum, jamNum] = jamId;
     if (jamNum >= numJams[periodNum]) {
-      const nextJamId = getNextJamId(
-        numJams,
-        getPreviousJamId(numJams, jamId)!  // Get a valid JamId
-      );
+      const validJamId = getPreviousJamId(numJams, jamId)!;
+      const nextJamId = getNextJamId(numJams, validJamId);
       if (nextJamId != null) {
         setJamId(nextJamId);
       } else {
-        setJamId(getPreviousJamId(numJams, jamId)!);
+        setJamId(validJamId);
       }
     }
   }, [numJams, jamId]);
