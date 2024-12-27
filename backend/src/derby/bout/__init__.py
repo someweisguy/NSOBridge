@@ -16,7 +16,8 @@ from uuid import UUID
 class Bout(Queryable[UUID]):
     __slots__ = ('_period_clock', '_intermission_clock', '_lineup_clock',
                  '_jam_clock', '_timeout_clock', '_jams', '_timeouts_remaining',
-                 '_official_reviews_remaining', '_timeouts', '_score_state')
+                 '_official_reviews_remaining', '_timeouts', '_score_state',
+                 '_is_overtime')
 
     def __init__(self, id: UUID) -> None:
         super().__init__((id,))
@@ -48,6 +49,7 @@ class Bout(Queryable[UUID]):
 
         # Set the initial score state
         self._score_state: Literal['live', 'unofficial', 'final'] = 'live'
+        self._is_overtime: bool = False
 
     def get(self) -> dict[str | float | int, Any]:
         return {
@@ -145,7 +147,7 @@ class Bout(Queryable[UUID]):
             period: list[Jam] = self._jams[self.get_current_period_index()]
             if not period[-1].has_started():
                 period.pop()
-            
+
             # Advance the game state
             if self.get_current_period_index() == 0:
                 self.jam.push(1)
@@ -155,6 +157,5 @@ class Bout(Queryable[UUID]):
             self._score_state = 'final'
         else:
             raise RuntimeError('This Bout has already ended')
-
 
         self.notify()
