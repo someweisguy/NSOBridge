@@ -1,5 +1,5 @@
 import { useDeferredValue, useEffect, useState } from "react";
-import useScore from "./useScore";
+import useScore from "../../../hooks/useScore";
 import { ScoreType } from "../types/ScoreType";
 import { JamIdType } from "../../../types/JamIdType";
 

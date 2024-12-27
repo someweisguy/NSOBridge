@@ -1,7 +1,8 @@
 import { ReactElement, useCallback } from "react";
-import PointButton from "./PointButton";
 import setTrip from "../api/setTrip";
 import { JamIdType } from "../../../types/JamIdType";
+import ComboButton from "../../../components/ComboButton";
+import Button from "../../../components/Button";
 
 export default function PointEditor({
   boutId,
@@ -9,46 +10,35 @@ export default function PointEditor({
   team,
   selectedTrip,
   showInitial,
-  reverse = false,
 }: {
   boutId: string;
   jamId: JamIdType;
   team: "home" | "away";
   selectedTrip: number;
   showInitial: boolean;
-  reverse?: boolean;
 }): ReactElement {
   const setPoints = useCallback(
-    (points: number, validPass: boolean = false) => {
-      setTrip(boutId, jamId, team, selectedTrip, points, validPass);
-    },
+    (points: number, validPass: boolean = true) =>
+      setTrip(boutId, jamId, team, selectedTrip, points, validPass),
     [boutId, jamId, team, selectedTrip]
   );
 
-  // Create the buttons, either points or Initial Pass
-  const buttonArray: ReactElement[] = [];
   if (showInitial) {
-    buttonArray.push(
-      <PointButton onClick={() => setPoints(0, false)}>NP/NP</PointButton>
-    );
-    buttonArray.push(
-      <PointButton onClick={() => setPoints(0)}>Initial</PointButton>
+    return (
+      <ComboButton>
+        <Button onClick={() => setPoints(0, false)}>NP/NP</Button>
+        <Button onClick={() => setPoints(0)}>Initial</Button>
+      </ComboButton>
     );
   } else {
-    for (let i = 0; i <= 4; i++) {
-      buttonArray.push(
-        <PointButton onClick={() => setPoints(i)}>{i}</PointButton>
-      );
-    }
+    return (
+      <ComboButton>
+        <Button onClick={() => setPoints(0)}>0</Button>
+        <Button onClick={() => setPoints(1)}>1</Button>
+        <Button onClick={() => setPoints(2)}>2</Button>
+        <Button onClick={() => setPoints(3)}>3</Button>
+        <Button onClick={() => setPoints(4)}>4</Button>
+      </ComboButton>
+    );
   }
-
-  return (
-    <div
-      className={`flex m-4 w-72 justify-between rounded-full outline outline-1 outline-gray-300 ${
-        reverse ? "flex-row-reverse" : "flex-row"
-      }`}
-    >
-      {buttonArray}
-    </div>
-  );
 }

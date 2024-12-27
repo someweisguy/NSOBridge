@@ -17,7 +17,7 @@ def setTrip(boutId: str, jamId: tuple[int, int], team: str, tripId: int,
             points: int, validPass: bool) -> None:
     series: Series = controller.model
     jam: Jam = series.get_bout(boutId).jam.get(jamId)
-    jam.score[team].set_trip(tripId, points)
+    jam.score[team].set_trip(tripId, points, validPass)
 
 
 @controller.action

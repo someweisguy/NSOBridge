@@ -3,7 +3,7 @@ import { JamIdType } from "../../../types/JamIdType";
 import CheckboxButton from "./CheckboxButton";
 import { setLead } from "../api/setLead";
 import { ScoreType } from "../types/ScoreType";
-import useScore from "../hooks/useScore";
+import useScore from "../../../hooks/useScore";
 import { setLost } from "../api/setLost";
 import { setStarPass } from "../api/setStarPass";
 
@@ -40,7 +40,7 @@ export default function JammerState({
   }, [boutId, jamId, team, score.starPass, score.trips]);
 
   return (
-    <div className="flex flex-row items-center justify-center w-full">
+    <div className="flex flex-row justify-center items-center w-full">
       <CheckboxButton
         disabled={score.lost || otherScore.lead}
         selected={score.lead}

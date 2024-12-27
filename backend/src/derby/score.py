@@ -72,14 +72,14 @@ class Score(Queryable[Literal['home', 'away']]):
     def total_points(self) -> int:
         return sum(trip.points for trip in self._trips)
 
-    def set_trip(self, trip_index: int, points: int,
+    def set_trip(self, trip_index: int, points: int, valid_pass: bool,
                  timestamp: datetime | None = None) -> None:
         notify_controller: bool = True
         if trip_index == len(self._trips):
             if timestamp is None:
                 timestamp = datetime.now()
             self._trips.append(Score.Trip(points, timestamp))
-            if not self.lead and self.is_lead_eligible():
+            if valid_pass and not self.lead and self.is_lead_eligible():
                 self._lead = True
         elif self._trips[trip_index].points != points:
             self._trips[trip_index].points = points

@@ -1,7 +1,7 @@
 import { ReactElement, useCallback, useEffect, useRef } from "react";
 import TripNavigationButton from "./TripNavigationButton";
 import TripCard from "./TripCard";
-import useScore from "../hooks/useScore";
+import useScore from "../../../hooks/useScore";
 import DeleteReveal from "./DeleteReveal";
 import deleteTrip from "../api/deleteTrip";
 import { JamIdType } from "../../../types/JamIdType";
@@ -74,13 +74,13 @@ export default function TripCarousel({
 
   return (
     <div className={className}>
-      <div className="flex flex-row items-center flex-initial h-24 min-w-full p-2 px-12">
+      <div className="flex flex-row flex-initial items-center px-12 p-2 min-w-full h-24">
         <div className="z-20 translate-x-1/2">
           <TripNavigationButton direction="left" />
         </div>
         <div
           ref={carouselRef}
-          className="flex outline outline-1 outline-gray-300 flex-row gap-2 p-2 px-5 overflow-x-scroll overflow-y-hidden bg-white rounded-md shadow-inner scroll-smooth grow-0 size-full w-72 no-scrollbar"
+          className="flex flex-row gap-2 bg-white shadow-inner px-5 p-2 rounded-md grow-0 w-72 overflow-x-scroll overflow-y-hidden no-scrollbar outline outline-1 outline-gray-300 scroll-smooth size-full"
         >
           {trips}
         </div>
