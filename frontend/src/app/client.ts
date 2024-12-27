@@ -23,6 +23,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnReconnect: true,
+      staleTime: Infinity,
     },
   },
 });
