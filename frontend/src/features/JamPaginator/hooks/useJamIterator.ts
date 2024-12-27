@@ -52,6 +52,7 @@ export default function useJamIterator(
   [number, number] | null,
   [number, number] | null
 ] {
+  // Get the number of Jams in each period
   const { data: numJams } = useSuspenseQuery<
     BoutType,
     unknown,
@@ -62,6 +63,7 @@ export default function useJamIterator(
     select: (data: BoutType) => data.numJams,
   });
 
+  // Set the initial state
   const [jamId, setJamId] = useState<[number, number]>(() => {
     const periodNum: number = Number(numJams[1] > 0);
     const finalJamId: JamIdType = [periodNum, numJams[periodNum] - 1];
@@ -75,12 +77,11 @@ export default function useJamIterator(
   );
 
   useEffect(() => {
+    // Update the next and previous Jam Ids
     setPreviousJamId(getPreviousJamId(numJams, jamId));
     setNextJamId(getNextJamId(numJams, jamId));
-  }, [jamId, numJams]);
 
-  // Handle case where the current Jam has been deleted
-  useEffect(() => {
+    // Handle case where the current Jam has been deleted
     const [periodNum, jamNum] = jamId;
     if (jamNum >= numJams[periodNum]) {
       const validJamId = getPreviousJamId(numJams, jamId)!;
@@ -91,7 +92,7 @@ export default function useJamIterator(
         setJamId(validJamId);
       }
     }
-  }, [numJams, jamId]);
+  }, [jamId, numJams]);
 
   return [jamId, setJamId, nextJamId, previousJamId];
 }
