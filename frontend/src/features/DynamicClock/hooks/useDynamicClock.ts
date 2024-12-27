@@ -12,16 +12,17 @@ export default function useDynamicClock(
   refreshMillis: number = 1000 / 24
 ): ClockType {
   const { latency } = useSocketState();
-  const latencyRef = useRef(latency); // Prevent useEffect from firing again
   const { data: clock, dataUpdatedAt: clockUpdatedAt } =
     useSuspenseQuery<ClockType>({
       queryKey: keyFactory.clock(boutId, type),
-      queryFn: () => {
-        latencyRef.current = latency; // Update latencyRef when refetching
-        return dispatch("clock", "get", { boutId, type, latency });
-      },
+      queryFn: () => dispatch("clock", "get", { boutId, type, latency }),
     });
   const [elapsed, setElapsed] = useState(clock.elapsed);
+  const latencyRef = useRef(latency); // Prevent useEffect from firing again
+
+  useEffect(() => {
+    latencyRef.current = latency;
+  }, [latency]);
 
   useEffect(() => {
     const elapsedSinceLastData: number = Date.now() - clockUpdatedAt;
