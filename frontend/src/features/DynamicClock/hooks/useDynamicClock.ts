@@ -9,7 +9,7 @@ export default function useDynamicClock(
   boutId: string,
   type: string,
   stopAtZero: boolean = true,
-  refreshMillis: number = 1000 / 24
+  refreshMillis: number = 1000 / 24  // 24 FPS
 ): ClockType {
   const { latency } = useSocketState();
   const { data: clock, dataUpdatedAt: clockUpdatedAt } =
@@ -25,16 +25,20 @@ export default function useDynamicClock(
   }, [latency]);
 
   useEffect(() => {
+    // Determine how much time has elapsed on the clock
     const elapsedSinceLastData: number = Date.now() - clockUpdatedAt;
     let clockElapsed: number = clock.elapsed;
     if (clock.isRunning) {
       clockElapsed += elapsedSinceLastData + latencyRef.current;
     }
     setElapsed(clockElapsed);
+
+    // Do not set an interval if the clock is stopped
     if (!clock.isRunning) {
       return;
     }
 
+    // Update the elapsed time every refreshMillis
     let startTime: number = performance.now() - latencyRef.current;
     const intervalId = setInterval(() => {
       const stopTime: number = performance.now();
