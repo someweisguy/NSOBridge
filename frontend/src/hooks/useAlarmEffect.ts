@@ -56,6 +56,11 @@ export default function useAlarmEffect(
       callback();
     }
 
+    // Don't set a timeout if the clock is stopped
+    if (!clock.isRunning) {
+      return;
+    }
+
     // Set a timeout to call the callback when the alarm goes off
     const timeoutId = setTimeout(() => {
       setAlarmHasFired(true);
