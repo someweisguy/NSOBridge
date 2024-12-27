@@ -16,6 +16,7 @@ function getNextJamId(
     jamScalar += jamCounts[0];
   }
 
+  // Prevent out-of-bounds error
   const maxScalar: number = jamCounts.reduce((sum, count) => (sum += count), 0);
   if (jamScalar >= maxScalar) {
     return null;
@@ -37,6 +38,7 @@ function getPreviousJamId(
     jamScalar += jamCounts[0];
   }
 
+  // Prevent out-of-bounds error
   if (jamScalar < 0) {
     return null;
   }
@@ -64,7 +66,8 @@ export default function useJamIterator(
 
   const [jamId, setJamId] = useState<[number, number]>(() => {
     const periodNum: number = Number(numJams[1] > 0);
-    return [periodNum, numJams[periodNum] - 1];
+    const finalJamId: JamIdType = [periodNum, numJams[periodNum] - 1];
+    return finalJamId;
   });
   const [previousJamId, setPreviousJamId] = useState<[number, number] | null>(
     getPreviousJamId(numJams, jamId)
@@ -77,6 +80,22 @@ export default function useJamIterator(
     setPreviousJamId(getPreviousJamId(numJams, jamId));
     setNextJamId(getNextJamId(numJams, jamId));
   }, [jamId, numJams]);
+
+  // Handle case where the current Jam has been deleted
+  useEffect(() => {
+    const [periodNum, jamNum] = jamId;
+    if (jamNum >= numJams[periodNum]) {
+      const nextJamId = getNextJamId(
+        numJams,
+        getPreviousJamId(numJams, jamId)!  // Get a valid JamId
+      );
+      if (nextJamId != null) {
+        setJamId(nextJamId);
+      } else {
+        setJamId(getPreviousJamId(numJams, jamId)!);
+      }
+    }
+  }, [numJams, jamId]);
 
   return [jamId, setJamId, nextJamId, previousJamId];
 }
