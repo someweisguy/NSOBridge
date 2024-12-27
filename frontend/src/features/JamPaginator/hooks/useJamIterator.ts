@@ -22,10 +22,8 @@ function getNextJamId(
     return null;
   }
 
-  return [
-    Number(jamScalar >= jamCounts[0]),
-    jamScalar >= jamCounts[0] ? 0 : jamNum + 1,
-  ];
+  const newPeriodNum: number = Number(jamScalar >= jamCounts[0]);
+  return [newPeriodNum, newPeriodNum != periodNum ? 0 : jamNum + 1];
 }
 
 function getPreviousJamId(
@@ -43,7 +41,7 @@ function getPreviousJamId(
     return null;
   }
 
-  return [Number(jamScalar > jamCounts[0]), jamScalar % jamCounts[0]];
+  return [Number(jamScalar >= jamCounts[0]), jamScalar % jamCounts[0]];
 }
 
 export default function useJamIterator(
@@ -79,6 +77,8 @@ export default function useJamIterator(
   useEffect(() => {
     setPreviousJamId(getPreviousJamId(numJams, jamId));
     setNextJamId(getNextJamId(numJams, jamId));
+
+    console.log("Next jam is ", getNextJamId(numJams, jamId));
   }, [jamId, numJams]);
 
   // Handle case where the current Jam has been deleted
