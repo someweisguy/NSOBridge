@@ -77,8 +77,6 @@ export default function useJamIterator(
   useEffect(() => {
     setPreviousJamId(getPreviousJamId(numJams, jamId));
     setNextJamId(getNextJamId(numJams, jamId));
-
-    console.log("Next jam is ", getNextJamId(numJams, jamId));
   }, [jamId, numJams]);
 
   // Handle case where the current Jam has been deleted
