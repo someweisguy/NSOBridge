@@ -1,21 +1,26 @@
-import { ReactElement, useCallback, useContext } from "react";
+import {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useSocketState } from "../../../app/hooks/useConnection";
 import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import dispatch from "../../../app/client";
 import Button from "../../../components/Button";
 import Clock from "../../DynamicClock/components/Clock";
-import useAdvanceStateIsReady from "../hooks/useIntermissionIsReady";
 import useClock from "../../../hooks/useClock";
 import usePlayState from "../hooks/usePlayState";
 import useBout from "../../../hooks/useBout";
+import useAlarmEffect from "../../../hooks/useAlarmEffect";
 
 export default function IntermissionHandler(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
 
   // Get the required data to determine if the Intermission is ready to start
   const scoreState = useBout(boutId, (bout) => bout.scoreState);
-  const isReady = useAdvanceStateIsReady(boutId);
   const playState = usePlayState(boutId);
   const intermissionIsRunning = useClock<boolean>(
     boutId,
@@ -26,6 +31,11 @@ export default function IntermissionHandler(): ReactElement {
     return Number(bout.numJams[1] > 0);
   });
 
+  // Allow ending the Period when 5 seconds remain
+  const [readyToEndPeriod, setReadyToEndPeriod] = useState<boolean>(false);
+  useAlarmEffect(() => setReadyToEndPeriod(true), [boutId, "period", 5000]);
+  useEffect(() => setReadyToEndPeriod(false), [boutId, currentHalf]);
+
   // Declare start/stop intermission callbacks
   const { latency } = useSocketState();
   const startIntermission = useCallback(() => {
@@ -35,37 +45,35 @@ export default function IntermissionHandler(): ReactElement {
     dispatch("bout", "stopIntermission", { boutId, latency });
   }, [boutId, latency]);
 
-  // Render end Period button
-  if (scoreState === "live") {
-    if (playState !== "stopped") {
-      return (
-        <Button
-          disabled={!isReady}
-          onClick={() => dispatch("bout", "advanceGameState", { boutId })}
-        >
-          End Period {currentHalf + 1}
-        </Button>
-      );
-    } else if (!intermissionIsRunning) {
-      return (
-        <Button disabled={!isReady} onClick={startIntermission}>
-          Start Intermission Clock
-        </Button>
-      );
-    } else {
-      return (
-        <Button onClick={stopIntermission} color="red">
-          <Clock type="intermission" millisStyle="never" />
-        </Button>
-      );
-    }
+  if (scoreState === "live" && playState === "stopped") {
+    return (
+      <Button
+        color={intermissionIsRunning ? "red" : "none"}
+        onClick={intermissionIsRunning ? stopIntermission : startIntermission}
+      >
+        {!intermissionIsRunning ? (
+          "Start Intermission Clock"
+        ) : (
+          <Clock type="intermission" />
+        )}
+      </Button>
+    );
+  } else if (scoreState === "live") {
+    return (
+      <Button
+        disabled={!readyToEndPeriod || playState !== "lineup"}
+        onClick={() => dispatch("bout", "advanceGameState", { boutId })}
+      >
+        End Period {currentHalf + 1}
+      </Button>
+    );
   } else {
     return (
       <Button
         disabled={scoreState === "final"}
         onClick={() => dispatch("bout", "advanceGameState", { boutId })}
       >
-        Set Official Score
+        Set Final Score
       </Button>
     );
   }
