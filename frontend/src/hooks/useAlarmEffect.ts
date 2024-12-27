@@ -8,7 +8,7 @@ import { BoutIdType } from "../types/BoutIdType";
 
 export default function useAlarmEffect(
   callback: () => void,
-  [boutId, type, milliseconds]: [BoutIdType, string, number]
+  [boutId, type, milliseconds = 0]: [BoutIdType, string, number?]
 ): Dispatch<SetStateAction<boolean>> {
   const [alarmHasFired, setAlarmHasFired] = useState<boolean>(false);
   const { latency } = useSocketState();
