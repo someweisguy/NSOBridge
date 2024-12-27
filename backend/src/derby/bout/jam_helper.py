@@ -40,8 +40,10 @@ class JamHelper:
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
             raise RuntimeError('A Jam is already running')
-        elif self.bout._timeout_clock.is_running():
+        elif self.bout.clock.timeout.is_running():
             raise RuntimeError('A Jam cannot start when a Timeout is ongoing')
+        elif self.bout.score_state == 'final':
+            raise RuntimeError('This Bout has ended')
         jam: Jam = self.bout._jams[self.bout.get_current_period_index()][-1]
 
         for clock in (self.bout._intermission_clock, self.bout._lineup_clock,
