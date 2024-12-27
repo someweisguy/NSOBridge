@@ -1,8 +1,7 @@
-import { GameStates } from "./GameStates";
-
 export type BoutType = {
   gameNumber: string;
-  gameState: GameStates;
+  scoreState: "live" | "unofficial" | "final";
+  playState: "stopped" | "jam" | "lineup" | "timeout";
   numJams: [number, number];
   score: {
     home: number;

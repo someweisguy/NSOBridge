@@ -52,7 +52,7 @@ class Bout(Queryable[UUID]):
     def get(self) -> dict[str | float | int, Any]:
         return {
             'gameNumber': None,  # TODO
-            'gameState': self.score_state,
+            'scoreState': self.score_state,
             'playState': self.get_play_state(),
             'numJams': [len(period) for period in self._jams],
             'numTimeouts': len(self._timeouts),
@@ -129,8 +129,8 @@ class Bout(Queryable[UUID]):
         self.notify()
 
     def advance_game(self) -> None:
-        if self.get_play_state() != 'lineup':
-            raise RuntimeError('The game can only advance during Lineup')
+        if self.get_play_state() not in ('stopped', 'lineup'):
+            raise RuntimeError('The Bout cannot be advanced right now')
 
         # Stop and reset all clocks
         for clock in (self.clock.period, self.clock.lineup):
