@@ -70,8 +70,14 @@ def endTimeout(boutId: str, latency: int | timedelta) -> None:
 
 
 @controller.action
-def startIntermission(boutId: str, latency: int | timedelta,
-                      advanceGameState: bool) -> None:
+def advanceGameState(boutId: str) -> None:
+    series: Series = controller.model
+    bout: Bout = series.get_bout(boutId)
+    bout.advance_game()
+
+
+@controller.action
+def startIntermission(boutId: str, latency: int | timedelta) -> None:
     now: datetime = datetime.now()
     if isinstance(latency, int):
         latency = timedelta(milliseconds=latency)
@@ -80,9 +86,6 @@ def startIntermission(boutId: str, latency: int | timedelta,
     series: Series = controller.model
     bout: Bout = series.get_bout(boutId)
     bout.start_intermission(now)
-
-    if advanceGameState:
-        bout.advance_game()
 
 
 @controller.action

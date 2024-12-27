@@ -7,6 +7,7 @@ import Button from "../../../components/Button";
 import Clock from "../../DynamicClock/components/Clock";
 import useIntermissionIsReady from "../hooks/useIntermissionIsReady";
 import useClock from "../../../hooks/useClock";
+import usePlayState from "../hooks/usePlayState";
 
 export default function IntermissionHandler(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
@@ -17,27 +18,32 @@ export default function IntermissionHandler(): ReactElement {
     "intermission",
     (clock) => clock.isRunning
   );
-  const lineupIsRunning = useClock<boolean>(
-    boutId,
-    "lineup",
-    (clock) => clock.isRunning
-  );
   const isReady = useIntermissionIsReady(boutId);
   const { latency } = useSocketState();
+
+  const playState = usePlayState(boutId);
 
   const startIntermission = useCallback(() => {
     dispatch("bout", "startIntermission", {
       boutId,
       latency,
-      advanceGameState: lineupIsRunning,
     });
-  }, [boutId, latency, lineupIsRunning]);
+  }, [boutId, latency,]);
 
   const stopIntermission = useCallback(() => {
     dispatch("bout", "stopIntermission", { boutId, latency });
   }, [boutId, latency]);
 
-  if (!intermissionIsRunning) {
+  if (playState !== "stopped") {
+    return (
+      <Button
+        disabled={!isReady}
+        onClick={() => dispatch("bout", "advanceGameState", { boutId })}
+      >
+        End Half
+      </Button>
+    );
+  } else if (!intermissionIsRunning) {
     return (
       <Button disabled={!isReady} onClick={startIntermission}>
         Start Intermission
