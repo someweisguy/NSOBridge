@@ -15,11 +15,16 @@ function getNextJamId(
   if (periodNum == 1) {
     jamScalar += jamCounts[0];
   }
+
   const maxScalar: number = jamCounts.reduce((sum, count) => (sum += count), 0);
   if (jamScalar >= maxScalar) {
     return null;
   }
-  return [Number(jamScalar > jamCounts[0]), jamScalar % jamCounts[0]];
+
+  return [
+    Number(jamScalar >= jamCounts[0]),
+    jamScalar >= jamCounts[0] ? 0 : jamNum + 1,
+  ];
 }
 
 function getPreviousJamId(
@@ -31,9 +36,11 @@ function getPreviousJamId(
   if (periodNum == 1) {
     jamScalar += jamCounts[0];
   }
+
   if (jamScalar < 0) {
     return null;
   }
+
   return [Number(jamScalar > jamCounts[0]), jamScalar % jamCounts[0]];
 }
 
