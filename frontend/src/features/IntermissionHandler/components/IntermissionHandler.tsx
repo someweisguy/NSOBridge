@@ -12,7 +12,6 @@ import dispatch from "../../../app/client";
 import Button from "../../../components/Button";
 import Clock from "../../DynamicClock/components/Clock";
 import useClock from "../../../hooks/useClock";
-import usePlayState from "../hooks/usePlayState";
 import useBout from "../../../hooks/useBout";
 import useAlarmEffect from "../../../hooks/useAlarmEffect";
 
@@ -21,7 +20,7 @@ export default function IntermissionHandler(): ReactElement {
 
   // Get the required data to determine if the Intermission is ready to start
   const scoreState = useBout(boutId, (bout) => bout.scoreState);
-  const playState = usePlayState(boutId);
+  const playState = useBout(boutId, (bout) => bout.playState);
   const intermissionIsRunning = useClock<boolean>(
     boutId,
     "intermission",
