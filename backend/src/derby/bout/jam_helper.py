@@ -29,6 +29,7 @@ class JamHelper:
         new_jam: Jam = Jam(self.bout.id, (period, next_jam_number))
         self.bout._jams[period].append(new_jam)
         self.bout.watch(new_jam)
+        new_jam.notify()
         self.bout.notify()
 
     def pop(self, period: int) -> Jam:
