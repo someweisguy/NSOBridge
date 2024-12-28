@@ -24,14 +24,7 @@ export default function ScoreKeeper({
   const showInitial = useInitialPass(boutId, jamId, selectedTrip);
 
   // Get the Jammer state variables
-  const [lead, lost, starPass] = useScore<[boolean, boolean, number | null]>(
-    boutId,
-    jamId,
-    team,
-    (score) => {
-      return [score.lead, score.lost, score.starPass];
-    }
-  );
+  const { lead, lost, starPass } = useScore(boutId, jamId, team);
   const isLeadEligible =
     !useScore<boolean>(
       boutId,
