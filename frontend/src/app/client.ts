@@ -3,12 +3,14 @@ import { v4 as uuid4 } from "uuid";
 
 type Response<T = unknown> =
   | {
-      transactionId: string;
+      clientId: string;
+      transactionId: number;
       result: "ok";
       data: T;
     }
   | {
-      transactionId: string;
+      clientId: string;
+      transactionId: number;
       result: "error";
       data: { title: string; detail: string };
     };
@@ -28,8 +30,10 @@ export const queryClient = new QueryClient({
   },
 });
 
+const clientId: string = uuid4();
 const socket: WebSocket = new WebSocket("ws://" + window.location.host + "/ws");
-const transactions: Map<string, (ack: Response<unknown>) => void> = new Map();
+const transactions: Map<number, (ack: Response<unknown>) => void> = new Map();
+let transactionId: number = 0;
 
 socket.onopen = () => {
   onlineManager.setOnline(true);
@@ -43,12 +47,15 @@ socket.onclose = () => {
 socket.onmessage = (event: MessageEvent<string>) => {
   const message: Response<unknown> | Message[] = JSON.parse(event.data);
 
-  if ("transactionId" in message) {
-    if (transactions.has(message.transactionId)) {
-      const resolve = transactions.get(message.transactionId)!;
-      resolve(message);
+  if ("clientId" in message) {
+    // Throw an error if the transaction ID is unknown
+    if (!message.transactionId || !transactions.has(message.transactionId)) {
+      throw Error("Unknown transaction ID: " + message.transactionId);
     }
-    return;
+
+    // Resolve the transaction
+    const resolve = transactions.get(message.transactionId!)!;
+    resolve(message);
   } else {
     for (const notification of message) {
       const queryKey =
@@ -66,9 +73,10 @@ export default async function dispatch<T = unknown>(
   args: object = {}
 ) {
   const response: Response<unknown> = await new Promise((resolve) => {
-    const payload = { module, method, args, transactionId: uuid4() };
+    const payload = { module, method, args, clientId, transactionId };
     transactions.set(payload.transactionId, resolve);
     socket.send(JSON.stringify(payload));
+    transactionId++;
   });
   transactions.delete(response.transactionId);
 

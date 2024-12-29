@@ -51,7 +51,8 @@ async def ws(websocket: WebSocket):
 
             # Begin to construct the response payload
             response: dict[str, Any] = {
-                'transactionId': request['transactionId']
+                'transactionId': request['transactionId'],
+                'clientId': request['clientId']
             }
 
             # Validate the desired action is defined
