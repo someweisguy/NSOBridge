@@ -47,23 +47,27 @@ socket.onclose = () => {
 socket.onmessage = (event: MessageEvent<string>) => {
   const message: Response<unknown> | Message[] = JSON.parse(event.data);
 
+  // Handle server responses
   if ("clientId" in message) {
-    // Throw an error if the transaction ID is unknown
-    if (!message.transactionId || !transactions.has(message.transactionId)) {
+    if (message.clientId !== clientId) {
+      return; // The message is not for this client
+    } else if (!transactions.has(message.transactionId)) {
       throw Error("Unknown transaction ID: " + message.transactionId);
     }
 
     // Resolve the transaction
     const resolve = transactions.get(message.transactionId!)!;
     resolve(message);
-  } else {
-    for (const notification of message) {
-      const queryKey =
-        notification.id != null && notification.id.constructor == Array
-          ? [notification.type, ...notification.id]
-          : [notification.type, notification.id];
-      queryClient.setQueryData(queryKey, notification.data);
-    }
+    return;
+  }
+
+  // Handle server notifications
+  for (const notification of message) {
+    const queryKey =
+      notification.id != null && notification.id.constructor == Array
+        ? [notification.type, ...notification.id]
+        : [notification.type, notification.id];
+    queryClient.setQueryData(queryKey, notification.data);
   }
 };
 
