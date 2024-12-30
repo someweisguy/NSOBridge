@@ -36,9 +36,11 @@ export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
             {jamNum + 1}
           </span>
         </div>
-
         <div className="text-right flex-1 px-1 w-16">
-          <Clock type={playState === "stopped" ? "jam" : playState} />
+          <Clock
+            type={playState === "stopped" ? "jam" : playState}
+            millisStyle={playState === "jam" ? "auto" : "never"}
+          />
         </div>
       </div>
       <div className="hidden bg-blue-200 w-full font-semibold text-center text-sm">
