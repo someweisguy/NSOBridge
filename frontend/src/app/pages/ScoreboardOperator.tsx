@@ -6,10 +6,12 @@ import TimeoutController from "../../features/TimeoutController/components/Timeo
 import Clock from "../../features/DynamicClock/components/Clock";
 import JamEndReason from "../../features/JamEndReason/components/JamEndReason";
 import IntermissionHandler from "../../features/IntermissionHandler/components/IntermissionHandler";
+import GameChip from "../../components/GameChip";
 
 export default function ScoreboardOperator() {
   return (
     <>
+      <GameChip />
       <IntermissionHandler /> &nbsp; <Clock type="period" />
       <div className="flex w-full spaced-between">
         <div className="flex-1">
