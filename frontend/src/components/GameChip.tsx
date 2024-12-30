@@ -27,14 +27,14 @@ export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
         <div className="text-right flex-1 px-2 w-16 min-w-fit">
           <Clock type="period" />
         </div>
-        <div className="flex-none px-1 border-raisin-300 border-l w-fit">
-          P{periodNum + 1}
+        <div className="flex flex-none place-content-around border-gray-400 px-1 border-r border-l w-20">
+          <span className="flex-1 max-w-min">P{periodNum + 1}</span>
+          <span className="flex-1 max-w-min">
+            {playState === "lineup" ? "L" : "J"}
+            {jamNum + 1}
+          </span>
         </div>
 
-        <div className="text-right flex-none px-1 border-r border-raisin-300">
-          {playState === "lineup" ? "L" : "J"}
-          {jamNum + 1}
-        </div>
         <div className="text-right flex-1 px-1 w-16">
           <Clock type={playState === "stopped" ? "jam" : playState} />
         </div>
