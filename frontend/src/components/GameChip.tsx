@@ -21,13 +21,15 @@ export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
     bout.playState,
   ]);
 
+  // TODO: add Pregame, halftime, unofficial, and final states
+
   return (
-    <div className="flex flex-col bg-raisin-100 m-3 rounded-lg max-w-min text-lg overflow-hidden">
+    <div className="flex flex-col bg-raisin-100 m-3 py-2 rounded-lg max-w-min text-lg overflow-hidden">
       <div className="flex flex-row place-content-between bg-pink p-1 rounded-b-lg font-mono">
         <div className="text-right flex-1 px-2 w-16 min-w-fit">
           <Clock type="period" />
         </div>
-        <div className="flex flex-none place-content-around border-gray-400 px-1 border-r border-l w-20">
+        <div className="flex flex-none place-content-around border-x px-1 border-raisin border-raisin-400 w-20">
           <span className="flex-1 max-w-min">P{periodNum + 1}</span>
           <span className="flex-1 max-w-min">
             {playState === "lineup" ? "L" : "J"}
