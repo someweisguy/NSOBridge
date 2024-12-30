@@ -39,7 +39,7 @@ export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
           <Clock type={playState === "stopped" ? "jam" : playState} />
         </div>
       </div>
-      <div className="bg-blue-200 w-full font-semibold text-center text-sm">
+      <div className="hidden bg-blue-200 w-full font-semibold text-center text-sm">
         Timeout
       </div>
     </div>
