@@ -28,7 +28,7 @@ class Bout(Queryable[UUID]):
         self._lineup_clock: Clock = Clock(id, 'lineup')
         self._jam_clock: Clock = Clock(id, 'jam')
         self._timeout_clock: Clock = Clock(id, 'timeout')
-        self._period_clock.set_alarm(seconds=30)
+        self._period_clock.set_alarm(minutes=30)
         self._lineup_clock.set_alarm(seconds=30)
         self._jam_clock.set_alarm(minutes=2)
 
