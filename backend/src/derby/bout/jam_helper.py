@@ -56,8 +56,8 @@ class JamHelper:
             self.bout._period_clock.start(timestamp)
 
         jam.set_start(timestamp)
-        self.bout._jam_clock.reset()
         self.bout._jam_clock.start(timestamp)
+        self.bout._lineup_clock.reset()
         self.bout.notify()
 
     def stop(self, timestamp: datetime) -> None:
@@ -80,7 +80,8 @@ class JamHelper:
         jam.set_stop(timestamp)
         jam.stop_reason = reason
         self.bout._jam_clock.stop(timestamp)
-        self.bout._lineup_clock.reset()
+        self.bout._jam_clock.reset()
+        
         self.bout._lineup_clock.start(timestamp)
         self.push(current_period_index)
         self.bout.notify()
