@@ -24,7 +24,7 @@ export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
   // TODO: add Pregame, halftime, unofficial, and final states
 
   return (
-    <div className="flex flex-col bg-raisin-100 m-3 py-2 rounded-lg max-w-min text-lg overflow-hidden">
+    <div className="flex flex-col bg-raisin-100 m-3 py-1 rounded-lg max-w-min text-xl overflow-hidden">
       <div className="flex flex-row place-content-between bg-pink p-1 rounded-b-lg font-mono">
         <div className="text-right flex-1 px-2 w-16 min-w-fit">
           <Clock type="period" />
