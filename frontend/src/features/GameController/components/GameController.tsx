@@ -81,7 +81,7 @@ export default function GameController(): ReactElement {
   } else {
     return (
       <div className="gap-4 grid grid-cols-3">
-        <Button color="green">Start Jam</Button>
+        <Button onClick={startStopJam} color="green">Start Jam</Button>
         <Button>Start Lineup</Button>
         <Button>Start Intermission Clock</Button>
       </div>
