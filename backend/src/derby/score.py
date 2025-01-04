@@ -66,7 +66,7 @@ class Score(Queryable[Literal['home', 'away']]):
     def is_lead_eligible(self) -> bool:
         other: Score = (self._parent.score.home
                         if self is self._parent.score.away
-                        else self._parent.score.home)
+                        else self._parent.score.away)
         return not self.lost and not other.lead
 
     def total_points(self) -> int:
