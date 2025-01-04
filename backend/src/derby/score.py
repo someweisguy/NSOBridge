@@ -86,7 +86,7 @@ class Score(Queryable[Literal['home', 'away']]):
         else:
             notify_controller = False
 
-        if notify_controller:  # TODO: should notifications move to API functions?
+        if notify_controller:
             self.notify()
 
     def del_trip(self, trip_index: int) -> None:
