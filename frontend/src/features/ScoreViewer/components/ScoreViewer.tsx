@@ -28,7 +28,7 @@ export default function ScoreViewer({ team }: { team: "home" | "away" }) {
       <div className="p-4 text-4xl">{teamString}</div>
 
       <div className="grid items-stretch grid-flow-col">
-        <div className="items-center bg-blue">
+        <div className="items-center">
           <div className="grid p-2 mx-4 bg-raisin-200 place-items-center rounded-xl">
             <span className="inline-grid gap-2 pb-2 border-b border-raisin-50">
               <span
