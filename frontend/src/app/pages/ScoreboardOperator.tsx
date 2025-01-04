@@ -4,6 +4,7 @@ import Container from "../../components/Container";
 import JamEndReason from "../../features/JamEndReason/components/JamEndReason";
 import GameChip from "../../components/GameChip";
 import GameController from "../../features/GameController/components/GameController";
+import ScoreViewer from "../../features/ScoreViewer/components/ScoreViewer";
 
 export default function ScoreboardOperator() {
   return (
@@ -15,9 +16,11 @@ export default function ScoreboardOperator() {
       <JamPaginator left={<JamEndReason />}>
         <div className="flex flex-row gap-4">
           <Container>
+            <ScoreViewer team="home" />
             <ScoreKeeper team="home" />
           </Container>
           <Container>
+            <ScoreViewer team="away" />
             <ScoreKeeper team="away" />
           </Container>
         </div>
