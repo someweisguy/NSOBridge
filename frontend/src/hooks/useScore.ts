@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import dispatch from "../app/client";
-import { JamIdType } from "../types/JamIdType";
 import { ScoreType } from "../features/ScoreKeeper/types/ScoreType";
 import { keyFactory } from "../utils/keyFactory";
+import { JamIdType } from "../types/jam";
 
 export default function useScore<T = ScoreType>(
   boutId: string,

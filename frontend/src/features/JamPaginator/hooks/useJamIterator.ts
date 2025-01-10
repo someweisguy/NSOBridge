@@ -4,17 +4,12 @@ import { BoutType } from "../../../types/BoutType";
 import { keyFactory } from "../../../utils/keyFactory";
 import dispatch from "../../../app/client";
 import { useEffect, useState } from "react";
-import { JamIdType } from "../../../types/JamIdType";
 import { getNextJamId, getPreviousJamId } from "../../../utils/jamId";
+import { JamIdType } from "../../../types/jam";
 
 export default function useJamIterator(
   boutId: BoutIdType
-): [
-  [number, number],
-  (jamId: [number, number]) => void,
-  [number, number] | null,
-  [number, number] | null
-] {
+): [JamIdType, (jamId: JamIdType) => void, JamIdType | null, JamIdType | null] {
   // Get the number of Jams in each period
   const { data: numJams } = useSuspenseQuery<
     BoutType,
@@ -27,15 +22,15 @@ export default function useJamIterator(
   });
 
   // Set the initial state
-  const [jamId, setJamId] = useState<[number, number]>(() => {
+  const [jamId, setJamId] = useState<JamIdType>(() => {
     const periodNum: number = Number(numJams[1] > 0);
     const finalJamId: JamIdType = [periodNum, numJams[periodNum] - 1];
     return finalJamId;
   });
-  const [previousJamId, setPreviousJamId] = useState<[number, number] | null>(
+  const [previousJamId, setPreviousJamId] = useState<JamIdType | null>(
     getPreviousJamId(numJams, jamId)
   );
-  const [nextJamId, setNextJamId] = useState<[number, number] | null>(
+  const [nextJamId, setNextJamId] = useState<JamIdType | null>(
     getNextJamId(numJams, jamId)
   );
 
