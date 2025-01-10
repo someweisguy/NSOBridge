@@ -44,7 +44,12 @@ export function getActiveJamId(numJams: [number, number], playState: string) {
 
   let activeJamId: [number, number] = [periodNum, jamNum];
   if (playState !== "jam") {
-    activeJamId = getPreviousJamId(numJams, activeJamId)!;
+    const previousJamId: [number, number] | null = getPreviousJamId(numJams, activeJamId);
+    if (previousJamId == null) {
+      activeJamId = [0, 0];
+    } else {
+      activeJamId = getPreviousJamId(numJams, activeJamId)!;
+    }
   }
 
   return activeJamId;
