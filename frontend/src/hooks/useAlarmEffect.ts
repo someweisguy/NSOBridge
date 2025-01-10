@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { ClockType } from "../types/ClockType";
+import { ClockType } from "../types/clock";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/keyFactory";
 import dispatch from "../app/client";

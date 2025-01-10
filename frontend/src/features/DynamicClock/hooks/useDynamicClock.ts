@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ClockType } from "../../../types/ClockType";
+import { ClockType } from "../../../types/clock";
 import { useSocketState } from "../../../app/hooks/useConnection";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import dispatch from "../../../app/client";
