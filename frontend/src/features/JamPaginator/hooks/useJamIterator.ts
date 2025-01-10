@@ -5,44 +5,7 @@ import { keyFactory } from "../../../utils/keyFactory";
 import dispatch from "../../../app/client";
 import { useEffect, useState } from "react";
 import { JamIdType } from "../../../types/JamIdType";
-
-function getNextJamId(
-  jamCounts: [number, number],
-  jamId: JamIdType
-): JamIdType | null {
-  const [periodNum, jamNum] = jamId;
-  let jamScalar: number = jamNum + 1;
-  if (periodNum == 1) {
-    jamScalar += jamCounts[0];
-  }
-
-  // Prevent out-of-bounds error
-  const maxScalar: number = jamCounts.reduce((sum, count) => (sum += count), 0);
-  if (jamScalar >= maxScalar) {
-    return null;
-  }
-
-  const newPeriodNum: number = Number(jamScalar >= jamCounts[0]);
-  return [newPeriodNum, newPeriodNum != periodNum ? 0 : jamNum + 1];
-}
-
-function getPreviousJamId(
-  jamCounts: [number, number],
-  jamId: JamIdType
-): JamIdType | null {
-  const [periodNum, jamNum] = jamId;
-  let jamScalar: number = jamNum - 1;
-  if (periodNum == 1) {
-    jamScalar += jamCounts[0];
-  }
-
-  // Prevent out-of-bounds error
-  if (jamScalar < 0) {
-    return null;
-  }
-
-  return [Number(jamScalar >= jamCounts[0]), jamScalar % jamCounts[0]];
-}
+import { getNextJamId, getPreviousJamId } from "../../../utils/jamId";
 
 export default function useJamIterator(
   boutId: BoutIdType
