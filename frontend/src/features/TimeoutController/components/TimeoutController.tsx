@@ -1,19 +1,26 @@
 import { ReactElement, useCallback, useContext } from "react";
 import Button from "../../../components/Button";
-import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import dispatch from "../../../app/client";
 import { useSocketState } from "../../../app/hooks/useConnection";
 import Clock from "../../DynamicClock/components/Clock";
 import ComboButton from "../../../components/ComboButton";
 import useClock from "../../../hooks/useClock";
+import { BoutIdType } from "../../../types/bout";
 
 export default function TimeoutController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
 
-  const timeoutIsRunning = useClock<boolean>(boutId, "timeout", (clock) => clock.isRunning);
-  const jamIsRunning = useClock<boolean>(boutId, "jam", (clock) => clock.isRunning);
-
+  const timeoutIsRunning = useClock<boolean>(
+    boutId,
+    "timeout",
+    (clock) => clock.isRunning
+  );
+  const jamIsRunning = useClock<boolean>(
+    boutId,
+    "jam",
+    (clock) => clock.isRunning
+  );
 
   const { latency } = useSocketState();
 

@@ -3,14 +3,14 @@ import PointEditor from "./PointEditor";
 import TripCarousel from "./TripCarousel";
 import useTripIndex from "../hooks/useTripIndex";
 import useInitialPass from "../hooks/useInitialPass";
-import { JamIdType } from "../../../types/JamIdType";
-import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import { JamIdContext } from "../../JamPaginator/components/JamPaginator";
 import Button from "../../../components/Button";
 import { setLead } from "../api/setLead";
 import useScore from "../../../hooks/useScore";
 import { setLost } from "../api/setLost";
+import { BoutIdType } from "../../../types/bout";
+import { JamIdType } from "../../../types/jam";
 
 export default function ScoreKeeper({
   team,

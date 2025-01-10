@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import useBout from "../../../hooks/useBout";
 import useActiveJamId from "../../../hooks/useActiveJamId";
 import useScore from "../../../hooks/useScore";
+import { BoutIdType } from "../../../types/bout";
 
 export default function ScoreViewer({ team }: { team: "home" | "away" }) {
   const boutId = useContext<BoutIdType>(BoutIdContext);

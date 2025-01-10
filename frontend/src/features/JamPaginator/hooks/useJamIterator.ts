@@ -1,11 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { BoutIdType } from "../../../types/BoutIdType";
-import { BoutType } from "../../../types/BoutType";
 import { keyFactory } from "../../../utils/keyFactory";
 import dispatch from "../../../app/client";
 import { useEffect, useState } from "react";
 import { getNextJamId, getPreviousJamId } from "../../../utils/jamId";
 import { JamIdType } from "../../../types/jam";
+import { BoutIdType, BoutType } from "../../../types/bout";
 
 export default function useJamIterator(
   boutId: BoutIdType

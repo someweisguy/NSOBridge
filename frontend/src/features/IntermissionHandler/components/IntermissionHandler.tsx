@@ -6,7 +6,6 @@ import {
   useState,
 } from "react";
 import { useSocketState } from "../../../app/hooks/useConnection";
-import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import dispatch from "../../../app/client";
 import Button from "../../../components/Button";
@@ -14,6 +13,7 @@ import Clock from "../../DynamicClock/components/Clock";
 import useClock from "../../../hooks/useClock";
 import useBout from "../../../hooks/useBout";
 import useAlarmEffect from "../../../hooks/useAlarmEffect";
+import { BoutIdType } from "../../../types/bout";
 
 export default function IntermissionHandler(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);

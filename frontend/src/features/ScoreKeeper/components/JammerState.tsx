@@ -1,11 +1,11 @@
 import { ReactElement, useCallback } from "react";
-import { JamIdType } from "../../../types/JamIdType";
 import CheckboxButton from "./CheckboxButton";
 import { setLead } from "../api/setLead";
 import { ScoreType } from "../types/ScoreType";
 import useScore from "../../../hooks/useScore";
 import { setLost } from "../api/setLost";
 import { setStarPass } from "../api/setStarPass";
+import { JamIdType } from "../../../types/jam";
 
 export default function JammerState({
   boutId,

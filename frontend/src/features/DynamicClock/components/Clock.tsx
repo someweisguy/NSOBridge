@@ -1,8 +1,8 @@
 import { ReactElement, useContext } from "react";
 import { ClockType } from "../../../types/ClockType";
 import useDynamicClock from "../hooks/useDynamicClock";
-import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
+import { BoutIdType } from "../../../types/bout";
 
 export default function Clock({
   type,

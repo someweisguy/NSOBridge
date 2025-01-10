@@ -1,5 +1,5 @@
-import { BoutIdType } from "../types/BoutIdType";
-import { JamIdType } from "../types/JamIdType";
+import { BoutIdType } from "../types/bout";
+import { JamIdType } from "../types/jam";
 
 export const keyFactory = {
   series: () => ["series"],

@@ -5,11 +5,12 @@ import {
   useContext,
 } from "react";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
-import { BoutIdType } from "../../../types/BoutIdType";
 import useJamIterator from "../hooks/useJamIterator";
 import Button from "../../../components/Button";
+import { BoutIdType } from "../../../types/bout";
+import { JamIdType } from "../../../types/jam";
 
-export const JamIdContext = createContext<[number, number]>([0, 0]);
+export const JamIdContext = createContext<JamIdType>([0, 0]);
 
 export default function JamPaginator({
   left = <></>,

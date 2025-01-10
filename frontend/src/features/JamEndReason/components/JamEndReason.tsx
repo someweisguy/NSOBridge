@@ -4,10 +4,9 @@ import Button from "../../../components/Button";
 import dispatch from "../../../app/client";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import { JamIdContext } from "../../JamPaginator/components/JamPaginator";
-import { JamIdType } from "../../../types/JamIdType";
-import { JamType } from "../../../types/JamType";
 import useJam from "../../../hooks/useJam";
-import { BoutIdType } from "../../../types/BoutIdType";
+import { BoutIdType } from "../../../types/bout";
+import { JamIdType, JamType } from "../../../types/jam";
 
 export default function JamEndReason(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);

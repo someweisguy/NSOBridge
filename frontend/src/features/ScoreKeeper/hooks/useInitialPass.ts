@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { JamIdType } from "../../../types/JamIdType";
+import { JamIdType } from "../../../types/jam";
 
 export default function useInitialPass(boutId: string, jamId: JamIdType, selectedTrip?: number): boolean {
   const [showInitial,] = useState<boolean>(true);

@@ -1,3 +1,5 @@
+export type BoutIdType = string;
+
 export type BoutType = {
   gameNumber: string;
   scoreState: "live" | "unofficial" | "final";

@@ -4,7 +4,7 @@ import TripCard from "./TripCard";
 import useScore from "../../../hooks/useScore";
 import DeleteReveal from "./DeleteReveal";
 import deleteTrip from "../api/deleteTrip";
-import { JamIdType } from "../../../types/JamIdType";
+import { JamIdType } from "../../../types/jam";
 
 export default function TripCarousel({
   className = "",

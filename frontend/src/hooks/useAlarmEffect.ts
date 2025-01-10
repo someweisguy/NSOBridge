@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/keyFactory";
 import dispatch from "../app/client";
 import { useSocketState } from "../app/hooks/useConnection";
-import { BoutIdType } from "../types/BoutIdType";
+import { BoutIdType } from "../types/bout";
 
 export default function useAlarmEffect(
   callback: () => void,

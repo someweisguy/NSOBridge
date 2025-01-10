@@ -1,5 +1,5 @@
 import dispatch from "../../../app/client";
-import { JamIdType } from "../../../types/JamIdType";
+import { JamIdType } from "../../../types/jam";
 
 
 export async function setLost(boutId: string, jamId: JamIdType, team: string,

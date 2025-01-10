@@ -1,11 +1,11 @@
 import { ReactElement, useCallback, useContext } from "react";
 import Button from "../../../components/Button";
-import { BoutIdType } from "../../../types/BoutIdType";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import useBout from "../../../hooks/useBout";
 import ComboButton from "../../../components/ComboButton";
 import dispatch from "../../../app/client";
 import { useSocketState } from "../../../app/hooks/useConnection";
+import { BoutIdType } from "../../../types/bout";
 
 export default function GameController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
@@ -81,7 +81,9 @@ export default function GameController(): ReactElement {
   } else {
     return (
       <div className="gap-4 grid grid-cols-3">
-        <Button onClick={startStopJam} color="green">Start Jam</Button>
+        <Button onClick={startStopJam} color="green">
+          Start Jam
+        </Button>
         <Button>Start Lineup</Button>
         <Button>Start Intermission Clock</Button>
       </div>

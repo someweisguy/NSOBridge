@@ -1,4 +1,4 @@
-import { JamIdType } from "../types/JamIdType";
+import { JamIdType } from "../types/jam";
 
 export function getNextJamId(
   jamCounts: [number, number],

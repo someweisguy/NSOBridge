@@ -1,8 +1,8 @@
 import { ReactElement, useCallback } from "react";
 import setTrip from "../api/setTrip";
-import { JamIdType } from "../../../types/JamIdType";
 import ComboButton from "../../../components/ComboButton";
 import Button from "../../../components/Button";
+import { JamIdType } from "../../../types/jam";
 
 export default function PointEditor({
   boutId,
