@@ -38,10 +38,7 @@ export function getPreviousJamId(
   return [Number(jamScalar >= jamCounts[0]), jamScalar % jamCounts[0]];
 }
 
-export function getActiveJamId(numJams: [number, number], playState: string
-
-) {
-
+export function getActiveJamId(numJams: [number, number], playState: string) {
   const periodNum: number = Number(numJams[1] > 0);
   const jamNum: number = numJams[periodNum] - 1;
 
