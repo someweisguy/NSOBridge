@@ -8,7 +8,7 @@ import ScoreViewer from "../../features/ScoreViewer/components/ScoreViewer";
 
 export default function ScoreboardOperator() {
   return (
-    <>
+    <div className="grid grid-flow-row grid-cols-1">
       <div className="flex flex-row items-center">
         <GameChip />
         <GameController />
@@ -25,6 +25,6 @@ export default function ScoreboardOperator() {
           </Container>
         </div>
       </JamPaginator>
-    </>
+    </div>
   );
 }
