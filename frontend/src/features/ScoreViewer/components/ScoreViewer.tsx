@@ -4,6 +4,7 @@ import useBout from "../../../hooks/useBout";
 import useActiveJamId from "../../../hooks/useActiveJamId";
 import useScore from "../../../hooks/useScore";
 import { BoutIdType } from "../../../types/bout";
+import TimeoutCard from "@/components/timeout-card";
 
 export default function ScoreViewer({ team }: { team: "home" | "away" }) {
   const boutId = useContext<BoutIdType>(BoutIdContext);
@@ -28,44 +29,18 @@ export default function ScoreViewer({ team }: { team: "home" | "away" }) {
     }
   }
 
-  // TODO: make timeout bar its own component
-
   return (
-    <div className="flex flex-col items-center p-4">
+    <div className="grid grid-flow-row items-center p-4 overflow-hidden">
       <div className="p-4 text-4xl">{teamString}</div>
 
-      <div className="grid items-stretch grid-flow-col">
-        <div className="items-center">
-          <div className="grid p-2 mx-4 bg-raisin-200 place-items-center rounded-xl">
-            <span className="inline-grid gap-2 pb-2 border-b border-raisin-50">
-              <span
-                aria-hidden="false"
-                className="bg-black rounded-full aspect-square size-3 aria-hidden:invisible"
-              ></span>
-              <span
-                aria-hidden="false"
-                className="bg-black rounded-full aspect-square size-3 aria-hidden:invisible"
-              ></span>
-              <span
-                aria-hidden="false"
-                className="bg-black rounded-full aspect-square size-3 aria-hidden:invisible"
-              ></span>
-            </span>
-            <span className="inline-grid pt-2">
-              <span
-                aria-hidden="false"
-                className="row-start-5 bg-black rounded-full aspect-square size-3 aria-hidden:invisible"
-              ></span>
-            </span>
-          </div>
-        </div>
-
+      <div className="flex flex-row items-center h-fit">
+        <TimeoutCard boutId={boutId} team={team} />
         <p className="p-2 font-bold text-7xl">{score}</p>
-
         <p className="content-center p-5 text-4xl font-bold text-left">
           {activeJamScore}
         </p>
       </div>
+
     </div>
   );
 }
