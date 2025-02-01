@@ -34,7 +34,7 @@ export default function ScoreViewer({ team }: { team: "home" | "away" }) {
       <div className="p-4 text-4xl">{teamString}</div>
 
       <div className="flex flex-row items-center h-fit">
-        <TimeoutCard boutId={boutId} team={team} />
+        <TimeoutCard activeTimeout="officialReview" timeoutsRemaining={3} officialReviewsRemaining={1} />
         <p className="p-2 font-bold text-7xl">{score}</p>
         <p className="content-center p-5 text-4xl font-bold text-left">
           {activeJamScore}
