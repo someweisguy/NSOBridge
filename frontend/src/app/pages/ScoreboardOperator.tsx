@@ -1,8 +1,8 @@
 import ScoreKeeper from "../../features/ScoreKeeper/components/ScoreKeeper";
 import JamPaginator from "../../features/JamPaginator/components/JamPaginator";
-import Container from "../../components/Container";
+import Container from "../../components/container";
 import JamEndReason from "../../features/JamEndReason/components/JamEndReason";
-import GameChip from "../../components/GameChip";
+import GameChip from "../../components/game-chip";
 import GameController from "../../features/GameController/components/GameController";
 import ScoreViewer from "../../features/ScoreViewer/components/ScoreViewer";
 

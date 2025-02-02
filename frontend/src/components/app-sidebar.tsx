@@ -9,7 +9,7 @@ import {
 import useSeries from "@/hooks/useSeries.ts";
 import { ReactNode, Suspense, useEffect, useState } from "react";
 import { BoutIdContext } from "@/contexts/BoutIdContext.ts";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "./loading-spinner";
 
 type SidebarProps = {
   children?: ReactNode;
