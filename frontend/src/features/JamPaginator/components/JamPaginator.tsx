@@ -6,9 +6,9 @@ import {
 } from "react";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import useJamIterator from "../hooks/useJamIterator";
-import Button from "../../../components/Button";
 import { BoutIdType } from "../../../types/bout";
 import { JamIdType } from "../../../types/jam";
+import { Button } from "@/components/ui/button";
 
 export const JamIdContext = createContext<JamIdType>([0, 0]);
 

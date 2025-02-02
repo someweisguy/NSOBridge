@@ -1,11 +1,11 @@
 import { ReactElement, useCallback, useContext } from "react";
-import Button from "../../../components/Button";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import useBout from "../../../hooks/useBout";
 import ComboButton from "../../../components/ComboButton";
 import dispatch from "../../../app/client";
 import { useSocketState } from "../../../app/hooks/useConnection";
 import { BoutIdType } from "../../../types/bout";
+import { Button } from "@/components/ui/button";
 
 export default function GameController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);

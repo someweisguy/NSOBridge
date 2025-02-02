@@ -2,10 +2,10 @@ import { ReactElement, useCallback, useContext } from "react";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import { useSocketState } from "../../../app/hooks/useConnection";
 import dispatch from "../../../app/client";
-import Button from "../../../components/Button";
 import Clock from "../../DynamicClock/components/Clock";
 import useClock from "../../../hooks/useClock";
 import { BoutIdType } from "../../../types/bout";
+import { Button } from "@/components/ui/button";
 
 export default function JamController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
