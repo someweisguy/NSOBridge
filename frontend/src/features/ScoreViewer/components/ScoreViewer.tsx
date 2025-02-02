@@ -34,7 +34,7 @@ export default function ScoreViewer({ team }: { team: "home" | "away" }) {
     <div className="grid grid-flow-row items-center p-4 overflow-hidden">
       <div className="p-4 text-4xl">{teamString}</div>
 
-      <div className="flex flex-row items-center h-fit">
+      <div className="flex flex-row justify-center">
         <TimeoutCard
           activeTimeout="officialReview"
           timeoutsRemaining={3}
