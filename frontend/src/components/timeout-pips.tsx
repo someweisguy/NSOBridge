@@ -1,7 +1,7 @@
 import { Card } from "./ui/card";
 import { Separator } from "./ui/separator";
 
-function TimeoutDot({ hidden, active }: { hidden: boolean; active: boolean }) {
+function Pip({ hidden, active }: { hidden: boolean; active: boolean }) {
   return (
     <div
       aria-hidden={hidden}
@@ -11,7 +11,7 @@ function TimeoutDot({ hidden, active }: { hidden: boolean; active: boolean }) {
   );
 }
 
-export default function TimeoutCard({
+export default function TimeoutPips({
   className,
   activeTimeout,
   maxTimeouts = 3,
@@ -33,7 +33,7 @@ export default function TimeoutCard({
       }
     >
       {Array.from({ length: maxTimeouts }, (_, i) => (
-        <TimeoutDot
+        <Pip
           hidden={i >= timeoutsRemaining}
           active={activeTimeout == "timeout" && i == timeoutsRemaining - 1}
         />
@@ -42,10 +42,11 @@ export default function TimeoutCard({
       <Separator orientation="horizontal" />
 
       {Array.from({ length: maxOfficialReviews }, (_, i) => (
-        <TimeoutDot
+        <Pip
           hidden={i >= officialReviewsRemaining}
           active={
-            activeTimeout == "officialReview" && i == officialReviewsRemaining - 1
+            activeTimeout == "officialReview" &&
+            i == officialReviewsRemaining - 1
           }
         />
       ))}
