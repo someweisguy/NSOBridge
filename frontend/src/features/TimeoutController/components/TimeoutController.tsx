@@ -2,11 +2,11 @@ import { ReactElement, useCallback, useContext } from "react";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import dispatch from "../../../app/client";
 import { useSocketState } from "../../../app/hooks/useConnection";
-import Clock from "../../DynamicClock/components/Clock";
 import useClock from "../../../hooks/useClock";
 import { BoutIdType } from "../../../types/bout";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
+import Clock from "@/components/clock";
 
 export default function TimeoutController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
@@ -57,7 +57,7 @@ export default function TimeoutController(): ReactElement {
       </div>
       <Button>Retained</Button>
       <Button color="red" onClick={endTimeout}>
-        <Clock type="timeout" />
+        <Clock {...useClock(boutId, "timeout")} />
       </Button>
     </div>
   );

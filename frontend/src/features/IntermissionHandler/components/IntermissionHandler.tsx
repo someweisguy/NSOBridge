@@ -8,12 +8,12 @@ import {
 import { useSocketState } from "../../../app/hooks/useConnection";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import dispatch from "../../../app/client";
-import Clock from "../../DynamicClock/components/Clock";
 import useClock from "../../../hooks/useClock";
 import useBout from "../../../hooks/useBout";
 import useAlarmEffect from "../../../hooks/useAlarmEffect";
 import { BoutIdType } from "../../../types/bout";
 import { Button } from "@/components/ui/button";
+import Clock from "@/components/clock";
 
 export default function IntermissionHandler(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
@@ -53,7 +53,7 @@ export default function IntermissionHandler(): ReactElement {
         {!intermissionIsRunning ? (
           "Start Intermission Clock"
         ) : (
-          <Clock type="intermission" />
+          <Clock {...useClock(boutId, "intermission")} />
         )}
       </Button>
     );

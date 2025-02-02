@@ -1,8 +1,9 @@
 import { useContext } from "react";
 import { BoutIdContext } from "../contexts/BoutIdContext";
 import useBout from "../hooks/useBout";
-import Clock from "../features/DynamicClock/components/Clock";
 import { BoutIdType } from "../types/bout";
+import Clock from "./clock";
+import useClock from "@/hooks/useClock";
 
 export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
   const boutIdContext = useContext<BoutIdType>(BoutIdContext);
@@ -45,7 +46,7 @@ export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
     <div className="flex flex-col py-1 m-3 overflow-hidden text-xl rounded-lg bg-raisin-100 max-w-min">
       <div className="flex flex-row p-1 font-mono rounded-b-lg place-content-between bg-pink">
         <div className="flex-1 w-16 px-2 text-right min-w-fit">
-          <Clock type="period" />
+          <Clock {...useClock(boutId, "period")} />
         </div>
         <div className="flex flex-none w-20 px-1 place-content-around border-x border-raisin border-raisin-400">
           <span className="flex-1 max-w-min">P{periodNum + 1}</span>
@@ -56,8 +57,8 @@ export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
         </div>
         <div className="flex-1 w-16 px-1 text-right">
           <Clock
-            type={playState === "stopped" ? "jam" : playState}
-            millisStyle={playState === "jam" ? "auto" : "never"}
+            {...useClock(boutId, playState === "stopped" ? "jam" : playState)}
+            showMillis={playState === "jam" ? "auto" : "never"}
           />
         </div>
       </div>
