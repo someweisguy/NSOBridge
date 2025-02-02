@@ -1,10 +1,10 @@
 import ScoreKeeper from "../../features/ScoreKeeper/components/ScoreKeeper";
 import JamPaginator from "../../features/JamPaginator/components/JamPaginator";
-import Container from "../../components/container";
 import JamEndReason from "../../features/JamEndReason/components/JamEndReason";
 import GameChip from "../../components/game-chip";
 import GameController from "../../features/GameController/components/GameController";
 import ScoreViewer from "../../features/ScoreViewer/components/ScoreViewer";
+import { Card } from "@/components/ui/card";
 
 export default function ScoreboardOperator() {
   return (
@@ -15,14 +15,14 @@ export default function ScoreboardOperator() {
       </div>
       <JamPaginator left={<JamEndReason />}>
         <div className="flex flex-row gap-4">
-          <Container>
+          <Card>
             <ScoreViewer team="home" />
             <ScoreKeeper team="home" />
-          </Container>
-          <Container>
+          </Card>
+          <Card>
             <ScoreViewer team="away" />
             <ScoreKeeper team="away" />
-          </Container>
+          </Card>
         </div>
       </JamPaginator>
     </div>
