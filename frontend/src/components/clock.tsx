@@ -51,8 +51,10 @@ export default function Clock({
   let displayTotal: number = Math.round(
     alarm == null ? actualElapsed : alarm - actualElapsed
   );
-  if (stopAtZero && displayTotal < 0) {
-    displayTotal = 0;
+  const displayIsNegative: boolean = displayTotal < 0;
+  if (displayIsNegative) {
+    // Prevent the display from showing negative time
+    displayTotal = stopAtZero ? 0 : Math.abs(displayTotal);
   }
   const hours: number = Math.floor(displayTotal / 3600000);
   const minutes: number = Math.floor(displayTotal / 60000) % 60;
@@ -69,6 +71,7 @@ export default function Clock({
   timeString += seconds.toString().padStart(minutes ? 2 : 0, "0");
   if (
     alarm != null &&
+    !displayIsNegative &&
     (showMillis === "always" || (showMillis === "auto" && displayTotal < 10000))
   ) {
     // Conditionally add milliseconds to the display
