@@ -1,12 +1,12 @@
 import { ReactElement, useCallback, useContext } from "react";
-import Button from "../../../components/Button";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import dispatch from "../../../app/client";
 import { useSocketState } from "../../../app/hooks/useConnection";
 import Clock from "../../DynamicClock/components/Clock";
-import ComboButton from "../../../components/ComboButton";
 import useClock from "../../../hooks/useClock";
 import { BoutIdType } from "../../../types/bout";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Button } from "@/components/ui/button";
 
 export default function TimeoutController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
@@ -43,17 +43,17 @@ export default function TimeoutController(): ReactElement {
   return (
     <div className="flex w-full whitespace-nowrap">
       <div className="max-w-fit">
-        <ComboButton>
-          <Button>Official</Button>
-          <Button>Home</Button>
-          <Button>Away</Button>
-        </ComboButton>
+        <ToggleGroup type="single">
+          <ToggleGroupItem value="official">Official</ToggleGroupItem>
+          <ToggleGroupItem value="home">Home</ToggleGroupItem>
+          <ToggleGroupItem value="away">Away</ToggleGroupItem>
+        </ToggleGroup>
       </div>
       <div className="max-w-fit">
-        <ComboButton>
-          <Button>Home</Button>
-          <Button>Away</Button>
-        </ComboButton>
+      <ToggleGroup type="single">
+          <ToggleGroupItem value="home">Home</ToggleGroupItem>
+          <ToggleGroupItem value="away">Away</ToggleGroupItem>
+        </ToggleGroup>
       </div>
       <Button>Retained</Button>
       <Button color="red" onClick={endTimeout}>

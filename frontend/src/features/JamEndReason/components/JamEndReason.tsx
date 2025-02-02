@@ -1,12 +1,12 @@
 import { ReactElement, useCallback, useContext } from "react";
-import ComboButton from "../../../components/ComboButton";
-import Button from "../../../components/Button";
 import dispatch from "../../../app/client";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import { JamIdContext } from "../../JamPaginator/components/JamPaginator";
 import useJam from "../../../hooks/useJam";
 import { BoutIdType } from "../../../types/bout";
 import { JamIdType, JamType } from "../../../types/jam";
+import { ToggleGroup } from "@radix-ui/react-toggle-group";
+import { ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function JamEndReason(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
@@ -22,32 +22,16 @@ export default function JamEndReason(): ReactElement {
 
   return (
     <div className={`max-w-fit ${jam.stop == null && "hidden"}`}>
-      <ComboButton>
-        <Button
-          onClick={() => setStopReason("called")}
-          isSelected={jam.stopReason == "called"}
-        >
-          Called
-        </Button>
-        <Button
-          onClick={() => setStopReason("time")}
-          isSelected={jam.stopReason == "time"}
-        >
-          Time
-        </Button>
-        <Button
-          onClick={() => setStopReason("injury")}
-          isSelected={jam.stopReason == "injury"}
-        >
-          Injury
-        </Button>
-        <Button
-          onClick={() => setStopReason("other")}
-          isSelected={jam.stopReason == "other"}
-        >
-          Other
-        </Button>
-      </ComboButton>
+      <ToggleGroup
+        type="single"
+        defaultValue={jam.stopReason!}
+        onValueChange={(value) => setStopReason(value)}
+      >
+        <ToggleGroupItem value="called">Called</ToggleGroupItem>
+        <ToggleGroupItem value="time">Time</ToggleGroupItem>
+        <ToggleGroupItem value="injury">Injury</ToggleGroupItem>
+        <ToggleGroupItem value="other">Other</ToggleGroupItem>
+      </ToggleGroup>
     </div>
   );
 }
