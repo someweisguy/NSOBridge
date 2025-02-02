@@ -5,7 +5,7 @@ import useActiveJamId from "../../../hooks/useActiveJamId";
 import useScore from "../../../hooks/useScore";
 import { BoutIdType } from "../../../types/bout";
 import TimeoutCard from "@/components/timeout-card";
-import BoutScore from "@/components/ui/bout-score";
+import BoutScore from "@/components/bout-score";
 
 export default function ScoreViewer({ team }: { team: "home" | "away" }) {
   const boutId = useContext<BoutIdType>(BoutIdContext);
