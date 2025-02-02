@@ -1,11 +1,11 @@
 import { ReactElement, useCallback, useContext } from "react";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import useBout from "../../../hooks/useBout";
-import ComboButton from "../../../components/ComboButton";
 import dispatch from "../../../app/client";
 import { useSocketState } from "../../../app/hooks/useConnection";
 import { BoutIdType } from "../../../types/bout";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function GameController(): ReactElement {
   const boutId: BoutIdType = useContext(BoutIdContext);
@@ -60,17 +60,17 @@ export default function GameController(): ReactElement {
     return (
       <div className="gap-4 grid grid-cols-4">
         <div className="max-w-fit">
-          <ComboButton>
-            <Button>Official</Button>
-            <Button>Home</Button>
-            <Button>Away</Button>
-          </ComboButton>
+          <ToggleGroup type="single">
+            <ToggleGroupItem value="official">Official</ToggleGroupItem>
+            <ToggleGroupItem value="home">Home</ToggleGroupItem>
+            <ToggleGroupItem value="away">Away</ToggleGroupItem>
+          </ToggleGroup>
         </div>
         <div className="max-w-fit">
-          <ComboButton>
-            <Button>Home</Button>
-            <Button>Away</Button>
-          </ComboButton>
+          <ToggleGroup type="single">
+            <ToggleGroupItem value="home">Home</ToggleGroupItem>
+            <ToggleGroupItem value="away">Away</ToggleGroupItem>
+          </ToggleGroup>
         </div>
         <Button>Retained</Button>
         <Button onClick={callEndTimeout} color="red">

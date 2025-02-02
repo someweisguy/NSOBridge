@@ -5,12 +5,12 @@ import useTripIndex from "../hooks/useTripIndex";
 import useInitialPass from "../hooks/useInitialPass";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import { JamIdContext } from "../../JamPaginator/components/JamPaginator";
-import Button from "../../../components/Button";
 import { setLead } from "../api/setLead";
 import useScore from "../../../hooks/useScore";
 import { setLost } from "../api/setLost";
 import { BoutIdType } from "../../../types/bout";
 import { JamIdType } from "../../../types/jam";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function ScoreKeeper({
   team,
@@ -49,20 +49,24 @@ export default function ScoreKeeper({
         tripState={[selectedTrip, setSelectedTrip]}
       />
       <div className="flex flex-row gap-2">
-        <Button
+        <Checkbox
           disabled={!isLeadEligible}
-          isSelected={lead}
-          onClick={() => setLead(boutId, jamId, team, !lead)}
+          checked={lead}
+          onCheckedChange={(checked) =>
+            setLead(boutId, jamId, team, Boolean(checked))
+          }
         >
           Lead
-        </Button>
-        <Button
-          isSelected={lost}
-          onClick={() => setLost(boutId, jamId, team, !lost)}
+        </Checkbox>
+        <Checkbox
+          checked={lost}
+          onCheckedChange={(checked) =>
+            setLost(boutId, jamId, team, Boolean(checked))
+          }
         >
           Lost
-        </Button>
-        <Button isSelected={starPass != null}>Star Pass</Button>
+        </Checkbox>
+        <Checkbox checked={starPass != null}>Star Pass</Checkbox>
       </div>
     </div>
   );
