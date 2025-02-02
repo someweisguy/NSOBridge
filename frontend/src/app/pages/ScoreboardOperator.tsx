@@ -1,7 +1,7 @@
 import ScoreKeeper from "../../features/ScoreKeeper/components/ScoreKeeper";
 import JamPaginator from "../../features/JamPaginator/components/JamPaginator";
 import JamEndReason from "../../features/JamEndReason/components/JamEndReason";
-import GameChip from "../../components/game-chip";
+import GameChip from "../../features/sbo/game-chip";
 import GameController from "../../features/GameController/components/GameController";
 import ScoreViewer from "../../features/ScoreViewer/components/ScoreViewer";
 import { Card } from "@/components/ui/card";
