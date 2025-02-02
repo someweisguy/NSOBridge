@@ -5,6 +5,7 @@ import useActiveJamId from "../../../hooks/useActiveJamId";
 import useScore from "../../../hooks/useScore";
 import { BoutIdType } from "../../../types/bout";
 import TimeoutCard from "@/components/timeout-card";
+import BoutScore from "@/components/ui/bout-score";
 
 export default function ScoreViewer({ team }: { team: "home" | "away" }) {
   const boutId = useContext<BoutIdType>(BoutIdContext);
@@ -34,13 +35,13 @@ export default function ScoreViewer({ team }: { team: "home" | "away" }) {
       <div className="p-4 text-4xl">{teamString}</div>
 
       <div className="flex flex-row items-center h-fit">
-        <TimeoutCard activeTimeout="officialReview" timeoutsRemaining={3} officialReviewsRemaining={1} />
-        <p className="p-2 font-bold text-7xl">{score}</p>
-        <p className="content-center p-5 text-4xl font-bold text-left">
-          {activeJamScore}
-        </p>
+        <TimeoutCard
+          activeTimeout="officialReview"
+          timeoutsRemaining={3}
+          officialReviewsRemaining={1}
+        />
+        <BoutScore gameScore={score} jamScore={activeJamScore} />
       </div>
-
     </div>
   );
 }
