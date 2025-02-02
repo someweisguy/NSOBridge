@@ -2,13 +2,13 @@ import { useSocketState } from "@/app/hooks/useConnection";
 import { useEffect, useState } from "react";
 
 export default function Clock({
-  alarm,
+  alarm = null,
   elapsed,
   isRunning,
   showMillis = "auto",
   stopAtZero = true,
 }: {
-  alarm: number | null;
+  alarm?: number | null;
   elapsed: number;
   isRunning: boolean;
   showMillis?: "never" | "always" | "auto";
@@ -31,7 +31,8 @@ export default function Clock({
     const timeoutFunction: () => void = () => {
       const newActualElapsed = performance.now() - runningSince + elapsed;
       setActualElapsed(newActualElapsed);
-      if (alarm != null &&  newActualElapsed >= alarm && stopAtZero) {
+      if (alarm != null && newActualElapsed >= alarm && stopAtZero) {
+        // Stop needlessly rerendering the clock when it reaches the alarm
         return;
       }
       timeoutId = setTimeout(
@@ -46,19 +47,33 @@ export default function Clock({
     };
   }, [isRunning, elapsed, stopAtZero, alarm]);
 
+  // Calculate the time values that should be displayed on the clock
+  let displayTotal: number = Math.round(
+    alarm == null ? actualElapsed : alarm - actualElapsed
+  );
+  if (stopAtZero && displayTotal < 0) {
+    displayTotal = 0;
+  }
+  const hours: number = Math.floor(displayTotal / 3600000);
+  const minutes: number = Math.floor(displayTotal / 60000) % 60;
+  const seconds: number = Math.floor(displayTotal / 1000) % 60;
 
-  // Calculate the display milliseconds, rounding based on millisStyle
-  let displayMillis = alarm == null ? actualElapsed : alarm - actualElapsed;
-  if (displayMillis < 0 && stopAtZero) {
-    displayMillis = 0;
-  } else if (
-    showMillis === "never" ||
-    (showMillis === "auto" && displayMillis >= 10000)
+  // Format the display as a string
+  let timeString: string = "";
+  if (hours) {
+    timeString += hours.toString() + ":";
+  }
+  if (minutes) {
+    timeString += minutes.toString().padStart(hours ? 2 : 0, "0") + ":";
+  }
+  timeString += seconds.toString().padStart(minutes ? 2 : 0, "0");
+  if (
+    alarm != null &&
+    (showMillis === "always" || (showMillis === "auto" && displayTotal < 10000))
   ) {
-    displayMillis -= displayMillis % 1000;
-  } else {
-    displayMillis -= displayMillis % 100;
+    // Conditionally add milliseconds to the display
+    timeString += "." + Math.floor((displayTotal % 1000) / 100);
   }
 
-  return <>{displayMillis}</>;
+  return <>{timeString}</>;
 }
