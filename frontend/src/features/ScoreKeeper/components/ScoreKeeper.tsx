@@ -1,8 +1,7 @@
 import { ReactElement, useContext } from "react";
-import PointEditor from "./PointEditor";
 import TripCarousel from "./TripCarousel";
 import useTripIndex from "../hooks/useTripIndex";
-import useInitialPass from "../hooks/useInitialPass";
+// import useInitialPass from "../hooks/useInitialPass";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import { JamIdContext } from "../../JamPaginator/components/JamPaginator";
 import { setLead } from "../api/setLead";
@@ -11,6 +10,7 @@ import { setLost } from "../api/setLost";
 import { BoutIdType } from "../../../types/bout";
 import { JamIdType } from "../../../types/jam";
 import { Checkbox } from "@/components/ui/checkbox";
+import TripEditor from "@/features/sbo/trip-editor";
 
 export default function ScoreKeeper({
   team,
@@ -21,7 +21,7 @@ export default function ScoreKeeper({
   const jamId: JamIdType = useContext(JamIdContext);
 
   const [selectedTrip, setSelectedTrip] = useTripIndex(boutId, jamId, team);
-  const showInitial = useInitialPass(boutId, jamId, selectedTrip);
+  // const showInitial = useInitialPass(boutId, jamId, selectedTrip);
 
   // Get the Jammer state variables
   const { lead, lost, starPass } = useScore(boutId, jamId, team);
@@ -35,13 +35,7 @@ export default function ScoreKeeper({
 
   return (
     <div className="flex flex-col items-center bg-gray-100 rounded-lg">
-      <PointEditor
-        boutId={boutId}
-        jamId={jamId}
-        team={team}
-        selectedTrip={selectedTrip}
-        showInitial={showInitial}
-      />
+      <TripEditor team={team} />
       <TripCarousel
         boutId={boutId}
         jamId={jamId}
