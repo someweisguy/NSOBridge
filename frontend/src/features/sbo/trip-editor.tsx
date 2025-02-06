@@ -14,7 +14,13 @@ import useScore from "@/hooks/useScore";
 import { Button } from "@/components/ui/button";
 import setTrip from "../ScoreKeeper/api/setTrip";
 
-export default function TripEditor({ team }: { team: "home" | "away" }) {
+export default function TripEditor({
+  team,
+  maxPoints = 4,
+}: {
+  team: "home" | "away";
+  maxPoints?: number;
+}) {
   const boutId = useContext(BoutIdContext);
   const jamId = useContext(JamIdContext);
   const jamScore = useScore(boutId, jamId, team);
@@ -50,9 +56,10 @@ export default function TripEditor({ team }: { team: "home" | "away" }) {
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-row gap-2 m-2">
-        {Array.from({ length: 4 + 1 }, (_, i) => (
+        {/* TODO: add initial Trip buttons */}
+        {Array.from({ length: maxPoints + 1 }, (_, i) => (
           <Button
-            variant={i === 4 ? "default" : "secondary"}
+            variant={i === maxPoints ? "default" : "secondary"}
             onClick={() => setPoints(i, true)}
           >
             {i}
