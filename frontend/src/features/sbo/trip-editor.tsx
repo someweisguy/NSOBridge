@@ -8,7 +8,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { BoutIdContext } from "@/contexts/BoutIdContext";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { JamIdContext } from "../JamPaginator/components/JamPaginator";
 import useScore from "@/hooks/useScore";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,27 @@ export default function TripEditor({ team }: { team: "home" | "away" }) {
   const jamId = useContext(JamIdContext);
   const jamScore = useScore(boutId, jamId, team);
 
+  const latestTripSelected = useRef<boolean>(true);
+
   const [api, setApi] = useState<CarouselApi>();
+  const [nodeCount, setNodeCount] = useState<number>(jamScore.trips.length + 1);
+  const oldNodeCount = useRef<number>(jamScore.trips.length);
 
   useEffect(() => {
     api?.scrollTo(jamScore.trips.length, true);
+    api?.on("slidesChanged", () => {
+      // Adapt the carousel API to a React hook
+      setNodeCount(api.slideNodes().length);
+    });
   }, [api]);
+
+  useEffect(() => {
+    // Scroll to the latest trip when a new trip is added
+    if (latestTripSelected.current && oldNodeCount.current < nodeCount) {
+      api?.scrollTo(nodeCount);
+    }
+    oldNodeCount.current = nodeCount;
+  }, [nodeCount]);
 
   const setPoints = useCallback(
     (points: number, validPass: boolean = true) =>
