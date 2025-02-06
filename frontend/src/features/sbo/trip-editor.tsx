@@ -25,7 +25,9 @@ export default function TripEditor({
   const jamId = useContext(JamIdContext);
   const jamScore = useScore(boutId, jamId, team);
 
-  const latestTripSelected = useRef<boolean>(true);
+  const [selectedTrip, setSelectedTrip] = useState<number>(
+    jamScore.trips.length
+  );
 
   const [api, setApi] = useState<CarouselApi>();
   const [nodeCount, setNodeCount] = useState<number>(jamScore.trips.length + 1);
@@ -40,9 +42,11 @@ export default function TripEditor({
   }, [api]);
 
   useEffect(() => {
-    // Scroll to the latest trip when a new trip is added
-    if (latestTripSelected.current && oldNodeCount.current < nodeCount) {
+    if (selectedTrip === oldNodeCount.current - 1 &&
+        oldNodeCount.current < nodeCount) {
+      // Scroll to the latest trip when a new trip is added
       api?.scrollTo(nodeCount);
+      setSelectedTrip(nodeCount - 1);
     }
     oldNodeCount.current = nodeCount;
   }, [nodeCount]);
@@ -71,7 +75,12 @@ export default function TripEditor({
           <CarouselContent className="-ml-4">
             {Array.from({ length: jamScore.trips.length + 1 }, (_, i) => (
               <CarouselItem className="pl-4 basis-1/5">
-                Trip {i + 1}
+                <Button
+                  onClick={() => setSelectedTrip(i)}
+                  variant={i === selectedTrip ? "default" : "secondary"}
+                >
+                  Trip {i + 1}
+                </Button>
               </CarouselItem>
             ))}
           </CarouselContent>
