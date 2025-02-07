@@ -59,6 +59,12 @@ export default function TripEditor({
     [boutId, jamId, team, jamScore.trips.length, selectedTrip]
   );
 
+  useEffect(() => {
+    api?.reInit();
+    api?.scrollTo(jamScore.trips.length + 1, true);
+    setSelectedTrip(jamScore.trips.length);
+  }, [boutId, jamId, team]);
+
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-row gap-3 m-2">
