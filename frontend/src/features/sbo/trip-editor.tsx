@@ -16,9 +16,11 @@ import setTrip from "../ScoreKeeper/api/setTrip";
 
 export default function TripEditor({
   team,
+  showInitial = true,
   maxPoints = 4,
 }: {
   team: "home" | "away";
+  showInitial?: boolean;
   maxPoints?: number;
 }) {
   const boutId = useContext(BoutIdContext);
@@ -68,15 +70,25 @@ export default function TripEditor({
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-row gap-3 m-2">
-        {/* TODO: add initial Trip buttons */}
-        {Array.from({ length: maxPoints + 1 }, (_, i) => (
-          <Button
-            variant={i === maxPoints ? "default" : "secondary"}
-            onClick={() => setPoints(i, true)}
-          >
-            {i}
-          </Button>
-        ))}
+        {selectedTrip == 0 && showInitial ? (
+          <>
+            <Button variant="secondary" onClick={() => setPoints(0, false)}>
+              NP/NP
+            </Button>
+            <Button variant="default" onClick={() => setPoints(0, true)}>
+              Initial
+            </Button>
+          </>
+        ) : (
+          Array.from({ length: maxPoints + 1 }, (_, i) => (
+            <Button
+              variant={i === maxPoints ? "default" : "secondary"}
+              onClick={() => setPoints(i, true)}
+            >
+              {i}
+            </Button>
+          ))
+        )}
       </div>
       <Carousel setApi={setApi} className="mx-16 w-80">
         <Card className="w-full overflow-clip">
