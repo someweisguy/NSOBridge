@@ -82,7 +82,7 @@ export default function TripEditor({
         <Card className="w-full overflow-clip">
           <CarouselContent className="-ml-2">
             {Array.from({ length: jamScore.trips.length + 1 }, (_, i) => (
-              <CarouselItem className="pl-2 my-1 basis-1/4 last:mr-0">
+              <CarouselItem className="pl-2 my-1 basis-1/4 first:ml-1 last:mr-0">
                 <Button
                   onClick={() => {
                     setSelectedTrip(i);
