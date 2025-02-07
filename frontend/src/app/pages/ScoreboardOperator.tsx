@@ -1,10 +1,9 @@
-import ScoreKeeper from "../../features/sbo/ScoreKeeper";
 import JamPaginator from "../../features/JamPaginator/components/JamPaginator";
 import GameChip from "../../features/sbo/game-chip";
 import GameController from "../../features/GameController/components/GameController";
-import ScoreViewer from "../../features/ScoreViewer/components/ScoreViewer";
 import { Card } from "@/components/ui/card";
 import JamCallSetter from "@/features/sbo/jam-call-setter";
+import TeamScoreCard from "../../features/sbo/team-score-card";
 
 export default function ScoreboardOperator() {
   return (
@@ -16,12 +15,10 @@ export default function ScoreboardOperator() {
       <JamPaginator left={<JamCallSetter />}>
         <div className="flex flex-row gap-4">
           <Card>
-            <ScoreViewer team="home" />
-            <ScoreKeeper team="home" />
+            <TeamScoreCard team="home" />
           </Card>
           <Card>
-            <ScoreViewer team="away" />
-            <ScoreKeeper team="away" />
+            <TeamScoreCard team="away" />
           </Card>
         </div>
       </JamPaginator>

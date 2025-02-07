@@ -1,13 +1,19 @@
-import { useContext } from "react";
-import { BoutIdContext } from "../../../contexts/BoutIdContext";
-import useBout from "../../../hooks/useBout";
-import useActiveJamId from "../../../hooks/useActiveJamId";
-import useScore from "../../../hooks/useScore";
-import { BoutIdType } from "../../../types/bout";
+import { ReactElement, useContext } from "react";
+import TripEditor from "@/features/sbo/trip-editor";
+import JammerState from "@/features/sbo/jammer-state";
 import TimeoutPips from "@/components/timeout-pips";
 import BoutScore from "@/components/bout-score";
+import { BoutIdType } from "@/types/bout";
+import { BoutIdContext } from "@/contexts/BoutIdContext";
+import useBout from "@/hooks/useBout";
+import useActiveJamId from "@/hooks/useActiveJamId";
+import useScore from "@/hooks/useScore";
 
-export default function ScoreViewer({ team }: { team: "home" | "away" }) {
+export default function TeamScoreCard({
+  team,
+}: {
+  team: "home" | "away";
+}): ReactElement {
   const boutId = useContext<BoutIdType>(BoutIdContext);
 
   const [teamName, score] = useBout<[string, number]>(boutId, (bout) => {
@@ -41,6 +47,10 @@ export default function ScoreViewer({ team }: { team: "home" | "away" }) {
           officialReviewsRemaining={1}
         />
         <BoutScore gameScore={score} jamScore={activeJamScore} />
+      </div>
+      <div>
+        <TripEditor team={team} />
+        <JammerState team={team} />
       </div>
     </div>
   );
