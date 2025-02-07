@@ -32,7 +32,7 @@ export default function ScoreViewer({ team }: { team: "home" | "away" }) {
 
   return (
     <div className="grid grid-flow-row items-center p-4 overflow-hidden">
-      <div className="p-4 text-4xl">{teamString}</div>
+      <div className="p-4 text-4xl text-center">{teamString}</div>
 
       <div className="flex flex-row justify-center">
         <TimeoutPips

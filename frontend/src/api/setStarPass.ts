@@ -1,5 +1,5 @@
-import dispatch from "../../../app/client";
-import { JamIdType } from "../../../types/jam";
+import dispatch from "../app/client";
+import { JamIdType } from "../types/jam";
 
 export async function setStarPass(
   boutId: string,

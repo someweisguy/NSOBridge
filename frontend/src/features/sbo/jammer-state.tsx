@@ -6,9 +6,9 @@ import { ReactElement, useContext } from "react";
 import { JamIdContext } from "../JamPaginator/components/JamPaginator";
 import { JamIdType } from "@/types/jam";
 import useScore from "@/hooks/useScore";
-import { setLead } from "../ScoreKeeper/api/setLead";
-import { setLost } from "../ScoreKeeper/api/setLost";
-import { setStarPass } from "../ScoreKeeper/api/setStarPass";
+import { setLead } from "../../api/setLead";
+import { setLost } from "../../api/setLost";
+import { setStarPass } from "../../api/setStarPass";
 
 export default function JammerState({
   team,

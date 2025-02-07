@@ -12,7 +12,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { JamIdContext } from "../JamPaginator/components/JamPaginator";
 import useScore from "@/hooks/useScore";
 import { Button } from "@/components/ui/button";
-import setTrip from "../ScoreKeeper/api/setTrip";
+import setTrip from "../../api/setTrip";
 
 export default function TripEditor({
   team,

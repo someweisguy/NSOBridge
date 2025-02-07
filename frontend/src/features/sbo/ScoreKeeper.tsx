@@ -8,7 +8,7 @@ export default function ScoreKeeper({
   team: "home" | "away";
 }): ReactElement {
   return (
-    <div className="flex flex-col items-center bg-gray-100 rounded-lg">
+    <div>
       <TripEditor team={team} />
       <JammerState team={team} />
     </div>

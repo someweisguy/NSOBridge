@@ -1,4 +1,4 @@
-import ScoreKeeper from "../../features/ScoreKeeper/components/ScoreKeeper";
+import ScoreKeeper from "../../features/sbo/ScoreKeeper";
 import JamPaginator from "../../features/JamPaginator/components/JamPaginator";
 import GameChip from "../../features/sbo/game-chip";
 import GameController from "../../features/GameController/components/GameController";
