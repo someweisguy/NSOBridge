@@ -2,7 +2,7 @@ import { ReactElement, useCallback, useContext } from "react";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
 import useBout from "../../../hooks/useBout";
 import dispatch from "../../../app/client";
-import { useSocketState } from "../../../app/hooks/useConnection";
+import { useConnection } from "../../../hooks/useConnection";
 import { BoutIdType } from "../../../types/bout";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -15,7 +15,7 @@ export default function GameController(): ReactElement {
     bout.scoreState,
   ]);
 
-  const { latency } = useSocketState();
+  const { latency } = useConnection();
   const startStopJam = useCallback(() => {
     if (playState !== "jam") {
       dispatch("bout", "startJam", { boutId, latency });

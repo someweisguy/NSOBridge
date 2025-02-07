@@ -1,4 +1,4 @@
-import { useSocketState } from "@/app/hooks/useConnection";
+import { useConnection } from "@/hooks/useConnection";
 import { useEffect, useState } from "react";
 
 export default function Clock({
@@ -14,7 +14,7 @@ export default function Clock({
   showMillis?: "never" | "always" | "auto";
   stopAtZero?: boolean;
 }) {
-  const { latency } = useSocketState();
+  const { latency } = useConnection();
   const [actualElapsed, setActualElapsed] = useState<number>(elapsed);
 
   useEffect(() => {
