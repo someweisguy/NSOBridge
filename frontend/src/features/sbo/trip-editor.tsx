@@ -62,9 +62,9 @@ export default function TripEditor({
   );
 
   useEffect(() => {
-    api?.reInit();
-    api?.scrollTo(jamScore.trips.length + 1, true);
     setSelectedTrip(jamScore.trips.length);
+    setNodeCount(jamScore.trips.length + 1);
+    api?.scrollTo(jamScore.trips.length + 1, true);
   }, [boutId, jamId, team]);
 
   return (
