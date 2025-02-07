@@ -33,6 +33,7 @@ export default function JamPaginator({
           <div className="flex-initial justify-center w-fit grid grid-cols-[40%_auto_40%]">
             <div className="mx-2 whitespace-nowrap text-end min-w-fit">
               <Button
+                variant="ghost"
                 disabled={previousJamId == null}
                 onClick={() => setJamId(previousJamId!)}
               >
@@ -40,10 +41,11 @@ export default function JamPaginator({
               </Button>
             </div>
             <div className="text-center whitespace-nowrap min-w-fit">
-              <Button color="blue">{`P${periodNum + 1} J${jamNum + 1}`}</Button>
+              <Button variant="outline">{`P${periodNum + 1} J${jamNum + 1}`}</Button>
             </div>
             <div className="mx-2 whitespace-nowrap text-start min-w-fit">
               <Button
+                variant="ghost"
                 disabled={nextJamId == null}
                 onClick={() => setJamId(nextJamId!)}
               >
