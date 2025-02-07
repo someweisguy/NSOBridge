@@ -42,8 +42,10 @@ export default function TripEditor({
   }, [api]);
 
   useEffect(() => {
-    if (selectedTrip === oldNodeCount.current - 1 &&
-        oldNodeCount.current < nodeCount) {
+    if (
+      selectedTrip === oldNodeCount.current - 1 &&
+      oldNodeCount.current < nodeCount
+    ) {
       // Scroll to the latest trip when a new trip is added
       api?.scrollTo(nodeCount);
       setSelectedTrip(nodeCount - 1);
@@ -53,13 +55,13 @@ export default function TripEditor({
 
   const setPoints = useCallback(
     (points: number, validPass: boolean = true) =>
-      setTrip(boutId, jamId, team, jamScore.trips.length, points, validPass),
-    [boutId, jamId, team, jamScore.trips.length]
+      setTrip(boutId, jamId, team, selectedTrip, points, validPass),
+    [boutId, jamId, team, jamScore.trips.length, selectedTrip]
   );
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex flex-row gap-2 m-2">
+      <div className="flex flex-row gap-3 m-2">
         {/* TODO: add initial Trip buttons */}
         {Array.from({ length: maxPoints + 1 }, (_, i) => (
           <Button
@@ -70,16 +72,25 @@ export default function TripEditor({
           </Button>
         ))}
       </div>
-      <Carousel setApi={setApi}>
-        <Card>
-          <CarouselContent className="-ml-4">
+      <Carousel setApi={setApi} className="mx-16 w-80">
+        <Card className="w-full overflow-clip">
+          <CarouselContent className="-ml-2">
             {Array.from({ length: jamScore.trips.length + 1 }, (_, i) => (
-              <CarouselItem className="pl-4 basis-1/5">
+              <CarouselItem className="pl-2 my-1 basis-1/4 last:mr-0">
                 <Button
-                  onClick={() => setSelectedTrip(i)}
+                  onClick={() => {
+                    setSelectedTrip(i);
+                    api?.scrollTo(i);
+                  }}
                   variant={i === selectedTrip ? "default" : "secondary"}
                 >
                   Trip {i + 1}
+                  <br />
+                  {i < jamScore.trips.length ? (
+                    jamScore.trips[i].points
+                  ) : (
+                    <>&nbsp;</>
+                  )}
                 </Button>
               </CarouselItem>
             ))}
