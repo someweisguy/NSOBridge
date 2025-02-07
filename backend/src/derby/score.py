@@ -103,3 +103,6 @@ class Score(Queryable[Literal['home', 'away']]):
                 'points': trip.points
             } for trip in self._trips],
         }
+
+    def num_trips(self) -> int:
+        return len(self._trips)

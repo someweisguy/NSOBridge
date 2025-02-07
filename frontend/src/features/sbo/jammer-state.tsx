@@ -1,0 +1,53 @@
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BoutIdContext } from "@/contexts/BoutIdContext";
+import { BoutIdType } from "@/types/bout";
+import { ReactElement, useContext } from "react";
+import { JamIdContext } from "../JamPaginator/components/JamPaginator";
+import { JamIdType } from "@/types/jam";
+import useScore from "@/hooks/useScore";
+import { setLead } from "../ScoreKeeper/api/setLead";
+import { setLost } from "../ScoreKeeper/api/setLost";
+import { setStarPass } from "../ScoreKeeper/api/setStarPass";
+
+export default function JammerState({
+  team,
+}: {
+  team: "home" | "away";
+}): ReactElement {
+  const boutId: BoutIdType = useContext(BoutIdContext);
+  const jamId: JamIdType = useContext(JamIdContext);
+
+  const { lead, lost, starPass } = useScore(boutId, jamId, team);
+  const isLeadEligible =
+    !useScore<boolean>(
+      boutId,
+      jamId,
+      team === "home" ? "away" : "home",
+      (score) => score.lead
+    ) && !lost;
+
+  return (
+    <div className="grid grid-cols-3 m-2 gap-4">
+      <Button
+        variant="ghost"
+        onClick={() => setLead(boutId, jamId, team, !lead)}
+        disabled={!isLeadEligible}
+      >
+        <Checkbox checked={lead} disabled={!isLeadEligible} /> Lead
+      </Button>
+      <Button
+        variant="ghost"
+        onClick={() => setLost(boutId, jamId, team, !lost)}
+      >
+        <Checkbox checked={lost} /> Lost
+      </Button>
+      <Button
+        variant="ghost"
+        onClick={() => setStarPass(boutId, jamId, team, starPass == null)}
+      >
+        <Checkbox checked={starPass != null} /> Star Pass
+      </Button>
+    </div>
+  );
+}

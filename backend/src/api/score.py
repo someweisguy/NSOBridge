@@ -46,8 +46,9 @@ def setLost(boutId: str, jamId: tuple[int, int], team: str, lost: bool) -> None:
 
 @controller.action
 def setStarPass(boutId: str, jamId: tuple[int, int], team: str,
-                starPass: int | None) -> None:
+                starPass: bool) -> None:
     series: Series = controller.model
     jam: Jam = series.get_bout(boutId).jam.get(jamId)
 
-    jam.score[team].star_pass = starPass
+    jam.score[team].star_pass = (jam.score[team].num_trips() if starPass
+                                 else None)
