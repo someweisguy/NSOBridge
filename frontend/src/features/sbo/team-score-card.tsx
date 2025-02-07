@@ -20,12 +20,6 @@ export default function TeamScoreCard({
     return [bout.roster[team], bout.score[team]];
   });
 
-  // Get the active Jam score
-  const activeJamId = useActiveJamId(boutId);
-  const activeJamScore = useScore(boutId, activeJamId, team, (score) =>
-    score.trips.reduce((sum, trip) => (sum += trip.points), 0)
-  );
-
   // Set the default team name if it is not provided
   let teamString: string = teamName!;
   if (teamName === null) {
@@ -36,11 +30,17 @@ export default function TeamScoreCard({
     }
   }
 
+  // Get the active Jam score
+  const activeJamId = useActiveJamId(boutId);
+  const activeJamScore = useScore(boutId, activeJamId, team, (score) =>
+    score.trips.reduce((sum, trip) => (sum += trip.points), 0)
+  );
+
   return (
-    <div className="grid grid-flow-row items-center p-4 overflow-hidden">
+    <div className="grid items-center grid-flow-row p-4 overflow-hidden">
       <div className="p-4 text-4xl text-center">{teamString}</div>
 
-      <div className="flex flex-row justify-center">
+      <div className="flex flex-row items-center justify-center gap-4">
         <TimeoutPips
           activeTimeout="officialReview"
           timeoutsRemaining={3}
