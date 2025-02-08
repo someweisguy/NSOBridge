@@ -1,8 +1,8 @@
 import { ReactElement, useCallback, useContext } from "react";
 import { BoutIdContext } from "../../../contexts/BoutIdContext";
-import useBout from "../../../hooks/useBout";
+import useBout from "../../../hooks/use-bout";
 import dispatch from "../../../app/client";
-import { useConnection } from "../../../hooks/useConnection";
+import { useConnection } from "../../../hooks/use-connection";
 import { BoutIdType } from "../../../types/bout";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";

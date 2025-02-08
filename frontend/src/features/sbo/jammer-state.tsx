@@ -4,7 +4,7 @@ import { BoutIdContext } from "@/contexts/BoutIdContext";
 import { BoutIdType } from "@/types/bout";
 import { ReactElement, useContext } from "react";
 import { JamIdType } from "@/types/jam";
-import useScore from "@/hooks/useScore";
+import useScore from "@/hooks/use-score";
 import { setLead } from "../../api/setLead";
 import { setLost } from "../../api/setLost";
 import { setStarPass } from "../../api/setStarPass";

@@ -3,7 +3,7 @@ import { ClockType } from "../types/clock";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/keyFactory";
 import dispatch from "../app/client";
-import { useConnection } from "./useConnection";
+import { useConnection } from "./use-connection";
 import { BoutIdType } from "../types/bout";
 
 export default function useAlarmEffect(

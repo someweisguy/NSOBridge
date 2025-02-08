@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { BoutIdContext } from "@/contexts/BoutIdContext";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import useScore from "@/hooks/useScore";
+import useScore from "@/hooks/use-score";
 import { Button } from "@/components/ui/button";
 import setTrip from "../../api/setTrip";
 import { JamIdContext } from "@/contexts/jam-id";

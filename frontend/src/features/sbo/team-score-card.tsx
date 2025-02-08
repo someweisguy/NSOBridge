@@ -5,9 +5,9 @@ import TimeoutPips from "@/components/timeout-pips";
 import BoutScore from "@/components/bout-score";
 import { BoutIdType } from "@/types/bout";
 import { BoutIdContext } from "@/contexts/BoutIdContext";
-import useBout from "@/hooks/useBout";
-import useActiveJamId from "@/hooks/useActiveJamId";
-import useScore from "@/hooks/useScore";
+import useBout from "@/hooks/use-bout";
+import useActiveJamId from "@/hooks/use-active-jam";
+import useScore from "@/hooks/use-score";
 
 export default function TeamScoreCard({
   team,

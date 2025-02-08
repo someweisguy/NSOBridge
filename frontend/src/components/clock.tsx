@@ -1,4 +1,4 @@
-import { useConnection } from "@/hooks/useConnection";
+import { useConnection } from "@/hooks/use-connection";
 import { useEffect, useState } from "react";
 
 export default function Clock({

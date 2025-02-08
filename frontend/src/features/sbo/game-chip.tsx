@@ -1,9 +1,9 @@
 import { useContext } from "react";
 import { BoutIdContext } from "../../contexts/BoutIdContext";
-import useBout from "../../hooks/useBout";
+import useBout from "../../hooks/use-bout";
 import { BoutIdType } from "../../types/bout";
 import Clock from "../../components/clock";
-import useClock from "@/hooks/useClock";
+import useClock from "@/hooks/use-clock";
 
 export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
   const boutIdContext = useContext<BoutIdType>(BoutIdContext);

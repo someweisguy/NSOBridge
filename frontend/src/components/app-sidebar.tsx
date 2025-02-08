@@ -6,7 +6,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar.tsx";
-import useSeries from "@/hooks/useSeries.ts";
+import useSeries from "@/hooks/use-series";
 import { ReactNode, Suspense, useEffect, useState } from "react";
 import { BoutIdContext } from "@/contexts/BoutIdContext.ts";
 import LoadingSpinner from "./loading-spinner";
