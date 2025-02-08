@@ -1,19 +1,25 @@
-import JamPaginator from "../../features/JamPaginator/components/JamPaginator";
+import { JamIdContext } from "../../features/JamPaginator/components/JamPaginator";
 import GameChip from "../../features/sbo/game-chip";
 import GameController from "../../features/GameController/components/GameController";
 import { Card } from "@/components/ui/card";
-import JamCallSetter from "@/features/sbo/jam-call-setter";
 import TeamScoreCard from "../../features/sbo/team-score-card";
+import useActiveJamId from "@/hooks/useActiveJamId";
+import { BoutIdType } from "@/types/bout";
+import { useContext } from "react";
+import { BoutIdContext } from "@/contexts/BoutIdContext";
 
 export default function ScoreboardOperator() {
+  const boutId: BoutIdType = useContext(BoutIdContext);
+  const activeJamId = useActiveJamId(boutId);
+
   return (
     <div className="grid grid-flow-row grid-cols-1">
       <div className="flex flex-row items-center">
         <GameChip />
         <GameController />
       </div>
-      <JamPaginator left={<JamCallSetter />}>
-        <div className="flex flex-row gap-4">
+      <JamIdContext.Provider value={activeJamId}>
+        <div className="flex flex-row justify-center w-full gap-4">
           <Card>
             <TeamScoreCard team="home" />
           </Card>
@@ -21,7 +27,7 @@ export default function ScoreboardOperator() {
             <TeamScoreCard team="away" />
           </Card>
         </div>
-      </JamPaginator>
+      </JamIdContext.Provider>
     </div>
   );
 }

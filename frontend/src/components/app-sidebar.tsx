@@ -51,7 +51,9 @@ export default function AppSidebar({
             <SidebarTrigger />
           </SidebarFooter>
         </Sidebar>
-        <Suspense fallback={spinner}>{children}</Suspense>
+        <div className="content size-full p-1">
+          <Suspense fallback={spinner}>{children}</Suspense>
+        </div>
       </SidebarProvider>
     </BoutIdContext.Provider>
   );
