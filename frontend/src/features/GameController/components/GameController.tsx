@@ -1,7 +1,7 @@
 import { ReactElement, useCallback, useContext } from "react";
 import { BoutIdContext } from "../../../contexts/bout-id";
 import useBout from "../../../hooks/use-bout";
-import dispatch from "../../../app/client";
+import dispatch from "../../../lib/client";
 import { useConnection } from "../../../hooks/use-connection";
 import { BoutIdType } from "../../../types/bout";
 import { Button } from "@/components/ui/button";

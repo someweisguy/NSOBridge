@@ -1,4 +1,4 @@
-import dispatch from "../app/client";
+import dispatch from "../lib/client";
 import { JamIdType } from "../types/jam";
 
 export default async function setTrip(boutId: string, jamId: JamIdType, team: string,

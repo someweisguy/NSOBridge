@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import dispatch from "../app/client";
+import dispatch from "../lib/client";
 import { ScoreType } from "../types/ScoreType";
 import { keyFactory } from "../utils/keyFactory";
 import { JamIdType } from "../types/jam";

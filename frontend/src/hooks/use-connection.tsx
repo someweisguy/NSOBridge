@@ -1,6 +1,6 @@
 import { onlineManager, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import dispatch from "../app/client";
+import dispatch from "../lib/client";
 
 export function useConnection() {
   const [isOnline, setIsOnline] = useState(onlineManager.isOnline());

@@ -1,4 +1,4 @@
-import dispatch from "../app/client";
+import dispatch from "../lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/keyFactory";
 
