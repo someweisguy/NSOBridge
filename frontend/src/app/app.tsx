@@ -1,4 +1,4 @@
-import ScoreboardOperator from "./operator.tsx";
+import ScoreboardOperator from "./pages/operator.tsx";
 import useSeries from "@/hooks/use-series.tsx";
 import { useEffect, useState } from "react";
 import { BoutIdContext } from "@/contexts/bout-id.tsx";
