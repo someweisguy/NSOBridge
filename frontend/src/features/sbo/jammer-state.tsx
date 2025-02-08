@@ -3,12 +3,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { BoutIdContext } from "@/contexts/BoutIdContext";
 import { BoutIdType } from "@/types/bout";
 import { ReactElement, useContext } from "react";
-import { JamIdContext } from "../JamPaginator/components/JamPaginator";
 import { JamIdType } from "@/types/jam";
 import useScore from "@/hooks/useScore";
 import { setLead } from "../../api/setLead";
 import { setLost } from "../../api/setLost";
 import { setStarPass } from "../../api/setStarPass";
+import { JamIdContext } from "@/contexts/jam-id";
 
 export default function JammerState({
   team,
@@ -28,7 +28,7 @@ export default function JammerState({
     ) && !lost;
 
   return (
-    <div className="grid grid-cols-3 m-2 gap-4">
+    <div className="grid grid-cols-3 gap-4 m-2">
       <Button
         variant="ghost"
         onClick={() => setLead(boutId, jamId, team, !lead)}

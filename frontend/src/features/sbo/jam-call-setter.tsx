@@ -1,9 +1,9 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { BoutIdContext } from "@/contexts/BoutIdContext";
 import { ReactElement, useCallback, useContext } from "react";
-import { JamIdContext } from "../JamPaginator/components/JamPaginator";
 import useJam from "@/hooks/useJam";
 import dispatch from "@/app/client";
+import { JamIdContext } from "@/contexts/jam-id";
 
 export default function JamCallSetter(): ReactElement {
   const boutId = useContext(BoutIdContext);

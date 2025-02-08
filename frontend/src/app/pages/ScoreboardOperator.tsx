@@ -1,4 +1,3 @@
-import { JamIdContext } from "../../features/JamPaginator/components/JamPaginator";
 import GameChip from "../../features/sbo/game-chip";
 import GameController from "../../features/GameController/components/GameController";
 import { Card } from "@/components/ui/card";
@@ -7,6 +6,7 @@ import useActiveJamId from "@/hooks/useActiveJamId";
 import { BoutIdType } from "@/types/bout";
 import { useContext } from "react";
 import { BoutIdContext } from "@/contexts/BoutIdContext";
+import { JamIdContext } from "@/contexts/jam-id";
 
 export default function ScoreboardOperator() {
   const boutId: BoutIdType = useContext(BoutIdContext);

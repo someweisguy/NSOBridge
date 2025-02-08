@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/carousel";
 import { BoutIdContext } from "@/contexts/BoutIdContext";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { JamIdContext } from "../JamPaginator/components/JamPaginator";
 import useScore from "@/hooks/useScore";
 import { Button } from "@/components/ui/button";
 import setTrip from "../../api/setTrip";
+import { JamIdContext } from "@/contexts/jam-id";
 
 export default function TripEditor({
   team,
