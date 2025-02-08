@@ -6,55 +6,33 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar.tsx";
-import useSeries from "@/hooks/use-series";
-import { ReactNode, Suspense, useEffect, useState } from "react";
-import { BoutIdContext } from "@/contexts/bout-id";
+import { ReactNode, Suspense } from "react";
 import LoadingSpinner from "./loading-spinner";
+import { cn } from "@/lib/utils";
 
 type SidebarProps = {
+  className?: string;
   children?: ReactNode;
   spinner?: ReactNode;
 };
 
 export default function AppSidebar({
+  className,
   children,
   spinner = <LoadingSpinner />,
 }: SidebarProps): ReactNode {
-  const series: Map<string, object> = useSeries();
-  const [boutId, setBoutId] = useState<string>(
-    series.size > 0 ? series.keys().next().value! : ""
-  );
-
-  // Automatically select a Bout with which to interact
-  useEffect(() => {
-    if (boutId && series.has(boutId)) {
-      return; // Do nothing
-    } else if (series.size > 0) {
-      if (boutId) {
-        // TODO: notify client that the Bout has been deleted
-      }
-      setBoutId(series.keys().next().value!);
-    } else {
-      // TODO: Go to Bout creation page
-    }
-  }, [boutId, series]);
-
   return (
-    <BoutIdContext.Provider value={boutId}>
-      <SidebarProvider>
-        <Sidebar collapsible="icon">
-          <SidebarHeader>
-            NSO Bridge
-          </SidebarHeader>
-          <SidebarContent />
-          <SidebarFooter>
-            <SidebarTrigger />
-          </SidebarFooter>
-        </Sidebar>
-        <div className="content size-full p-1">
-          <Suspense fallback={spinner}>{children}</Suspense>
-        </div>
-      </SidebarProvider>
-    </BoutIdContext.Provider>
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader>NSO Bridge</SidebarHeader>
+        <SidebarContent />
+        <SidebarFooter>
+          <SidebarTrigger />
+        </SidebarFooter>
+      </Sidebar>
+      <div className={cn("content size-full p-1", className)}>
+        <Suspense fallback={spinner}>{children}</Suspense>
+      </div>
+    </SidebarProvider>
   );
 }

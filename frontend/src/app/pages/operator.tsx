@@ -7,12 +7,14 @@ import { BoutIdType } from "@/types/bout";
 import { useContext } from "react";
 import { BoutIdContext } from "@/contexts/bout-id";
 import { JamIdContext } from "@/contexts/jam-id";
+import AppSidebar from "@/components/app-sidebar";
 
 export default function ScoreboardOperator() {
   const boutId: BoutIdType = useContext(BoutIdContext);
   const activeJamId = useActiveJamId(boutId);
 
   return (
+    <AppSidebar>
     <div className="grid grid-flow-row grid-cols-1">
       <div className="flex flex-row items-center">
         <GameChip />
@@ -29,5 +31,6 @@ export default function ScoreboardOperator() {
         </div>
       </JamIdContext.Provider>
     </div>
+    </AppSidebar>
   );
 }
