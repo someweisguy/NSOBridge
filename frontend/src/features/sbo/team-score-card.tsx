@@ -4,7 +4,7 @@ import JammerState from "@/features/sbo/jammer-state";
 import TimeoutPips from "@/components/timeout-pips";
 import BoutScore from "@/components/bout-score";
 import { BoutIdType } from "@/types/bout";
-import { BoutIdContext } from "@/contexts/BoutIdContext";
+import { BoutIdContext } from "@/contexts/bout-id";
 import useBout from "@/hooks/use-bout";
 import useActiveJamId from "@/hooks/use-active-jam";
 import useScore from "@/hooks/use-score";

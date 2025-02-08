@@ -7,7 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { BoutIdContext } from "@/contexts/BoutIdContext";
+import { BoutIdContext } from "@/contexts/bout-id";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import useScore from "@/hooks/use-score";
 import { Button } from "@/components/ui/button";

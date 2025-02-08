@@ -1,5 +1,5 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { BoutIdContext } from "@/contexts/BoutIdContext";
+import { BoutIdContext } from "@/contexts/bout-id";
 import { ReactElement, useCallback, useContext } from "react";
 import useJam from "@/hooks/use-jam";
 import dispatch from "@/app/client";

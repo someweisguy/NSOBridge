@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { BoutIdContext } from "@/contexts/BoutIdContext";
+import { BoutIdContext } from "@/contexts/bout-id";
 import { BoutIdType } from "@/types/bout";
 import { ReactElement, useContext } from "react";
 import { JamIdType } from "@/types/jam";

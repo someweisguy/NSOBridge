@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sidebar.tsx";
 import useSeries from "@/hooks/use-series";
 import { ReactNode, Suspense, useEffect, useState } from "react";
-import { BoutIdContext } from "@/contexts/BoutIdContext.ts";
+import { BoutIdContext } from "@/contexts/bout-id";
 import LoadingSpinner from "./loading-spinner";
 
 type SidebarProps = {

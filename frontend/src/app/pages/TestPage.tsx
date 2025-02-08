@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { BoutIdContext } from "../../contexts/BoutIdContext";
+import { BoutIdContext } from "../../contexts/bout-id";
 
 
 

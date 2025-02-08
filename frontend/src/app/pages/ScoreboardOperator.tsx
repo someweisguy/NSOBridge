@@ -5,7 +5,7 @@ import TeamScoreCard from "../../features/sbo/team-score-card";
 import useActiveJamId from "@/hooks/use-active-jam";
 import { BoutIdType } from "@/types/bout";
 import { useContext } from "react";
-import { BoutIdContext } from "@/contexts/BoutIdContext";
+import { BoutIdContext } from "@/contexts/bout-id";
 import { JamIdContext } from "@/contexts/jam-id";
 
 export default function ScoreboardOperator() {

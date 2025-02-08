@@ -1,5 +1,5 @@
 import { ReactElement, useCallback, useContext } from "react";
-import { BoutIdContext } from "../../../contexts/BoutIdContext";
+import { BoutIdContext } from "../../../contexts/bout-id";
 import useBout from "../../../hooks/use-bout";
 import dispatch from "../../../app/client";
 import { useConnection } from "../../../hooks/use-connection";
