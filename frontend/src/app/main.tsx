@@ -16,7 +16,7 @@ createRoot(document.getElementById("root")!).render(
   </QueryClientProvider>
 );
 
-// Get the Bout data from the HTML root
+// Get the Series data from the HTML root
 const rootNode: HTMLElement | null = document.getElementById("root");
 if (rootNode?.dataset?.model) {
   try {
