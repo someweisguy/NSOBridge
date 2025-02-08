@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import dispatch from "../lib/client";
-import { keyFactory } from "../utils/keyFactory";
+import { keyFactory } from "../utils/key-factory";
 import { JamIdType, JamType } from "../types/jam";
 
 export default function useJam(boutId: string, jamId: JamIdType): JamType {

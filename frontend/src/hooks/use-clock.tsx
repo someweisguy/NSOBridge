@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import dispatch from "../lib/client";
 import { ClockType } from "../types/clock";
-import { keyFactory } from "../utils/keyFactory";
+import { keyFactory } from "../utils/key-factory";
 import { useConnection } from "./use-connection";
 import { BoutIdType } from "../types/bout";
 

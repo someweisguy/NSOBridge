@@ -1,6 +1,6 @@
 import dispatch from "../lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { keyFactory } from "../utils/keyFactory";
+import { keyFactory } from "../utils/key-factory";
 
 export default function useSeries(): Map<string, object> {
   const { data } = useSuspenseQuery<Map<string, object>>({
