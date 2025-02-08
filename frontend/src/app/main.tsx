@@ -2,7 +2,7 @@ import { queryClient } from "../lib/client.ts";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
-import App from "./app.tsx";
+import App from "./pages/app.tsx";
 import "./index.css";
 import LoadingSpinner from "@/components/loading-spinner.tsx";
 
