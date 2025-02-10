@@ -34,9 +34,10 @@ export default function TripEditor({
   const [api, setApi] = useState<CarouselApi>();
   const [nodeCount, setNodeCount] = useState<number>(jamScore.trips.length + 1);
   const oldNodeCount = useRef<number>(jamScore.trips.length);
+  const numTrips = useRef<number>(jamScore.trips.length);
 
   useEffect(() => {
-    api?.scrollTo(jamScore.trips.length, true);
+    api?.scrollTo(numTrips.current, true);
     api?.on("slidesChanged", () => {
       // Adapt the carousel API to a React hook
       setNodeCount(api.slideNodes().length);
@@ -53,19 +54,19 @@ export default function TripEditor({
       setSelectedTrip(nodeCount - 1);
     }
     oldNodeCount.current = nodeCount;
-  }, [nodeCount]);
+  }, [nodeCount, selectedTrip, api]);
 
   const setPoints = useCallback(
     (points: number, validPass: boolean = true) =>
       setTrip(boutId, jamId, team, selectedTrip, points, validPass),
-    [boutId, jamId, team, jamScore.trips.length, selectedTrip]
+    [boutId, jamId, team, selectedTrip]
   );
 
   useEffect(() => {
     setSelectedTrip(jamScore.trips.length);
     setNodeCount(jamScore.trips.length + 1);
     api?.scrollTo(jamScore.trips.length + 1, true);
-  }, [boutId, jamId, team]);
+  }, [boutId, jamId, team, api, jamScore.trips.length]);
 
   return (
     <div className="flex flex-col items-center">
