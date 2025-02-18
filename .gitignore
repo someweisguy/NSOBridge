@@ -1,37 +1,29 @@
-# python
-__pycache__
-.venv
-
-# dependencies
-node_modules
-.pnp
-.pnp.js
-
-# production
-dist
-dist-ssr
-node_modules
-*.local
-
-# editor directories and files
-!.vscode/extensions.json
-.DS_Store
-.idea
-.vscode
-*.njsproj
-*.ntvs*
-*.sln
-*.suo
-*.sw?
-
-# logs
-lerna-debug.log*
+# Logs
 logs
+*.log
 npm-debug.log*
-pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-*.log
+pnpm-debug.log*
+lerna-debug.log*
 
-# secrets
-*.pem
+# Production
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python
+__pycache__
+.venv

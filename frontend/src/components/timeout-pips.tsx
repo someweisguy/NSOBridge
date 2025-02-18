@@ -34,6 +34,7 @@ export default function TimeoutPips({
     >
       {Array.from({ length: maxTimeouts }, (_, i) => (
         <Pip
+          key={i}
           hidden={i >= timeoutsRemaining}
           active={activeTimeout == "timeout" && i == timeoutsRemaining - 1}
         />
@@ -43,6 +44,7 @@ export default function TimeoutPips({
 
       {Array.from({ length: maxOfficialReviews }, (_, i) => (
         <Pip
+          key={i}
           hidden={i >= officialReviewsRemaining}
           active={
             activeTimeout == "officialReview" &&
