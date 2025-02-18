@@ -15,22 +15,22 @@ export default function ScoreboardOperator() {
 
   return (
     <AppSidebar>
-    <div className="grid grid-flow-row grid-cols-1">
-      <div className="flex flex-row items-center">
-        <GameChip />
-        <GameController />
-      </div>
-      <JamIdContext.Provider value={activeJamId}>
-        <div className="flex flex-row justify-center w-full gap-4">
-          <Card>
-            <TeamScoreCard team="home" />
-          </Card>
-          <Card>
-            <TeamScoreCard team="away" />
-          </Card>
+      <div className="grid grid-flow-row grid-cols-1">
+        <div className="flex flex-row items-center">
+          <GameChip />
+          <GameController />
         </div>
-      </JamIdContext.Provider>
-    </div>
+        <JamIdContext.Provider value={activeJamId}>
+          <div className="flex flex-row justify-center w-full gap-4">
+            <Card>
+              <TeamScoreCard team="home" />
+            </Card>
+            <Card>
+              <TeamScoreCard team="away" />
+            </Card>
+          </div>
+        </JamIdContext.Provider>
+      </div>
     </AppSidebar>
   );
 }
