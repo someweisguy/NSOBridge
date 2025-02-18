@@ -7,13 +7,13 @@ export type BoutType = {
   numJams: [number, number];
   isOvertime: boolean;
   timeoutsRemaining: {
-    home: number
-    away: number
-  },
+    home: number;
+    away: number;
+  };
   officialReviewsRemaining: {
-    home: number
-    away: number
-  }
+    home: number;
+    away: number;
+  };
   score: {
     home: number;
     away: number;

@@ -3,11 +3,14 @@ import { keyFactory } from "../utils/key-factory";
 import dispatch from "../lib/client";
 import { BoutType } from "../types/bout";
 
-export default function useBout<T = BoutType>(boutId: string, selector?: (bout: BoutType) => T): T {
+export default function useBout<T = BoutType>(
+  boutId: string,
+  selector?: (bout: BoutType) => T
+): T {
   const { data } = useSuspenseQuery<BoutType, unknown, T>({
     queryKey: keyFactory.bout(boutId),
     queryFn: () => dispatch("bout", "get", { boutId }),
-    select: selector
+    select: selector,
   });
 
   return data;

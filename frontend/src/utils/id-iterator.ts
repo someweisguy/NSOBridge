@@ -16,7 +16,7 @@ export function getNextJamId(
     return null;
   }
 
-  const newPeriodNum: number = Number(jamScalar >= jamCounts[0]);
+  const newPeriodNum = Number(jamScalar >= jamCounts[0]);
   return [newPeriodNum, newPeriodNum != periodNum ? 0 : jamNum + 1];
 }
 
@@ -44,7 +44,10 @@ export function getActiveJamId(numJams: [number, number], playState: string) {
 
   let activeJamId: [number, number] = [periodNum, jamNum];
   if (playState !== "jam") {
-    const previousJamId: [number, number] | null = getPreviousJamId(numJams, activeJamId);
+    const previousJamId: [number, number] | null = getPreviousJamId(
+      numJams,
+      activeJamId
+    );
     if (previousJamId == null) {
       activeJamId = [0, 0];
     } else {
