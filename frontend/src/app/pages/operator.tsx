@@ -1,5 +1,4 @@
 import GameChip from "../../features/sbo/game-chip";
-import GameController from "../../features/GameController/components/GameController";
 import { Card } from "@/components/ui/card";
 import TeamScoreCard from "../../features/sbo/team-score-card";
 import useActiveJamId from "@/hooks/use-active-jam";
@@ -8,6 +7,8 @@ import { useContext } from "react";
 import { BoutIdContext } from "@/contexts/bout-id";
 import { JamIdContext } from "@/contexts/jam-id";
 import AppSidebar from "@/components/app-sidebar";
+import GameToolbar from "@/features/sbo/game-toolbar";
+
 
 export default function ScoreboardOperator() {
   const boutId: BoutIdType = useContext(BoutIdContext);
@@ -18,7 +19,7 @@ export default function ScoreboardOperator() {
       <div className="grid grid-flow-row grid-cols-1">
         <div className="flex flex-row items-center">
           <GameChip />
-          <GameController />
+          <GameToolbar />
         </div>
         <JamIdContext.Provider value={activeJamId}>
           <div className="flex flex-row justify-center w-full gap-4">
