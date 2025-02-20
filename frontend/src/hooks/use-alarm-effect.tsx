@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { ClockType } from "../types/clock";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/key-factory";
-import dispatch from "../lib/client";
+import dispatchRequest from "../lib/client";
 import { useConnection } from "./use-connection";
 import { BoutIdType } from "../types/bout";
 
@@ -15,7 +15,7 @@ export default function useAlarmEffect(
   const { data: clock, dataUpdatedAt: clockUpdatedAt } =
     useSuspenseQuery<ClockType>({
       queryKey: keyFactory.clock(boutId, type),
-      queryFn: () => dispatch("clock", "get", { boutId, type }),
+      queryFn: () => dispatchRequest("clock", "get", { boutId, type }),
     });
   const lastClockElapsedRef = useRef<number>(clock.elapsed);
   const latencyRef = useRef<number>(latency);

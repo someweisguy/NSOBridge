@@ -1,4 +1,4 @@
-import dispatch from "../lib/client";
+import dispatchRequest from "../lib/client";
 import { JamIdType } from "../types/jam";
 
 export default async function deleteTrip(
@@ -7,7 +7,7 @@ export default async function deleteTrip(
   team: string,
   tripId: number
 ): Promise<null> {
-  return await dispatch<null>("score", "deleteTrip", {
+  return await dispatchRequest<null>("score", "deleteTrip", {
     boutId,
     jamId,
     team,

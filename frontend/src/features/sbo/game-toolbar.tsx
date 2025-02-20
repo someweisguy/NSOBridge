@@ -4,7 +4,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { BoutIdContext } from "@/contexts/bout-id";
 import useBout from "@/hooks/use-bout";
 import { useConnection } from "@/hooks/use-connection";
-import dispatch from "@/lib/client";
+import dispatchRequest from "@/lib/client";
 import { BoutIdType } from "@/types/bout";
 import { ReactElement, useCallback, useContext, useMemo } from "react";
 
@@ -38,7 +38,7 @@ function Stopped({ boutId }: { boutId: BoutIdType }) {
   const { latency } = useConnection();
 
   const startJam = useCallback(() => {
-    void dispatch("bout", "startJam", { boutId, latency });
+    void dispatchRequest("bout", "startJam", { boutId, latency });
   }, [boutId, latency]);
 
   // TODO: Start Lineup, Start Intermission Clock
@@ -58,7 +58,7 @@ function Jam({ boutId }: { boutId: BoutIdType }) {
   const { latency } = useConnection();
 
   const stopJam = useCallback(() => {
-    void dispatch("bout", "stopJam", { boutId, latency });
+    void dispatchRequest("bout", "stopJam", { boutId, latency });
   }, [boutId, latency]);
 
   return (
@@ -76,11 +76,11 @@ function Lineup({ boutId }: { boutId: BoutIdType }) {
   const { latency } = useConnection();
 
   const startJam = useCallback(() => {
-    void dispatch("bout", "startJam", { boutId, latency });
+    void dispatchRequest("bout", "startJam", { boutId, latency });
   }, [boutId, latency]);
 
   const callTimeout = useCallback(() => {
-    void dispatch("bout", "callTimeout", { boutId, latency });
+    void dispatchRequest("bout", "callTimeout", { boutId, latency });
   }, [boutId, latency]);
 
   return (
@@ -100,7 +100,7 @@ function Timeout({ boutId }: { boutId: BoutIdType }) {
   const { latency } = useConnection();
 
   const endTimeout = useCallback(() => {
-    void dispatch("bout", "endTimeout", { boutId, latency });
+    void dispatchRequest("bout", "endTimeout", { boutId, latency });
   }, [boutId, latency]);
 
   return (

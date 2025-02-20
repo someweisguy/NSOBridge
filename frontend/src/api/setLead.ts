@@ -1,4 +1,4 @@
-import dispatch from "../lib/client";
+import dispatchRequest from "../lib/client";
 import { JamIdType } from "../types/jam";
 
 export async function setLead(
@@ -7,7 +7,7 @@ export async function setLead(
   team: string,
   lead: boolean
 ): Promise<null> {
-  return await dispatch<null>("score", "setLead", {
+  return await dispatchRequest<null>("score", "setLead", {
     boutId,
     jamId,
     team,

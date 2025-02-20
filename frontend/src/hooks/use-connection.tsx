@@ -1,6 +1,6 @@
 import { onlineManager, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import dispatch from "../lib/client";
+import dispatchRequest from "../lib/client";
 
 export function useConnection() {
   const [isOnline, setIsOnline] = useState(onlineManager.isOnline());
@@ -24,7 +24,7 @@ export function useConnection() {
 
         // Time the round-trip duration of a packet
         const start: number = window.performance.now();
-        await dispatch<void>("server", "latency").catch(() => {
+        await dispatchRequest<void>("server", "latency").catch(() => {
           success = false;
         });
         const stop: number = window.performance.now();

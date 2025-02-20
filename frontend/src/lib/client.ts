@@ -71,7 +71,7 @@ socket.onmessage = (event: MessageEvent<string>) => {
   }
 };
 
-export default async function dispatch<T = unknown>(
+export default async function dispatchRequest<T = unknown>(
   module: string,
   method: string,
   args: object = {}

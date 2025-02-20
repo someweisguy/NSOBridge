@@ -1,4 +1,4 @@
-import dispatch from "../lib/client";
+import dispatchRequest from "../lib/client";
 import { JamIdType } from "../types/jam";
 
 export async function setStarPass(
@@ -7,7 +7,7 @@ export async function setStarPass(
   team: string,
   starPass: boolean
 ): Promise<null> {
-  return await dispatch<null>("score", "setStarPass", {
+  return await dispatchRequest<null>("score", "setStarPass", {
     boutId,
     jamId,
     team,

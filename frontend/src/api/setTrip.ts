@@ -1,4 +1,4 @@
-import dispatch from "../lib/client";
+import dispatchRequest from "../lib/client";
 import { JamIdType } from "../types/jam";
 
 export default async function setTrip(
@@ -9,7 +9,7 @@ export default async function setTrip(
   points: number,
   validPass = true
 ): Promise<null> {
-  return await dispatch<null>("score", "setTrip", {
+  return await dispatchRequest<null>("score", "setTrip", {
     boutId,
     jamId,
     team,

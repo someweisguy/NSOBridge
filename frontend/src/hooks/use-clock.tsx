@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import dispatch from "../lib/client";
+import dispatchRequest from "../lib/client";
 import { ClockType } from "../types/clock";
 import { keyFactory } from "../utils/key-factory";
 import { useConnection } from "./use-connection";
@@ -13,7 +13,7 @@ export default function useClock<T = ClockType>(
   const { latency } = useConnection();
   const { data } = useSuspenseQuery<ClockType, unknown, T>({
     queryKey: keyFactory.clock(boutId, type),
-    queryFn: () => dispatch("clock", "get", { boutId, type, latency }),
+    queryFn: () => dispatchRequest("clock", "get", { boutId, type, latency }),
     select: selector,
   });
 
