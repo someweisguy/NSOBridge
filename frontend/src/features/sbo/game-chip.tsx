@@ -4,6 +4,8 @@ import useBout from "../../hooks/use-bout";
 import { BoutIdType } from "../../types/bout";
 import Clock from "../../components/clock";
 import useClock from "@/hooks/use-clock";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
   const boutIdContext = useContext<BoutIdType>(BoutIdContext);
@@ -17,58 +19,26 @@ export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
   const periodNum = useBout<number>(boutId, (bout) =>
     Number(bout.numJams[1] > 0)
   );
-  const [jamNum, playState, scoreState] = useBout<[number, string, string]>(
-    boutId,
-    (bout) => [bout.numJams[periodNum] - 1, bout.playState, bout.scoreState]
-  );
+  const [jamNum, playState] = useBout<[number, string]>(boutId, (bout) => [
+    bout.numJams[periodNum] - 1,
+    bout.playState,
+  ]);
 
-  // Add an optional flag to the game chip to indicate the game state
-  let flag: string | null = null;
-  if (scoreState === "live") {
-    if (playState === "timeout") {
-      flag = "Timeout";
-    } else if (playState === "stopped") {
-      if (periodNum === 0) {
-        flag = "Pregame";
-      } else {
-        flag = "Halftime";
-      }
-    }
-  } else if (scoreState === "unofficial") {
-    flag = "Unofficial";
-  } else {
-    flag = "Final";
-  }
-
-  // TODO: change chip style when in pregame, halftime, unofficial, or final
+  // TODO: get flag to display exceptional game state (e.g. timeouts)
 
   return (
-    <div className="flex flex-col py-1 m-3 overflow-hidden text-xl rounded-lg bg-raisin-100 max-w-min">
-      <div className="flex flex-row p-1 font-mono rounded-b-lg place-content-between bg-pink">
-        <div className="flex-1 w-16 px-2 text-right min-w-fit">
-          <Clock {...useClock(boutId, "period")} />
-        </div>
-        <div className="flex flex-none w-20 px-1 place-content-around border-x border-raisin border-raisin-400">
-          <span className="flex-1 max-w-min">P{periodNum + 1}</span>
-          <span className="flex-1 max-w-min">
-            {playState === "lineup" ? "L" : "J"}
-            {jamNum + 1}
-          </span>
-        </div>
-        <div className="flex-1 w-16 px-1 text-right">
-          <Clock
-            {...useClock(boutId, playState === "stopped" ? "jam" : playState)}
-            showMillis={playState === "jam" ? "auto" : "never"}
-          />
-        </div>
-      </div>
-      <div
-        className={`${
-          flag ? "visible" : "invisible"
-        } bg-blue-200 size-full h-full font-semibold text-center text-sm`}
-      >
-        {flag}
-      </div>
-    </div>
+    <Card>
+      <CardContent className="flex flex-row p-2 gap-4">
+        <Clock {...useClock(boutId, "period")} />
+        <Separator orientation="vertical" />
+        {"P" + (periodNum + 1)}&nbsp;
+        {(playState === "lineup" ? "L" : "J") + (jamNum + 1)}
+        <Separator orientation="vertical" />
+        <Clock
+          {...useClock(boutId, playState === "stopped" ? "jam" : playState)}
+          showMillis={playState === "jam" ? "auto" : "never"}
+        />
+      </CardContent>
+    </Card>
   );
 }
