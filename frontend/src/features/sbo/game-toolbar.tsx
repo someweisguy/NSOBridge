@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { BoutIdContext } from "@/contexts/bout-id";
 import useBout from "@/hooks/use-bout";
@@ -31,7 +32,7 @@ export default function GameToolbar(): ReactElement {
     buttons = buttonRows[playState];
   }
 
-  return <Card className="p-2">{buttons}</Card>;
+  return <Card className="p-2 flex flex-row">{buttons}</Card>;
 }
 
 function Stopped({ boutId }: { boutId: BoutIdType }) {
@@ -106,15 +107,25 @@ function Timeout({ boutId }: { boutId: BoutIdType }) {
   return (
     <>
       <ToggleGroup type="single">
+        <ToggleGroupItem value="timeout">Timeout</ToggleGroupItem>
+        <ToggleGroupItem value="officialReview">
+          Official Review
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <ToggleGroup type="single">
         <ToggleGroupItem value="official">Official</ToggleGroupItem>
         <ToggleGroupItem value="home">Home</ToggleGroupItem>
         <ToggleGroupItem value="away">Away</ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="single">
-        <ToggleGroupItem value="home">Home</ToggleGroupItem>
-        <ToggleGroupItem value="away">Away</ToggleGroupItem>
-      </ToggleGroup>
-      <Button variant="ghost">Retained</Button>
+      <Button
+        variant="ghost"
+        onClick={() => {
+          return;
+        }}
+      >
+        <Checkbox checked={false} />
+        Retained
+      </Button>
       <Button variant="outline" onClick={endTimeout}>
         End Timeout
       </Button>
