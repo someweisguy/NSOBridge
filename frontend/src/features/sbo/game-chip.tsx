@@ -4,7 +4,7 @@ import useBout from "../../hooks/use-bout";
 import { BoutIdType } from "../../types/bout";
 import Clock from "../../components/clock";
 import useClock from "@/hooks/use-clock";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
@@ -27,18 +27,19 @@ export default function GameChip({ boutId }: { boutId?: BoutIdType }) {
   // TODO: get flag to display exceptional game state (e.g. timeouts)
 
   return (
-    <Card>
-      <CardContent className="flex flex-row p-2 gap-4">
-        <Clock {...useClock(boutId, "period")} />
-        <Separator orientation="vertical" />
+    <Card className="grid grid-flow-col gap-2 p-2">
+      <Clock className="w-12" {...useClock(boutId, "period")} />
+      <Separator orientation="vertical" />
+      <div className="min-w-14 text-center">
         {"P" + (periodNum + 1)}&nbsp;
         {(playState === "lineup" ? "L" : "J") + (jamNum + 1)}
-        <Separator orientation="vertical" />
-        <Clock
-          {...useClock(boutId, playState === "stopped" ? "jam" : playState)}
-          showMillis={playState === "jam" ? "auto" : "never"}
-        />
-      </CardContent>
+      </div>
+      <Separator orientation="vertical" />
+      <Clock
+        className="w-12"
+        {...useClock(boutId, playState === "stopped" ? "jam" : playState)}
+        showMillis={playState === "jam" ? "auto" : "never"}
+      />
     </Card>
   );
 }
