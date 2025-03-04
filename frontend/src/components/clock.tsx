@@ -1,4 +1,5 @@
 import { useConnection } from "@/hooks/use-connection";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 export default function Clock({
@@ -7,12 +8,14 @@ export default function Clock({
   isRunning,
   showMillis = "auto",
   stopAtZero = true,
+  className,
 }: {
   alarm?: number | null;
   elapsed: number;
   isRunning: boolean;
   showMillis?: "never" | "always" | "auto";
   stopAtZero?: boolean;
+  className?: string;
 }) {
   const { latency } = useConnection();
   const [actualElapsed, setActualElapsed] = useState<number>(elapsed);
@@ -78,5 +81,5 @@ export default function Clock({
     timeString += "." + Math.floor((displayTotal % 1000) / 100);
   }
 
-  return <>{timeString}</>;
+  return <span className={cn("text-right", className)}>{timeString}</span>;
 }
