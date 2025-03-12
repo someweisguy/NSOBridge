@@ -11,8 +11,8 @@ class TeamTimeouts:
 @dataclass(slots=True)
 class Stops(TeamAttribute[TeamTimeouts]):
     _history: list = field(default_factory=list)
-    _home: TeamTimeouts = TeamTimeouts()
-    _away: TeamTimeouts = TeamTimeouts()
+    _home: TeamTimeouts = field(default_factory=TeamTimeouts)
+    _away: TeamTimeouts = field(default_factory=TeamTimeouts)
 
     @property
     def home(self) -> TeamTimeouts:

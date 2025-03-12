@@ -29,8 +29,8 @@ class Jam(TeamAttribute[Score]):
     start_timestamp: datetime | None = None
     stop_timestamp: datetime | None = None
     stop_reason: JAM_STOP_REASONS | None = None
-    _home: Score = Score()
-    _away: Score = Score()
+    _home: Score = field(default_factory=Score)
+    _away: Score = field(default_factory=Score)
 
     @property
     def home(self) -> Score:
