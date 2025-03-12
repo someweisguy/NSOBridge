@@ -3,18 +3,24 @@ from dataclasses import dataclass, field
 
 
 @dataclass(slots=True)
-class Stops:
-    _timeouts_remaining: TeamAttribute[int] = TeamAttribute(3, 3)
-    _official_reviews_remaining: TeamAttribute[int] = TeamAttribute(1, 1)
+class TeamTimeouts:
+    timeouts_remaining: int = 3
+    official_reviews_remaining: int = 1
+
+
+@dataclass(slots=True)
+class Stops(TeamAttribute[TeamTimeouts]):
     _history: list = field(default_factory=list)
+    _home: TeamTimeouts = TeamTimeouts()
+    _away: TeamTimeouts = TeamTimeouts()
 
     @property
-    def timeouts(self) -> TeamAttribute[int]:
-        return self._timeouts_remaining
+    def home(self) -> TeamTimeouts:
+        return self._home
 
     @property
-    def official_reviews(self) -> TeamAttribute[int]:
-        return self._official_reviews_remaining
+    def away(self) -> TeamTimeouts:
+        return self._away
 
     @property
     def history(self) -> list:

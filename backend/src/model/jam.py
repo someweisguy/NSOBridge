@@ -25,12 +25,17 @@ class Score:
 
 
 @dataclass(slots=True)
-class Jam:
+class Jam(TeamAttribute[Score]):
     start_timestamp: datetime | None = None
     stop_timestamp: datetime | None = None
     stop_reason: JAM_STOP_REASONS | None = None
-    _score: TeamAttribute[Score] = field(default_factory=lambda: TeamAttribute(Score(), Score()))
+    _home: Score = Score()
+    _away: Score = Score()
 
     @property
-    def score(self) -> TeamAttribute[Score]:
-        return self._score
+    def home(self) -> Score:
+        return self._home
+
+    @property
+    def away(self) -> Score:
+        return self._away
