@@ -1,17 +1,18 @@
 from __future__ import annotations
-from .timer import Timer
-from .jam import Jam
-from .stops import Stops
 from copy import deepcopy
 from dataclasses import dataclass, field
+from . import AbstractState
+from .timer import TimerState
+from .jam import JamState
+from .stops import StopState
 
 
 class Memento:
     __slots__ = '_originator', '_state'
 
-    def __init__(self, originator: Bout) -> None:
-        self._originator: Bout = originator
-        self._state: Bout = deepcopy(originator)
+    def __init__(self, originator: BoutState) -> None:
+        self._originator: BoutState = originator
+        self._state: BoutState = deepcopy(originator)
 
     def restore(self) -> None:
         for slot in self._originator.__slots__:
@@ -19,21 +20,21 @@ class Memento:
 
 
 @dataclass(slots=True)
-class Bout:
-    _clock: Timer = field(default_factory=Timer)
-    _jams: tuple[list[Jam], list[Jam]] = ([Jam()], [])
-    _stops: Stops = field(default_factory=Stops)
+class BoutState(AbstractState):
+    _clock: TimerState = field(default_factory=TimerState)
+    _jams: tuple[list[JamState], list[JamState]] = ([JamState()], [])
+    _stops: StopState = field(default_factory=StopState)
 
     @property
-    def clock(self) -> Timer:
+    def clock(self) -> TimerState:
         return self._clock
 
     @property
-    def jams(self) -> tuple[list[Jam], list[Jam]]:
+    def jams(self) -> tuple[list[JamState], list[JamState]]:
         return self._jams
 
     @property
-    def stops(self) -> Stops:
+    def stops(self) -> StopState:
         return self._stops
 
     def get_snapshot(self):

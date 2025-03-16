@@ -1,25 +1,26 @@
-from .attribute import TeamAttribute
 from dataclasses import dataclass, field
+from .attribute import TeamAttribute
+from . import AbstractState
 
 
 @dataclass(slots=True)
-class TeamTimeouts:
+class TeamTimeoutState(AbstractState):
     timeouts_remaining: int = 3
     official_reviews_remaining: int = 1
 
 
 @dataclass(slots=True)
-class Stops(TeamAttribute[TeamTimeouts]):
+class StopState(TeamAttribute[TeamTimeoutState], AbstractState):
     _history: list = field(default_factory=list)
-    _home: TeamTimeouts = field(default_factory=TeamTimeouts)
-    _away: TeamTimeouts = field(default_factory=TeamTimeouts)
+    _home: TeamTimeoutState = field(default_factory=TeamTimeoutState)
+    _away: TeamTimeoutState = field(default_factory=TeamTimeoutState)
 
     @property
-    def home(self) -> TeamTimeouts:
+    def home(self) -> TeamTimeoutState:
         return self._home
 
     @property
-    def away(self) -> TeamTimeouts:
+    def away(self) -> TeamTimeoutState:
         return self._away
 
     @property
