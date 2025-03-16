@@ -1,3 +1,7 @@
 {
-  "python.analysis.typeCheckingMode": "standard"
+  "python.analysis.typeCheckingMode": "standard",
+  "pylint.args": [
+    "--disable=C0114, C0115, C0116",  // Disable docstring warnings
+    "--disable=W0611, W0221",
+  ]
 }
