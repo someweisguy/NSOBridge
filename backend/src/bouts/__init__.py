@@ -9,7 +9,6 @@ from rules import Ruleset
 
 from .attribute import TeamType
 from .jam import JamState, JamStopReasons, TripState
-from .stops import StopState
 from .timer import TimeState
 
 type JamId = tuple[int, int]
@@ -43,8 +42,6 @@ class BoutState(Queryable):
     clock: Final[TimeState] = field(init=False, default_factory=TimeState)
     jams: Final[tuple[list[JamState], list[JamState]]] = field(
         init=False, default=([JamState()], []))
-    # TODO: merge stops into clock
-    stops: Final[StopState] = field(init=False, default_factory=StopState)
 
     def __post_init__(self) -> None:
         if self.ruleset_name not in Ruleset.RULESETS:

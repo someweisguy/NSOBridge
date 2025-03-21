@@ -1,5 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from typing import Final
+
+from .attribute import TeamAttribute
 
 
 @dataclass(slots=True)
@@ -34,16 +37,20 @@ class ClockState:
 
 
 @dataclass(slots=True)
-class TimeState:
-    _game: ClockState = field(default_factory=ClockState)
-    _jam: ClockState = field(default_factory=ClockState)
-    is_in_intermission: bool = True
-    is_in_lineup: bool = False
+class TeamTimeoutState:
+    timeouts_remaining: int = field(default=3)
+    official_reviews_remaining: int = field(default=1)
 
-    @property
-    def game(self) -> ClockState:
-        return self._game
 
-    @property
-    def jam(self) -> ClockState:
-        return self._jam
+@dataclass(slots=True)
+class TimeState(TeamAttribute[TeamTimeoutState]):
+    game_clock: Final[ClockState] = field(
+        init=False, default_factory=ClockState)
+    jam_clock: Final[ClockState] = field(
+        init=False, default_factory=ClockState)
+    is_in_intermission: bool = field(init=False, default=True)
+    is_in_lineup: bool = field(init=False, default=False)
+    home: Final[TeamTimeoutState] = field(
+        init=False, default_factory=TeamTimeoutState)
+    away: Final[TeamTimeoutState] = field(
+        init=False, default_factory=TeamTimeoutState)
