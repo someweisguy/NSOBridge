@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Final
 
 from .attribute import TeamAttribute
 
@@ -18,11 +18,7 @@ class ScoreState:
     lead: bool = False
     lost: bool = False
     star_pass: int | None = None
-    _trips: list[TripState] = field(default_factory=list)
-
-    @property
-    def trips(self) -> list[TripState]:
-        return self._trips
+    trips: Final[list[TripState]] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -30,23 +26,15 @@ class JamState(TeamAttribute[ScoreState]):
     start_timestamp: datetime | None = None
     stop_timestamp: datetime | None = None
     stop_reason: JamStopReasons | None = None
-    _home: ScoreState = field(default_factory=ScoreState)
-    _away: ScoreState = field(default_factory=ScoreState)
+    home: Final[ScoreState] = field(default_factory=ScoreState)
+    away: Final[ScoreState] = field(default_factory=ScoreState)
 
     def __getitem__(self, key: Literal['home', 'away']) -> ScoreState:
         if key == 'home':
-            return self._home
+            return self.home
         if key == 'away':
-            return self._away
+            return self.away
         raise KeyError(f"Invalid team: {key}")
-
-    @property
-    def home(self) -> ScoreState:
-        return self._home
-
-    @property
-    def away(self) -> ScoreState:
-        return self._away
 
     def lead_is_declared(self) -> bool:
         return self.home.lead or self.away.lead
