@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from . import AbstractState
 
 
 @dataclass(slots=True)
-class ClockState(AbstractState):
+class ClockState:
     start_timestamp: datetime | None = None
     elapsed: timedelta = timedelta(seconds=0)
     alarm: timedelta | None = None
@@ -35,7 +34,7 @@ class ClockState(AbstractState):
 
 
 @dataclass(slots=True)
-class TimerState(AbstractState):
+class TimerState:
     _game: ClockState = field(default_factory=ClockState)
     _jam: ClockState = field(default_factory=ClockState)
     is_in_intermission: bool = True

@@ -1,20 +1,24 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+
+from typing import Protocol
+from uuid import UUID
+
+import model
+from model import BoutState
+
+from .score import ScoreKeeper
+from .time import TimeKeeper
 
 
-# TODO: move this class to a different location
-class BoutHandler:
-    pass
-
-
-class Rule(ABC):
-    def __init__(self, handler: BoutHandler) -> None:
-        self.__handler: BoutHandler = handler
+class Ruleset:
+    def __init__(self, time: TimeKeeper, score: ScoreKeeper) -> None:
+        self._time: TimeKeeper = time
+        self._score: ScoreKeeper = score
 
     @property
-    def handler(self) -> BoutHandler:
-        return self.__handler
+    def time(self) -> TimeKeeper:
+        return self._time
 
-    @abstractmethod
-    def execute(self, *args, **kwargs) -> None:
-        raise NotImplementedError
+    @property
+    def score(self) -> ScoreKeeper:
+        return self._score

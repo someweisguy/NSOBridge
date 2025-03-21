@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Any, Literal, Protocol
 
+type TeamType = Literal['home', 'away']
 
 class TeamAttribute[T: Any](Protocol):
     @property

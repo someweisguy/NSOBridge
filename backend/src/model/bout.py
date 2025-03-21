@@ -1,10 +1,12 @@
 from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
-from . import AbstractState
+
 from .timer import TimerState
 from .jam import JamState
 from .stops import StopState
+
+type JamId = tuple[int, int]
 
 
 class Memento:
@@ -20,10 +22,12 @@ class Memento:
 
 
 @dataclass(slots=True)
-class BoutState(AbstractState):
-    _clock: TimerState = field(default_factory=TimerState)
-    _jams: tuple[list[JamState], list[JamState]] = ([JamState()], [])
-    _stops: StopState = field(default_factory=StopState)
+class BoutState:
+    ruleset: str
+    _clock: TimerState = field(init=False, default_factory=TimerState)
+    _jams: tuple[list[JamState], list[JamState]] = field(
+        init=False, default=([JamState()], []))
+    _stops: StopState = field(init=False, default_factory=StopState)
 
     @property
     def clock(self) -> TimerState:
@@ -39,3 +43,7 @@ class BoutState(AbstractState):
 
     def get_snapshot(self):
         return Memento(self)
+
+    def get_jam(self, jam_id: JamId) -> JamState:
+        period, jam = jam_id
+        return self.jams[period][jam]
