@@ -19,3 +19,7 @@ class Ruleset:
 
 def get_ruleset(name: str) -> Ruleset:
     return Ruleset.RULESETS[name]
+
+
+# Instantiate the default ruleset
+Ruleset("WFTDA 2025", TimeKeeper(), ScoreKeeper())
