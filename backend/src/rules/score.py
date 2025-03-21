@@ -29,11 +29,25 @@ class ScoreKeeper:
 
         # TODO: update clients
 
-    def lead_declared(self, jam_id: JamId, team: TeamType, lead: bool) -> None:
-        pass
+    def lead_declared(self, bout_id: UUID, jam_id: JamId, team: TeamType,
+                      lead: bool) -> None:
+        jam: JamState = get_bout(bout_id).get_jam(jam_id)
+        if lead and jam.lead_is_declared():
+            raise RuntimeError('A lead jammer has already been declared')
+        jam[team].lead = lead
 
-    def lost_lead(self, jam_id: JamId, team: TeamType, lost: bool) -> None:
-        pass
+        # TODO: update clients
 
-    def star_pass(self, jam_id: JamId, team: TeamType, star_pass: bool) -> None:
-        pass
+    def lost_lead(self, bout_id: UUID, jam_id: JamId, team: TeamType,
+                  lost: bool) -> None:
+        jam: JamState = get_bout(bout_id).get_jam(jam_id)
+        jam[team].lost = lost
+
+        # TODO: update clients
+
+    def star_pass(self, bout_id: UUID, jam_id: JamId, team: TeamType,
+                  star_pass: bool) -> None:
+        jam: JamState = get_bout(bout_id).get_jam(jam_id)
+        jam[team].star_pass = len(jam[team].trips) if star_pass else None
+
+        # TODO: update clients
