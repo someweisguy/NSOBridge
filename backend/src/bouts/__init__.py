@@ -10,7 +10,7 @@ from rules import Ruleset
 from .attribute import TeamType
 from .jam import JamState, JamStopReasons, TripState
 from .stops import StopState
-from .timer import TimerState
+from .timer import TimeState
 
 type JamId = tuple[int, int]
 type QueryKey = (tuple[UUID] | tuple[UUID, Literal['time', 'jam']] |
@@ -40,7 +40,7 @@ class BoutState(Queryable):
                                                           default_factory=dict)
 
     ruleset_name: Final[str]
-    clock: Final[TimerState] = field(init=False, default_factory=TimerState)
+    clock: Final[TimeState] = field(init=False, default_factory=TimeState)
     jams: Final[tuple[list[JamState], list[JamState]]] = field(
         init=False, default=([JamState()], []))
     # TODO: merge stops into clock

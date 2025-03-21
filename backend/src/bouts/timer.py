@@ -34,7 +34,7 @@ class ClockState:
 
 
 @dataclass(slots=True)
-class TimerState:
+class TimeState:
     _game: ClockState = field(default_factory=ClockState)
     _jam: ClockState = field(default_factory=ClockState)
     is_in_intermission: bool = True
