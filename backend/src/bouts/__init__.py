@@ -18,7 +18,7 @@ type QueryKey = (tuple[UUID] | tuple[UUID, Literal['time', 'jam']] |
 
 
 class Queryable(Protocol):
-    def get_query_key(self) -> QueryKey:
+    def get_query_key(self, *args, **kwargs) -> QueryKey:
         raise NotImplementedError
 
 
@@ -35,7 +35,7 @@ class Memento:
 
 
 @dataclass(slots=True)
-class BoutState:
+class BoutState(Queryable):
     BOUTS: ClassVar[Final[dict[UUID, BoutState]]] = field(init=False,
                                                           default_factory=dict)
 
@@ -57,6 +57,9 @@ class BoutState:
     def get_jam(self, jam_id: JamId) -> JamState:
         period, jam = jam_id
         return self.jams[period][jam]
+
+    def get_query_key(self, bout_id: UUID) -> QueryKey:
+        return (bout_id,)
 
 
 def get_bout(bout_id: UUID) -> BoutState:
