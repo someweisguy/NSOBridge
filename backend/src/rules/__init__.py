@@ -1,11 +1,5 @@
 from __future__ import annotations
 
-from typing import Protocol
-from uuid import UUID
-
-import model
-from model import BoutState
-
 from .score import ScoreKeeper
 from .time import TimeKeeper
 
