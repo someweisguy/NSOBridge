@@ -9,7 +9,7 @@ from rules import Ruleset
 
 from .attribute import TeamType
 from .jam import JamState, JamStopReasons, TripState
-from .timer import TimeState
+from .time import TimeState
 
 type JamId = tuple[int, int]
 type QueryKey = (tuple[UUID] | tuple[UUID, Literal['time', 'jam']] |
