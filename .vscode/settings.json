@@ -6,6 +6,7 @@
   "pylint.args": [
     "--disable=C0114, C0115, C0116", // Docstring requirements
     "--disable=C0103", // Constant naming conventions
+    "--disable=R0913, R0917", // Too many arguments in method
     "--disable=W0611, W0221",
   ]
 }
