@@ -1,0 +1,55 @@
+from __future__ import annotations
+
+from copy import deepcopy
+from dataclasses import dataclass, field
+from typing import ClassVar, Final
+from uuid import UUID, uuid4
+
+from rules import Ruleset
+
+from .attribute import TeamType
+from .jam import JamState, JamStopReasons, TripState
+from .stops import StopState
+from .timer import TimerState
+
+type JamId = tuple[int, int]
+
+
+class Memento:
+    __slots__ = '_originator', '_state'
+
+    def __init__(self, originator: BoutState) -> None:
+        self._originator: BoutState = originator
+        self._state: BoutState = deepcopy(originator)
+
+    def restore(self) -> None:
+        for slot in self._originator.__slots__:
+            setattr(self._originator, slot, getattr(self._state, slot))
+
+
+@dataclass(slots=True)
+class BoutState:
+    BOUTS: ClassVar[Final[dict[UUID, BoutState]]] = field(init=False,
+                                                          default_factory=dict)
+
+    ruleset_name: Final[str]
+    clock: Final[TimerState] = field(init=False, default_factory=TimerState)
+    jams: Final[tuple[list[JamState], list[JamState]]] = field(
+        init=False, default=([JamState()], []))
+    stops: Final[StopState] = field(init=False, default_factory=StopState)
+
+    def __post_init__(self) -> None:
+        if self.ruleset_name not in Ruleset.RULESETS:
+            raise ValueError(f"Ruleset {self.ruleset_name} not found")
+        self.BOUTS[uuid4()] = self
+
+    def get_snapshot(self):
+        return Memento(self)
+
+    def get_jam(self, jam_id: JamId) -> JamState:
+        period, jam = jam_id
+        return self.jams[period][jam]
+
+
+def get_bout(bout_id: UUID) -> BoutState:
+    return BoutState.BOUTS[bout_id]

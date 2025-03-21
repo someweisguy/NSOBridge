@@ -1,18 +1,21 @@
 from __future__ import annotations
 
+from typing import Final
+
 from .score import ScoreKeeper
 from .time import TimeKeeper
 
 
 class Ruleset:
-    def __init__(self, time: TimeKeeper, score: ScoreKeeper) -> None:
-        self._time: TimeKeeper = time
-        self._score: ScoreKeeper = score
+    RULESETS: Final[dict[str, Ruleset]] = {}
 
-    @property
-    def time(self) -> TimeKeeper:
-        return self._time
+    def __init__(self, name: str, time: TimeKeeper, score: ScoreKeeper) -> None:
+        if name in self.RULESETS:
+            raise ValueError(f"Ruleset {name} already exists")
+        self.RULESETS[name] = self
+        self.time: Final[TimeKeeper] = time
+        self.score: Final[ScoreKeeper] = score
 
-    @property
-    def score(self) -> ScoreKeeper:
-        return self._score
+
+def get_ruleset(name: str) -> Ruleset:
+    return Ruleset.RULESETS[name]
