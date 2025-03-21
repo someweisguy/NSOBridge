@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import ClassVar, Final
+from typing import ClassVar, Final, Literal, Protocol
 from uuid import UUID, uuid4
 
 from rules import Ruleset
@@ -13,6 +13,13 @@ from .stops import StopState
 from .timer import TimerState
 
 type JamId = tuple[int, int]
+type QueryKey = (tuple[UUID] | tuple[UUID, Literal['time', 'jam']] |
+                 tuple[UUID, Literal['jam'], tuple[int, int]])
+
+
+class Queryable(Protocol):
+    def get_query_key(self) -> QueryKey:
+        raise NotImplementedError
 
 
 class Memento:
@@ -36,6 +43,7 @@ class BoutState:
     clock: Final[TimerState] = field(init=False, default_factory=TimerState)
     jams: Final[tuple[list[JamState], list[JamState]]] = field(
         init=False, default=([JamState()], []))
+    # TODO: merge stops into clock
     stops: Final[StopState] = field(init=False, default_factory=StopState)
 
     def __post_init__(self) -> None:
