@@ -1,5 +1,6 @@
 from datetime import datetime
 from uuid import UUID
+from typing import TYPE_CHECKING
 
 from bouts import JamId, JamState, TeamType, TripState, get_bout
 

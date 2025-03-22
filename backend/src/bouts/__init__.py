@@ -5,8 +5,6 @@ from dataclasses import dataclass, field
 from typing import ClassVar, Final, Literal, Protocol
 from uuid import UUID, uuid4
 
-from rules import Ruleset
-
 from .attribute import TeamType
 from .jam import JamState, JamStopReasons, TripState
 from .time import TimeState
@@ -35,8 +33,7 @@ class Memento:
 
 @dataclass(slots=True)
 class BoutState(Queryable):
-    BOUTS: ClassVar[Final[dict[UUID, BoutState]]] = field(init=False,
-                                                          default_factory=dict)
+    BOUTS: ClassVar[Final[dict[UUID, BoutState]]] = {}
 
     ruleset_name: Final[str]
     clock: Final[TimeState] = field(init=False, default_factory=TimeState)
@@ -44,6 +41,7 @@ class BoutState(Queryable):
         init=False, default=([JamState()], []))
 
     def __post_init__(self) -> None:
+        from rules import Ruleset
         if self.ruleset_name not in Ruleset.RULESETS:
             raise ValueError(f"Ruleset {self.ruleset_name} not found")
         self.BOUTS[uuid4()] = self
