@@ -1,7 +1,17 @@
 {
   "python.analysis.typeCheckingMode": "standard",
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportGeneralTypeIssues": "none"
+  },
   "pylint.args": [
+<<<<<<< HEAD
     "--disable=C0114, C0115, C0116",
     "--disable=W0611, W0221, R0913, R0917"
+=======
+    "--disable=C0114, C0115, C0116", // Docstring requirements
+    "--disable=C0103", // Constant naming conventions
+    "--disable=R0913, R0917", // Too many arguments in method
+    "--disable=W0611, W0221",
+>>>>>>> 6fc8f07196389f1fc25859cb386524100b7094a8
   ]
 }
