@@ -10,11 +10,6 @@ from .jam import JamState, JamStopReasons, TripState, JamId
 from .time import TimeState
 
 
-
-
-
-
-
 class Memento:
     __slots__ = '_originator', '_state'
 
