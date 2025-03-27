@@ -1,9 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Literal, Final
+from typing import TYPE_CHECKING, Final, Literal
+from uuid import UUID
 
-from .attribute import TeamAttribute
+from .attribute import TeamAttribute, QueryKey, Queryable
 
+type JamId = tuple[int, int]
 type JamStopReasons = Literal['called', 'time', 'injury', 'other']
 
 
@@ -22,7 +24,7 @@ class ScoreState:
 
 
 @dataclass(slots=True)
-class JamState(TeamAttribute[ScoreState]):
+class JamState(TeamAttribute[ScoreState],):
     start_timestamp: datetime | None = None
     stop_timestamp: datetime | None = None
     stop_reason: JamStopReasons | None = None
@@ -38,3 +40,6 @@ class JamState(TeamAttribute[ScoreState]):
 
     def lead_is_declared(self) -> bool:
         return self.home.lead or self.away.lead
+
+    def get_query_key(self, bout_id: UUID, jam_id: JamId) -> QueryKey:
+        return (bout_id, 'jam', jam_id)

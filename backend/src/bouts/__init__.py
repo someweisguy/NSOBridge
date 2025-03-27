@@ -5,18 +5,14 @@ from dataclasses import dataclass, field
 from typing import ClassVar, Final, Literal, Protocol
 from uuid import UUID, uuid4
 
-from .attribute import TeamType
-from .jam import JamState, JamStopReasons, TripState
+from .attribute import TeamType, QueryKey, Queryable
+from .jam import JamState, JamStopReasons, TripState, JamId
 from .time import TimeState
 
-type JamId = tuple[int, int]
-type QueryKey = (tuple[UUID] | tuple[UUID, Literal['time', 'jam']] |
-                 tuple[UUID, Literal['jam'], tuple[int, int]])
 
 
-class Queryable(Protocol):
-    def get_query_key(self, *args, **kwargs) -> QueryKey:
-        raise NotImplementedError
+
+
 
 
 class Memento:

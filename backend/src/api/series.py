@@ -1,7 +1,7 @@
-from server import controller
+from backend.src.controller import www
 from typing import Any
 
 
-@controller.action
+@www.action
 def get() -> dict[str | float | int, Any]:
-    return controller.model.get()
+    return www.model.get()

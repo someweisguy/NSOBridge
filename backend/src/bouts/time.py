@@ -1,12 +1,14 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final
+from uuid import UUID
 
+from . import Queryable, QueryKey
 from .attribute import TeamAttribute
 
 
 @dataclass(slots=True)
-class ClockState:
+class Clock:
     start_timestamp: datetime | None = None
     elapsed: timedelta = timedelta(seconds=0)
     alarm: timedelta | None = None
@@ -43,14 +45,17 @@ class TeamTimeoutState:
 
 
 @dataclass(slots=True)
-class TimeState(TeamAttribute[TeamTimeoutState]):
-    game_clock: Final[ClockState] = field(
-        init=False, default_factory=ClockState)
-    jam_clock: Final[ClockState] = field(
-        init=False, default_factory=ClockState)
+class TimeState(TeamAttribute[TeamTimeoutState], Queryable):
+    game_clock: Final[Clock] = field(
+        init=False, default_factory=Clock)
+    jam_clock: Final[Clock] = field(
+        init=False, default_factory=Clock)
     is_in_intermission: bool = field(init=False, default=True)
     is_in_lineup: bool = field(init=False, default=False)
     home: Final[TeamTimeoutState] = field(
         init=False, default_factory=TeamTimeoutState)
     away: Final[TeamTimeoutState] = field(
         init=False, default_factory=TeamTimeoutState)
+
+    def get_query_key(self, bout_id: UUID) -> QueryKey:
+        return (bout_id, 'time')
