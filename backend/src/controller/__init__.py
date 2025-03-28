@@ -10,13 +10,14 @@ from fastapi.responses import FileResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from model import Model
 from pydantic import ValidationError
 
 from .controller import Controller
 
 www_directory: Final[Path] = Path(os.getcwd()) / 'frontend' / 'dist'
 templates: Final[Jinja2Templates] = Jinja2Templates(www_directory)
-app: Final[Controller] = Controller(debug=True, mount=[
+app: Final[Controller] = Controller(Model(), debug=True, mount=[
     Mount('/', StaticFiles(directory=www_directory, html=True))
 ])
 

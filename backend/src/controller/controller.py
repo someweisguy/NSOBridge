@@ -6,6 +6,7 @@ from typing import Any, Callable, Final
 
 import netifaces
 from fastapi import FastAPI, WebSocket
+from model import Model
 from pydantic import validate_call
 from uvicorn import Config, Server
 
@@ -31,8 +32,12 @@ class Controller(FastAPI):
                                  if item['addr'] != '127.0.0.1']
         return ip_addresses
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, model: Model, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.model: Final[Model] = model
+        # TODO
+        # self.view: Final[View] = view
 
         self._actions: dict[str, Callable[..., Any]] = {}
         self._sockets: list[WebSocket] = []

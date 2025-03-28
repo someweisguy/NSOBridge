@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import ClassVar, Final, Literal, Protocol
-from uuid import UUID, uuid4
+from typing import Final
+from uuid import UUID
 
-from .attribute import TeamType, QueryKey, Queryable
-from .jam import JamState, JamStopReasons, TripState, JamId
-from .time import TimeState
+from .attribute import Queryable, QueryKey, TeamType
+from .jam import JamId, JamState, JamStopReasons, ScoreState, TripState
+from .time import Clock, TeamTimeoutState, TimeState
 
 
 class Memento:
@@ -24,18 +24,10 @@ class Memento:
 
 @dataclass(slots=True)
 class BoutState(Queryable):
-    BOUTS: ClassVar[Final[dict[UUID, BoutState]]] = {}
-
     ruleset_name: Final[str]
     clock: Final[TimeState] = field(init=False, default_factory=TimeState)
     jams: Final[tuple[list[JamState], list[JamState]]] = field(
         init=False, default=([JamState()], []))
-
-    def __post_init__(self) -> None:
-        from rules import Ruleset
-        if self.ruleset_name not in Ruleset.RULESETS:
-            raise ValueError(f"Ruleset {self.ruleset_name} not found")
-        self.BOUTS[uuid4()] = self
 
     def get_snapshot(self):
         return Memento(self)
@@ -46,7 +38,3 @@ class BoutState(Queryable):
 
     def get_query_key(self, bout_id: UUID) -> QueryKey:
         return (bout_id,)
-
-
-def get_bout(bout_id: UUID) -> BoutState:
-    return BoutState.BOUTS[bout_id]
