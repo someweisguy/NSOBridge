@@ -1,7 +1,7 @@
 from typing import Final
 from uuid import UUID
 
-from .bouts import *
+from .bouts import BoutState
 from .rules import Ruleset
 
 
