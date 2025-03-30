@@ -57,10 +57,10 @@ async def handle_websocket(websocket: WebSocket,
                 raise ValidationError('Missing payload key.')
 
             # Get the requested server action
-            action: Callable | None = app.get_action(request['action'])
+            action: Callable | None = controller.get_action(request['action'])
             if action is None:
-                raise ValidationError(
-                    f'Action \'{request['action']}\' does not exist')
+                raise ValidationError(f'Action \'{request['action']}\' does '
+                                      'not exist')
 
             # Call the server action
             response_data: Any = action(*request['args'])
