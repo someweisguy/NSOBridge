@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final
 
-from attribute import TeamAttribute
+from .attribute import TeamAttribute
 
 
 @dataclass(slots=True)

@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Final
 
-from attribute import TeamType
-from clock import BoutTime
-from jam import Jam, JamId, Score
+from .attribute import TeamType
+from .clock import BoutTime
+from .jam import Jam, JamId, Score
 
 
 @dataclass(slots=True)

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Final, Literal
 
-from attribute import TeamAttribute
+from .attribute import TeamAttribute
 
 type JamId = tuple[int, int]
 type JamStopReasons = Literal['called', 'time', 'injury', 'other']
