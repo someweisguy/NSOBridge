@@ -17,8 +17,9 @@ from pydantic import ValidationError
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'frontend' / 'dist'
 TEMPLATES: Final[Jinja2Templates] = Jinja2Templates(FRONTEND)
 
-sockets: set[WebSocket] = set()
 ControllerDepend = Annotated[Controller, Depends(Controller.get_instance)]
+
+sockets: set[WebSocket] = set()
 app: FastAPI = FastAPI(debug=True, mount=[
     Mount('/', StaticFiles(directory=FRONTEND, html=True))
 ])
