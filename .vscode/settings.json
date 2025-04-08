@@ -1,7 +1,8 @@
 {
   "python.analysis.typeCheckingMode": "standard",
   "python.analysis.diagnosticSeverityOverrides": {
-    "reportGeneralTypeIssues": "none"
+    "reportGeneralTypeIssues": "none",
+    "reportInvalidTypeForm": "none"
   },
   "pylint.args": [
     "--extension-pkg-whitelist=netifaces", // Pylint can't see C modules
