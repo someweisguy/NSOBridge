@@ -1,6 +1,7 @@
 import json
 import os
 import traceback
+from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
 from typing import Annotated, Any, Final
@@ -13,6 +14,7 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
@@ -49,7 +51,7 @@ async def render_index(request: Request, controller: ControllerDepend) -> Respon
     return await render_generic(request, 'index.html', controller)
 
 
-@app.websocket('/ws/')
+@app.websocket('/ws')
 async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -> None:
     await websocket.accept(subprotocol=SOCKET_PROTOCOL)
     sockets.add(websocket)
@@ -58,6 +60,7 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
         try:
             # Parse the JSON payload
             request: dict[str, Any] = await websocket.receive_json()
+            received_on: datetime = datetime.now()
 
             # Ensure that the payload has the required keys
             if not all(
@@ -66,22 +69,19 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
             ):
                 raise ValidationError('Missing payload key.')
 
-            # Handle the client request
-            response = controller.handle_client(request['action'], request['args'])
-
-            # Construct and send the response payload
+            # Assemble the response object
             response: dict[str, Any] = {
-                'data': response,
-                'transactionId': request['transactionId'],
                 'clientId': request['clientId'],
-                'result': 'ok',
+                'transactionId': request['transactionId'],
+                'received': received_on,
             }
-            await websocket.send_json(response)
 
-            # Broadcast updates to all clients
-            for update in controller.get_updates():
-                pass  # TODO
-            controller.clear_updates()
+            # Handle the client request
+            response['data'] = controller.handle_client(
+                request['action'], request['args']
+            )
+            response['result'] = 'ok'
+
         except (WebSocketDisconnect, JSONDecodeError, ValidationError) as e:
             match e:
                 case WebSocketDisconnect():
@@ -93,16 +93,20 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
             break
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
-            response: dict[str, Any] = {
-                'transactionId': request['transactionId'],  # type: ignore
-                'clientId': request['clientId'],  # type: ignore
-                'result': 'error',
-                'data': {
-                    'title': type(e).__name__,
-                    'detail': str(e),
-                    'filename': os.path.basename(tb[-1].filename),
-                    'lineno': tb[-1].lineno,
-                },
+            response['data'] = {
+                'title': type(e).__name__,
+                'detail': str(e),
+                'filename': os.path.basename(tb[-1].filename),
+                'lineno': tb[-1].lineno,
             }
+            response['result'] = 'error'
+        finally:
+            response['sent'] = datetime.now()
+            await websocket.send_json(jsonable_encoder(response))
+
+            # Broadcast updates to all clients
+            for update in controller.get_updates():
+                pass  # TODO
+            controller.clear_updates()
 
     sockets.remove(websocket)
