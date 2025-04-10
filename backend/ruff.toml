@@ -1,0 +1,13 @@
+line-length = 88
+indent-width = 4
+extend-select = ["A", "B", "C", "D", "E", "F", "I"]
+ignore = ["D"]
+
+fix = true
+fixable = ["ALL"]
+unfixable = []
+
+[format]
+quote-style = "single"
+indent-style = "space"
+
