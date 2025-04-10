@@ -46,7 +46,7 @@ class Controller:
         return action(self, **args)
 
     def get_updates(self) -> list:
-        return []
+        return iter([])
 
     def clear_updates(self) -> None:
         pass
