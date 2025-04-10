@@ -26,7 +26,7 @@ class Controller:
             inner_name: str = name if name is not None else action.__name__
             if inner_name in cls._actions:
                 raise ValueError(f"Action '{inner_name}' already exists")
-            action = validate_call(action)
+            action = validate_call(action, config={'arbitrary_types_allowed': True})
             cls._actions[inner_name] = action
             return action
 
