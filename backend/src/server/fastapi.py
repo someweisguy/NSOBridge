@@ -64,8 +64,7 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
 
             # Ensure that the payload has the required keys
             if not all(
-                key in request.keys()
-                for key in ('action', 'args', 'clientId', 'transactionId')
+                key in request.keys() for key in ('action', 'clientId', 'transactionId')
             ):
                 raise JSONDecodeError('Missing payload key.')
 
@@ -78,7 +77,7 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
 
             # Handle the client request
             response['data'] = controller.handle_client(
-                request['action'], request['args']
+                request['action'], request['args'] if 'args' in request else {}
             )
             response['result'] = 'ok'
 
@@ -95,7 +94,7 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
                 'lineno': tb[-1].lineno,
             }
             response['result'] = 'error'
-        
+
         response['sent'] = datetime.now()
         await websocket.send_json(jsonable_encoder(response))
 
