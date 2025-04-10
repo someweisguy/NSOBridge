@@ -2,7 +2,6 @@ fastapi==0.115.5
 Jinja2==3.1.4
 netifaces==0.11.0
 pyinstaller==6.12.0
-pylint==3.3.6
 PySide6==6.8.2.1
 requests==2.31.0
 ruff==0.11.4
