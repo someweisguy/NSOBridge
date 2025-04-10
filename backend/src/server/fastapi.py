@@ -67,7 +67,7 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
                 key in request.keys()
                 for key in ('action', 'args', 'clientId', 'transactionId')
             ):
-                raise ValidationError('Missing payload key.')
+                raise JSONDecodeError('Missing payload key.')
 
             # Assemble the response object
             response: dict[str, Any] = {
@@ -82,16 +82,11 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
             )
             response['result'] = 'ok'
 
-        except (WebSocketDisconnect, JSONDecodeError, ValidationError) as e:
-            match e:
-                case WebSocketDisconnect():
-                    pass  # Client already disconnected
-                case JSONDecodeError():
-                    await websocket.close(1003, 'Invalid JSON payload.')
-                case ValidationError():
-                    await websocket.close(1008, 'Invalid payload schema.')
+        except (WebSocketDisconnect, JSONDecodeError) as e:
+            if isinstance(e, JSONDecodeError):
+                await websocket.close(1003, 'Invalid JSON payload.')
             break
-        except Exception as e:
+        except (ValidationError, Exception) as e:
             tb = traceback.extract_tb(e.__traceback__)
             response['data'] = {
                 'title': type(e).__name__,
@@ -100,13 +95,13 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
                 'lineno': tb[-1].lineno,
             }
             response['result'] = 'error'
-        finally:
-            response['sent'] = datetime.now()
-            await websocket.send_json(jsonable_encoder(response))
+        
+        response['sent'] = datetime.now()
+        await websocket.send_json(jsonable_encoder(response))
 
-            # Broadcast updates to all clients
-            for update in controller.get_updates():
-                pass  # TODO
-            controller.clear_updates()
+        # Broadcast updates to all clients
+        for update in controller.get_updates():
+            pass  # TODO
+        controller.clear_updates()
 
     sockets.remove(websocket)
