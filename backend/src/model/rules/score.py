@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from state import Bout, JamId, TeamType, Jam, Score
+from ..state import Bout, Jam, JamId, Score, TeamType
 
 
 class ScoreKeeper:

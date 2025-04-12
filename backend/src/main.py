@@ -1,7 +1,7 @@
-import logging
 import asyncio
-import server
+import logging
 
+import server
 from controller import Controller
 from model import Model
 
@@ -15,7 +15,6 @@ logging.basicConfig(
 
 if __name__ == '__main__':
     Controller(Model())
-    
+
+    print('Starting server...')
     asyncio.run(server.serve())
-    
-    

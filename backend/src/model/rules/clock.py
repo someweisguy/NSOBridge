@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from state import Bout
+from ..state import Bout
+
 
 class TimeKeeper:
     def start_half(self, bout: Bout, timestamp: datetime) -> None:

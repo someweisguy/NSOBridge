@@ -1,12 +1,12 @@
 from typing import Final
 from uuid import UUID
 
-from state import Bout
-from rules import Ruleset
-
+from .rules import Ruleset
+from .state import Bout
 
 
 class Model:
+    pass
     __slots__ = '_bouts', 'rules'
 
     def __init__(self):
