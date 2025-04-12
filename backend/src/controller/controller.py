@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Final, Protocol
 
+from fastapi import WebSocket
 from pydantic import validate_call
 
 from model import Model
@@ -38,6 +39,13 @@ class Controller:
         Controller._controller = self
         self.model: Final[Model] = model
         self.view = None
+        self.clients = Final[set[WebSocket]] = set()
+        
+    def add_client(self, client: WebSocket) -> None:
+        self.clients.add(client)
+    
+    def remove_client(self, client: WebSocket) -> None:
+        self.clients.remove(client)
 
     def handle_client(self, action_name: str, args: dict[str, Any]) -> Any:
         if action_name not in self._actions:

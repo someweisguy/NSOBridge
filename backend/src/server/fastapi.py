@@ -30,7 +30,6 @@ TEMPLATES: Final[Jinja2Templates] = Jinja2Templates(FRONTEND)
 
 ControllerDepend = Annotated[Controller, Depends(Controller.get_instance)]
 
-sockets: set[WebSocket] = set()
 app: FastAPI = FastAPI(
     debug=True, mount=[Mount('/', StaticFiles(directory=FRONTEND, html=True))]
 )
@@ -54,7 +53,7 @@ async def render_index(request: Request, controller: ControllerDepend) -> Respon
 @app.websocket('/ws')
 async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -> None:
     await websocket.accept(subprotocol=SOCKET_PROTOCOL)
-    sockets.add(websocket)
+    controller.add_client(websocket)
 
     while True:
         try:
@@ -103,4 +102,4 @@ async def handle_websocket(websocket: WebSocket, controller: ControllerDepend) -
             pass  # TODO
         controller.clear_updates()
 
-    sockets.remove(websocket)
+    controller.remove_client(websocket)
