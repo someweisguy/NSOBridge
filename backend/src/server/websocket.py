@@ -69,6 +69,7 @@ async def handle_socket(websocket: WebSocket) -> None:
             }
 
             await websocket.send_json(PAYLOAD)
+            last_request = now
         except WebSocketDisconnect:
             del clients[client_id]
             return
