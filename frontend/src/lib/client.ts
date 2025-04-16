@@ -1,6 +1,100 @@
 import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { v4 as uuid4 } from "uuid";
 
+type Message<T = object> = {
+  event: string;
+  data: T;
+  objectsChanged: unknown[];
+  timestamp: Date;
+};
+
+type SyncData = {
+  t1: Date;
+  t2: Date;
+};
+
+let timedelta: number = 0;
+
+export function getClientTimedelta(): number {
+  return timedelta;
+}
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnReconnect: true,
+      staleTime: Infinity,
+    },
+  },
+});
+
+let syncIntervalId: NodeJS.Timeout | null = null;
+let syncRequestResolution: ((r: Message<SyncData>) => void) | null = null;
+const socket: WebSocket = new WebSocket(`ws://${window.location.host}/ws`);
+
+socket.onopen = () => {
+  onlineManager.setOnline(true);
+  syncIntervalId = setInterval(() => syncServerTime(), 60000);
+  syncServerTime();
+};
+
+socket.onclose = () => {
+  onlineManager.setOnline(false);
+  if (syncIntervalId != null) {
+    clearInterval(syncIntervalId);
+    syncRequestResolution = null;
+    syncIntervalId = null;
+  }
+};
+
+socket.onmessage = (event: MessageEvent<string>) => {
+  const message: Message = JSON.parse(event.data);
+
+  // Handle syncResponse messages
+  if (message.event === "syncResponse" && syncRequestResolution != null) {
+    syncRequestResolution(message as Message<SyncData>);
+    syncRequestResolution = null;
+    return;
+  }
+
+  if (message.event === "objectUpdated") {
+    // TODO: handle updates
+  }
+};
+
+async function syncServerTime(): Promise<number> {
+  let timeoutId: NodeJS.Timeout;
+
+  // Send the synchronization request
+  const start: Date = new Date();
+  const message = await new Promise<Message<SyncData>>((resolve, reject) => {
+    syncRequestResolution = resolve;
+    socket.send(""); // Intentionally send an empty packet
+    timeoutId = setTimeout(() => reject("Request timed out."), 5000);
+  }).finally(() => clearTimeout(timeoutId));
+  const stop: Date = new Date();
+
+  // Compute the time difference between client and server
+  // See: https://magewell.com/blog/87/detail
+  const t: Array<number> = [
+    start.getTime(),
+    new Date(message.data.t1).getTime(),
+    new Date(message.data.t2).getTime(),
+    stop.getTime(),
+  ];
+  timedelta = (t[1] - t[0] + (t[3] - t[2])) / 2;
+
+  const round_trip_latency: number = t[3] - t[0] - (t[2] - t[1]);
+  return round_trip_latency;
+}
+
+// TODO: Below this line can be deleted
+// -----------------------------------------------------------------------------
+
+const clientId: string = uuid4();
+const transactions: Map<number, (ack: Response<unknown>) => void> = new Map();
+let transactionId: number = 0;
+
 type Response<T = unknown> =
   | {
       clientId: string;
@@ -14,62 +108,6 @@ type Response<T = unknown> =
       result: "error";
       data: { title: string; detail: string };
     };
-
-type Message = {
-  type: string;
-  id: unknown[];
-  data: unknown;
-};
-
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnReconnect: true,
-      staleTime: Infinity,
-    },
-  },
-});
-
-const clientId: string = uuid4();
-const socket: WebSocket = new WebSocket("ws://" + window.location.host + "/ws");
-const transactions: Map<number, (ack: Response<unknown>) => void> = new Map();
-let transactionId: number = 0;
-
-socket.onopen = () => {
-  onlineManager.setOnline(true);
-};
-
-socket.onclose = () => {
-  onlineManager.setOnline(false);
-  transactions.clear();
-};
-
-socket.onmessage = (event: MessageEvent<string>) => {
-  const message: Response<unknown> | Message[] = JSON.parse(event.data);
-
-  // Handle server responses
-  if ("clientId" in message) {
-    if (message.clientId !== clientId) {
-      return; // The message is not for this client
-    } else if (!transactions.has(message.transactionId)) {
-      throw Error("Unknown transaction ID: " + message.transactionId);
-    }
-
-    // Resolve the transaction
-    const resolve = transactions.get(message.transactionId!)!;
-    resolve(message);
-    return;
-  }
-
-  // Handle server notifications
-  for (const notification of message) {
-    const queryKey =
-      notification.id != null && notification.id.constructor == Array
-        ? [notification.type, ...notification.id]
-        : [notification.type, notification.id];
-    queryClient.setQueryData(queryKey, notification.data);
-  }
-};
 
 export default async function dispatchRequest<T = unknown>(
   module: string,
