@@ -18,7 +18,7 @@ async def assign_client_id_middleware(request: Request, call_next) -> Response:
 
     # Check for client ID cookie and set it if not present
     try:
-        _: UUID = UUID(request.cookies.get(CLIENT_ID_COOKIE_NAME))
+        UUID(request.cookies.get(CLIENT_ID_COOKIE_NAME))
     except (TypeError, ValueError):
         response.set_cookie(CLIENT_ID_COOKIE_NAME, uuid4(), expires=86400)
 
