@@ -20,7 +20,7 @@ async def assign_client_id_middleware(request: Request, call_next) -> Response:
     try:
         UUID(request.cookies.get(CLIENT_ID_COOKIE_NAME))
     except (TypeError, ValueError):
-        response.set_cookie(CLIENT_ID_COOKIE_NAME, uuid4(), expires=86400)
+        response.set_cookie(CLIENT_ID_COOKIE_NAME, str(uuid4()), expires=86400)
 
     return response
 
@@ -43,8 +43,11 @@ async def update_views_middleware(request: Request, call_next) -> Response:
 @app.websocket('/ws')
 async def handle_socket(websocket: WebSocket) -> None:
     await websocket.accept()
-
-    client_id: UUID = websocket.cookies.get(CLIENT_ID_COOKIE_NAME) or uuid4()
+    
+    try:
+        client_id: UUID = UUID(websocket.cookies.get(CLIENT_ID_COOKIE_NAME))
+    except (TypeError, ValueError):
+        client_id: UUID = uuid4()
     clients[client_id] = websocket
 
     last_request: datetime = datetime.min
