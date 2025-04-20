@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final
 
-from .attribute import TeamAttribute
+from .protocols import TeamAttribute
 
 
 @dataclass(slots=True)
@@ -12,20 +12,23 @@ class Timeout:
 
 
 @dataclass(slots=True)
-class BoutTime(TeamAttribute[Timeout]):
-
+class Timer(TeamAttribute[Timeout]):
     @dataclass(slots=True)
     class Clock:
         start_timestamp: datetime | None = None
         elapsed: timedelta = timedelta(seconds=0)
         alarm: timedelta | None = None
 
-        def set_alarm(self, hours: float = 0, minutes: float = 0,
-                      seconds: float = 0, milliseconds: float = 0) -> None:
-            new_alarm: timedelta | None = timedelta(hours=hours,
-                                                    minutes=minutes,
-                                                    seconds=seconds,
-                                                    milliseconds=milliseconds)
+        def set_alarm(
+            self,
+            hours: float = 0,
+            minutes: float = 0,
+            seconds: float = 0,
+            milliseconds: float = 0,
+        ) -> None:
+            new_alarm: timedelta | None = timedelta(
+                hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
+            )
             if new_alarm.total_seconds() <= 0:
                 new_alarm = None
             self.alarm = new_alarm

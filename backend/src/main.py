@@ -2,8 +2,6 @@ import asyncio
 import logging
 
 import server
-from controller import Controller
-from model import Model
 
 logging.basicConfig(
     format='{levelname}: {message}',
@@ -13,8 +11,23 @@ logging.basicConfig(
 )
 
 
+
 if __name__ == '__main__':
-    Controller(Model())
+    # Controller(Model())
 
     print('Starting server...')
     asyncio.run(server.serve())
+
+
+'''
+
+series
+    bouts
+        clock
+        jam
+        team
+        
+
+
+
+'''

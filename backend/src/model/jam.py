@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Final, Literal
 
-from .attribute import TeamAttribute
+from .protocols import TeamAttribute
 
 type JamId = tuple[int, int]
 type JamStopReasons = Literal['called', 'time', 'injury', 'other']
@@ -10,7 +10,6 @@ type JamStopReasons = Literal['called', 'time', 'injury', 'other']
 
 @dataclass(slots=True)
 class Score:
-
     @dataclass(slots=True)
     class Trip:
         points: int
@@ -24,7 +23,6 @@ class Score:
 
 @dataclass(slots=True)
 class Jam(TeamAttribute['Jam.Team']):
-
     @dataclass(slots=True)
     class Team:
         score: Final[Score] = field(default_factory=Score)

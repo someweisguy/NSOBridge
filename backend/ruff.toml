@@ -1,6 +1,17 @@
 line-length = 88
 indent-width = 4
-extend-select = ["A", "B", "C", "D", "E", "F", "I"]
+extend-select = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "I",
+  "FAST",
+  "PL",
+  "EXE",
+]
 ignore = ["D"]
 
 fix = true
