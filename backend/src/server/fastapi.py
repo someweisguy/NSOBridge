@@ -29,9 +29,7 @@ async def render_index(request: Request) -> Response:
 
 
 @app.get('/{path}')
-async def render_generic(
-    request: Request, path: str
-) -> Response:
+async def render_generic(request: Request, path: str) -> Response:
     if not path.endswith('.html'):
         return FileResponse(FRONTEND / path)
     data: str = json.dumps({}, separators=(',', ':'))

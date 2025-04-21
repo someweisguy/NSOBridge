@@ -1,13 +1,9 @@
 from uvicorn import Config, Server
 
-from server import updater
-
-from .api.v1.series import router as series_router
+from .api.series import router as series_router
 from .fastapi import app
 
-app.include_router(updater.router)
-
-app.include_router(series_router, prefix='/api/v1', tags=['series'])
+app.include_router(series_router, prefix='/api', tags=['series'])
 
 
 def get_ip_addresses() -> list[str]:
@@ -40,4 +36,4 @@ async def serve(ip: str = '0.0.0.0', port: int = 8000) -> None:
     await host.serve()
 
 
-__all__ = 'get_ip_addresses', 'serve'
+__all__ = ('get_ip_addresses', 'serve', 'updates')
