@@ -1,10 +1,9 @@
-import asyncio
 import json
 import os
 from pathlib import Path
 from typing import Final
 
-from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
@@ -23,10 +22,12 @@ CLIENT_ID_COOKIE_NAME: Final[str] = 'client_id'
 app: FastAPI = FastAPI(
     routes=[
         Mount('/assets', StaticFiles(directory=FRONTEND / 'assets')),
+        Mount('/ws', updater.app),
     ],
     debug=True,
 )
-app.include_router(series_router)
+
+app.include_router(series_router, prefix='/api')
 
 
 @app.get('/')
@@ -41,19 +42,6 @@ async def render_generic(request: Request, path: str) -> Response:
         return FileResponse(FRONTEND / path)
     data: str = json.dumps({}, separators=(',', ':'))
     return TEMPLATES.TemplateResponse(path, {'request': request, 'model': data})
-
-
-@app.websocket('/api/ws')
-async def handle_socket(websocket: WebSocket) -> None:
-    await websocket.accept()
-    updater.add_client(websocket)
-
-    # Keep the connection open indefinitely
-    try:
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        updater.remove_client(websocket)
 
 
 @app.middleware('http')

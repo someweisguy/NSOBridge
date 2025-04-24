@@ -30,7 +30,7 @@ export const queryClient = new QueryClient({
 
 let syncIntervalId: NodeJS.Timeout | null = null;
 // let syncRequestResolution: ((r: Message<SyncData>) => void) | null = null;
-const socket: WebSocket = new WebSocket(`ws://${window.location.host}/api/ws`);
+const socket: WebSocket = new WebSocket(`ws://${window.location.host}/ws/updates`);
 
 socket.onopen = async () => {
   onlineManager.setOnline(true);
