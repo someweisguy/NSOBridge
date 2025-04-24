@@ -31,8 +31,10 @@ const socket: WebSocket = new WebSocket(
 socket.onopen = () => onlineManager.setOnline(true);
 socket.onclose = () => onlineManager.setOnline(false);
 socket.onmessage = (event: MessageEvent<string>) => {
-  const message = JSON.parse(event.data) as SocketUpdate;
-  console.log("got ws: ", message);
+  const updates = JSON.parse(event.data) as SocketUpdate[];
+  for (const update of updates) {
+    console.log("got ws: ", update);
+  }
 
   // TODO: Update the queryClient with the new data
   // TODO: Manually set updatedAt to the timestamp of the message minus the timedelta
