@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from model import bouts
 from model.bout import Bout
 from server import updater
+from server.responses import APIResponse
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
 
@@ -26,8 +27,7 @@ def add_bout(request: Request) -> Response:
     bouts[uuid4()] = Bout('WFTDA 2025')
     updater.post(('series',), get())
 
-    data = {'message': 'Hello, world!'}
-    return JSONResponse(content=jsonable_encoder(data))
+    return APIResponse()
 
 
 __all__ = ('router',)
