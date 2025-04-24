@@ -37,7 +37,7 @@ updates: Final[set[UpdateModel]] = set()
 clients: Final[set[WebSocket]] = set()
 
 
-def post(key: ObjectKey, data: Any) -> None:
+def post(key: ObjectKey, data: dict[str, Any] | list) -> None:
     now: datetime = datetime.now()
     updates.add(UpdateModel(key=key, data=data, timestamp=now))
 
