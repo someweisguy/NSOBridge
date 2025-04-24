@@ -1,18 +1,17 @@
 import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { v4 as uuid4 } from "uuid";
 
-interface Message<T = object>  {
-  event: string;
+interface APIResponse<T = object> {
+  success: boolean;
   data: T;
-  objectsChanged: unknown[];
   timestamp: Date;
-};
+}
 
-
-let timedelta: number = 0;
-
-export function getClientTimedelta(): number {
-  return timedelta;
+interface SocketUpdate<T = object> {
+  key: unknown[];
+  data: T;
+  timestamp: Date;
+  actor: string | null;
 }
 
 export const queryClient = new QueryClient({
@@ -24,44 +23,41 @@ export const queryClient = new QueryClient({
   },
 });
 
-let syncIntervalId: NodeJS.Timeout | null = null;
-const socket: WebSocket = new WebSocket(`ws://${window.location.host}/ws/updates`);
+let timedelta = 0;
 
-socket.onopen = async () => {
-  onlineManager.setOnline(true);
-
-  // const response = await fetch("http://localhost:8000/api/series/add_bout", {
-  //   method: "POST"
-  // });
-  // console.log("got response: ", await response.json())
-  const response = await syncServerTime();
-  console.log("got response: ", response);
-  console.log("timedelta: ", timedelta);
-
-};
-
-socket.onclose = () => {
-  onlineManager.setOnline(false);
-  if (syncIntervalId != null) {
-    clearInterval(syncIntervalId);
-    syncIntervalId = null;
-  }
-};
-
+const socket: WebSocket = new WebSocket(
+  `ws://${window.location.host}/ws/updates`
+);
+socket.onopen = () => onlineManager.setOnline(true);
+socket.onclose = () => onlineManager.setOnline(false);
 socket.onmessage = (event: MessageEvent<string>) => {
-  const message: Message<string> = JSON.parse(event.data);
+  const message = JSON.parse(event.data) as SocketUpdate;
   console.log("got ws: ", message);
+
+  // TODO: Update the queryClient with the new data
+  // TODO: Manually set updatedAt to the timestamp of the message minus the timedelta
 };
 
-export async function genericRequest(api: string, method: "GET" | "POST", data?: object) {
-  const response = await fetch(`http://${window.location.host}/api/${api}`, {
-    method: method,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: data ? JSON.stringify(data) : undefined,
-  });
-  return await response.json();
+export function getClientTimedelta(): number {
+  return timedelta;
+}
+
+export async function genericRequest<T = object>(
+  endpoint: string,
+  method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
+  data?: object
+): Promise<APIResponse<T>> {
+  const response = await fetch(
+    `http://${window.location.host}/api/${endpoint}`,
+    {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    }
+  );
+  return (await response.json()) as APIResponse<T>;
 }
 
 async function syncServerTime(): Promise<number> {
@@ -71,7 +67,7 @@ async function syncServerTime(): Promise<number> {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-    }
+    },
   };
 
   // Send the synchronization request
@@ -80,11 +76,14 @@ async function syncServerTime(): Promise<number> {
   const stop: Date = new Date();
 
   // Unpack the response into a JSON object
-  const message = await response.json();
+  const message = (await response.json()) as APIResponse<{
+    t1: string; // Server time at receipt of request
+    t2: string; // Server time at sending of response
+  }>;
 
   // Compute the time difference between client and server
   // See: https://magewell.com/blog/87/detail
-  const t: Array<number> = [
+  const t: number[] = [
     start.getTime(),
     new Date(message.data.t1).getTime(),
     new Date(message.data.t2).getTime(),
