@@ -2,8 +2,6 @@ from typing import Final
 from uuid import uuid4
 
 from fastapi import APIRouter, Request, Response
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 
 from model import bouts
 from model.bout import Bout
