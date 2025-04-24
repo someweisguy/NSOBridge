@@ -11,18 +11,18 @@ from pydantic import BaseModel
 
 from model import JamId
 
-type SeriesKey = tuple[Literal['series']]
-type BoutKey = tuple[Literal['bout', 'timer'], UUID]
-type JamKey = tuple[Literal['jam'], UUID, JamId]
-
-
-type ObjectKey = SeriesKey | BoutKey | JamKey
+type UpdateKey = (
+    tuple[Literal['series']]  # Series updates
+    | tuple[Literal['bout', 'timer'], UUID]  # Bout or Timer updates
+    | tuple[Literal['jam'], UUID, JamId]  # Jam updates
+)
 
 
 class UpdateModel(BaseModel):
-    key: ObjectKey
+    key: UpdateKey
     data: Any
     timestamp: datetime
+    actor: UUID | None = None
 
     def __eq__(self, other: UpdateModel) -> bool:
         return self.key == other.key
@@ -32,12 +32,27 @@ class UpdateModel(BaseModel):
 
 
 app: Final[FastAPI] = FastAPI()
-background_tasks: Final[set[asyncio.Task]] = set()
-updates: Final[set[UpdateModel]] = set()
-clients: Final[set[WebSocket]] = set()
 
 
-def post(key: ObjectKey, data: dict[str, Any] | list) -> None:
+@app.websocket('/updates')
+async def handle_socket(websocket: WebSocket) -> None:
+    await websocket.accept()
+    clients.add(websocket)
+
+    # Keep the connection open indefinitely
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        clients.discard(websocket)
+
+
+clients: set[WebSocket] = set()
+updates: set[UpdateModel] = set()
+background_tasks: set[asyncio.Task] = set()
+
+
+def post(key: UpdateKey, data: dict[str, Any] | list) -> None:
     now: datetime = datetime.now()
     updates.add(UpdateModel(key=key, data=data, timestamp=now))
 
@@ -54,17 +69,4 @@ def broadcast() -> int:
     return num_updates
 
 
-@app.websocket('/updates')
-async def handle_socket(websocket: WebSocket) -> None:
-    await websocket.accept()
-    clients.add(websocket)
-
-    # Keep the connection open indefinitely
-    try:
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        clients.discard(websocket)
-
-
-__all__ = ('app', 'broadcast', 'ObjectKey', 'post')
+__all__ = ('app', 'broadcast', 'post', 'UpdateKey')
