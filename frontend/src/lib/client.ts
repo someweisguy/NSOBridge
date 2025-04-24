@@ -33,7 +33,7 @@ socket.onclose = () => onlineManager.setOnline(false);
 socket.onmessage = (event: MessageEvent<string>) => {
   const updates = JSON.parse(event.data) as SocketUpdate[];
   for (const update of updates) {
-    console.log("got ws: ", update);
+    console.log("WS: ", update);
   }
 
   // TODO: Update the queryClient with the new data
