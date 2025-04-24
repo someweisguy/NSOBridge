@@ -1,7 +1,8 @@
 from uvicorn import Config, Server
 
+from server.fastapi import app
+
 from .api.series import router as series_router
-from .fastapi import app
 
 app.include_router(series_router, prefix='/api', tags=['series'])
 

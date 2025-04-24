@@ -1,23 +1,23 @@
 import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { v4 as uuid4 } from "uuid";
 
-type Message<T = object> = {
+interface Message<T = object>  {
   event: string;
   data: T;
   objectsChanged: unknown[];
   timestamp: Date;
 };
 
-type SyncData = {
-  t1: Date;
-  t2: Date;
-};
+// type SyncData = {
+//   t1: Date;
+//   t2: Date;
+// };
 
-let timedelta: number = 0;
+// let timedelta: number = 0;
 
-export function getClientTimedelta(): number {
-  return timedelta;
-}
+// export function getClientTimedelta(): number {
+//   return timedelta;
+// }
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,71 +29,72 @@ export const queryClient = new QueryClient({
 });
 
 let syncIntervalId: NodeJS.Timeout | null = null;
-let syncRequestResolution: ((r: Message<SyncData>) => void) | null = null;
-const socket: WebSocket = new WebSocket(`ws://${window.location.host}/ws`);
+// let syncRequestResolution: ((r: Message<SyncData>) => void) | null = null;
+const socket: WebSocket = new WebSocket(`ws://${window.location.host}/api/ws`);
 
-socket.onopen = () => {
+socket.onopen = async () => {
   onlineManager.setOnline(true);
-  syncIntervalId = setInterval(() => syncServerTime(), 60000);
-  syncServerTime();
+
+  const response = await fetch("http://localhost:8000/api/series/add_bout", {
+    method: "POST"
+  });
+  console.log("got response: ", await response.json())
+
 };
 
 socket.onclose = () => {
   onlineManager.setOnline(false);
   if (syncIntervalId != null) {
     clearInterval(syncIntervalId);
-    syncRequestResolution = null;
+    // syncRequestResolution = null;
     syncIntervalId = null;
   }
 };
 
 socket.onmessage = (event: MessageEvent<string>) => {
-  const message: Message = JSON.parse(event.data);
+  const message: Message<string> = JSON.parse(event.data);
+  console.log("got ws: ", message);
 
-  // Handle syncResponse messages
-  if (message.event === "syncResponse" && syncRequestResolution != null) {
-    syncRequestResolution(message as Message<SyncData>);
-    syncRequestResolution = null;
-    return;
-  }
-
-  if (message.event === "objectUpdated") {
-    // TODO: handle updates
-  }
+  // // Handle syncResponse messages
+  // if (message.event === "syncResponse" && syncRequestResolution != null) {
+  //   syncRequestResolution(message as Message<SyncData>);
+  //   syncRequestResolution = null;
+  //   return;
+  // }
 };
 
-async function syncServerTime(): Promise<number> {
-  let timeoutId: NodeJS.Timeout;
+// async function syncServerTime(): Promise<number> {
+//   let timeoutId: NodeJS.Timeout;
 
-  // Send the synchronization request
-  const start: Date = new Date();
-  const message = await new Promise<Message<SyncData>>((resolve, reject) => {
-    syncRequestResolution = resolve;
-    socket.send(""); // Intentionally send an empty packet
-    timeoutId = setTimeout(() => reject("Request timed out."), 5000);
-  }).finally(() => clearTimeout(timeoutId));
-  const stop: Date = new Date();
+//   // Send the synchronization request
+//   const start: Date = new Date();
+//   const message = await new Promise<Message<SyncData>>((resolve, reject) => {
+//     syncRequestResolution = resolve;
+//     socket.send(""); // Intentionally send an empty packet
+//     timeoutId = setTimeout(() => reject("Request timed out."), 5000);
+//   }).finally(() => clearTimeout(timeoutId));
+//   const stop: Date = new Date();
 
-  // Compute the time difference between client and server
-  // See: https://magewell.com/blog/87/detail
-  const t: Array<number> = [
-    start.getTime(),
-    new Date(message.data.t1).getTime(),
-    new Date(message.data.t2).getTime(),
-    stop.getTime(),
-  ];
-  timedelta = (t[1] - t[0] + (t[3] - t[2])) / 2;
+//   // Compute the time difference between client and server
+//   // See: https://magewell.com/blog/87/detail
+//   const t: Array<number> = [
+//     start.getTime(),
+//     new Date(message.data.t1).getTime(),
+//     new Date(message.data.t2).getTime(),
+//     stop.getTime(),
+//   ];
+//   timedelta = (t[1] - t[0] + (t[3] - t[2])) / 2;
 
-  const round_trip_latency: number = t[3] - t[0] - (t[2] - t[1]);
-  return round_trip_latency;
-}
+//   const round_trip_latency: number = t[3] - t[0] - (t[2] - t[1]);
+//   return round_trip_latency;
+// }
 
 // TODO: Below this line can be deleted
 // -----------------------------------------------------------------------------
 
 const clientId: string = uuid4();
-const transactions: Map<number, (ack: Response<unknown>) => void> = new Map();
-let transactionId: number = 0;
+const transactions = new Map();
+let transactionId = 0;
 
 type Response<T = unknown> =
   | {
