@@ -1,19 +1,19 @@
 import json
 from datetime import datetime
-from typing import Any, Final
+from typing import Any, Final, Mapping
 
-from fastapi import status
+from fastapi import BackgroundTasks, status
 from fastapi.responses import JSONResponse
 
 
 class APIResponse(JSONResponse):
     def __init__(
         self,
-        content=None,
-        status_code=status.HTTP_200_OK,
-        headers=None,
-        media_type=None,
-        background=None,
+        content: Any = None,
+        status_code: int = status.HTTP_200_OK,
+        headers: Mapping[str, str] | None = None,
+        media_type: str | None = None,
+        background: BackgroundTasks | None = None,
     ):
         self._timestamp: Final[datetime] = datetime.now()
         super().__init__(content, status_code, headers, media_type, background)
