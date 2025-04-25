@@ -1,0 +1,24 @@
+[tool.pyright]
+include = ["src"]
+exclude = ["**/node_modules", "**/__pycache__"]
+ignore = []
+strict = []
+reportMissingImports = true
+reportMissingTypeStubs = true
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+reportIncompatibleMethodOverride = false
+
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+extend-select = ["A", "B", "C", "D", "E", "F", "I", "FAST", "PL", "EXE"]
+ignore = ["D"]
+fix = true
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"

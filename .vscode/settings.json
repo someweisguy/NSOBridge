@@ -1,9 +1,7 @@
 {
   "[python]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "charliermarsh.ruff"
+    "editor.defaultFormatter": "charliermarsh.ruff",
   },
-  "python.analysis.ignore": [
-    "*" // Ignore Pylance linting
-  ],
+  "python.analysis.diagnosticMode": "workspace",
 }
