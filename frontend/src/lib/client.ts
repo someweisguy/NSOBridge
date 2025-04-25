@@ -1,4 +1,5 @@
-import { QueryClient } from "@tanstack/react-query";
+import { onlineManager, QueryClient } from "@tanstack/react-query";
+import getServerTimedelta from "./sync";
 
 interface APIResponse<T = object> {
   success: boolean;
@@ -32,3 +33,27 @@ export default async function genericRequest<T = object>(
   );
   return (await response.json()) as APIResponse<T>;
 }
+
+const socket: WebSocket = new WebSocket(
+  `ws://${window.location.host}/ws/updates`
+);
+socket.onopen = () => onlineManager.setOnline(true);
+socket.onclose = () => onlineManager.setOnline(false);
+socket.onmessage = (event: MessageEvent<string>) => {
+  const updates = JSON.parse(event.data) as {
+    key: unknown[];
+    data: object;
+    timestamp: Date;
+    actor: string | null;
+  }[];
+
+  const timedelta: number = getServerTimedelta();
+  for (const update of updates) {
+    console.log("WS: ", update);
+
+    // Update the query cache with the new data
+    queryClient.setQueryData(update.key, update.data, {
+      updatedAt: new Date(update.timestamp).getTime() + timedelta,
+    });
+  }
+};
