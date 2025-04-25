@@ -37,4 +37,4 @@ async def serve(ip: str = '0.0.0.0', port: int = 8000) -> None:
     await host.serve()
 
 
-__all__ = ('get_ip_addresses', 'serve', 'updates')
+__all__ = ('get_ip_addresses', 'serve')
