@@ -11,23 +11,6 @@ logging.basicConfig(
 )
 
 
-
 if __name__ == '__main__':
-    # Controller(Model())
-
     print('Starting server...')
     asyncio.run(server.serve())
-
-
-'''
-
-series
-    bouts
-        clock
-        jam
-        team
-        
-
-
-
-'''
