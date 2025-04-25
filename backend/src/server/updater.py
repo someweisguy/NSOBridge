@@ -7,9 +7,8 @@ from uuid import UUID
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
-
 from model import JamId
+from pydantic import BaseModel
 
 type UpdateKey = (
     tuple[Literal['series']]  # Series updates
