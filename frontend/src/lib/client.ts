@@ -1,5 +1,5 @@
 import { onlineManager, QueryClient } from "@tanstack/react-query";
-import getServerTimedelta from "./sync";
+import adjustServerTime from "./sync";
 
 interface APIResponse<T = object> {
   success: boolean;
@@ -47,13 +47,12 @@ socket.onmessage = (event: MessageEvent<string>) => {
     actor: string | null;
   }[];
 
-  const timedelta: number = getServerTimedelta();
   for (const update of updates) {
     console.log("WS: ", update);
 
     // Update the query cache with the new data
     queryClient.setQueryData(update.key, update.data, {
-      updatedAt: new Date(update.timestamp).getTime() + timedelta,
+      updatedAt: adjustServerTime(update.timestamp).getTime(),
     });
   }
 };

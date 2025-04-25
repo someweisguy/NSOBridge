@@ -2,7 +2,12 @@ import genericRequest from "./client";
 
 let timedelta = 0;
 
-export default function getServerTimedelta(): number {
+export default function adjustServerTime(dateLike: Date | string): Date {
+  const date = new Date(dateLike);
+  return new Date(date.getTime() + timedelta);
+}
+
+export function getServerTimedelta(): number {
   return timedelta;
 }
 
