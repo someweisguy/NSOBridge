@@ -1,7 +1,7 @@
 import { onlineManager, QueryClient } from "@tanstack/react-query";
 import adjustServerTime from "./sync";
 
-interface APIResponse<T = object> {
+export interface APIResponse<T = object> {
   success: boolean;
   data: T;
   timestamp: Date;
