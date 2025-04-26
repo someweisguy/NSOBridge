@@ -11,9 +11,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from server import updater
+from server.api.series import get as get_series, router as series_router
 from server.responses import APIResponse
-
-from .api.series import router as series_router
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'frontend' / 'dist'
 TEMPLATES: Final[Jinja2Templates] = Jinja2Templates(FRONTEND)
@@ -41,7 +40,7 @@ async def render_index(request: Request) -> Response:
 async def render_generic(request: Request, path: str) -> Response:
     if not path.endswith('.html'):
         return FileResponse(FRONTEND / path)
-    data: str = json.dumps({}, separators=(',', ':'))
+    data: str = json.dumps(get_series(), separators=(',', ':'))
     return TEMPLATES.TemplateResponse(path, {'request': request, 'model': data})
 
 
