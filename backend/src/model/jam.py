@@ -31,8 +31,8 @@ class Jam(TeamAttribute[Team]):
     start_timestamp: datetime | None = None
     stop_timestamp: datetime | None = None
     stop_reason: JamStopReasons | None = None
-    home: Final[Score] = field(default_factory=Score)  # type: ignore[assignment]
-    away: Final[Score] = field(default_factory=Score)  # type: ignore[assignment]
+    home: Final[Team] = field(default_factory=Team)  # type: ignore[assignment]
+    away: Final[Team] = field(default_factory=Team)  # type: ignore[assignment]
 
     def lead_is_declared(self) -> bool:
-        return self.home.lead or self.away.lead
+        return self.home.score.lead or self.away.score.lead
