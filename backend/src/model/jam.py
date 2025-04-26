@@ -22,16 +22,17 @@ class Score:
 
 
 @dataclass(slots=True)
-class Jam(TeamAttribute['Jam.Team']):
-    @dataclass(slots=True)
-    class Team:
-        score: Final[Score] = field(default_factory=Score)
+class Team:
+    score: Final[Score] = field(default_factory=Score)
 
+
+@dataclass(slots=True)
+class Jam(TeamAttribute[Team]):
     start_timestamp: datetime | None = None
     stop_timestamp: datetime | None = None
     stop_reason: JamStopReasons | None = None
-    home: Final[Score] = field(default_factory=Score)
-    away: Final[Score] = field(default_factory=Score)
+    home: Final[Score] = field(default_factory=Score)  # type: ignore[assignment]
+    away: Final[Score] = field(default_factory=Score)  # type: ignore[assignment]
 
     def lead_is_declared(self) -> bool:
         return self.home.lead or self.away.lead

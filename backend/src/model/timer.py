@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final
 
-from .protocols import TeamAttribute
+from model.protocols import TeamAttribute
 
 
 @dataclass(slots=True)
@@ -52,5 +52,5 @@ class Timer(TeamAttribute[Timeout]):
     jam_clock: Final[Clock] = field(init=False, default_factory=Clock)
     is_in_intermission: bool = field(init=False, default=True)
     is_in_lineup: bool = field(init=False, default=False)
-    home: Final[Timeout] = field(init=False, default_factory=Timeout)
-    away: Final[Timeout] = field(init=False, default_factory=Timeout)
+    home: Final[Timeout] = field(init=False, default_factory=Timeout)  # type: ignore[assignment]
+    away: Final[Timeout] = field(init=False, default_factory=Timeout)  # type: ignore[assignment]
