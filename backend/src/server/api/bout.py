@@ -33,8 +33,8 @@ def get(bout_id: UUID) -> dict:
         },
         'numJams': [len(bout.jams[0]), len(bout.jams[1])],
         'score': {
-            'home': bout.get_score('home'),
-            'away': bout.get_score('away'),
+            'home': bout.get_total_score('home'),
+            'away': bout.get_total_score('away'),
         },
     }
 

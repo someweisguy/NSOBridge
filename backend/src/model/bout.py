@@ -19,6 +19,6 @@ class Bout:
         except KeyError:
             raise KeyError(f'Jam {jam_id} not found') from None
 
-    def get_score(self, team: TeamType) -> int:
-        all_jams: list[Jam] = [jam for period in self.jams for jam in period]
+    def get_total_score(self, team: TeamType) -> int:
+        all_jams: list[Jam] = [j for period in self.jams for j in period]
         return sum(trip.points for jam in all_jams for trip in jam[team].score.trips)
