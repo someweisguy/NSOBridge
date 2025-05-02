@@ -10,6 +10,8 @@ from fastapi.encoders import jsonable_encoder
 from model import JamId
 from pydantic import BaseModel
 
+from server import JSONable
+
 type UpdateKey = (
     tuple[Literal['series']]  # Series updates
     | tuple[Literal['bout', 'timer'], UUID]  # Bout or Timer updates
@@ -51,7 +53,7 @@ updates: set[UpdateModel] = set()
 background_tasks: set[asyncio.Task] = set()
 
 
-def post(key: UpdateKey, data: dict[str, Any] | list) -> None:
+def post(key: UpdateKey, data: JSONable) -> None:
     now: datetime = datetime.now()
     updates.add(UpdateModel(key=key, data=data, timestamp=now))
 

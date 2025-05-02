@@ -1,21 +1,21 @@
-from typing import Any, Final
-from uuid import UUID, uuid4
+from typing import Final
+from uuid import uuid4
 
 from fastapi import APIRouter, Request, Response
 from model import bouts
 from model.bout import Bout
 
-from server import updater
+from server import JSONable, updater
 from server.responses import APIResponse
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
 
 
 @router.get('/')
-def get() -> dict:
-    view: dict[UUID, Any] = {}
+def get() -> JSONable:
+    view: list[JSONable] = []
     for key, _ in bouts.items():
-        view[key] = ''
+        view.append({'uuid': key, 'description': None})
     return view
 
 

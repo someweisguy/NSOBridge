@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from uvicorn import Config, Server
 
 from server.fastapi import app
@@ -10,7 +12,8 @@ type JSONable = (
     | str
     | bool
     | None
-    | tuple[JSONable]
+    | UUID
+    | tuple[JSONable, ...]
     | list[JSONable]
     | dict[str, JSONable]
 )
