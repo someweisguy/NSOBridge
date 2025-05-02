@@ -6,7 +6,7 @@ from model import bouts
 from model.bout import Bout
 from model.timer import Clock, Timeout
 
-from server import JSONable
+from server.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 

@@ -1,9 +1,22 @@
 import json
 from datetime import datetime
 from typing import Any, Final, Mapping
+from uuid import UUID
 
 from fastapi import BackgroundTasks, status
 from fastapi.responses import JSONResponse
+
+type JSONable = (
+    int
+    | float
+    | str
+    | bool
+    | None
+    | UUID
+    | tuple[JSONable, ...]
+    | list[JSONable]
+    | dict[str, JSONable]
+)
 
 
 class APIResponse(JSONResponse):

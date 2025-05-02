@@ -5,8 +5,8 @@ from fastapi import APIRouter, Response
 from model import bouts
 from model.bout import Bout
 
-from server import JSONable, updater
-from server.responses import APIResponse
+from server import updater
+from server.responses import APIResponse, JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
 

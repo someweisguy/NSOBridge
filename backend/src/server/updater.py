@@ -10,11 +10,11 @@ from fastapi.encoders import jsonable_encoder
 from model import JamId
 from pydantic import BaseModel
 
-from server import JSONable
+from server.responses import JSONable
 
 type UpdateKey = (
     tuple[Literal['series']]  # Series updates
-    | tuple[Literal['bout', 'timer'], UUID]  # Bout or Timer updates
+    | tuple[Literal['bout'], UUID]  # Bout updates
     | tuple[Literal['jam'], UUID, JamId]  # Jam updates
 )
 
