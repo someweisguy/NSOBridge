@@ -1,7 +1,7 @@
 from typing import Final
 from uuid import uuid4
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Response
 from model import bouts
 from model.bout import Bout
 
@@ -20,7 +20,7 @@ def get() -> JSONable:
 
 
 @router.post('/add_bout')
-def add_bout(request: Request) -> Response:
+def add_bout() -> Response:
     print('adding bout')
     bouts[uuid4()] = Bout('WFTDA 2025')
     updater.post(('series',), get())
