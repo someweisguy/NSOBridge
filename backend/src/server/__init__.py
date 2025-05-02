@@ -8,17 +8,18 @@ app.include_router(series_router, prefix='/api', tags=['series'])
 
 
 def get_ip_addresses() -> list[str]:
-    import netifaces
+    # TODO
+    # import netifaces
 
     ip_addresses: list[str] = []
-    for interface in netifaces.interfaces():
-        addresses = netifaces.ifaddresses(interface)
-        if netifaces.AF_INET in addresses:
-            ip_addresses += [
-                item['addr']
-                for item in addresses[netifaces.AF_INET]
-                if item['addr'] != '127.0.0.1'
-            ]
+    # for interface in netifaces.interfaces():
+    #     addresses = netifaces.ifaddresses(interface)
+    #     if netifaces.AF_INET in addresses:
+    #         ip_addresses += [
+    #             item['addr']
+    #             for item in addresses[netifaces.AF_INET]
+    #             if item['addr'] != '127.0.0.1'
+    #         ]
     return ip_addresses
 
 
