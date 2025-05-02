@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from server import updater
-from server.api.series import get as get_series, router as series_router
+from server.api.series import get as get_series
 from server.responses import APIResponse
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'frontend' / 'dist'
@@ -26,9 +26,6 @@ app: FastAPI = FastAPI(
     ],
     debug=True,
 )
-
-app.include_router(series_router, prefix='/api')
-
 
 @app.get('/')
 async def render_index(request: Request) -> Response:

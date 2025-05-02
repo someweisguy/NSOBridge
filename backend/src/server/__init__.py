@@ -1,10 +1,11 @@
 from uvicorn import Config, Server
 
+from server.api.bout import router as bout_router
+from server.api.series import router as series_router
 from server.fastapi import app
 
-from .api.series import router as series_router
-
 app.include_router(series_router, prefix='/api', tags=['series'])
+app.include_router(bout_router, prefix='/api', tags=['bout'])
 
 
 def get_ip_addresses() -> list[str]:
