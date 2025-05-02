@@ -1,4 +1,4 @@
-import genericRequest from "./client";
+import genericRequest from "./request";
 
 let timedelta = 0;
 
@@ -37,4 +37,4 @@ async function syncServerTime(): Promise<number> {
 syncServerTime().then((delta) => (timedelta = delta));
 setInterval(() => {
   syncServerTime().then((delta) => (timedelta = delta));
-}, 1000 * 10);  // TODO: Update this value
+}, 1000 * 10); // TODO: Update this value
