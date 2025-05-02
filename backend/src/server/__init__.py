@@ -4,6 +4,17 @@ from server.fastapi import app
 
 from .api.series import router as series_router
 
+type JSONable = (
+    int
+    | float
+    | str
+    | bool
+    | None
+    | tuple[JSONable]
+    | list[JSONable]
+    | dict[str, JSONable]
+)
+
 app.include_router(series_router, prefix='/api', tags=['series'])
 
 
