@@ -4,12 +4,12 @@ from uuid import UUID
 from fastapi import APIRouter
 from model import bouts
 from model.bout import Bout
-from model.timer import Timer
+from model.timer import Clock
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
 
-def render_clock(clock: Timer.Clock) -> dict:
+def render_clock(clock: Clock) -> dict:
     return {
         'startTimestamp': (
             clock.start_timestamp.isoformat() if clock.start_timestamp else None
@@ -27,7 +27,7 @@ def get(bout_id: UUID) -> dict:
         'clocks': {
             'game': render_clock(bout.timer.game_clock),
             'jam': render_clock(bout.timer.jam_clock),
-            'timeout': None,  # TODO: add timeout clock
+            'timeout': render_clock(bout.timer.timeout_clock),
             'inIntermission': bout.timer.is_in_intermission,
             'inLineup': bout.timer.is_in_lineup,
         },
