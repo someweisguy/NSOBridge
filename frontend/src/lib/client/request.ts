@@ -34,12 +34,12 @@ const socket: WebSocket = new WebSocket(
 socket.onopen = () => window.dispatchEvent(new ConnectionEvent(true));
 socket.onclose = () => window.dispatchEvent(new ConnectionEvent(false));
 socket.onmessage = (event: MessageEvent<string>) => {
-  const updates: {
+  const updates = JSON.parse(event.data) as {
     key: unknown[];
-    data: object;
+    data: unknown;
     timestamp: Date;
     actor: string | null;
-  }[] = JSON.parse(event.data);
+  }[];
 
   for (const update of updates) {
     console.log("WS: ", update);
