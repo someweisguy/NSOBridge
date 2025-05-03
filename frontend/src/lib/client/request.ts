@@ -49,7 +49,7 @@ socket.onmessage = (event: MessageEvent<string>) => {
   }
 };
 
-export default async function genericRequest<T = object>(
+export default async function genericRequest<T = unknown>(
   endpoint: `/${string}`,
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
   data?: object
