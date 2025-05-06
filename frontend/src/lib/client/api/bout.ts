@@ -39,14 +39,14 @@ export async function getBout(uuid: string): Promise<Bout> {
   if (!uuidValidate(uuid) || uuidVersion(uuid) !== 4) {
     throw new Error("Invalid UUID format");
   }
-  const response = await genericRequest<Bout>("/bout", "GET", { uuid });
+  const response = await genericRequest<Bout>("/bout", "GET", {
+    bout_id: uuid,
+  });
 
   // TODO: handle errors
 
-  let bout: Bout = response.data;
-
   // Set the start timestamp for each clock to local time
-  const clocks = bout.timer.clocks;
+  const clocks = response.data.timer.clocks;
   for (let clock of [clocks.game, clocks.jam, clocks.timeout]) {
     if (clock.startTimestamp !== null) {
       clock.startTimestamp = adjustServerTime(clock.startTimestamp);

@@ -54,15 +54,8 @@ export default async function genericRequest<T = unknown>(
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
   data?: object
 ): Promise<APIResponse<T>> {
-  const response = await fetch(
-    `http://${window.location.host}/api${endpoint}`,
-    {
-      method: method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: data ? JSON.stringify(data) : undefined,
-    }
-  );
+  const url = new URL(`http://${window.location.host}/api${endpoint}`);
+  url.search = new URLSearchParams(data as Record<string, string>).toString();
+  const response = await fetch(url, { method });
   return (await response.json()) as APIResponse<T>;
 }
