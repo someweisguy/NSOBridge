@@ -4,7 +4,7 @@ let timedelta = 0;
 
 export default function adjustServerTime(dateLike: Date | string): Date {
   const date = new Date(dateLike);
-  return new Date(date.getTime() + timedelta);
+  return new Date(date.getTime() - timedelta);
 }
 
 export function getServerTimedelta(): number {
