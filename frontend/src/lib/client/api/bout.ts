@@ -47,7 +47,7 @@ export async function getBout(uuid: string): Promise<Bout> {
 
   // Set the start timestamp for each clock to local time
   const clocks = response.data.timer.clocks;
-  for (let clock of [clocks.game, clocks.jam, clocks.timeout]) {
+  for (const clock of [clocks.game, clocks.jam, clocks.timeout]) {
     if (clock.startTimestamp !== null) {
       clock.startTimestamp = adjustServerTime(clock.startTimestamp);
     }
