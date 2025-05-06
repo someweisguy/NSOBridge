@@ -11,21 +11,25 @@ from server.responses import APIResponse, JSONable
 router: Final[APIRouter] = APIRouter(prefix='/series')
 
 
-@router.get('/')
-def get() -> JSONable:
+def render_series() -> JSONable:
     view: list[JSONable] = []
     for key, _ in bouts.items():
         view.append({'uuid': str(key), 'description': None})
     return view
 
 
+@router.get('/')
+def get() -> APIResponse:
+    return APIResponse(render_series())
+
+
 @router.post('/add_bout')
 def add_bout() -> Response:
     print('adding bout')
     bouts[uuid4()] = Bout('WFTDA 2025')
-    updater.post(('series',), get())
+    updater.post(('series',), render_series())
 
     return APIResponse()
 
 
-__all__ = ('router',)
+__all__ = ('router', 'render_series')
