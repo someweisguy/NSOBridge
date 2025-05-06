@@ -15,7 +15,7 @@ router: Final[APIRouter] = APIRouter(prefix='/series')
 def get() -> JSONable:
     view: list[JSONable] = []
     for key, _ in bouts.items():
-        view.append({'uuid': key, 'description': None})
+        view.append({'uuid': str(key), 'description': None})
     return view
 
 
