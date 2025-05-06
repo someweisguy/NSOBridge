@@ -7,7 +7,7 @@ from uuid import UUID
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
-from model import JamId
+from model.jam import JamId
 from pydantic import BaseModel
 
 from server.responses import JSONable
