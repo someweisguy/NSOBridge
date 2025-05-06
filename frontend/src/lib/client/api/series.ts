@@ -1,6 +1,14 @@
 import genericRequest from "../request";
 
-export async function getSeries(): Promise<Map<string, string>> {
-  const response = await genericRequest<object>("/series", "GET");
-  return new Map<string, string>(Object.entries(response.data));
+export type Series = Record<
+  number,
+  {
+    uuid: string;
+    description: string;
+  }
+>;
+
+export async function getSeries(): Promise<Series> {
+  const response = await genericRequest<Series>("/series", "GET");
+  return response.data;
 }
