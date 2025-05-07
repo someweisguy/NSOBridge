@@ -56,7 +56,7 @@ async function calculateClockOffset(iterations: number = 5): Promise<number> {
 // Calculate the offset between the client and server clocks periodically
 let periodSeconds = 15;
 const iterations: number = 5;
-document.onload = () =>
+window.onload = () =>
   calculateClockOffset(iterations).then((offset: number) => {
     timedelta = offset;
     setInterval(async () => {
