@@ -1,3 +1,5 @@
+import "@/lib/client/sync.ts";
+
 export type UpdateKey =
   | ["series"]
   | ["bout", string]
@@ -37,7 +39,7 @@ socket.onmessage = (event: MessageEvent<string>) => {
   const updates = JSON.parse(event.data) as UpdateKey[];
 
   for (const update of updates) {
-    console.log("WS: ", update);  // TODO
+    console.log("WS: ", update); // TODO
     window.dispatchEvent(new APIEvent(update));
   }
 };
@@ -50,9 +52,9 @@ export default async function genericRequest<T = unknown>(
   const url = new URL(`http://${window.location.host}/api${endpoint}`);
   url.search = new URLSearchParams(data as Record<string, string>).toString();
   const response = await fetch(url, { method });
-  const payload = await response.json() as APIResponse<T>;
+  const payload = (await response.json()) as APIResponse<T>;
   if (!payload.success) {
-    throw new Error("A request error occurred");  // TODO: better error handling
+    throw new Error("A request error occurred"); // TODO: better error handling
   }
   return payload;
 }
