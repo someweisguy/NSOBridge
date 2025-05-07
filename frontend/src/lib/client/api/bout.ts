@@ -35,12 +35,12 @@ export interface Bout {
   };
 }
 
-export async function getBout(uuid: string): Promise<Bout> {
-  if (!uuidValidate(uuid) || uuidVersion(uuid) !== 4) {
+export async function getBout(boutId: string): Promise<Bout> {
+  if (!uuidValidate(boutId) || uuidVersion(boutId) !== 4) {
     throw new Error("Invalid UUID format");
   }
   const response = await genericRequest<Bout>("/bout", "GET", {
-    bout_id: uuid,
+    bout_id: boutId,
   });
 
   // TODO: handle errors
