@@ -1,5 +1,5 @@
 import genericRequest from "../request";
-import adjustServerTime from "../sync";
+import adjustServerTime, { timeIsSynchronized } from "../sync";
 
 export type JamStopReasons = ["called", "time", "injury", "other"];
 
@@ -25,6 +25,9 @@ export async function getJam(
   periodNum: number,
   jamNum: number
 ): Promise<Jam> {
+
+  // Wait for time synchronization and then request the Jam
+  await timeIsSynchronized;
   const response = await genericRequest<Jam>("/jam", "GET", {
     bout_id: boutId,
     period_num: periodNum,

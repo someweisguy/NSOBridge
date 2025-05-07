@@ -54,12 +54,14 @@ async function calculateClockOffset(iterations: number = 5): Promise<number> {
 }
 
 // Calculate the offset between the client and server clocks periodically
-let periodSeconds = 15;
-const iterations: number = 5;
-window.onload = () =>
+export const timeIsSynchronized = new Promise((resolve) => {
+  let periodSeconds = 15;
+  const iterations: number = 5;
   calculateClockOffset(iterations).then((offset: number) => {
     timedelta = offset;
+    resolve(true);
     setInterval(async () => {
       timedelta = await calculateClockOffset(iterations);
     }, 1000 * periodSeconds);
   });
+}).catch(() => false);

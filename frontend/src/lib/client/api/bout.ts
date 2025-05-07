@@ -1,6 +1,6 @@
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import genericRequest from "../request";
-import adjustServerTime from "../sync";
+import adjustServerTime, { timeIsSynchronized } from "../sync";
 
 export interface Clock {
   startTimestamp: Date | null;
@@ -39,6 +39,9 @@ export async function getBout(boutId: string): Promise<Bout> {
   if (!uuidValidate(boutId) || uuidVersion(boutId) !== 4) {
     throw new Error("Invalid UUID format");
   }
+
+  // Wait for time synchronization and then request the Bout
+  await timeIsSynchronized;
   const response = await genericRequest<Bout>("/bout", "GET", {
     bout_id: boutId,
   });
