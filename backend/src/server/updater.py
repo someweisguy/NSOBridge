@@ -1,34 +1,17 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime
 from typing import Any, Final, Literal
 from uuid import UUID
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
-
-from server.responses import JSONable
 
 type UpdateKey = (
     tuple[Literal['series']]  # Series updates
     | tuple[Literal['bout'], UUID]  # Bout updates
     | tuple[Literal['jam'], UUID, int, int]  # Jam updates
 )
-
-
-class UpdateModel(BaseModel):
-    key: UpdateKey
-    data: Any
-    timestamp: datetime
-    actor: UUID | None = None
-
-    def __eq__(self, other: UpdateModel) -> bool:
-        return self.key == other.key
-
-    def __hash__(self) -> int:
-        return hash(self.key)
 
 
 app: Final[FastAPI] = FastAPI()
@@ -48,13 +31,12 @@ async def handle_socket(websocket: WebSocket) -> None:
 
 
 clients: set[WebSocket] = set()
-updates: set[UpdateModel] = set()
+updates: set[UpdateKey] = set()
 background_tasks: set[asyncio.Task] = set()
 
 
-def post(key: UpdateKey, data: JSONable) -> None:
-    now: datetime = datetime.now()
-    updates.add(UpdateModel(key=key, data=data, timestamp=now))
+def post(key: UpdateKey) -> None:
+    updates.add(key)
 
 
 def broadcast() -> int:

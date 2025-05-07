@@ -1,10 +1,10 @@
-export class APIEvent<T = unknown> extends Event {
-  constructor(
-    public readonly key: unknown[],
-    public readonly data: T,
-    public readonly timestamp: Date,
-    public readonly actors: string | null
-  ) {
+export type UpdateKey =
+  | ["series"]
+  | ["bout", string]
+  | ["jam", string, number, number];
+
+export class APIEvent extends Event {
+  constructor(public readonly key: UpdateKey) {
     super("update");
   }
 }
@@ -34,18 +34,11 @@ const socket: WebSocket = new WebSocket(
 socket.onopen = () => window.dispatchEvent(new ConnectionEvent(true));
 socket.onclose = () => window.dispatchEvent(new ConnectionEvent(false));
 socket.onmessage = (event: MessageEvent<string>) => {
-  const updates = JSON.parse(event.data) as {
-    key: unknown[];
-    data: unknown;
-    timestamp: Date;
-    actor: string | null;
-  }[];
+  const updates = JSON.parse(event.data) as UpdateKey[];
 
   for (const update of updates) {
-    console.log("WS: ", update);
-    window.dispatchEvent(
-      new APIEvent(update.key, update.data, update.timestamp, update.actor)
-    );
+    console.log("WS: ", update);  // TODO
+    window.dispatchEvent(new APIEvent(update));
   }
 };
 

@@ -10,6 +10,8 @@ from server.responses import APIResponse, JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
 
+SERIES_KEY: Final[updater.UpdateKey] = ('series',)
+
 
 def render_series() -> JSONable:
     view: list[JSONable] = []
@@ -27,7 +29,7 @@ def get() -> APIResponse:
 def add_bout() -> Response:
     print('adding bout')
     bouts[uuid4()] = Bout('WFTDA 2025')
-    updater.post(('series',), render_series())
+    updater.post(SERIES_KEY)
 
     return APIResponse()
 
