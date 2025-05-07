@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Final
 
-from .jam import Jam, JamId
+from .jam import Jam
 from .protocols import TeamType
 from .timer import Timer
 
@@ -12,12 +12,11 @@ class Bout:
     timer: Final[Timer] = field(init=False, default_factory=Timer)
     jams: Final[tuple[list[Jam], list[Jam]]] = field(init=False, default=([Jam()], []))
 
-    def get_jam(self, jam_id: JamId) -> Jam:
-        period, jam = jam_id
+    def get_jam(self, period_num: int, jam_num: int) -> Jam:
         try:
-            return self.jams[period][jam]
+            return self.jams[period_num][jam_num]
         except KeyError:
-            raise KeyError(f'Jam {jam_id} not found') from None
+            raise KeyError(f'Jam [{period_num}, {jam_num}] not found') from None
 
     def get_total_score(self, team: TeamType) -> int:
         all_jams: list[Jam] = [j for period in self.jams for j in period]

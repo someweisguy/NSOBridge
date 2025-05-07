@@ -4,7 +4,6 @@ from typing import Final, Literal
 
 from .protocols import TeamAttribute
 
-type JamId = tuple[int, int]
 type JamStopReasons = Literal['called', 'time', 'injury', 'other']
 
 

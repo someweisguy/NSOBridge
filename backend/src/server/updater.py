@@ -7,7 +7,6 @@ from uuid import UUID
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
-from model.jam import JamId
 from pydantic import BaseModel
 
 from server.responses import JSONable
@@ -15,7 +14,7 @@ from server.responses import JSONable
 type UpdateKey = (
     tuple[Literal['series']]  # Series updates
     | tuple[Literal['bout'], UUID]  # Bout updates
-    | tuple[Literal['jam'], UUID, JamId]  # Jam updates
+    | tuple[Literal['jam'], UUID, int, int]  # Jam updates
 )
 
 
