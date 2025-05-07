@@ -1,15 +1,10 @@
-import { BoutIdType } from "../types/bout";
-import { JamIdType } from "../types/jam";
-
 export const keyFactory = {
   series: () => ["series"],
-  bout: (boutId: BoutIdType) => ["bout", boutId],
-  jam: (boutId: BoutIdType, jamId: JamIdType) => ["jam", boutId, jamId],
-  score: (boutId: BoutIdType, jamId: JamIdType, team: "home" | "away") => [
-    "score",
+  bout: (boutId: string) => ["bout", boutId],
+  jam: (boutId: string, periodNum: number, jamNum: number) => [
+    "jam",
     boutId,
-    jamId,
-    team,
+    periodNum,
+    jamNum,
   ],
-  clock: (boutId: BoutIdType, type: string) => ["clock", boutId, type],
 };

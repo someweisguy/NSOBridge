@@ -1,12 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/key-factory";
-import genericRequest, { APIResponse } from "../lib/client";
+import { getSeries, Series } from "@/lib/client/api/series";
 
-export default function useSeries(): Map<string, object> {
-  const { data } = useSuspenseQuery<APIResponse, unknown, Map<string, object>>({
+export default function useSeries(): Series {
+  const { data } = useSuspenseQuery({
     queryKey: keyFactory.series(),
-    queryFn: () => genericRequest<Map<string, object>>("/series", "GET"),
-    select: (response: APIResponse) => new Map(Object.entries(response.data)),
+    queryFn: getSeries,
   });
 
   return data;

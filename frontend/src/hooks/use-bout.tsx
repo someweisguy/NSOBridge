@@ -1,16 +1,11 @@
+import { Bout, getBout } from "@/lib/client/api/bout";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/key-factory";
-import dispatchRequest from "../lib/client";
-import { BoutType } from "../types/bout";
 
-export default function useBout<T = BoutType>(
-  boutId: string,
-  selector?: (bout: BoutType) => T
-): T {
-  const { data } = useSuspenseQuery<BoutType, unknown, T>({
+export default function useBout(boutId: string): Bout {
+  const { data } = useSuspenseQuery({
     queryKey: keyFactory.bout(boutId),
-    queryFn: () => dispatchRequest("bout", "get", { boutId }),
-    select: selector,
+    queryFn: () => getBout(boutId),
   });
 
   return data;
