@@ -1,11 +1,16 @@
+from typing import LiteralString
+
 from uvicorn import Config, Server
 
 from server.api.bout import router as bout_router
+from server.api.jam import router as jam_router
 from server.api.series import router as series_router
 from server.fastapi import app
 
-app.include_router(series_router, prefix='/api', tags=['series'])
-app.include_router(bout_router, prefix='/api', tags=['bout'])
+API_PREFIX: LiteralString = '/api'
+app.include_router(series_router, prefix=API_PREFIX, tags=['series'])
+app.include_router(bout_router, prefix=API_PREFIX, tags=['bout'])
+app.include_router(jam_router, prefix=API_PREFIX, tags=['jam'])
 
 
 def get_ip_addresses() -> list[str]:
