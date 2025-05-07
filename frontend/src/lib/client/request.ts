@@ -50,5 +50,9 @@ export default async function genericRequest<T = unknown>(
   const url = new URL(`http://${window.location.host}/api${endpoint}`);
   url.search = new URLSearchParams(data as Record<string, string>).toString();
   const response = await fetch(url, { method });
-  return (await response.json()) as APIResponse<T>;
+  const payload = await response.json() as APIResponse<T>;
+  if (!payload.success) {
+    throw new Error("A request error occurred");  // TODO: better error handling
+  }
+  return payload;
 }
