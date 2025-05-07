@@ -3,7 +3,7 @@ import genericRequest from "./request";
 let timedelta = 0;
 
 export default function adjustServerTime(dateLike: Date | string): Date {
-  if (typeof dateLike === 'string') {
+  if (typeof dateLike === "string") {
     dateLike = new Date(dateLike);
   }
   return new Date(dateLike.getTime() - timedelta);
@@ -32,7 +32,7 @@ async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
   ];
 
   const offset: number = (t[1] - t[0] + (t[3] - t[2])) / 2;
-  const rtt: number = t[3] - t[0] - (t[2] - t[1]);  // Round-Trip Time
+  const rtt: number = t[3] - t[0] - (t[2] - t[1]); // Round-Trip Time
   return { offset, rtt };
 }
 
@@ -56,9 +56,10 @@ async function calculateClockOffset(iterations: number = 5): Promise<number> {
 // Calculate the offset between the client and server clocks periodically
 let periodSeconds = 15;
 const iterations: number = 5;
-calculateClockOffset(iterations).then((offset: number) => {
-  timedelta = offset;
-  setInterval(async () => {
-    timedelta = await calculateClockOffset(iterations);
-  }, 1000 * periodSeconds);
-});
+document.onload = () =>
+  calculateClockOffset(iterations).then((offset: number) => {
+    timedelta = offset;
+    setInterval(async () => {
+      timedelta = await calculateClockOffset(iterations);
+    }, 1000 * periodSeconds);
+  });
