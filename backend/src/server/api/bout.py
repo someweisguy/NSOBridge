@@ -28,7 +28,7 @@ def render_timeout(timeout: Timeout) -> JSONable:
     }
 
 
-@router.get('/')
+@router.get('')
 def get(bout_id: UUID) -> APIResponse:
     bout: Bout = bouts[bout_id]
     return APIResponse(

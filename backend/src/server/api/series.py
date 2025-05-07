@@ -20,7 +20,7 @@ def render_series() -> JSONable:
     return view
 
 
-@router.get('/')
+@router.get('')
 def get() -> APIResponse:
     return APIResponse(render_series())
 
