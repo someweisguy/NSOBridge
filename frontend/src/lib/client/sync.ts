@@ -58,9 +58,7 @@ let periodSeconds = 15;
 const iterations: number = 5;
 calculateClockOffset(iterations).then((offset: number) => {
   timedelta = offset;
-  console.log(`Offset: ${timedelta}ms.`);
   setInterval(async () => {
     timedelta = await calculateClockOffset(iterations);
-    console.log(`Offset: ${timedelta}ms.`);
   }, 1000 * periodSeconds);
 });
