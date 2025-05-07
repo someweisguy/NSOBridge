@@ -11,7 +11,7 @@ export function getServerTimedelta(): number {
   return timedelta;
 }
 
-async function syncServerTime(): Promise<number> {
+async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
   // Send the synchronization request
   const start: Date = new Date();
   const message = await genericRequest<{ t1: string; t2: string }>(
@@ -21,7 +21,7 @@ async function syncServerTime(): Promise<number> {
   const stop: Date = new Date();
 
   // Compute the time difference between client and server
-  // See: https://magewell.com/blog/87/detail
+  // See: https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
   const t: number[] = [
     start.getTime(),
     new Date(message.data.t1).getTime(),
@@ -29,12 +29,30 @@ async function syncServerTime(): Promise<number> {
     stop.getTime(),
   ];
 
-  const timedelta: number = (t[1] - t[0] + (t[3] - t[2])) / 2;
-  return timedelta;
+  const offset: number = (t[1] - t[0] + (t[3] - t[2])) / 2;
+  const rtt: number = t[3] - t[0] - (t[2] - t[1]);
+  return { offset, rtt };
 }
 
-// Immediately sync the server time on load and re-sync regularly
-syncServerTime().then((delta) => (timedelta = delta));
-setInterval(() => {
-  syncServerTime().then((delta) => (timedelta = delta));
-}, 1000 * 10); // TODO: Update this value
+async function calculateClockOffset(iterations: number = 5): Promise<number> {
+  let rtt: number = Number.MAX_VALUE;
+  let offset: number = 0;
+
+  for (let i = 0; i < iterations; ++i) {
+    const { offset: currentOffset, rtt: currentRtt } = await clockSynchronize();
+    if (currentRtt < rtt) {
+      rtt = currentRtt;
+      offset = currentOffset;
+    }
+  }
+
+  return offset;
+}
+
+const iterations: number = 5;
+calculateClockOffset(iterations).then((offset: number) => {
+  timedelta = offset;
+  setInterval(async () => {
+    timedelta = await calculateClockOffset(iterations);
+  }, 1000 * 15);
+});
