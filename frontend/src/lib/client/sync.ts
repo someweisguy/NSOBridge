@@ -38,6 +38,8 @@ async function calculateClockOffset(iterations: number = 5): Promise<number> {
   let rtt: number = Number.MAX_VALUE;
   let offset: number = 0;
 
+  // Calculate the clock offset by running the clockSynchronize() algorithm `n` number
+  // of times. The chosen offset is the request with the lowest round-trip latency.
   for (let i = 0; i < iterations; ++i) {
     const { offset: currentOffset, rtt: currentRtt } = await clockSynchronize();
     if (currentRtt < rtt) {
