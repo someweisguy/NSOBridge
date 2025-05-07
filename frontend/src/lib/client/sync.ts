@@ -30,7 +30,7 @@ async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
   ];
 
   const offset: number = (t[1] - t[0] + (t[3] - t[2])) / 2;
-  const rtt: number = t[3] - t[0] - (t[2] - t[1]);
+  const rtt: number = t[3] - t[0] - (t[2] - t[1]);  // Round-Trip Time
   return { offset, rtt };
 }
 
@@ -49,10 +49,14 @@ async function calculateClockOffset(iterations: number = 5): Promise<number> {
   return offset;
 }
 
+// Calculate the offset between the client and server clocks periodically
+let periodSeconds = 15;
 const iterations: number = 5;
 calculateClockOffset(iterations).then((offset: number) => {
   timedelta = offset;
+  console.log(`Offset: ${timedelta}ms.`);
   setInterval(async () => {
     timedelta = await calculateClockOffset(iterations);
-  }, 1000 * 15);
+    console.log(`Offset: ${timedelta}ms.`);
+  }, 1000 * periodSeconds);
 });
