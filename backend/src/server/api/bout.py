@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Final
 from uuid import UUID
 
@@ -6,6 +7,7 @@ from model import bouts
 from model.bout import Bout
 from model.timer import Clock, Timeout
 
+from server import updater
 from server.responses import APIResponse, JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
@@ -57,8 +59,13 @@ async def get(bout_id: UUID) -> APIResponse:
 
 
 @router.post('/start-jam')
-async def start_jam(bout_id: UUID) -> APIResponse:
-    return APIResponse({})
+async def start_jam(bout_id: UUID, timestamp: datetime) -> APIResponse:
+    bout: Bout = bouts[bout_id]
+    bout.start_jam(timestamp)
+    updater.post(
+        [updater.kf.bout(bout_id), updater.kf.jam(bout_id, *bout.get_current_jam_id())]
+    )
+    return APIResponse()
 
 
 __all__ = ('router',)

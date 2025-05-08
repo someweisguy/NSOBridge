@@ -6,6 +6,7 @@ from .jam import Jam
 from .protocols import TeamType
 from .timer import Timer
 
+type JamId = tuple[int, int]
 
 @dataclass(slots=True)
 class Bout:
@@ -19,9 +20,9 @@ class Bout:
         except KeyError:
             raise KeyError(f'Jam [{period_num}, {jam_num}] not found') from None
 
-    def get_current_jam_id(self) -> tuple[int, int]:
+    def get_current_jam_id(self) -> JamId:
         period_num: int = 1 if len(self.jams[1]) > 0 else 0
-        jam_num: int = len(self.jams[period_num])
+        jam_num: int = len(self.jams[period_num]) - 1
         return (period_num, jam_num)
 
     def get_total_score(self, team: TeamType) -> int:
