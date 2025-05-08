@@ -21,12 +21,12 @@ def render_series() -> JSONable:
 
 
 @router.get('')
-def get() -> APIResponse:
+async def get() -> APIResponse:
     return APIResponse(render_series())
 
 
-@router.post('/add_bout')
-def add_bout() -> Response:
+@router.post('/add-bout')
+async def add_bout() -> Response:
     print('adding bout')
     bouts[uuid4()] = Bout('WFTDA 2025')
     updater.post(SERIES_KEY)

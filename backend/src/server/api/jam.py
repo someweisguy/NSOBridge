@@ -25,7 +25,7 @@ def render_team_jam(team: Team) -> dict[str, JSONable]:
 
 
 @router.get('')
-def get(bout_id: UUID, period_num: int, jam_num: int) -> APIResponse:
+async def get(bout_id: UUID, period_num: int, jam_num: int) -> APIResponse:
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     return APIResponse(
         {

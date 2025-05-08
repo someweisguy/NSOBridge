@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from typing import Final
 
 from .jam import Jam
@@ -18,6 +19,32 @@ class Bout:
         except KeyError:
             raise KeyError(f'Jam [{period_num}, {jam_num}] not found') from None
 
+    def get_current_jam(self) -> Jam:
+        period_num: int = 1 if len(self.jams[1]) > 0 else 0
+        return self.jams[period_num][-1]
+
     def get_total_score(self, team: TeamType) -> int:
         all_jams: list[Jam] = [j for period in self.jams for j in period]
         return sum(trip.points for jam in all_jams for trip in jam[team].score.trips)
+
+    def start_jam(self, timestamp: datetime) -> None:
+        game_clock_alarm: timedelta = timedelta(minutes=30)
+        jam_clock_alarm: timedelta = timedelta(minutes=2)
+
+        # Update game Timer state
+        match self.timer.get_game_state():
+            case 'intermission':
+                self.timer.game_clock.reset(game_clock_alarm)
+                self.timer.jam_clock.reset(jam_clock_alarm)
+                self.timer.is_in_intermission = False
+            case 'lineup':
+                self.timer.jam_clock.reset(jam_clock_alarm)
+            case 'jam' | 'timeout' | 'final':
+                raise RuntimeError('The Jam cannot be started right now') from None
+        self.timer.is_in_lineup = False
+        self.timer.game_clock.start(timestamp)
+        self.timer.jam_clock.start(timestamp)
+
+        # Update Jam state
+        jam: Jam = self.get_current_jam()
+        jam.start_timestamp = timestamp

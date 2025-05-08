@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Final
+from typing import Final, Literal
 
 from model.protocols import TeamAttribute
 
@@ -40,6 +40,11 @@ class Clock:
     def is_running(self) -> bool:
         return self.start_timestamp is not None
 
+    def reset(self, alarm: timedelta | None = None) -> None:
+        self.start_timestamp = None
+        self.elapsed = timedelta(seconds=0)
+        self.alarm = alarm
+
 
 @dataclass(slots=True)
 class Timeout:
@@ -56,3 +61,23 @@ class Timer(TeamAttribute[Timeout]):
     is_in_lineup: bool = field(init=False, default=False)
     home: Final[Timeout] = field(init=False, default_factory=Timeout)  # type: ignore[assignment]
     away: Final[Timeout] = field(init=False, default_factory=Timeout)  # type: ignore[assignment]
+
+    def get_game_state(
+        self,
+    ) -> Literal['intermission', 'lineup', 'jam', 'timeout', 'unofficial', 'final']:
+        if self.is_in_intermission:
+            return 'intermission'
+        elif self.jam_clock.is_running():
+            if self.is_in_lineup:
+                return 'lineup'
+            else:
+                return 'jam'
+        elif self.timeout_clock.is_running():
+            return 'timeout'
+        # TODO: Implement unofficial and final game states
+        else:
+            raise RuntimeError('Invalid game state') from None
+
+    def stop_all_clocks(self, timestamp: datetime) -> None:
+        for clock in [self.game_clock, self.jam_clock, self.timeout_clock]:
+            clock.stop(timestamp)

@@ -36,7 +36,7 @@ async def render_generic(request: Request, path: str) -> Response:
     return FileResponse(FRONTEND / path)
 
 
-@app.get('/api/serverSync')
+@app.get('/api/sync')
 async def server_sync() -> Response:
     start: datetime = datetime.now()
     return APIResponse(

@@ -29,7 +29,7 @@ def render_timeout(timeout: Timeout) -> JSONable:
 
 
 @router.get('')
-def get(bout_id: UUID) -> APIResponse:
+async def get(bout_id: UUID) -> APIResponse:
     bout: Bout = bouts[bout_id]
     return APIResponse(
         {
@@ -54,6 +54,10 @@ def get(bout_id: UUID) -> APIResponse:
             },
         }
     )
+
+@router.post('/start-jam')
+async def start_jam(bout_id: UUID) -> APIResponse:
+    return APIResponse({})
 
 
 __all__ = ('router',)
