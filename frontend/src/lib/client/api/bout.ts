@@ -1,6 +1,5 @@
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
-import genericRequest, { sanitizeForClient } from "../request";
-import { timeIsSynchronized } from "../sync";
+import genericRequest from "../request";
 
 export interface Clock {
   startTimestamp: Date | null;
@@ -41,14 +40,13 @@ export async function getBout(boutId: string): Promise<Bout> {
   }
 
   // Wait for time synchronization and then request the Bout
-  await timeIsSynchronized;
   const response = await genericRequest<Bout>("/bout", "GET", {
     bout_id: boutId,
   });
 
   // TODO: handle errors
 
-  return sanitizeForClient(response.data);
+  return response.data;
 }
 
 export async function startJam(boutId: string): Promise<undefined> {
@@ -57,7 +55,6 @@ export async function startJam(boutId: string): Promise<undefined> {
   }
 
   // Wait for time synchronization and then send the request
-  await timeIsSynchronized;
   await genericRequest<Bout>("/bout/start-jam", "POST", {
     bout_id: boutId,
     timestamp: new Date(),
@@ -70,7 +67,6 @@ export async function stopJam(boutId: string): Promise<undefined> {
   }
 
   // Wait for time synchronization and then send the request
-  await timeIsSynchronized;
   await genericRequest<Bout>("/bout/stop-jam", "POST", {
     bout_id: boutId,
     timestamp: new Date(),

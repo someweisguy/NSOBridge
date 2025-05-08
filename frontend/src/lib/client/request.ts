@@ -1,5 +1,5 @@
 import "@/lib/client/sync.ts";
-import { getServerTimedelta } from "@/lib/client/sync.ts";
+import { getServerTimedelta, timeIsSynchronized } from "@/lib/client/sync.ts";
 
 export type UpdateKey =
   | ["series"]
@@ -45,27 +45,29 @@ socket.onmessage = (event: MessageEvent<string>) => {
   }
 };
 
-export function sanitizeForClient<T = object>(obj: T): T {
+export async function sanitizeForClient<T = object>(obj: T): Promise<T> {
   for (const key in obj) {
     if (typeof obj[key] === "string" && !isNaN(Date.parse(obj[key]))) {
+      await timeIsSynchronized;
       obj[key] = new Date(
         new Date(obj[key]).getTime() + getServerTimedelta()
       ) as T[Extract<keyof T, string>];
     } else if (typeof obj[key] === "object" && obj[key] !== null) {
-      sanitizeForClient(obj[key]); // Handle nested objects
+      await sanitizeForClient(obj[key]); // Handle nested objects
     }
   }
   return obj;
 }
 
-export function sanitizeForServer<T = object>(obj: T): T {
+export async function sanitizeForServer<T = object>(obj: T): Promise<T> {
   for (const key in obj) {
     if (obj[key] instanceof Date) {
+      await timeIsSynchronized;
       obj[key] = new Date(
         obj[key].getTime() - getServerTimedelta()
       ).toISOString() as T[Extract<keyof T, string>];
     } else if (typeof obj[key] === "object" && obj[key] !== null) {
-      sanitizeForServer(obj[key]); // Handle nested objects
+      await sanitizeForServer(obj[key]); // Handle nested objects
     }
   }
   return obj;
@@ -74,11 +76,12 @@ export function sanitizeForServer<T = object>(obj: T): T {
 export default async function genericRequest<T = unknown>(
   endpoint: `/${string}`,
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
-  data?: object
+  data: object | null = null,
+  sanitize: boolean = true
 ): Promise<APIResponse<T>> {
   const url = new URL(`http://${window.location.host}/api${endpoint}`);
-  if (data) {
-    data = sanitizeForServer(data);
+  if (data !== null) {
+    data = sanitize ? await sanitizeForServer(data) : data;
     url.search = new URLSearchParams(data as Record<string, string>).toString();
   }
   const response = await fetch(url, { method });
@@ -86,5 +89,5 @@ export default async function genericRequest<T = unknown>(
   if (!payload.success) {
     throw new Error("A request error occurred"); // TODO: better error handling
   }
-  return payload;
+  return sanitize ? await sanitizeForClient(payload) : payload;
 }

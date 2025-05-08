@@ -1,6 +1,5 @@
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
-import genericRequest, { sanitizeForClient } from "../request";
-import { timeIsSynchronized } from "../sync";
+import genericRequest from "../request";
 
 export type JamStopReasons = ["called", "time", "injury", "other"];
 
@@ -37,11 +36,10 @@ export async function getJam(
   }
 
   // Wait for time synchronization and then request the Jam
-  await timeIsSynchronized;
   const response = await genericRequest<Jam>("/jam", "GET", {
     bout_id: boutId,
     period_num: periodNum,
     jam_num: jamNum,
   });
-  return sanitizeForClient(response.data);
+  return response.data;
 }

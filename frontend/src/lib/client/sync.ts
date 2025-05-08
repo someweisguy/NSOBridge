@@ -11,7 +11,9 @@ async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
   const start: Date = new Date();
   const message = await genericRequest<{ t1: string; t2: string }>(
     "/sync",
-    "GET"
+    "GET",
+    null,
+    false // Do not sanitize the request
   );
   const stop: Date = new Date();
 
