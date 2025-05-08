@@ -14,7 +14,29 @@ type UpdateKey = (
 )
 
 
+class KeyFactory:
+    _instance: KeyFactory | None = None
+
+    def __init__(self) -> None:
+        if KeyFactory._instance is not None:
+            raise RuntimeError('This class cannot be initialized')
+        KeyFactory._instance = self
+
+    @classmethod
+    def series(cls) -> UpdateKey:
+        return ('series',)
+
+    @classmethod
+    def bout(cls, uuid: UUID) -> UpdateKey:
+        return ('bout', uuid)
+
+    @classmethod
+    def jam(cls, uuid: UUID, period_num: int, jam_num: int) -> UpdateKey:
+        return ('jam', uuid, period_num, jam_num)
+
+
 app: Final[FastAPI] = FastAPI()
+kf: Final[KeyFactory] = KeyFactory()
 
 
 @app.websocket('/updates')
@@ -35,8 +57,11 @@ updates: set[UpdateKey] = set()
 background_tasks: set[asyncio.Task] = set()
 
 
-def post(key: UpdateKey) -> None:
-    updates.add(key)
+def post(key: UpdateKey | list[UpdateKey]) -> None:
+    if isinstance(key, list):
+        updates.update(key)
+    else:
+        updates.add(key)
 
 
 def broadcast() -> int:
@@ -51,4 +76,4 @@ def broadcast() -> int:
     return num_updates
 
 
-__all__ = ('app', 'broadcast', 'post', 'UpdateKey')
+__all__ = ('app', 'broadcast', 'kf', 'post', 'UpdateKey')
