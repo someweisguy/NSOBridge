@@ -17,7 +17,7 @@ async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
   // Send the synchronization request
   const start: Date = new Date();
   const message = await genericRequest<{ t1: string; t2: string }>(
-    "/serverSync",
+    "/sync",
     "GET"
   );
   const stop: Date = new Date();
