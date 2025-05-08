@@ -27,8 +27,8 @@ class Bout:
         return (period_num, jam_num)
 
     def get_total_score(self, team: TeamType) -> int:
-        all_jams: list[Jam] = [j for period in self.jams for j in period]
-        return sum(trip.points for jam in all_jams for trip in jam[team].score.trips)
+        all_jams: list[Jam] = [jam for period in self.jams for jam in period]
+        return sum(jam.get_jam_score(team) for jam in all_jams)
 
     def start_jam(self, timestamp: datetime) -> None:
         game_clock_alarm: timedelta = timedelta(minutes=30)

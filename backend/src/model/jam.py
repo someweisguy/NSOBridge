@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Final, Literal
 
-from .protocols import TeamAttribute
+from .protocols import TeamAttribute, TeamType
 
 type JamStopReason = Literal['called', 'time', 'injury', 'other']
 
@@ -35,3 +35,7 @@ class Jam(TeamAttribute[Team]):
 
     def lead_is_declared(self) -> bool:
         return self.home.score.lead or self.away.score.lead
+
+    def get_jam_score(self, team: TeamType) -> int:
+        score: Score = self[team].score
+        return sum([trip.points for trip in score.trips])
