@@ -55,6 +55,7 @@ async def get(bout_id: UUID) -> APIResponse:
         }
     )
 
+
 @router.post('/start-jam')
 async def start_jam(bout_id: UUID) -> APIResponse:
     return APIResponse({})
