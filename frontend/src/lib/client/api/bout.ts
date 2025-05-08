@@ -63,3 +63,16 @@ export async function startJam(boutId: string): Promise<undefined> {
     timestamp: new Date(),
   });
 }
+
+export async function stopJam(boutId: string): Promise<undefined> {
+  if (!uuidValidate(boutId) || uuidVersion(boutId) !== 4) {
+    throw new Error("Invalid UUID format");
+  }
+
+  // Wait for time synchronization and then send the request
+  await timeIsSynchronized;
+  await genericRequest<Bout>("/bout/stop-jam", "POST", {
+    bout_id: boutId,
+    timestamp: new Date(),
+  });
+}

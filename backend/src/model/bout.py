@@ -2,11 +2,12 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final
 
-from .jam import Jam
+from .jam import Jam, JamStopReason
 from .protocols import TeamType
 from .timer import Timer
 
 type JamId = tuple[int, int]
+
 
 @dataclass(slots=True)
 class Bout:
@@ -33,7 +34,7 @@ class Bout:
         game_clock_alarm: timedelta = timedelta(minutes=30)
         jam_clock_alarm: timedelta = timedelta(minutes=2)
 
-        # Update game Timer state
+        # Update Timer state
         match self.timer.get_game_state():
             case 'intermission':
                 self.timer.game_clock.reset(game_clock_alarm)
@@ -42,12 +43,40 @@ class Bout:
             case 'lineup':
                 self.timer.jam_clock.reset(jam_clock_alarm)
             case 'jam' | 'timeout' | 'final':
-                raise RuntimeError('The Jam cannot be started right now') from None
+                raise RuntimeError('A Jam cannot be started now') from None
         self.timer.is_in_lineup = False
         self.timer.game_clock.start(timestamp)
         self.timer.jam_clock.start(timestamp)
 
         # Update Jam state
-        jam_id: tuple[int, int] = self.get_current_jam_id()
+        jam_id: JamId = self.get_current_jam_id()
         jam: Jam = self.get_jam(*jam_id)
         jam.start_timestamp = timestamp
+
+    def stop_jam(self, timestamp: datetime) -> None:
+        lineup_clock_alarm: timedelta = timedelta(seconds=30)
+
+        # Guess the reason that the Jam is being stopped
+        jam_id: JamId = self.get_current_jam_id()
+        jam: Jam = self.get_jam(*jam_id)
+        stop_reason: JamStopReason | None = None
+        if jam.lead_is_declared():
+            stop_reason = 'called'
+        elif (
+            self.timer.jam_clock.alarm is not None
+            and self.timer.jam_clock.elapsed >= self.timer.jam_clock.alarm
+        ):
+            stop_reason = 'time'
+
+        # Update Timer state
+        if self.timer.get_game_state() != 'jam':
+            raise RuntimeError('There is no active Jam to be stopped')
+        self.timer.jam_clock.reset(lineup_clock_alarm)
+        self.timer.jam_clock.start(timestamp)
+        self.timer.is_in_lineup = True
+
+        # Update Jam state and add a new Jam
+        jam.stop_timestamp = timestamp
+        jam.stop_reason = stop_reason
+        period_num, _ = jam_id
+        self.jams[period_num].append(Jam())

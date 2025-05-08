@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter
 from model import bouts
-from model.bout import Bout
+from model.bout import Bout, JamId
 from model.timer import Clock, Timeout
 
 from server import updater
@@ -64,6 +64,21 @@ async def start_jam(bout_id: UUID, timestamp: datetime) -> APIResponse:
     bout.start_jam(timestamp)
     updater.post(
         [updater.kf.bout(bout_id), updater.kf.jam(bout_id, *bout.get_current_jam_id())]
+    )
+    return APIResponse()
+
+
+@router.post('/stop-jam')
+async def stop_jam(bout_id: UUID, timestamp: datetime) -> APIResponse:
+    bout: Bout = bouts[bout_id]
+    stopped_jam_id: JamId = bout.get_current_jam_id()
+    bout.stop_jam(timestamp)
+    updater.post(
+        [
+            updater.kf.bout(bout_id),
+            updater.kf.jam(bout_id, *stopped_jam_id),
+            updater.kf.jam(bout_id, *bout.get_current_jam_id()),
+        ]
     )
     return APIResponse()
 

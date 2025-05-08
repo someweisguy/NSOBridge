@@ -4,7 +4,7 @@ from typing import Final, Literal
 
 from .protocols import TeamAttribute
 
-type JamStopReasons = Literal['called', 'time', 'injury', 'other']
+type JamStopReason = Literal['called', 'time', 'injury', 'other']
 
 
 @dataclass(slots=True)
@@ -29,7 +29,7 @@ class Team:
 class Jam(TeamAttribute[Team]):
     start_timestamp: datetime | None = None
     stop_timestamp: datetime | None = None
-    stop_reason: JamStopReasons | None = None
+    stop_reason: JamStopReason | None = None
     home: Final[Team] = field(default_factory=Team)  # type: ignore[assignment]
     away: Final[Team] = field(default_factory=Team)  # type: ignore[assignment]
 
