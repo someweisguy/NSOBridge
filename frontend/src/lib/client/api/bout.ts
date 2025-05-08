@@ -1,6 +1,6 @@
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
-import genericRequest from "../request";
-import adjustServerTime, { timeIsSynchronized } from "../sync";
+import genericRequest, { sanitizeForClient } from "../request";
+import { timeIsSynchronized } from "../sync";
 
 export interface Clock {
   startTimestamp: Date | null;
@@ -48,13 +48,18 @@ export async function getBout(boutId: string): Promise<Bout> {
 
   // TODO: handle errors
 
-  // Set the start timestamp for each clock to local time
-  const clocks = response.data.timer.clocks;
-  for (const clock of [clocks.game, clocks.jam, clocks.timeout]) {
-    if (clock.startTimestamp !== null) {
-      clock.startTimestamp = adjustServerTime(clock.startTimestamp);
-    }
+  return sanitizeForClient(response.data);
+}
+
+export async function startJam(boutId: string): Promise<undefined> {
+  if (!uuidValidate(boutId) || uuidVersion(boutId) !== 4) {
+    throw new Error("Invalid UUID format");
   }
 
-  return response.data;
+  // Wait for time synchronization and then send the request
+  await timeIsSynchronized;
+  await genericRequest<Bout>("/bout/start-jam", "POST", {
+    bout_id: boutId,
+    timestamp: new Date(),
+  });
 }
