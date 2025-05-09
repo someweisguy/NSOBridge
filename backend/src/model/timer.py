@@ -36,6 +36,7 @@ class Clock:
         if self.start_timestamp > timestamp:
             raise ValueError('Timestamp is invalid')
         self.elapsed += timestamp - self.start_timestamp
+        self.start_timestamp = None
 
     def is_running(self) -> bool:
         return self.start_timestamp is not None
@@ -65,17 +66,14 @@ class Timer(TeamAttribute[Timeout]):
     def get_game_state(
         self,
     ) -> Literal['intermission', 'lineup', 'jam', 'timeout', 'unofficial', 'final']:
-        if self.intermission_clock.is_running():
-            return 'intermission'
-        elif self.lineup_clock.is_running():
+        if self.lineup_clock.is_running():
             return 'lineup'
         elif self.jam_clock.is_running():
             return 'jam'
         elif self.timeout_clock.is_running():
             return 'timeout'
-        # TODO: Implement unofficial and final game states
-        else:
-            raise RuntimeError('Invalid game state') from None
+        else: 
+            return 'intermission'
 
     def stop_all_clocks(self, timestamp: datetime) -> None:
         for clock in [self.game_clock, self.jam_clock, self.timeout_clock]:

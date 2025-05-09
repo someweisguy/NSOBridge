@@ -14,6 +14,11 @@ class Bout:
     ruleset_name: Final[str]
     timer: Final[Timer] = field(init=False, default_factory=Timer)
     jams: Final[tuple[list[Jam], list[Jam]]] = field(init=False, default=([Jam()], []))
+    
+    def __post_init__(self) -> None:
+        self.timer.game_clock.reset(timedelta(minutes=30))
+        self.timer.lineup_clock.reset(timedelta(seconds=30))
+        self.timer.jam_clock.reset(timedelta(minutes=2))
 
     def get_jam(self, period_num: int, jam_num: int) -> Jam:
         try:
@@ -36,13 +41,15 @@ class Bout:
         # Update Timer state
         match self.timer.get_game_state():
             case 'intermission':
-                self.timer.intermission_clock.stop(timestamp)
+                if self.timer.intermission_clock.is_running():
+                    self.timer.intermission_clock.stop(timestamp)
             case 'lineup':
-                self.timer.lineup_clock.reset(jam_clock_alarm)
+                self.timer.lineup_clock.stop(timestamp)
             case 'jam' | 'timeout' | 'final':
                 raise RuntimeError('A Jam cannot be started now') from None
         if not self.timer.game_clock.is_running():
             self.timer.game_clock.start(timestamp)
+        self.timer.jam_clock.reset(jam_clock_alarm)
         self.timer.jam_clock.start(timestamp)
 
         # Update Jam state
@@ -51,7 +58,7 @@ class Bout:
         jam.start_timestamp = timestamp
 
     def stop_jam(self, timestamp: datetime) -> None:
-        jam_clock_alarm: timedelta = timedelta(minutes=2)
+        lineup_clock_alarm: timedelta = timedelta(seconds=30)
 
         # Guess the reason that the Jam is being stopped
         jam_id: JamId = self.get_current_jam_id()
@@ -68,7 +75,8 @@ class Bout:
         # Update Timer state
         if self.timer.get_game_state() != 'jam':
             raise RuntimeError('There is no active Jam to be stopped')
-        self.timer.jam_clock.reset(jam_clock_alarm)
+        self.timer.jam_clock.stop(timestamp)
+        self.timer.lineup_clock.reset(lineup_clock_alarm)
         self.timer.lineup_clock.start(timestamp)
 
         # Update Jam state and add a new Jam
