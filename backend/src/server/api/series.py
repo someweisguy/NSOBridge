@@ -1,12 +1,12 @@
 from typing import Final
 from uuid import uuid4
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 from model import bouts
 from model.bout import Bout
 
 from server import updater
-from server.responses import APIResponse, JSONable
+from server.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
 
@@ -21,17 +21,17 @@ def render_series() -> JSONable:
 
 
 @router.get('')
-async def get() -> APIResponse:
-    return APIResponse(render_series())
+async def get() -> JSONable:
+    return render_series()
 
 
 @router.post('/add-bout')
-async def add_bout() -> Response:
+async def add_bout() -> JSONable:
     print('adding bout')
     bouts[uuid4()] = Bout('WFTDA 2025')
     updater.post(SERIES_KEY)
 
-    return APIResponse()
+    return {}
 
 
 __all__ = ('router', 'render_series')

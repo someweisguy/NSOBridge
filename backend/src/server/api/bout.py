@@ -8,7 +8,7 @@ from model.bout import Bout, JamId
 from model.timer import Clock, Timeout
 
 from server import updater
-from server.responses import APIResponse, JSONable
+from server.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
@@ -31,45 +31,43 @@ def render_timeout(timeout: Timeout) -> JSONable:
 
 
 @router.get('')
-async def get(bout_id: UUID) -> APIResponse:
+async def get(bout_id: UUID) -> JSONable:
     bout: Bout = bouts[bout_id]
-    return APIResponse(
-        {
-            'gameNumber': None,
-            'timer': {
-                'clocks': {
-                    'game': render_clock(bout.timer.game_clock),
-                    'jam': render_clock(bout.timer.jam_clock),
-                    'timeout': render_clock(bout.timer.timeout_clock),
-                    'inIntermission': bout.timer.is_in_intermission,
-                    'inLineup': bout.timer.is_in_lineup,
-                },
-                'timeouts': {
-                    'home': render_timeout(bout.timer.home),
-                    'away': render_timeout(bout.timer.away),
-                },
+    return {
+        'gameNumber': None,
+        'timer': {
+            'clocks': {
+                'game': render_clock(bout.timer.game_clock),
+                'jam': render_clock(bout.timer.jam_clock),
+                'timeout': render_clock(bout.timer.timeout_clock),
+                'inIntermission': bout.timer.is_in_intermission,
+                'inLineup': bout.timer.is_in_lineup,
             },
-            'numJams': [len(bout.jams[0]), len(bout.jams[1])],
-            'score': {
-                'home': bout.get_total_score('home'),
-                'away': bout.get_total_score('away'),
+            'timeouts': {
+                'home': render_timeout(bout.timer.home),
+                'away': render_timeout(bout.timer.away),
             },
-        }
-    )
+        },
+        'numJams': [len(bout.jams[0]), len(bout.jams[1])],
+        'score': {
+            'home': bout.get_total_score('home'),
+            'away': bout.get_total_score('away'),
+        },
+    }
 
 
 @router.post('/start-jam')
-async def start_jam(bout_id: UUID, timestamp: datetime) -> APIResponse:
+async def start_jam(bout_id: UUID, timestamp: datetime) -> JSONable:
     bout: Bout = bouts[bout_id]
     bout.start_jam(timestamp)
     updater.post(
         [updater.kf.bout(bout_id), updater.kf.jam(bout_id, *bout.get_current_jam_id())]
     )
-    return APIResponse()
+    return {}
 
 
 @router.post('/stop-jam')
-async def stop_jam(bout_id: UUID, timestamp: datetime) -> APIResponse:
+async def stop_jam(bout_id: UUID, timestamp: datetime) -> JSONable:
     bout: Bout = bouts[bout_id]
     stopped_jam_id: JamId = bout.get_current_jam_id()
     bout.stop_jam(timestamp)
@@ -80,7 +78,7 @@ async def stop_jam(bout_id: UUID, timestamp: datetime) -> APIResponse:
             updater.kf.jam(bout_id, *bout.get_current_jam_id()),
         ]
     )
-    return APIResponse()
+    return {}
 
 
 __all__ = ('router',)

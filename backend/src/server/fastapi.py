@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from server import updater
-from server.responses import APIResponse
+from server.responses import JSONable
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'frontend' / 'dist'
 TEMPLATES: Final[Jinja2Templates] = Jinja2Templates(FRONTEND)
@@ -25,6 +25,7 @@ app: FastAPI = FastAPI(
     debug=True,
 )
 
+
 @app.get('/')
 async def render_index(request: Request) -> Response:
     print('render_index called!')
@@ -37,14 +38,12 @@ async def render_generic(request: Request, path: str) -> Response:
 
 
 @app.get('/api/sync')
-async def server_sync() -> Response:
+async def server_sync() -> JSONable:
     start: datetime = datetime.now()
-    return APIResponse(
-        {
-            't1': start.isoformat(),
-            't2': datetime.now().isoformat(),
-        }
-    )
+    return {
+        't1': start.isoformat(),
+        't2': datetime.now().isoformat(),
+    }
 
 
 @app.middleware('http')
