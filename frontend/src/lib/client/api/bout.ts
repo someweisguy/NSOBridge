@@ -16,11 +16,11 @@ export interface Bout {
   gameNumber: number | null;
   timer: {
     clocks: {
+      intermission: Clock;
       game: Clock;
+      lineup: Clock;
       jam: Clock;
       timeout: Clock;
-      inIntermission: boolean;
-      inLineup: boolean;
     };
     timeouts: {
       home: Timeouts;

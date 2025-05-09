@@ -54,24 +54,23 @@ class Timeout:
 
 @dataclass(slots=True)
 class Timer(TeamAttribute[Timeout]):
+    intermission_clock: Final[Clock] = field(init=False, default_factory=Clock)
     game_clock: Final[Clock] = field(init=False, default_factory=Clock)
+    lineup_clock: Final[Clock] = field(init=False, default_factory=Clock)
     jam_clock: Final[Clock] = field(init=False, default_factory=Clock)
     timeout_clock: Final[Clock] = field(init=False, default_factory=Clock)
-    is_in_intermission: bool = field(init=False, default=True)
-    is_in_lineup: bool = field(init=False, default=False)
     home: Final[Timeout] = field(init=False, default_factory=Timeout)  # type: ignore[assignment]
     away: Final[Timeout] = field(init=False, default_factory=Timeout)  # type: ignore[assignment]
 
     def get_game_state(
         self,
     ) -> Literal['intermission', 'lineup', 'jam', 'timeout', 'unofficial', 'final']:
-        if self.is_in_intermission:
+        if self.intermission_clock.is_running():
             return 'intermission'
+        elif self.lineup_clock.is_running():
+            return 'lineup'
         elif self.jam_clock.is_running():
-            if self.is_in_lineup:
-                return 'lineup'
-            else:
-                return 'jam'
+            return 'jam'
         elif self.timeout_clock.is_running():
             return 'timeout'
         # TODO: Implement unofficial and final game states

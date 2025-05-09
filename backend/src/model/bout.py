@@ -31,21 +31,18 @@ class Bout:
         return sum(jam.get_jam_score(team) for jam in all_jams)
 
     def start_jam(self, timestamp: datetime) -> None:
-        game_clock_alarm: timedelta = timedelta(minutes=30)
         jam_clock_alarm: timedelta = timedelta(minutes=2)
 
         # Update Timer state
         match self.timer.get_game_state():
             case 'intermission':
-                self.timer.game_clock.reset(game_clock_alarm)
-                self.timer.jam_clock.reset(jam_clock_alarm)
-                self.timer.is_in_intermission = False
+                self.timer.intermission_clock.stop(timestamp)
             case 'lineup':
-                self.timer.jam_clock.reset(jam_clock_alarm)
+                self.timer.lineup_clock.reset(jam_clock_alarm)
             case 'jam' | 'timeout' | 'final':
                 raise RuntimeError('A Jam cannot be started now') from None
-        self.timer.is_in_lineup = False
-        self.timer.game_clock.start(timestamp)
+        if not self.timer.game_clock.is_running():
+            self.timer.game_clock.start(timestamp)
         self.timer.jam_clock.start(timestamp)
 
         # Update Jam state
@@ -54,7 +51,7 @@ class Bout:
         jam.start_timestamp = timestamp
 
     def stop_jam(self, timestamp: datetime) -> None:
-        lineup_clock_alarm: timedelta = timedelta(seconds=30)
+        jam_clock_alarm: timedelta = timedelta(minutes=2)
 
         # Guess the reason that the Jam is being stopped
         jam_id: JamId = self.get_current_jam_id()
@@ -71,9 +68,8 @@ class Bout:
         # Update Timer state
         if self.timer.get_game_state() != 'jam':
             raise RuntimeError('There is no active Jam to be stopped')
-        self.timer.jam_clock.reset(lineup_clock_alarm)
-        self.timer.jam_clock.start(timestamp)
-        self.timer.is_in_lineup = True
+        self.timer.jam_clock.reset(jam_clock_alarm)
+        self.timer.lineup_clock.start(timestamp)
 
         # Update Jam state and add a new Jam
         jam.stop_timestamp = timestamp

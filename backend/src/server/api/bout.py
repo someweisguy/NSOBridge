@@ -37,11 +37,11 @@ async def get(bout_id: UUID) -> JSONable:
         'gameNumber': None,
         'timer': {
             'clocks': {
+                'intermission': render_clock(bout.timer.intermission_clock),
                 'game': render_clock(bout.timer.game_clock),
+                'lineup': render_clock(bout.timer.lineup_clock),
                 'jam': render_clock(bout.timer.jam_clock),
                 'timeout': render_clock(bout.timer.timeout_clock),
-                'inIntermission': bout.timer.is_in_intermission,
-                'inLineup': bout.timer.is_in_lineup,
             },
             'timeouts': {
                 'home': render_timeout(bout.timer.home),
