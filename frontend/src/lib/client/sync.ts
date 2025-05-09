@@ -10,7 +10,7 @@ async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
   // Send the synchronization request
   const start: Date = new Date();
   const message = await genericRequest<{ t1: string; t2: string }>(
-    "/sync",
+    "/api/sync",
     "GET",
     null,
     false // Do not sanitize the request
@@ -21,8 +21,8 @@ async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
   // See: https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
   const t: number[] = [
     start.getTime(),
-    new Date(message.data.t1).getTime(),
-    new Date(message.data.t2).getTime(),
+    new Date(message.t1).getTime(),
+    new Date(message.t2).getTime(),
     stop.getTime(),
   ];
 

@@ -1,12 +1,13 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/key-factory";
-import { getSeries, Series } from "@/lib/client/api/series";
+import { getSeries } from "@/lib/client/api/series";
 
-export default function useSeries(): Series {
-  const { data } = useSuspenseQuery({
+
+export default function useSeries() {
+  const query = useSuspenseQuery({
     queryKey: keyFactory.series(),
     queryFn: getSeries,
   });
 
-  return data;
+  return query.data;
 }

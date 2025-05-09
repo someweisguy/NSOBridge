@@ -78,16 +78,16 @@ export default async function genericRequest<T = unknown>(
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
   data: object | null = null,
   sanitize: boolean = true
-): Promise<APIResponse<T>> {
-  const url = new URL(`http://${window.location.host}/api${endpoint}`);
+): Promise<T> {
+  const url = new URL(endpoint, window.location.href);
   if (data !== null) {
     data = sanitize ? await sanitizeForServer(data) : data;
     url.search = new URLSearchParams(data as Record<string, string>).toString();
   }
   const response = await fetch(url, { method });
-  const payload = (await response.json()) as APIResponse<T>;
-  if (!payload.success) {
+  if (!response.ok) {
     throw new Error("A request error occurred"); // TODO: better error handling
   }
-  return sanitize ? await sanitizeForClient(payload) : payload;
+  const payload = await response.json();
+  return (sanitize ? await sanitizeForClient(payload) : payload) as Promise<T>;
 }

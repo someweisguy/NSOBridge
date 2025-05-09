@@ -36,10 +36,10 @@ export async function getJam(
   }
 
   // Wait for time synchronization and then request the Jam
-  const response = await genericRequest<Jam>("/jam", "GET", {
+  const response = await genericRequest<Jam>("/api/jam", "GET", {
     bout_id: boutId,
     period_num: periodNum,
     jam_num: jamNum,
   });
-  return response.data;
+  return response;
 }

@@ -9,6 +9,5 @@ export type Series = Record<
 >;
 
 export async function getSeries(): Promise<Series> {
-  const response = await genericRequest<Series>("/series", "GET");
-  return response.data;
+  return await genericRequest<Series>("/api/series", "GET");
 }

@@ -40,13 +40,13 @@ export async function getBout(boutId: string): Promise<Bout> {
   }
 
   // Wait for time synchronization and then request the Bout
-  const response = await genericRequest<Bout>("/bout", "GET", {
+  const response = await genericRequest<Bout>("/api/bout", "GET", {
     bout_id: boutId,
   });
 
   // TODO: handle errors
 
-  return response.data;
+  return response;
 }
 
 export async function startJam(boutId: string): Promise<undefined> {
@@ -55,7 +55,7 @@ export async function startJam(boutId: string): Promise<undefined> {
   }
 
   // Wait for time synchronization and then send the request
-  await genericRequest<Bout>("/bout/start-jam", "POST", {
+  await genericRequest<Bout>("/api/bout/start-jam", "POST", {
     bout_id: boutId,
     timestamp: new Date(),
   });
@@ -67,7 +67,7 @@ export async function stopJam(boutId: string): Promise<undefined> {
   }
 
   // Wait for time synchronization and then send the request
-  await genericRequest<Bout>("/bout/stop-jam", "POST", {
+  await genericRequest<Bout>("/api/bout/stop-jam", "POST", {
     bout_id: boutId,
     timestamp: new Date(),
   });
