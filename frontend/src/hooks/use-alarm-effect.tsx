@@ -1,23 +1,17 @@
-import { Bout, Clock } from "@/lib/client/api/bout";
+import { Clock } from "@/lib/client/api/bout";
 import { useEffect, useRef, useState } from "react";
-import useBout from "./use-bout";
 
 export default function useAlarmEffect(
   effect: () => void,
-  [boutId, clockName, milliseconds]: [
-    string,
-    keyof Bout["timer"]["clocks"],
-    number
-  ]
+  [clock, milliseconds]: [Clock, number]
 ): void {
   const [alarmHasFired, setAlarmHasFired] = useState<boolean>(false);
-  const clock: Clock = useBout(boutId).timer.clocks[clockName];
   const lastClock = useRef<Clock>(clock);
 
-  // Reset the alarm if any of the props change
+  // Reset the alarm if the alarm value changes
   useEffect(() => {
     setAlarmHasFired(false);
-  }, [boutId, clockName, milliseconds]);
+  }, [milliseconds]);
 
   // Reset the alarm if the clock is reset
   useEffect(() => {
@@ -26,7 +20,6 @@ export default function useAlarmEffect(
     }
     lastClock.current = clock;
   }, [clock]);
-
 
   useEffect(() => {
     if (alarmHasFired || clock.startTimestamp === null) {

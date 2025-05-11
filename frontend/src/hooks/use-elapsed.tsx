@@ -1,14 +1,11 @@
-import { Bout, Clock } from "@/lib/client/api/bout";
-import useBout from "./use-bout";
+import { Clock } from "@/lib/client/api/bout";
 import { useEffect, useState } from "react";
 
 export default function useElapsed(
-  boutId: string,
-  clockName: keyof Bout["timer"]["clocks"],
+  clock: Clock,
   updateInterval = 1000 / 60,
   stopMillis = Number.MAX_VALUE
 ) {
-  const clock: Clock = useBout(boutId).timer.clocks[clockName];
   const [lap, setLap] = useState(
     clock.startTimestamp !== null
       ? new Date().getTime() - clock.startTimestamp.getTime()
