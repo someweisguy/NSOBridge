@@ -17,7 +17,12 @@ export default function useElapsed(
       return;
     }
 
-    setLap(new Date().getTime() - clock.startTimestamp.getTime());
+    const newLap = new Date().getTime() - clock.startTimestamp.getTime();
+    if (newLap >= stopMillis) {
+      return; // Prevent unnecessary renders 
+    }
+    setLap(newLap);
+    
     const intervalId = setInterval(() => {
       const newLap = new Date().getTime() - clock.startTimestamp!.getTime();
       if (newLap + clock.elapsed >= stopMillis) {
