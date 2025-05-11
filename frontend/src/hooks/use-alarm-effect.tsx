@@ -36,6 +36,7 @@ export default function useAlarmEffect(
     const lap = new Date().getTime() - clock.startTimestamp.getTime();
     const timeoutMillis = milliseconds - (clock.elapsed + lap);
     if (timeoutMillis <= 0) {
+      // Don't use a Timeout to avoid firing the alarm multiple times
       effect();
       setAlarmHasFired(true);
       return;
