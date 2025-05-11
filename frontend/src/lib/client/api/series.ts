@@ -3,7 +3,7 @@ import genericRequest from "../request";
 export type Series = Record<
   number,
   {
-    uuid: string;
+    id: string;
     description: string;
   }
 >;

@@ -15,7 +15,7 @@ SERIES_KEY: Final[updater.UpdateKey] = ('series',)
 def render_series() -> JSONable:
     view: list[JSONable] = []
     for key, _ in bouts.items():
-        view.append({'uuid': str(key), 'description': None})
+        view.append({'id': key, 'description': None})
     return view
 
 
