@@ -1,73 +1,50 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { ClockType } from "../types/clock";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { keyFactory } from "../utils/key-factory";
-import dispatchRequest from "../lib/client";
-import { useConnection } from "./use-connection";
-import { BoutIdType } from "../types/bout";
+import { Bout, Clock } from "@/lib/client/api/bout";
+import { useEffect, useRef, useState } from "react";
+import useBout from "./use-bout";
 
 export default function useAlarmEffect(
-  callback: () => void,
-  [boutId, type, milliseconds = 0]: [BoutIdType, string, number?]
-): Dispatch<SetStateAction<boolean>> {
+  effect: () => void,
+  [boutId, clockName, milliseconds]: [
+    string,
+    keyof Bout["timer"]["clocks"],
+    number
+  ]
+): void {
   const [alarmHasFired, setAlarmHasFired] = useState<boolean>(false);
-  const { latency } = useConnection();
-  const { data: clock, dataUpdatedAt: clockUpdatedAt } =
-    useSuspenseQuery<ClockType>({
-      queryKey: keyFactory.clock(boutId, type),
-      queryFn: () => dispatchRequest("clock", "get", { boutId, type }),
-    });
-  const lastClockElapsedRef = useRef<number>(clock.elapsed);
-  const latencyRef = useRef<number>(latency);
+  const clock: Clock = useBout(boutId).timer.clocks[clockName];
+  const lastClock = useRef<Clock>(clock);
 
-  useEffect(() => {
-    latencyRef.current = latency;
-  }, [latency]);
-
-  // Restart the alarm if any hook parameters change
+  // Reset the alarm if any of the props change
   useEffect(() => {
     setAlarmHasFired(false);
-  }, [boutId, type, callback, milliseconds]);
+  }, [boutId, clockName, milliseconds]);
 
-  // Restart the alarm if the clock has been reset
+  // Reset the alarm if the clock is reset
   useEffect(() => {
-    if (clock.elapsed < lastClockElapsedRef.current) {
+    if (clock.elapsed < lastClock.current.elapsed) {
       setAlarmHasFired(false);
     }
-    lastClockElapsedRef.current = clock.elapsed;
+    lastClock.current = clock;
   }, [clock]);
 
+
   useEffect(() => {
-    if (alarmHasFired) {
+    if (alarmHasFired || clock.startTimestamp === null) {
       return;
     }
 
-    // Determine how much time has elapsed on the clock
-    const elapsedSinceLastData: number = Date.now() - clockUpdatedAt;
-    let clockElapsed: number = clock.elapsed;
-    if (clock.isRunning) {
-      clockElapsed += elapsedSinceLastData + latencyRef.current;
-    }
-
-    // Check if the callback should be fired immediately
-    const clockRemaining: number = clock.alarm! - clockElapsed;
-    if (clockRemaining <= milliseconds) {
+    const lap = new Date().getTime() - clock.startTimestamp.getTime();
+    const timeoutMillis = milliseconds - (clock.elapsed + lap);
+    if (timeoutMillis <= 0) {
+      effect();
       setAlarmHasFired(true);
-      callback();
-    }
-
-    // Don't set a timeout if the clock is stopped
-    if (!clock.isRunning) {
       return;
     }
-
-    // Set a timeout to call the callback when the alarm goes off
     const timeoutId = setTimeout(() => {
+      effect();
       setAlarmHasFired(true);
-      callback();
-    }, clockRemaining - milliseconds);
-    return () => clearTimeout(timeoutId);
-  }, [clock, clockUpdatedAt, alarmHasFired, milliseconds, callback]);
+    }, timeoutMillis);
 
-  return setAlarmHasFired;
+    return () => clearTimeout(timeoutId);
+  }, [clock, alarmHasFired, milliseconds, effect]);
 }
