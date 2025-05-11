@@ -1,10 +1,10 @@
-import { Clock } from "@/lib/client/api/bout";
+import { Bout, Clock } from "@/lib/client/api/bout";
 import useBout from "./use-bout";
 import { useEffect, useState } from "react";
 
 export default function useElapsed(
   boutId: string,
-  clockName: "intermission" | "game" | "jam" | "lineup" | "timeout",
+  clockName: keyof Bout["timer"]["clocks"],
   updateInterval = 10,
 ) {
   const clock: Clock = useBout(boutId).timer.clocks[clockName];
