@@ -1,8 +1,7 @@
 from typing import Final
-from uuid import uuid4
 
 from fastapi import APIRouter
-from model import bouts
+from model import bouts, generate_bout_id
 from model.bout import Bout
 
 from server import updater
@@ -27,8 +26,7 @@ async def get() -> JSONable:
 
 @router.post('/add-bout')
 async def add_bout() -> JSONable:
-    print('adding bout')
-    bouts[uuid4()] = Bout('WFTDA 2025')
+    bouts[generate_bout_id()] = Bout('WFTDA 2025')
     updater.post(SERIES_KEY)
 
     return {}

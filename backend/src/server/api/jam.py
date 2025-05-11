@@ -1,5 +1,4 @@
 from typing import Final
-from uuid import UUID
 
 from fastapi import APIRouter
 from model import bouts
@@ -25,7 +24,7 @@ def render_team_jam(team: Team) -> dict[str, JSONable]:
 
 
 @router.get('')
-async def get(bout_id: UUID, period_num: int, jam_num: int) -> JSONable:
+async def get(bout_id: str, period_num: int, jam_num: int) -> JSONable:
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     return {
         'start': jam.start_timestamp.isoformat() if jam.start_timestamp else None,

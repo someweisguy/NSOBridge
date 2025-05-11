@@ -1,4 +1,3 @@
-import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import genericRequest from "../request";
 
 export type JamStopReasons = ["called", "time", "injury", "other"];
@@ -25,9 +24,6 @@ export async function getJam(
   periodNum: number,
   jamNum: number
 ): Promise<Jam> {
-  if (!uuidValidate(boutId) || uuidVersion(boutId) !== 4) {
-    throw new Error("Invalid UUID format");
-  }
   if (periodNum < 0 || periodNum > 1) {
     throw new Error("Invalid Period Number");
   }

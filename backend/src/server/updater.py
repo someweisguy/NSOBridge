@@ -2,15 +2,14 @@ from __future__ import annotations
 
 import asyncio
 from typing import Any, Final, Literal
-from uuid import UUID
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
 
 type UpdateKey = (
     tuple[Literal['series']]  # Series updates
-    | tuple[Literal['bout'], UUID]  # Bout updates
-    | tuple[Literal['jam'], UUID, int, int]  # Jam updates
+    | tuple[Literal['bout'], str]  # Bout updates
+    | tuple[Literal['jam'], str, int, int]  # Jam updates
 )
 
 
@@ -27,12 +26,12 @@ class KeyFactory:
         return ('series',)
 
     @classmethod
-    def bout(cls, uuid: UUID) -> UpdateKey:
-        return ('bout', uuid)
+    def bout(cls, bout_id: str) -> UpdateKey:
+        return ('bout', bout_id)
 
     @classmethod
-    def jam(cls, uuid: UUID, period_num: int, jam_num: int) -> UpdateKey:
-        return ('jam', uuid, period_num, jam_num)
+    def jam(cls, bout_id: str, period_num: int, jam_num: int) -> UpdateKey:
+        return ('jam', bout_id, period_num, jam_num)
 
 
 app: Final[FastAPI] = FastAPI()
