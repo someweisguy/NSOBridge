@@ -1,8 +1,14 @@
 export default function formatMilliseconds(
   millis: number,
-  displayMillis = false,
-  maxDisplayValue: "hours" | "minutes" | "seconds" = "seconds"
+  {
+    displayMillis = false,
+    maxDisplayValue = "seconds",
+  }: {
+    displayMillis?: boolean;
+    maxDisplayValue?: "hours" | "minutes" | "seconds";
+  } = {}
 ): string {
+  millis = Math.abs(millis);
   let m = String(Math.floor((millis % 3600000) / 60000));
   let s = String(Math.floor((millis / 1000) % 60));
 

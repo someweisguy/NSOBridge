@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 
 export default function useElapsed(
   clock: Clock,
-  updateInterval = 1000 / 60,
-  stopMillis = Number.MAX_VALUE
+  { updateInterval = 1000 / 60, stopMillis = Number.MAX_VALUE } = {}
 ) {
   const [lap, setLap] = useState(
     clock.startTimestamp !== null
