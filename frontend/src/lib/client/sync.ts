@@ -31,9 +31,9 @@ async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
   return { offset, rtt };
 }
 
-async function calculateClockOffset(iterations: number = 5): Promise<number> {
+async function calculateClockOffset(iterations = 5): Promise<number> {
   let rtt: number = Number.MAX_VALUE;
-  let offset: number = 0;
+  let offset = 0;
 
   // Calculate the clock offset by running the clockSynchronize() algorithm `n` number
   // of times. The chosen offset is the request with the lowest round-trip latency.
@@ -50,13 +50,17 @@ async function calculateClockOffset(iterations: number = 5): Promise<number> {
 
 // Calculate the offset between the client and server clocks periodically
 export const timeIsSynchronized = new Promise((resolve) => {
-  let periodSeconds = 15;
-  const iterations: number = 5;
-  calculateClockOffset(iterations).then((offset: number) => {
+  const periodSeconds = 300;
+  const iterations = 5;
+  void calculateClockOffset(iterations).then((offset: number) => {
     timedelta = offset;
     resolve(true);
-    setInterval(async () => {
-      timedelta = await calculateClockOffset(iterations);
+    setInterval(() => {
+      void calculateClockOffset(iterations).then(
+        (offset: number) => (timedelta = offset)
+      );
     }, 1000 * periodSeconds);
   });
-}).catch(() => false);
+}).catch((rejectReason: string) => {
+  throw new Error(rejectReason);
+});
