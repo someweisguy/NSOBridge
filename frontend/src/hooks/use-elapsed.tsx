@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 
 export default function useElapsed(
   boutId: string,
-  clockName: "intermission" | "game" | "jam" | "lineup" | "timeout"
+  clockName: "intermission" | "game" | "jam" | "lineup" | "timeout",
+  updateInterval = 10,
 ) {
   const clock: Clock = useBout(boutId).timer.clocks[clockName];
   const [lap, setLap] = useState(
@@ -22,10 +23,10 @@ export default function useElapsed(
     setLap(new Date().getTime() - clock.startTimestamp.getTime());
     const intervalId = setInterval(() => {
       setLap(new Date().getTime() - clock.startTimestamp!.getTime());
-    }, 10);
+    }, updateInterval);
 
     return () => clearInterval(intervalId);
-  }, [clock.startTimestamp]);
+  }, [clock.startTimestamp, updateInterval]);
 
   return lap + clock.elapsed;
 }
