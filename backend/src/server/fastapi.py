@@ -7,15 +7,11 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 
 from server import updater
 from server.responses import JSONable
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'frontend' / 'dist'
-TEMPLATES: Final[Jinja2Templates] = Jinja2Templates(FRONTEND)
-
-CLIENT_ID_COOKIE_NAME: Final[str] = 'client_id'
 
 app: FastAPI = FastAPI(
     routes=[
