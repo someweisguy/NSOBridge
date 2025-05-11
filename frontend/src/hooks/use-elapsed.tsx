@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 export default function useElapsed(
   boutId: string,
   clockName: keyof Bout["timer"]["clocks"],
-  updateInterval = 10,
+  updateInterval = 1000 / 60,
+  stopMillis = Number.MAX_VALUE
 ) {
   const clock: Clock = useBout(boutId).timer.clocks[clockName];
   const [lap, setLap] = useState(
@@ -22,11 +23,15 @@ export default function useElapsed(
 
     setLap(new Date().getTime() - clock.startTimestamp.getTime());
     const intervalId = setInterval(() => {
-      setLap(new Date().getTime() - clock.startTimestamp!.getTime());
+      const newLap = new Date().getTime() - clock.startTimestamp!.getTime();
+      if (newLap + clock.elapsed >= stopMillis) {
+        clearInterval(intervalId);
+      }
+      setLap(newLap);
     }, updateInterval);
 
     return () => clearInterval(intervalId);
-  }, [clock.startTimestamp, updateInterval]);
+  }, [clock, updateInterval, stopMillis]);
 
   return lap + clock.elapsed;
 }
