@@ -65,30 +65,30 @@ export function selectLatestJamId(
   const numJams: [number, number] = bout.numJams;
   const periodNum = Number(numJams[1] > 0);
   const jamNum = numJams[periodNum] - 1;
-  return offsetJamId(offset, [periodNum, jamNum], numJams, returnOutOfBounds);
+  return offsetJamId([periodNum, jamNum], bout, offset, returnOutOfBounds);
 }
 
 export function offsetJamId(
-  offset: number,
   jamId: [number, number],
-  numJams: [number, number],
+  bout: Bout,
+  offset: number,
   returnOutOfBounds = false
 ): [number, number] | null {
   // Turn the Jam vector into a scalar
-  let jamScalar: number = jamId[1] + jamId[0] * numJams[0];
+  let jamScalar: number = jamId[1] + jamId[0] * bout.numJams[0];
 
   // Apply an offset
   jamScalar += offset;
 
   // Convert the Jam scalar back into a vector
-  const periodNum = Number(jamScalar > numJams[0]);
-  const jamNum = jamScalar - periodNum * numJams[0];
+  const periodNum = Number(jamScalar > bout.numJams[0]);
+  const jamNum = jamScalar - periodNum * bout.numJams[0];
   const jamVector: [number, number] = [periodNum, jamNum];
 
   // Validate that the new Jam vector is within bounds
   if (
     !returnOutOfBounds &&
-    (jamScalar < 0 || jamScalar >= numJams[0] + numJams[1])
+    (jamScalar < 0 || jamScalar >= bout.numJams[0] + bout.numJams[1])
   ) {
     return null;
   }
