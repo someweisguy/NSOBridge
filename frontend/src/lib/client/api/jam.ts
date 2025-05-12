@@ -1,7 +1,7 @@
 import genericRequest from "../request";
 
 export type TeamType = ["home" | "away"];
-export type JamStopReasons = ["called", "time", "injury", "other"];
+export type StopReason = ["called", "time", "injury", "other"];
 
 export interface TeamJam {
   score: {
@@ -15,7 +15,7 @@ export interface TeamJam {
 export interface Jam {
   start: Date | null;
   stop: Date | null;
-  stopReason: JamStopReasons | null;
+  stopReason: StopReason | null;
   home: TeamJam;
   away: TeamJam;
 }
@@ -181,6 +181,27 @@ export async function setStarPass(
     period_num: periodNum,
     jam_num: jamNum,
     team,
+    value,
+  });
+}
+
+export async function setStopReason(
+  boutId: string,
+  periodNum: number,
+  jamNum: number,
+  value: StopReason
+): Promise<void> {
+  if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
+    throw new Error("Invalid Period Number");
+  }
+  if (!Number.isInteger(jamNum) || jamNum < 0) {
+    throw new Error("Invalid Jam Number");
+  }
+
+  await genericRequest("/api/jam/set-stop-reason", "PUT", {
+    bout_id: boutId,
+    period_num: periodNum,
+    jam_num: jamNum,
     value,
   });
 }

@@ -4,7 +4,7 @@ from typing import Final, Literal
 
 from .protocols import TeamAttribute, TeamType
 
-type JamStopReason = Literal['called', 'time', 'injury', 'other']
+type StopReason = Literal['called', 'time', 'injury', 'other']
 
 
 @dataclass(slots=True)
@@ -29,7 +29,7 @@ class Team:
 class Jam(TeamAttribute[Team]):
     start_timestamp: datetime | None = None
     stop_timestamp: datetime | None = None
-    stop_reason: JamStopReason | None = None
+    stop_reason: StopReason | None = None
     home: Final[Team] = field(default_factory=Team)  # type: ignore[assignment]
     away: Final[Team] = field(default_factory=Team)  # type: ignore[assignment]
 
@@ -71,3 +71,8 @@ class Jam(TeamAttribute[Team]):
 
     def set_star_pass(self, team: TeamType, value: int | None) -> None:
         self[team].score.star_pass = value
+
+    def set_stop_reason(self, value: StopReason) -> None:
+        if self.stop_timestamp is not None:
+            raise RuntimeError('This Jam is still running') from None
+        self.stop_reason = value

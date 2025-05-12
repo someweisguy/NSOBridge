@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final
 
-from .jam import Jam, JamStopReason
+from .jam import Jam, StopReason
 from .protocols import TeamType
 from .timer import Timer
 
@@ -14,7 +14,7 @@ class Bout:
     ruleset_name: Final[str]
     timer: Final[Timer] = field(init=False, default_factory=Timer)
     jams: Final[tuple[list[Jam], list[Jam]]] = field(init=False, default=([Jam()], []))
-    
+
     def __post_init__(self) -> None:
         self.timer.game_clock.reset(timedelta(minutes=30))
         self.timer.lineup_clock.reset(timedelta(seconds=30))
@@ -63,7 +63,7 @@ class Bout:
         # Guess the reason that the Jam is being stopped
         jam_id: JamId = self.get_current_jam_id()
         jam: Jam = self.get_jam(*jam_id)
-        stop_reason: JamStopReason | None = None
+        stop_reason: StopReason | None = None
         if jam.lead_is_declared():
             stop_reason = 'called'
         elif (

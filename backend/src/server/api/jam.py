@@ -3,7 +3,7 @@ from typing import Final
 
 from fastapi import APIRouter
 from model import bouts
-from model.jam import Jam, Team, TeamType
+from model.jam import Jam, StopReason, Team, TeamType
 
 from server import updater
 from server.responses import JSONable
@@ -111,6 +111,15 @@ async def set_star_pass(
     jam.set_star_pass(team, value)
     if value is not None:
         jam.set_lost(team, True)
+    updater.post(updater.kf.jam(bout_id, period_num, jam_num))
+
+
+@router.put('/set-stop-reason')
+async def set_stop_reason(
+    bout_id: str, period_num: int, jam_num: int, stop_reason: StopReason
+) -> None:
+    jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
+    jam.set_stop_reason(stop_reason)
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))
 
 
