@@ -1,12 +1,12 @@
-import { Bout, selectLatestJamId } from "@/lib/client/api/bout";
+import { Bout, selectActiveJamId } from "@/lib/client/api/bout";
 import useBout from "./use-bout";
 
-export default function useLatestJamId(
+export default function useActiveJamId(
   boutId: string,
   offset = 0,
   returnOutOfBounds = false
 ): [number, number] | null {
   return useBout<[number, number] | null>(boutId, (bout: Bout) =>
-    selectLatestJamId(bout, offset, returnOutOfBounds)
+    selectActiveJamId(bout, offset, returnOutOfBounds)
   );
 }
