@@ -49,6 +49,8 @@ async def add_trip(
     now = datetime.now()
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     jam.add_trip(team, points, now, valid_pass)
+    if valid_pass and not jam.lead_is_declared():
+        jam.set_lead(team, True)
     updater.post(
         [updater.kf.bout(bout_id), updater.kf.jam(bout_id, period_num, jam_num)]
     )
@@ -80,6 +82,35 @@ async def edit_trip(
     jam.edit_trip(team, trip_num, points, timestamp)
     if points_are_updated:
         updater.post(updater.kf.bout(bout_id))
+    updater.post(updater.kf.jam(bout_id, period_num, jam_num))
+
+
+@router.put('/set-lead')
+async def set_lead(
+    bout_id: str, period_num: int, jam_num: int, team: TeamType, value: bool
+) -> JSONable:
+    jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
+    jam.set_lead(team, value)
+    updater.post(updater.kf.jam(bout_id, period_num, jam_num))
+
+
+@router.put('/set-lost')
+async def set_lost(
+    bout_id: str, period_num: int, jam_num: int, team: TeamType, value: bool
+) -> JSONable:
+    jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
+    jam.set_lost(team, value)
+    updater.post(updater.kf.jam(bout_id, period_num, jam_num))
+
+
+@router.put('/set-star-pass')
+async def set_star_pass(
+    bout_id: str, period_num: int, jam_num: int, team: TeamType, value: int | None
+) -> JSONable:
+    jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
+    jam.set_star_pass(team, value)
+    if value is not None:
+        jam.set_lost(team, True)
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))
 
 

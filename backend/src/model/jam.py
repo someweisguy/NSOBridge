@@ -44,8 +44,6 @@ class Jam(TeamAttribute[Team]):
         self, team: TeamType, points: int, timestamp: datetime, valid_pass: bool = True
     ) -> None:
         self[team].score.trips.append(Score.Trip(points, timestamp))
-        if valid_pass and not self.lead_is_declared():
-            self[team].score.lead = True
 
     def del_trip(self, team: TeamType, trip_num: int) -> None:
         del self[team].score.trips[trip_num]
@@ -62,3 +60,14 @@ class Jam(TeamAttribute[Team]):
             trip.points = points
         if timestamp is not None:
             trip.timestamp = timestamp
+
+    def set_lead(self, team: TeamType, value: bool) -> None:
+        if value is True and self.lead_is_declared():
+            raise RuntimeError('A Lead Jammer has already been declared') from None
+        self[team].score.lead = value
+
+    def set_lost(self, team: TeamType, value: bool) -> None:
+        self[team].score.lost = value
+
+    def set_star_pass(self, team: TeamType, value: int | None) -> None:
+        self[team].score.star_pass = value

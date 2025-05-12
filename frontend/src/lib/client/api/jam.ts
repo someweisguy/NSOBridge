@@ -1,5 +1,6 @@
 import genericRequest from "../request";
 
+export type TeamType = ["home" | "away"];
 export type JamStopReasons = ["called", "time", "injury", "other"];
 
 export interface TeamJam {
@@ -44,6 +45,7 @@ export async function addTrip(
   boutId: string,
   periodNum: number,
   jamNum: number,
+  team: TeamType,
   points: number,
   validPass = true
 ): Promise<void> {
@@ -58,6 +60,7 @@ export async function addTrip(
     bout_id: boutId,
     period_num: periodNum,
     jam_num: jamNum,
+    team,
     points,
     valid_pass: validPass,
   });
@@ -67,6 +70,7 @@ export async function deleteTrip(
   boutId: string,
   periodNum: number,
   jamNum: number,
+  team: TeamType,
   tripNum: number
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
@@ -80,6 +84,7 @@ export async function deleteTrip(
     bout_id: boutId,
     period_num: periodNum,
     jam_num: jamNum,
+    team,
     trip_num: tripNum,
   });
 }
@@ -88,6 +93,7 @@ export async function editTrip(
   boutId: string,
   periodNum: number,
   jamNum: number,
+  team: TeamType,
   tripNum: number,
   points: number | null,
   timestamp: Date | null = null
@@ -103,8 +109,78 @@ export async function editTrip(
     bout_id: boutId,
     period_num: periodNum,
     jam_num: jamNum,
+    team,
     trip_num: tripNum,
     points,
     timestamp,
+  });
+}
+
+export async function setLead(
+  boutId: string,
+  periodNum: number,
+  jamNum: number,
+  team: TeamType,
+  value: boolean
+): Promise<void> {
+  if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
+    throw new Error("Invalid Period Number");
+  }
+  if (!Number.isInteger(jamNum) || jamNum < 0) {
+    throw new Error("Invalid Jam Number");
+  }
+
+  await genericRequest("/api/jam/set-lead", "PUT", {
+    bout_id: boutId,
+    period_num: periodNum,
+    jam_num: jamNum,
+    team,
+    value,
+  });
+}
+
+export async function setLost(
+  boutId: string,
+  periodNum: number,
+  jamNum: number,
+  team: TeamType,
+  value: boolean
+): Promise<void> {
+  if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
+    throw new Error("Invalid Period Number");
+  }
+  if (!Number.isInteger(jamNum) || jamNum < 0) {
+    throw new Error("Invalid Jam Number");
+  }
+
+  await genericRequest("/api/jam/set-lost", "PUT", {
+    bout_id: boutId,
+    period_num: periodNum,
+    jam_num: jamNum,
+    team,
+    value,
+  });
+}
+
+export async function setStarPass(
+  boutId: string,
+  periodNum: number,
+  jamNum: number,
+  team: TeamType,
+  value: number | null
+): Promise<void> {
+  if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
+    throw new Error("Invalid Period Number");
+  }
+  if (!Number.isInteger(jamNum) || jamNum < 0) {
+    throw new Error("Invalid Jam Number");
+  }
+
+  await genericRequest("/api/jam/set-star-pass", "PUT", {
+    bout_id: boutId,
+    period_num: periodNum,
+    jam_num: jamNum,
+    team,
+    value,
   });
 }
