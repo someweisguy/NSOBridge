@@ -65,12 +65,12 @@ export function selectLatestJamId(
   const numJams: [number, number] = bout.numJams;
   const periodNum = Number(numJams[1] > 0);
   const jamNum = numJams[periodNum] - 1;
-  return offsetJamId([periodNum, jamNum], bout, offset, returnOutOfBounds);
+  return offsetJamId(bout, [periodNum, jamNum], offset, returnOutOfBounds);
 }
 
 export function offsetJamId(
-  jamId: [number, number],
   bout: Bout,
+  jamId: [number, number],
   offset: number,
   returnOutOfBounds = false
 ): [number, number] | null {
