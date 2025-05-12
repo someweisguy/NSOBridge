@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Final
 
-import updater
 from fastapi import APIRouter
 from model import bouts
 from model.jam import Jam, Team, TeamType
 
+from server import updater
 from server.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')

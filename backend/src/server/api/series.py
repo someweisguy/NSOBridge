@@ -12,16 +12,12 @@ router: Final[APIRouter] = APIRouter(prefix='/series')
 SERIES_KEY: Final[updater.UpdateKey] = ('series',)
 
 
-def render_series() -> JSONable:
+@router.get('')
+async def get() -> JSONable:
     view: list[JSONable] = []
     for key, _ in bouts.items():
         view.append({'id': key, 'description': None})
     return view
-
-
-@router.get('')
-async def get() -> JSONable:
-    return render_series()
 
 
 @router.post('/add-bout')
@@ -32,4 +28,4 @@ async def add_bout() -> JSONable:
     return {}
 
 
-__all__ = ('router', 'render_series')
+__all__ = ('router',)
