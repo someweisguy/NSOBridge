@@ -41,7 +41,11 @@ class Jam(TeamAttribute[Team]):
         return sum([trip.points for trip in score.trips])
 
     def add_trip(
-        self, team: TeamString, points: int, timestamp: datetime, valid_pass: bool = True
+        self,
+        team: TeamString,
+        points: int,
+        timestamp: datetime,
+        valid_pass: bool = True,
     ) -> None:
         self[team].score.trips.append(Score.Trip(points, timestamp))
 
