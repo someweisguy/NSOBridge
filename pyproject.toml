@@ -13,7 +13,10 @@ reportIncompatibleMethodOverride = false
 line-length = 88
 indent-width = 4
 extend-select = ["A", "B", "C", "D", "E", "F", "I", "FAST", "PL", "EXE"]
-ignore = ["D"]
+ignore = [
+  "D", 
+  "PLR0913",  # Too many arguments in method definition
+]
 fix = true
 fixable = ["ALL"]
 unfixable = []
