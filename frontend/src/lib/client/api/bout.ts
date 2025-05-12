@@ -59,3 +59,10 @@ export async function stopJam(boutId: string): Promise<undefined> {
     timestamp: new Date(),
   });
 }
+
+export function selectActiveJamId(bout: Bout): [number, number] {
+  const numJams: [number, number] = bout.numJams;
+  const periodNum = Number(numJams[1] > 0);
+  const jamNum = numJams[periodNum] - 1;
+  return [periodNum, jamNum];
+}
