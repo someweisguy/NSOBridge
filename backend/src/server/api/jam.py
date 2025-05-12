@@ -3,7 +3,7 @@ from typing import Final
 
 from fastapi import APIRouter
 from model import bouts
-from model.jam import Jam, StopReason, Team, TeamType
+from model.jam import Jam, StopReason, Team, TeamString
 
 from server import updater
 from server.responses import JSONable
@@ -42,7 +42,7 @@ async def add_trip(
     bout_id: str,
     period_num: int,
     jam_num: int,
-    team: TeamType,
+    team: TeamString,
     points: int,
     valid_pass: bool,
 ) -> JSONable:
@@ -58,7 +58,7 @@ async def add_trip(
 
 @router.delete('/delete-trip')
 async def del_trip(
-    bout_id: str, period_num: int, jam_num: int, team: TeamType, trip_num: int
+    bout_id: str, period_num: int, jam_num: int, team: TeamString, trip_num: int
 ) -> JSONable:
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     jam.del_trip(team, trip_num)
@@ -72,7 +72,7 @@ async def edit_trip(
     bout_id: str,
     period_num: int,
     jam_num: int,
-    team: TeamType,
+    team: TeamString,
     trip_num: int,
     points: int | None,
     timestamp: datetime | None,
@@ -87,7 +87,7 @@ async def edit_trip(
 
 @router.put('/set-lead')
 async def set_lead(
-    bout_id: str, period_num: int, jam_num: int, team: TeamType, value: bool
+    bout_id: str, period_num: int, jam_num: int, team: TeamString, value: bool
 ) -> JSONable:
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     jam.set_lead(team, value)
@@ -96,7 +96,7 @@ async def set_lead(
 
 @router.put('/set-lost')
 async def set_lost(
-    bout_id: str, period_num: int, jam_num: int, team: TeamType, value: bool
+    bout_id: str, period_num: int, jam_num: int, team: TeamString, value: bool
 ) -> JSONable:
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     jam.set_lost(team, value)
@@ -105,7 +105,7 @@ async def set_lost(
 
 @router.put('/set-star-pass')
 async def set_star_pass(
-    bout_id: str, period_num: int, jam_num: int, team: TeamType, value: int | None
+    bout_id: str, period_num: int, jam_num: int, team: TeamString, value: int | None
 ) -> JSONable:
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     jam.set_star_pass(team, value)

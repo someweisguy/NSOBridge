@@ -1,6 +1,6 @@
 import genericRequest from "../request";
 
-export type TeamType = ["home" | "away"];
+export type TeamString = ["home" | "away"];
 export type StopReason = ["called", "time", "injury", "other"];
 
 export interface TeamJam {
@@ -45,7 +45,7 @@ export async function addTrip(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamType,
+  team: TeamString,
   points: number,
   validPass = true
 ): Promise<void> {
@@ -70,7 +70,7 @@ export async function deleteTrip(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamType,
+  team: TeamString,
   tripNum: number
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
@@ -93,7 +93,7 @@ export async function editTrip(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamType,
+  team: TeamString,
   tripNum: number,
   points: number | null,
   timestamp: Date | null = null
@@ -120,7 +120,7 @@ export async function setLead(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamType,
+  team: TeamString,
   value: boolean
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
@@ -143,7 +143,7 @@ export async function setLost(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamType,
+  team: TeamString,
   value: boolean
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
@@ -166,7 +166,7 @@ export async function setStarPass(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamType,
+  team: TeamString,
   value: number | null
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {

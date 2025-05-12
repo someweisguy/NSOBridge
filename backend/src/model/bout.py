@@ -2,9 +2,9 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final
 
-from .jam import Jam, StopReason
-from .protocols import TeamType
-from .timer import Timer
+from model.jam import Jam, StopReason
+from model.protocols import TeamString
+from model.timer import Timer
 
 type JamId = tuple[int, int]
 
@@ -31,7 +31,7 @@ class Bout:
         jam_num: int = len(self.jams[period_num]) - 1
         return (period_num, jam_num)
 
-    def get_total_score(self, team: TeamType) -> int:
+    def get_total_score(self, team: TeamString) -> int:
         all_jams: list[Jam] = [jam for period in self.jams for jam in period]
         return sum(jam.get_jam_score(team) for jam in all_jams)
 

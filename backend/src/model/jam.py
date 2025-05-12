@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Final, Literal
 
-from .protocols import TeamAttribute, TeamType
+from model.protocols import TeamAttribute, TeamString
 
 type StopReason = Literal['called', 'time', 'injury', 'other']
 
@@ -36,21 +36,21 @@ class Jam(TeamAttribute[Team]):
     def lead_is_declared(self) -> bool:
         return self.home.score.lead or self.away.score.lead
 
-    def get_jam_score(self, team: TeamType) -> int:
+    def get_jam_score(self, team: TeamString) -> int:
         score: Score = self[team].score
         return sum([trip.points for trip in score.trips])
 
     def add_trip(
-        self, team: TeamType, points: int, timestamp: datetime, valid_pass: bool = True
+        self, team: TeamString, points: int, timestamp: datetime, valid_pass: bool = True
     ) -> None:
         self[team].score.trips.append(Score.Trip(points, timestamp))
 
-    def del_trip(self, team: TeamType, trip_num: int) -> None:
+    def del_trip(self, team: TeamString, trip_num: int) -> None:
         del self[team].score.trips[trip_num]
 
     def edit_trip(
         self,
-        team: TeamType,
+        team: TeamString,
         trip_num: int,
         points: int | None,
         timestamp: datetime | None = None,
@@ -61,15 +61,15 @@ class Jam(TeamAttribute[Team]):
         if timestamp is not None:
             trip.timestamp = timestamp
 
-    def set_lead(self, team: TeamType, value: bool) -> None:
+    def set_lead(self, team: TeamString, value: bool) -> None:
         if value is True and self.lead_is_declared():
             raise RuntimeError('A Lead Jammer has already been declared') from None
         self[team].score.lead = value
 
-    def set_lost(self, team: TeamType, value: bool) -> None:
+    def set_lost(self, team: TeamString, value: bool) -> None:
         self[team].score.lost = value
 
-    def set_star_pass(self, team: TeamType, value: int | None) -> None:
+    def set_star_pass(self, team: TeamString, value: int | None) -> None:
         self[team].score.star_pass = value
 
     def set_stop_reason(self, value: StopReason) -> None:
