@@ -1,6 +1,6 @@
 import genericRequest from "../request";
 
-export interface Clock {
+export interface ClockType {
   startTimestamp: Date | null;
   elapsed: number;
   alarm: number;
@@ -15,11 +15,11 @@ export interface Bout {
   gameNumber: number | null;
   timer: {
     clocks: {
-      intermission: Clock;
-      game: Clock;
-      lineup: Clock;
-      jam: Clock;
-      timeout: Clock;
+      intermission: ClockType;
+      game: ClockType;
+      lineup: ClockType;
+      jam: ClockType;
+      timeout: ClockType;
     };
     timeouts: {
       home: Timeouts;
