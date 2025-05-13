@@ -1,10 +1,10 @@
-import { Clock } from "@/lib/client/api/bout";
+import { ClockType } from "@/lib/client/api/bout";
 import { useEffect, useState } from "react";
 
 export default function useElapsed(
-  clock: Clock,
+  clock: ClockType,
   { updateInterval = 1000 / 60, stopMillis = Number.MAX_VALUE } = {}
-) {
+): number {
   const [lap, setLap] = useState(
     clock.startTimestamp !== null
       ? new Date().getTime() - clock.startTimestamp.getTime()
@@ -19,10 +19,10 @@ export default function useElapsed(
 
     const newLap = new Date().getTime() - clock.startTimestamp.getTime();
     if (newLap >= stopMillis) {
-      return; // Prevent unnecessary renders 
+      return; // Prevent unnecessary renders
     }
     setLap(newLap);
-    
+
     const intervalId = setInterval(() => {
       const newLap = new Date().getTime() - clock.startTimestamp!.getTime();
       if (newLap + clock.elapsed >= stopMillis) {

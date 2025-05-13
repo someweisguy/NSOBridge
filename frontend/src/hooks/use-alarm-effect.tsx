@@ -1,12 +1,12 @@
-import { Clock } from "@/lib/client/api/bout";
+import { ClockType } from "@/lib/client/api/bout";
 import { useEffect, useRef, useState } from "react";
 
 export default function useAlarmEffect(
   effect: () => void,
-  [clock, milliseconds]: [Clock, number]
+  [clock, milliseconds]: [ClockType, number]
 ): void {
   const [alarmHasFired, setAlarmHasFired] = useState<boolean>(false);
-  const lastClock = useRef<Clock>(clock);
+  const lastClock = useRef<ClockType>(clock);
 
   // Reset the alarm if the alarm value changes
   useEffect(() => {
