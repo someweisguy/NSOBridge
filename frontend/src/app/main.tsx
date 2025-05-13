@@ -1,30 +1,24 @@
 import { queryClient } from "@/lib/cache";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { QueryClientProvider } from "@tanstack/react-query";
-// import App from "./app.tsx";
 import "./index.css";
-import LoadingSpinner from "@/components/loading-spinner.tsx";
+import { ScoreboardOperator } from "./pages/operator";
+import { BoutIdProvider } from "./provider";
 
-createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={queryClient}>
+const root: HTMLElement = document.getElementById("root")!;
+createRoot(root).render(<App />);
+
+export default function App() {
+  return (
     <StrictMode>
-      <Suspense fallback={<LoadingSpinner />}>Hello world!</Suspense>
+      <Suspense fallback={"Loading..."}>
+        <QueryClientProvider client={queryClient}>
+          <BoutIdProvider>
+            <ScoreboardOperator />
+          </BoutIdProvider>
+        </QueryClientProvider>
+      </Suspense>
     </StrictMode>
-  </QueryClientProvider>
-);
-
-// Get the Series data from the HTML root
-const rootNode: HTMLElement | null = document.getElementById("root");
-if (rootNode?.dataset?.model) {
-  try {
-    queryClient.setQueryData(
-      ["series"], // TODO: use key factory
-      JSON.parse(rootNode.dataset.model)
-    );
-  } catch {
-    console.error("Could not parse data model seed.");
-  }
-} else {
-  console.error("Data model not found in server response.");
+  );
 }
