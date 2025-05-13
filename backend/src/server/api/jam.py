@@ -36,8 +36,8 @@ def render_team_jam(team: Team) -> dict[str, JSONable]:
 
 
 @router.get('')
-async def get(jam_id: JamIdQuery) -> JSONable:
-    jam: Jam = bouts[jam_id.bout_id].get_jam(jam_id.period_num, jam_id.jam_num)
+async def get(bout_id: str, period_num: int, jam_num: int) -> JSONable:
+    jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     return {
         'start': jam.start_timestamp.isoformat() if jam.start_timestamp else None,
         'stop': jam.stop_timestamp.isoformat() if jam.stop_timestamp else None,
