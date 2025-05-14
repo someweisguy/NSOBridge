@@ -1,37 +1,31 @@
-import GameChip from "../../features/sbo/game-chip";
-import { Card } from "@/components/ui/card";
-import TeamScoreCard from "../../features/sbo/team-score-card";
-import useActiveJamId from "@/hooks/use-active-jam";
-import { BoutIdType } from "@/types/bout";
-import { useContext } from "react";
-import { BoutIdContext } from "@/contexts/bout-id";
-import { JamIdContext } from "@/contexts/jam-id";
-import AppSidebar from "@/components/app-sidebar";
-import GameToolbar from "@/features/sbo/game-toolbar";
+// import useActiveJamId from "@/hooks/use-active-jam-id";
+// import useLatestJamId from "@/hooks/use-latest-jam-id";
+// import usePrefetchJam from "@/hooks/use-prefetch-jam";
+// import { useRef } from "react";
+// import { BoutIdContext } from "../provider";
+import TripScroll from "@/components/TripScroll";
+import { startJam } from "@/lib/client/api/bout.ts";
+import { getSeries } from "@/lib/client/api/series.ts";
+// import Clock from "@/components/Clock";
 
+export function ScoreboardOperator() {
+  // const [boutId] = useContext(BoutIdContext);
+  // const lastestJamId = useLatestJamId(boutId)!;
+  // const activeJamId = useActiveJamId(boutId);
+  // usePrefetchJam(boutId, lastestJamId);
+  // const [periodNum, jamNum] = activeJamId ?? lastestJamId;
 
-export default function ScoreboardOperator() {
-  const boutId: BoutIdType = useContext(BoutIdContext);
-  const activeJamId = useActiveJamId(boutId);
-
-  return (
-    <AppSidebar>
-      <div className="grid grid-flow-row grid-cols-1">
-        <div className="flex flex-row items-center">
-          <GameChip />
-          <GameToolbar />
-        </div>
-        <JamIdContext.Provider value={activeJamId}>
-          <div className="flex flex-row justify-center w-full gap-4">
-            <Card>
-              <TeamScoreCard team="home" />
-            </Card>
-            <Card>
-              <TeamScoreCard team="away" />
-            </Card>
-          </div>
-        </JamIdContext.Provider>
-      </div>
-    </AppSidebar>
-  );
+  return <TripScroll />;
 }
+
+void getSeries().then((series) => {
+  const boutId: string = series[0].id;
+
+  setTimeout(() => {
+    void startJam(boutId).then(() => {
+      // setTimeout(() => {
+      //   void stopJam(boutId);
+      // }, 3000);
+    });
+  }, 1000);
+});
