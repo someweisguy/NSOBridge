@@ -1,85 +1,29 @@
-import { useConnection } from "@/hooks/use-connection";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { BoutIdContext } from "@/app/provider";
+import useBout from "@/hooks/use-bout";
+import useElapsed from "@/hooks/use-elapsed";
+import { Bout, ClockType } from "@/lib/client/api/bout";
+import formatMilliseconds from "@/utils/format-milliseconds";
+import { ReactNode, useContext } from "react";
 
-export default function Clock({
-  alarm = null,
-  elapsed,
-  isRunning,
-  showMillis = "auto",
-  stopAtZero = true,
-  className,
-}: {
-  alarm?: number | null;
-  elapsed: number;
-  isRunning: boolean;
-  showMillis?: "never" | "always" | "auto";
-  stopAtZero?: boolean;
-  className?: string;
-}) {
-  const { latency } = useConnection();
-  const [actualElapsed, setActualElapsed] = useState<number>(elapsed);
+interface ClockProps {
+  boutId?: string;
+  name: Exclude<keyof Bout["timer"]["clocks"], "timeout">;
+}
 
-  useEffect(() => {
-    if (!isRunning) {
-      setActualElapsed(elapsed);
-      return;
-    }
+export default function Clock({ boutId, name }: ClockProps): ReactNode {
+  const [contextBoutId] = useContext(BoutIdContext);
+  boutId = boutId ?? contextBoutId;
 
-    // Get the time that the clock started running
-    const runningSince: number = performance.now() - latency;
+  const clock: ClockType = useBout(boutId).timer.clocks[name];
 
-    // Call a recursive timeout function which updates the clock every 100ms
-    let timeoutId: NodeJS.Timeout;
-    const timeoutFunction: () => void = () => {
-      const newActualElapsed = performance.now() - runningSince + elapsed;
-      setActualElapsed(newActualElapsed);
-      if (alarm != null && newActualElapsed >= alarm && stopAtZero) {
-        // Stop needlessly rerendering the clock when it reaches the alarm
-        return;
-      }
-      timeoutId = setTimeout(
-        timeoutFunction,
-        100 - (Math.round(elapsed + newActualElapsed) % 100)
-      );
-    };
-    timeoutId = setTimeout(timeoutFunction, 100 - (elapsed % 100));
+  const elapsed: number = useElapsed(clock, { stopMillis: clock.alarm + 1500 });
 
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [isRunning, elapsed, stopAtZero, alarm]);
+  const remaining = clock.alarm - elapsed;
+  const timeToDisplay = remaining >= 0 ? remaining : 0;
 
-  // Calculate the time values that should be displayed on the clock
-  let displayTotal: number = Math.round(
-    alarm == null ? actualElapsed : alarm - actualElapsed
-  );
-  const displayIsNegative: boolean = displayTotal < 0;
-  if (displayIsNegative) {
-    // Prevent the display from showing negative time
-    displayTotal = stopAtZero ? 0 : Math.abs(displayTotal);
-  }
-  const hours: number = Math.floor(displayTotal / 3600000);
-  const minutes: number = Math.floor(displayTotal / 60000) % 60;
-  const seconds: number = Math.floor(displayTotal / 1000) % 60;
+  const timeString: string = formatMilliseconds(timeToDisplay, {
+    displayMillis: remaining < 10000 && remaining > -1000,
+  });
 
-  // Format the display as a string
-  let timeString: string = "";
-  if (hours) {
-    timeString += hours.toString() + ":";
-  }
-  if (minutes) {
-    timeString += minutes.toString().padStart(hours ? 2 : 0, "0") + ":";
-  }
-  timeString += seconds.toString().padStart(minutes ? 2 : 0, "0");
-  if (
-    alarm != null &&
-    !displayIsNegative &&
-    (showMillis === "always" || (showMillis === "auto" && displayTotal < 10000))
-  ) {
-    // Conditionally add milliseconds to the display
-    timeString += "." + Math.floor((displayTotal % 1000) / 100);
-  }
-
-  return <span className={cn("text-right", className)}>{timeString}</span>;
+  return <>{timeString}</>;
 }
