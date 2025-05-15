@@ -1,13 +1,18 @@
+import { Trip } from "@/lib/client/api/jam";
 import { ScrollArea } from "radix-ui";
 import { useEffect, useRef, useState } from "react";
-import TripCard from "./TripCard";
-import { Trip } from "@/lib/client/api/jam";
 
 interface TripScrollProps {
   trips: Trip[];
 }
 
-export default function TripScroll({ trips }: TripScrollProps) {
+interface TripCardProps {
+  key?: number;
+  tripNum: number;
+  points: number | null;
+}
+
+export default function TripView({ trips }: TripScrollProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
 
@@ -61,5 +66,21 @@ export default function TripScroll({ trips }: TripScrollProps) {
         <ScrollArea.Thumb className="flex-1 rounded-full bg-slate-400 " />
       </ScrollArea.Scrollbar>
     </ScrollArea.Root>
+  );
+}
+
+function TripCard({ tripNum, points }: TripCardProps) {
+  return (
+    <button
+      className="h-16 w-14 flex flex-col overflow-hidden border border-slate rounded-md mx-1 my-1 text-center"
+      onClick={() => console.log("click")}
+    >
+      <div className="bg-slate-100 w-full h-1/3 text-center border-b text-xs italic">
+        Trip {tripNum + 1}
+      </div>
+      <div className="h-full content-center text-lg font-semibold">
+        {points ?? ""}
+      </div>
+    </button>
   );
 }
