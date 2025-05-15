@@ -1,7 +1,13 @@
 import { ScrollArea } from "radix-ui";
 import { useEffect, useRef, useState } from "react";
+import TripCard from "./TripCard";
+import { Trip } from "@/lib/client/api/jam";
 
-export default function TripScroll() {
+interface TripScrollProps {
+  trips: Trip[];
+}
+
+export default function TripScroll({ trips }: TripScrollProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
 
@@ -27,35 +33,33 @@ export default function TripScroll() {
   useEffect(() => {
     viewportRef.current?.scrollTo({
       left: scrollLeft,
-      behavior: "smooth",
+      behavior: "auto",
     });
   }, [scrollLeft]);
 
-  const TAGS = Array.from({ length: 50 }).map(
-    (_, i, a) => `v1.2.0-beta.${a.length - i}`
-  );
-
   return (
-    <ScrollArea.Root className="h-[100px] w-[200px] overflow-hidden rounded bg-white shadow-[0_2px_10px] shadow-blackA4">
-      <ScrollArea.Viewport ref={viewportRef} className="size-full rounded">
-        <div className="flex flex-row px-5 py-[15px]">
-          {TAGS.map((tag) => (
-            <div
-              className="mt-2.5 border-t border-t-mauve6 pt-2.5 text-[13px] leading-[18px] text-mauve12"
-              key={tag}
-            >
-              {tag}
-            </div>
+    <ScrollArea.Root className="border w-[300px] overflow-hidden rounded">
+      <ScrollArea.Viewport
+        ref={viewportRef}
+        className="h-full size-full rounded"
+      >
+        <div className="grid grid-flow-col size-full content-center px-3 py-2">
+          {trips.map((t, i) => (
+            <TripCard
+              key={t.timestamp.getTime()}
+              tripNum={i}
+              points={t.points}
+            />
           ))}
+          <TripCard tripNum={trips.length} points={null} />
         </div>
       </ScrollArea.Viewport>
       <ScrollArea.Scrollbar
-        className="flex touch-none select-none bg-blue-400 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-black data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+        className="flex touch-none select-none bg-slate-200 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-slate-700 h-2.5 flex-col"
         orientation="horizontal"
       >
-        <ScrollArea.Thumb className="relative flex-1 rounded-[10px] bg-red-400 before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-[44px] before:min-w-[44px] before:-translate-x-1/2 before:-translate-y-1/2" />
+        <ScrollArea.Thumb className="flex-1 rounded-full bg-slate-400 " />
       </ScrollArea.Scrollbar>
-      <ScrollArea.Corner className="bg-black" />
     </ScrollArea.Root>
   );
 }
