@@ -3,12 +3,17 @@ import genericRequest from "../request";
 export type TeamString = ["home" | "away"];
 export type StopReason = ["called", "time", "injury", "other"];
 
+export interface Trip {
+  points: number;
+  timestamp: Date;
+}
+
 export interface TeamJam {
   score: {
     lead: boolean;
     lost: boolean;
     starPass: number | null;
-    trips: { points: number; timestamp: Date }[];
+    trips: Trip[];
   };
 }
 
