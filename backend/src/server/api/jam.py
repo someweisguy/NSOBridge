@@ -85,11 +85,10 @@ async def edit_trip(
     team: Annotated[TeamString, Query()],
     trip_num: Annotated[int, Query()],
     points: Annotated[int | None, Body()],
-    timestamp: Annotated[datetime | None, Body()],
 ) -> JSONable:
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     points_are_updated: bool = jam[team].score.trips[trip_num].points != points
-    jam.edit_trip(team, trip_num, points, timestamp)
+    jam.edit_trip(team, trip_num, points)
     if points_are_updated:
         updater.post(updater.kf.bout(bout_id))
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))

@@ -57,13 +57,10 @@ class Jam(TeamAttribute[Team]):
         team: TeamString,
         trip_num: int,
         points: int | None,
-        timestamp: datetime | None = None,
     ) -> None:
         trip: Score.Trip = self[team].score.trips[trip_num]
         if points is not None:
             trip.points = points
-        if timestamp is not None:
-            trip.timestamp = timestamp
 
     def set_lead(self, team: TeamString, value: bool) -> None:
         if value is True and self.lead_is_declared():

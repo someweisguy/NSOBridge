@@ -107,7 +107,6 @@ export async function editTrip(
   team: TeamString,
   tripNum: number,
   points: number | null,
-  timestamp: Date | null = null
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
     throw new Error("Invalid Period Number");
@@ -128,7 +127,6 @@ export async function editTrip(
     },
     {
       points,
-      timestamp,
     }
   );
 }
