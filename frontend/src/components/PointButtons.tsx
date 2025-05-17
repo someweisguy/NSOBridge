@@ -1,0 +1,45 @@
+import useJam from "@/hooks/use-jam";
+import { addTrip, editTrip, TeamString } from "@/lib/client/api/jam";
+import { useCallback } from "react";
+import Button from "./Button";
+
+interface PointButtonsProps {
+  boutId: string;
+  periodNum: number;
+  jamNum: number;
+  tripNum: number;
+  team: TeamString;
+}
+
+export default function PointButtons({
+  boutId,
+  periodNum,
+  jamNum,
+  tripNum,
+  team,
+}: PointButtonsProps) {
+  const numTrips: number = useJam(boutId, periodNum, jamNum)[team].score.trips
+    .length;
+  const addTripCallback = useCallback(
+    (points: number) => {
+      if (tripNum > numTrips + 1 || tripNum < 0) {
+        throw new Error("Trip num out of bounds error");
+      } else if (tripNum === numTrips + 1) {
+        void addTrip(boutId, periodNum, jamNum, team, points);
+      } else {
+        void editTrip(boutId, periodNum, jamNum, team, tripNum, points);
+      }
+    },
+    [boutId, periodNum, jamNum, tripNum, team, numTrips]
+  );
+
+  return (
+    <div className="flex flex-row justify-evenly w-full bg-green-400">
+      {Array.from({ length: 5 }, (_, i) => (
+        <Button key={i} onClick={() => addTripCallback(i)}>
+          {i}
+        </Button>
+      ))}
+    </div>
+  );
+}
