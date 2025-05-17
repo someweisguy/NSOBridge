@@ -77,7 +77,7 @@ export default async function genericRequest<T = unknown>(
   endpoint: `/${string}`,
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
   data: object | null = null,
-  sanitize: boolean = true
+  sanitize = true
 ): Promise<T> {
   const url = new URL(endpoint, window.location.href);
   if (data !== null) {
@@ -88,6 +88,6 @@ export default async function genericRequest<T = unknown>(
   if (!response.ok) {
     throw new Error("A request error occurred"); // TODO: better error handling
   }
-  const payload = await response.json();
+  const payload: unknown = await response.json();
   return (sanitize ? await sanitizeForClient(payload) : payload) as Promise<T>;
 }
