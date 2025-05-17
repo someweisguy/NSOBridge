@@ -76,15 +76,24 @@ export async function sanitizeForServer<T = object>(obj: T): Promise<T> {
 export default async function genericRequest<T = unknown>(
   endpoint: `/${string}`,
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
-  data: object | null = null,
+  query: object | null = null,
+  body?: object,
   sanitize = true
 ): Promise<T> {
   const url = new URL(endpoint, window.location.href);
-  if (data !== null) {
-    data = sanitize ? await sanitizeForServer(data) : data;
-    url.search = new URLSearchParams(data as Record<string, string>).toString();
+  if (query !== null) {
+    query = sanitize ? await sanitizeForServer(query) : query;
+    url.search = new URLSearchParams(
+      query as Record<string, string>
+    ).toString();
   }
-  const response = await fetch(url, { method });
+  const response = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
   if (!response.ok) {
     throw new Error("A request error occurred"); // TODO: better error handling
   }

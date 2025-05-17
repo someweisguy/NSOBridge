@@ -13,6 +13,7 @@ async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
     "/api/sync",
     "GET",
     null,
+    undefined,
     false // Do not sanitize the request
   );
   const stop: Date = new Date();

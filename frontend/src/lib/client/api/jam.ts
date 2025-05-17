@@ -1,7 +1,7 @@
 import genericRequest from "../request";
 
-export type TeamString = ["home" | "away"];
-export type StopReason = ["called", "time", "injury", "other"];
+export type TeamString = "home" | "away";
+export type StopReason = "called" | "time" | "injury" | "other";
 
 export interface Trip {
   points: number;
@@ -61,14 +61,20 @@ export async function addTrip(
     throw new Error("Invalid Jam Number");
   }
 
-  await genericRequest("/api/jam/add-trip", "POST", {
-    bout_id: boutId,
-    period_num: periodNum,
-    jam_num: jamNum,
-    team,
-    points,
-    valid_pass: validPass,
-  });
+  await genericRequest(
+    "/api/jam/add-trip",
+    "POST",
+    {
+      bout_id: boutId,
+      period_num: periodNum,
+      jam_num: jamNum,
+      team,
+    },
+    {
+      points,
+      valid_pass: validPass,
+    }
+  );
 }
 
 export async function deleteTrip(
@@ -110,15 +116,21 @@ export async function editTrip(
     throw new Error("Invalid Jam Number");
   }
 
-  await genericRequest("/api/jam/edit-trip", "PUT", {
-    bout_id: boutId,
-    period_num: periodNum,
-    jam_num: jamNum,
-    team,
-    trip_num: tripNum,
-    points,
-    timestamp,
-  });
+  await genericRequest(
+    "/api/jam/edit-trip",
+    "PUT",
+    {
+      bout_id: boutId,
+      period_num: periodNum,
+      jam_num: jamNum,
+      team,
+      trip_num: tripNum,
+    },
+    {
+      points,
+      timestamp,
+    }
+  );
 }
 
 export async function setLead(
@@ -135,13 +147,19 @@ export async function setLead(
     throw new Error("Invalid Jam Number");
   }
 
-  await genericRequest("/api/jam/set-lead", "PUT", {
-    bout_id: boutId,
-    period_num: periodNum,
-    jam_num: jamNum,
-    team,
-    value,
-  });
+  await genericRequest(
+    "/api/jam/set-lead",
+    "PUT",
+    {
+      bout_id: boutId,
+      period_num: periodNum,
+      jam_num: jamNum,
+      team,
+    },
+    {
+      value,
+    }
+  );
 }
 
 export async function setLost(
@@ -158,13 +176,19 @@ export async function setLost(
     throw new Error("Invalid Jam Number");
   }
 
-  await genericRequest("/api/jam/set-lost", "PUT", {
-    bout_id: boutId,
-    period_num: periodNum,
-    jam_num: jamNum,
-    team,
-    value,
-  });
+  await genericRequest(
+    "/api/jam/set-lost",
+    "PUT",
+    {
+      bout_id: boutId,
+      period_num: periodNum,
+      jam_num: jamNum,
+      team,
+    },
+    {
+      value,
+    }
+  );
 }
 
 export async function setStarPass(
@@ -181,13 +205,19 @@ export async function setStarPass(
     throw new Error("Invalid Jam Number");
   }
 
-  await genericRequest("/api/jam/set-star-pass", "PUT", {
-    bout_id: boutId,
-    period_num: periodNum,
-    jam_num: jamNum,
-    team,
-    value,
-  });
+  await genericRequest(
+    "/api/jam/set-star-pass",
+    "PUT",
+    {
+      bout_id: boutId,
+      period_num: periodNum,
+      jam_num: jamNum,
+      team,
+    },
+    {
+      value,
+    }
+  );
 }
 
 export async function setStopReason(
@@ -203,10 +233,16 @@ export async function setStopReason(
     throw new Error("Invalid Jam Number");
   }
 
-  await genericRequest("/api/jam/set-stop-reason", "PUT", {
-    bout_id: boutId,
-    period_num: periodNum,
-    jam_num: jamNum,
-    value,
-  });
+  await genericRequest(
+    "/api/jam/set-stop-reason",
+    "PUT",
+    {
+      bout_id: boutId,
+      period_num: periodNum,
+      jam_num: jamNum,
+    },
+    {
+      value,
+    }
+  );
 }

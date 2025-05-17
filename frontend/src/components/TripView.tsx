@@ -1,18 +1,29 @@
-import { Trip } from "@/lib/client/api/jam";
+import { TeamString, Trip } from "@/lib/client/api/jam";
 import { ScrollArea } from "radix-ui";
 import { useEffect, useRef, useState } from "react";
+import PointButtons from "./PointButtons";
+import useJam from "@/hooks/use-jam";
 
 interface TripScrollProps {
-  trips: Trip[];
+  boutId: string;
+  periodNum: number;
+  jamNum: number;
+  team: TeamString;
 }
 
 interface TripCardProps {
   key?: number;
   tripNum: number;
   points: number | null;
+  onClick: () => void;
 }
 
-export default function TripView({ trips }: TripScrollProps) {
+export default function TripView({
+  boutId,
+  periodNum,
+  jamNum,
+  team,
+}: TripScrollProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
 
@@ -42,30 +53,47 @@ export default function TripView({ trips }: TripScrollProps) {
     });
   }, [scrollLeft]);
 
+  const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
+  const [tripNum, setTripNum] = useState(trips.length + 1);
+
   return (
-    <ScrollArea.Root className="border w-[300px] overflow-hidden rounded">
-      <ScrollArea.Viewport
-        ref={viewportRef}
-        className="h-full size-full rounded"
-      >
-        <div className="grid grid-flow-col size-full content-center px-3 py-2">
-          {trips.map((t, i) => (
+    <div>
+      <PointButtons
+        boutId={boutId}
+        periodNum={periodNum}
+        jamNum={jamNum}
+        team={team}
+        tripNum={tripNum}
+      />
+      <ScrollArea.Root className="border w-[300px] overflow-hidden rounded">
+        <ScrollArea.Viewport
+          ref={viewportRef}
+          className="h-full size-full rounded"
+        >
+          <div className="grid grid-flow-col size-full content-center px-3 py-2">
+            {trips.map((t, i) => (
+              <TripCard
+                key={t.timestamp.getTime()}
+                tripNum={i}
+                points={t.points}
+                onClick={() => setTripNum(i)}
+              />
+            ))}
             <TripCard
-              key={t.timestamp.getTime()}
-              tripNum={i}
-              points={t.points}
+              tripNum={trips.length}
+              points={null}
+              onClick={() => setTripNum(trips.length + 1)}
             />
-          ))}
-          <TripCard tripNum={trips.length} points={null} />
-        </div>
-      </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar
-        className="flex touch-none select-none bg-slate-200 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-slate-700 h-2.5 flex-col"
-        orientation="horizontal"
-      >
-        <ScrollArea.Thumb className="flex-1 rounded-full bg-slate-400 " />
-      </ScrollArea.Scrollbar>
-    </ScrollArea.Root>
+          </div>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar
+          className="flex touch-none select-none bg-slate-200 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-slate-700 h-2.5 flex-col"
+          orientation="horizontal"
+        >
+          <ScrollArea.Thumb className="flex-1 rounded-full bg-slate-400 " />
+        </ScrollArea.Scrollbar>
+      </ScrollArea.Root>
+    </div>
   );
 }
 
