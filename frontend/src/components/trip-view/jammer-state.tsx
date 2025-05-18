@@ -1,3 +1,5 @@
+import { BoutIdContext } from "@/app/provider";
+import useJam from "@/hooks/use-jam";
 import {
   setLead,
   setLost,
@@ -5,10 +7,8 @@ import {
   TeamJam,
   TeamString,
 } from "@/lib/client/api/jam";
-import CheckboxButton from "../checkbox-button";
 import { useContext } from "react";
-import { BoutIdContext } from "@/app/provider";
-import useJam from "@/hooks/use-jam";
+import CheckboxButton from "../checkbox-button";
 
 interface JammerStateProps {
   boutId?: string;
@@ -34,7 +34,9 @@ export default function JammerState({
   return (
     <div>
       <CheckboxButton
+        key={team + "Lead"}
         checked={teamJam.score.lead}
+        disabled={teamJam.score.lost}
         onClick={() =>
           void setLead(boutId, periodNum, jamNum, team, !teamJam.score.lead)
         }
@@ -42,6 +44,7 @@ export default function JammerState({
         Lead
       </CheckboxButton>
       <CheckboxButton
+        key={team + "Lost"}
         checked={teamJam.score.lost}
         onClick={() =>
           void setLost(boutId, periodNum, jamNum, team, !teamJam.score.lost)
@@ -50,6 +53,7 @@ export default function JammerState({
         Lost
       </CheckboxButton>
       <CheckboxButton
+        key={team + "StarPass"}
         checked={teamJam.score.starPass !== null}
         onClick={() =>
           void setStarPass(

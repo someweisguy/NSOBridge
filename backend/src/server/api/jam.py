@@ -49,7 +49,7 @@ async def add_trip(
     now = datetime.now()
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     jam.add_trip(team, points, now, valid_pass)
-    if valid_pass and not jam.lead_is_declared():
+    if all([valid_pass, not jam[team].score.lost, not jam.lead_is_declared()]):
         jam.set_lead(team, True)
     updater.post(
         [
@@ -126,7 +126,7 @@ async def set_star_pass(
     period_num: Annotated[int, Query()],
     jam_num: Annotated[int, Query()],
     team: Annotated[TeamString, Query()],
-    value: Annotated[int | None, Body()],
+    value: Annotated[int | None, Body()] = None,
 ) -> JSONable:
     jam: Jam = bouts[bout_id].get_jam(period_num, jam_num)
     jam.set_star_pass(team, value)
