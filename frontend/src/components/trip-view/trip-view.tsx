@@ -104,7 +104,7 @@ export default function TripView({
           ref={viewportRef}
           className="h-full size-full rounded"
         >
-          <div className="grid grid-flow-col size-full content-center px-3 py-2">
+          <div className="grid grid-flow-col size-full justify-start px-3 py-2">
             {trips.map((t, i) => (
               <TripCard
                 key={t.timestamp.getTime()}
