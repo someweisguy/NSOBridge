@@ -60,7 +60,7 @@ async def add_trip(
 
 
 @router.delete('/trip')
-async def del_trip(
+async def delete_trip(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
     jam_num: Annotated[int, Query()],
