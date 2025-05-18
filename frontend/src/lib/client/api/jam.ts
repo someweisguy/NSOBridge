@@ -62,7 +62,7 @@ export async function addTrip(
   }
 
   await genericRequest(
-    "/api/jam/add-trip",
+    "/api/jam/trip",
     "POST",
     {
       bout_id: boutId,
@@ -91,7 +91,7 @@ export async function deleteTrip(
     throw new Error("Invalid Jam Number");
   }
 
-  await genericRequest("/api/jam/delete-trip", "DELETE", {
+  await genericRequest("/api/jam/trip", "DELETE", {
     bout_id: boutId,
     period_num: periodNum,
     jam_num: jamNum,
@@ -116,7 +116,7 @@ export async function editTrip(
   }
 
   await genericRequest(
-    "/api/jam/edit-trip",
+    "/api/jam/trip",
     "PUT",
     {
       bout_id: boutId,
@@ -144,7 +144,7 @@ export async function setLead(
   }
 
   await genericRequest(
-    "/api/jam/set-lead",
+    "/api/jam/lead",
     "PUT",
     {
       bout_id: boutId,
@@ -171,7 +171,7 @@ export async function setLost(
   }
 
   await genericRequest(
-    "/api/jam/set-lost",
+    "/api/jam/lost",
     "PUT",
     {
       bout_id: boutId,
@@ -198,7 +198,7 @@ export async function setStarPass(
   }
 
   await genericRequest(
-    "/api/jam/set-star-pass",
+    "/api/jam/star-pass",
     "PUT",
     {
       bout_id: boutId,
@@ -224,7 +224,7 @@ export async function setStopReason(
   }
 
   await genericRequest(
-    "/api/jam/set-stop-reason",
+    "/api/jam/stop-reason",
     "PUT",
     {
       bout_id: boutId,

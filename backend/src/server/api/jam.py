@@ -37,7 +37,7 @@ async def get(bout_id: str, period_num: int, jam_num: int) -> JSONable:
     }
 
 
-@router.post('/add-trip')
+@router.post('/trip')
 async def add_trip(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
@@ -59,7 +59,7 @@ async def add_trip(
     )
 
 
-@router.delete('/delete-trip')
+@router.delete('/trip')
 async def del_trip(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
@@ -77,7 +77,7 @@ async def del_trip(
     )
 
 
-@router.put('/edit-trip')
+@router.put('/trip')
 async def edit_trip(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
@@ -94,7 +94,7 @@ async def edit_trip(
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))
 
 
-@router.put('/set-lead')
+@router.put('/lead')
 async def set_lead(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
@@ -107,7 +107,7 @@ async def set_lead(
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))
 
 
-@router.put('/set-lost')
+@router.put('/lost')
 async def set_lost(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
@@ -120,7 +120,7 @@ async def set_lost(
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))
 
 
-@router.put('/set-star-pass')
+@router.put('/star-pass')
 async def set_star_pass(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
@@ -135,7 +135,7 @@ async def set_star_pass(
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))
 
 
-@router.put('/set-stop-reason')
+@router.put('/stop-reason')
 async def set_stop_reason(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
