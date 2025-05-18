@@ -44,17 +44,25 @@ export async function getBout(boutId: string): Promise<Bout> {
 }
 
 export async function startJam(boutId: string): Promise<undefined> {
-  await genericRequest<Bout>("/api/bout/start-jam", "POST", {
-    bout_id: boutId,
-    timestamp: new Date(),
-  });
+  await genericRequest<Bout>(
+    "/api/bout/start-jam",
+    "POST",
+    {
+      bout_id: boutId,
+    },
+    new Date()
+  );
 }
 
 export async function stopJam(boutId: string): Promise<undefined> {
-  await genericRequest<Bout>("/api/bout/stop-jam", "POST", {
-    bout_id: boutId,
-    timestamp: new Date(),
-  });
+  await genericRequest<Bout>(
+    "/api/bout/stop-jam",
+    "POST",
+    {
+      bout_id: boutId,
+    },
+    new Date()
+  );
 }
 
 export function selectLatestJamId(

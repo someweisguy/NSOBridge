@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Final
+from typing import Annotated, Final
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body, Query
 from model import bouts
 from model.bout import Bout, JamId
 from model.timer import Clock, Timeout
@@ -56,7 +56,9 @@ async def get(bout_id: str) -> JSONable:
 
 
 @router.post('/start-jam')
-async def start_jam(bout_id: str, timestamp: datetime) -> JSONable:
+async def start_jam(
+    bout_id: Annotated[str, Query()], timestamp: Annotated[datetime, Body()]
+) -> JSONable:
     bout: Bout = bouts[bout_id]
     bout.start_jam(timestamp)
     updater.post(
@@ -66,7 +68,9 @@ async def start_jam(bout_id: str, timestamp: datetime) -> JSONable:
 
 
 @router.post('/stop-jam')
-async def stop_jam(bout_id: str, timestamp: datetime) -> JSONable:
+async def stop_jam(
+    bout_id: Annotated[str, Query()], timestamp: Annotated[datetime, Body()]
+) -> JSONable:
     bout: Bout = bouts[bout_id]
     stopped_jam_id: JamId = bout.get_current_jam_id()
     bout.stop_jam(timestamp)
