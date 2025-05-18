@@ -54,7 +54,7 @@ export default function TripView({
   }, [scrollLeft]);
 
   const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
-  const [tripNum, setTripNum] = useState(trips.length + 1);
+  const [tripNum, setTripNum] = useState(trips.length);
 
   return (
     <div>

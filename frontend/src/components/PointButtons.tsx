@@ -22,9 +22,10 @@ export default function PointButtons({
     .length;
   const addTripCallback = useCallback(
     (points: number) => {
-      if (tripNum > numTrips + 1 || tripNum < 0) {
+      console.log(`tripNum = ${tripNum}, numTrips = ${numTrips}`)
+      if (tripNum > numTrips || tripNum < 0) {
         throw new Error("Trip num out of bounds error");
-      } else if (tripNum === numTrips + 1) {
+      } else if (tripNum === numTrips) {
         void addTrip(boutId, periodNum, jamNum, team, points);
       } else {
         void editTrip(boutId, periodNum, jamNum, team, tripNum, points);
