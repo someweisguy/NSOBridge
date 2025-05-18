@@ -1,7 +1,7 @@
+import Button from "@/components/button";
 import useJam from "@/hooks/use-jam";
 import { addTrip, editTrip, TeamString } from "@/lib/client/api/jam";
 import { useCallback } from "react";
-import Button from "../Button";
 
 interface PointButtonsProps {
   boutId: string;
