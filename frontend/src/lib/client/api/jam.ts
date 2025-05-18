@@ -152,9 +152,7 @@ export async function setLead(
       jam_num: jamNum,
       team,
     },
-    {
-      value,
-    }
+    value,
   );
 }
 
@@ -181,9 +179,7 @@ export async function setLost(
       jam_num: jamNum,
       team,
     },
-    {
-      value,
-    }
+    value
   );
 }
 
@@ -210,9 +206,7 @@ export async function setStarPass(
       jam_num: jamNum,
       team,
     },
-    {
-      value,
-    }
+    value,
   );
 }
 
@@ -237,8 +231,6 @@ export async function setStopReason(
       period_num: periodNum,
       jam_num: jamNum,
     },
-    {
-      value,
-    }
+    value,
   );
 }

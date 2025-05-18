@@ -77,7 +77,7 @@ export default async function genericRequest<T = unknown>(
   endpoint: `/${string}`,
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
   query: object | null = null,
-  body?: string | number | object,
+  body?: string | number | boolean | object | null,
   sanitize = true
 ): Promise<T> {
   const url = new URL(endpoint, window.location.href);
