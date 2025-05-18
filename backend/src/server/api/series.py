@@ -9,8 +9,6 @@ from server.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
 
-SERIES_KEY: Final[updater.UpdateKey] = ('series',)
-
 
 @router.get('')
 async def get() -> JSONable:
@@ -20,10 +18,10 @@ async def get() -> JSONable:
     return view
 
 
-@router.post('/add-bout')
+@router.post('/bout')
 async def add_bout() -> JSONable:
     bouts[generate_bout_id()] = Bout('WFTDA 2025')
-    updater.post(SERIES_KEY)
+    updater.post(updater.kf.series())
 
     return {}
 
