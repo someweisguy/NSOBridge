@@ -125,9 +125,7 @@ export async function editTrip(
       team,
       trip_num: tripNum,
     },
-    {
-      points,
-    }
+    points
   );
 }
 
