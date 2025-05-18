@@ -1,11 +1,12 @@
 import { TeamString, Trip } from "@/lib/client/api/jam";
 import { ScrollArea } from "radix-ui";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import PointButtons from "./PointButtons";
 import useJam from "@/hooks/use-jam";
+import { BoutIdContext } from "@/app/provider";
 
 interface TripScrollProps {
-  boutId: string;
+  boutId?: string;
   periodNum: number;
   jamNum: number;
   team: TeamString;
@@ -25,6 +26,9 @@ export default function TripView({
   jamNum,
   team,
 }: TripScrollProps) {
+  const [boutIdContext] = useContext(BoutIdContext);
+  boutId = boutId ?? boutIdContext
+
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
 
