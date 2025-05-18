@@ -15,6 +15,7 @@ export function ScoreboardOperator() {
   const [periodNum, jamNum] = activeJamId ?? lastestJamId;
   usePrefetchJam(boutId, lastestJamId);
 
+
   return (
     <div className="grid grid-flow-row justify-evenly p-8">
       <TripView periodNum={periodNum} jamNum={jamNum} team="home" />

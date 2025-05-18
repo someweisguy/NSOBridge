@@ -3,6 +3,7 @@ import useJam from "@/hooks/use-jam";
 import { TeamString, Trip } from "@/lib/client/api/jam";
 import { ScrollArea } from "radix-ui";
 import { useContext, useEffect, useRef, useState } from "react";
+import JammerState from "./jammer-state";
 import PointButtons from "./point-buttons";
 import TripCard from "./trip-card";
 
@@ -128,6 +129,12 @@ export default function TripView({
           <ScrollArea.Thumb className="flex-1 rounded-full bg-slate-400 " />
         </ScrollArea.Scrollbar>
       </ScrollArea.Root>
+      <JammerState
+        periodNum={periodNum}
+        jamNum={jamNum}
+        team={team}
+        tripNum={tripNum}
+      />
     </div>
   );
 }
