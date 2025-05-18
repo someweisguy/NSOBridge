@@ -23,7 +23,5 @@ async def add_bout() -> JSONable:
     bouts[generate_bout_id()] = Bout('WFTDA 2025')
     updater.post(updater.kf.series())
 
-    return {}
-
 
 __all__ = ('router',)
