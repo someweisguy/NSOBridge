@@ -1,7 +1,7 @@
 import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { APIEvent, ConnectionEvent } from "./client/request";
 
-export const queryClient = new QueryClient({
+const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnReconnect: true,
@@ -13,6 +13,7 @@ export const queryClient = new QueryClient({
 window.addEventListener("connection", (event: ConnectionEvent) => {
   onlineManager.setOnline(event.online);
 });
+
 window.addEventListener("update", (event: APIEvent) => {
   // Force the query client to refetch the data
   void queryClient.refetchQueries(
@@ -24,3 +25,5 @@ window.addEventListener("update", (event: APIEvent) => {
     { cancelRefetch: false }
   );
 });
+
+export default queryClient;

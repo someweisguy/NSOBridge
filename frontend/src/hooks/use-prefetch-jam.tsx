@@ -1,4 +1,4 @@
-import { queryClient } from "@/lib/cache";
+import queryClient from "@/lib/cache";
 import { getJam } from "@/lib/client/api/jam";
 import { keyFactory } from "@/utils/key-factory";
 import { useEffect } from "react";
