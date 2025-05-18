@@ -9,6 +9,7 @@ interface PointButtonsProps {
   jamNum: number;
   tripNum: number;
   team: TeamString;
+  showInitial?: boolean;
 }
 
 export default function PointButtons({
@@ -17,6 +18,7 @@ export default function PointButtons({
   jamNum,
   tripNum,
   team,
+  showInitial = false,
 }: PointButtonsProps) {
   const numTrips: number = useJam(boutId, periodNum, jamNum)[team].score.trips
     .length;
@@ -35,11 +37,28 @@ export default function PointButtons({
 
   return (
     <div className="flex flex-row justify-evenly w-full my-2">
-      {Array.from({ length: 5 }, (_, i) => (
-        <Button key={i} onClick={() => addTripCallback(i)}>
-          {i}
-        </Button>
-      ))}
+      {!showInitial ? (
+        Array.from({ length: 5 }, (_, i) => (
+          <Button key={i} onClick={() => addTripCallback(i)}>
+            {i}
+          </Button>
+        ))
+      ) : (
+        <>
+          <Button
+            onClick={() =>
+              void addTrip(boutId, periodNum, jamNum, team, 0, false)
+            }
+          >
+            No Pass
+          </Button>
+          <Button
+            onClick={() => void addTrip(boutId, periodNum, jamNum, team, 0)}
+          >
+            Initial
+          </Button>
+        </>
+      )}
     </div>
   );
 }

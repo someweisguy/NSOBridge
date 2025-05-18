@@ -15,7 +15,7 @@ interface TripCardProps {
   key?: number;
   tripNum: number;
   points: number | null;
-  selected: boolean,
+  selected: boolean;
   onClick: () => void;
 }
 
@@ -43,7 +43,7 @@ export default function TripView({
     if (trips.length == lastTripNum.current + 1) {
       setTripNum(trips.length);
     }
-    
+
     const container = viewportRef.current!;
     const maxWidth = container.scrollWidth - container.offsetWidth;
     setScrollLeft(maxWidth);
@@ -73,6 +73,7 @@ export default function TripView({
         jamNum={jamNum}
         team={team}
         tripNum={tripNum}
+        showInitial={trips.length === 0}
       />
       <ScrollArea.Root className="border w-[300px] overflow-hidden rounded">
         <ScrollArea.Viewport
