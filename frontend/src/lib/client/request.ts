@@ -40,7 +40,6 @@ socket.onmessage = (event: MessageEvent<string>) => {
   const updates = JSON.parse(event.data) as UpdateKey[];
 
   for (const update of updates) {
-    console.log("WS: ", update); // TODO
     window.dispatchEvent(new APIEvent(update));
   }
 };
