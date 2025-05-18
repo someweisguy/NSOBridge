@@ -1,3 +1,4 @@
+from socket import AF_INET, SOCK_DGRAM, socket
 from typing import LiteralString
 
 from uvicorn import Config, Server
@@ -13,20 +14,10 @@ app.include_router(bout_router, prefix=API_PREFIX, tags=['bout'])
 app.include_router(jam_router, prefix=API_PREFIX, tags=['jam'])
 
 
-def get_ip_addresses() -> list[str]:
-    # TODO
-    # import netifaces
-
-    ip_addresses: list[str] = []
-    # for interface in netifaces.interfaces():
-    #     addresses = netifaces.ifaddresses(interface)
-    #     if netifaces.AF_INET in addresses:
-    #         ip_addresses += [
-    #             item['addr']
-    #             for item in addresses[netifaces.AF_INET]
-    #             if item['addr'] != '127.0.0.1'
-    #         ]
-    return ip_addresses
+def get_ip_address() -> str:
+    with socket(AF_INET, SOCK_DGRAM) as sock:
+        sock.connect(('1.1.1.1', 80))
+        return sock.getsockname()[0]
 
 
 async def serve(ip: str = '0.0.0.0', port: int = 8000) -> None:
@@ -44,4 +35,4 @@ async def serve(ip: str = '0.0.0.0', port: int = 8000) -> None:
     await host.serve()
 
 
-__all__ = ('get_ip_addresses', 'serve')
+__all__ = ('get_ip_address', 'serve')
