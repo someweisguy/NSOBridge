@@ -22,7 +22,6 @@ export default function PointButtons({
     .length;
   const addTripCallback = useCallback(
     (points: number) => {
-      console.log(`tripNum = ${tripNum}, numTrips = ${numTrips}`)
       if (tripNum > numTrips || tripNum < 0) {
         throw new Error("Trip num out of bounds error");
       } else if (tripNum === numTrips) {
@@ -35,7 +34,7 @@ export default function PointButtons({
   );
 
   return (
-    <div className="flex flex-row justify-evenly w-full bg-green-400">
+    <div className="flex flex-row justify-evenly w-full my-2">
       {Array.from({ length: 5 }, (_, i) => (
         <Button key={i} onClick={() => addTripCallback(i)}>
           {i}

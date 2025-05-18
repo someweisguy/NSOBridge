@@ -29,10 +29,24 @@ export default function TripView({
   const [scrollLeft, setScrollLeft] = useState(0);
 
   useEffect(() => {
+    viewportRef.current?.scrollTo({
+      left: scrollLeft,
+      behavior: "auto",
+    });
+  }, [scrollLeft]);
+
+  const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
+  const [tripNum, setTripNum] = useState(trips.length);
+  const lastTripNum = useRef<number>(tripNum);
+
+  useEffect(() => {
+    if (trips.length == lastTripNum.current + 1) {
+      setTripNum(trips.length);
+    }
+    
     const container = viewportRef.current!;
     const maxWidth = container.scrollWidth - container.offsetWidth;
-
-    setTimeout(() => setScrollLeft(maxWidth), 100);
+    setScrollLeft(maxWidth);
 
     const handleWheel = (ev: WheelEvent) => {
       ev.preventDefault();
@@ -45,17 +59,11 @@ export default function TripView({
 
     container.addEventListener("wheel", handleWheel as EventListener);
     return () => container.removeEventListener("wheel", handleWheel);
-  }, []);
+  }, [trips.length]);
 
   useEffect(() => {
-    viewportRef.current?.scrollTo({
-      left: scrollLeft,
-      behavior: "auto",
-    });
-  }, [scrollLeft]);
-
-  const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
-  const [tripNum, setTripNum] = useState(trips.length);
+    lastTripNum.current = tripNum;
+  }, [tripNum]);
 
   return (
     <div>
