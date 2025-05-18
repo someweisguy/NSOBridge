@@ -31,7 +31,7 @@ export default function JammerState({
   const teamJam: TeamJam = useJam(boutId, periodNum, jamNum)[team];
 
   return (
-    <div>
+    <div className="my-2">
       <CheckboxButton
         key={team + "Lead"}
         checked={teamJam.score.lead}
