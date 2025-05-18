@@ -50,14 +50,22 @@ export default function TripView({
   });
 
   useEffect(() => {
-    if (trips.length == lastTripRef.current.tripNum + 1) {
-      setTripNum(trips.length);
-    }
-
+    // Scroll to the end of the Trip viewport on hydration
     const container = viewportRef.current!;
     const maxWidth = container.scrollWidth - container.offsetWidth;
     setScrollLeft(maxWidth);
+  }, []);
 
+  useEffect(() => {
+    const container = viewportRef.current!;
+    const maxWidth = container.scrollWidth - container.offsetWidth;
+    if (trips.length == lastTripRef.current.tripNum + 1) {
+      // Update the selected Trip number to the latest
+      setTripNum(trips.length);
+      setScrollLeft(maxWidth);
+    }
+
+    // Convert up/down scroll-wheel into left/right
     const handleWheel = (ev: WheelEvent) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -66,14 +74,9 @@ export default function TripView({
         return Math.max(Math.min(newScrollLeft, maxWidth), 0);
       });
     };
-
     container.addEventListener("wheel", handleWheel as EventListener);
     return () => container.removeEventListener("wheel", handleWheel);
   }, [trips.length]);
-
-  useEffect(() => {
-    lastTripRef.current.tripNum = tripNum;
-  }, [tripNum]);
 
   useEffect(() => {
     const lastTrip = lastTripRef.current;
@@ -83,8 +86,12 @@ export default function TripView({
       lastTrip.jamNum !== jamNum ||
       lastTrip.team !== team
     ) {
+      // Reset the current trip to the latest trip when the Jam changes
       setTripNum(trips.length);
       lastTripRef.current = { boutId, periodNum, jamNum, team, tripNum };
+    } else if (lastTrip.tripNum != tripNum) {
+      // Update just the last Trip number reference
+      lastTrip.tripNum = tripNum;
     }
   }, [boutId, periodNum, jamNum, team, tripNum, trips]);
 
