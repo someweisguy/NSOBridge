@@ -27,7 +27,7 @@ export default function TripView({
   team,
 }: TripScrollProps) {
   const [boutIdContext] = useContext(BoutIdContext);
-  boutId = boutId ?? boutIdContext
+  boutId = boutId ?? boutIdContext;
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -41,10 +41,16 @@ export default function TripView({
 
   const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
   const [tripNum, setTripNum] = useState(trips.length);
-  const lastTripNum = useRef<number>(tripNum);
+  const lastTripRef = useRef({
+    boutId,
+    periodNum,
+    jamNum,
+    team,
+    tripNum,
+  });
 
   useEffect(() => {
-    if (trips.length == lastTripNum.current + 1) {
+    if (trips.length == lastTripRef.current.tripNum + 1) {
       setTripNum(trips.length);
     }
 
@@ -66,8 +72,21 @@ export default function TripView({
   }, [trips.length]);
 
   useEffect(() => {
-    lastTripNum.current = tripNum;
+    lastTripRef.current.tripNum = tripNum;
   }, [tripNum]);
+
+  useEffect(() => {
+    const lastTrip = lastTripRef.current;
+    if (
+      lastTrip.boutId !== boutId ||
+      lastTrip.periodNum !== periodNum ||
+      lastTrip.jamNum !== jamNum ||
+      lastTrip.team !== team
+    ) {
+      setTripNum(trips.length);
+      lastTripRef.current = { boutId, periodNum, jamNum, team, tripNum };
+    }
+  }, [boutId, periodNum, jamNum, team, tripNum, trips]);
 
   return (
     <div>
