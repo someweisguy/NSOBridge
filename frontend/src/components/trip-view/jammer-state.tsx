@@ -29,7 +29,6 @@ export default function JammerState({
   boutId = boutId ?? boutIdContext;
 
   const teamJam: TeamJam = useJam(boutId, periodNum, jamNum)[team];
-  console.log(teamJam.score);
 
   return (
     <div>
