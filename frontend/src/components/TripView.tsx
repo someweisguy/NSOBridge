@@ -74,7 +74,7 @@ export default function TripView({
         return Math.max(Math.min(newScrollLeft, maxWidth), 0);
       });
     };
-    container.addEventListener("wheel", handleWheel as EventListener);
+    container.addEventListener("wheel", handleWheel);
     return () => container.removeEventListener("wheel", handleWheel);
   }, [trips.length]);
 
