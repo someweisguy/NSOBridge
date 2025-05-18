@@ -2,7 +2,7 @@ import useActiveJamId from "@/hooks/use-active-jam-id";
 import useLatestJamId from "@/hooks/use-latest-jam-id";
 import usePrefetchJam from "@/hooks/use-prefetch-jam";
 import { BoutIdContext } from "../provider";
-import TripView from "@/components/TripView";
+import TripView from "@/components/trip-view";
 import { startJam, stopJam } from "@/lib/client/api/bout.ts";
 import { getSeries } from "@/lib/client/api/series.ts";
 import { useContext } from "react";
