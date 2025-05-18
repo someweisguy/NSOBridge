@@ -6,6 +6,7 @@ import TripView from "@/components/trip-view";
 import { startJam, stopJam } from "@/lib/client/api/bout.ts";
 import { getSeries } from "@/lib/client/api/series.ts";
 import { useContext } from "react";
+import TeamScore from "@/components/team-score";
 // import Clock from "@/components/Clock";
 
 export function ScoreboardOperator() {
@@ -17,7 +18,8 @@ export function ScoreboardOperator() {
 
 
   return (
-    <div className="grid grid-flow-row justify-evenly p-8">
+    <div className="justify-center content-center grid grid-flow-row p-8">
+      <TeamScore team="home"/>
       <TripView periodNum={periodNum} jamNum={jamNum} team="home" />
     </div>
   );
