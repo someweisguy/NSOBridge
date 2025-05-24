@@ -6,6 +6,7 @@ export type TimeoutType = "timeout" | "review";
 
 export interface TeamInfo {
   name: string;
+  mnemonic: string;
   score: number;
   timeoutsRemaining: number;
   officialReviewsRemaining: number;

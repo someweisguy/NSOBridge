@@ -16,5 +16,6 @@ class TeamAttribute[T](Protocol):
 @dataclass(slots=True)
 class Team:
     name: str = ''
+    mnemonic: str = ''
     timeouts_remaining: int = 3
     official_reviews_remaining: int = 1

@@ -8,6 +8,7 @@ import { getSeries } from "@/lib/client/api/series.ts";
 import { useContext } from "react";
 import TeamScore from "@/components/team-score";
 import TimeoutBar from "@/components/timeout-pips";
+import TeamName from "@/components/team-name";
 // import Clock from "@/components/Clock";
 
 export function ScoreboardOperator() {
@@ -19,6 +20,7 @@ export function ScoreboardOperator() {
 
   return (
     <div className="justify-center content-center grid grid-flow-row p-8">
+      <TeamName team="home" />
       <div className="grid grid-cols-2">
         <TimeoutBar team="home" />
         <TeamScore team="home" />
