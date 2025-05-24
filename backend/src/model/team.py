@@ -11,3 +11,10 @@ class TeamAttribute[T](Protocol):
 
     def __getitem__(self, key: TeamString) -> T:
         return getattr(self, key)
+
+
+@dataclass(slots=True)
+class Team:
+    name: str = ''
+    timeouts_remaining: int = 3
+    official_reviews_remaining: int = 1

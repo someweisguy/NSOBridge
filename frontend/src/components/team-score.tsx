@@ -21,7 +21,7 @@ export default function TeamScore({ boutId, team, divider = "" }: TeamScoreProps
   const [periodNum, jamNum] = activeJamId ?? lastestJamId;
   const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
 
-  const teamScore: number = useBout(boutId).score[team];
+  const teamScore: number = useBout(boutId, (bout) => bout[team].score);
   const jamScore: number = trips.reduce(
     (score, trip) => trip.points + score,
     0

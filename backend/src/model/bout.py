@@ -3,15 +3,17 @@ from datetime import datetime, timedelta
 from typing import Final
 
 from model.jam import Jam, StopReason
-from model.protocols import TeamString
+from model.team import Team, TeamAttribute, TeamString
 from model.timer import Timer
 
 type JamId = tuple[int, int]
 
 
 @dataclass(slots=True)
-class Bout:
+class Bout(TeamAttribute[Team]):
     ruleset_name: Final[str]
+    home: Team = field(init=False, default_factory=Team)
+    away: Team = field(init=False, default_factory=Team)
     timer: Final[Timer] = field(init=False, default_factory=Timer)
     jams: Final[tuple[list[Jam], list[Jam]]] = field(init=False, default=([Jam()], []))
 

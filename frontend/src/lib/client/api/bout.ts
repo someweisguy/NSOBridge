@@ -2,7 +2,14 @@ import genericRequest from "../request";
 import { TeamString } from "./jam";
 
 export type TeamOfficialString = TeamString | "official";
-export type TimeoutType = "timeout" | "review"
+export type TimeoutType = "timeout" | "review";
+
+export interface TeamInfo {
+  name: string;
+  score: number;
+  timeoutsRemaining: number;
+  officialReviewsRemaining: number;
+}
 
 export interface ClockType {
   startTimestamp: Date | null;
@@ -11,7 +18,7 @@ export interface ClockType {
 }
 
 export interface Timeout {
-  type: TimeoutType; 
+  type: TimeoutType;
   team: TeamOfficialString;
   periodNumber: number;
   jamNumber: number;
@@ -22,13 +29,10 @@ export interface Timeout {
   retained: boolean;
 }
 
-export interface TimeoutCounts {
-  timeoutsRemaining: number;
-  officialReviewsRemaining: number;
-}
-
 export interface Bout {
   gameNumber: number | null;
+  home: TeamInfo;
+  away: TeamInfo;
   timer: {
     clocks: {
       intermission: ClockType;
@@ -38,16 +42,8 @@ export interface Bout {
       timeout: ClockType;
     };
     timeouts: Timeout[];
-    timeoutCounts: {
-      home: TimeoutCounts;
-      away: TimeoutCounts;
-    };
   };
   numJams: [number, number];
-  score: {
-    home: number;
-    away: number;
-  };
 }
 
 export async function getBout(boutId: string): Promise<Bout> {

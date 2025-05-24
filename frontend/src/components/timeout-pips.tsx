@@ -1,6 +1,6 @@
 import { BoutIdContext } from "@/app/provider";
 import useBout from "@/hooks/use-bout";
-import { Timeout, TimeoutCounts, TimeoutType } from "@/lib/client/api/bout";
+import { Timeout, TimeoutType } from "@/lib/client/api/bout";
 import { TeamString } from "@/lib/client/api/jam";
 import { useContext } from "react";
 
@@ -18,13 +18,13 @@ interface PipProps {
 function computeTimeoutState(
   team: TeamString,
   timeouts: Timeout[],
-  teamTimeoutCounts: TimeoutCounts,
+  teamTimeoutCounts: number,
   timeoutType: TimeoutType,
   totalTimeouts: number
 ): PipPropState[] {
   const latestTimeout: Timeout | undefined = timeouts[timeouts.length - 1];
   return Array.from({ length: totalTimeouts }, (_, i) => {
-    if (teamTimeoutCounts.timeoutsRemaining > i) {
+    if (teamTimeoutCounts > i) {
       // The timeout has not be used yet
       return "remaining";
     } else if (
@@ -47,7 +47,7 @@ export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
     computeTimeoutState(
       team,
       bout.timer.timeouts,
-      bout.timer.timeoutCounts[team],
+      bout[team].timeoutsRemaining,
       "timeout",
       3
     )
@@ -57,7 +57,7 @@ export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
     computeTimeoutState(
       team,
       bout.timer.timeouts,
-      bout.timer.timeoutCounts[team],
+      bout[team].officialReviewsRemaining,
       "review",
       1
     )

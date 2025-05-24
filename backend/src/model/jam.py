@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Final, Literal
 
-from model.protocols import TeamAttribute, TeamString
+from model.team import TeamAttribute, TeamString
 
 type StopReason = Literal['called', 'time', 'injury', 'other']
 

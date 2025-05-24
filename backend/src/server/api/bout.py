@@ -4,12 +4,21 @@ from typing import Annotated, Final
 from fastapi import APIRouter, Body, Query
 from model import bouts
 from model.bout import Bout, JamId
-from model.timer import Clock, Timeout, TimeoutCount
+from model.timer import Clock, TeamString, Timeout
 
 from server import updater
 from server.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
+
+
+def render_team(bout: Bout, team: TeamString) -> JSONable:
+    return {
+        'name': None,
+        'score': bout.get_total_score(team),
+        'timeoutsRemaining': bout[team].timeouts_remaining,
+        'officialReviewsRemaining': bout[team].official_reviews_remaining,
+    }
 
 
 def render_clock(clock: Clock) -> JSONable:
@@ -39,18 +48,13 @@ def render_timeout(timeout: Timeout) -> JSONable:
     }
 
 
-def render_timeout_count(timeout: TimeoutCount) -> JSONable:
-    return {
-        'timeoutsRemaining': timeout.timeouts_remaining,
-        'officialReviewsRemaining': timeout.official_reviews_remaining,
-    }
-
-
 @router.get('')
 async def get(bout_id: str) -> JSONable:
     bout: Bout = bouts[bout_id]
     return {
         'gameNumber': None,
+        'home': render_team(bout, 'home'),
+        'away': render_team(bout, 'away'),
         'timer': {
             'clocks': {
                 'intermission': render_clock(bout.timer.intermission_clock),
@@ -60,16 +64,8 @@ async def get(bout_id: str) -> JSONable:
                 'timeout': render_clock(bout.timer.timeout_clock),
             },
             'timeouts': [render_timeout(t) for t in bout.timer.timeouts],
-            'timeoutCounts': {
-                'home': render_timeout_count(bout.timer.home),
-                'away': render_timeout_count(bout.timer.away),
-            },
         },
         'numJams': [len(bout.jams[0]), len(bout.jams[1])],
-        'score': {
-            'home': bout.get_total_score('home'),
-            'away': bout.get_total_score('away'),
-        },
     }
 
 

@@ -2,10 +2,11 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final, Literal
 
-from model.protocols import TeamAttribute, TeamString
+from model.team import TeamString
 
 type TeamOfficialString = TeamString | Literal['official']
 type TimeoutType = Literal['timeout', 'review']
+
 
 @dataclass(slots=True)
 class Clock:
@@ -63,21 +64,13 @@ class Timeout:
 
 
 @dataclass(slots=True)
-class TimeoutCount:
-    timeouts_remaining: int = field(default=3)
-    official_reviews_remaining: int = field(default=1)
-
-
-@dataclass(slots=True)
-class Timer(TeamAttribute[TimeoutCount]):
+class Timer:
     intermission_clock: Final[Clock] = field(init=False, default_factory=Clock)
     game_clock: Final[Clock] = field(init=False, default_factory=Clock)
     lineup_clock: Final[Clock] = field(init=False, default_factory=Clock)
     jam_clock: Final[Clock] = field(init=False, default_factory=Clock)
     timeout_clock: Final[Clock] = field(init=False, default_factory=Clock)
     timeouts: Final[list[Timeout]] = field(init=False, default_factory=list)
-    home: Final[TimeoutCount] = field(init=False, default_factory=TimeoutCount)  # type: ignore[assignment]
-    away: Final[TimeoutCount] = field(init=False, default_factory=TimeoutCount)  # type: ignore[assignment]
 
     def get_game_state(
         self,
