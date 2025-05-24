@@ -39,7 +39,7 @@ def render_timeout(timeout: Timeout) -> JSONable:
     }
 
 
-def render_timeout_clock(timeout: TimeoutCount) -> JSONable:
+def render_timeout_count(timeout: TimeoutCount) -> JSONable:
     return {
         'timeoutsRemaining': timeout.timeouts_remaining,
         'officialReviewsRemaining': timeout.official_reviews_remaining,
@@ -61,8 +61,8 @@ async def get(bout_id: str) -> JSONable:
             },
             'timeouts': [render_timeout(t) for t in bout.timer.timeouts],
             'timeoutCounts': {
-                'home': render_timeout_clock(bout.timer.home),
-                'away': render_timeout_clock(bout.timer.away),
+                'home': render_timeout_count(bout.timer.home),
+                'away': render_timeout_count(bout.timer.away),
             },
         },
         'numJams': [len(bout.jams[0]), len(bout.jams[1])],
