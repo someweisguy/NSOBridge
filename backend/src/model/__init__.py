@@ -18,6 +18,7 @@ BAD_WORDS: Final[set[str]] = {
         'ARSE',
         'ARZE',
         'BOOB',
+        'CHUB',
         'CLIT',
         'COCK',
         'COON',
