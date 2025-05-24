@@ -4,4 +4,7 @@
     "editor.defaultFormatter": "charliermarsh.ruff",
   },
   "python.analysis.diagnosticMode": "workspace",
+  "cSpell.ignoreWords": [
+    "ACMR"
+  ],
 }
