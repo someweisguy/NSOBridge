@@ -1,4 +1,8 @@
 import genericRequest from "../request";
+import { TeamString } from "./jam";
+
+export type TeamOfficialString = TeamString | "official";
+export type TimeoutType = "timeout" | "review"
 
 export interface ClockType {
   startTimestamp: Date | null;
@@ -6,7 +10,19 @@ export interface ClockType {
   alarm: number;
 }
 
-export interface Timeouts {
+export interface Timeout {
+  type: TimeoutType; 
+  team: TeamOfficialString;
+  periodNumber: number;
+  jamNumber: number;
+  periodClockElapsed: number;
+  duration: number;
+  details: string;
+  result: string;
+  retained: boolean;
+}
+
+export interface TimeoutCounts {
   timeoutsRemaining: number;
   officialReviewsRemaining: number;
 }
@@ -21,9 +37,10 @@ export interface Bout {
       jam: ClockType;
       timeout: ClockType;
     };
-    timeouts: {
-      home: Timeouts;
-      away: Timeouts;
+    timeouts: Timeout[];
+    timeoutCounts: {
+      home: TimeoutCounts;
+      away: TimeoutCounts;
     };
   };
   numJams: [number, number];

@@ -2,8 +2,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final, Literal
 
-from model.protocols import TeamAttribute
+from model.protocols import TeamAttribute, TeamString
 
+type TeamOfficialString = TeamString | Literal['official']
+type TimeoutType = Literal['timeout', 'review']
 
 @dataclass(slots=True)
 class Clock:
@@ -49,19 +51,33 @@ class Clock:
 
 @dataclass(slots=True)
 class Timeout:
+    type: TimeoutType
+    team: TeamOfficialString
+    period_number: int
+    jam_number: int
+    period_clock_elapsed: timedelta
+    duration: timedelta | None = None
+    details: str = ''
+    result: str = ''
+    retained: bool = False
+
+
+@dataclass(slots=True)
+class TimeoutCount:
     timeouts_remaining: int = field(default=3)
     official_reviews_remaining: int = field(default=1)
 
 
 @dataclass(slots=True)
-class Timer(TeamAttribute[Timeout]):
+class Timer(TeamAttribute[TimeoutCount]):
     intermission_clock: Final[Clock] = field(init=False, default_factory=Clock)
     game_clock: Final[Clock] = field(init=False, default_factory=Clock)
     lineup_clock: Final[Clock] = field(init=False, default_factory=Clock)
     jam_clock: Final[Clock] = field(init=False, default_factory=Clock)
     timeout_clock: Final[Clock] = field(init=False, default_factory=Clock)
-    home: Final[Timeout] = field(init=False, default_factory=Timeout)  # type: ignore[assignment]
-    away: Final[Timeout] = field(init=False, default_factory=Timeout)  # type: ignore[assignment]
+    timeouts: Final[list[Timeout]] = field(init=False, default_factory=list)
+    home: Final[TimeoutCount] = field(init=False, default_factory=TimeoutCount)  # type: ignore[assignment]
+    away: Final[TimeoutCount] = field(init=False, default_factory=TimeoutCount)  # type: ignore[assignment]
 
     def get_game_state(
         self,
@@ -72,7 +88,7 @@ class Timer(TeamAttribute[Timeout]):
             return 'jam'
         elif self.timeout_clock.is_running():
             return 'timeout'
-        else: 
+        else:
             return 'intermission'
 
     def stop_all_clocks(self, timestamp: datetime) -> None:
