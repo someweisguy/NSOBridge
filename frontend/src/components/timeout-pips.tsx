@@ -25,6 +25,7 @@ function computeTimeoutState(
   const latestTimeout: Timeout | undefined = timeouts[timeouts.length - 1];
   return Array.from({ length: totalTimeouts }, (_, i) => {
     if (teamTimeoutCounts.timeoutsRemaining > i) {
+      // The timeout has not be used yet
       return "remaining";
     } else if (
       latestTimeout?.team === team &&
