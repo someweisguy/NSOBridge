@@ -26,7 +26,7 @@ export default function JammerState({
   tripNum,
 }: JammerStateProps) {
   const [boutIdContext] = useContext(BoutIdContext);
-  boutId = boutId ?? boutIdContext;
+  boutId ??= boutIdContext;
 
   const teamJam: TeamJam = useJam(boutId, periodNum, jamNum)[team];
 

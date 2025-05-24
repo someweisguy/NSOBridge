@@ -12,7 +12,7 @@ interface ClockProps {
 
 export default function Clock({ boutId, name }: ClockProps): ReactNode {
   const [contextBoutId] = useContext(BoutIdContext);
-  boutId = boutId ?? contextBoutId;
+  boutId ??= contextBoutId;
 
   const clock: ClockType = useBout(boutId).timer.clocks[name];
 

@@ -14,7 +14,7 @@ interface TeamScoreProps {
 
 export default function TeamScore({ boutId, team, divider = "" }: TeamScoreProps) {
   const [boutIdContext] = useContext(BoutIdContext);
-  boutId = boutId ?? boutIdContext;
+  boutId ??= boutIdContext;
 
   const lastestJamId = useLatestJamId(boutId)!;
   const activeJamId = useActiveJamId(boutId);

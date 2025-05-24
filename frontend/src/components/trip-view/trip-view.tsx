@@ -21,7 +21,7 @@ export default function TripView({
   team,
 }: TripScrollProps) {
   const [boutIdContext] = useContext(BoutIdContext);
-  boutId = boutId ?? boutIdContext;
+  boutId ??= boutIdContext;
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -99,12 +99,12 @@ export default function TripView({
         tripNum={tripNum}
         showInitial={trips.length === 0}
       />
-      <ScrollArea.Root className="border w-[300px] overflow-hidden rounded">
+      <ScrollArea.Root className="border rounded w-[300px] overflow-hidden">
         <ScrollArea.Viewport
           ref={viewportRef}
-          className="h-full size-full rounded"
+          className="rounded h-full size-full"
         >
-          <div className="grid grid-flow-col size-full justify-start px-3 py-2">
+          <div className="justify-start grid grid-flow-col px-3 py-2 size-full">
             {trips.map((t, i) => (
               <TripCard
                 key={t.timestamp.getTime()}
@@ -123,10 +123,10 @@ export default function TripView({
           </div>
         </ScrollArea.Viewport>
         <ScrollArea.Scrollbar
-          className="flex touch-none select-none bg-slate-200 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-slate-700 h-2.5 flex-col"
+          className="flex flex-col bg-slate-200 hover:bg-slate-700 p-0.5 h-2.5 transition-colors duration-[160ms] ease-out touch-none select-none"
           orientation="horizontal"
         >
-          <ScrollArea.Thumb className="flex-1 rounded-full bg-slate-400 " />
+          <ScrollArea.Thumb className="flex-1 bg-slate-400 rounded-full" />
         </ScrollArea.Scrollbar>
       </ScrollArea.Root>
       <JammerState
