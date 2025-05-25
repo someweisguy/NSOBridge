@@ -8,9 +8,14 @@ import { ReactNode, useContext } from "react";
 interface ClockProps {
   boutId?: string;
   name: Exclude<keyof Bout["timer"]["clocks"], "timeout">;
+  showMillis?: boolean | "auto";
 }
 
-export default function Clock({ boutId, name }: ClockProps): ReactNode {
+export default function Clock({
+  boutId,
+  name,
+  showMillis = "auto",
+}: ClockProps): ReactNode {
   const [contextBoutId] = useContext(BoutIdContext);
   boutId ??= contextBoutId;
 
@@ -22,7 +27,9 @@ export default function Clock({ boutId, name }: ClockProps): ReactNode {
   const timeToDisplay = remaining >= 0 ? remaining : 0;
 
   const timeString: string = formatMilliseconds(timeToDisplay, {
-    displayMillis: remaining < 10000 && remaining > -1000,
+    displayMillis:
+      showMillis === true ||
+      (showMillis === "auto" && remaining < 10000 && remaining > -1000),
   });
 
   return <>{timeString}</>;
