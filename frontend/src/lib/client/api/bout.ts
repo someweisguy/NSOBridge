@@ -3,6 +3,12 @@ import { TeamString } from "./jam";
 
 export type TeamOfficialString = TeamString | "official";
 export type TimeoutType = "timeout" | "review";
+export type GameStateType =
+  | "intermission"
+  | "stopped"
+  | "lineup"
+  | "jam"
+  | "timeout";
 
 export interface TeamInfo {
   name: string;
@@ -83,11 +89,11 @@ export function selectLatestJamId(
   bout: Bout,
   offset = 0,
   returnOutOfBounds = false
-): [number, number] | null {
+): [number, number] {
   const numJams: [number, number] = bout.numJams;
   const periodNum = Number(numJams[1] > 0);
   const jamNum = numJams[periodNum] - 1;
-  return offsetJamId(bout, [periodNum, jamNum], offset, returnOutOfBounds);
+  return offsetJamId(bout, [periodNum, jamNum], offset, returnOutOfBounds)!;
 }
 
 export function offsetJamId(
@@ -122,13 +128,12 @@ export function selectActiveJamId(
   offset = 0,
   returnOutOfBounds = false
 ): [number, number] | null {
-  const latestJamId: [number, number] = selectLatestJamId(bout)!;
+  const latestJamId: [number, number] = selectLatestJamId(bout);
 
   // Turn the Jam vector into a scalar
   let jamScalar: number = latestJamId[1] + latestJamId[0] * bout.numJams[0];
 
   // Apply an offset and subtract one if the Jam timer isn't running
-
   jamScalar += offset - Number(bout.timer.clocks.jam.startTimestamp === null);
 
   // Convert the Jam scalar back into a vector
@@ -144,4 +149,19 @@ export function selectActiveJamId(
     return null;
   }
   return jamVector;
+}
+
+export function selectGameState(bout: Bout): GameStateType {
+  const clocks = bout.timer.clocks;
+  if (clocks.jam.startTimestamp !== null) {
+    return "jam";
+  } else if (clocks.lineup.startTimestamp !== null) {
+    return "lineup";
+  } else if (clocks.timeout.startTimestamp !== null) {
+    return "timeout";
+  } else if (clocks.intermission.startTimestamp !== null) {
+    return "intermission";
+  } else {
+    return "stopped";
+  }
 }
