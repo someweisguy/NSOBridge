@@ -19,6 +19,7 @@ export default function JamController({
   const gameState = useBout(boutId, selectGameState);
   const buttonRow = useMemo(() => {
     switch (gameState) {
+      case "stopped":
       case "intermission":
       case "lineup":
         return (
