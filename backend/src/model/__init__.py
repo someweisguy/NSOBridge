@@ -17,7 +17,7 @@ BAD_WORDS: Final[set[str]] = {
         'ANUS',
         'ARSE',
         'ARZE',
-        'ASSS',        
+        'ASSS',
         'BOOB',
         'CHUB',
         'CLIT',
@@ -78,4 +78,4 @@ def generate_bout_id() -> str:
             return bout_id
 
 
-bouts[generate_bout_id()] = Bout('WFTDA 2025')
+bouts[generate_bout_id()] = Bout('WFTDA 2025')  # ty: ignore
