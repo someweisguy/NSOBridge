@@ -1,9 +1,0 @@
-fastapi==0.115.5
-Jinja2==3.1.4
-netifaces==0.11.0
-pyinstaller==6.12.0
-PySide6==6.8.2.1
-requests==2.31.0
-ruff==0.11.4
-uvicorn==0.29.0
-websockets==13.0.1

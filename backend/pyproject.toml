@@ -1,3 +1,19 @@
+[project]
+name = "NSO-Bridge-Backend"
+version = "0.1.0"
+description = "Backend for NSO Bridge"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.115.12",
+  "nanoid==2.0.0",
+  "pyinstaller==6.12.0",
+  "PySide6==6.8.2.1",
+  "requests==2.31.0",
+  "ruff==0.11.11",
+  "uvicorn==0.34.2",
+  "websockets==15.0.1",
+]
+
 [tool.pyright]
 include = ["backend/src"]
 exclude = ["**/node_modules", "**/__pycache__"]
@@ -14,8 +30,8 @@ line-length = 88
 indent-width = 4
 extend-select = ["A", "B", "C", "D", "E", "F", "I", "FAST", "PL", "EXE"]
 ignore = [
-  "D", 
-  "PLR0913",  # Too many arguments in method definition
+  "D",
+  "PLR0913", # Too many arguments in method definition
 ]
 fix = true
 fixable = ["ALL"]
