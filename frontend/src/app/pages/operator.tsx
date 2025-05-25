@@ -19,11 +19,18 @@ export function ScoreboardOperator() {
   usePrefetchJam(boutId, lastestJamId);
 
   return (
-    <JamController boutId={boutId}>
-      {TEAMS.map((team: TeamString) => (
-        <TeamJam key={team} periodNum={periodNum} jamNum={jamNum} team={team} />
-      ))}
-    </JamController>
+    <div className="place-items-center w-full">
+      <JamController boutId={boutId}>
+        {TEAMS.map((team: TeamString) => (
+          <TeamJam
+            key={team}
+            periodNum={periodNum}
+            jamNum={jamNum}
+            team={team}
+          />
+        ))}
+      </JamController>
+    </div>
   );
 }
 

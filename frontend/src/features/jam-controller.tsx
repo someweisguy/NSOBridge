@@ -14,26 +14,13 @@ export default function JamController({
   boutId ??= boutIdContext;
 
   return (
-    <div className="justify-center content-center grid grid-flow-row">
-      <div className="grid grid-flow-col">
+    <div className="justify-items-center grid grid-flow-row w-2/3">
+      <div className="place-items-start grid grid-flow-col m-2 w-full align-middle">
         <GameTimer boutId={boutId} />
       </div>
-      <div className="justify-center content-center grid grid-flow-col">
+      <div className="justify-center grid grid-flow-col">
         {children}
       </div>
     </div>
   );
 }
-
-/*
-Lineup: startJam, callTimeout, endPeriod
-
-Jam: stopJam, stopJamCallTimeout
-
-Timeout:
-
-
-Stopped: starJam, startLineup, startIntermissionClock
-
-
-*/
