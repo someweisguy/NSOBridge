@@ -2,10 +2,10 @@ from datetime import datetime
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Body, Query
+
 from model import bouts
 from model.bout import Bout, JamId
 from model.timer import Clock, TeamString, Timeout
-
 from server import updater
 from server.responses import JSONable
 

@@ -2,9 +2,9 @@ from datetime import datetime
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Body, Query
+
 from model import bouts
 from model.jam import Jam, StopReason, Team, TeamString
-
 from server import updater
 from server.responses import JSONable
 

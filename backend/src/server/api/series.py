@@ -1,9 +1,9 @@
 from typing import Final
 
 from fastapi import APIRouter
+
 from model import bouts, generate_bout_id
 from model.bout import Bout
-
 from server import updater
 from server.responses import JSONable
 
