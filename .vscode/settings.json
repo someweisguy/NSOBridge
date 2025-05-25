@@ -1,10 +1,6 @@
 {
   "[python]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "charliermarsh.ruff",
-  },
-  "python.analysis.diagnosticMode": "workspace",
-  "cSpell.ignoreWords": [
-    "ACMR"
-  ],
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  }
 }
