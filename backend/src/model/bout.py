@@ -4,7 +4,7 @@ from typing import Any
 from pydantic import Field, PrivateAttr, computed_field
 
 from model.jam import JamReferee
-from model.team import RefereeContext, Team
+from model.team import RefereeContext, Team, TeamAttribute
 from model.timer import TimeReferee
 
 
@@ -22,6 +22,8 @@ class Bout(RefereeContext):
     def model_post_init(self, context: Any) -> None:
         self._jams = JamReferee(_context=self)
 
+        print(self.model_dump())
+
     @property
     def jams(self) -> JamReferee:
         return self._jams
@@ -29,6 +31,13 @@ class Bout(RefereeContext):
     @computed_field()
     def num_jams(self) -> tuple[int, int]:
         return self.jams.get_lens()
+
+    @computed_field()
+    def total_score(self) -> TeamAttribute[int]:
+        return TeamAttribute[int](
+            home=self.jams.get_total_score('home'),
+            away=self.jams.get_total_score('away'),
+        )
 
     def start_jam(self, timestamp: datetime) -> None:
         self.timer.start_jam(timestamp)
