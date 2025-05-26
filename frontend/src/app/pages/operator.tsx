@@ -1,11 +1,11 @@
+import JamController from "@/features/jam-controller";
 import { TeamJam } from "@/features/team-jam";
 import useActiveJamId from "@/hooks/use-active-jam-id";
 import useLatestJamId from "@/hooks/use-latest-jam-id";
 import usePrefetchJam from "@/hooks/use-prefetch-jam";
-import { TeamString } from "@/lib/client/api/jam";
+import { TeamString } from "@/lib/client/api/types";
 import { useContext } from "react";
 import { BoutIdContext } from "../provider";
-import JamController from "@/features/jam-controller";
 
 const TEAMS: [TeamString, TeamString] = ["home", "away"];
 
