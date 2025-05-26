@@ -7,11 +7,64 @@ from pydantic import BaseModel
 from model import bouts
 from model.bout import Bout
 from model.jam import JamId
-from model.timer import TeamOfficialString, Timeout, TimeoutType
+from model.team import TeamString
+from model.timer import Clock, TeamOfficialString, Timeout, TimeoutType, TimeReferee
 from server import updater
-from server.responses import JSONable, camel_dict
+from server.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
+
+
+def render_timer(alarm: Clock) -> JSONable:
+    return {
+        'startTimestamp': alarm.start_timestamp.isoformat()
+        if alarm.start_timestamp is not None
+        else None,
+        'elapsed': round(alarm.elapsed.total_seconds() * 1000),
+        'alarm': round(alarm.alarm.total_seconds() * 1000),
+    }
+
+
+def render_time_referee(referee: TimeReferee) -> JSONable:
+    return {
+        'clocks': {
+            'intermission': render_timer(referee.clocks.intermission),
+            'game': render_timer(referee.clocks.game),
+            'jam': render_timer(referee.clocks.jam),
+            'lineup': render_timer(referee.clocks.lineup),
+        },
+        'timeouts': [
+            {
+                'periodNum': t.period_num,
+                'jamNum': t.jam_num,
+                'periodClockElapsed': round(
+                    t.period_clock_elapsed.total_seconds() * 1000
+                ),
+                'startTimestamp': t.start_timestamp.isoformat()
+                if t.start_timestamp is not None
+                else None,
+                'duration': round(t.duration.total_seconds() * 1000),
+                'type': t.type,
+                'team': t.team,
+                'details': t.details,
+                'result': t.result,
+                'retained': t.retained,
+            }
+            for t in referee.timeouts
+        ],
+    }
+
+
+def render_team(bout: Bout, team: TeamString) -> JSONable:
+    return {
+        'name': bout[team].name,
+        'mnemonic': bout[team].mnemonic,
+        'score': bout.jams.get_total_score(team),
+        'clockStops': {
+            'timeout': bout[team].clock_stops.timeout,
+            'review': bout[team].clock_stops.review,
+        },
+    }
 
 
 @router.get('')
@@ -19,10 +72,10 @@ async def get(bout_id: str) -> JSONable:
     bout: Bout = bouts[bout_id]
     return {
         'gameNumber': None,
-        'home': camel_dict(bout.home) + {'score': bout.jams.get_total_score('home')},
-        'away': camel_dict(bout.away) + {'score': bout.jams.get_total_score('away')},
-        'timer': camel_dict(bout.timer),
-        'numJams': [len(bout.jams[0]), len(bout.jams[1])],
+        'timer': render_time_referee(bout.timer),
+        'home': render_team(bout, 'home'),
+        'away': render_team(bout, 'away'),
+        'numJams': bout.jams.get_lens(),
     }
 
 

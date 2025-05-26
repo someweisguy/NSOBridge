@@ -16,8 +16,8 @@ export interface TeamInfo {
   score: number;
   clockStops: {
     timeout: number;
-    review: number
-  }
+    review: number;
+  };
 }
 
 export interface Timer {
@@ -30,12 +30,13 @@ export interface Alarm extends Timer {
 }
 
 export interface Timeout {
+  periodNum: number;
+  jamNum: number;
+  periodClockElapsed: number;
+  startTimestamp: Date;
+  duration: number;
   type: TimeoutType;
   team: TeamOfficialString;
-  periodNumber: number;
-  jamNumber: number;
-  periodClockElapsed: number;
-  duration: number;
   details: string;
   result: string;
   retained: boolean;
@@ -51,7 +52,6 @@ export interface Bout {
       game: Alarm;
       lineup: Alarm;
       jam: Alarm;
-      timeout: Timer;
     };
     timeouts: Timeout[];
   };
@@ -162,7 +162,9 @@ export function selectGameState(bout: Bout): GameStateType {
     return "jam";
   } else if (clocks.lineup.startTimestamp !== null) {
     return "lineup";
-  } else if (clocks.timeout.startTimestamp !== null) {
+  } else if (
+    bout.timer.timeouts[bout.timer.timeouts.length - 1]?.startTimestamp !== null
+  ) {
     return "timeout";
   } else if (clocks.intermission.startTimestamp !== null) {
     return "intermission";

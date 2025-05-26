@@ -3,20 +3,18 @@ from datetime import datetime
 from typing import Final
 
 from model.jam import JamReferee
-from model.team import RefereeContext
+from model.team import RefereeContext, Team
 from model.timer import TimeReferee
 
 
 @dataclass(slots=True)
 class Bout(RefereeContext):
-    ruleset_name: Final[str]
-    timer: Final[TimeReferee]
-    jams: Final[JamReferee]
-    
     def __init__(self, ruleset_name: str) -> None:
-        self.ruleset_name = ruleset_name
-        self.timer = TimeReferee(self)
-        self.jams = JamReferee(self)
+        self.ruleset_name: Final[str] = ruleset_name
+        self.timer: Final[TimeReferee] = TimeReferee(self)
+        self.jams: Final[JamReferee] = JamReferee(self)
+        self.home: Final[Team] = Team()
+        self.away: Final[Team] = Team()
 
     def start_jam(self, timestamp: datetime) -> None:
         self.timer.start_jam(timestamp)

@@ -48,11 +48,17 @@ class JamReferee(AbstractReferee):
     jams: Final[tuple[list[Jam], list[Jam]]] = field(init=False, default=([Jam()], []))
 
     def __getitem__(self, jam_id: JamId) -> Jam:
+        return self.get_jam(jam_id)
+
+    def __len__(self) -> tuple[int, int]:
+        return self.get_lens()
+
+    def get_jam(self, jam_id: JamId) -> Jam:
         period_num, jam_num = jam_id
         return self.jams[period_num][jam_num]
 
-    def get_jam(self, jam_id: JamId) -> Jam:
-        return self[jam_id]
+    def get_lens(self) -> tuple[int, int]:
+        return (len(self.jams[0]), len(self.jams[1]))
 
     def get_latest_jam_id(self) -> JamId:
         period_num: int = 1 if len(self.jams[1]) > 0 else 0
@@ -104,7 +110,7 @@ class JamReferee(AbstractReferee):
         jam[team].score.trips.append(Score.Trip(points, now))
 
         # Declare a Lead Jammer if it is appropriate
-        if all(valid_pass, not jam[team].score.lost, not jam.lead_is_declared()):
+        if all([valid_pass, not jam[team].score.lost, not jam.lead_is_declared()]):
             self.set_lead(jam_id, team, True)
 
     def set_trip(

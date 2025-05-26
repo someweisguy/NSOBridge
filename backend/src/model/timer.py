@@ -106,10 +106,10 @@ class Timeout(Timer):
 class TimeReferee(AbstractReferee):
     @dataclass(slots=True)
     class Clocks:
-        intermission: Final[Clock] = field(init=False, default_factory=Clock)
-        game: Final[Clock] = field(init=False, default_factory=Clock)
-        lineup: Final[Clock] = field(init=False, default_factory=Clock)
-        jam: Final[Clock] = field(init=False, default_factory=Clock)
+        intermission: Final[Clock] = field(default_factory=Clock)
+        game: Final[Clock] = field(default_factory=Clock)
+        lineup: Final[Clock] = field(default_factory=Clock)
+        jam: Final[Clock] = field(default_factory=Clock)
 
     clocks: Final[Clocks] = field(init=False, default_factory=Clocks)
     timeouts: Final[list[Timeout]] = field(init=False, default_factory=list)

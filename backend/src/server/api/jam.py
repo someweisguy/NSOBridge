@@ -4,17 +4,39 @@ from fastapi import APIRouter, Body, Query
 
 from model import bouts
 from model.bout import Bout
-from model.jam import Jam, StopReason, TeamString
+from model.jam import Jam, StopReason, TeamJam, TeamString
 from server import updater
-from server.responses import JSONable, camel_dict
+from server.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')
 
 
+def render_team_jam(team_jam: TeamJam) -> JSONable:
+    return {
+        'score': {
+            'lead': team_jam.score.lead,
+            'lost': team_jam.score.lost,
+            'starPass': team_jam.score.star_pass,
+            'trips': [
+                {'points': trip.points, 'timestamp': trip.timestamp.isoformat()}
+                for trip in team_jam.score.trips
+            ],
+        }
+    }
+
+
 @router.get('')
 async def get(bout_id: str, period_num: int, jam_num: int) -> JSONable:
-    jam: Jam = bouts[bout_id].jams.get_jam(period_num, jam_num)
-    return camel_dict(jam)
+    jam: Jam = bouts[bout_id].jams.get_jam((period_num, jam_num))
+    return {
+        'startTimestamp': jam.start_timestamp.isoformat()
+        if jam.start_timestamp is not None
+        else None,
+        'elapsed': round(jam.elapsed.total_seconds() * 1000),
+        'stopReason': jam.stop_reason,
+        'home': render_team_jam(jam.home),
+        'away': render_team_jam(jam.away),
+    }
 
 
 @router.post('/trip')

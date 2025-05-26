@@ -18,8 +18,8 @@ export interface TeamJam {
 }
 
 export interface Jam {
-  start: Date | null;
-  stop: Date | null;
+  startTimestamp: Date | null;
+  elapsed: Date | null;
   stopReason: StopReason | null;
   home: TeamJam;
   away: TeamJam;
@@ -106,7 +106,7 @@ export async function editTrip(
   jamNum: number,
   team: TeamString,
   tripNum: number,
-  points: number,
+  points: number
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
     throw new Error("Invalid Period Number");
@@ -152,7 +152,7 @@ export async function setLead(
       jam_num: jamNum,
       team,
     },
-    value,
+    value
   );
 }
 
@@ -206,7 +206,7 @@ export async function setStarPass(
       jam_num: jamNum,
       team,
     },
-    value,
+    value
   );
 }
 
@@ -231,6 +231,6 @@ export async function setStopReason(
       period_num: periodNum,
       jam_num: jamNum,
     },
-    value,
+    value
   );
 }
