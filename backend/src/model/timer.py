@@ -128,8 +128,6 @@ class TimeReferee(AbstractReferee):
         self.clocks.jam.reset()
         self.clocks.jam.start(timestamp)
 
-        self.update_manually()
-
     def stop_jam(self, timestamp: datetime) -> None:
         if not self.clocks.jam.is_running():
             raise RuntimeError('Cannot stop a Jam when there is none running') from None
@@ -137,8 +135,6 @@ class TimeReferee(AbstractReferee):
 
         self.clocks.lineup.reset()
         self.clocks.lineup.start(timestamp)
-
-        self.update_manually()
 
     def timeout_is_running(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
@@ -158,8 +154,6 @@ class TimeReferee(AbstractReferee):
         timeout: Timeout = Timeout(timestamp, period_num, jam_num, period_clock_elapsed)
         self.timeouts.append(timeout)
 
-        self.update_manually()
-
     def end_timeout(self, timestamp: datetime) -> None:
         if not self.timeout_is_running():
             raise RuntimeError('Cannot end a Timeout when one is not running')
@@ -169,5 +163,3 @@ class TimeReferee(AbstractReferee):
         timeout: Timeout = self.timeouts[-1]
         if timeout.type == 'timeout' or not timeout.retained:
             self.context[timeout.team].clock_stops[timeout.type] -= 1
-
-        self.update_manually()
