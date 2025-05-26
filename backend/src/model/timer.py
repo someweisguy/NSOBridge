@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, PlainSerializer
+from pydantic import Field, PlainSerializer
 
-from model.team import AbstractReferee, TeamString
+from model.team import AbstractReferee, ProjectModel, TeamString
 
 type TeamOfficialString = TeamString | Literal['official']
 type TimeoutType = Literal['timeout', 'review']
@@ -14,7 +14,7 @@ type millisdelta = Annotated[
 ]
 
 
-class Timer(BaseModel):
+class Timer(ProjectModel):
     start_timestamp: datetime | None = None
     elapsed: millisdelta = timedelta(seconds=0)
 
@@ -105,7 +105,7 @@ class Timeout(Timer):
 
 
 class TimeReferee(AbstractReferee):
-    class Clocks(BaseModel):
+    class Clocks(ProjectModel):
         intermission: Clock = Field(Clock(), final=True)
         game: Clock = Field(Clock(), final=True)
         lineup: Clock = Field(Clock(), final=True)
@@ -114,11 +114,10 @@ class TimeReferee(AbstractReferee):
     clocks: Clocks = Field(Clocks(), final=True)
     timeouts: list[Timeout] = Field([], final=True)
 
-    #FIXME
-    # def __post_init__(self) -> None:
-    #     self.clocks.game.set_alarm(minutes=30)
-    #     self.clocks.jam.set_alarm(minutes=2)
-    #     self.clocks.lineup.set_alarm(seconds=30)
+    def model_post_init(self, context):
+        self.clocks.game.set_alarm(minutes=30)
+        self.clocks.jam.set_alarm(minutes=2)
+        self.clocks.lineup.set_alarm(seconds=30)
 
     def start_jam(self, timestamp: datetime) -> None:
         if self.timeout_is_running():

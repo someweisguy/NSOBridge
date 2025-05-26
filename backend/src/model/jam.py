@@ -1,17 +1,17 @@
 from datetime import datetime, timedelta
 from typing import ClassVar, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from model.team import AbstractReferee, TeamAttribute, TeamString
+from model.team import AbstractReferee, ProjectModel, TeamAttribute, TeamString
 from model.timer import Timer
 
 type JamId = tuple[int, int]
 type StopReason = Literal['called', 'time', 'injury', 'other']
 
 
-class Score(BaseModel):
-    class Trip(BaseModel):
+class Score(ProjectModel):
+    class Trip(ProjectModel):
         points: int
         timestamp: datetime
 
@@ -21,13 +21,13 @@ class Score(BaseModel):
     trips: list[Trip] = Field([], final=True)
 
 
-class TeamJam(BaseModel):
+class TeamJam(ProjectModel):
     score: Score = Field(Score(), final=True)
 
 
 class Jam(TeamAttribute[TeamJam], Timer):
     stop_reason: StopReason | None = None
-    
+
     def __init__(self) -> None:
         super().__init__(home=TeamJam(), away=TeamJam())
 

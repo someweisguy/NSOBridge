@@ -14,9 +14,11 @@ class Bout(RefereeContext):
     _jams: JamReferee = PrivateAttr()
 
     def __init__(self, ruleset_name: str) -> None:
-        timer = TimeReferee(_context=self)
         super().__init__(
-            ruleset_name=ruleset_name, timer=timer, home=Team(), away=Team()
+            ruleset_name=ruleset_name,
+            timer=TimeReferee(_context=self),
+            home=Team(),
+            away=Team(),
         )
 
     def model_post_init(self, context: Any) -> None:
