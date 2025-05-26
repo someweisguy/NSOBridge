@@ -22,8 +22,6 @@ class Bout(RefereeContext):
     def model_post_init(self, context: Any) -> None:
         self._jams = JamReferee(_context=self)
 
-        print(self.model_dump())
-
     @property
     def jams(self) -> JamReferee:
         return self._jams
