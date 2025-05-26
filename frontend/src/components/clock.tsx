@@ -1,7 +1,7 @@
 import { BoutIdContext } from "@/app/provider";
 import useBout from "@/hooks/use-bout";
 import useElapsed from "@/hooks/use-elapsed";
-import { Bout, ClockType } from "@/lib/client/api/bout";
+import { Bout, Alarm } from "@/lib/client/api/bout";
 import formatMilliseconds from "@/utils/format-milliseconds";
 import { ReactNode, useContext } from "react";
 
@@ -19,7 +19,7 @@ export default function Clock({
   const [contextBoutId] = useContext(BoutIdContext);
   boutId ??= contextBoutId;
 
-  const clock: ClockType = useBout(boutId).timer.clocks[name];
+  const clock: Alarm = useBout(boutId).timer.clocks[name];
 
   const elapsed: number = useElapsed(clock, { stopMillis: clock.alarm + 1500 });
 

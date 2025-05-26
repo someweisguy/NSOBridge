@@ -2,10 +2,11 @@ from datetime import datetime
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Body, Query
+from pydantic import BaseModel
 
 from model import bouts
 from model.bout import Bout, JamId
-from model.timer import Clock, TeamString, Timeout
+from model.timer import Clock, TeamOfficialString, TeamString, Timeout, TimeoutType
 from server import updater
 from server.responses import JSONable
 
@@ -16,8 +17,7 @@ def render_team(bout: Bout, team: TeamString) -> JSONable:
     return {
         'name': None,
         'score': bout.get_total_score(team),
-        'timeoutsRemaining': bout[team].timeouts_remaining,
-        'officialReviewsRemaining': bout[team].official_reviews_remaining,
+        'clockStops': bout[team].clock_stops
     }
 
 
@@ -96,6 +96,68 @@ async def stop_jam(
         ]
     )
     return {}
+
+
+@router.post('/call-timeout')
+async def call_timeout(
+    bout_id: Annotated[str, Query()], timestamp: Annotated[datetime, Body()]
+) -> JSONable:
+    bout: Bout = bouts[bout_id]
+    bout.call_timeout(timestamp)
+    updater.post(
+        [
+            updater.kf.bout(bout_id),
+        ]
+    )
+    return {}
+
+
+class TimeoutParameters(BaseModel):
+    type: TimeoutType
+    team: TeamOfficialString
+    details: str
+    result: str
+    retained: bool
+
+
+@router.put('/edit-timeout')
+async def edit_timeout(
+    bout_id: Annotated[str, Query()],
+    timeout_id: Annotated[int, Query()],
+    params: Annotated[TimeoutParameters, Body()],
+) -> JSONable:
+    if params.type == "review" and params.team == "official":
+        raise RuntimeError("An Official Review must be called by a Team") from None
+    
+    bout: Bout = bouts[bout_id]
+    timeout: Timeout = bout.timer.timeouts[timeout_id]
+    
+    timeout.type = params.type
+    timeout.team = params.team
+    timeout.details = params.details
+    timeout.result = params.details
+    timeout.retained = params.retained
+    
+    updater.post(
+        [
+            updater.kf.bout(bout_id),
+        ]
+    )
+    return {}
+
+@router.post('/end-timeout')
+async def end_timeout(
+    bout_id: Annotated[str, Query()], timestamp: Annotated[datetime, Body()]
+) -> JSONable:
+    bout: Bout = bouts[bout_id]
+    bout.end_timeout(timestamp)
+    updater.post(
+        [
+            updater.kf.bout(bout_id),
+        ]
+    )
+    return {}
+    
 
 
 __all__ = ('router',)

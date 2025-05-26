@@ -4,7 +4,7 @@ from typing import Final
 
 from model.jam import Jam, StopReason
 from model.team import Team, TeamAttribute, TeamString
-from model.timer import Timer
+from model.timer import Timeout, Timer
 
 type JamId = tuple[int, int]
 
@@ -31,6 +31,12 @@ class Bout(TeamAttribute[Team]):
     def get_current_jam_id(self) -> JamId:
         period_num: int = 1 if len(self.jams[1]) > 0 else 0
         jam_num: int = len(self.jams[period_num]) - 1
+        return (period_num, jam_num)
+
+    def get_active_jam_id(self) -> JamId:
+        period_num, jam_num = self.get_current_jam_id()
+        if self.get_jam(period_num, jam_num).start_timestamp is None:
+            jam_num -= 1
         return (period_num, jam_num)
 
     def get_total_score(self, team: TeamString) -> int:
@@ -76,7 +82,7 @@ class Bout(TeamAttribute[Team]):
 
         # Update Timer state
         if self.timer.get_game_state() != 'jam':
-            raise RuntimeError('There is no active Jam to be stopped')
+            raise RuntimeError('There is no active Jam to stop')
         self.timer.jam_clock.stop(timestamp)
         self.timer.lineup_clock.reset(lineup_clock_alarm)
         self.timer.lineup_clock.start(timestamp)
@@ -86,3 +92,37 @@ class Bout(TeamAttribute[Team]):
         jam.stop_reason = stop_reason
         period_num, _ = jam_id
         self.jams[period_num].append(Jam())
+
+    def call_timeout(self, timestamp: datetime) -> None:
+        if not self.timer.lineup_clock.is_running():
+            raise RuntimeError('A Timeout cannot be called right now') from None
+        if len(self.timer.timeouts) > 0 and self.timer.timeouts[-1].is_running():
+            raise RuntimeError('A Timeout is already running') from None
+
+        # Instantiate a Timeout
+        period_num, jam_num = self.get_active_jam_id()
+        period_clock_elapsed = self.timer.game_clock.get_elapsed_at_timestamp(timestamp)
+        timeout: Timeout = Timeout(period_num, jam_num, period_clock_elapsed)
+        self.timer.timeouts.append(timeout)
+
+        # Update clocks
+        self.timer.stop_all_clocks(timestamp)
+        self.timer.timeout_clock.reset()
+        self.timer.timeout_clock.start(timestamp)
+
+
+    def end_timeout(self, timestamp: datetime) -> None:
+        if len(self.timer.timeouts) == 0 or not self.timer.timeouts[-1].is_running():
+            raise RuntimeError('There is no running Timeout to end') from None
+        
+        # Set the Timeout duration
+        timeout: Timeout = self.timer.timeouts[-1]
+        duration = self.timer.timeout_clock.get_elapsed_at_timestamp(timestamp)
+        timeout.duration = duration
+        
+        # Subtract the timeout, if not retained
+        if timeout.type == "timeout" or not timeout.retained:
+            self[timeout.team].clock_stops[timeout.type] -= 1
+        
+        # Stop the Timeout clock
+        self.timer.timeout_clock.stop(timestamp)

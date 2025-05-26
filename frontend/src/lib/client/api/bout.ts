@@ -14,13 +14,18 @@ export interface TeamInfo {
   name: string;
   mnemonic: string;
   score: number;
-  timeoutsRemaining: number;
-  officialReviewsRemaining: number;
+  clockStops: {
+    timeout: number;
+    review: number
+  }
 }
 
-export interface ClockType {
+export interface Timer {
   startTimestamp: Date | null;
   elapsed: number;
+}
+
+export interface Alarm extends Timer {
   alarm: number;
 }
 
@@ -42,11 +47,11 @@ export interface Bout {
   away: TeamInfo;
   timer: {
     clocks: {
-      intermission: ClockType;
-      game: ClockType;
-      lineup: ClockType;
-      jam: ClockType;
-      timeout: ClockType;
+      intermission: Alarm;
+      game: Alarm;
+      lineup: Alarm;
+      jam: Alarm;
+      timeout: Timer;
     };
     timeouts: Timeout[];
   };
@@ -164,4 +169,26 @@ export function selectGameState(bout: Bout): GameStateType {
   } else {
     return "stopped";
   }
+}
+
+export async function callTimeout(boutId: string): Promise<undefined> {
+  await genericRequest<Bout>(
+    "/api/bout/call-timeout",
+    "POST",
+    {
+      bout_id: boutId,
+    },
+    new Date()
+  );
+}
+
+export async function endTimeout(boutId: string): Promise<undefined> {
+  await genericRequest<Bout>(
+    "/api/bout/end-timeout",
+    "POST",
+    {
+      bout_id: boutId,
+    },
+    new Date()
+  );
 }

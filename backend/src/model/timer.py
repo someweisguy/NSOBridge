@@ -48,19 +48,29 @@ class Clock:
         self.start_timestamp = None
         self.elapsed = timedelta(seconds=0)
         self.alarm = alarm
+        
+    def get_elapsed_at_timestamp(self, timestamp: datetime) -> timedelta:
+        elapsed = self.elapsed
+        if self.start_timestamp is not None:
+            elapsed += timestamp - self.start_timestamp
+        return elapsed
 
 
 @dataclass(slots=True)
 class Timeout:
-    type: TimeoutType
-    team: TeamOfficialString
-    period_number: int
-    jam_number: int
-    period_clock_elapsed: timedelta
+    period_number: Final[int]
+    jam_number: Final[int]
+    period_clock_elapsed: Final[timedelta]
+    type: TimeoutType | None = None
+    team: TeamOfficialString | None = None
     duration: timedelta | None = None
     details: str = ''
     result: str = ''
     retained: bool = False
+    
+    def is_running(self) -> bool:
+        return self.duration is None
+    
 
 
 @dataclass(slots=True)
@@ -86,4 +96,5 @@ class Timer:
 
     def stop_all_clocks(self, timestamp: datetime) -> None:
         for clock in [self.game_clock, self.jam_clock, self.timeout_clock]:
-            clock.stop(timestamp)
+            if clock.is_running():
+                clock.stop(timestamp)

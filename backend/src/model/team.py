@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal, Protocol
 
 type TeamString = Literal['home', 'away']
@@ -17,5 +17,6 @@ class TeamAttribute[T](Protocol):
 class Team:
     name: str = ''
     mnemonic: str = ''
-    timeouts_remaining: int = 3
-    official_reviews_remaining: int = 1
+    clock_stops: dict[Literal['timeout', 'review'], int] = field(
+        default_factory=lambda: {'timeout': 3, 'review': 1}
+    )

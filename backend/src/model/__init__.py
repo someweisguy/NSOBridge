@@ -2,7 +2,7 @@ from typing import Final
 
 from nanoid import non_secure_generate
 
-from .bout import Bout
+from model.bout import Bout
 
 bouts: dict[str, Bout] = {}
 

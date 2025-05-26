@@ -47,7 +47,7 @@ export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
     computeTimeoutState(
       team,
       bout.timer.timeouts,
-      bout[team].timeoutsRemaining,
+      bout[team].clockStops.timeout,
       "timeout",
       3
     )
@@ -57,7 +57,7 @@ export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
     computeTimeoutState(
       team,
       bout.timer.timeouts,
-      bout[team].officialReviewsRemaining,
+      bout[team].clockStops.review,
       "review",
       1
     )
