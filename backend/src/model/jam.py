@@ -2,10 +2,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import ClassVar, Final, Literal
 
-from backend.src.model.bout import AbstractReferee, JamId
+from model.team import AbstractReferee, TeamAttribute, TeamString
+from model.timer import Timer
 
-from model.team import TeamAttribute, TeamString
-
+type JamId = tuple[int, int]
 type StopReason = Literal['called', 'time', 'injury', 'other']
 
 
@@ -19,21 +19,19 @@ class Score:
     lead: bool = False
     lost: bool = False
     star_pass: int | None = None
-    trips: Final[list[Trip]] = field(default_factory=list)
+    trips: Final[list[Trip]] = field(init=False, default_factory=list)
 
 
 @dataclass(slots=True)
-class Team:
+class TeamJam:
     score: Final[Score] = field(default_factory=Score)
 
 
 @dataclass(slots=True)
-class Jam(TeamAttribute[Team]):
-    start_timestamp: datetime | None = None
-    stop_timestamp: datetime | None = None
+class Jam(Timer, TeamAttribute[TeamJam]):
     stop_reason: StopReason | None = None
-    home: Final[Team] = field(default_factory=Team)  # type: ignore[assignment]
-    away: Final[Team] = field(default_factory=Team)  # type: ignore[assignment]
+    home: Final[TeamJam] = field(default_factory=TeamJam)
+    away: Final[TeamJam] = field(default_factory=TeamJam)
 
     def lead_is_declared(self) -> bool:
         return self.home.score.lead or self.away.score.lead
@@ -83,12 +81,12 @@ class JamReferee(AbstractReferee):
             raise RuntimeError('There is no running Jam to stop')
 
         jam: Jam = self.get_jam(active_jam_id)
-        jam.stop_timestamp = timestamp
+        jam.elapsed = timestamp - jam.start_timestamp
 
         # Guess the reason that the Jam is being stopped
         if jam.lead_is_declared():
             jam.stop_reason = 'called'
-        elif timestamp - jam.start_timestamp >= self.JAM_DURATION:
+        elif jam.elapsed >= self.JAM_DURATION:
             jam.stop_reason = 'time'
         else:
             jam.stop_reason = None
@@ -103,11 +101,11 @@ class JamReferee(AbstractReferee):
         now: datetime = datetime.now()
 
         jam: Jam = self.get_jam(jam_id)
-        jam.add_trip(team, points, now, valid_pass)
+        jam[team].score.trips.append(Score.Trip(points, now))
 
         # Declare a Lead Jammer if it is appropriate
         if all(valid_pass, not jam[team].score.lost, not jam.lead_is_declared()):
-            jam.set_lead(team, True)
+            self.set_lead(jam_id, team, True)
 
     def set_trip(
         self, jam_id: JamId, team: TeamString, trip_num: int, points: int

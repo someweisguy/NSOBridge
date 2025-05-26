@@ -1,10 +1,11 @@
+from abc import ABC
 from dataclasses import dataclass, field
 from typing import Final, Literal, Protocol
 
 type TeamString = Literal['home', 'away']
 
 
-@dataclass(slots=True)
+@dataclass
 class TeamAttribute[T](Protocol):
     home: Final[T]
     away: Final[T]
@@ -30,3 +31,8 @@ class RefereeContext(TeamAttribute[Team]):
     home: Final[Team] = field(init=False, default_factory=Team)
     away: Final[Team] = field(init=False, default_factory=Team)
     # TODO: add Officials
+
+
+@dataclass
+class AbstractReferee(ABC):
+    context: Final[RefereeContext]

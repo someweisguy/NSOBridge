@@ -5,47 +5,13 @@ from fastapi import APIRouter, Body, Query
 from pydantic import BaseModel
 
 from model import bouts
-from model.bout import Bout, JamId
-from model.timer import Clock, TeamOfficialString, TeamString, Timeout, TimeoutType
+from model.bout import Bout
+from model.jam import JamId
+from model.timer import TeamOfficialString, Timeout, TimeoutType
 from server import updater
-from server.responses import JSONable
+from server.responses import JSONable, camel_dict
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
-
-
-def render_team(bout: Bout, team: TeamString) -> JSONable:
-    return {
-        'name': None,
-        'score': bout.get_total_score(team),
-        'clockStops': bout[team].clock_stops
-    }
-
-
-def render_clock(clock: Clock) -> JSONable:
-    return {
-        'startTimestamp': (
-            clock.start_timestamp.isoformat() if clock.start_timestamp else None
-        ),
-        'elapsed': round(clock.elapsed.total_seconds() * 1000),
-        'alarm': round(clock.alarm.total_seconds() * 1000) if clock.alarm else None,
-    }
-
-
-def render_timeout(timeout: Timeout) -> JSONable:
-    return {
-        'type': timeout.type,
-        'team': timeout.team,
-        'periodNumber': timeout.period_number,
-        'jamNumber': timeout.jam_number,
-        'periodClockElapsed': round(
-            timeout.period_clock_elapsed.total_seconds() * 1000
-        ),
-        'duration': (
-            round(timeout.duration.total_seconds() * 1000) if timeout.duration else None
-        ),
-        'details': timeout.details,
-        'result': timeout.result,
-    }
 
 
 @router.get('')
@@ -53,18 +19,9 @@ async def get(bout_id: str) -> JSONable:
     bout: Bout = bouts[bout_id]
     return {
         'gameNumber': None,
-        'home': render_team(bout, 'home'),
-        'away': render_team(bout, 'away'),
-        'timer': {
-            'clocks': {
-                'intermission': render_clock(bout.timer.intermission_clock),
-                'game': render_clock(bout.timer.game_clock),
-                'lineup': render_clock(bout.timer.lineup_clock),
-                'jam': render_clock(bout.timer.jam_clock),
-                'timeout': render_clock(bout.timer.timeout_clock),
-            },
-            'timeouts': [render_timeout(t) for t in bout.timer.timeouts],
-        },
+        'home': camel_dict(bout.home) + {'score': bout.jams.get_total_score('home')},
+        'away': camel_dict(bout.away) + {'score': bout.jams.get_total_score('away')},
+        'timer': camel_dict(bout.timer),
         'numJams': [len(bout.jams[0]), len(bout.jams[1])],
     }
 
@@ -76,7 +33,10 @@ async def start_jam(
     bout: Bout = bouts[bout_id]
     bout.start_jam(timestamp)
     updater.post(
-        [updater.kf.bout(bout_id), updater.kf.jam(bout_id, *bout.get_current_jam_id())]
+        [
+            updater.kf.bout(bout_id),
+            updater.kf.jam(bout_id, *bout.jams.get_latest_jam_id()),
+        ]
     )
     return {}
 
@@ -86,13 +46,13 @@ async def stop_jam(
     bout_id: Annotated[str, Query()], timestamp: Annotated[datetime, Body()]
 ) -> JSONable:
     bout: Bout = bouts[bout_id]
-    stopped_jam_id: JamId = bout.get_current_jam_id()
+    stopped_jam_id: JamId = bout.jams.get_latest_jam_id()
     bout.stop_jam(timestamp)
     updater.post(
         [
             updater.kf.bout(bout_id),
             updater.kf.jam(bout_id, *stopped_jam_id),
-            updater.kf.jam(bout_id, *bout.get_current_jam_id()),
+            updater.kf.jam(bout_id, *bout.jams.get_latest_jam_id()),
         ]
     )
     return {}
@@ -126,24 +86,25 @@ async def edit_timeout(
     timeout_id: Annotated[int, Query()],
     params: Annotated[TimeoutParameters, Body()],
 ) -> JSONable:
-    if params.type == "review" and params.team == "official":
-        raise RuntimeError("An Official Review must be called by a Team") from None
-    
+    if params.type == 'review' and params.team == 'official':
+        raise RuntimeError('An Official Review must be called by a Team') from None
+
     bout: Bout = bouts[bout_id]
     timeout: Timeout = bout.timer.timeouts[timeout_id]
-    
+
     timeout.type = params.type
     timeout.team = params.team
     timeout.details = params.details
     timeout.result = params.details
     timeout.retained = params.retained
-    
+
     updater.post(
         [
             updater.kf.bout(bout_id),
         ]
     )
     return {}
+
 
 @router.post('/end-timeout')
 async def end_timeout(
@@ -157,7 +118,6 @@ async def end_timeout(
         ]
     )
     return {}
-    
 
 
 __all__ = ('router',)

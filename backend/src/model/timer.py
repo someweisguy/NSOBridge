@@ -2,9 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Final, Literal
 
-from backend.src.model.bout import AbstractReferee
-
-from model.team import TeamString
+from model.team import AbstractReferee, TeamString
 
 type TeamOfficialString = TeamString | Literal['official']
 type TimeoutType = Literal['timeout', 'review']
@@ -44,7 +42,7 @@ class Timer:
 
 @dataclass(slots=True)
 class Clock(Timer):
-    alarm: timedelta
+    alarm: timedelta = field(init=False, default=timedelta(seconds=0))
 
     def set_alarm(
         self,
@@ -66,16 +64,34 @@ class Clock(Timer):
         self.alarm = alarm
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, init=False)
 class Timeout(Timer):
-    period_number: Final[int]
-    jam_number: Final[int]
+    period_num: Final[int]
+    jam_num: Final[int]
     period_clock_elapsed: Final[timedelta]
     type: TimeoutType | None = field(init=False, default=None)
     team: TeamOfficialString | None = field(init=False, default=None)
     details: str = field(init=False, default='')
     result: str = field(init=False, default='')
     retained: bool = field(init=False, default=False)
+
+    def __init__(
+        self,
+        period_num: int,
+        jam_num: int,
+        period_clock_elapsed: timedelta,
+        start_timestamp: datetime,
+    ) -> None:
+        self.period_num = period_num
+        self.jam_num = jam_num
+        self.period_clock_elapsed = period_clock_elapsed
+        self.start_timestamp = start_timestamp
+        self.elapsed = timedelta(seconds=0)
+        self.type = None
+        self.team = None
+        self.details = ''
+        self.result = ''
+        self.retained = False
 
     @property
     def duration(self) -> timedelta:
@@ -111,7 +127,7 @@ class TimeReferee(AbstractReferee):
                 clock.stop(timestamp)
         self.clocks.jam.reset()
         self.clocks.jam.start(timestamp)
-        
+
         self.update_manually()
 
     def stop_jam(self, timestamp: datetime) -> None:
@@ -121,7 +137,7 @@ class TimeReferee(AbstractReferee):
 
         self.clocks.lineup.reset()
         self.clocks.lineup.start(timestamp)
-        
+
         self.update_manually()
 
     def timeout_is_running(self) -> bool:
@@ -141,7 +157,7 @@ class TimeReferee(AbstractReferee):
         period_clock_elapsed = self.clocks.game.get_elapsed_at_timestamp(timestamp)
         timeout: Timeout = Timeout(timestamp, period_num, jam_num, period_clock_elapsed)
         self.timeouts.append(timeout)
-        
+
         self.update_manually()
 
     def end_timeout(self, timestamp: datetime) -> None:
@@ -155,4 +171,3 @@ class TimeReferee(AbstractReferee):
             self.context[timeout.team].clock_stops[timeout.type] -= 1
 
         self.update_manually()
-
