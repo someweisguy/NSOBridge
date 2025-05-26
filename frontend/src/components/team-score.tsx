@@ -16,7 +16,7 @@ export default function TeamScore({ boutId, team, divider = "" }: TeamScoreProps
   const [boutIdContext] = useContext(BoutIdContext);
   boutId ??= boutIdContext;
 
-  const lastestJamId = useLatestJamId(boutId)!;
+  const lastestJamId = useLatestJamId(boutId);
   const activeJamId = useActiveJamId(boutId);
   const [periodNum, jamNum] = activeJamId ?? lastestJamId;
   const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
