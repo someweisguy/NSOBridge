@@ -1,17 +1,22 @@
 from datetime import datetime, timedelta
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PlainSerializer
 
 from model.team import AbstractReferee, TeamString
 
 type TeamOfficialString = TeamString | Literal['official']
 type TimeoutType = Literal['timeout', 'review']
 
+type millisdelta = Annotated[
+    timedelta,
+    PlainSerializer(lambda td: round(td.total_seconds() * 1000), return_type=int),
+]
+
 
 class Timer(BaseModel):
     start_timestamp: datetime | None = None
-    elapsed: timedelta = timedelta(seconds=0)
+    elapsed: millisdelta = timedelta(seconds=0)
 
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
@@ -41,7 +46,7 @@ class Timer(BaseModel):
 
 
 class Clock(Timer):
-    alarm: timedelta = timedelta(seconds=0)
+    alarm: millisdelta = timedelta(seconds=0)
 
     def set_alarm(
         self,
@@ -66,7 +71,7 @@ class Clock(Timer):
 class Timeout(Timer):
     period_num: int = Field(final=True)
     jam_num: int = Field(final=True)
-    period_clock_elapsed: timedelta = Field(final=True)
+    period_clock_elapsed: millisdelta = Field(final=True)
     type: TimeoutType | None = None
     team: TeamOfficialString | None = None
     details: str = ''
@@ -109,6 +114,7 @@ class TimeReferee(AbstractReferee):
     clocks: Clocks = Field(Clocks(), final=True)
     timeouts: list[Timeout] = Field([], final=True)
 
+    #FIXME
     # def __post_init__(self) -> None:
     #     self.clocks.game.set_alarm(minutes=30)
     #     self.clocks.jam.set_alarm(minutes=2)
