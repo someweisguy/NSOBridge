@@ -17,13 +17,14 @@ class AbstractReferee(ABC):
     
     def on_update(self, callback: Callable[[str, Any, Any], None]) -> None:
         self._set_callback = callback
+        
+    def update_manually(self, name: str = '') -> None:
+        self._set_callback(name, None, None)
     
     def __setattr__(self, name, value):
         if self._set_callback is not None:
             old_value: Any = self.__getattribute__(name)
-            can_compare: bool = all(hasattr(i, '__eq__') for i in [old_value, value])
-            if can_compare and old_value != value:
-                self._set_callback(name, old_value, value)
+            self._set_callback(name, old_value, value)
         return super().__setattr__(name, value)
 
 

@@ -42,44 +42,6 @@ class Jam(TeamAttribute[Team]):
         score: Score = self[team].score
         return sum([trip.points for trip in score.trips])
 
-    def add_trip(
-        self,
-        team: TeamString,
-        points: int,
-        timestamp: datetime,
-        valid_pass: bool = True,
-    ) -> None:
-        self[team].score.trips.append(Score.Trip(points, timestamp))
-
-    def del_trip(self, team: TeamString, trip_num: int) -> None:
-        del self[team].score.trips[trip_num]
-
-    def edit_trip(
-        self,
-        team: TeamString,
-        trip_num: int,
-        points: int | None,
-    ) -> None:
-        trip: Score.Trip = self[team].score.trips[trip_num]
-        if points is not None:
-            trip.points = points
-
-    def set_lead(self, team: TeamString, value: bool) -> None:
-        if value is True and self.lead_is_declared():
-            raise RuntimeError('A Lead Jammer has already been declared') from None
-        self[team].score.lead = value
-
-    def set_lost(self, team: TeamString, value: bool) -> None:
-        self[team].score.lost = value
-
-    def set_star_pass(self, team: TeamString, value: int | None) -> None:
-        self[team].score.star_pass = value
-
-    def set_stop_reason(self, value: StopReason) -> None:
-        if self.stop_timestamp is not None:
-            raise RuntimeError('This Jam is still running') from None
-        self.stop_reason = value
-
 
 @dataclass(slots=True)
 class JamReferee(AbstractReferee):
