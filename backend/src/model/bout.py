@@ -1,20 +1,34 @@
-from dataclasses import dataclass
 from datetime import datetime
-from typing import Final
+from typing import Any
+
+from pydantic import Field, PrivateAttr, computed_field
 
 from model.jam import JamReferee
 from model.team import RefereeContext, Team
 from model.timer import TimeReferee
 
 
-@dataclass(slots=True)
 class Bout(RefereeContext):
+    ruleset_name: str = Field(init=False, final=True)
+    timer: TimeReferee = Field(init=False, final=True)
+    _jams: JamReferee = PrivateAttr()
+
     def __init__(self, ruleset_name: str) -> None:
-        self.ruleset_name: Final[str] = ruleset_name
-        self.timer: Final[TimeReferee] = TimeReferee(self)
-        self.jams: Final[JamReferee] = JamReferee(self)
-        self.home: Final[Team] = Team()
-        self.away: Final[Team] = Team()
+        timer = TimeReferee(_context=self)
+        super().__init__(
+            ruleset_name=ruleset_name, timer=timer, home=Team(), away=Team()
+        )
+
+    def model_post_init(self, context: Any) -> None:
+        self._jams = JamReferee(_context=self)
+
+    @property
+    def jams(self) -> JamReferee:
+        return self._jams
+
+    @computed_field()
+    def num_jams(self) -> tuple[int, int]:
+        return self.jams.get_lens()
 
     def start_jam(self, timestamp: datetime) -> None:
         self.timer.start_jam(timestamp)

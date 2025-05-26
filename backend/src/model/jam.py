@@ -1,6 +1,7 @@
-from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import ClassVar, Final, Literal
+from typing import ClassVar, Literal
+
+from pydantic import BaseModel, Field
 
 from model.team import AbstractReferee, TeamAttribute, TeamString
 from model.timer import Timer
@@ -9,29 +10,26 @@ type JamId = tuple[int, int]
 type StopReason = Literal['called', 'time', 'injury', 'other']
 
 
-@dataclass(slots=True)
-class Score:
-    @dataclass(slots=True)
-    class Trip:
+class Score(BaseModel):
+    class Trip(BaseModel):
         points: int
         timestamp: datetime
 
     lead: bool = False
     lost: bool = False
     star_pass: int | None = None
-    trips: Final[list[Trip]] = field(init=False, default_factory=list)
+    trips: list[Trip] = Field([], final=True)
 
 
-@dataclass(slots=True)
-class TeamJam:
-    score: Final[Score] = field(default_factory=Score)
+class TeamJam(BaseModel):
+    score: Score = Field(Score(), final=True)
 
 
-@dataclass(slots=True)
-class Jam(Timer, TeamAttribute[TeamJam]):
+class Jam(TeamAttribute[TeamJam], Timer):
     stop_reason: StopReason | None = None
-    home: Final[TeamJam] = field(default_factory=TeamJam)
-    away: Final[TeamJam] = field(default_factory=TeamJam)
+    
+    def __init__(self) -> None:
+        super().__init__(home=TeamJam(), away=TeamJam())
 
     def lead_is_declared(self) -> bool:
         return self.home.score.lead or self.away.score.lead
@@ -41,11 +39,10 @@ class Jam(Timer, TeamAttribute[TeamJam]):
         return sum([trip.points for trip in score.trips])
 
 
-@dataclass(slots=True)
 class JamReferee(AbstractReferee):
-    JAM_DURATION: ClassVar[Final[timedelta]] = timedelta(minutes=2)
+    JAM_DURATION: ClassVar[timedelta] = timedelta(minutes=2)
 
-    jams: Final[tuple[list[Jam], list[Jam]]] = field(init=False, default=([Jam()], []))
+    periods: tuple[list[Jam], list[Jam]] = Field(([Jam()], []), final=True)
 
     def __getitem__(self, jam_id: JamId) -> Jam:
         return self.get_jam(jam_id)
@@ -55,14 +52,14 @@ class JamReferee(AbstractReferee):
 
     def get_jam(self, jam_id: JamId) -> Jam:
         period_num, jam_num = jam_id
-        return self.jams[period_num][jam_num]
+        return self.periods[period_num][jam_num]
 
     def get_lens(self) -> tuple[int, int]:
-        return (len(self.jams[0]), len(self.jams[1]))
+        return (len(self.periods[0]), len(self.periods[1]))
 
     def get_latest_jam_id(self) -> JamId:
-        period_num: int = 1 if len(self.jams[1]) > 0 else 0
-        jam_num: int = len(self.jams[period_num]) - 1
+        period_num: int = 1 if len(self.periods[1]) > 0 else 0
+        jam_num: int = len(self.periods[period_num]) - 1
         return (period_num, jam_num)
 
     def get_active_jam_id(self) -> JamId | None:
@@ -74,7 +71,7 @@ class JamReferee(AbstractReferee):
         return (period_num, jam_num)
 
     def get_total_score(self, team: TeamString) -> int:
-        all_jams: list[Jam] = [jam for period in self.jams for jam in period]
+        all_jams: list[Jam] = [jam for period in self.periods for jam in period]
         return sum(jam.get_jam_score(team) for jam in all_jams)
 
     def start_jam(self, timestamp: datetime) -> None:
@@ -99,7 +96,7 @@ class JamReferee(AbstractReferee):
 
         # Add a new Jam
         period_num, _ = active_jam_id
-        self.jams[period_num].append(Jam())
+        self.periods[period_num].append(Jam())
 
     def add_trip(
         self, jam_id: JamId, team: TeamString, points: int, valid_pass: bool = True

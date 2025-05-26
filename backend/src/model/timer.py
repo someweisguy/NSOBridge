@@ -1,6 +1,7 @@
-from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Final, Literal
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 from model.team import AbstractReferee, TeamString
 
@@ -8,10 +9,9 @@ type TeamOfficialString = TeamString | Literal['official']
 type TimeoutType = Literal['timeout', 'review']
 
 
-@dataclass(slots=True)
-class Timer:
+class Timer(BaseModel):
     start_timestamp: datetime | None = None
-    elapsed: timedelta = field(init=False, default=timedelta(seconds=0))
+    elapsed: timedelta = timedelta(seconds=0)
 
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
@@ -40,9 +40,8 @@ class Timer:
         return elapsed
 
 
-@dataclass(slots=True)
 class Clock(Timer):
-    alarm: timedelta = field(init=False, default=timedelta(seconds=0))
+    alarm: timedelta = timedelta(seconds=0)
 
     def set_alarm(
         self,
@@ -64,16 +63,15 @@ class Clock(Timer):
         self.alarm = alarm
 
 
-@dataclass(slots=True, init=False)
 class Timeout(Timer):
-    period_num: Final[int]
-    jam_num: Final[int]
-    period_clock_elapsed: Final[timedelta]
-    type: TimeoutType | None = field(init=False, default=None)
-    team: TeamOfficialString | None = field(init=False, default=None)
-    details: str = field(init=False, default='')
-    result: str = field(init=False, default='')
-    retained: bool = field(init=False, default=False)
+    period_num: int = Field(final=True)
+    jam_num: int = Field(final=True)
+    period_clock_elapsed: timedelta = Field(final=True)
+    type: TimeoutType | None = None
+    team: TeamOfficialString | None = None
+    details: str = ''
+    result: str = ''
+    retained: bool = False
 
     def __init__(
         self,
@@ -82,11 +80,10 @@ class Timeout(Timer):
         period_clock_elapsed: timedelta,
         start_timestamp: datetime,
     ) -> None:
+        super().__init__(start_timestamp=start_timestamp, elapsed=timedelta())
         self.period_num = period_num
         self.jam_num = jam_num
         self.period_clock_elapsed = period_clock_elapsed
-        self.start_timestamp = start_timestamp
-        self.elapsed = timedelta(seconds=0)
         self.type = None
         self.team = None
         self.details = ''
@@ -102,22 +99,20 @@ class Timeout(Timer):
         self.elapsed = elapsed
 
 
-@dataclass(slots=True)
 class TimeReferee(AbstractReferee):
-    @dataclass(slots=True)
-    class Clocks:
-        intermission: Final[Clock] = field(default_factory=Clock)
-        game: Final[Clock] = field(default_factory=Clock)
-        lineup: Final[Clock] = field(default_factory=Clock)
-        jam: Final[Clock] = field(default_factory=Clock)
+    class Clocks(BaseModel):
+        intermission: Clock = Field(Clock(), final=True)
+        game: Clock = Field(Clock(), final=True)
+        lineup: Clock = Field(Clock(), final=True)
+        jam: Clock = Field(Clock(), final=True)
 
-    clocks: Final[Clocks] = field(init=False, default_factory=Clocks)
-    timeouts: Final[list[Timeout]] = field(init=False, default_factory=list)
+    clocks: Clocks = Field(Clocks(), final=True)
+    timeouts: list[Timeout] = Field([], final=True)
 
-    def __post_init__(self) -> None:
-        self.clocks.game.set_alarm(minutes=30)
-        self.clocks.jam.set_alarm(minutes=2)
-        self.clocks.lineup.set_alarm(seconds=30)
+    # def __post_init__(self) -> None:
+    #     self.clocks.game.set_alarm(minutes=30)
+    #     self.clocks.jam.set_alarm(minutes=2)
+    #     self.clocks.lineup.set_alarm(seconds=30)
 
     def start_jam(self, timestamp: datetime) -> None:
         if self.timeout_is_running():
@@ -162,4 +157,4 @@ class TimeReferee(AbstractReferee):
         # Subtract the timeout or official review, if not retained
         timeout: Timeout = self.timeouts[-1]
         if timeout.type == 'timeout' or not timeout.retained:
-            self.context[timeout.team].clock_stops[timeout.type] -= 1
+            self._context[timeout.team].clock_stops[timeout.type] -= 1

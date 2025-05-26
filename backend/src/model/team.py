@@ -1,38 +1,37 @@
 from abc import ABC
-from dataclasses import dataclass, field
-from typing import Final, Literal, Protocol
+from typing import Literal
+
+from pydantic import BaseModel, Field, PrivateAttr
 
 type TeamString = Literal['home', 'away']
 
 
-@dataclass
-class TeamAttribute[T](Protocol):
-    home: Final[T]
-    away: Final[T]
+class TeamAttribute[T](BaseModel):
+    home: T
+    away: T
 
     def __getitem__(self, key: TeamString) -> T:
         return getattr(self, key)
 
 
-@dataclass(slots=True)
-class Team:
-    @dataclass
-    class ClockStops:
+class Team(BaseModel):
+    class ClockStops(BaseModel):
         timeout: int = 3
         review: int = 1
 
     name: str = ''
     mnemonic: str = ''
-    clock_stops: Final[ClockStops] = field(init=False, default_factory=ClockStops)
+    clock_stops: ClockStops = Field(ClockStops(), final=True)
 
 
-@dataclass(slots=True)
 class RefereeContext(TeamAttribute[Team]):
-    home: Final[Team] = field(init=False, default_factory=Team)
-    away: Final[Team] = field(init=False, default_factory=Team)
+    home: Team = Field(Team(), final=True)
+    away: Team = Field(Team(), final=True)
     # TODO: add Officials
 
 
-@dataclass
-class AbstractReferee(ABC):
-    context: Final[RefereeContext]
+class AbstractReferee(BaseModel, ABC):
+    _context: RefereeContext = PrivateAttr()
+
+    def get_context(self) -> RefereeContext:
+        return self._context
