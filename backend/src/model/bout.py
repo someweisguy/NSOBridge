@@ -1,128 +1,53 @@
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Final
+from abc import ABC
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Callable, Final
 
-from model.jam import Jam, StopReason
-from model.team import Team, TeamAttribute, TeamString
-from model.timer import Timeout, Timer
+from model.jam import JamReferee
+from model.team import RefereeContext
+from model.timer import TimeReferee
 
 type JamId = tuple[int, int]
 
 
 @dataclass(slots=True)
-class Bout(TeamAttribute[Team]):
+class AbstractReferee(ABC):
+    context: Final[RefereeContext]
+    _set_callback: Callable[[str, Any, Any], None] | None = None
+    
+    def on_update(self, callback: Callable[[str, Any, Any], None]) -> None:
+        self._set_callback = callback
+    
+    def __setattr__(self, name, value):
+        if self._set_callback is not None:
+            old_value: Any = self.__getattribute__(name)
+            can_compare: bool = all(hasattr(i, '__eq__') for i in [old_value, value])
+            if can_compare and old_value != value:
+                self._set_callback(name, old_value, value)
+        return super().__setattr__(name, value)
+
+
+@dataclass(slots=True)
+class Bout(RefereeContext):
     ruleset_name: Final[str]
-    home: Team = field(init=False, default_factory=Team)
-    away: Team = field(init=False, default_factory=Team)
-    timer: Final[Timer] = field(init=False, default_factory=Timer)
-    jams: Final[tuple[list[Jam], list[Jam]]] = field(init=False, default=([Jam()], []))
-
-    def __post_init__(self) -> None:
-        self.timer.game_clock.reset(timedelta(minutes=30))
-        self.timer.lineup_clock.reset(timedelta(seconds=30))
-        self.timer.jam_clock.reset(timedelta(minutes=2))
-
-    def get_jam(self, period_num: int, jam_num: int) -> Jam:
-        try:
-            return self.jams[period_num][jam_num]
-        except KeyError:
-            raise KeyError(f'Jam [{period_num}, {jam_num}] not found') from None
-
-    def get_current_jam_id(self) -> JamId:
-        period_num: int = 1 if len(self.jams[1]) > 0 else 0
-        jam_num: int = len(self.jams[period_num]) - 1
-        return (period_num, jam_num)
-
-    def get_active_jam_id(self) -> JamId:
-        period_num, jam_num = self.get_current_jam_id()
-        if self.get_jam(period_num, jam_num).start_timestamp is None:
-            jam_num -= 1
-        return (period_num, jam_num)
-
-    def get_total_score(self, team: TeamString) -> int:
-        all_jams: list[Jam] = [jam for period in self.jams for jam in period]
-        return sum(jam.get_jam_score(team) for jam in all_jams)
+    timer: Final[TimeReferee]
+    jams: Final[JamReferee]
+    
+    def __init__(self, ruleset_name: str) -> None:
+        self.ruleset_name = ruleset_name
+        self.timer = TimeReferee(self)
+        self.jams = JamReferee(self)
 
     def start_jam(self, timestamp: datetime) -> None:
-        jam_clock_alarm: timedelta = timedelta(minutes=2)
-
-        # Update Timer state
-        match self.timer.get_game_state():
-            case 'intermission':
-                if self.timer.intermission_clock.is_running():
-                    self.timer.intermission_clock.stop(timestamp)
-            case 'lineup':
-                self.timer.lineup_clock.stop(timestamp)
-            case 'jam' | 'timeout' | 'final':
-                raise RuntimeError('A Jam cannot be started now') from None
-        if not self.timer.game_clock.is_running():
-            self.timer.game_clock.start(timestamp)
-        self.timer.jam_clock.reset(jam_clock_alarm)
-        self.timer.jam_clock.start(timestamp)
-
-        # Update Jam state
-        jam_id: JamId = self.get_current_jam_id()
-        jam: Jam = self.get_jam(*jam_id)
-        jam.start_timestamp = timestamp
+        self.timer.start_jam(timestamp)
+        self.jams.start_jam(timestamp)
 
     def stop_jam(self, timestamp: datetime) -> None:
-        lineup_clock_alarm: timedelta = timedelta(seconds=30)
-
-        # Guess the reason that the Jam is being stopped
-        jam_id: JamId = self.get_current_jam_id()
-        jam: Jam = self.get_jam(*jam_id)
-        stop_reason: StopReason | None = None
-        if jam.lead_is_declared():
-            stop_reason = 'called'
-        elif (
-            self.timer.jam_clock.alarm is not None
-            and self.timer.jam_clock.elapsed >= self.timer.jam_clock.alarm
-        ):
-            stop_reason = 'time'
-
-        # Update Timer state
-        if self.timer.get_game_state() != 'jam':
-            raise RuntimeError('There is no active Jam to stop')
-        self.timer.jam_clock.stop(timestamp)
-        self.timer.lineup_clock.reset(lineup_clock_alarm)
-        self.timer.lineup_clock.start(timestamp)
-
-        # Update Jam state and add a new Jam
-        jam.stop_timestamp = timestamp
-        jam.stop_reason = stop_reason
-        period_num, _ = jam_id
-        self.jams[period_num].append(Jam())
+        self.timer.stop_jam(timestamp)
+        self.jams.stop_jam(timestamp)
 
     def call_timeout(self, timestamp: datetime) -> None:
-        if not self.timer.lineup_clock.is_running():
-            raise RuntimeError('A Timeout cannot be called right now') from None
-        if len(self.timer.timeouts) > 0 and self.timer.timeouts[-1].is_running():
-            raise RuntimeError('A Timeout is already running') from None
-
-        # Instantiate a Timeout
-        period_num, jam_num = self.get_active_jam_id()
-        period_clock_elapsed = self.timer.game_clock.get_elapsed_at_timestamp(timestamp)
-        timeout: Timeout = Timeout(period_num, jam_num, period_clock_elapsed)
-        self.timer.timeouts.append(timeout)
-
-        # Update clocks
-        self.timer.stop_all_clocks(timestamp)
-        self.timer.timeout_clock.reset()
-        self.timer.timeout_clock.start(timestamp)
-
+        self.timer.call_timeout(timestamp)
 
     def end_timeout(self, timestamp: datetime) -> None:
-        if len(self.timer.timeouts) == 0 or not self.timer.timeouts[-1].is_running():
-            raise RuntimeError('There is no running Timeout to end') from None
-        
-        # Set the Timeout duration
-        timeout: Timeout = self.timer.timeouts[-1]
-        duration = self.timer.timeout_clock.get_elapsed_at_timestamp(timestamp)
-        timeout.duration = duration
-        
-        # Subtract the timeout, if not retained
-        if timeout.type == "timeout" or not timeout.retained:
-            self[timeout.team].clock_stops[timeout.type] -= 1
-        
-        # Stop the Timeout clock
-        self.timer.timeout_clock.stop(timestamp)
+        self.timer.end_timeout(timestamp)

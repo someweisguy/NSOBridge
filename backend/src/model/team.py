@@ -1,13 +1,13 @@
 from dataclasses import dataclass, field
-from typing import Literal, Protocol
+from typing import Final, Literal, Protocol
 
 type TeamString = Literal['home', 'away']
 
 
 @dataclass(slots=True)
 class TeamAttribute[T](Protocol):
-    home: T
-    away: T
+    home: Final[T]
+    away: Final[T]
 
     def __getitem__(self, key: TeamString) -> T:
         return getattr(self, key)
@@ -15,8 +15,18 @@ class TeamAttribute[T](Protocol):
 
 @dataclass(slots=True)
 class Team:
+    @dataclass
+    class ClockStops:
+        timeout: int = 3
+        review: int = 1
+
     name: str = ''
     mnemonic: str = ''
-    clock_stops: dict[Literal['timeout', 'review'], int] = field(
-        default_factory=lambda: {'timeout': 3, 'review': 1}
-    )
+    clock_stops: Final[ClockStops] = field(init=False, default_factory=ClockStops)
+
+
+@dataclass(slots=True)
+class RefereeContext(TeamAttribute[Team]):
+    home: Final[Team] = field(init=False, default_factory=Team)
+    away: Final[Team] = field(init=False, default_factory=Team)
+    # TODO: add Officials
