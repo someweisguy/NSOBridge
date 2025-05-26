@@ -1,7 +1,7 @@
 import { BoutIdContext } from "@/app/provider";
 import useBout from "@/hooks/use-bout";
-import { Timeout, TimeoutType } from "@/lib/client/api/bout";
-import { TeamString } from "@/lib/client/api/jam";
+import { TeamString, Timeout, TimeoutTypeString } from "@/lib/client/api/types";
+
 import { useContext } from "react";
 
 type PipPropState = "remaining" | "in-progress" | "used";
@@ -19,7 +19,7 @@ function computeTimeoutState(
   team: TeamString,
   timeouts: Timeout[],
   teamTimeoutCounts: number,
-  timeoutType: TimeoutType,
+  timeoutType: TimeoutTypeString,
   totalTimeouts: number
 ): PipPropState[] {
   const latestTimeout: Timeout | undefined = timeouts[timeouts.length - 1];
@@ -29,7 +29,7 @@ function computeTimeoutState(
       return "remaining";
     } else if (
       latestTimeout?.team === team &&
-      latestTimeout.duration === null &&
+      latestTimeout.elapsed === null &&
       latestTimeout.type == timeoutType
     ) {
       // The latest timeout is the correct type, in progress, and called by this team

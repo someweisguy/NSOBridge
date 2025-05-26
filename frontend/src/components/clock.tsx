@@ -1,7 +1,7 @@
 import { BoutIdContext } from "@/app/provider";
 import useBout from "@/hooks/use-bout";
 import useElapsed from "@/hooks/use-elapsed";
-import { Bout, Alarm } from "@/lib/client/api/bout";
+import { Bout, Alarm } from "@/lib/client/api/types";
 import formatMilliseconds from "@/utils/format-milliseconds";
 import { ReactNode, useContext } from "react";
 

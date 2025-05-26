@@ -1,6 +1,6 @@
 import { BoutIdContext } from "@/app/provider";
 import useBout from "@/hooks/use-bout";
-import { TeamString } from "@/lib/client/api/jam";
+import { TeamString } from "@/lib/client/api/types";
 import { useContext } from "react";
 
 interface TeamNameProps {

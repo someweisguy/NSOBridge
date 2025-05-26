@@ -1,4 +1,5 @@
-import { Bout, getBout } from "@/lib/client/api/bout";
+import { getBout } from "@/lib/client/api/bout";
+import { Bout } from "@/lib/client/api/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/key-factory";
 

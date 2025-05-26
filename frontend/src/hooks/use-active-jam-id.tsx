@@ -1,4 +1,5 @@
-import { Bout, selectActiveJamId } from "@/lib/client/api/bout";
+import { selectActiveJamId } from "@/lib/client/api/bout";
+import { Bout } from "@/lib/client/api/types";
 import useBout from "./use-bout";
 
 export default function useActiveJamId(

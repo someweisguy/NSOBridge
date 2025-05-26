@@ -3,7 +3,7 @@ import TeamName from "@/components/team-name";
 import TeamScore from "@/components/team-score";
 import TimeoutBar from "@/components/timeout-pips";
 import TripView from "@/components/trip-view";
-import { TeamString } from "@/lib/client/api/jam";
+import { TeamString } from "@/lib/client/api/types";
 import { useContext } from "react";
 
 interface TeamJamProps {

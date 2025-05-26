@@ -1,4 +1,5 @@
-import { Bout, selectLatestJamId } from "@/lib/client/api/bout";
+import { selectLatestJamId } from "@/lib/client/api/bout";
+import { Bout } from "@/lib/client/api/types";
 import useBout from "./use-bout";
 
 export default function useLatestJamId(

@@ -1,6 +1,7 @@
 import Button from "@/components/button";
 import useJam from "@/hooks/use-jam";
-import { addTrip, editTrip, TeamString } from "@/lib/client/api/jam";
+import { addTrip, editTrip } from "@/lib/client/api/jam";
+import { TeamString } from "@/lib/client/api/types";
 import { useCallback } from "react";
 
 interface PointButtonsProps {
@@ -36,7 +37,7 @@ export default function PointButtons({
   );
 
   return (
-    <div className="flex flex-row justify-evenly w-full my-2">
+    <div className="flex flex-row justify-evenly my-2 w-full">
       {!showInitial ? (
         Array.from({ length: 5 }, (_, i) => (
           <Button key={i} onClick={() => addTripCallback(i)}>

@@ -1,6 +1,6 @@
 import { BoutIdContext } from "@/app/provider";
 import useJam from "@/hooks/use-jam";
-import { TeamString, Trip } from "@/lib/client/api/jam";
+import { TeamString, Trip } from "@/lib/client/api/types";
 import { ScrollArea } from "radix-ui";
 import { useContext, useEffect, useRef, useState } from "react";
 import JammerState from "./jammer-state";

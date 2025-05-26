@@ -1,62 +1,5 @@
 import genericRequest from "../request";
-import { TeamString } from "./jam";
-
-export type TeamOfficialString = TeamString | "official";
-export type TimeoutType = "timeout" | "review";
-export type GameStateType =
-  | "intermission"
-  | "stopped"
-  | "lineup"
-  | "jam"
-  | "timeout";
-
-export interface TeamInfo {
-  name: string;
-  mnemonic: string;
-  score: number;
-  clockStops: {
-    timeout: number;
-    review: number;
-  };
-}
-
-export interface Timer {
-  startTimestamp: Date | null;
-  elapsed: number;
-}
-
-export interface Alarm extends Timer {
-  alarm: number;
-}
-
-export interface Timeout {
-  periodNum: number;
-  jamNum: number;
-  periodClockElapsed: number;
-  startTimestamp: Date;
-  duration: number;
-  type: TimeoutType;
-  team: TeamOfficialString;
-  details: string;
-  result: string;
-  retained: boolean;
-}
-
-export interface Bout {
-  gameNumber: number | null;
-  home: TeamInfo;
-  away: TeamInfo;
-  timer: {
-    clocks: {
-      intermission: Alarm;
-      game: Alarm;
-      lineup: Alarm;
-      jam: Alarm;
-    };
-    timeouts: Timeout[];
-  };
-  numJams: [number, number];
-}
+import { Bout } from "./types";
 
 export async function getBout(boutId: string): Promise<Bout> {
   const response = await genericRequest<Bout>("/api/bout", "GET", {
@@ -154,23 +97,6 @@ export function selectActiveJamId(
     return null;
   }
   return jamVector;
-}
-
-export function selectGameState(bout: Bout): GameStateType {
-  const clocks = bout.timer.clocks;
-  if (clocks.jam.startTimestamp !== null) {
-    return "jam";
-  } else if (clocks.lineup.startTimestamp !== null) {
-    return "lineup";
-  } else if (
-    bout.timer.timeouts[bout.timer.timeouts.length - 1]?.startTimestamp !== null
-  ) {
-    return "timeout";
-  } else if (clocks.intermission.startTimestamp !== null) {
-    return "intermission";
-  } else {
-    return "stopped";
-  }
 }
 
 export async function callTimeout(boutId: string): Promise<undefined> {

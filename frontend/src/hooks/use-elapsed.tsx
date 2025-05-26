@@ -1,4 +1,4 @@
-import { Alarm } from "@/lib/client/api/bout";
+import { Alarm } from "@/lib/client/api/types";
 import { useEffect, useState } from "react";
 
 export default function useElapsed(

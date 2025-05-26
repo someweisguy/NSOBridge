@@ -1,12 +1,7 @@
 import { BoutIdContext } from "@/app/provider";
 import useJam from "@/hooks/use-jam";
-import {
-  setLead,
-  setLost,
-  setStarPass,
-  TeamJam,
-  TeamString,
-} from "@/lib/client/api/jam";
+import { setLead, setLost, setStarPass } from "@/lib/client/api/jam";
+import { TeamJam, TeamString } from "@/lib/client/api/types";
 import { useContext } from "react";
 import CheckboxButton from "../checkbox-button";
 

@@ -1,29 +1,5 @@
 import genericRequest from "../request";
-
-export type TeamString = "home" | "away";
-export type StopReason = "called" | "time" | "injury" | "other";
-
-export interface Trip {
-  points: number;
-  timestamp: Date;
-}
-
-export interface TeamJam {
-  score: {
-    lead: boolean;
-    lost: boolean;
-    starPass: number | null;
-    trips: Trip[];
-  };
-}
-
-export interface Jam {
-  startTimestamp: Date | null;
-  elapsed: Date | null;
-  stopReason: StopReason | null;
-  home: TeamJam;
-  away: TeamJam;
-}
+import { Jam, TeamString, StopReasonString } from "./types";
 
 export async function getJam(
   boutId: string,
@@ -214,7 +190,7 @@ export async function setStopReason(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  value: StopReason
+  value: StopReasonString
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
     throw new Error("Invalid Period Number");

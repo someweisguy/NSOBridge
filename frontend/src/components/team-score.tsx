@@ -3,7 +3,7 @@ import useActiveJamId from "@/hooks/use-active-jam-id";
 import useBout from "@/hooks/use-bout";
 import useJam from "@/hooks/use-jam";
 import useLatestJamId from "@/hooks/use-latest-jam-id";
-import { TeamString, Trip } from "@/lib/client/api/jam";
+import { TeamString, Trip } from "@/lib/client/api/types";
 import { useContext } from "react";
 
 interface TeamScoreProps {

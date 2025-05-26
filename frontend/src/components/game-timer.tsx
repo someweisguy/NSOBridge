@@ -3,7 +3,6 @@ import { useContext } from "react";
 import Clock from "./clock";
 import useActiveJamId from "@/hooks/use-active-jam-id";
 import useLatestJamId from "@/hooks/use-latest-jam-id";
-import { GameStateType, selectGameState } from "@/lib/client/api/bout";
 import useBout from "@/hooks/use-bout";
 
 interface TimerViewProps {
