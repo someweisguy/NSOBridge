@@ -1,8 +1,8 @@
 import { BoutIdContext } from "@/app/provider";
 import Button from "@/components/button";
 import GameTimer from "@/components/game-timer";
-import useBout from "@/hooks/use-bout";
-import { callTimeout, selectGameState, startJam, stopJam } from "@/lib/client/api/bout";
+import useBout, { selectClockIsRunning } from "@/hooks/use-bout";
+import { callTimeout, startJam, stopJam } from "@/lib/client/api/bout";
 import { PropsWithChildren, useContext, useMemo } from "react";
 
 interface JamControllerProps extends PropsWithChildren {
@@ -16,34 +16,36 @@ export default function JamController({
   const [boutIdContext] = useContext(BoutIdContext);
   boutId ??= boutIdContext;
 
-  const gameState = useBout(boutId, selectGameState);
+  const isInJam = useBout(boutId, selectClockIsRunning("jam"));
+  const isInTimeout = useBout(boutId, selectClockIsRunning("timeout"));
+
   const buttonRow = useMemo(() => {
-    switch (gameState) {
-      case "stopped":
-      case "intermission":
-      case "lineup":
-        return (
-          <>
-            <Button onClick={() => void startJam(boutId)}>Start Jam</Button>
-            <Button onClick={() => void callTimeout(boutId)}>Call Timeout</Button>
-          </>
-        );
-      case "jam":
-        return (
-          <>
-            <Button onClick={() => void stopJam(boutId)}>End Jam</Button>
-          </>
-        );
+    if (isInTimeout) {
+      // TODO: Add timeout buttons
+      return (
+        <>
+          <Button onClick={() => void stopJam(boutId)}>End Jam</Button>
+        </>
+      );
+    } else if (isInJam) {
+      return (
+        <>
+          <Button onClick={() => void startJam(boutId)}>Start Jam</Button>
+          <Button onClick={() => void callTimeout(boutId)}>Call Timeout</Button>
+        </>
+      );
+    } else {
+        <>
+          <Button onClick={() => void stopJam(boutId)}>End Jam</Button>
+        </>
     }
-  }, [gameState, boutId]);
+  }, [isInTimeout, isInJam, boutId]);
 
   return (
     <div className="justify-content-center grid grid-flow-row w-1/2">
       <div className="justify-start items-center gap-4 grid grid-flow-col m-2 w-full">
         <GameTimer boutId={boutId} />
-        <div className="gap-2 grid grid-flow-col w-full">
-          {buttonRow}
-        </div>
+        <div className="gap-2 grid grid-flow-col w-full">{buttonRow}</div>
       </div>
       <div className="justify-center grid grid-flow-col">{children}</div>
     </div>
