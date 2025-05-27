@@ -59,7 +59,7 @@ class Clock(Timer):
             hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
         )
         if new_alarm.total_seconds() <= 0:
-            new_alarm = None
+            raise ValueError('Alarm value must be greater than 0 seconds')
         self.alarm = new_alarm
 
     def reset(self, alarm: timedelta | None = None) -> None:
