@@ -20,7 +20,6 @@ export default function Clock({
   boutId ??= contextBoutId;
 
   const clock: Alarm = useBout(boutId).timer.clocks[name];
-  console.log(clock)
 
   const elapsed: number = useElapsed(clock, { stopMillis: clock.alarm + 1500 });
 
