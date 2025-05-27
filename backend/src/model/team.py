@@ -1,10 +1,12 @@
 from abc import ABC
-from typing import Literal
+from datetime import timedelta
+from typing import ClassVar, Final, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 type TeamString = Literal['home', 'away']
+
 
 class ProjectModel(BaseModel):
     model_config = ConfigDict(
@@ -33,13 +35,17 @@ class Team(ProjectModel):
 
 
 class RefereeContext(TeamAttribute[Team]):
+    PERIOD_DURATION: ClassVar[timedelta] = timedelta(minutes=30)
+    JAM_DURATION: ClassVar[timedelta] = timedelta(minutes=2)
+    LINEUP_DURATION: ClassVar[timedelta] = timedelta(seconds=30)
+
     home: Team = Field(Team(), final=True)
     away: Team = Field(Team(), final=True)
     # TODO: add Officials
 
 
 class AbstractReferee(ProjectModel, ABC):
-    _context: RefereeContext = PrivateAttr()
+    context: Final[RefereeContext]  # Fields marked Final are omitted from model dumps
 
     def get_context(self) -> RefereeContext:
         return self._context

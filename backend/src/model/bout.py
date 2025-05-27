@@ -16,13 +16,13 @@ class Bout(RefereeContext):
     def __init__(self, ruleset_name: str) -> None:
         super().__init__(
             ruleset_name=ruleset_name,
-            timer=TimeReferee(_context=self),
+            timer=TimeReferee(context=self),
             home=Team(),
             away=Team(),
         )
 
     def model_post_init(self, context: Any) -> None:
-        self._jams = JamReferee(_context=self)
+        self._jams = JamReferee(context=self)
 
     @property
     def jams(self) -> JamReferee:

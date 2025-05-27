@@ -54,22 +54,22 @@ class Clock(Timer):
 
     def set_alarm(
         self,
+        delta: timedelta | None = None,
+        *,
         hours: float = 0,
         minutes: float = 0,
         seconds: float = 0,
         milliseconds: float = 0,
     ) -> None:
-        new_alarm: timedelta | None = timedelta(
-            hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
-        )
+        if delta is not None:
+            new_alarm = delta
+        else:
+            new_alarm: timedelta | None = timedelta(
+                hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
+            )
         if new_alarm.total_seconds() <= 0:
             raise ValueError('Alarm value must be greater than 0 seconds')
         self.alarm = new_alarm
-
-    def reset(self, alarm: timedelta | None = None) -> None:
-        self.start_timestamp = None
-        self.elapsed = timedelta(seconds=0)
-        self.alarm = alarm
 
 
 class Timeout(Timer):
@@ -119,9 +119,9 @@ class TimeReferee(AbstractReferee):
     timeouts: list[Timeout] = Field([], final=True)
 
     def model_post_init(self, context):
-        self.clocks.game.set_alarm(minutes=30)
-        self.clocks.jam.set_alarm(minutes=2)
-        self.clocks.lineup.set_alarm(seconds=30)
+        self.clocks.game.set_alarm(self.context.PERIOD_DURATION)
+        self.clocks.jam.set_alarm(self.context.JAM_DURATION)
+        self.clocks.lineup.set_alarm(self.context.LINEUP_DURATION)
 
     def start_jam(self, timestamp: datetime) -> None:
         if self.timeout_is_running():
@@ -129,6 +129,8 @@ class TimeReferee(AbstractReferee):
         for clock in [self.clocks.intermission, self.clocks.lineup]:
             if clock.is_running():
                 clock.stop(timestamp)
+        if not self.clocks.game.is_running():
+            self.clocks.game.start(timestamp)
         self.clocks.jam.reset()
         self.clocks.jam.start(timestamp)
 
