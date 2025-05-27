@@ -1,7 +1,9 @@
 import JamController from "@/features/jam-controller";
 import { TeamJam } from "@/features/team-jam";
-import useActiveJamId from "@/hooks/use-active-jam-id";
-import useLatestJamId from "@/hooks/use-latest-jam-id";
+import useBout, {
+  selectActiveJamId,
+  selectLatestJamId,
+} from "@/hooks/use-bout";
 import usePrefetchJam from "@/hooks/use-prefetch-jam";
 import { TeamString } from "@/lib/client/api/types";
 import { useContext } from "react";
@@ -11,10 +13,10 @@ const TEAMS: [TeamString, TeamString] = ["home", "away"];
 
 export function ScoreboardOperator() {
   const [boutId] = useContext(BoutIdContext);
-  const lastestJamId = useLatestJamId(boutId);
-  const activeJamId = useActiveJamId(boutId);
-  const [periodNum, jamNum] = activeJamId ?? lastestJamId;
-  usePrefetchJam(boutId, lastestJamId);
+  const activeJamId = useBout(boutId, selectActiveJamId());
+  const latestJamId = useBout(boutId, selectLatestJamId());
+  const [periodNum, jamNum] = activeJamId ?? latestJamId;
+  usePrefetchJam(boutId, latestJamId);
 
   return (
     <div className="justify-items-center w-full">
