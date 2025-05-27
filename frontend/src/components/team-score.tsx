@@ -1,24 +1,29 @@
 import { BoutIdContext } from "@/app/provider";
-import useActiveJamId from "@/hooks/use-active-jam-id";
-import useBout from "@/hooks/use-bout";
+import useBout, {
+  selectActiveJamId,
+  selectLatestJamId,
+} from "@/hooks/use-bout";
 import useJam from "@/hooks/use-jam";
-import useLatestJamId from "@/hooks/use-latest-jam-id";
 import { TeamString, Trip } from "@/lib/client/api/types";
 import { useContext } from "react";
 
 interface TeamScoreProps {
   boutId?: string;
   team: TeamString;
-  divider?: string
+  divider?: string;
 }
 
-export default function TeamScore({ boutId, team, divider = "" }: TeamScoreProps) {
+export default function TeamScore({
+  boutId,
+  team,
+  divider = "",
+}: TeamScoreProps) {
   const [boutIdContext] = useContext(BoutIdContext);
   boutId ??= boutIdContext;
 
-  const lastestJamId = useLatestJamId(boutId);
-  const activeJamId = useActiveJamId(boutId);
-  const [periodNum, jamNum] = activeJamId ?? lastestJamId;
+  const activeJamId = useBout(boutId, selectActiveJamId());
+  const latestJamId = useBout(boutId, selectLatestJamId());
+  const [periodNum, jamNum] = activeJamId ?? latestJamId;
   const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
 
   const teamScore: number = useBout(boutId, (bout) => bout[team].score);
