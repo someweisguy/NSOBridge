@@ -104,7 +104,7 @@ class JamReferee(AbstractReferee):
         now: datetime = datetime.now()
 
         jam: Jam = self.get_jam(jam_id)
-        jam[team].score.trips.append(Score.Trip(points, now))
+        jam[team].score.trips.append(Score.Trip(points=points, timestamp=now))
 
         # Declare a Lead Jammer if it is appropriate
         if all([valid_pass, not jam[team].score.lost, not jam.lead_is_declared()]):
