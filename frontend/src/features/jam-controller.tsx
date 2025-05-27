@@ -17,29 +17,44 @@ export default function JamController({
   boutId ??= boutIdContext;
 
   const isInJam = useBout(boutId, selectClockIsRunning("jam"));
+  const isInLineup = useBout(boutId, selectClockIsRunning("lineup"));
   const isInTimeout = useBout(boutId, selectClockIsRunning("timeout"));
 
   const buttonRow = useMemo(() => {
-    if (isInTimeout) {
-      // TODO: Add timeout buttons
+    if (isInJam) {
+      // Jam buttons
       return (
         <>
           <Button onClick={() => void stopJam(boutId)}>End Jam</Button>
         </>
       );
-    } else if (isInJam) {
+    } else if (isInLineup) {
+      // Lineup buttons
       return (
         <>
           <Button onClick={() => void startJam(boutId)}>Start Jam</Button>
           <Button onClick={() => void callTimeout(boutId)}>Call Timeout</Button>
         </>
       );
-    } else {
+    } else if (isInTimeout) {
+      // TODO
+      // Timeout Buttons
+      return (
         <>
-          <Button onClick={() => void stopJam(boutId)}>End Jam</Button>
+          <Button onClick={() => null}>End Timeout</Button>
         </>
+      );
+    } else {
+      // TODO
+      // Intermission buttons
+      return (
+        <>
+          <Button onClick={() => void startJam(boutId)}>Start Jam</Button>
+          <Button onClick={() => null}>Start Lineup</Button>
+        </>
+      );
     }
-  }, [isInTimeout, isInJam, boutId]);
+  }, [isInJam, isInLineup, isInTimeout, boutId]);
 
   return (
     <div className="justify-content-center grid grid-flow-row w-1/2">
