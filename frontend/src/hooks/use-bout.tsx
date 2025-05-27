@@ -65,7 +65,8 @@ export function selectClockIsRunning(
   return (bout: Bout) => {
     if (clockName in bout.timer.clocks) {
       return (
-        bout.timer.clocks[clockName as keyof Bout["timer"]["clocks"]] !== null
+        bout.timer.clocks[clockName as keyof Bout["timer"]["clocks"]]
+          .startTimestamp !== null
       );
     } else {
       const numTimeouts = bout.timer.timeouts.length;
