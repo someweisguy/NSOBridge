@@ -10,7 +10,11 @@ type TimeoutType = Literal['timeout', 'review']
 
 type millisdelta = Annotated[
     timedelta,
-    PlainSerializer(lambda td: round(td.total_seconds() * 1000), return_type=int),
+    PlainSerializer(
+        lambda td: round(td.total_seconds() * 1000),
+        when_used='unless-none',
+        return_type=int,
+    ),
 ]
 
 
