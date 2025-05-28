@@ -83,31 +83,6 @@ class Timeout(Timer):
     result: str = ''
     retained: bool = False
 
-    def __init__(
-        self,
-        period_num: int,
-        jam_num: int,
-        period_clock_elapsed: timedelta,
-        start_timestamp: datetime,
-    ) -> None:
-        super().__init__(start_timestamp=start_timestamp, elapsed=timedelta())
-        self.period_num = period_num
-        self.jam_num = jam_num
-        self.period_clock_elapsed = period_clock_elapsed
-        self.type = None
-        self.team = None
-        self.details = ''
-        self.result = ''
-        self.retained = False
-
-    @property
-    def duration(self) -> timedelta:
-        return self.elapsed
-
-    @duration.setter
-    def duration(self, elapsed: timedelta) -> None:
-        self.elapsed = elapsed
-
 
 class TimeReferee(AbstractReferee):
     class Clocks(ProjectModel):
@@ -158,7 +133,12 @@ class TimeReferee(AbstractReferee):
 
         # Instantiate the Timeout
         period_clock_elapsed = self.clocks.game.get_elapsed_at_timestamp(timestamp)
-        timeout: Timeout = Timeout(timestamp, period_num, jam_num, period_clock_elapsed)
+        timeout: Timeout = Timeout(
+            start_timestamp=timestamp,
+            period_num=period_num,
+            jam_num=jam_num,
+            period_clock_elapsed=period_clock_elapsed,
+        )
         self.timeouts.append(timeout)
 
     def end_timeout(self, timestamp: datetime) -> None:
@@ -169,4 +149,4 @@ class TimeReferee(AbstractReferee):
         # Subtract the timeout or official review, if not retained
         timeout: Timeout = self.timeouts[-1]
         if timeout.type == 'timeout' or not timeout.retained:
-            self._context[timeout.team].clock_stops[timeout.type] -= 1
+            self.context[timeout.team].clock_stops[timeout.type] -= 1
