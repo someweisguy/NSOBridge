@@ -22,21 +22,23 @@ function computeTimeoutState(
   timeoutType: TimeoutTypeString,
   totalTimeouts: number
 ): PipPropState[] {
-  const latestTimeout: Timeout | undefined = timeouts[timeouts.length - 1];
-  return Array.from({ length: totalTimeouts }, (_, i) => {
-    if (teamTimeoutCounts > i) {
-      // The timeout has not be used yet
-      return "remaining";
-    } else if (
-      latestTimeout?.team === team &&
-      latestTimeout.elapsed === null &&
-      latestTimeout.type == timeoutType
-    ) {
-      // The latest timeout is the correct type, in progress, and called by this team
-      return "in-progress";
+  const pipStates: PipPropState[] = Array.from(
+    { length: totalTimeouts },
+    (_, i) => {
+      return i < teamTimeoutCounts ? "remaining" : "used";
     }
-    return "used";
-  });
+  );
+
+  const timeout: Timeout | undefined = timeouts[timeouts.length - 1];
+  if (
+    timeout?.team == team &&
+    timeout.elapsed === 0 &&
+    timeout.type === timeoutType
+  ) {
+    pipStates[teamTimeoutCounts - 1] = "in-progress";
+  }
+
+  return pipStates;
 }
 
 export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
