@@ -19,8 +19,6 @@ export default function JamController({
   const isInJam = useBout(boutId, selectClockIsRunning("jam"));
   const isInLineup = useBout(boutId, selectClockIsRunning("lineup"));
   const isInTimeout = useBout(boutId, selectClockIsRunning("timeout"));
-  console.log("timeout: ", isInTimeout)
-  console.log("timeout: ", isInTimeout)
 
   const buttonRow = useMemo(() => {
     if (isInJam) {
