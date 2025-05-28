@@ -157,3 +157,21 @@ class TimeReferee(AbstractReferee):
         # Subtract the timeout or official review, if not retained
         if timeout.type == 'timeout' or not timeout.retained:
             self.context[timeout.team].clock_stops[timeout.type] -= 1
+
+    def edit_timeout(
+        self,
+        timeout_id: int,
+        timeout_type: TimeoutType,
+        team: TeamOfficialString,
+        details: str,
+        result: str,
+        retained: bool,
+    ) -> None:
+        if timeout_type == 'review' and team == 'official':
+            raise RuntimeError('An Official Review must be called by a Team') from None
+        timeout: Timeout = self.timeouts[timeout_id]
+        timeout.type = timeout_type
+        timeout.team = team
+        timeout.details = details
+        timeout.result = result
+        timeout.retained = retained

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from model import bouts
 from model.bout import Bout
 from model.jam import JamId
-from model.timer import TeamOfficialString, Timeout, TimeoutType
+from model.timer import TeamOfficialString, TimeoutType
 from server import updater
 from server.responses import JSONable
 
@@ -79,17 +79,15 @@ async def edit_timeout(
     timeout_id: Annotated[int, Query()],
     params: Annotated[TimeoutParameters, Body()],
 ) -> JSONable:
-    if params.type == 'review' and params.team == 'official':
-        raise RuntimeError('An Official Review must be called by a Team') from None
-
     bout: Bout = bouts[bout_id]
-    timeout: Timeout = bout.timer.timeouts[timeout_id]
-
-    timeout.type = params.type
-    timeout.team = params.team
-    timeout.details = params.details
-    timeout.result = params.result
-    timeout.retained = params.retained
+    bout.timer.edit_timeout(  # TODO: make a bout-level method called edit_timeout
+        timeout_id,
+        timeout_type=params.type,
+        team=params.team,
+        details=params.details,
+        result=params.result,
+        retained=params.retained,
+    )
 
     updater.post(
         [
