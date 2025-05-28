@@ -2,7 +2,7 @@ import { BoutIdContext } from "@/app/provider";
 import Button from "@/components/button";
 import GameTimer from "@/components/game-timer";
 import useBout, { selectClockIsRunning } from "@/hooks/use-bout";
-import { callTimeout, startJam, stopJam } from "@/lib/client/api/bout";
+import { callTimeout, endTimeout, startJam, stopJam } from "@/lib/client/api/bout";
 import { PropsWithChildren, useContext, useMemo } from "react";
 
 interface JamControllerProps extends PropsWithChildren {
@@ -19,6 +19,8 @@ export default function JamController({
   const isInJam = useBout(boutId, selectClockIsRunning("jam"));
   const isInLineup = useBout(boutId, selectClockIsRunning("lineup"));
   const isInTimeout = useBout(boutId, selectClockIsRunning("timeout"));
+  console.log("timeout: ", isInTimeout)
+  console.log("timeout: ", isInTimeout)
 
   const buttonRow = useMemo(() => {
     if (isInJam) {
@@ -28,20 +30,20 @@ export default function JamController({
           <Button onClick={() => void stopJam(boutId)}>End Jam</Button>
         </>
       );
+    } else if (isInTimeout) {
+      // TODO: add Timeout options
+      // Timeout Buttons
+      return (
+        <>
+          <Button onClick={() => void endTimeout(boutId)}>End Timeout</Button>
+        </>
+      );
     } else if (isInLineup) {
       // Lineup buttons
       return (
         <>
           <Button onClick={() => void startJam(boutId)}>Start Jam</Button>
           <Button onClick={() => void callTimeout(boutId)}>Call Timeout</Button>
-        </>
-      );
-    } else if (isInTimeout) {
-      // TODO
-      // Timeout Buttons
-      return (
-        <>
-          <Button onClick={() => null}>End Timeout</Button>
         </>
       );
     } else {
