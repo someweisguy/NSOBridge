@@ -87,7 +87,7 @@ class JamReferee(AbstractReferee):
         # Guess the reason that the Jam is being stopped
         if jam.lead_is_declared():
             jam.stop_reason = 'called'
-        elif jam.elapsed >= self._context.JAM_DURATION:
+        elif jam.elapsed >= self.context.JAM_DURATION:
             jam.stop_reason = 'time'
         else:
             jam.stop_reason = None

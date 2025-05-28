@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from math import floor
 from typing import Annotated, Literal
 
 from pydantic import Field, PlainSerializer
@@ -11,7 +12,7 @@ type TimeoutType = Literal['timeout', 'review']
 type millisdelta = Annotated[
     timedelta,
     PlainSerializer(
-        lambda td: round(td.total_seconds() * 1000),
+        lambda td: floor(td.total_seconds() * 1000),
         when_used='unless-none',
         return_type=int,
     ),
