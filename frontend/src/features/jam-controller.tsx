@@ -1,8 +1,14 @@
 import { BoutIdContext } from "@/app/provider";
 import Button from "@/components/button";
 import GameTimer from "@/components/game-timer";
+import TimeoutControls from "@/components/timeout-controls";
 import useBout, { selectClockIsRunning } from "@/hooks/use-bout";
-import { callTimeout, endTimeout, startJam, stopJam } from "@/lib/client/api/bout";
+import {
+  callTimeout,
+  endTimeout,
+  startJam,
+  stopJam,
+} from "@/lib/client/api/bout";
 import { PropsWithChildren, useContext, useMemo } from "react";
 
 interface JamControllerProps extends PropsWithChildren {
@@ -34,6 +40,7 @@ export default function JamController({
       return (
         <>
           <Button onClick={() => void endTimeout(boutId)}>End Timeout</Button>
+          <TimeoutControls boutId={boutId} />
         </>
       );
     } else if (isInLineup) {

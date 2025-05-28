@@ -66,14 +66,14 @@ async def call_timeout(
 
 
 class TimeoutParameters(BaseModel):
-    type: TimeoutType
-    team: TeamOfficialString
+    type: TimeoutType | None
+    team: TeamOfficialString | None
     details: str
     result: str
     retained: bool
 
 
-@router.put('/edit-timeout')
+@router.put('/timeout')
 async def edit_timeout(
     bout_id: Annotated[str, Query()],
     timeout_id: Annotated[int, Query()],
@@ -88,7 +88,7 @@ async def edit_timeout(
     timeout.type = params.type
     timeout.team = params.team
     timeout.details = params.details
-    timeout.result = params.details
+    timeout.result = params.result
     timeout.retained = params.retained
 
     updater.post(

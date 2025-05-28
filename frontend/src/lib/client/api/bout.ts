@@ -1,5 +1,13 @@
 import genericRequest from "../request";
-import { Bout } from "./types";
+import { Bout, TeamString, TimeoutTypeString } from "./types";
+
+export interface TimeoutState {
+  type: TimeoutTypeString | null;
+  team: TeamString | null;
+  details: string;
+  result: string;
+  retained: boolean;
+}
 
 export async function getBout(boutId: string): Promise<Bout> {
   const response = await genericRequest<Bout>("/api/bout", "GET", {
@@ -79,5 +87,21 @@ export async function endTimeout(boutId: string): Promise<undefined> {
       bout_id: boutId,
     },
     new Date()
+  );
+}
+
+export async function editTimeout(
+  boutId: string,
+  timeoutNum: number,
+  state: TimeoutState
+) {
+  await genericRequest<Bout>(
+    "/api/bout/timeout",
+    "PUT",
+    {
+      bout_id: boutId,
+      timeout_id: timeoutNum,
+    },
+    state
   );
 }
