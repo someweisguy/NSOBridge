@@ -1,8 +1,8 @@
-import { Alarm } from "@/lib/client/api/types";
+import { Alarm, Timer } from "@/lib/client/api/types";
 import { useEffect, useState } from "react";
 
 export default function useElapsed(
-  clock: Alarm,
+  clock: Alarm | Timer,
   { updateInterval = 1000 / 60, stopMillis = Number.MAX_VALUE } = {}
 ): number {
   const [lap, setLap] = useState(

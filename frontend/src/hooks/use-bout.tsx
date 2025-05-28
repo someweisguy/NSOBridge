@@ -1,9 +1,7 @@
 import { getBout, offsetJamId } from "@/lib/client/api/bout";
-import { Alarm, Bout } from "@/lib/client/api/types";
+import { Alarm, Bout, ClockNameString, Timer } from "@/lib/client/api/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/key-factory";
-
-type ClockNameString = keyof Bout["timer"]["clocks"];
 
 export default function useBout<T = Bout>(
   boutId: string,
@@ -65,6 +63,16 @@ export function selectClock(clockName: ClockNameString): (bout: Bout) => Alarm {
   };
 }
 
+export function selectTimeoutTimer(): (bout: Bout) => Timer {
+  return (bout: Bout) => {
+    const numTimeouts = bout.timer.timeouts.length;
+    if (numTimeouts === 0) {
+      return { startTimestamp: null, elapsed: 0 } as Timer;
+    }
+    return bout.timer.timeouts[numTimeouts - 1];
+  };
+}
+
 export function selectClockIsRunning(
   clockName: ClockNameString | "timeout"
 ): (bout: Bout) => boolean {
@@ -77,7 +85,8 @@ export function selectClockIsRunning(
     } else {
       const numTimeouts = bout.timer.timeouts.length;
       return (
-        numTimeouts > 0 && bout.timer.timeouts[numTimeouts - 1].elapsed === null
+        numTimeouts > 0 &&
+        bout.timer.timeouts[numTimeouts - 1].startTimestamp !== null
       );
     }
   };

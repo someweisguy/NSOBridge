@@ -2,6 +2,7 @@ export type TeamString = "home" | "away";
 export type TeamOfficialString = TeamString | "official";
 export type TimeoutTypeString = "timeout" | "review";
 export type StopReasonString = "called" | "time" | "injury" | "other";
+export type ClockNameString = keyof Bout["timer"]["clocks"];
 
 export interface TeamAttribute<T> {
   home: T;

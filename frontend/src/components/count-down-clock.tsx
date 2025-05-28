@@ -11,7 +11,7 @@ interface ClockProps {
   showMillis?: boolean | "auto";
 }
 
-export default function Clock({
+export default function CountDownClock({
   boutId,
   name,
   showMillis = "auto",
