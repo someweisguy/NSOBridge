@@ -154,8 +154,9 @@ class TimeReferee(AbstractReferee):
         self.clocks.lineup.start(timestamp)
 
         # Subtract the timeout or official review, if not retained
-        if timeout.type == 'timeout' or not timeout.retained:
-            self.context[timeout.team].clock_stops[timeout.type] -= 1
+        if not timeout.is_review or not timeout.retained:
+            timeout_type = 'review' if timeout.is_review else 'timeout'
+            self.context[timeout.team].clock_stops[timeout_type] -= 1
 
     def edit_timeout(
         self,
