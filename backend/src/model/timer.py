@@ -7,7 +7,6 @@ from pydantic import Field, PlainSerializer
 from model.team import AbstractReferee, ProjectModel, TeamString
 
 type TeamOfficialString = TeamString | Literal['official']
-type TimeoutType = Literal['timeout', 'review']
 
 type millisdelta = Annotated[
     timedelta,
@@ -77,7 +76,7 @@ class Timeout(Timer):
     period_num: int = Field(final=True)
     jam_num: int = Field(final=True)
     period_clock_elapsed: millisdelta = Field(final=True)
-    type: TimeoutType | None = None
+    is_review: bool = False
     team: TeamOfficialString | None = None
     details: str = ''
     result: str = ''
@@ -161,16 +160,16 @@ class TimeReferee(AbstractReferee):
     def edit_timeout(
         self,
         timeout_id: int,
-        timeout_type: TimeoutType,
+        is_review: bool,
         team: TeamOfficialString,
         details: str,
         result: str,
         retained: bool,
     ) -> None:
-        if timeout_type == 'review' and team == 'official':
+        if is_review and team == 'official':
             raise RuntimeError('An Official Review must be called by a Team') from None
         timeout: Timeout = self.timeouts[timeout_id]
-        timeout.type = timeout_type
+        timeout.is_review = is_review
         timeout.team = team
         timeout.details = details
         timeout.result = result

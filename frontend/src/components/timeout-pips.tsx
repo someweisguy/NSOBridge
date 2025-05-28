@@ -1,6 +1,6 @@
 import { BoutIdContext } from "@/app/provider";
 import useBout from "@/hooks/use-bout";
-import { TeamString, Timeout, TimeoutTypeString } from "@/lib/client/api/types";
+import { TeamString, Timeout } from "@/lib/client/api/types";
 
 import { useContext } from "react";
 
@@ -19,7 +19,7 @@ function computeTimeoutState(
   team: TeamString,
   timeouts: Timeout[],
   teamTimeoutCounts: number,
-  timeoutType: TimeoutTypeString,
+  isReview: boolean,
   totalTimeouts: number
 ): PipPropState[] {
   const pipStates: PipPropState[] = Array.from(
@@ -33,7 +33,7 @@ function computeTimeoutState(
   if (
     timeout?.team == team &&
     timeout.elapsed === 0 &&
-    timeout.type === timeoutType
+    timeout.isReview === isReview
   ) {
     pipStates[teamTimeoutCounts - 1] = "in-progress";
   }
@@ -50,7 +50,7 @@ export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
       team,
       bout.timer.timeouts,
       bout[team].clockStops.timeout,
-      "timeout",
+      false,
       3
     )
   );
@@ -60,7 +60,7 @@ export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
       team,
       bout.timer.timeouts,
       bout[team].clockStops.review,
-      "review",
+      true,
       1
     )
   );

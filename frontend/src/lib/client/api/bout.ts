@@ -1,9 +1,9 @@
 import genericRequest from "../request";
-import { Bout, TeamString, TimeoutTypeString } from "./types";
+import { Bout, TeamOfficialString } from "./types";
 
 export interface TimeoutState {
-  type: TimeoutTypeString | null;
-  team: TeamString | null;
+  isReview: boolean;
+  team: TeamOfficialString | null;
   details: string;
   result: string;
   retained: boolean;
@@ -102,6 +102,6 @@ export async function editTimeout(
       bout_id: boutId,
       timeout_id: timeoutNum,
     },
-    state
+    { ...state, is_review: state.isReview }
   );
 }
