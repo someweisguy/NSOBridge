@@ -127,9 +127,10 @@ class TimeReferee(AbstractReferee):
         if self.timeout_is_running():
             raise RuntimeError('Cannot call a Timeout when one is already running')
 
-        # Stop the period clock if it is running
+        # Stop the Lineup clock and the Period clock if it is running
         if self.clocks.game.is_running():
             self.clocks.game.stop(timestamp)
+        self.clocks.lineup.stop(timestamp)
 
         # Instantiate the Timeout
         period_clock_elapsed = self.clocks.game.get_elapsed_at_timestamp(timestamp)
@@ -144,9 +145,15 @@ class TimeReferee(AbstractReferee):
     def end_timeout(self, timestamp: datetime) -> None:
         if not self.timeout_is_running():
             raise RuntimeError('Cannot end a Timeout when one is not running')
-        self.timeouts[-1].stop(timestamp)
+        timeout: Timeout = self.timeouts[-1]
+        timeout.stop(timestamp)
+
+        # Add the Timeout duration to the Lineup clock and start the Lineup clock
+        # This is done because it can help prevent some logic errors in the frontend
+        # code. The game-state will be 'lineup' only when the Lineup clock is running.
+        self.clocks.lineup.elapsed += timeout.get_elapsed_at_timestamp(timestamp)
+        self.clocks.lineup.start(timestamp)
 
         # Subtract the timeout or official review, if not retained
-        timeout: Timeout = self.timeouts[-1]
         if timeout.type == 'timeout' or not timeout.retained:
             self.context[timeout.team].clock_stops[timeout.type] -= 1
