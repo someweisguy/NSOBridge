@@ -1,10 +1,12 @@
 import { BoutIdContext } from "@/app/provider";
+import useAlarmEffect from "@/hooks/use-alarm-effect";
 import useBout, {
   selectActiveJamId,
+  selectClock,
   selectClockIsRunning,
   selectLatestJamId,
 } from "@/hooks/use-bout";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Clock from "./clock";
 
 interface TimerViewProps {
@@ -22,6 +24,14 @@ export default function GameTimer({ boutId }: TimerViewProps) {
   const latestJamId = useBout(boutId, selectLatestJamId());
   const [periodNum, jamNum] = activeJamId ?? latestJamId;
 
+  // Update the appearance of the Lineup timer when five seconds are remaining
+  const clock = useBout(boutId, selectClock("lineup"));
+  const [fiveSeconds, setFiveSeconds] = useState(false);
+  useAlarmEffect(() => {
+    setFiveSeconds(true);
+    return () => setFiveSeconds(false);
+  }, [clock, clock.alarm - 5000]);
+
   return (
     <div className="items-center gap-2 grid grid-flow-col p-1 border rounded-md w-fit text-xl">
       <div className="px-1 w-14 text-right">
@@ -31,7 +41,10 @@ export default function GameTimer({ boutId }: TimerViewProps) {
         P{periodNum + 1} {isInLineup ? "L" : "J"}
         {jamNum + 1}
       </div>
-      <div className="px-1 w-12 text-right">
+      <div
+        data-emphasis={fiveSeconds && isInLineup}
+        className="px-1 w-12 data-[emphasis=true]:font-bold text-right"
+      >
         <Clock
           boutId={boutId}
           name={isInLineup ? "lineup" : "jam"}
