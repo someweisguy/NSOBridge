@@ -1,7 +1,7 @@
 import { BoutIdContext } from "@/app/provider";
 import { editTimeout, TimeoutState } from "@/lib/client/api/bout";
-import { TeamString, TimeoutTypeString } from "@/lib/client/api/types";
-import { ToggleGroup } from "radix-ui";
+import { TeamString } from "@/lib/client/api/types";
+import { Switch, ToggleGroup } from "radix-ui";
 import { useContext, useEffect, useRef, useState } from "react";
 
 interface TimeoutControlsProps {
@@ -13,7 +13,7 @@ export default function TimeoutControls({ boutId }: TimeoutControlsProps) {
   boutId ??= boutIdContext;
 
   const [timeoutState, setTimeoutState] = useState<TimeoutState>({
-    type: null,
+    isReview: false,
     team: null,
     details: "",
     result: "",
@@ -32,6 +32,17 @@ export default function TimeoutControls({ boutId }: TimeoutControlsProps) {
   // TODO: type, retained
   return (
     <>
+      <Switch.Root onCheckedChange={(checked: boolean) => {
+        setTimeoutState((timeout) => {
+          if (checked && timeout.team === "official") {
+            return { ...timeout, isReview: checked, team: null }
+          }
+          return { ...timeout, isReview: checked }
+        })
+      }}>
+        <Switch.Thumb />
+      </Switch.Root>
+
       <ToggleGroup.Root
         type="single"
         onValueChange={(value: TeamString) => {
@@ -44,12 +55,12 @@ export default function TimeoutControls({ boutId }: TimeoutControlsProps) {
 
       <ToggleGroup.Root
         type="single"
-        onValueChange={(value: TimeoutTypeString) => {
+        onValueChange={(value: "true" | "false") => {
           setTimeoutState((timeout) => ({ ...timeout, type: value }));
         }}
       >
-        <ToggleGroup.Item value="timeout">Timeout</ToggleGroup.Item>
-        <ToggleGroup.Item value="review">Review</ToggleGroup.Item>
+        <ToggleGroup.Item value="true">Timeout</ToggleGroup.Item>
+        <ToggleGroup.Item value="false">Review</ToggleGroup.Item>
       </ToggleGroup.Root>
     </>
   );
