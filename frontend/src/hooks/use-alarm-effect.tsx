@@ -2,10 +2,11 @@ import { Alarm } from "@/lib/client/api/types";
 import { useEffect, useRef, useState } from "react";
 
 export default function useAlarmEffect(
-  effect: () => void,
+  effect: () => () => void,
   [clock, milliseconds]: [Alarm, number]
 ): void {
   const [alarmHasFired, setAlarmHasFired] = useState<boolean>(false);
+  const resetFunction = useRef<() => void>(() => null);
   const lastClock = useRef<Alarm>(clock);
 
   // Reset the alarm if the alarm value changes
@@ -30,15 +31,23 @@ export default function useAlarmEffect(
     const timeoutMillis = milliseconds - (clock.elapsed + lap);
     if (timeoutMillis <= 0) {
       // Don't use a Timeout to avoid firing the alarm multiple times
-      effect();
       setAlarmHasFired(true);
       return;
     }
     const timeoutId = setTimeout(() => {
-      effect();
       setAlarmHasFired(true);
     }, timeoutMillis);
 
     return () => clearTimeout(timeoutId);
   }, [clock, alarmHasFired, milliseconds, effect]);
+
+  // Call the effect function when the alarm fires and resets
+  useEffect(() => {
+    if (alarmHasFired) {
+      const newResetFunction = effect();
+      resetFunction.current = newResetFunction;
+    } else {
+      resetFunction.current();
+    }
+  }, [alarmHasFired, effect]);
 }
