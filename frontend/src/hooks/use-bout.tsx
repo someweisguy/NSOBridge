@@ -1,9 +1,9 @@
 import { getBout, offsetJamId } from "@/lib/client/api/bout";
-import { Bout } from "@/lib/client/api/types";
+import { Alarm, Bout } from "@/lib/client/api/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { keyFactory } from "../utils/key-factory";
 
-type ClockNameString = keyof Bout["timer"]["clocks"] | "timeout";
+type ClockNameString = keyof Bout["timer"]["clocks"];
 
 export default function useBout<T = Bout>(
   boutId: string,
@@ -59,8 +59,14 @@ export function selectActiveJamId(
   };
 }
 
+export function selectClock(clockName: ClockNameString): (bout: Bout) => Alarm {
+  return (bout: Bout) => {
+    return bout.timer.clocks[clockName];
+  };
+}
+
 export function selectClockIsRunning(
-  clockName: ClockNameString
+  clockName: ClockNameString | "timeout"
 ): (bout: Bout) => boolean {
   return (bout: Bout) => {
     if (clockName in bout.timer.clocks) {
