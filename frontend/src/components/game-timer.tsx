@@ -20,7 +20,6 @@ export default function GameTimer({ boutId }: TimerViewProps) {
 
   const isInLineup: boolean = useBout(boutId, selectClockIsRunning("lineup"));
   const isInTimeout: boolean = useBout(boutId, selectClockIsRunning("timeout"));
-  console.log("timeout: ", isInTimeout)
 
   // Get the active or latest Jam ID
   const activeJamId = useBout(boutId, selectActiveJamId());
