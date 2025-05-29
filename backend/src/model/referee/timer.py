@@ -6,11 +6,10 @@ from model.timer import Timeout
 
 
 class TimeReferee(AbstractReferee):
-    # TODO
-    # def setup(self) -> None:
-    #     self.context.clocks.game.set_alarm(self.context.PERIOD_DURATION)
-    #     self.context.clocks.jam.set_alarm(self.context.JAM_DURATION)
-    #     self.context.clocks.lineup.set_alarm(self.context.LINEUP_DURATION)
+    def setup(self) -> None:
+        self.context.clocks.game.set_alarm(self.context.PERIOD_DURATION)
+        self.context.clocks.jam.set_alarm(self.context.JAM_DURATION)
+        self.context.clocks.lineup.set_alarm(self.context.LINEUP_DURATION)
 
     def start_jam(self, timestamp: datetime) -> None:
         if self.timeout_is_running():

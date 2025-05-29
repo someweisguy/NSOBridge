@@ -11,7 +11,7 @@ from model.team import Team, TeamAttribute
 class Bout(RefereeContext):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    ruleset_name: str = Field(init=False, final=True)
+    ruleset_name: str = Field(final=True)
     timer: TimeReferee = Field(exclude=True)
     jam_ref: JamReferee = Field(exclude=True)
 
@@ -23,6 +23,10 @@ class Bout(RefereeContext):
             timer=TimeReferee(self),
             jam_ref=JamReferee(self),
         )
+    
+    def model_post_init(self, context):
+        self.timer.setup()
+        self.jam_ref.setup()
 
     @computed_field()
     def num_jams(self) -> tuple[int, int]:

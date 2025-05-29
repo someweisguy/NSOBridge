@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Final, final
+from typing import Final
 
 from model.context import RefereeContext
 
@@ -12,6 +12,3 @@ class AbstractReferee(ABC):
     def setup(self) -> None:  # noqa: B027
         pass
     
-    @final
-    def __post_init__(self) -> None:
-        self.setup()
