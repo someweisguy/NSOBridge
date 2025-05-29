@@ -1,19 +1,11 @@
-from abc import ABC
-from datetime import timedelta
-from typing import ClassVar, Final, Literal
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
-from pydantic.alias_generators import to_camel
+from pydantic import Field
+
+from model.project import ProjectModel
 
 type TeamString = Literal['home', 'away']
-
-
-class ProjectModel(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        validate_by_alias=True,
-        validate_by_name=True,
-    )
+type TeamOfficialString = TeamString | Literal['official']
 
 
 class TeamAttribute[T](ProjectModel):
@@ -29,23 +21,9 @@ class Team(ProjectModel):
         timeout: int = 3
         review: int = 1
 
+        def __getitem__(self, key: Literal['timeout', 'review']) -> int:
+            return self.timeout if key == 'timeout' else self.review
+
     name: str = ''
     mnemonic: str = ''
-    clock_stops: ClockStops = Field(default_factory=ClockStops, final=True)
-
-
-class RefereeContext(TeamAttribute[Team]):
-    PERIOD_DURATION: ClassVar[timedelta] = timedelta(minutes=30)
-    JAM_DURATION: ClassVar[timedelta] = timedelta(minutes=2)
-    LINEUP_DURATION: ClassVar[timedelta] = timedelta(seconds=30)
-
-    home: Team = Field(Team(), final=True)
-    away: Team = Field(Team(), final=True)
-    # TODO: add Officials
-
-
-class AbstractReferee(ProjectModel, ABC):
-    context: Final[RefereeContext]  # Fields marked Final are omitted from model dumps
-
-    def get_context(self) -> RefereeContext:
-        return self._context
+    clock_stops: ClockStops = Field(default_factory=ClockStops)

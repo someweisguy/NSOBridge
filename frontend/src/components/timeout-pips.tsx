@@ -48,7 +48,7 @@ export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
   const timeoutPipStates: PipPropState[] = useBout(boutId, (bout) =>
     computeTimeoutState(
       team,
-      bout.timer.timeouts,
+      bout.timeouts,
       bout[team].clockStops.timeout,
       false,
       3
@@ -58,7 +58,7 @@ export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
   const reviewPipStates: PipPropState[] = useBout(boutId, (bout) =>
     computeTimeoutState(
       team,
-      bout.timer.timeouts,
+      bout.timeouts,
       bout[team].clockStops.review,
       true,
       1

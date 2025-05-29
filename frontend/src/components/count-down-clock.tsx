@@ -7,7 +7,7 @@ import { ReactNode, useContext } from "react";
 
 interface ClockProps {
   boutId?: string;
-  name: keyof Bout["timer"]["clocks"];
+  name: keyof Bout["clocks"];
   showMillis?: boolean | "auto";
 }
 
@@ -19,7 +19,7 @@ export default function CountDownClock({
   const [contextBoutId] = useContext(BoutIdContext);
   boutId ??= contextBoutId;
 
-  const clock: Alarm = useBout(boutId).timer.clocks[name];
+  const clock: Alarm = useBout(boutId).clocks[name];
 
   const elapsed: number = useElapsed(clock, { stopMillis: clock.alarm + 1500 });
 

@@ -15,8 +15,8 @@ export default function TimeoutControls({ boutId }: TimeoutControlsProps) {
 
   const bout: Bout = useBout(boutId);
   const [timeoutState, setTimeoutState] = useState<TimeoutState>(() => {
-    const numTimeouts = bout.timer.timeouts.length;
-    const timeout: Timeout | undefined = bout.timer.timeouts[numTimeouts - 1];
+    const numTimeouts = bout.timeouts.length;
+    const timeout: Timeout | undefined = bout.timeouts[numTimeouts - 1];
     return {
       isReview: timeout.isReview ?? false,
       team: timeout.team ?? null,

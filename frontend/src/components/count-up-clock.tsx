@@ -7,7 +7,7 @@ import { ReactNode, useContext } from "react";
 
 interface ClockProps {
   boutId?: string;
-  name: keyof Bout["timer"]["clocks"] | "timeout";
+  name: keyof Bout["clocks"] | "timeout";
 }
 
 export default function CountUpClock({ boutId, name }: ClockProps): ReactNode {

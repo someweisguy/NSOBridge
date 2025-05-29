@@ -39,7 +39,7 @@ export function selectActiveJamId(
     let jamScalar: number = latestJamId[1] + latestJamId[0] * bout.numJams[0];
 
     // Apply an offset and subtract one if the Jam timer isn't running
-    jamScalar += offset - Number(bout.timer.clocks.jam.startTimestamp === null);
+    jamScalar += offset - Number(bout.clocks.jam.startTimestamp === null);
 
     // Convert the Jam scalar back into a vector
     const periodNum = Number(jamScalar > bout.numJams[0]);
@@ -59,17 +59,17 @@ export function selectActiveJamId(
 
 export function selectClock(clockName: ClockNameString): (bout: Bout) => Alarm {
   return (bout: Bout) => {
-    return bout.timer.clocks[clockName];
+    return bout.clocks[clockName];
   };
 }
 
 export function selectTimeoutTimer(): (bout: Bout) => Timer {
   return (bout: Bout) => {
-    const numTimeouts = bout.timer.timeouts.length;
+    const numTimeouts = bout.timeouts.length;
     if (numTimeouts === 0) {
       return { startTimestamp: null, elapsed: 0 } as Timer;
     }
-    return bout.timer.timeouts[numTimeouts - 1];
+    return bout.timeouts[numTimeouts - 1];
   };
 }
 
@@ -77,16 +77,16 @@ export function selectClockIsRunning(
   clockName: ClockNameString | "timeout"
 ): (bout: Bout) => boolean {
   return (bout: Bout) => {
-    if (clockName in bout.timer.clocks) {
+    if (clockName in bout.clocks) {
       return (
-        bout.timer.clocks[clockName as keyof Bout["timer"]["clocks"]]
+        bout.clocks[clockName as keyof Bout["clocks"]]
           .startTimestamp !== null
       );
     } else {
-      const numTimeouts = bout.timer.timeouts.length;
+      const numTimeouts = bout.timeouts.length;
       return (
         numTimeouts > 0 &&
-        bout.timer.timeouts[numTimeouts - 1].startTimestamp !== null
+        bout.timeouts[numTimeouts - 1].startTimestamp !== null
       );
     }
   };

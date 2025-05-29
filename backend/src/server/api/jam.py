@@ -13,7 +13,7 @@ router: Final[APIRouter] = APIRouter(prefix='/jam')
 
 @router.get('')
 async def get(bout_id: str, period_num: int, jam_num: int) -> Jam:
-    return bouts[bout_id].jams.get_jam((period_num, jam_num))
+    return bouts[bout_id].jam_ref.get_jam((period_num, jam_num))
 
 
 @router.post('/trip')
@@ -26,7 +26,7 @@ async def add_trip(
     valid_pass: Annotated[bool, Body()] = True,
 ) -> JSONable:
     bout: Bout = bouts[bout_id]
-    bout.jams.add_trip((period_num, jam_num), team, points, valid_pass)
+    bout.jam_ref.add_trip((period_num, jam_num), team, points, valid_pass)
     updater.post(
         [
             updater.kf.bout(bout_id),
