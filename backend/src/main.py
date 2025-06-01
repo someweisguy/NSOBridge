@@ -1,7 +1,10 @@
 import asyncio
 import logging
+from typing import Final
 
 import server
+
+HTTP_PORT: Final[int] = 80
 
 logging.basicConfig(
     format='{levelname}: {message}',
@@ -14,5 +17,5 @@ logging.basicConfig(
 if __name__ == '__main__':
     ip: str = server.get_ip_address()
     port: int = 8000
-    print(f'Starting server at {ip}{f':{port}' if port != 80 else ''}')
+    print(f'Starting server at http://{ip}{f":{port}" if port != HTTP_PORT else ""}')
     asyncio.run(server.serve(port=port))
