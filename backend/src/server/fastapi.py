@@ -43,7 +43,9 @@ async def server_sync() -> JSONable:
 
 
 @app.middleware('http')
-async def broadcast_updates_middleware(request: Request, call_next) -> Response:
+async def broadcast_updates_middleware(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
     response: Response = await call_next(request)
     if request.method != 'GET':
         updater.broadcast()
