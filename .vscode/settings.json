@@ -1,8 +1,11 @@
 {
   "[python]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "charliermarsh.ruff"
+    "editor.defaultFormatter": "charliermarsh.ruff",
   },
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/backend/src",
+  ],
   "ty.interpreter": [
     ".venv"
   ]
