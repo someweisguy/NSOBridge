@@ -1,4 +1,4 @@
-from typing import Literal, get_args
+from typing import Literal
 
 from pydantic import Field
 
@@ -13,7 +13,7 @@ class TeamAttribute[T](ProjectModel):
     away: T
 
     def __getitem__(self, key: TeamString) -> T:
-        if key not in get_args(TeamString):
+        if key not in {'home', 'away'}:
             raise KeyError(f'Invalid Team key: {key}')
         return getattr(self, key)
 
