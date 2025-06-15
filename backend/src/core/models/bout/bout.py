@@ -57,9 +57,9 @@ class Bout(ProjectModel):
 
     id: str = Field(init=False, final=True)
     ruleset_name: str = Field(final=True)
-    clocks: _Clocks = Field(_Clocks(), init=False, final=True)
+    clocks: _Clocks = Field(_Clocks(), final=True, init=False)
     teams: tuple[Team] = Field((), init=False)
-    timeouts: list[Timeout] = Field([], init=False, final=True)
+    timeouts: list[Timeout] = Field([], final=True, init=False)
     _jams: Final[list[list[Jam]]] = [[]]
 
     def __init__(self, ruleset_name: str) -> None:

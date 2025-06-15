@@ -21,8 +21,8 @@ class JamId(ProjectModel):
 
 
 class Trip(ProjectModel):
-    points: int
-    timestamp: datetime
+    points: int = Field()
+    timestamp: datetime = Field()
 
     def __init__(self, passes: int, timestamp: datetime) -> None:
         super().__init__(points=passes, timestamp=timestamp)
@@ -33,7 +33,7 @@ class TeamJam(ProjectModel):
     lead: bool = Field(False, init=False)
     lost: bool = Field(False, init=False)
     star_pass: int | None = Field(None, init=False)
-    trips: list[Trip] = Field([], init=False, final=True)
+    trips: list[Trip] = Field([], final=True, init=False)
 
     def __init__(self, parent: Jam) -> None:
         super().__init__()
