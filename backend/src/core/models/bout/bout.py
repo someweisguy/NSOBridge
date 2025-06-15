@@ -76,6 +76,19 @@ class Bout(ProjectModel):
     def get_jam(self, period_num: int, jam_num: int) -> Jam:
         return self._jams[period_num][jam_num]
 
+    def get_latest_jam(self) -> Jam:
+        period_num: int = len(self._jams)
+        return self.get_jam(period_num, len(self._jams[period_num]))
+
+    def get_active_jam(self) -> Jam | None:
+        latest_jam: Jam = self.get_latest_jam()
+        jam_num: int = latest_jam.id.jam
+        if latest_jam.start_timestamp is None:
+            if latest_jam.id.jam == 0:
+                return None  # There is no active Jam
+            jam_num -= 1
+        return self.get_jam(len(self._jams), jam_num)
+
     def push_jam(self) -> Jam:
         if len(self.teams) < _MIN_NUM_TEAMS:
             raise RuntimeError(f'{_MIN_NUM_TEAMS} Teams are required to push a Jam')
@@ -87,19 +100,6 @@ class Bout(ProjectModel):
     def pop_jam(self) -> Jam:
         period: list[Jam] = self._jams[-1]
         return period.pop()
-
-    def get_latest_jam_id(self) -> JamId:
-        period_num: int = len(self._jams)
-        return JamId(period_num, len(self._jams[period_num]))
-
-    def get_active_jam_id(self) -> JamId | None:
-        latest_jam_id: JamId = self.get_latest_jam_id()
-        jam_num: int = latest_jam_id.jam
-        if self._jams[latest_jam_id.period][latest_jam_id.jam].start_timestamp is None:
-            if latest_jam_id.jam == 0:
-                return None  # There is no active Jam
-            jam_num -= 1
-        return JamId(len(self._jams), jam_num)
 
     def timeout_is_running(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
