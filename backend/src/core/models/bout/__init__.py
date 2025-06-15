@@ -11,6 +11,8 @@ _default_bout.teams = Team(Roster('Home')), Team(Roster('Away'))
 _default_bout.get_latest_jam().team_jams = _default_bout.teams
 
 
+print(_default_bout.model_dump())
+print(_default_bout.get_latest_jam().model_dump())
 bouts = Bout.bouts
 
 __all__ = (

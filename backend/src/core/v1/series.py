@@ -4,8 +4,8 @@ from fastapi import APIRouter
 
 from model import bouts, generate_bout_id
 from model.bout import Bout
-from server import updater
-from server.responses import JSONable
+from core import updater
+from core.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
 
@@ -13,8 +13,8 @@ router: Final[APIRouter] = APIRouter(prefix='/series')
 @router.get('')
 async def get() -> JSONable:
     view: list[JSONable] = []
-    for key, _ in bouts.items():
-        view.append({'id': key, 'description': None})
+    for bout in bouts:
+        view.append({'id': bout.id, 'description': None})
     return view
 
 

@@ -2,18 +2,18 @@ from typing import Annotated, Final
 
 from fastapi import APIRouter, Body, Query
 
-from model import bouts
-from model.bout import Bout
-from model.jam import Jam, StopReason, TeamString
-from server import updater
-from server.responses import JSONable
+from model.bout import bouts
+from model.bout.bout import Bout
+from model.bout.jam import Jam, StopReason, TeamString
+from core import updater
+from core.responses import JSONable
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')
 
 
 @router.get('')
 async def get(bout_id: str, period_num: int, jam_num: int) -> Jam:
-    return bouts[bout_id].jam_ref.get_jam((period_num, jam_num))
+    return bouts[bout_id].get_jam(period_num, jam_num)
 
 
 @router.post('/trip')
@@ -26,7 +26,7 @@ async def add_trip(
     valid_pass: Annotated[bool, Body()] = True,
 ) -> JSONable:
     bout: Bout = bouts[bout_id]
-    bout.jam_ref.add_trip((period_num, jam_num), team, points, valid_pass)
+    bout.scorekeeper.add_trip((period_num, jam_num), team, points, valid_pass)
     updater.post(
         [
             updater.kf.bout(bout_id),
