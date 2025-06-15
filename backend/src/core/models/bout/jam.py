@@ -61,7 +61,6 @@ class Jam(Timer):
     def __init__(self, period: int, jam: int) -> None:
         super().__init__(id=JamId(period, jam))
 
-    @computed_field
     @property
     def home(self) -> TeamJam | None:
         return self._team_jams[Team.HOME] if len(self._team_jams) > Team.HOME else None
@@ -72,7 +71,6 @@ class Jam(Timer):
         self._team_jams[Team.HOME] = team_jam
         team.add_team_jam(team_jam)
 
-    @computed_field
     @property
     def away(self) -> TeamJam | None:
         return self._team_jams[Team.AWAY] if len(self._team_jams) > Team.AWAY else None
@@ -83,8 +81,9 @@ class Jam(Timer):
         self._team_jams[Team.AWAY] = team_jam
         team.add_team_jam(team_jam)
 
+    @computed_field
     @property
-    def team_jams(self) -> tuple[TeamJam]:
+    def team_jams(self) -> tuple[TeamJam, TeamJam]:
         return tuple(self._team_jams)
 
     @team_jams.setter
