@@ -51,7 +51,7 @@ class Bout(ProjectModel):
             raise ValueError('Bout Teams cannot contain duplicates')
         return value
 
-    class Clocks(ProjectModel):
+    class _Clocks(ProjectModel):
         intermission: Alarm = Field(Alarm(), final=True)
         game: Alarm = Field(Alarm(), final=True)
         lineup: Alarm = Field(Alarm(), final=True)
@@ -59,7 +59,7 @@ class Bout(ProjectModel):
 
     id: str = Field(init=False, final=True)
     ruleset_name: str = Field(final=True)
-    clocks: Clocks = Field(Clocks(), init=False, final=True)
+    clocks: _Clocks = Field(_Clocks(), init=False, final=True)
     teams: Sequence[Team] = Field([], init=False)
     timeouts: list[Timeout] = Field([], init=False, final=True)
     _jams: Final[list[list[Jam]]] = [[]]
