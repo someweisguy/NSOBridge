@@ -26,7 +26,7 @@ class Trip(ProjectModel):
 
 
 class TeamJam(ProjectModel):
-    _parent_jam: Jam
+    _parent: Jam
     lead: bool = Field(False, init=False)
     lost: bool = Field(False, init=False)
     star_pass: int | None = Field(None, init=False)
@@ -34,7 +34,7 @@ class TeamJam(ProjectModel):
 
     def __init__(self, parent: Jam) -> None:
         super().__init__()
-        self._parent_jam = parent
+        self._parent = parent
 
 
 class Jam(Timer):
