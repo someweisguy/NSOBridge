@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import Field, PlainSerializer
 
-from model.team import ProjectModel, TeamOfficialString
+from core.models import ProjectModel
 
 type millisdelta = Annotated[
     timedelta,
@@ -17,8 +17,8 @@ type millisdelta = Annotated[
 
 
 class Timer(ProjectModel):
-    start_timestamp: datetime | None = None
-    elapsed: millisdelta = timedelta(seconds=0)
+    start_timestamp: datetime | None = Field(None, init=False)
+    elapsed: millisdelta = Field(timedelta(seconds=0), init=False)
 
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
@@ -45,37 +45,3 @@ class Timer(ProjectModel):
         if self.start_timestamp is not None:
             elapsed += timestamp - self.start_timestamp
         return elapsed
-
-
-class Clock(Timer):
-    alarm: millisdelta = timedelta(seconds=0)
-
-    def set_alarm(
-        self,
-        delta: timedelta | None = None,
-        *,
-        hours: float = 0,
-        minutes: float = 0,
-        seconds: float = 0,
-        milliseconds: float = 0,
-    ) -> None:
-        if delta is not None:
-            new_alarm = delta
-        else:
-            new_alarm: timedelta | None = timedelta(
-                hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
-            )
-        if new_alarm.total_seconds() <= 0:
-            raise ValueError('Alarm value must be greater than 0 seconds')
-        self.alarm = new_alarm
-
-
-class Timeout(Timer):
-    period_num: int = Field(final=True)
-    jam_num: int = Field(final=True)
-    period_clock_elapsed: millisdelta = Field(final=True)
-    is_review: bool = False
-    team: TeamOfficialString | None = None
-    details: str = ''
-    result: str = ''
-    retained: bool = False
