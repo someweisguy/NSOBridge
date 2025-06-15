@@ -103,6 +103,3 @@ class Bout(ProjectModel):
 
     def timeout_is_running(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
-
-
-__all__ = ('Bout',)
