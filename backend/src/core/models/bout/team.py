@@ -56,14 +56,14 @@ class Team(ProjectModel):
             self._most_recent_jam() if self._most_recent_jam is not None else None
         )
         if team_jam is None and len(self._team_jams) > 0:
-            max_period_num: int = int(any(
-                team_jam.id.period == 1 for team_jam in self._team_jams
-            ))
+            max_period_num: int = int(
+                any(team_jam.id.period == 1 for team_jam in self._team_jams)
+            )
             team_jam = max(
                 [
-                    jam_team
-                    for jam_team in self._team_jams
-                    if jam_team.id.period == max_period_num
+                    team_jam
+                    for team_jam in self._team_jams
+                    if team_jam.id.period == max_period_num
                 ],
                 key=lambda jam_team: jam_team.id.jam,
             )
