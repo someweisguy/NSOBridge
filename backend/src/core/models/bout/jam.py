@@ -24,6 +24,9 @@ class Trip(ProjectModel):
     points: int
     timestamp: datetime
 
+    def __init__(self, passes: int, timestamp: datetime) -> None:
+        super().__init__(points=passes, timestamp=timestamp)
+
 
 class TeamJam(ProjectModel):
     _parent: Jam
