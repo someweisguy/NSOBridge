@@ -68,4 +68,4 @@ class Jam(Timer):
         return self.team_jams[Team.AWAY]
 
     def lead_is_declared(self) -> bool:
-        return any(team.lead for team in self.team_jams)
+        return any(team_jam.lead for team_jam in self.team_jams)
