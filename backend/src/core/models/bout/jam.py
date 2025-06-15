@@ -69,8 +69,8 @@ class Jam(Timer):
     @home.setter
     def home(self, team: Team) -> None:
         team_jam = TeamJam(self)
-        team.add_team_jam(team_jam)
         self._team_jams[Team.HOME] = team_jam
+        team.add_team_jam(team_jam)
 
     @computed_field
     @property
@@ -80,8 +80,8 @@ class Jam(Timer):
     @away.setter
     def away(self, team: Team) -> None:
         team_jam = TeamJam(self)
-        team.add_team_jam(team_jam)
         self._team_jams[Team.AWAY] = team_jam
+        team.add_team_jam(team_jam)
 
     @property
     def team_jams(self) -> tuple[TeamJam]:
@@ -93,10 +93,11 @@ class Jam(Timer):
         if len(teams) > MAX_ALLOWED_TEAMS:
             raise ValueError(f'A Jam may only have {MAX_ALLOWED_TEAMS} Teams')
         if teams[0] is teams[1]:
-            raise ValueError('Jam Teams cannot contain duplicates')
+            raise ValueError('Jam Teams cannot contain duplicates')        
         for team in teams:
-            team.add_team_jam(TeamJam(self))
-        self._team_jams = list(teams)
+            team_jam: TeamJam = TeamJam(self)
+            self._team_jams.append(team_jam)
+            team.add_team_jam(team_jam)
 
     def start(self, timestamp: datetime) -> None:
         if self.home is None or self.away is None:
