@@ -34,7 +34,7 @@ class Team(ProjectModel):
     score_offset: int = Field(0, init=False)
 
     _most_recent_jam: ReferenceType[TeamJam] = None
-    _jam_teams: WeakSet[TeamJam] = WeakSet()
+    _team_jams: WeakSet[TeamJam] = WeakSet()
 
     def __init__(self, roster: Roster) -> None:
         super().__init__(roster=roster)
@@ -42,41 +42,43 @@ class Team(ProjectModel):
     def join_jam(self, jam: Jam) -> TeamJam:
         jam_team = TeamJam(jam)
         self._most_recent_jam = ref(jam_team)
-        self._jam_teams.add(jam_team)
+        self._team_jams.add(jam_team)
         return jam_team
 
     @computed_field
     @property
     def bout_score(self) -> int:
-        return sum([trip.points for jam in self._jam_teams for trip in jam.trips])
+        return sum([trip.points for jam in self._team_jams for trip in jam.trips])
 
     @computed_field
     @property
     def jam_score(self) -> int:
-        jam: TeamJam | None = (
+        team_jam: TeamJam | None = (
             self._most_recent_jam() if self._most_recent_jam is not None else None
         )
-        if jam is None and len(self._jam_teams) > 0:
+        if team_jam is None and len(self._team_jams) > 0:
             max_period_num: int = any(
-                jam._parent_jam.id[0] == 1 for jam in self._jam_teams
+                team_jam.id.period == 1 for team_jam in self._team_jams
             )
-            jam = max(
+            team_jam = max(
                 [
                     jam_team
-                    for jam_team in self._jam_teams
-                    if jam_team._parent_jam.id.period == max_period_num
+                    for jam_team in self._team_jams
+                    if jam_team.id.period == max_period_num
                 ],
-                key=lambda jam_team: jam_team._parent_jam.id.jam,
+                key=lambda jam_team: jam_team.id.jam,
             )
-            self._most_recent_jam = ref(jam)
-        return sum([trip.points for trip in jam.trips]) if jam is not None else 0
+            self._most_recent_jam = ref(team_jam)
+        return (
+            sum([trip.points for trip in team_jam.trips]) if team_jam is not None else 0
+        )
 
     def period_score(self, period: int) -> int:
         return sum(
             [
                 trip.points
-                for jam_team in self._jam_teams
-                if jam_team._parent_jam.id.period == period
-                for trip in jam_team.trips
+                for team_jam in self._team_jams
+                if team_jam.id.period == period
+                for trip in team_jam.trips
             ]
         )

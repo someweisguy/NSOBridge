@@ -39,6 +39,10 @@ class TeamJam(ProjectModel):
         super().__init__()
         self._parent = parent
 
+    @property
+    def id(self) -> JamId:
+        return self._parent.id
+
 
 class Jam(Timer):
     @field_validator('team_jams', mode='after')
