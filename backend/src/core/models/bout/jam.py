@@ -50,7 +50,7 @@ class Jam(Timer):
         return value
 
     id: JamId = Field(final=True)
-    teams: Sequence[TeamJam] = Field([], init=False, exclude=True, final=True)
+    team_jams: Sequence[TeamJam] = Field([], init=False, exclude=True, final=True)
 
     def __init__(self, period: int, jam: int) -> None:
         super().__init__(id=JamId(period, jam))
@@ -58,12 +58,12 @@ class Jam(Timer):
     @computed_field
     @property
     def home(self) -> TeamJam:
-        return self.teams[Team.HOME]
+        return self.team_jams[Team.HOME]
 
     @computed_field
     @property
     def away(self) -> TeamJam:
-        return self.teams[Team.AWAY]
+        return self.team_jams[Team.AWAY]
 
     def lead_is_declared(self) -> bool:
-        return any(team.lead for team in self.teams)
+        return any(team.lead for team in self.team_jams)
