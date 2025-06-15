@@ -70,8 +70,11 @@ class Bout(ProjectModel):
 
     @computed_field
     @property
-    def num_jams(self) -> list[int]:
-        return [len(period) for period in self._jams]
+    def num_jams(self) -> tuple[int, int, int]:
+        num_jams: list[int] = [0, 0, 0]
+        for i, period in enumerate(self._jams):
+            num_jams[i] = len(period)
+        return tuple(num_jams)
 
     def get_jam(self, period_num: int, jam_num: int) -> Jam:
         return self._jams[period_num][jam_num]
