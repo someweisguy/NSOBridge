@@ -13,7 +13,7 @@ from core.models.bout.team import Team, TeamString
 from core.models.time.alarm import Alarm
 from core.models.time.timer import Timer, millisdelta
 
-MIN_REQUIRED_TEAMS: Final[int] = 2
+_MIN_NUM_TEAMS: Final[int] = 2
 
 
 class Timeout[T = TeamString](Timer):
@@ -76,9 +76,9 @@ class Bout(ProjectModel):
     def get_jam(self, period_num: int, jam_num: int) -> Jam:
         return self._jams[period_num][jam_num]
 
-    def add_jam(self) -> Jam:
-        if len(self.teams) < MIN_REQUIRED_TEAMS:
-            raise RuntimeError(f'{MIN_REQUIRED_TEAMS} Teams are required to add a Jam')
+    def push_jam(self) -> Jam:
+        if len(self.teams) < _MIN_NUM_TEAMS:
+            raise RuntimeError(f'{_MIN_NUM_TEAMS} Teams are required to push a Jam')
         period: list[Jam] = self._jams[-1]
         jam: Jam = Jam((len(self._jams), len(period)))
         period.append(jam)
