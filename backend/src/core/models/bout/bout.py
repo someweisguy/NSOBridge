@@ -104,5 +104,11 @@ class Bout(ProjectModel):
         period: list[Jam] = self._jams[-1]
         return period.pop()
 
+    def push_period(self) -> None:
+        self._jams[-1] = [
+            jam for jam in self._jams[-1] if jam.start_timestamp is not None
+        ]
+        self._jams.append([])
+
     def timeout_is_running(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
