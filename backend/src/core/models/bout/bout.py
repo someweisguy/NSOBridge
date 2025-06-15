@@ -44,7 +44,7 @@ class Bout(ProjectModel):
         lineup: Alarm = Field(Alarm(), final=True)
         jam: Alarm = Field(Alarm(), final=True)
 
-    id: str = Field(default_factory=generate_id, init=False, final=True)
+    id: str = Field(init=False, final=True)
     ruleset_name: str = Field(final=True)
     clocks: Clocks = Field(Clocks(), init=False, final=True)
     teams: Sequence[Team] = Field([], init=False)
@@ -52,7 +52,7 @@ class Bout(ProjectModel):
     _jams: Final[list[list[Jam]]] = [[]]
 
     def __init__(self, ruleset_name: str) -> None:
-        super().__init__(ruleset_name=ruleset_name)
+        super().__init__(id=Bout.generate_id(), ruleset_name=ruleset_name)
         Bout.bouts[self.id] = self
 
     @computed_field

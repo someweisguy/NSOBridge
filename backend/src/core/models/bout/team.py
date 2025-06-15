@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar, Final, Literal
 from weakref import ReferenceType, WeakSet, ref
 
-from pydantic import computed_field
+from pydantic import Field, computed_field
 
 from core.models import ProjectModel
 
@@ -15,10 +15,13 @@ type TeamString = Literal['home', 'away']
 
 
 class Roster(ProjectModel):
-    name: str
+    name: str = Field('')
     # TODO: league
     # TODO: color
     # TODO: skaters: list[Skater]
+
+    def __init__(self, name: str) -> None:
+        super().__init__(name=name)
 
 
 class Team(ProjectModel):
@@ -26,12 +29,15 @@ class Team(ProjectModel):
     AWAY: ClassVar[Final[int]] = 1
 
     roster: Roster
-    timeouts: int = 3
-    reviews: int = 1
-    score_offset: int = 0
+    timeouts: int = Field(3, init=False)
+    reviews: int = Field(1, init=False)
+    score_offset: int = Field(0, init=False)
 
     _most_recent_jam: ReferenceType[TeamJam] = None
     _jam_teams: WeakSet[TeamJam] = WeakSet()
+
+    def __init__(self, roster: Roster) -> None:
+        super().__init__(roster=roster)
 
     def join_jam(self, jam: Jam) -> TeamJam:
         jam_team = TeamJam(jam)
@@ -55,7 +61,9 @@ class Team(ProjectModel):
 
     @computed_field
     def jam_score(self) -> int:
-        jam: TeamJam | None = self._most_recent_jam()
+        jam: TeamJam | None = (
+            self._most_recent_jam() if self._most_recent_jam is not None else None
+        )
         if jam is None and len(self._jam_teams) > 0:
             max_period_num: int = any(
                 jam._parent_jam.id[0] == 1 for jam in self._jam_teams
