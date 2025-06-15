@@ -45,20 +45,12 @@ class Team(ProjectModel):
         self._jam_teams.add(jam_team)
         return jam_team
 
+    @property
     @computed_field
     def bout_score(self) -> int:
         return sum([trip.points for jam in self._jam_teams for trip in jam.trips])
 
-    def period_score(self, period: int) -> int:
-        return sum(
-            [
-                trip.points
-                for jam_team in self._jam_teams
-                if jam_team._parent_jam.id.period == period
-                for trip in jam_team.trips
-            ]
-        )
-
+    @property
     @computed_field
     def jam_score(self) -> int:
         jam: TeamJam | None = (
@@ -78,3 +70,13 @@ class Team(ProjectModel):
             )
             self._most_recent_jam = ref(jam)
         return sum([trip.points for trip in jam.trips]) if jam is not None else 0
+
+    def period_score(self, period: int) -> int:
+        return sum(
+            [
+                trip.points
+                for jam_team in self._jam_teams
+                if jam_team._parent_jam.id.period == period
+                for trip in jam_team.trips
+            ]
+        )

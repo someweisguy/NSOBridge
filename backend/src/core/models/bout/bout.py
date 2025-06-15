@@ -55,6 +55,7 @@ class Bout(ProjectModel):
         super().__init__(id=Bout.generate_id(), ruleset_name=ruleset_name)
         Bout.bouts[self.id] = self
 
+    @property
     @computed_field
     def num_jams(self) -> list[int]:
         return [len(period) for period in self._jams]
