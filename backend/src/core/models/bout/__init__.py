@@ -1,7 +1,6 @@
-from .bout import Bout
+from .bout import Bout, Timeout
 from .jam import Jam, JamId, TeamJam, Trip
 from .team import Roster, Team, TeamString
-from .timeout import Timeout
 
 # Add a default Bout
 _default_bout: Bout = Bout('WFTDA 2025')

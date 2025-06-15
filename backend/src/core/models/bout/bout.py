@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import ClassVar, Final, Sequence
+from typing import ClassVar, Final, Literal, Sequence
 
 from nanoid import non_secure_generate
 from pydantic import Field, computed_field, field_validator
@@ -9,11 +9,24 @@ from pydantic import Field, computed_field, field_validator
 from core.models import ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, JamId
-from core.models.bout.team import Team
-from core.models.bout.timeout import Timeout
+from core.models.bout.team import Team, TeamString
 from core.models.time.alarm import Alarm
+from core.models.time.timer import Timer, millisdelta
 
 MIN_REQUIRED_TEAMS: Final[int] = 2
+
+
+class Timeout[T = TeamString](Timer):
+    jam_id: JamId = Field(final=True)
+    period_clock_elapsed: millisdelta = Field(final=True)
+    is_review: bool = Field(False, init=False)
+    team: T | Literal['official'] | None = Field(None, init=False)
+    details: str = Field('', init=False)
+    result: str = Field('', init=False)
+    retained: bool = Field(False, init=False)
+
+    def __init__(self, jam_id: JamId, period_clock_elapsed: millisdelta) -> None:
+        super().__init__(jam_id=jam_id, period_clock_elapsed=period_clock_elapsed)
 
 
 class Bout(ProjectModel):
