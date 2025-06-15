@@ -97,7 +97,7 @@ class Bout(ProjectModel):
 
     def push_jam(self) -> Jam:
         period: list[Jam] = self._jams[-1]
-        jam: Jam = Jam(len(self._jams), len(period))
+        jam: Jam = Jam(len(self._jams) - 1, len(period))
         period.append(jam)
         return jam
 
