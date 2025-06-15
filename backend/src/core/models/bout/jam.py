@@ -17,8 +17,7 @@ class JamId(ProjectModel):
     jam: int = Field(final=True)
 
     def __init__(self, period: int, jam: int) -> None:
-        self.period = period
-        self.jam = jam
+        super().__init__(period=period, jam=jam)
 
 
 class Trip(ProjectModel):
