@@ -53,6 +53,7 @@ class Jam(Timer):
 
     id: JamId = Field(final=True)
     team_jams: Sequence[TeamJam] = Field([], init=False, exclude=True, final=True)
+    stop_reason: StopReason | None = Field(None, init=False)
 
     def __init__(self, period: int, jam: int) -> None:
         super().__init__(id=JamId(period, jam))
