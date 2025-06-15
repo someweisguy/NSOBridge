@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Final, Literal, Sequence
+from typing import Literal, Sequence
 
 from pydantic import Field, computed_field, field_validator
 
@@ -47,8 +47,8 @@ class TeamJam(ProjectModel):
 class Jam(Timer):
     @field_validator('team_jams', mode='after')
     @classmethod
-    def teams_validator(cls, value: Sequence[TeamJam]) -> None:
-        MAX_ALLOWED_TEAMS: Final[int] = 2
+    def teams_validator(cls, value: Sequence[TeamJam]) -> Sequence[TeamJam]:
+        MAX_ALLOWED_TEAMS: int = 2
         if len(value) > MAX_ALLOWED_TEAMS:
             raise ValueError(f'A Jam may only have {MAX_ALLOWED_TEAMS} Teams')
         if value[0] is value[1]:
@@ -64,13 +64,26 @@ class Jam(Timer):
 
     @computed_field
     @property
-    def home(self) -> TeamJam:
-        return self.team_jams[Team.HOME]
+    def home(self) -> TeamJam | None:
+        return self.team_jams[Team.HOME] if len(self.team_jams) > Team.HOME else None
+
+    @home.setter
+    def home(self, team_jam: TeamJam) -> None:
+        self.team_jams[Team.HOME] = team_jam
 
     @computed_field
     @property
-    def away(self) -> TeamJam:
-        return self.team_jams[Team.AWAY]
+    def away(self) -> TeamJam | None:
+        return self.team_jams[Team.AWAY] if len(self.team_jams) > Team.AWAY else None
+
+    @away.setter
+    def away(self, team_jam: TeamJam) -> None:
+        self.team_jams[Team.AWAY] = team_jam
+
+    def start(self, timestamp: datetime) -> None:
+        if self.home is None or self.away is None:
+            raise RuntimeError('At least 2 Teams are required to start a Jam')
+        super().start(timestamp)
 
     def lead_is_declared(self) -> bool:
         return any(team_jam.lead for team_jam in self.team_jams)

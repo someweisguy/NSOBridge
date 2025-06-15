@@ -1,12 +1,17 @@
 from datetime import timedelta
 
-from pydantic import Field
+from pydantic import computed_field
 
 from core.models.time.timer import Timer, millisdelta
 
 
 class Alarm(Timer):
-    alarm: millisdelta = Field(timedelta(seconds=0), init=False)
+    _alarm: millisdelta = timedelta(seconds=0)
+
+    @computed_field
+    @property
+    def alarm(self) -> millisdelta:
+        return self._alarm
 
     def set_alarm(
         self,
@@ -25,4 +30,4 @@ class Alarm(Timer):
             )
         if new_alarm.total_seconds() <= 0:
             raise ValueError('Alarm value must be greater than 0 seconds')
-        self.alarm = new_alarm
+        self._alarm = new_alarm

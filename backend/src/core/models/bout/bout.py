@@ -13,8 +13,6 @@ from core.models.bout.team import Team, TeamString
 from core.models.time.alarm import Alarm
 from core.models.time.timer import Timer, millisdelta
 
-_MIN_NUM_TEAMS: Final[int] = 2
-
 
 class Timeout[T = TeamString](Timer):
     jam_id: JamId = Field(final=True)
@@ -60,13 +58,18 @@ class Bout(ProjectModel):
     id: str = Field(init=False, final=True)
     ruleset_name: str = Field(final=True)
     clocks: _Clocks = Field(_Clocks(), init=False, final=True)
-    teams: Sequence[Team] = Field([], init=False)
+    teams: tuple[Team] = Field((), init=False)
     timeouts: list[Timeout] = Field([], init=False, final=True)
     _jams: Final[list[list[Jam]]] = [[]]
 
     def __init__(self, ruleset_name: str) -> None:
         super().__init__(id=Bout.generate_id(), ruleset_name=ruleset_name)
         Bout.bouts[self.id] = self
+
+        # Set default Clock values
+        self.clocks.game.set_alarm(Bout.PERIOD_DURATION)
+        self.clocks.lineup.set_alarm(Bout.LINEUP_DURATION)
+        self.clocks.jam.set_alarm(Bout.JAM_DURATION)
 
     @computed_field
     @property
@@ -80,23 +83,20 @@ class Bout(ProjectModel):
         return self._jams[period_num][jam_num]
 
     def get_latest_jam(self) -> Jam:
-        period_num: int = len(self._jams)
-        return self.get_jam(period_num, len(self._jams[period_num]))
+        return self.get_jam(-1, -1)
 
     def get_active_jam(self) -> Jam | None:
         latest_jam: Jam = self.get_latest_jam()
         jam_num: int = latest_jam.id.jam
-        if latest_jam.start_timestamp is None:
+        if latest_jam._start_timestamp is None:
             if latest_jam.id.jam == 0:
                 return None  # There is no active Jam
             jam_num -= 1
         return self.get_jam(len(self._jams), jam_num)
 
     def push_jam(self) -> Jam:
-        if len(self.teams) < _MIN_NUM_TEAMS:
-            raise RuntimeError(f'{_MIN_NUM_TEAMS} Teams are required to push a Jam')
         period: list[Jam] = self._jams[-1]
-        jam: Jam = Jam((len(self._jams), len(period)))
+        jam: Jam = Jam(len(self._jams), len(period))
         period.append(jam)
         return jam
 
@@ -106,7 +106,7 @@ class Bout(ProjectModel):
 
     def push_period(self) -> None:
         self._jams[-1] = [
-            jam for jam in self._jams[-1] if jam.start_timestamp is not None
+            jam for jam in self._jams[-1] if jam._start_timestamp is not None
         ]
         self._jams.append([])
 

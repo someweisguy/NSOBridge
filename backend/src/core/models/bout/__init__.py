@@ -6,6 +6,7 @@ from .team import Roster, Team, TeamString
 _default_bout: Bout = Bout('WFTDA 2025')
 _default_bout.teams = Team(Roster('Home')), Team(Roster('Away'))
 
+
 bouts = Bout.bouts
 
 __all__ = (
