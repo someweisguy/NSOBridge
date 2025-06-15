@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import ClassVar, Final, Literal, Sequence
+from typing import Final, Literal, Sequence
 
 from pydantic import Field, computed_field, field_validator
 
@@ -39,13 +39,12 @@ class TeamJam(ProjectModel):
 
 
 class Jam(Timer):
-    MAX_ALLOWED_TEAMS: ClassVar[Final[int]] = 2
-
     @field_validator('teams', mode='after')
     @classmethod
     def teams_validator(cls, value: Sequence[TeamJam]) -> None:
-        if len(value) > Jam.MAX_ALLOWED_TEAMS:
-            raise ValueError(f'A Jam may only have {Jam.MAX_ALLOWED_TEAMS} Teams')
+        MAX_ALLOWED_TEAMS: Final[int] = 2
+        if len(value) > MAX_ALLOWED_TEAMS:
+            raise ValueError(f'A Jam may only have {MAX_ALLOWED_TEAMS} Teams')
         if value[0] is value[1]:
             raise ValueError('Jam Teams cannot contain duplicates')
         return value
