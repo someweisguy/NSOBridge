@@ -44,8 +44,8 @@ class Bout(ProjectModel):
                 return bout_id
         raise RuntimeError('Unable to generate a valid Bout ID')
 
-    @classmethod
     @field_validator('teams', mode='after')
+    @classmethod
     def teams_validator(cls, value: Sequence[Team]) -> None:
         if len(value) != len(set(value)):
             raise ValueError('Bout Teams cannot contain duplicates')
@@ -68,8 +68,8 @@ class Bout(ProjectModel):
         super().__init__(id=Bout.generate_id(), ruleset_name=ruleset_name)
         Bout.bouts[self.id] = self
 
-    @property
     @computed_field
+    @property
     def num_jams(self) -> list[int]:
         return [len(period) for period in self._jams]
 

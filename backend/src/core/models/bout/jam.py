@@ -41,8 +41,8 @@ class TeamJam(ProjectModel):
 class Jam(Timer):
     MAX_ALLOWED_TEAMS: ClassVar[Final[int]] = 2
 
-    @classmethod
     @field_validator('teams', mode='after')
+    @classmethod
     def teams_validator(cls, value: Sequence[TeamJam]) -> None:
         if len(value) > Jam.MAX_ALLOWED_TEAMS:
             raise ValueError(f'A Jam may only have {Jam.MAX_ALLOWED_TEAMS} Teams')
@@ -56,13 +56,13 @@ class Jam(Timer):
     def __init__(self, period: int, jam: int) -> None:
         super().__init__(id=JamId(period, jam))
 
-    @property
     @computed_field
+    @property
     def home(self) -> TeamJam:
         return self.teams[Team.HOME]
 
-    @property
     @computed_field
+    @property
     def away(self) -> TeamJam:
         return self.teams[Team.AWAY]
 

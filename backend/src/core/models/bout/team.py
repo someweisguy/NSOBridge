@@ -45,13 +45,13 @@ class Team(ProjectModel):
         self._jam_teams.add(jam_team)
         return jam_team
 
-    @property
     @computed_field
+    @property
     def bout_score(self) -> int:
         return sum([trip.points for jam in self._jam_teams for trip in jam.trips])
 
-    @property
     @computed_field
+    @property
     def jam_score(self) -> int:
         jam: TeamJam | None = (
             self._most_recent_jam() if self._most_recent_jam is not None else None
