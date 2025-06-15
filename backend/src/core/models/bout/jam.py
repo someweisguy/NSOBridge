@@ -41,7 +41,7 @@ class TeamJam(ProjectModel):
 
 
 class Jam(Timer):
-    @field_validator('teams', mode='after')
+    @field_validator('team_jams', mode='after')
     @classmethod
     def teams_validator(cls, value: Sequence[TeamJam]) -> None:
         MAX_ALLOWED_TEAMS: Final[int] = 2
