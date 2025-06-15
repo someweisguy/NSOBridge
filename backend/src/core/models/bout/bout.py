@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import timedelta
 from typing import ClassVar, Final, Literal, Sequence
 
 from nanoid import non_secure_generate
@@ -28,10 +27,6 @@ class Timeout[T = TeamString](Timer):
 
 
 class Bout(ProjectModel):
-    PERIOD_DURATION: ClassVar[Final[timedelta]] = timedelta(minutes=30)
-    LINEUP_DURATION: ClassVar[Final[timedelta]] = timedelta(seconds=30)
-    JAM_DURATION: ClassVar[Final[timedelta]] = timedelta(minutes=2)
-
     bouts: ClassVar[Final[dict[str, Bout]]] = {}
 
     @classmethod
@@ -60,17 +55,11 @@ class Bout(ProjectModel):
     clocks: _Clocks = Field(_Clocks(), final=True, init=False)
     teams: tuple[Team, ...] = Field((), init=False)
     timeouts: list[Timeout] = Field([], final=True, init=False)
-    _jams: Final[list[list[Jam]]] = [[]]
+    _jams: Final[list[list[Jam]]] = [[Jam(0, 0)]]
 
     def __init__(self, ruleset_name: str) -> None:
         super().__init__(id=Bout.generate_id(), ruleset_name=ruleset_name)
         Bout.bouts[self.id] = self
-
-        # Set default values
-        self.clocks.game.set_alarm(Bout.PERIOD_DURATION)
-        self.clocks.lineup.set_alarm(Bout.LINEUP_DURATION)
-        self.clocks.jam.set_alarm(Bout.JAM_DURATION)
-        self.push_jam()
 
     @computed_field
     @property
