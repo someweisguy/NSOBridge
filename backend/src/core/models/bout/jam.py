@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal, Sequence
 
-from pydantic import Field, computed_field, field_validator
+from pydantic import Field, computed_field
 
 from core.models import ProjectModel
 from core.models.bout.team import Team
@@ -15,6 +15,9 @@ type StopReason = Literal['called', 'time', 'injury', 'other']
 class JamId(ProjectModel):
     period: int = Field(final=True)
     jam: int = Field(final=True)
+
+    def __hash__(self):
+        return hash((self.period, self.jam))
 
     def __init__(self, period: int, jam: int) -> None:
         super().__init__(period=period, jam=jam)
@@ -34,6 +37,9 @@ class TeamJam(ProjectModel):
     lost: bool = Field(False, init=False)
     star_pass: int | None = Field(None, init=False)
     trips: list[Trip] = Field([], final=True, init=False)
+    
+    def __hash__(self):
+        return hash(self._parent)
 
     def __init__(self, parent: Jam) -> None:
         super().__init__()
@@ -45,19 +51,12 @@ class TeamJam(ProjectModel):
 
 
 class Jam(Timer):
-    @field_validator('team_jams', mode='after')
-    @classmethod
-    def teams_validator(cls, value: Sequence[TeamJam]) -> Sequence[TeamJam]:
-        MAX_ALLOWED_TEAMS: int = 2
-        if len(value) > MAX_ALLOWED_TEAMS:
-            raise ValueError(f'A Jam may only have {MAX_ALLOWED_TEAMS} Teams')
-        if value[0] is value[1]:
-            raise ValueError('Jam Teams cannot contain duplicates')
-        return value
-
     id: JamId = Field(final=True)
-    team_jams: Sequence[TeamJam] = Field([], init=False, exclude=True, final=True)
     stop_reason: StopReason | None = Field(None, init=False)
+    _team_jams: list[TeamJam] = []
+
+    def __hash__(self):
+        return hash(self.id)
 
     def __init__(self, period: int, jam: int) -> None:
         super().__init__(id=JamId(period, jam))
@@ -65,20 +64,39 @@ class Jam(Timer):
     @computed_field
     @property
     def home(self) -> TeamJam | None:
-        return self.team_jams[Team.HOME] if len(self.team_jams) > Team.HOME else None
+        return self._team_jams[Team.HOME] if len(self._team_jams) > Team.HOME else None
 
     @home.setter
-    def home(self, team_jam: TeamJam) -> None:
-        self.team_jams[Team.HOME] = team_jam
+    def home(self, team: Team) -> None:
+        team_jam = TeamJam(self)
+        team.add_team_jam(team_jam)
+        self._team_jams[Team.HOME] = team_jam
 
     @computed_field
     @property
     def away(self) -> TeamJam | None:
-        return self.team_jams[Team.AWAY] if len(self.team_jams) > Team.AWAY else None
+        return self._team_jams[Team.AWAY] if len(self._team_jams) > Team.AWAY else None
 
     @away.setter
-    def away(self, team_jam: TeamJam) -> None:
-        self.team_jams[Team.AWAY] = team_jam
+    def away(self, team: Team) -> None:
+        team_jam = TeamJam(self)
+        team.add_team_jam(team_jam)
+        self._team_jams[Team.AWAY] = team_jam
+
+    @property
+    def team_jams(self) -> tuple[TeamJam]:
+        return tuple(self._team_jams)
+
+    @team_jams.setter
+    def team_jams(self, teams: Sequence[Team]) -> None:
+        MAX_ALLOWED_TEAMS: int = 2
+        if len(teams) > MAX_ALLOWED_TEAMS:
+            raise ValueError(f'A Jam may only have {MAX_ALLOWED_TEAMS} Teams')
+        if teams[0] is teams[1]:
+            raise ValueError('Jam Teams cannot contain duplicates')
+        for team in teams:
+            team.add_team_jam(TeamJam(self))
+        self._team_jams = list(teams)
 
     def start(self, timestamp: datetime) -> None:
         if self.home is None or self.away is None:

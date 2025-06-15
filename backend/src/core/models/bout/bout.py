@@ -66,10 +66,11 @@ class Bout(ProjectModel):
         super().__init__(id=Bout.generate_id(), ruleset_name=ruleset_name)
         Bout.bouts[self.id] = self
 
-        # Set default Clock values
+        # Set default values
         self.clocks.game.set_alarm(Bout.PERIOD_DURATION)
         self.clocks.lineup.set_alarm(Bout.LINEUP_DURATION)
         self.clocks.jam.set_alarm(Bout.JAM_DURATION)
+        self.push_jam()
 
     @computed_field
     @property

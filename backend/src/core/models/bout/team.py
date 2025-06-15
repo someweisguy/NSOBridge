@@ -8,7 +8,7 @@ from pydantic import Field, computed_field
 from core.models import ProjectModel
 
 if TYPE_CHECKING:
-    from core.models.bout.jam import Jam, TeamJam
+    from core.models.bout.jam import TeamJam
 
 
 type TeamString = Literal['home', 'away']
@@ -39,11 +39,10 @@ class Team(ProjectModel):
     def __init__(self, roster: Roster) -> None:
         super().__init__(roster=roster)
 
-    def join_jam(self, jam: Jam) -> TeamJam:
-        jam_team = TeamJam(jam)
-        self._most_recent_jam = ref(jam_team)
-        self._team_jams.add(jam_team)
-        return jam_team
+    def add_team_jam(self, team_jam: TeamJam) -> TeamJam:
+        self._most_recent_jam = ref(team_jam)
+        self._team_jams.add(team_jam)
+        return team_jam
 
     @computed_field
     @property
@@ -57,9 +56,9 @@ class Team(ProjectModel):
             self._most_recent_jam() if self._most_recent_jam is not None else None
         )
         if team_jam is None and len(self._team_jams) > 0:
-            max_period_num: int = any(
+            max_period_num: int = int(any(
                 team_jam.id.period == 1 for team_jam in self._team_jams
-            )
+            ))
             team_jam = max(
                 [
                     jam_team
@@ -72,6 +71,11 @@ class Team(ProjectModel):
         return (
             sum([trip.points for trip in team_jam.trips]) if team_jam is not None else 0
         )
+
+    @computed_field
+    @property
+    def num_jams(self) -> int:
+        return len(self._team_jams)
 
     def period_score(self, period: int) -> int:
         return sum(
