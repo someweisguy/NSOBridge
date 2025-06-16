@@ -1,9 +1,7 @@
 from functools import cached_property
 from typing import Iterable, Protocol
 
-from model import bouts
-from model.bout import Bout
-from core.responses import JSONable
+from models.bout import Bout, bouts
 
 
 class RefereeProtocol(Protocol):
@@ -15,4 +13,4 @@ class RefereeProtocol(Protocol):
         return bouts[self.bout_id]
 
     @property
-    def update_keys(self) -> Iterable[JSONable]: ...
+    def update_keys(self) -> Iterable: ...

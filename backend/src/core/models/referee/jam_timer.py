@@ -1,18 +1,15 @@
-from dataclasses import dataclass
 import datetime
-from typing import Callable, Protocol
 
-from core.models.bout import Jam, JamId
-from model.referee.referee import RefereeProtocol
-from model.timer import Timeout
+from models.bout import Timeout
+from models.referee.referee import RefereeProtocol
+
 from core import updater
-from core.responses import JSONable
-
+from core.models.bout import Jam, JamId
 
 
 class JamTimer(RefereeProtocol):
     @property
-    def update_keys(self) -> list[JSONable]:
+    def update_keys(self) -> list:
         return [
             updater.kf.bout(self.bout_id),
             updater.kf.jam(
@@ -39,7 +36,7 @@ class JamTimer(RefereeProtocol):
         latest_jam_id: JamId = self.bout.get_latest_jam_id()
         jam: Jam = self.bout.get_jam(*latest_jam_id)
         jam.start_timestamp = timestamp
-        
+
         updater.kf.bout(self.bout_id)
 
     def stop_jam(self, timestamp: datetime) -> None:
