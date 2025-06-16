@@ -11,7 +11,7 @@ router: Final[APIRouter] = APIRouter(prefix='/series')
 @router.get('')
 async def get() -> list:
     view: list = []
-    for bout in bouts:
+    for bout in bouts.values():
         view.append({'id': bout.id, 'description': None})
     return view
 
