@@ -4,12 +4,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from model.bout import series
 from core import updater
 
 if TYPE_CHECKING:
-    from model.bout import Bout
-    from model.team import TeamString
+    from models.bout import Bout, TeamString, bouts
 
 
 @dataclass(slots=True)
@@ -33,7 +31,7 @@ class AbstractBoutRule(AbstractRule):
 
     @property
     def bout(self) -> Bout:
-        return series.bouts[self.bout_id]
+        return bouts[self.bout_id]
 
 
 @dataclass(slots=True)

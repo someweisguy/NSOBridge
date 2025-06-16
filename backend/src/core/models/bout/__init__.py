@@ -1,5 +1,5 @@
 from .bout import Bout, Timeout
-from .jam import Jam, JamId, TeamJam, Trip
+from .jam import Jam, JamId, StopReason, TeamJam, Trip
 from .team import Roster, Team, TeamString
 
 # TODO: Bout initialization should be handled by referees
@@ -21,6 +21,7 @@ __all__ = (
     'TeamJam',
     'Trip',
     'Roster',
+    'StopReason',
     'Team',
     'TeamString',
     'Timeout',

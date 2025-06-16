@@ -2,11 +2,8 @@ from typing import Annotated, Final
 
 from fastapi import APIRouter, Body, Query
 
-from model.bout import bouts
-from model.bout.bout import Bout
-from model.bout.jam import Jam, StopReason, TeamString
 from core import updater
-from core.responses import JSONable
+from core.models.bout import Bout, Jam, StopReason, TeamString, bouts
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')
 
@@ -24,7 +21,7 @@ async def add_trip(
     team: Annotated[TeamString, Query()],
     points: Annotated[int, Body()],
     valid_pass: Annotated[bool, Body()] = True,
-) -> JSONable:
+) -> None:
     bout: Bout = bouts[bout_id]
     bout.scorekeeper.add_trip((period_num, jam_num), team, points, valid_pass)
     updater.post(
@@ -42,7 +39,7 @@ async def delete_trip(
     jam_num: Annotated[int, Query()],
     team: Annotated[TeamString, Query()],
     trip_num: Annotated[int, Query()],
-) -> JSONable:
+) -> None:
     bout: Bout = bouts[bout_id]
     bout.jams.delete_trip((period_num, jam_num), team, trip_num)
     updater.post(
@@ -61,7 +58,7 @@ async def edit_trip(
     team: Annotated[TeamString, Query()],
     trip_num: Annotated[int, Query()],
     points: Annotated[int, Body()],
-) -> JSONable:
+) -> None:
     bout: Bout = bouts[bout_id]
     bout.jams.set_trip((period_num, jam_num), team, trip_num, points)
     updater.post(
@@ -76,7 +73,7 @@ async def set_lead(
     jam_num: Annotated[int, Query()],
     team: Annotated[TeamString, Query()],
     value: Annotated[bool, Body()],
-) -> JSONable:
+) -> None:
     bout: Bout = bouts[bout_id]
     bout.jams.set_lead((period_num, jam_num), team, value)
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))
@@ -89,7 +86,7 @@ async def set_lost(
     jam_num: Annotated[int, Query()],
     team: Annotated[TeamString, Query()],
     value: Annotated[bool, Body()],
-) -> JSONable:
+) -> None:
     bout: Bout = bouts[bout_id]
     bout.jams.set_lost((period_num, jam_num), team, value)
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))
@@ -102,7 +99,7 @@ async def set_star_pass(
     jam_num: Annotated[int, Query()],
     team: Annotated[TeamString, Query()],
     value: Annotated[int | None, Body()] = None,
-) -> JSONable:
+) -> None:
     bout: Bout = bouts[bout_id]
     bout.jams.set_star_pass((period_num, jam_num), team, value)
     updater.post(updater.kf.jam(bout_id, period_num, jam_num))
