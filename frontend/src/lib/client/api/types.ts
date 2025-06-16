@@ -3,20 +3,8 @@ export type TeamOfficialString = TeamString | "official";
 export type StopReasonString = "called" | "time" | "injury" | "other";
 export type ClockNameString = keyof Bout["clocks"];
 
-export interface TeamAttribute<T> {
-  home: T;
-  away: T;
-}
-
-export interface Team {
-  name: string;
-  mnemonic: string;
-  score: number;
-  clockStops: {
-    timeout: number;
-    review: number;
-  };
-}
+export const HOME = 0;
+export const AWAY = 1;
 
 export interface Timer {
   startTimestamp: Date | null;
@@ -25,6 +13,18 @@ export interface Timer {
 
 export interface Alarm extends Timer {
   alarm: number;
+}
+
+export interface Team {
+  roster: {
+    name: string;
+    mnemonic: string;
+  };
+  timeouts: number;
+  reviews: number;
+  scoreOffset: number;
+  gameScore: number;
+  jamScore: number;
 }
 
 export interface Timeout extends Timer {
@@ -38,7 +38,8 @@ export interface Timeout extends Timer {
   retained: boolean;
 }
 
-export interface Bout extends TeamAttribute<Team> {
+export interface Bout {
+  id: string;
   rulesetName: string;
   clocks: {
     intermission: Alarm;
@@ -46,29 +47,29 @@ export interface Bout extends TeamAttribute<Team> {
     lineup: Alarm;
     jam: Alarm;
   };
+  team: Team[];
   timeouts: Timeout[];
-  numJams: [number, number];
-  totalScore: TeamAttribute<number>;
+  numJams: [number, number, number];
+}
+
+export interface JamId {
+  period: number;
+  jam: number;
 }
 
 export interface Trip {
   points: number;
   timestamp: Date;
 }
-
 export interface TeamJam {
-  score: {
-    lead: boolean;
-    lost: boolean;
-    starPass: number | null;
-    trips: Trip[];
-  };
+  lead: boolean;
+  lost: boolean;
+  starPass: number | null;
+  trips: Trip[];
 }
 
-export interface Jam {
-  startTimestamp: Date | null;
-  elapsed: Date | null;
+export interface Jam extends Timer {
+  id: JamId;
   stopReason: StopReasonString | null;
-  home: TeamJam;
-  away: TeamJam;
+  teamJams: TeamJam[];
 }
