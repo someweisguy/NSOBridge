@@ -3,7 +3,7 @@ from typing import Annotated, Final
 from fastapi import APIRouter, Body, Query
 
 from core import updater
-from core.models.bout import Bout, Jam, StopReason, TeamString, bouts
+from core.models.bout import Bout, Jam, StopReason, bouts
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')
 
@@ -18,7 +18,7 @@ async def add_trip(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
     jam_num: Annotated[int, Query()],
-    team: Annotated[TeamString, Query()],
+    # team: Annotated[TeamString, Query()],
     points: Annotated[int, Body()],
     valid_pass: Annotated[bool, Body()] = True,
 ) -> None:
@@ -37,7 +37,7 @@ async def delete_trip(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
     jam_num: Annotated[int, Query()],
-    team: Annotated[TeamString, Query()],
+    # team: Annotated[TeamString, Query()],
     trip_num: Annotated[int, Query()],
 ) -> None:
     bout: Bout = bouts[bout_id]
@@ -55,7 +55,7 @@ async def edit_trip(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
     jam_num: Annotated[int, Query()],
-    team: Annotated[TeamString, Query()],
+    # team: Annotated[TeamString, Query()],
     trip_num: Annotated[int, Query()],
     points: Annotated[int, Body()],
 ) -> None:
@@ -71,7 +71,7 @@ async def set_lead(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
     jam_num: Annotated[int, Query()],
-    team: Annotated[TeamString, Query()],
+    # team: Annotated[TeamString, Query()],
     value: Annotated[bool, Body()],
 ) -> None:
     bout: Bout = bouts[bout_id]
@@ -84,7 +84,7 @@ async def set_lost(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
     jam_num: Annotated[int, Query()],
-    team: Annotated[TeamString, Query()],
+    # team: Annotated[TeamString, Query()],
     value: Annotated[bool, Body()],
 ) -> None:
     bout: Bout = bouts[bout_id]
@@ -97,7 +97,7 @@ async def set_star_pass(
     bout_id: Annotated[str, Query()],
     period_num: Annotated[int, Query()],
     jam_num: Annotated[int, Query()],
-    team: Annotated[TeamString, Query()],
+    # team: Annotated[TeamString, Query()],
     value: Annotated[int | None, Body()] = None,
 ) -> None:
     bout: Bout = bouts[bout_id]

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Final, Literal
+from typing import TYPE_CHECKING, ClassVar, Final
 from weakref import ReferenceType, WeakSet, ref
 
 from pydantic import Field, computed_field
@@ -11,11 +11,9 @@ if TYPE_CHECKING:
     from core.models.bout.jam import TeamJam
 
 
-type TeamString = Literal['home', 'away']
-
-
 class Roster(ProjectModel):
     name: str = Field('')
+    # TODO: mnemonic: str
     # TODO: league
     # TODO: color
     # TODO: skaters: list[Skater]

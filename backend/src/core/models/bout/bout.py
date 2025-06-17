@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import ClassVar, Final, Literal, Sequence
+from typing import ClassVar, Final, Sequence
 
 from nanoid import non_secure_generate
 from pydantic import Field, computed_field, field_validator
@@ -8,16 +8,16 @@ from pydantic import Field, computed_field, field_validator
 from core.models import ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, JamId
-from core.models.bout.team import Team, TeamString
+from core.models.bout.team import Team
 from core.models.time.alarm import Alarm
 from core.models.time.timer import Timer, millisdelta
 
 
-class Timeout[T = TeamString](Timer):
+class Timeout(Timer):
     jam_id: JamId = Field(final=True)
     period_clock_elapsed: millisdelta = Field(final=True)
     is_review: bool = Field(False, init=False)
-    team: T | Literal['official'] | None = Field(None, init=False)
+    team: int | None = Field(None, init=False)
     details: str = Field('', init=False)
     result: str = Field('', init=False)
     retained: bool = Field(False, init=False)
