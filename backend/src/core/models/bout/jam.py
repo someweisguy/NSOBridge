@@ -65,21 +65,9 @@ class Jam(Timer):
     def home(self) -> TeamJam | None:
         return self._team_jams[Team.HOME] if len(self._team_jams) > Team.HOME else None
 
-    @home.setter
-    def home(self, team: Team) -> None:
-        team_jam = TeamJam(self)
-        self._team_jams[Team.HOME] = team_jam
-        team.add_team_jam(team_jam)
-
     @property
     def away(self) -> TeamJam | None:
         return self._team_jams[Team.AWAY] if len(self._team_jams) > Team.AWAY else None
-
-    @away.setter
-    def away(self, team: Team) -> None:
-        team_jam = TeamJam(self)
-        self._team_jams[Team.AWAY] = team_jam
-        team.add_team_jam(team_jam)
 
     @computed_field
     @property
