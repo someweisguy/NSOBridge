@@ -1,7 +1,7 @@
 import { BoutIdContext } from "@/app/provider";
 import useBout from "@/hooks/use-bout";
 import { editTimeout, TimeoutState } from "@/lib/client/api/bout";
-import { Bout, TeamString, Timeout } from "@/lib/client/api/types";
+import { Bout, Timeout } from "@/lib/client/api/types";
 import { Switch, ToggleGroup } from "radix-ui";
 import { useContext, useEffect, useRef, useState } from "react";
 
@@ -54,12 +54,12 @@ export default function TimeoutControls({ boutId }: TimeoutControlsProps) {
 
       <ToggleGroup.Root
         type="single"
-        onValueChange={(value: TeamString) => {
-          setTimeoutState((timeout) => ({ ...timeout, team: value }));
+        onValueChange={(value: string) => {
+          setTimeoutState((timeout) => ({ ...timeout, team: Number(value) }));
         }}
       >
-        <ToggleGroup.Item value="home">Home</ToggleGroup.Item>
-        <ToggleGroup.Item value="away">Away</ToggleGroup.Item>
+        <ToggleGroup.Item value="0">Home</ToggleGroup.Item>
+        <ToggleGroup.Item value="1">Away</ToggleGroup.Item>
         <ToggleGroup.Item disabled={timeoutState.isReview} value="official">
           Official
         </ToggleGroup.Item>

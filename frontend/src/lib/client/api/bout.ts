@@ -1,9 +1,9 @@
 import genericRequest from "../request";
-import { Bout, TeamOfficialString } from "./types";
+import { Bout } from "./types";
 
 export interface TimeoutState {
   isReview: boolean;
-  team: TeamOfficialString | null;
+  team: number | "official" | null;
   details: string;
   result: string;
   retained: boolean;

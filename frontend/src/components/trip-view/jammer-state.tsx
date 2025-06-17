@@ -1,7 +1,7 @@
 import { BoutIdContext } from "@/app/provider";
 import useJam from "@/hooks/use-jam";
 import { setLead, setLost, setStarPass } from "@/lib/client/api/jam";
-import { TeamJam, TeamString } from "@/lib/client/api/types";
+import { TeamJam } from "@/lib/client/api/types";
 import { useContext } from "react";
 import CheckboxButton from "../checkbox-button";
 
@@ -9,7 +9,7 @@ interface JammerStateProps {
   boutId?: string;
   periodNum: number;
   jamNum: number;
-  team: TeamString;
+  team: number;
   tripNum: number;
 }
 
@@ -23,39 +23,39 @@ export default function JammerState({
   const [boutIdContext] = useContext(BoutIdContext);
   boutId ??= boutIdContext;
 
-  const teamJam: TeamJam = useJam(boutId, periodNum, jamNum)[team];
+  const teamJam: TeamJam = useJam(boutId, periodNum, jamNum).teamJams[team];
 
   return (
     <div className="my-2">
       <CheckboxButton
         key={team + "Lead"}
-        checked={teamJam.score.lead}
-        disabled={teamJam.score.lost}
+        checked={teamJam.lead}
+        disabled={teamJam.lost}
         onClick={() =>
-          void setLead(boutId, periodNum, jamNum, team, !teamJam.score.lead)
+          void setLead(boutId, periodNum, jamNum, team, !teamJam.lead)
         }
       >
         Lead
       </CheckboxButton>
       <CheckboxButton
         key={team + "Lost"}
-        checked={teamJam.score.lost}
+        checked={teamJam.lost}
         onClick={() =>
-          void setLost(boutId, periodNum, jamNum, team, !teamJam.score.lost)
+          void setLost(boutId, periodNum, jamNum, team, !teamJam.lost)
         }
       >
         Lost
       </CheckboxButton>
       <CheckboxButton
         key={team + "StarPass"}
-        checked={teamJam.score.starPass !== null}
+        checked={teamJam.starPass !== null}
         onClick={() =>
           void setStarPass(
             boutId,
             periodNum,
             jamNum,
             team,
-            teamJam.score.starPass === null ? tripNum : null
+            teamJam.starPass === null ? tripNum : null
           )
         }
       >

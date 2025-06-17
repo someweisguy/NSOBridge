@@ -1,5 +1,3 @@
-export type TeamString = "home" | "away";
-export type TeamOfficialString = TeamString | "official";
 export type StopReasonString = "called" | "time" | "injury" | "other";
 export type ClockNameString = keyof Bout["clocks"];
 
@@ -32,7 +30,7 @@ export interface Timeout extends Timer {
   jamNum: number;
   periodClockElapsed: number;
   isReview: boolean;
-  team: TeamOfficialString;
+  team: number | "official" | null;
   details: string;
   result: string;
   retained: boolean;

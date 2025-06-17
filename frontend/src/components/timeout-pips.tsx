@@ -1,6 +1,6 @@
 import { BoutIdContext } from "@/app/provider";
 import useBout from "@/hooks/use-bout";
-import { TeamString, Timeout } from "@/lib/client/api/types";
+import { Timeout } from "@/lib/client/api/types";
 
 import { useContext } from "react";
 
@@ -8,7 +8,7 @@ type PipPropState = "remaining" | "in-progress" | "used";
 
 interface TimeoutPipsProps {
   boutId?: string;
-  team: TeamString;
+  team: number;
 }
 
 interface PipProps {
@@ -16,7 +16,7 @@ interface PipProps {
 }
 
 function computeTimeoutState(
-  team: TeamString,
+  team: number,
   timeouts: Timeout[],
   teamTimeoutCounts: number,
   isReview: boolean,
@@ -49,20 +49,14 @@ export default function TimeoutBar({ boutId, team }: TimeoutPipsProps) {
     computeTimeoutState(
       team,
       bout.timeouts,
-      bout[team].clockStops.timeout,
+      bout.teams[team].timeouts,
       false,
       3
     )
   );
 
   const reviewPipStates: PipPropState[] = useBout(boutId, (bout) =>
-    computeTimeoutState(
-      team,
-      bout.timeouts,
-      bout[team].clockStops.review,
-      true,
-      1
-    )
+    computeTimeoutState(team, bout.timeouts, bout.teams[team].reviews, true, 1)
   );
 
   return (

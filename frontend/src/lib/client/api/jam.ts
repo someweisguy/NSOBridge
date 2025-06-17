@@ -1,5 +1,5 @@
 import genericRequest from "../request";
-import { Jam, TeamString, StopReasonString } from "./types";
+import { Jam, StopReasonString } from "./types";
 
 export async function getJam(
   boutId: string,
@@ -26,7 +26,7 @@ export async function addTrip(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamString,
+  team: number,
   points: number,
   validPass = true
 ): Promise<void> {
@@ -57,7 +57,7 @@ export async function deleteTrip(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamString,
+  team: number,
   tripNum: number
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
@@ -80,7 +80,7 @@ export async function editTrip(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamString,
+  team: number,
   tripNum: number,
   points: number
 ): Promise<void> {
@@ -109,7 +109,7 @@ export async function setLead(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamString,
+  team: number,
   value: boolean
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
@@ -136,7 +136,7 @@ export async function setLost(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamString,
+  team: number,
   value: boolean
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
@@ -163,7 +163,7 @@ export async function setStarPass(
   boutId: string,
   periodNum: number,
   jamNum: number,
-  team: TeamString,
+  team: number,
   value: number | null
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {

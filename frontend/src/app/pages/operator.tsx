@@ -5,11 +5,9 @@ import useBout, {
   selectLatestJamId,
 } from "@/hooks/use-bout";
 import usePrefetchJam from "@/hooks/use-prefetch-jam";
-import { TeamString } from "@/lib/client/api/types";
 import { useContext } from "react";
 import { BoutIdContext } from "../provider";
 
-const TEAMS: [TeamString, TeamString] = ["home", "away"];
 
 export function ScoreboardOperator() {
   const [boutId] = useContext(BoutIdContext);
@@ -21,7 +19,7 @@ export function ScoreboardOperator() {
   return (
     <div className="justify-items-center w-full">
       <JamController boutId={boutId}>
-        {TEAMS.map((team: TeamString) => (
+        {[...Array(2).keys()].map((team: number) => (
           <TeamJam
             key={team}
             periodNum={periodNum}

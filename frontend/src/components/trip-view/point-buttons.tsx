@@ -1,7 +1,6 @@
 import Button from "@/components/button";
 import useJam from "@/hooks/use-jam";
 import { addTrip, editTrip } from "@/lib/client/api/jam";
-import { TeamString } from "@/lib/client/api/types";
 import { useCallback } from "react";
 
 interface PointButtonsProps {
@@ -9,7 +8,7 @@ interface PointButtonsProps {
   periodNum: number;
   jamNum: number;
   tripNum: number;
-  team: TeamString;
+  team: number;
   showInitial?: boolean;
 }
 
@@ -21,8 +20,8 @@ export default function PointButtons({
   team,
   showInitial = false,
 }: PointButtonsProps) {
-  const numTrips: number = useJam(boutId, periodNum, jamNum)[team].score.trips
-    .length;
+  const numTrips: number = useJam(boutId, periodNum, jamNum).teamJams[team]
+    .trips.length;
   const addTripCallback = useCallback(
     (points: number) => {
       if (tripNum > numTrips || tripNum < 0) {

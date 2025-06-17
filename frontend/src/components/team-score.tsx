@@ -1,15 +1,10 @@
 import { BoutIdContext } from "@/app/provider";
-import useBout, {
-  selectActiveJamId,
-  selectLatestJamId,
-} from "@/hooks/use-bout";
-import useJam from "@/hooks/use-jam";
-import { TeamString, Trip } from "@/lib/client/api/types";
+import useBout from "@/hooks/use-bout";
 import { useContext } from "react";
 
 interface TeamScoreProps {
   boutId?: string;
-  team: TeamString;
+  team: number;
   divider?: string;
 }
 
@@ -21,16 +16,11 @@ export default function TeamScore({
   const [boutIdContext] = useContext(BoutIdContext);
   boutId ??= boutIdContext;
 
-  const activeJamId = useBout(boutId, selectActiveJamId());
-  const latestJamId = useBout(boutId, selectLatestJamId());
-  const [periodNum, jamNum] = activeJamId ?? latestJamId;
-  const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
-
-  const teamScore: number = useBout(boutId, (bout) => bout.totalScore[team]);
-  const jamScore: number = trips.reduce(
-    (score, trip) => trip.points + score,
-    0
+  const teamScore: number = useBout(
+    boutId,
+    (bout) => bout.teams[team].gameScore
   );
+  const jamScore: number = useBout(boutId, (bout) => bout.teams[team].jamScore);
 
   return (
     <div className="flex flex-row justify-center place-items-center gap-2">

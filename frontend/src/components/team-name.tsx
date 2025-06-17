@@ -1,11 +1,11 @@
 import { BoutIdContext } from "@/app/provider";
 import useBout from "@/hooks/use-bout";
-import { TeamString } from "@/lib/client/api/types";
+import { HOME } from "@/lib/client/api/types";
 import { useContext } from "react";
 
 interface TeamNameProps {
   boutId?: string;
-  team: TeamString;
+  team: number;
   useMnemonic?: boolean;
   defaultName?: [string, string];
 }
@@ -21,9 +21,15 @@ export default function TeamName({
   boutId ??= boutIdContext;
 
   const teamName = useBout(boutId, (bout) => {
-    const name: string = useMnemonic ? bout[team].mnemonic : bout[team].name;
-    return name ? name : DEFAULT_NAMES[Number(team !== "home")];
+    const name: string = useMnemonic
+      ? bout.teams[team].roster.mnemonic
+      : bout.teams[team].roster.name;
+    return name ? name : DEFAULT_NAMES[Number(team !== HOME)];
   });
 
-  return <div className="font-bold text-4xl text-center align-middle">{teamName}</div>;
+  return (
+    <div className="font-bold text-4xl text-center align-middle">
+      {teamName}
+    </div>
+  );
 }

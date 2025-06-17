@@ -1,6 +1,6 @@
 import { BoutIdContext } from "@/app/provider";
 import useJam from "@/hooks/use-jam";
-import { TeamString, Trip } from "@/lib/client/api/types";
+import { Trip } from "@/lib/client/api/types";
 import { ScrollArea } from "radix-ui";
 import { useContext, useEffect, useRef, useState } from "react";
 import JammerState from "./jammer-state";
@@ -11,7 +11,7 @@ interface TripScrollProps {
   boutId?: string;
   periodNum: number;
   jamNum: number;
-  team: TeamString;
+  team: number;
 }
 
 export default function TripView({
@@ -33,7 +33,7 @@ export default function TripView({
     });
   }, [scrollLeft]);
 
-  const trips: Trip[] = useJam(boutId, periodNum, jamNum)[team].score.trips;
+  const trips: Trip[] = useJam(boutId, periodNum, jamNum).teamJams[team].trips;
   const [tripNum, setTripNum] = useState(trips.length);
   const lastTripRef = useRef({
     boutId,
