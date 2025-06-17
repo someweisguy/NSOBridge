@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import ClassVar, Final, Sequence
+from typing import ClassVar, Final, Literal, Sequence
 
 from nanoid import non_secure_generate
 from pydantic import Field, computed_field, field_validator
@@ -17,7 +17,7 @@ class Timeout(Timer):
     jam_id: JamId = Field(final=True)
     period_clock_elapsed: millisdelta = Field(final=True)
     is_review: bool = Field(False, init=False)
-    team: int | None = Field(None, init=False)
+    team: int | Literal['official'] | None = Field(None, init=False)
     details: str = Field('', init=False)
     result: str = Field('', init=False)
     retained: bool = Field(False, init=False)
