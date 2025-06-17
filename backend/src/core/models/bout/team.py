@@ -46,7 +46,10 @@ class Team(ProjectModel):
     @computed_field
     @property
     def game_score(self) -> int:
-        return sum([trip.points for jam in self._team_jams for trip in jam.trips])
+        return sum(
+            [trip.points for jam in self._team_jams for trip in jam.trips],
+            self.score_offset,
+        )
 
     @computed_field
     @property
