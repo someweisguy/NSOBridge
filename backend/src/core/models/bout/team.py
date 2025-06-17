@@ -39,10 +39,9 @@ class Team(ProjectModel):
     def __init__(self, roster: Roster) -> None:
         super().__init__(roster=roster)
 
-    def add_team_jam(self, team_jam: TeamJam) -> TeamJam:
+    def add_team_jam(self, team_jam: TeamJam) -> None:
         self._most_recent_jam = ref(team_jam)
         self._team_jams.add(team_jam)
-        return team_jam
 
     @computed_field
     @property

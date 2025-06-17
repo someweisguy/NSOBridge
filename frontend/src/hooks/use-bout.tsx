@@ -21,7 +21,7 @@ export function selectLatestJamId(
   returnOutOfBounds = false
 ): (bout: Bout) => [number, number] {
   return (bout: Bout) => {
-    const numJams: [number, number] = bout.numJams;
+    const numJams: [number, number, number] = bout.numJams;
     const periodNum = Number(numJams[1] > 0);
     const jamNum = numJams[periodNum] - 1;
     return offsetJamId(bout, [periodNum, jamNum], offset, returnOutOfBounds)!;
