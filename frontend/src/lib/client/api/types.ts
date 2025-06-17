@@ -47,7 +47,7 @@ export interface Bout {
     lineup: Alarm;
     jam: Alarm;
   };
-  team: Team[];
+  teams: Team[];
   timeouts: Timeout[];
   numJams: [number, number, number];
 }
