@@ -1,4 +1,4 @@
-from core.models.rules import BoutTimer, Ruleset
+from core.models.rules.protocol import BoutTimer, Ruleset
 from core.models.rules.wftda_2025.call_timeout import CallTimeout
 from core.models.rules.wftda_2025.end_period import EndPeriod
 from core.models.rules.wftda_2025.end_timeout import EndTimeout

@@ -6,6 +6,8 @@ from pydantic import BaseModel
 
 from core import updater
 from core.models.bout import Bout, BoutDepend
+from core.models.rules import RulesetDepend
+from core.models.rules.protocol import Rule
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
@@ -15,10 +17,13 @@ async def get(bout: BoutDepend) -> Bout:
     return bout
 
 
-# @router.post('/start-jam')
-# async def start_jam(start_jam: StartJamDepend, timestamp: Annotated[datetime, Body()]):
-#     start_jam(timestamp)
-#     updater.post(start_jam.update_keys)
+@router.post('/start-jam')
+async def start_jam(
+    ruleset: RulesetDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
+):
+    rule: Rule = ruleset.bout_timer.start_jam(bout, timestamp)
+    rule.execute()
+    updater.post(rule.get_update_keys())
 
 
 # @router.post('/stop-jam')
