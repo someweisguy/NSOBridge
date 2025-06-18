@@ -23,7 +23,7 @@ class CallTimeout:
             self.bout.clocks.game.stop(self.timestamp)
         self.bout.clocks.lineup.stop(self.timestamp)
 
-        # Instantiate the Timeout       
+        # Instantiate the Timeout
         current_jam: Jam = self.bout.get_active_jam() or self.bout.get_latest_jam()
         period_clock_elapsed = self.bout.clocks.game.get_elapsed_at_timestamp(
             self.timestamp

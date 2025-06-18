@@ -14,7 +14,7 @@ class Rule(Protocol):
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
-class BoutTimer:
+class BoutTimer(Protocol):
     start_jam: type[Rule]
     stop_jam: type[Rule]
     call_timeout: type[Rule]
@@ -23,7 +23,7 @@ class BoutTimer:
 
 
 @dataclass(frozen=True, slots=True)
-class Ruleset:
+class Ruleset(Protocol):
     bout_timer: BoutTimer
     # TODO: jam_referee: JamReferee
 
