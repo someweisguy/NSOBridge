@@ -16,7 +16,7 @@ class JamId(ProjectModel):
     period: int = Field(final=True)
     jam: int = Field(final=True)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.period, self.jam))
 
     def __init__(self, period: int, jam: int) -> None:

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated, Final
 
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body
 from pydantic import BaseModel
 
 from core import updater
@@ -21,15 +21,18 @@ async def get(bout: BoutDepend) -> Bout:
 async def start_jam(
     ruleset: RulesetDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
 ):
-    rule: Rule = ruleset.bout_timer.start_jam(bout, timestamp)
+    rule: Rule = ruleset.start_jam(bout, timestamp)
     rule.execute()
     updater.post(rule.get_update_keys())
 
 
-# @router.post('/stop-jam')
-# async def stop_jam(stop_jam: StopJamDepend, timestamp: Annotated[datetime, Body()]):
-#     stop_jam(timestamp)
-#     updater.post(stop_jam.update_keys)
+@router.post('/stop-jam')
+async def stop_jam(
+    ruleset: RulesetDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
+):
+    rule: Rule = ruleset.stop_jam(bout, timestamp)
+    rule.execute()
+    updater.post(rule.get_update_keys())
 
 
 # @router.post('/call-timeout')

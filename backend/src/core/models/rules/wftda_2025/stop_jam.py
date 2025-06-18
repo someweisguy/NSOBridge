@@ -44,6 +44,6 @@ class StopJam:
     def get_update_keys(self) -> Iterable:
         return [
             updater.kf.bout(self.bout.id),
-            updater.kf.jam(self.bout.get_jam(-1, -2)),
-            updater.kf.jam(self.bout.get_jam(-1, -1)),
+            updater.kf.jam(self.bout.id, *self.bout.get_jam(-1, -2).id),
+            updater.kf.jam(self.bout.id, *self.bout.get_jam(-1, -1).id),
         ]

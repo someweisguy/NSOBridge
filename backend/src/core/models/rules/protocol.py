@@ -8,15 +8,10 @@ class Rule(Protocol):
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
-class BoutTimer:
+class Ruleset:
     start_jam: type[Rule]
     stop_jam: type[Rule]
     call_timeout: type[Rule]
     end_timeout: type[Rule]
     end_period: type[Rule]
-
-
-@dataclass(frozen=True, slots=True)
-class Ruleset:
-    bout_timer: BoutTimer
     # TODO: jam_referee: JamReferee
