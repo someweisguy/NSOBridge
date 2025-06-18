@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal, Sequence
 
-from pydantic import Field, computed_field
+from pydantic import Field, computed_field, model_serializer
 
 from core.models import ProjectModel
 from core.models.bout.team import Team
@@ -22,6 +22,10 @@ class JamId(ProjectModel):
     def __init__(self, period: int, jam: int) -> None:
         super().__init__(period=period, jam=jam)
 
+    @model_serializer
+    def _model_serializer(self) -> tuple[int, int]:
+        return self.period, self.jam
+
 
 class Trip(ProjectModel):
     points: int = Field()
@@ -37,7 +41,7 @@ class TeamJam(ProjectModel):
     lost: bool = Field(False, init=False)
     star_pass: int | None = Field(None, init=False)
     trips: list[Trip] = Field([], final=True, init=False)
-    
+
     def __hash__(self):
         return hash(self._parent)
 
@@ -80,7 +84,7 @@ class Jam(Timer):
         if len(teams) > MAX_ALLOWED_TEAMS:
             raise ValueError(f'A Jam may only have {MAX_ALLOWED_TEAMS} Teams')
         if teams[0] is teams[1]:
-            raise ValueError('Jam Teams cannot contain duplicates')        
+            raise ValueError('Jam Teams cannot contain duplicates')
         for team in teams:
             team_jam: TeamJam = TeamJam(self)
             self._team_jams.append(team_jam)
