@@ -5,14 +5,14 @@ from fastapi import APIRouter, Body, Query
 from pydantic import BaseModel
 
 from core import updater
-from core.models.bout import Bout, bouts
+from core.models.bout import Bout, BoutDepend
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
 
 @router.get('')
-async def get(bout_id: str) -> Bout:
-    return bouts[bout_id]
+async def get(bout: BoutDepend) -> Bout:
+    return bout
 
 
 # @router.post('/start-jam')

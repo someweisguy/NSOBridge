@@ -1,3 +1,7 @@
+from typing import Annotated
+
+from fastapi import Depends
+
 from .bout import Bout, Timeout
 from .jam import Jam, JamId, StopReason, TeamJam, Trip
 from .team import Roster, Team
@@ -13,10 +17,25 @@ _default_bout.get_latest_jam().team_jams = _default_bout.teams
 
 bouts = Bout.bouts
 
+
+def _bout_depends(bout_id: str) -> Bout:
+    return bouts[bout_id]
+
+
+def _jam_depends(bout_id: str, period_num: int, jam_num: int) -> Jam:
+    bout: Bout = bouts[bout_id]
+    return bout.get_jam(period_num, jam_num)
+
+
+BoutDepend = Annotated[Bout, Depends(_bout_depends)]
+JamDepend = Annotated[Jam, Depends(_jam_depends)]
+
 __all__ = (
     'bouts',
     'Bout',
+    'BoutDepend',
     'Jam',
+    'JamDepend',
     'JamId',
     'TeamJam',
     'Trip',

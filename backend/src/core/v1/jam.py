@@ -3,14 +3,14 @@ from typing import Annotated, Final
 from fastapi import APIRouter, Body, Query
 
 from core import updater
-from core.models.bout import Bout, Jam, StopReason, bouts
+from core.models.bout import Bout, Jam, JamDepend, StopReason, bouts
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')
 
 
 @router.get('')
-async def get(bout_id: str, period_num: int, jam_num: int) -> Jam:
-    return bouts[bout_id].get_jam(period_num, jam_num)
+async def get(jam: JamDepend) -> Jam:
+    return jam
 
 
 @router.post('/trip')
