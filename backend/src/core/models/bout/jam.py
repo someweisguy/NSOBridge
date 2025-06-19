@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Final, Literal, Sequence
+from typing import TYPE_CHECKING, ClassVar, Final, Literal, Sequence
 
 from pydantic import Field, computed_field, model_serializer
 
@@ -11,7 +11,7 @@ from core.models.time.timer import Timer
 
 if TYPE_CHECKING:
     from core.models.bout.bout import Bout
-    
+
 type StopReason = Literal['called', 'time', 'injury', 'other']
 
 
@@ -57,13 +57,15 @@ class TeamJam(ProjectModel):
     @property
     def id(self) -> JamId:
         return self._jam.id
-    
+
     @property
     def team(self) -> Team:
         return self._team
 
 
 class Jam(Timer):
+    REQUIRED_NUM_TEAMS: ClassVar[Final[int]] = 2
+
     _bout: Bout
     id: JamId = Field(final=True)
     stop_reason: StopReason | None = Field(None, init=False)
@@ -76,24 +78,14 @@ class Jam(Timer):
         super().__init__(id=JamId(period, jam))
         self._bout = bout
 
-    @property
-    def home(self) -> TeamJam | None:
-        return self._team_jams[Team.HOME] if len(self._team_jams) > Team.HOME else None
-
-    @property
-    def away(self) -> TeamJam | None:
-        return self._team_jams[Team.AWAY] if len(self._team_jams) > Team.AWAY else None
-
     @computed_field
     @property
     def team_jams(self) -> tuple[TeamJam, TeamJam]:
         return tuple(self._team_jams)
 
-    @team_jams.setter
-    def team_jams(self, teams: Sequence[Team]) -> None:
-        MAX_ALLOWED_TEAMS: int = 2
-        if len(teams) > MAX_ALLOWED_TEAMS:
-            raise ValueError(f'A Jam may only have {MAX_ALLOWED_TEAMS} Teams')
+    def assign_teams(self, teams: Sequence[Team]) -> None:
+        if len(teams) > Jam.REQUIRED_NUM_TEAMS:
+            raise ValueError(f'A Jam may only have {Jam.REQUIRED_NUM_TEAMS} Teams')
         if teams[0] is teams[1]:
             raise ValueError('Jam Teams cannot contain duplicates')
         for team in teams:
@@ -102,8 +94,10 @@ class Jam(Timer):
             team.add_team_jam(team_jam)
 
     def start(self, timestamp: datetime) -> None:
-        if self.home is None or self.away is None:
-            raise RuntimeError('At least 2 Teams are required to start a Jam')
+        if len(self._team_jams) < Jam.REQUIRED_NUM_TEAMS:
+            raise RuntimeError(
+                f'At least {Jam.REQUIRED_NUM_TEAMS} Teams are required to start a Jam'
+            )
         super().start(timestamp)
 
     def lead_is_declared(self) -> bool:

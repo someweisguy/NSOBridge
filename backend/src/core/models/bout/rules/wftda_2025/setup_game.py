@@ -40,6 +40,6 @@ class SetupGame:
         # Push initial Period and Jam
         bout.push_period()
         initial_jam: Jam = bout.push_jam()
-        initial_jam.team_jams = bout.teams
+        initial_jam.assign_teams(bout.teams)
         
         return updater.kf.bout(bout.id)
