@@ -2,15 +2,15 @@ from datetime import timedelta
 
 from pydantic import computed_field
 
-from core.models.time.timer import Timer, millisdelta
+from core.models.time.timer import Timer
 
 
 class Alarm(Timer):
-    _alarm: millisdelta = timedelta(seconds=0)
+    _alarm: timedelta = timedelta(seconds=0)
 
     @computed_field
     @property
-    def alarm(self) -> millisdelta:
+    def alarm(self) -> timedelta:
         return self._alarm
 
     def set_alarm(

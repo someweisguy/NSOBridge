@@ -1,24 +1,13 @@
 from datetime import datetime, timedelta
-from math import floor
-from typing import Annotated
 
-from pydantic import PlainSerializer, computed_field
+from pydantic import computed_field
 
 from core.models import ProjectModel
-
-type millisdelta = Annotated[
-    timedelta,
-    PlainSerializer(
-        lambda td: floor(td.total_seconds() * 1000),
-        when_used='unless-none',
-        return_type=int,
-    ),
-]
 
 
 class Timer(ProjectModel):
     _start_timestamp: datetime | None = None
-    _elapsed: millisdelta = timedelta(seconds=0)
+    _elapsed: timedelta = timedelta(seconds=0)
 
     @computed_field
     @property
@@ -27,7 +16,7 @@ class Timer(ProjectModel):
 
     @computed_field
     @property
-    def elapsed(self) -> millisdelta:
+    def elapsed(self) -> timedelta:
         return self._elapsed
 
     def start(self, timestamp: datetime) -> None:

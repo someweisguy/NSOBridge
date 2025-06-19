@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import ClassVar, Final, Literal, Sequence
 
 from nanoid import non_secure_generate
@@ -10,19 +11,19 @@ from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, JamId
 from core.models.bout.team import Team
 from core.models.time.alarm import Alarm
-from core.models.time.timer import Timer, millisdelta
+from core.models.time.timer import Timer
 
 
 class Timeout(Timer):
     jam_id: JamId = Field(final=True)
-    period_clock_elapsed: millisdelta = Field(final=True)
+    period_clock_elapsed: timedelta = Field(final=True)
     is_review: bool = Field(False, init=False)
     team: int | Literal['official'] | None = Field(None, init=False)
     details: str = Field('', init=False)
     result: str = Field('', init=False)
     retained: bool = Field(False, init=False)
 
-    def __init__(self, jam_id: JamId, period_clock_elapsed: millisdelta) -> None:
+    def __init__(self, jam_id: JamId, period_clock_elapsed: timedelta) -> None:
         super().__init__(jam_id=jam_id, period_clock_elapsed=period_clock_elapsed)
 
 
