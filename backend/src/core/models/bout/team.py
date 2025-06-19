@@ -38,6 +38,8 @@ class Team(ProjectModel):
         super().__init__(roster=roster)
 
     def add_team_jam(self, team_jam: TeamJam) -> None:
+        if team_jam.team != self:
+            raise ValueError('Cannot add a TeamJam that does not belong to this Team')
         self._most_recent_jam = ref(team_jam)
         self._team_jams.add(team_jam)
 

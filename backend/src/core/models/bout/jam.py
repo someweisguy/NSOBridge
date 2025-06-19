@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Sequence
+from typing import Final, Literal, Sequence
 
 from pydantic import Field, computed_field, model_serializer
 
@@ -36,22 +36,28 @@ class Trip(ProjectModel):
 
 
 class TeamJam(ProjectModel):
-    _parent: Jam
+    _team: Final[Team]
+    _jam: Final[Jam]
     lead: bool = Field(False, init=False)
     lost: bool = Field(False, init=False)
     star_pass: int | None = Field(None, init=False)
     trips: list[Trip] = Field([], final=True, init=False)
 
     def __hash__(self):
-        return hash(self._parent)
+        return hash(self._jam)
 
-    def __init__(self, parent: Jam) -> None:
+    def __init__(self, team: Team, jam: Jam) -> None:
         super().__init__()
-        self._parent = parent
+        self._team = team
+        self._jam = jam
 
     @property
     def id(self) -> JamId:
-        return self._parent.id
+        return self._jam.id
+    
+    @property
+    def team(self) -> Team:
+        return self._team
 
 
 class Jam(Timer):
@@ -86,7 +92,7 @@ class Jam(Timer):
         if teams[0] is teams[1]:
             raise ValueError('Jam Teams cannot contain duplicates')
         for team in teams:
-            team_jam: TeamJam = TeamJam(self)
+            team_jam: TeamJam = TeamJam(team, self)
             self._team_jams.append(team_jam)
             team.add_team_jam(team_jam)
 
