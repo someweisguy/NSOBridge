@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from datetime import timedelta
-from typing import ClassVar, Final, Literal, Sequence
+from datetime import datetime, timedelta
+from typing import Callable, ClassVar, Final, Literal, Sequence
 
 from nanoid import non_secure_generate
 from pydantic import Field, computed_field, field_validator
 
-from core.models import ProjectModel
+from core.models import ModelKey, ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, JamId
 from core.models.bout.team import Team
@@ -52,14 +52,14 @@ class Bout(ProjectModel):
         jam: Alarm = Field(Alarm(), final=True)
 
     id: str = Field(init=False, final=True)
-    ruleset_name: str = Field(final=True)
     clocks: _Clocks = Field(_Clocks(), final=True, init=False)
     teams: tuple[Team, ...] = Field((), init=False)
     timeouts: list[Timeout] = Field([], final=True, init=False)
+    referee: Referee = Field(alias='ruleset', final=True)
     _jams: Final[list[list[Jam]]] = [[Jam(0, 0)]]
 
-    def __init__(self, ruleset_name: str) -> None:
-        super().__init__(id=Bout.generate_id(), ruleset_name=ruleset_name)
+    def __init__(self, referee: Referee) -> None:
+        super().__init__(id=Bout.generate_id(), referee=referee)
         Bout.bouts[self.id] = self
 
     @computed_field
@@ -103,3 +103,12 @@ class Bout(ProjectModel):
 
     def timeout_is_running(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
+
+
+class Referee(ProjectModel):
+    name: str = Field(final=True)
+    start_jam: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
+    stop_jam: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
+    call_timeout: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
+    end_timeout: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
+    end_period: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)

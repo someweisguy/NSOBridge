@@ -5,6 +5,7 @@ from fastapi import APIRouter, Body
 from pydantic import BaseModel
 
 from core import updater
+from core.models import ModelKey
 from core.models.bout import Bout, BoutDepend
 from core.models.rules import RulesetDepend
 from core.models.rules.protocol import Rule
@@ -19,10 +20,10 @@ async def get(bout: BoutDepend) -> Bout:
 
 @router.post('/start-jam')
 async def start_jam(
-    ruleset: RulesetDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
+    bout: BoutDepend, timestamp: Annotated[datetime, Body()]
 ):
-    rule: Rule = ruleset.start_jam(bout, timestamp)
-    rule.execute()
+    updated_keys: ModelKey = referee.start_jam(bout, datetime)
+    
     updater.post(rule.get_update_keys())
 
 

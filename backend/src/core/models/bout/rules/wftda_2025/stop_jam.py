@@ -1,33 +1,29 @@
-from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import ClassVar, Iterable
+from typing import ClassVar
 
 from core import updater
+from core.models import ModelKey
 from core.models.bout.bout import Bout
 from core.models.bout.jam import Jam
 
 
-@dataclass(slots=True)
 class StopJam:
     JAM_DURATION: ClassVar[timedelta] = timedelta(minutes=2)
 
-    bout: Bout
-    timestamp: datetime
-
-    def execute(self) -> None:
-        if not self.bout.clocks.jam.is_running():
+    def __call__(self, bout: Bout, timestamp: datetime) -> ModelKey:
+        if not bout.clocks.jam.is_running():
             raise RuntimeError('Cannot stop a Jam when there is none running')
-        jam: Jam | None = self.bout.get_active_jam()
+        jam: Jam | None = bout.get_active_jam()
         if jam is None or not jam.is_running():
             raise RuntimeError('There is no running Jam to stop')
 
         # Update clocks
-        self.bout.clocks.jam.stop(self.timestamp)
-        self.bout.clocks.lineup.reset()
-        self.bout.clocks.lineup.start(self.timestamp)
+        bout.clocks.jam.stop(timestamp)
+        bout.clocks.lineup.reset()
+        bout.clocks.lineup.start(timestamp)
 
         # Stop the current Jam
-        jam.stop(self.timestamp)
+        jam.stop(timestamp)
 
         # Guess the reason that the Jam is being stopped
         if jam.lead_is_declared():
@@ -38,12 +34,11 @@ class StopJam:
             jam.stop_reason = None
 
         # Add a new Jam
-        new_jam: Jam = self.bout.push_jam()
-        new_jam.team_jams = self.bout.teams
+        new_jam: Jam = bout.push_jam()
+        new_jam.team_jams = bout.teams
 
-    def get_update_keys(self) -> Iterable:
         return [
-            updater.kf.bout(self.bout.id),
-            updater.kf.jam(self.bout.id, *self.bout.get_jam(-1, -2).id),
-            updater.kf.jam(self.bout.id, *self.bout.get_jam(-1, -1).id),
+            updater.kf.bout(bout.id),
+            updater.kf.jam(bout.id, *bout.get_jam(-1, -2).id),
+            updater.kf.jam(bout.id, *bout.get_jam(-1, -1).id),
         ]
