@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, ClassVar, Final, Iterable
+from typing import TYPE_CHECKING, Callable, ClassVar, Final
 from weakref import ReferenceType, WeakSet, ref
 
 from pydantic import Field, computed_field
