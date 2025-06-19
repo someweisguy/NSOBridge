@@ -9,7 +9,7 @@ from pydantic import Field, computed_field, field_validator
 from core.models import ModelKey, ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, JamId
-from core.models.bout.team import Team
+from core.models.bout.team import Roster, Team
 from core.models.time.alarm import Alarm
 from core.models.time.timer import Timer
 
@@ -41,10 +41,13 @@ class Bout(ProjectModel):
 
     @field_validator('teams', mode='after')
     @classmethod
-    def teams_validator(cls, value: Sequence[Team]) -> None:
-        if len(value) != len(set(value)):
+    def teams_validator(cls, teams: Sequence[Team]) -> None:
+        MIN_NUM_TEAMS: int = 2
+        if len(teams) < MIN_NUM_TEAMS:
+            raise ValueError('A Bout requires at least 2 Teams')
+        if any(teams.count(team) > 1 for team in teams):
             raise ValueError('Bout Teams cannot contain duplicates')
-        return value
+        return teams
 
     class _Clocks(ProjectModel):
         intermission: Alarm = Field(Alarm(), final=True)
@@ -54,13 +57,14 @@ class Bout(ProjectModel):
 
     id: str = Field(init=False, final=True)
     clocks: _Clocks = Field(_Clocks(), final=True, init=False)
-    teams: tuple[Team, ...] = Field((), init=False)
+    teams: tuple[Team, ...] = Field(final=True)
     timeouts: list[Timeout] = Field([], final=True, init=False)
     referee: Referee = Field(alias='ruleset', final=True)
     _jams: Final[list[list[Jam]]] = [[Jam(0, 0)]]
 
-    def __init__(self, referee: Referee) -> None:
-        super().__init__(id=Bout.generate_id(), referee=referee)
+    def __init__(self, *, rosters: Sequence[Roster], referee: Referee) -> None:
+        teams: tuple[Team, ...] = tuple(Team(roster) for roster in rosters)
+        super().__init__(id=Bout.generate_id(), teams=teams, referee=referee)
         Bout.bouts[self.id] = self
 
     @computed_field

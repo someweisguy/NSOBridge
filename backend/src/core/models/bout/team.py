@@ -34,9 +34,9 @@ class Team(ProjectModel):
     HOME: ClassVar[Final[int]] = 0
     AWAY: ClassVar[Final[int]] = 1
 
-    roster: Roster = Field()
-    timeouts: int = Field(3, init=False)
-    reviews: int = Field(1, init=False)
+    roster: Roster = Field(final=True)
+    timeouts: int = Field(0, init=False)
+    reviews: int = Field(0, init=False)
     score_offset: int = Field(0, init=False)
 
     _score_strategy: Callable[[TeamJam], int]
