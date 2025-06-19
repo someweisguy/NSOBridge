@@ -1,4 +1,5 @@
 from datetime import timedelta
+from functools import cached_property
 from math import floor
 
 from pydantic import BaseModel, ConfigDict
@@ -17,3 +18,7 @@ class ProjectModel(BaseModel):
         validate_by_alias=True,
         validate_by_name=True,
     )
+
+class Gettable:
+    @cached_property
+    def key(self): ...

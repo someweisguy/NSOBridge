@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Final, Literal, Sequence
+from typing import TYPE_CHECKING, Final, Literal, Sequence
 
 from pydantic import Field, computed_field, model_serializer
 
@@ -9,6 +9,9 @@ from core.models import ProjectModel
 from core.models.bout.team import Team
 from core.models.time.timer import Timer
 
+if TYPE_CHECKING:
+    from core.models.bout.bout import Bout
+    
 type StopReason = Literal['called', 'time', 'injury', 'other']
 
 
@@ -61,6 +64,7 @@ class TeamJam(ProjectModel):
 
 
 class Jam(Timer):
+    _bout: Bout
     id: JamId = Field(final=True)
     stop_reason: StopReason | None = Field(None, init=False)
     _team_jams: list[TeamJam] = []
@@ -68,8 +72,9 @@ class Jam(Timer):
     def __hash__(self):
         return hash(self.id)
 
-    def __init__(self, period: int, jam: int) -> None:
+    def __init__(self, bout: Bout, period: int, jam: int) -> None:
         super().__init__(id=JamId(period, jam))
+        self._bout = bout
 
     @property
     def home(self) -> TeamJam | None:

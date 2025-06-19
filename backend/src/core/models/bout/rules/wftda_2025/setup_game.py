@@ -5,7 +5,7 @@ from typing import Final
 from core import updater
 from core.models import ModelKey
 from core.models.bout.bout import Bout
-from core.models.bout.jam import TeamJam
+from core.models.bout.jam import Jam, TeamJam
 
 
 @dataclass(slots=True)
@@ -17,8 +17,8 @@ class SetupGame:
     NUM_TIMEOUTS: Final[int] = 3
     NUM_REVIEWS: Final[int] = 1
 
-    @classmethod
-    def score_strategy(cls, team_jam: TeamJam) -> int:
+    @staticmethod
+    def score_strategy(team_jam: TeamJam) -> int:
         OVERTIME_PERIOD_NUM: int = 2
         score: int = sum(trip.points for trip in team_jam.trips[1:])
         if team_jam.id.period == OVERTIME_PERIOD_NUM:
@@ -35,6 +35,11 @@ class SetupGame:
         for team in bout.teams:
             team.timeouts = self.NUM_TIMEOUTS
             team.reviews = self.NUM_REVIEWS
-            team.set_score_strategy(SetupGame.score_strategy)
-
+            team.set_score_strategy(self.score_strategy)
+            
+        # Push initial Period and Jam
+        bout.push_period()
+        initial_jam: Jam = bout.push_jam()
+        initial_jam.team_jams = bout.teams
+        
         return updater.kf.bout(bout.id)

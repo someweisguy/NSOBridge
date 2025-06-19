@@ -60,7 +60,7 @@ class Bout(ProjectModel):
     teams: tuple[Team, ...] = Field(final=True)
     timeouts: list[Timeout] = Field([], final=True, init=False)
     referee: Referee = Field(alias='ruleset', final=True)
-    _jams: Final[list[list[Jam]]] = [[Jam(0, 0)]]
+    _jams: Final[list[list[Jam]]] = []
 
     def __init__(self, *, rosters: Sequence[Roster], referee: Referee) -> None:
         teams: tuple[Team, ...] = tuple(Team(roster) for roster in rosters)
@@ -93,7 +93,7 @@ class Bout(ProjectModel):
 
     def push_jam(self) -> Jam:
         period: list[Jam] = self._jams[-1]
-        jam: Jam = Jam(len(self._jams) - 1, len(period))
+        jam: Jam = Jam(self, len(self._jams) - 1, len(period))
         period.append(jam)
         return jam
 
@@ -102,9 +102,10 @@ class Bout(ProjectModel):
         return period.pop()
 
     def push_period(self) -> None:
-        self._jams[-1] = [
-            jam for jam in self._jams[-1] if jam._start_timestamp is not None
-        ]
+        if len(self._jams) > 0:
+            self._jams[-1] = [
+                jam for jam in self._jams[-1] if jam._start_timestamp is not None
+            ]
         self._jams.append([])
 
     def timeout_is_running(self) -> bool:
