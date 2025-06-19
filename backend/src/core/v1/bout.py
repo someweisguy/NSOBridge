@@ -2,13 +2,10 @@ from datetime import datetime
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Body
-from pydantic import BaseModel
 
 from core import updater
 from core.models import ModelKey
-from core.models.bout import Bout, BoutDepend
-from core.models.rules import RulesetDepend
-from core.models.rules.protocol import Rule
+from core.models.bout import Bout, BoutDepend, RefereeDepend
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
@@ -20,20 +17,18 @@ async def get(bout: BoutDepend) -> Bout:
 
 @router.post('/start-jam')
 async def start_jam(
-    bout: BoutDepend, timestamp: Annotated[datetime, Body()]
+    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
 ):
-    updated_keys: ModelKey = referee.start_jam(bout, datetime)
-    
-    updater.post(rule.get_update_keys())
+    updated_model_keys: ModelKey = referee.start_jam(bout, timestamp)
+    updater.post(updated_model_keys)
 
 
 @router.post('/stop-jam')
 async def stop_jam(
-    ruleset: RulesetDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
+    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
 ):
-    rule: Rule = ruleset.stop_jam(bout, timestamp)
-    rule.execute()
-    updater.post(rule.get_update_keys())
+    updated_model_keys: ModelKey = referee.stop_jam(bout, timestamp)
+    updater.post(updated_model_keys)
 
 
 # @router.post('/call-timeout')
