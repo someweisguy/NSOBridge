@@ -1,41 +1,14 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Final, Literal
+from typing import Any, Final, Iterable
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
 
-type UpdateKey = (
-    tuple[Literal['series']]  # Series updates
-    | tuple[Literal['bout'], str]  # Bout updates
-    | tuple[Literal['jam'], str, int, int]  # Jam updates
-)
-
-
-class KeyFactory:
-    _instance: KeyFactory | None = None
-
-    def __init__(self) -> None:
-        if KeyFactory._instance is not None:
-            raise RuntimeError('This class cannot be initialized')
-        KeyFactory._instance = self
-
-    @classmethod
-    def series(cls) -> UpdateKey:
-        return ('series',)
-
-    @classmethod
-    def bout(cls, bout_id: str) -> UpdateKey:
-        return ('bout', bout_id)
-
-    @classmethod
-    def jam(cls, bout_id: str, period_num: int, jam_num: int) -> UpdateKey:
-        return ('jam', bout_id, period_num, jam_num)
-
+from core.models import Gettable, ModelKey
 
 app: Final[FastAPI] = FastAPI()
-kf: Final[KeyFactory] = KeyFactory()
 
 
 @app.websocket('/updates')
@@ -52,15 +25,15 @@ async def handle_socket(websocket: WebSocket) -> None:
 
 
 clients: set[WebSocket] = set()
-updates: set[UpdateKey] = set()
+updates: set[ModelKey] = set()
 background_tasks: set[asyncio.Task] = set()
 
 
-def post(key: UpdateKey | list[UpdateKey]) -> None:
-    if isinstance(key, list):
-        updates.update(key)
+def post(model_or_models: Gettable | Iterable[Gettable]) -> None:
+    if isinstance(model_or_models, Iterable):
+        updates.update([model.key for model in model_or_models])
     else:
-        updates.add(key)
+        updates.add(model_or_models.key)
 
 
 def broadcast() -> int:
@@ -75,4 +48,4 @@ def broadcast() -> int:
     return num_updates
 
 
-__all__ = ('app', 'broadcast', 'kf', 'post', 'UpdateKey')
+__all__ = ('app', 'broadcast', 'post')

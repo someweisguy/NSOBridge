@@ -1,15 +1,12 @@
 from datetime import timedelta
 from functools import cached_property
 from math import floor
-from typing import Protocol
+from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-type ModelKey = (
-    tuple[str]  # Bout
-    | tuple[str, int, int]  # Jam
-)
+type ModelKey = tuple[Literal['bout'], str] | tuple[Literal['jam'], str, int, int]
 
 
 class ProjectModel(BaseModel):

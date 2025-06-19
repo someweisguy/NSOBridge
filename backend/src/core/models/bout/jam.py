@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, ClassVar, Final, Literal, Sequence
 
 from pydantic import Field, computed_field, model_serializer
 
-from core.models import Gettable, ProjectModel
+from core.models import ModelKey, ProjectModel
 from core.models.bout.team import Team
 from core.models.time.timer import Timer
 
@@ -64,7 +64,7 @@ class TeamJam(ProjectModel):
         return self._team
 
 
-class Jam(Timer, Gettable):
+class Jam(Timer):
     REQUIRED_NUM_TEAMS: ClassVar[Final[int]] = 2
 
     _bout: Bout
@@ -80,8 +80,8 @@ class Jam(Timer, Gettable):
         self._bout = bout
         
     @cached_property
-    def key(self):
-        return tuple(self._bout.id, *self.id)
+    def key(self) -> ModelKey:
+        return 'jam', self._bout.id, self.id.period, self.id.jam
 
     @computed_field
     @property

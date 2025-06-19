@@ -7,7 +7,7 @@ from typing import Callable, ClassVar, Final, Literal, Sequence
 from nanoid import non_secure_generate
 from pydantic import Field, computed_field, field_validator
 
-from core.models import Gettable, ProjectModel
+from core.models import Gettable, ModelKey, ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, JamId
 from core.models.bout.team import Roster, Team
@@ -29,7 +29,7 @@ class Timeout(Timer):
         super().__init__(jam_id=jam_id, period_clock_elapsed=period_clock_elapsed)
 
 
-class Bout(ProjectModel, Gettable):
+class Bout(ProjectModel):
     bouts: ClassVar[Final[dict[str, Bout]]] = {}
 
     @classmethod
@@ -70,8 +70,8 @@ class Bout(ProjectModel, Gettable):
         Bout.bouts[self.id] = self
 
     @cached_property
-    def key(self):
-        return tuple(self.id)
+    def key(self) -> ModelKey:
+        return ('bout', self.id)
 
     @computed_field
     @property
