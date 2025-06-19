@@ -31,12 +31,12 @@ async def stop_jam(
     updater.post(updated_model_keys)
 
 
-# @router.post('/call-timeout')
-# async def call_timeout(
-#     call_timeout: CallTimeoutDepend, timestamp: Annotated[datetime, Body()]
-# ):
-#     call_timeout(timestamp)
-#     updater.post(call_timeout.update_keys)
+@router.post('/call-timeout')
+async def call_timeout(
+    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
+) -> None:
+    updated_model_keys: ModelKey = referee.call_timeout(bout, timestamp)
+    updater.post(updated_model_keys)
 
 
 # class TimeoutParameters(BaseModel):
@@ -70,12 +70,12 @@ async def stop_jam(
 #     )
 
 
-# @router.post('/end-timeout')
-# async def end_timeout(
-#     end_timeout: EndTimeoutDepend, timestamp: Annotated[datetime, Body()]
-# ):
-#     end_timeout(timestamp)
-#     updater.post(end_timeout.update_keys)
+@router.post('/end-timeout')
+async def end_timeout(
+    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
+) -> None:
+    updated_model_keys: ModelKey = referee.end_timeout(bout, timestamp)
+    updater.post(updated_model_keys)
 
 
 __all__ = ('router',)
