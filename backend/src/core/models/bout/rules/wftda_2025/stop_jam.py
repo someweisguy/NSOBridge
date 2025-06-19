@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import ClassVar
+from typing import ClassVar, Iterable
 
 from core import updater
 from core.models import ModelKey
@@ -10,7 +10,7 @@ from core.models.bout.jam import Jam
 class StopJam:
     JAM_DURATION: ClassVar[timedelta] = timedelta(minutes=2)
 
-    def __call__(self, bout: Bout, timestamp: datetime) -> ModelKey:
+    def __call__(self, bout: Bout, timestamp: datetime) -> Iterable[ModelKey]:
         if not bout.clocks.jam.is_running():
             raise RuntimeError('Cannot stop a Jam when there is none running')
         jam: Jam | None = bout.get_active_jam()

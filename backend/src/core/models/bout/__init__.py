@@ -8,7 +8,7 @@ from .bout import Bout, Referee, Timeout
 from .jam import Jam, JamId, StopReason, TeamJam, Trip
 from .team import Roster, Team
 
-# TODO: Bout initialization should be handled by referees
+# TODO: Instantiating the initial Bout should eventually be handled by the user
 Bout(
     rosters=(Roster('Home'), Roster('Away')), referee=get_ruleset('WFTDA 2025')
 )

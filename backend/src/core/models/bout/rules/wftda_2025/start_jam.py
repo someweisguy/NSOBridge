@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Iterable
 
 from core import updater
 from core.models import ModelKey
@@ -9,7 +10,7 @@ from core.models.bout.jam import Jam
 
 @dataclass(slots=True)
 class StartJam:
-    def __call__(self, bout: Bout, timestamp: datetime) -> ModelKey:
+    def __call__(self, bout: Bout, timestamp: datetime) -> Iterable[ModelKey]:
         if bout.clocks.jam.is_running():
             raise RuntimeError('A Jam cannot be started when one is already running')
         if bout.timeout_is_running():

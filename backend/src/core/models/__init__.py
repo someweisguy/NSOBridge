@@ -1,17 +1,23 @@
+from abc import ABC, abstractmethod
 from datetime import timedelta
 from functools import cached_property
 from math import floor
+from typing import Sequence
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
+type ModelKey = (
+    Sequence[str]  # Bout
+    | Sequence[str, int, int]  # Jam
+)
 
-def _timedelta_encoder(value: timedelta) -> int:
-    return floor(value.total_seconds() * 1000)
-
-type ModelKey = list
 
 class ProjectModel(BaseModel):
+    @staticmethod
+    def _timedelta_encoder(value: timedelta) -> int:
+        return floor(value.total_seconds() * 1000)
+
     model_config = ConfigDict(
         alias_generator=to_camel,
         json_encoders={timedelta: _timedelta_encoder},
@@ -19,6 +25,8 @@ class ProjectModel(BaseModel):
         validate_by_name=True,
     )
 
-class Gettable:
+
+class Gettable(ABC):
+    @abstractmethod
     @cached_property
-    def key(self): ...
+    def key(self) -> ModelKey: ...

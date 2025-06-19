@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Final
+from typing import Final, Iterable
 
 from core import updater
 from core.models import ModelKey
@@ -25,7 +25,7 @@ class SetupGame:
             score += team_jam.trips[0].points
         return score
 
-    def __call__(self, bout: Bout) -> ModelKey:
+    def __call__(self, bout: Bout) -> Iterable[ModelKey]:
         # Initialize clocks
         bout.clocks.game.set_alarm(self.PERIOD_DURATION)
         bout.clocks.lineup.set_alarm(self.LINEUP_DURATION)

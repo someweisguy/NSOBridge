@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Callable, ClassVar, Final, Literal, Sequence
+from functools import cached_property
+from typing import Callable, ClassVar, Final, Iterable, Literal, Sequence
 
 from nanoid import non_secure_generate
 from pydantic import Field, computed_field, field_validator
 
-from core.models import ModelKey, ProjectModel
+from core.models import Gettable, ModelKey, ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, JamId
 from core.models.bout.team import Roster, Team
@@ -28,7 +29,7 @@ class Timeout(Timer):
         super().__init__(jam_id=jam_id, period_clock_elapsed=period_clock_elapsed)
 
 
-class Bout(ProjectModel):
+class Bout(ProjectModel, Gettable):
     bouts: ClassVar[Final[dict[str, Bout]]] = {}
 
     @classmethod
@@ -67,6 +68,10 @@ class Bout(ProjectModel):
         super().__init__(id=Bout.generate_id(), teams=teams, referee=referee)
         self.referee.setup_game(self)
         Bout.bouts[self.id] = self
+
+    @cached_property
+    def key(self):
+        return tuple(self.id)
 
     @computed_field
     @property
@@ -114,9 +119,9 @@ class Bout(ProjectModel):
 
 class Referee(ProjectModel):
     name: str = Field(final=True)
-    setup_game: Callable[[Bout], ModelKey] = Field(exclude=True)
-    start_jam: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
-    stop_jam: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
-    call_timeout: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
-    end_timeout: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
-    end_period: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
+    setup_game: Callable[[Bout], Iterable[ModelKey]] = Field(exclude=True)
+    start_jam: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)
+    stop_jam: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)
+    call_timeout: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)
+    end_timeout: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)
+    end_period: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)

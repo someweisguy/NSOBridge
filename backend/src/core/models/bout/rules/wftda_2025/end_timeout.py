@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Iterable
 
 from core import updater
 from core.models import ModelKey
@@ -8,7 +9,7 @@ from core.models.bout.bout import Bout, Timeout
 
 @dataclass(slots=True)
 class EndTimeout:
-    def __call__(self, bout: Bout, timestamp: datetime) -> ModelKey:
+    def __call__(self, bout: Bout, timestamp: datetime) -> Iterable[ModelKey]:
         if not bout.timeout_is_running():
             raise RuntimeError('Cannot end a Timeout when one is not running')
 
