@@ -22,12 +22,8 @@ class Roster(ProjectModel):
         super().__init__(name=name)
 
 
-def _default_score_strategy(team_jam: TeamJam) -> int:
-    OVERTIME_PERIOD_NUM: int = 2
-    score: int = sum(trip.points for trip in team_jam.trips[1:])
-    if team_jam.id.period == OVERTIME_PERIOD_NUM:
-        score += team_jam.trips[0].points
-    return score
+def _uninitialized_score_strategy(_: TeamJam) -> int:
+    raise NotImplementedError('This Team has not been properly initialized')
 
 
 class Team(ProjectModel):
@@ -46,7 +42,7 @@ class Team(ProjectModel):
 
     def __init__(self, roster: Roster) -> None:
         super().__init__(roster=roster)
-        self.set_score_strategy(_default_score_strategy)
+        self.set_score_strategy(_uninitialized_score_strategy)
 
     def add_team_jam(self, team_jam: TeamJam) -> None:
         if team_jam.team != self:

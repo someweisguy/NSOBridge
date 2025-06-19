@@ -46,7 +46,7 @@ class Bout(ProjectModel):
         if len(teams) < MIN_NUM_TEAMS:
             raise ValueError('A Bout requires at least 2 Teams')
         if any(teams.count(team) > 1 for team in teams):
-            raise ValueError('Bout Teams cannot contain duplicates')
+            raise ValueError('A Bout cannot contain duplicate Teams')
         return teams
 
     class _Clocks(ProjectModel):
@@ -65,6 +65,7 @@ class Bout(ProjectModel):
     def __init__(self, *, rosters: Sequence[Roster], referee: Referee) -> None:
         teams: tuple[Team, ...] = tuple(Team(roster) for roster in rosters)
         super().__init__(id=Bout.generate_id(), teams=teams, referee=referee)
+        self.referee.setup_game(self)
         Bout.bouts[self.id] = self
 
     @computed_field
@@ -112,6 +113,7 @@ class Bout(ProjectModel):
 
 class Referee(ProjectModel):
     name: str = Field(final=True)
+    setup_game: Callable[[Bout], ModelKey] = Field(exclude=True)
     start_jam: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
     stop_jam: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
     call_timeout: Callable[[Bout, datetime], ModelKey] = Field(exclude=True)
