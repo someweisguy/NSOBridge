@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
-from typing import ClassVar, Iterable
+from typing import ClassVar
 
-from core import updater
-from core.models import ModelKey
+from core.models import Gettable
 from core.models.bout.bout import Bout
 from core.models.bout.jam import Jam
 
@@ -10,7 +9,7 @@ from core.models.bout.jam import Jam
 class StopJam:
     JAM_DURATION: ClassVar[timedelta] = timedelta(minutes=2)
 
-    def __call__(self, bout: Bout, timestamp: datetime) -> Iterable[ModelKey]:
+    def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:
         if not bout.clocks.jam.is_running():
             raise RuntimeError('Cannot stop a Jam when there is none running')
         jam: Jam | None = bout.get_active_jam()
@@ -37,8 +36,4 @@ class StopJam:
         new_jam: Jam = bout.push_jam()
         new_jam.team_jams = bout.teams
 
-        return [
-            updater.kf.bout(bout.id),
-            updater.kf.jam(bout.id, *bout.get_jam(-1, -2).id),
-            updater.kf.jam(bout.id, *bout.get_jam(-1, -1).id),
-        ]
+        return bout, jam, new_jam

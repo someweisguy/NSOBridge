@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from functools import cached_property
-from typing import Callable, ClassVar, Final, Iterable, Literal, Sequence
+from typing import Callable, ClassVar, Final, Literal, Sequence
 
 from nanoid import non_secure_generate
 from pydantic import Field, computed_field, field_validator
 
-from core.models import Gettable, ModelKey, ProjectModel
+from core.models import Gettable, ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, JamId
 from core.models.bout.team import Roster, Team
@@ -119,9 +119,9 @@ class Bout(ProjectModel, Gettable):
 
 class Referee(ProjectModel):
     name: str = Field(final=True)
-    setup_game: Callable[[Bout], Iterable[ModelKey]] = Field(exclude=True)
-    start_jam: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)
-    stop_jam: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)
-    call_timeout: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)
-    end_timeout: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)
-    end_period: Callable[[Bout, datetime], Iterable[ModelKey]] = Field(exclude=True)
+    setup_game: Callable[[Bout], tuple[Gettable, ...]] = Field(exclude=True)
+    start_jam: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)
+    stop_jam: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)
+    call_timeout: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)
+    end_timeout: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)
+    end_period: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)

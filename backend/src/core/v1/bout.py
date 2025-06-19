@@ -4,7 +4,7 @@ from typing import Annotated, Final
 from fastapi import APIRouter, Body
 
 from core import updater
-from core.models import ModelKey
+from core.models import Gettable
 from core.models.bout import Bout, BoutDepend, RefereeDepend
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
@@ -19,24 +19,24 @@ async def get(bout: BoutDepend) -> Bout:
 async def start_jam(
     referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
 ):
-    updated_model_keys: ModelKey = referee.start_jam(bout, timestamp)
-    updater.post(updated_model_keys)
+    updated_models: tuple[Gettable, ...] = referee.start_jam(bout, timestamp)
+    updater.post(updated_models)
 
 
 @router.post('/stop-jam')
 async def stop_jam(
     referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
 ):
-    updated_model_keys: ModelKey = referee.stop_jam(bout, timestamp)
-    updater.post(updated_model_keys)
+    updated_models: tuple[Gettable, ...] = referee.stop_jam(bout, timestamp)
+    updater.post(updated_models)
 
 
 @router.post('/call-timeout')
 async def call_timeout(
     referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
 ) -> None:
-    updated_model_keys: ModelKey = referee.call_timeout(bout, timestamp)
-    updater.post(updated_model_keys)
+    updated_models: tuple[Gettable, ...] = referee.call_timeout(bout, timestamp)
+    updater.post(updated_models)
 
 
 # class TimeoutParameters(BaseModel):
@@ -74,8 +74,8 @@ async def call_timeout(
 async def end_timeout(
     referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
 ) -> None:
-    updated_model_keys: ModelKey = referee.end_timeout(bout, timestamp)
-    updater.post(updated_model_keys)
+    updated_models: tuple[Gettable, ...] = referee.end_timeout(bout, timestamp)
+    updater.post(updated_models)
 
 
 __all__ = ('router',)

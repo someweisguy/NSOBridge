@@ -1,15 +1,14 @@
-from abc import ABC, abstractmethod
 from datetime import timedelta
 from functools import cached_property
 from math import floor
-from typing import Sequence
+from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
 type ModelKey = (
-    Sequence[str]  # Bout
-    | Sequence[str, int, int]  # Jam
+    tuple[str]  # Bout
+    | tuple[str, int, int]  # Jam
 )
 
 
@@ -26,7 +25,6 @@ class ProjectModel(BaseModel):
     )
 
 
-class Gettable(ABC):
-    @abstractmethod
+class Gettable(Protocol):
     @cached_property
     def key(self) -> ModelKey: ...

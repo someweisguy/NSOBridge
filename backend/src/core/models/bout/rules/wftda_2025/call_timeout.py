@@ -1,14 +1,12 @@
 from datetime import datetime
-from typing import Iterable
 
-from core import updater
-from core.models import ModelKey, ProjectModel
+from core.models import Gettable, ProjectModel
 from core.models.bout.bout import Bout, Timeout
 from core.models.bout.jam import Jam
 
 
 class CallTimeout(ProjectModel):
-    def __call__(self, bout: Bout, timestamp: datetime) -> Iterable[ModelKey]:
+    def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:
         if not bout.clocks.lineup.is_running():
             raise RuntimeError('A Timeout can only be called during Lineup')
         if bout.timeout_is_running():
@@ -30,4 +28,4 @@ class CallTimeout(ProjectModel):
         )
         bout.timeouts.append(timeout)
 
-        return updater.kf.bout(bout.id)
+        return (bout,)
