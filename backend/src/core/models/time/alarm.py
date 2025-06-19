@@ -22,12 +22,16 @@ class Alarm(Timer):
         seconds: float = 0,
         milliseconds: float = 0,
     ) -> None:
-        if delta is not None:
-            new_alarm = delta
-        else:
-            new_alarm: timedelta | None = timedelta(
-                hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds
+        new_alarm: timedelta = (
+            delta
+            if delta is not None
+            else timedelta(
+                hours=hours,
+                minutes=minutes,
+                seconds=seconds,
+                milliseconds=milliseconds,
             )
+        )
         if new_alarm.total_seconds() <= 0:
             raise ValueError('Alarm value must be greater than 0 seconds')
         self._alarm = new_alarm
