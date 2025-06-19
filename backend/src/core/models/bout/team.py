@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Final
+from typing import TYPE_CHECKING, Callable, ClassVar, Final, Iterable
 from weakref import ReferenceType, WeakSet, ref
 
 from pydantic import Field, computed_field
@@ -22,6 +22,14 @@ class Roster(ProjectModel):
         super().__init__(name=name)
 
 
+def _default_score_strategy(team_jam: TeamJam) -> int:
+    OVERTIME_PERIOD_NUM: int = 2
+    score: int = sum(trip.points for trip in team_jam.trips[1:])
+    if team_jam.id.period == OVERTIME_PERIOD_NUM:
+        score += team_jam.trips[0].points
+    return score
+
+
 class Team(ProjectModel):
     HOME: ClassVar[Final[int]] = 0
     AWAY: ClassVar[Final[int]] = 1
@@ -31,11 +39,14 @@ class Team(ProjectModel):
     reviews: int = Field(1, init=False)
     score_offset: int = Field(0, init=False)
 
+    _score_strategy: Callable[[TeamJam], int]
+
     _most_recent_jam: ReferenceType[TeamJam] = None
     _team_jams: WeakSet[TeamJam] = WeakSet()
 
     def __init__(self, roster: Roster) -> None:
         super().__init__(roster=roster)
+        self.set_score_strategy(_default_score_strategy)
 
     def add_team_jam(self, team_jam: TeamJam) -> None:
         if team_jam.team != self:
@@ -47,7 +58,7 @@ class Team(ProjectModel):
     @property
     def game_score(self) -> int:
         return sum(
-            [trip.points for jam in self._team_jams for trip in jam.trips],
+            [self._score_strategy(team_jam) for team_jam in self._team_jams],
             self.score_offset,
         )
 
@@ -70,9 +81,7 @@ class Team(ProjectModel):
                 key=lambda jam_team: jam_team.id.jam,
             )
             self._most_recent_jam = ref(team_jam)
-        return (
-            sum([trip.points for trip in team_jam.trips]) if team_jam is not None else 0
-        )
+        return self._score_strategy(team_jam) if team_jam is not None else 0
 
     @computed_field
     @property
@@ -82,9 +91,11 @@ class Team(ProjectModel):
     def period_score(self, period: int) -> int:
         return sum(
             [
-                trip.points
+                self._score_strategy(team_jam)
                 for team_jam in self._team_jams
                 if team_jam.id.period == period
-                for trip in team_jam.trips
             ]
         )
+
+    def set_score_strategy(self, strategy: Callable[[TeamJam], int]) -> None:
+        self._score_strategy = staticmethod(strategy)
