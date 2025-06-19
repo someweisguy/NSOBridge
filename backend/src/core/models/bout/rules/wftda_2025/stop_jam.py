@@ -34,6 +34,6 @@ class StopJam:
 
         # Add a new Jam
         new_jam: Jam = bout.push_jam()
-        new_jam.team_jams = bout.teams
+        new_jam.assign_teams(bout.teams)
 
         return bout, jam, new_jam
