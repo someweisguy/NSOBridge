@@ -1,9 +1,10 @@
 from typing import Annotated, Final
 
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body
 
 from core import updater
-from core.models.bout import Bout, Jam, JamDepend, StopReason, bouts
+from core.models import Gettable
+from core.models.bout import Jam, JamDepend, RefereeDepend, StopReason, TeamJamDepend
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')
 
@@ -15,106 +16,75 @@ async def get(jam: JamDepend) -> Jam:
 
 @router.post('/trip')
 async def add_trip(
-    bout_id: Annotated[str, Query()],
-    period_num: Annotated[int, Query()],
-    jam_num: Annotated[int, Query()],
-    # team: Annotated[TeamString, Query()],
-    points: Annotated[int, Body()],
-    valid_pass: Annotated[bool, Body()] = True,
+    referee: RefereeDepend, team_jam: TeamJamDepend, passes: Annotated[int, Body()]
 ) -> None:
-    bout: Bout = bouts[bout_id]
-    bout.scorekeeper.add_trip((period_num, jam_num), team, points, valid_pass)
-    updater.post(
-        [
-            updater.kf.bout(bout_id),
-            updater.kf.jam(bout_id, period_num, jam_num),
-        ]
-    )
+    updated_models: tuple[Gettable, ...] = referee.add_trip(team_jam, passes)
+    updater.post(updated_models)
 
 
-@router.delete('/trip')
-async def delete_trip(
-    bout_id: Annotated[str, Query()],
-    period_num: Annotated[int, Query()],
-    jam_num: Annotated[int, Query()],
-    # team: Annotated[TeamString, Query()],
-    trip_num: Annotated[int, Query()],
-) -> None:
-    bout: Bout = bouts[bout_id]
-    bout.jams.delete_trip((period_num, jam_num), team, trip_num)
-    updater.post(
-        [
-            updater.kf.bout(bout_id),
-            updater.kf.jam(bout_id, period_num, jam_num),
-        ]
-    )
+# @router.delete('/trip')
+# async def delete_trip(
+#     bout_id: Annotated[str, Query()],
+#     period_num: Annotated[int, Query()],
+#     jam_num: Annotated[int, Query()],
+#     # team: Annotated[TeamString, Query()],
+#     trip_num: Annotated[int, Query()],
+# ) -> None:
+#     bout: Bout = bouts[bout_id]
+#     bout.jams.delete_trip((period_num, jam_num), team, trip_num)
+#     updater.post(
+#         [
+#             updater.kf.bout(bout_id),
+#             updater.kf.jam(bout_id, period_num, jam_num),
+#         ]
+#     )
 
 
-@router.put('/trip')
-async def edit_trip(
-    bout_id: Annotated[str, Query()],
-    period_num: Annotated[int, Query()],
-    jam_num: Annotated[int, Query()],
-    # team: Annotated[TeamString, Query()],
-    trip_num: Annotated[int, Query()],
-    points: Annotated[int, Body()],
-) -> None:
-    bout: Bout = bouts[bout_id]
-    bout.jams.set_trip((period_num, jam_num), team, trip_num, points)
-    updater.post(
-        [updater.kf.bout(bout_id), updater.kf.jam(bout_id, period_num, jam_num)]
-    )
+# @router.put('/trip')
+# async def edit_trip(
+#     bout_id: Annotated[str, Query()],
+#     period_num: Annotated[int, Query()],
+#     jam_num: Annotated[int, Query()],
+#     # team: Annotated[TeamString, Query()],
+#     trip_num: Annotated[int, Query()],
+#     points: Annotated[int, Body()],
+# ) -> None:
+#     bout: Bout = bouts[bout_id]
+#     bout.jams.set_trip((period_num, jam_num), team, trip_num, points)
+#     updater.post(
+#         [updater.kf.bout(bout_id), updater.kf.jam(bout_id, period_num, jam_num)]
+#     )
 
 
-@router.put('/lead')
+@router.post('/lead')
 async def set_lead(
-    bout_id: Annotated[str, Query()],
-    period_num: Annotated[int, Query()],
-    jam_num: Annotated[int, Query()],
-    # team: Annotated[TeamString, Query()],
-    value: Annotated[bool, Body()],
+    referee: RefereeDepend, team_jam: TeamJamDepend, lead: Annotated[bool, Body()]
 ) -> None:
-    bout: Bout = bouts[bout_id]
-    bout.jams.set_lead((period_num, jam_num), team, value)
-    updater.post(updater.kf.jam(bout_id, period_num, jam_num))
+    updated_models: tuple[Gettable, ...] = referee.set_lead(team_jam, lead)
+    updater.post(updated_models)
 
 
-@router.put('/lost')
+@router.post('/lost')
 async def set_lost(
-    bout_id: Annotated[str, Query()],
-    period_num: Annotated[int, Query()],
-    jam_num: Annotated[int, Query()],
-    # team: Annotated[TeamString, Query()],
-    value: Annotated[bool, Body()],
+    referee: RefereeDepend, team_jam: TeamJamDepend, lost: Annotated[bool, Body()]
 ) -> None:
-    bout: Bout = bouts[bout_id]
-    bout.jams.set_lost((period_num, jam_num), team, value)
-    updater.post(updater.kf.jam(bout_id, period_num, jam_num))
+    updated_models: tuple[Gettable, ...] = referee.set_lost(team_jam, lost)
+    updater.post(updated_models)
 
 
-@router.put('/star-pass')
+@router.post('/star-pass')
 async def set_star_pass(
-    bout_id: Annotated[str, Query()],
-    period_num: Annotated[int, Query()],
-    jam_num: Annotated[int, Query()],
-    # team: Annotated[TeamString, Query()],
-    value: Annotated[int | None, Body()] = None,
+    referee: RefereeDepend, team_jam: TeamJamDepend, star_pass: Annotated[bool, Body()]
 ) -> None:
-    bout: Bout = bouts[bout_id]
-    bout.jams.set_star_pass((period_num, jam_num), team, value)
-    updater.post(updater.kf.jam(bout_id, period_num, jam_num))
+    updated_models: tuple[Gettable, ...] = referee.set_star_pass(team_jam, star_pass)
+    updater.post(updated_models)
 
 
-@router.put('/stop-reason')
+@router.post('/stop-reason')
 async def set_stop_reason(
-    bout_id: Annotated[str, Query()],
-    period_num: Annotated[int, Query()],
-    jam_num: Annotated[int, Query()],
-    stop_reason: Annotated[StopReason, Body()],
+    jam: JamDepend, stop_reason: Annotated[StopReason, Body()]
 ) -> None:
-    bout: Bout = bouts[bout_id]
-    bout.jams.set_stop_reason((period_num, jam_num), stop_reason)
-    updater.post(updater.kf.jam(bout_id, period_num, jam_num))
+    pass  # TODO
 
 
 __all__ = ('router',)

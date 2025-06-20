@@ -47,13 +47,13 @@ export default function PointButtons({
         <>
           <Button
             onClick={() =>
-              void addTrip(boutId, periodNum, jamNum, team, 0, false)
+              void addTrip(boutId, periodNum, jamNum, team, 0)
             }
           >
             No Pass
           </Button>
           <Button
-            onClick={() => void addTrip(boutId, periodNum, jamNum, team, 0)}
+            onClick={() => void addTrip(boutId, periodNum, jamNum, team, 4)}
           >
             Initial
           </Button>

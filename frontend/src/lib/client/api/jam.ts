@@ -27,8 +27,7 @@ export async function addTrip(
   periodNum: number,
   jamNum: number,
   team: number,
-  points: number,
-  validPass = true
+  passes: number,
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
     throw new Error("Invalid Period Number");
@@ -46,10 +45,7 @@ export async function addTrip(
       jam_num: jamNum,
       team,
     },
-    {
-      points,
-      valid_pass: validPass,
-    }
+    passes,
   );
 }
 
@@ -121,7 +117,7 @@ export async function setLead(
 
   await genericRequest(
     "/api/jam/lead",
-    "PUT",
+    "POST",
     {
       bout_id: boutId,
       period_num: periodNum,
@@ -148,7 +144,7 @@ export async function setLost(
 
   await genericRequest(
     "/api/jam/lost",
-    "PUT",
+    "POST",
     {
       bout_id: boutId,
       period_num: periodNum,
@@ -164,7 +160,7 @@ export async function setStarPass(
   periodNum: number,
   jamNum: number,
   team: number,
-  value: number | null
+  value: boolean | null
 ): Promise<void> {
   if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
     throw new Error("Invalid Period Number");
@@ -175,7 +171,7 @@ export async function setStarPass(
 
   await genericRequest(
     "/api/jam/star-pass",
-    "PUT",
+    "POST",
     {
       bout_id: boutId,
       period_num: periodNum,
@@ -201,7 +197,7 @@ export async function setStopReason(
 
   await genericRequest(
     "/api/jam/stop-reason",
-    "PUT",
+    "POST",
     {
       bout_id: boutId,
       period_num: periodNum,

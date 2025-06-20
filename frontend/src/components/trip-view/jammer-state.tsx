@@ -18,7 +18,6 @@ export default function JammerState({
   periodNum,
   jamNum,
   team,
-  tripNum,
 }: JammerStateProps) {
   const [boutIdContext] = useContext(BoutIdContext);
   boutId ??= boutIdContext;
@@ -55,7 +54,7 @@ export default function JammerState({
             periodNum,
             jamNum,
             team,
-            teamJam.starPass === null ? tripNum : null
+            teamJam.starPass === null
           )
         }
       >
