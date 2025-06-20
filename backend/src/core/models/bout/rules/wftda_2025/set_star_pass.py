@@ -6,6 +6,7 @@ class SetStarPass(ProjectModel):
     def __call__(self, team_jam: TeamJam, star_pass: bool) -> tuple[Gettable, ...]:
         if star_pass:
             team_jam.star_pass = len(team_jam.trips)
+            team_jam.lost = True
         else:
             team_jam.star_pass = None
 
