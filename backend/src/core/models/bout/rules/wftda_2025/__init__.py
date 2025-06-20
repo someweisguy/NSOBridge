@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from core.models.bout.bout import Referee
+from core.models.bout.rules.wftda_2025.add_trip import AddTrip
 from core.models.bout.rules.wftda_2025.call_timeout import CallTimeout
+from core.models.bout.rules.wftda_2025.declare_lead import DeclareLead
 from core.models.bout.rules.wftda_2025.end_period import EndPeriod
 from core.models.bout.rules.wftda_2025.end_timeout import EndTimeout
 from core.models.bout.rules.wftda_2025.setup_game import SetupGame
@@ -18,4 +20,6 @@ def referee_factory() -> Referee:
         call_timeout=CallTimeout(),
         end_timeout=EndTimeout(),
         end_period=EndPeriod(),
+        add_trip=AddTrip(),
+        declare_lead=DeclareLead(),
     )

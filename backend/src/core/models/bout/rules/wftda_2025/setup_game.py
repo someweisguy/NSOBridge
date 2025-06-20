@@ -1,20 +1,18 @@
-from dataclasses import dataclass
 from datetime import timedelta
-from typing import Final
+from typing import ClassVar
 
-from core.models import Gettable
+from core.models import Gettable, ProjectModel
 from core.models.bout.bout import Bout
 from core.models.bout.jam import Jam, TeamJam
 
 
-@dataclass(slots=True)
-class SetupGame:
-    PERIOD_DURATION: Final[timedelta] = timedelta(minutes=30)
-    LINEUP_DURATION: Final[timedelta] = timedelta(seconds=30)
-    JAM_DURATION: Final[timedelta] = timedelta(minutes=2)
+class SetupGame(ProjectModel):
+    PERIOD_DURATION: ClassVar[timedelta] = timedelta(minutes=30)
+    LINEUP_DURATION: ClassVar[timedelta] = timedelta(seconds=30)
+    JAM_DURATION: ClassVar[timedelta] = timedelta(minutes=2)
 
-    NUM_TIMEOUTS: Final[int] = 3
-    NUM_REVIEWS: Final[int] = 1
+    NUM_TIMEOUTS: ClassVar[int] = 3
+    NUM_REVIEWS: ClassVar[int] = 1
 
     @staticmethod
     def score_strategy(team_jam: TeamJam) -> int:

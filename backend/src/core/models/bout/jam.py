@@ -62,6 +62,10 @@ class TeamJam(ProjectModel):
     @property
     def team(self) -> Team:
         return self._team
+    
+    @property
+    def jam(self) -> Jam:
+        return self._jam
 
 
 class Jam(Timer):
@@ -87,6 +91,10 @@ class Jam(Timer):
     @property
     def team_jams(self) -> tuple[TeamJam, TeamJam]:
         return tuple(self._team_jams)
+    
+    @property
+    def bout(self) -> Bout:
+        return self._bout
 
     def assign_teams(self, teams: Sequence[Team]) -> None:
         if len(teams) > Jam.REQUIRED_NUM_TEAMS:

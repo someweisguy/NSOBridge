@@ -1,13 +1,11 @@
-from dataclasses import dataclass
 from datetime import datetime
 
-from core.models import Gettable
+from core.models import Gettable, ProjectModel
 from core.models.bout.bout import Bout
 from core.models.bout.jam import Jam
 
 
-@dataclass(slots=True)
-class StartJam:
+class StartJam(ProjectModel):
     def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:
         if bout.clocks.jam.is_running():
             raise RuntimeError('A Jam cannot be started when one is already running')

@@ -9,7 +9,7 @@ from pydantic import Field, computed_field, field_validator
 
 from core.models import Gettable, ModelKey, ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
-from core.models.bout.jam import Jam, JamId
+from core.models.bout.jam import Jam, JamId, TeamJam
 from core.models.bout.team import Roster, Team
 from core.models.time.alarm import Alarm
 from core.models.time.timer import Timer
@@ -116,12 +116,16 @@ class Bout(ProjectModel):
     def timeout_is_running(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
 
+type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
 
 class Referee(ProjectModel):
     name: str = Field(final=True)
-    setup_game: Callable[[Bout], tuple[Gettable, ...]] = Field(exclude=True)
-    start_jam: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)
-    stop_jam: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)
-    call_timeout: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)
-    end_timeout: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)
-    end_period: Callable[[Bout, datetime], tuple[Gettable, ...]] = Field(exclude=True)
+    setup_game: Rule[Bout]
+    start_jam: Rule[Bout, datetime]
+    stop_jam: Rule[Bout, datetime]
+    call_timeout: Rule[Bout, datetime]
+    end_timeout: Rule[Bout, datetime]
+    end_period: Rule[Bout, datetime]
+
+    add_trip: Rule[TeamJam, int]
+    declare_lead: Rule[TeamJam, bool]

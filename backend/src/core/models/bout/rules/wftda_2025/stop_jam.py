@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 from typing import ClassVar
 
-from core.models import Gettable
+from core.models import Gettable, ProjectModel
 from core.models.bout.bout import Bout
 from core.models.bout.jam import Jam
 
 
-class StopJam:
+class StopJam(ProjectModel):
     JAM_DURATION: ClassVar[timedelta] = timedelta(minutes=2)
 
     def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:

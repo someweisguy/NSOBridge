@@ -1,12 +1,10 @@
-from dataclasses import dataclass
 from datetime import datetime
 
-from core.models import Gettable
+from core.models import Gettable, ProjectModel
 from core.models.bout.bout import Bout, Timeout
 
 
-@dataclass(slots=True)
-class EndTimeout:
+class EndTimeout(ProjectModel):
     def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:
         if not bout.timeout_is_running():
             raise RuntimeError('Cannot end a Timeout when one is not running')
