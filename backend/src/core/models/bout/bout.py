@@ -14,6 +14,8 @@ from core.models.bout.team import Roster, Team
 from core.models.time.alarm import Alarm
 from core.models.time.timer import Timer
 
+type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
+
 
 class Timeout(Timer):
     jam_id: JamId = Field(final=True)
@@ -115,9 +117,6 @@ class Bout(ProjectModel):
 
     def timeout_is_running(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
-
-
-type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
 
 
 class Referee(ProjectModel):
