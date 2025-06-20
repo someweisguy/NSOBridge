@@ -116,7 +116,9 @@ class Bout(ProjectModel):
     def timeout_is_running(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
 
+
 type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
+
 
 class Referee(ProjectModel):
     name: str = Field(final=True)
@@ -128,4 +130,6 @@ class Referee(ProjectModel):
     end_period: Rule[Bout, datetime]
 
     add_trip: Rule[TeamJam, int]
-    declare_lead: Rule[TeamJam, bool]
+    set_lead: Rule[TeamJam, bool]
+    set_lost: Rule[TeamJam, bool]
+    set_star_pass: Rule[TeamJam, bool]
