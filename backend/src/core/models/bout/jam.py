@@ -71,7 +71,7 @@ class TeamJam(ProjectModel):
 class Jam(Timer):
     REQUIRED_NUM_TEAMS: ClassVar[Final[int]] = 2
 
-    _bout: Bout
+    _bout: Final[Bout]
     id: JamId = Field(final=True)
     stop_reason: StopReason | None = Field(None, init=False)
     _team_jams: list[TeamJam] = []
