@@ -71,6 +71,7 @@ class Bout(ProjectModel):
     def __init__(self, *, rosters: Sequence[Roster], referee: Referee) -> None:
         teams: tuple[Team, ...] = tuple(Team(roster) for roster in rosters)
         super().__init__(id=Bout.generate_id(), teams=teams, referee=referee)
+        self._jams.append([Jam(self, 0, 0)])
         self.referee.setup_game(self)
         Bout.bouts[self.id] = self
 
@@ -109,10 +110,9 @@ class Bout(ProjectModel):
         return period.pop()
 
     def push_period(self) -> None:
-        if len(self._jams) > 0:
-            self._jams[-1] = [
-                jam for jam in self._jams[-1] if jam._start_timestamp is not None
-            ]
+        self._jams[-1] = [
+            jam for jam in self._jams[-1] if jam._start_timestamp is not None
+        ]
         self._jams.append([])
 
     def timeout_is_running(self) -> bool:
