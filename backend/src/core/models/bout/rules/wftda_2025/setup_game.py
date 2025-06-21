@@ -34,9 +34,8 @@ class SetupGame(ProjectModel):
             team.reviews = self.NUM_REVIEWS
             team.set_score_strategy(self.score_strategy)
 
-        # Push initial Period and Jam
-        bout.push_period()
-        initial_jam: Jam = bout.push_jam()
+        # Assign Teams to the initial Jam
+        initial_jam: Jam = bout.get_latest_jam()
         initial_jam.assign_teams(bout.teams)
 
         return (bout,)

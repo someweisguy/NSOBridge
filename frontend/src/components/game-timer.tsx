@@ -1,7 +1,6 @@
 import { BoutIdContext } from "@/app/provider";
 import useAlarmEffect from "@/hooks/use-alarm-effect";
 import useBout, {
-  selectActiveJamId,
   selectClock,
   selectClockIsRunning,
   selectLatestJamId,
@@ -18,13 +17,11 @@ export default function GameTimer({ boutId }: TimerViewProps) {
   const [boutIdContext] = useContext(BoutIdContext);
   boutId ??= boutIdContext;
 
-  const isInLineup: boolean = useBout(boutId, selectClockIsRunning("lineup"));
+  const isInJam: boolean = useBout(boutId, selectClockIsRunning("jam"));
   const isInTimeout: boolean = useBout(boutId, selectClockIsRunning("timeout"));
 
   // Get the active or latest Jam ID
-  const activeJamId = useBout(boutId, selectActiveJamId());
-  const latestJamId = useBout(boutId, selectLatestJamId());
-  const [periodNum, jamNum] = activeJamId ?? latestJamId;
+  const [periodNum, jamNum] = useBout(boutId, selectLatestJamId());
 
   // Update the appearance of the Lineup timer when five seconds are remaining
   const clock = useBout(boutId, selectClock("lineup"));
@@ -40,11 +37,11 @@ export default function GameTimer({ boutId }: TimerViewProps) {
         <CountDownClock boutId={boutId} name="game" />
       </div>
       <div className="p-2 border-gray-200 border-x w-24 text-2xl text-center">
-        P{periodNum + 1} {isInLineup ? "L" : "J"}
+        P{periodNum + 1} {isInJam ? "J" : "L"}
         {jamNum + 1}
       </div>
       <div
-        data-emphasis={fiveSeconds && isInLineup && !isInTimeout}
+        data-emphasis={fiveSeconds && !isInJam && !isInTimeout}
         className="px-1 w-12 data-[emphasis=true]:font-bold text-right"
       >
         {isInTimeout ? (
@@ -52,8 +49,8 @@ export default function GameTimer({ boutId }: TimerViewProps) {
         ) : (
           <CountDownClock
             boutId={boutId}
-            name={isInLineup ? "lineup" : "jam"}
-            showMillis={isInLineup ? false : "auto"}
+            name={isInJam ? "jam" : "lineup"}
+            showMillis={isInJam ? "auto" : false}
           />
         )}
       </div>

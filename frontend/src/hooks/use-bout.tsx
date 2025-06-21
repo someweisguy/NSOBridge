@@ -18,42 +18,29 @@ export default function useBout<T = Bout>(
 
 export function selectLatestJamId(
   offset = 0,
-  returnOutOfBounds = false
 ): (bout: Bout) => [number, number] {
   return (bout: Bout) => {
-    const numJams: [number, number, number] = bout.numJams;
-    const periodNum = Number(numJams[1] > 0);
-    const jamNum = numJams[periodNum] - 1;
-    return offsetJamId(bout, [periodNum, jamNum], offset, returnOutOfBounds)!;
+    const periodNum = bout.numJams.length - 1;
+    const jamNum = bout.numJams[periodNum] - 1;
+    return offsetJamId(bout, [periodNum, jamNum], offset)!;
   };
 }
 
 export function selectActiveJamId(
   offset = 0,
-  returnOutOfBounds = false
 ): (bout: Bout) => [number, number] | null {
   return (bout: Bout) => {
-    const latestJamId: [number, number] = selectLatestJamId()(bout);
-
-    // Turn the Jam vector into a scalar
-    let jamScalar: number = latestJamId[1] + latestJamId[0] * bout.numJams[0];
-
-    // Apply an offset and subtract one if the Jam timer isn't running
-    jamScalar += offset - Number(bout.clocks.jam.startTimestamp === null);
-
-    // Convert the Jam scalar back into a vector
-    const periodNum = Number(jamScalar > bout.numJams[0]);
-    const jamNum = jamScalar - periodNum * bout.numJams[0];
-    const jamVector: [number, number] = [periodNum, jamNum];
-
-    // Validate that the new Jam vector is within bounds
     if (
-      !returnOutOfBounds &&
-      (jamScalar < 0 || jamScalar >= bout.numJams[0] + bout.numJams[1])
+      bout.clocks.jam.startTimestamp === null &&
+      bout.clocks.lineup.startTimestamp === null
     ) {
       return null;
     }
-    return jamVector;
+
+    if (bout.clocks.lineup.startTimestamp !== null) {
+      --offset;
+    }
+    return selectLatestJamId(offset)(bout);
   };
 }
 
@@ -79,8 +66,7 @@ export function selectClockIsRunning(
   return (bout: Bout) => {
     if (clockName in bout.clocks) {
       return (
-        bout.clocks[clockName as keyof Bout["clocks"]]
-          .startTimestamp !== null
+        bout.clocks[clockName as keyof Bout["clocks"]].startTimestamp !== null
       );
     } else {
       const numTimeouts = bout.timeouts.length;

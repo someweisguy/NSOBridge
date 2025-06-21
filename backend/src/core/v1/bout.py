@@ -78,4 +78,12 @@ async def end_timeout(
     updater.post(updated_models)
 
 
+@router.post('/end-period')
+async def end_period(
+    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
+) -> None:
+    updated_models: tuple[Gettable, ...] = referee.end_period(bout, timestamp)
+    updater.post(updated_models)
+
+
 __all__ = ('router',)

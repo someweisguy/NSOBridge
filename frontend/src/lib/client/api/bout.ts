@@ -44,28 +44,33 @@ export async function stopJam(boutId: string): Promise<undefined> {
 export function offsetJamId(
   bout: Bout,
   jamId: [number, number],
-  offset: number,
-  returnOutOfBounds = false
+  offset: number
 ): [number, number] | null {
-  // Turn the Jam vector into a scalar
-  let jamScalar: number = jamId[1] + jamId[0] * bout.numJams[0];
+  let [periodNum, jamNum] = jamId;
 
-  // Apply an offset
-  jamScalar += offset;
+  // Convert the initial Jam vector to a scalar and apply an offset
+  let jamScalar = bout.numJams
+    .slice(0, periodNum)
+    .reduce((acc, i) => acc + i, jamNum + offset);
 
-  // Convert the Jam scalar back into a vector
-  const periodNum = Number(jamScalar > bout.numJams[0]);
-  const jamNum = jamScalar - periodNum * bout.numJams[0];
-  const jamVector: [number, number] = [periodNum, jamNum];
-
-  // Validate that the new Jam vector is within bounds
-  if (
-    !returnOutOfBounds &&
-    (jamScalar < 0 || jamScalar >= bout.numJams[0] + bout.numJams[1])
-  ) {
+  // Calculate the new Jam vector
+  if (jamScalar < 0) {
     return null;
   }
-  return jamVector;
+  periodNum = 0;
+  while (jamScalar >= bout.numJams[periodNum]) {
+    jamScalar -= bout.numJams[periodNum];
+    ++periodNum;
+    if (periodNum > bout.numJams.length) {
+      return null;
+    }
+  }
+  jamNum = jamScalar;
+  if (jamNum >= bout.numJams[periodNum]) {
+    return null;
+  }
+
+  return [periodNum, jamNum];
 }
 
 export async function callTimeout(boutId: string): Promise<undefined> {
@@ -114,5 +119,5 @@ export async function endPeriod(boutId: string) {
       bout_id: boutId,
     },
     Date.now()
-  )
+  );
 }
