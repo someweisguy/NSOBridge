@@ -8,6 +8,8 @@ class EndTimeout(ProjectModel):
     def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:
         if not bout.timeout_is_running():
             raise RuntimeError('Cannot end a Timeout when one is not running')
+        
+        # TODO: validate Timeout
 
         timeout: Timeout = bout.timeouts[-1]
         timeout.stop(timestamp)
@@ -18,7 +20,10 @@ class EndTimeout(ProjectModel):
         bout.clocks.lineup.start(timestamp - timeout.elapsed)
 
         # Subtract the timeout or official review, if not retained
-        if not timeout.is_review or not timeout.retained:
-            pass  # FIXME: decrement the timeout/review count
+        if (not timeout.is_review or not timeout.retained) and timeout.team is not None:
+            if timeout.is_review:
+                timeout.team.reviews -= 1
+            else:
+                timeout.team.timeouts -= 1
 
         return (bout,)
