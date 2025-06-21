@@ -21,11 +21,10 @@ class CallTimeout(ProjectModel):
         current_jam: Jam = bout.get_active_jam() or bout.get_latest_jam()
         period_clock_elapsed = bout.clocks.game.get_elapsed_at_timestamp(timestamp)
         timeout: Timeout = Timeout(
-            start_timestamp=timestamp,
-            period_num=current_jam.id.period,
-            jam_num=current_jam.id.jam,
+            jam_id=current_jam.id,
             period_clock_elapsed=period_clock_elapsed,
         )
         bout.timeouts.append(timeout)
+        timeout.start(timestamp)
 
         return (bout,)
