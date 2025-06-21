@@ -8,6 +8,7 @@ import useBout, {
 import { useContext, useState } from "react";
 import CountDownClock from "./count-down-clock";
 import CountUpClock from "./count-up-clock";
+import { Bout } from "@/lib/client/api/types";
 
 interface TimerViewProps {
   boutId?: string;
@@ -21,7 +22,13 @@ export default function GameTimer({ boutId }: TimerViewProps) {
   const isInTimeout: boolean = useBout(boutId, selectClockIsRunning("timeout"));
 
   // Get the active or latest Jam ID
-  const [periodNum, jamNum] = useBout(boutId, selectLatestJamId());
+  const bout: Bout = useBout(boutId);
+  let [periodNum, jamNum] = useBout(boutId, selectLatestJamId());
+  if (periodNum > 1) {
+    // Overtime Jams count as Period 2 Jams
+    jamNum += bout.numJams[1];
+    periodNum = 1
+  }
 
   // Update the appearance of the Lineup timer when five seconds are remaining
   const clock = useBout(boutId, selectClock("lineup"));
