@@ -32,6 +32,8 @@ class Timeout(Timer):
 
 
 class Bout(ProjectModel):
+    MAX_NUM_PERIODS: ClassVar[Final[int]] = 3
+
     bouts: ClassVar[Final[dict[str, Bout]]] = {}
 
     @classmethod
@@ -59,6 +61,7 @@ class Bout(ProjectModel):
         jam: Alarm = Field(Alarm(), final=True)
 
     id: str = Field(init=False, final=True)
+    is_final: bool = Field(False, init=False)
     clocks: _Clocks = Field(_Clocks(), final=True, init=False)
     teams: tuple[Team, ...] = Field(final=True)
     timeouts: list[Timeout] = Field([], final=True, init=False)

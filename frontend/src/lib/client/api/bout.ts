@@ -105,3 +105,14 @@ export async function editTimeout(
     { ...state, is_review: state.isReview }
   );
 }
+
+export async function endPeriod(boutId: string) {
+  await genericRequest(
+    "/api/bout/end-period",
+    "POST",
+    {
+      bout_id: boutId,
+    },
+    Date.now()
+  )
+}

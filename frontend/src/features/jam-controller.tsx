@@ -5,6 +5,7 @@ import TimeoutControls from "@/components/timeout-controls";
 import useBout, { selectClockIsRunning } from "@/hooks/use-bout";
 import {
   callTimeout,
+  endPeriod,
   endTimeout,
   startJam,
   stopJam,
@@ -49,6 +50,7 @@ export default function JamController({
         <>
           <Button onClick={() => void startJam(boutId)}>Start Jam</Button>
           <Button onClick={() => void callTimeout(boutId)}>Call Timeout</Button>
+          <Button onClick={() => void endPeriod(boutId)}>End Period</Button>
         </>
       );
     } else {
