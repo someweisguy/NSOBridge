@@ -15,6 +15,7 @@ class EndPeriod(ProjectModel):
         for clock in dict[str, Alarm](bout.clocks).values():
             if clock.is_running():
                 clock.stop(timestamp)
+        bout.clocks.jam.reset()
 
         # End the Period or finalize the Bout
         if len(bout.num_jams) < self.MAX_NUM_PERIODS:

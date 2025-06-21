@@ -6,7 +6,7 @@ export async function getJam(
   periodNum: number,
   jamNum: number
 ): Promise<Jam> {
-  if (!Number.isInteger(periodNum) || periodNum < 0 || periodNum > 1) {
+  if (!Number.isInteger(periodNum) || periodNum < 0) {
     throw new Error("Invalid Period Number");
   }
   if (!Number.isInteger(jamNum) || jamNum < 0) {

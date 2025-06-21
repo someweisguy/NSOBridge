@@ -17,7 +17,7 @@ export default function GameTimer({ boutId }: TimerViewProps) {
   const [boutIdContext] = useContext(BoutIdContext);
   boutId ??= boutIdContext;
 
-  const isInJam: boolean = useBout(boutId, selectClockIsRunning("jam"));
+  const isInLineup: boolean = useBout(boutId, selectClockIsRunning("lineup"));
   const isInTimeout: boolean = useBout(boutId, selectClockIsRunning("timeout"));
 
   // Get the active or latest Jam ID
@@ -37,11 +37,11 @@ export default function GameTimer({ boutId }: TimerViewProps) {
         <CountDownClock boutId={boutId} name="game" />
       </div>
       <div className="p-2 border-gray-200 border-x w-24 text-2xl text-center">
-        P{periodNum + 1} {isInJam ? "J" : "L"}
+        P{periodNum + 1} {isInLineup ? "L" : "J"}
         {jamNum + 1}
       </div>
       <div
-        data-emphasis={fiveSeconds && !isInJam && !isInTimeout}
+        data-emphasis={fiveSeconds && isInLineup && !isInTimeout}
         className="px-1 w-12 data-[emphasis=true]:font-bold text-right"
       >
         {isInTimeout ? (
@@ -49,8 +49,8 @@ export default function GameTimer({ boutId }: TimerViewProps) {
         ) : (
           <CountDownClock
             boutId={boutId}
-            name={isInJam ? "jam" : "lineup"}
-            showMillis={isInJam ? "auto" : false}
+            name={isInLineup ? "lineup" : "jam"}
+            showMillis={isInLineup ? "auto" : false}
           />
         )}
       </div>
