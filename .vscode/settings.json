@@ -11,5 +11,6 @@
   ],
   "ty.interpreter": [
     ".venv"
-  ]
+  ],
+  "mypy.runUsingActiveInterpreter": true
 }
