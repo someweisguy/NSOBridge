@@ -97,7 +97,7 @@ class Bout(ProjectModel):
             if latest_jam.id.jam == 0:
                 return None  # There is no active Jam
             jam_num -= 1
-        return self.get_jam(len(self._jams) - 1, jam_num)
+        return self.get_jam(-1, jam_num)
 
     def push_jam(self) -> Jam:
         period: list[Jam] = self._jams[-1]
