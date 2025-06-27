@@ -36,7 +36,7 @@ export interface Timeout extends Timer {
   retained: boolean;
 }
 
-export interface Bout {
+export interface Bout extends Timer {
   id: string;
   rulesetName: string;
   clocks: {
