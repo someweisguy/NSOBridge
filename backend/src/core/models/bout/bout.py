@@ -31,7 +31,7 @@ class Timeout(Timer):
         super().__init__(jam_id=jam_id, period_clock_elapsed=period_clock_elapsed)
 
 
-class Bout(ProjectModel):
+class Bout(Timer):
     MAX_NUM_PERIODS: ClassVar[Final[int]] = 3
 
     bouts: ClassVar[Final[dict[str, Bout]]] = {}
@@ -114,7 +114,7 @@ class Bout(ProjectModel):
         self._jams.append([])
         self.push_jam()
 
-    def timeout_is_running(self) -> bool:
+    def is_in_timeout(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
 
 

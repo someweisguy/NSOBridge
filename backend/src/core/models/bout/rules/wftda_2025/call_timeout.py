@@ -9,7 +9,7 @@ class CallTimeout(ProjectModel):
     def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:
         if not bout.clocks.lineup.is_running():
             raise RuntimeError('A Timeout can only be called during Lineup')
-        if bout.timeout_is_running():
+        if bout.is_in_timeout():
             raise RuntimeError('Cannot call a Timeout when one is already running')
 
         # Stop the Lineup clock and the Period clock if it is running

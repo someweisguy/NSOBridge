@@ -6,9 +6,9 @@ from core.models.bout.bout import Bout, Timeout
 
 class EndTimeout(ProjectModel):
     def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:
-        if not bout.timeout_is_running():
+        if not bout.is_in_timeout():
             raise RuntimeError('Cannot end a Timeout when one is not running')
-        
+
         # TODO: validate Timeout
 
         timeout: Timeout = bout.timeouts[-1]

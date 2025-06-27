@@ -9,7 +9,7 @@ class StartJam(ProjectModel):
     def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:
         if bout.clocks.jam.is_running():
             raise RuntimeError('A Jam cannot be started when one is already running')
-        if bout.timeout_is_running():
+        if bout.is_in_timeout():
             raise RuntimeError('Cannot start a Jam when a Timeout is running')
 
         # Update clocks
