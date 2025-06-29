@@ -17,6 +17,44 @@ from core.models.time.timer import Timer
 type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
 
 
+class Period(Timer):
+    _bout: Bout
+    _num: int
+    _jams: list[Jam] = []
+
+    def __len__(self) -> int:
+        return len(self.jams)
+
+    def __getitem__(self, index: int) -> Jam:
+        return self.jams[index]
+
+    def __iter__(self) -> Jam:
+        return iter(self.jams)
+
+    def __init__(self, bout: Bout, num: int) -> None:
+        super().__init__()
+        self._bout = bout
+        self._num = num
+
+    @cached_property
+    def num(self) -> int:
+        return self._num
+
+    @cached_property
+    def bout(self) -> Bout:
+        return self._bout
+
+    @computed_field
+    @property
+    def jams(self) -> tuple[Jam, ...]:
+        return tuple(self._jams)
+
+    def push(self) -> Jam:
+        jam: Jam = Jam(self, len(self._jams))
+        self._jams.append(jam)
+        return jam
+
+
 class Timeout(Timer):
     jam_id: JamId = Field(final=True)
     period_clock_elapsed: timedelta = Field(final=True)
@@ -31,7 +69,7 @@ class Timeout(Timer):
         super().__init__(jam_id=jam_id, period_clock_elapsed=period_clock_elapsed)
 
 
-class Bout(Timer):
+class Bout(ProjectModel):
     MAX_NUM_PERIODS: ClassVar[Final[int]] = 3
 
     bouts: ClassVar[Final[dict[str, Bout]]] = {}
@@ -66,12 +104,14 @@ class Bout(Timer):
     teams: tuple[Team, ...] = Field(final=True)
     timeouts: list[Timeout] = Field([], final=True, init=False)
     referee: Referee = Field(alias='ruleset', final=True)
-    _jams: Final[list[list[Jam]]] = []
+    _periods: list[Period] = []
 
     def __init__(self, *, rosters: Sequence[Roster], referee: Referee) -> None:
         teams: tuple[Team, ...] = tuple(Team(roster) for roster in rosters)
         super().__init__(id=Bout.generate_id(), teams=teams, referee=referee)
-        self._jams.append([Jam(self, 0, 0)])
+        self._periods.append(Period(self, len(self._periods)))
+        self._periods[0].push()
+
         self.referee.setup_game(self)
         Bout.bouts[self.id] = self
 
@@ -81,11 +121,16 @@ class Bout(Timer):
 
     @computed_field
     @property
+    def periods(self) -> tuple[Period, ...]:
+        return tuple(self._periods)
+
+    @computed_field
+    @property
     def num_jams(self) -> tuple[int, ...]:
-        return tuple(len(period) for period in self._jams)
+        return tuple(len(period) for period in self._periods)
 
     def get_jam(self, period_num: int, jam_num: int) -> Jam:
-        return self._jams[period_num][jam_num]
+        return self._periods[period_num][jam_num]
 
     def get_latest_jam(self) -> Jam:
         return self.get_jam(-1, -1)
@@ -109,13 +154,35 @@ class Bout(Timer):
         period: list[Jam] = self._jams[-1]
         return period.pop()
 
+    def is_in_timeout(self) -> bool:
+        return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
+
+    def start(self, timestamp: datetime) -> None:
+        if self.is_running():
+            raise RuntimeError(f'This {self.__class__.__name__} is already running')
+        self._start_timestamp = timestamp
+
+    def stop(self, timestamp: datetime) -> None:
+        if self._start_timestamp > timestamp:
+            raise ValueError('Stop timestamp cannot be in the past')
+        if not self.is_running():
+            raise RuntimeError(f'This {self.__class__.__name__} has already stopped')
+        if self.get_active_jam() is not None:
+            raise RuntimeError('The Period cannot be stopped when a Jam is running')
+        self._elapsed += timestamp - self._start_timestamp
+        self._start_timestamp = None
+
+        self.pop_jam()
+        self._periods.append(Period(self))
+        self._periods[-1].jams.append(Jam())
+
+    def is_running(self) -> bool:
+        return any(period.is_running() for period in self._periods)
+
     def end_period(self) -> None:
         self.pop_jam()  # Discard the un-started last Jam
         self._jams.append([])
         self.push_jam()
-
-    def is_in_timeout(self) -> bool:
-        return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
 
 
 class Referee(ProjectModel):

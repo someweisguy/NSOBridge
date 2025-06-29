@@ -17,7 +17,7 @@ class SetupGame(ProjectModel):
     @staticmethod
     def score_strategy(team_jam: TeamJam) -> int:
         OVERTIME_PERIOD_NUM: int = 2
-        sum_start_trip: int = int(team_jam.id.period < OVERTIME_PERIOD_NUM)
+        sum_start_trip: int = int(team_jam.jam.period.num < OVERTIME_PERIOD_NUM)
         score: int = sum(trip.points for trip in team_jam.trips[sum_start_trip:])
         return score
 

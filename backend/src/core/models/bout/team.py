@@ -66,15 +66,15 @@ class Team(ProjectModel):
         )
         if team_jam is None and len(self._team_jams) > 0:
             max_period_num: int = int(
-                any(team_jam.id.period == 1 for team_jam in self._team_jams)
+                any(team_jam.num.period == 1 for team_jam in self._team_jams)
             )
             team_jam = max(
                 [
                     team_jam
                     for team_jam in self._team_jams
-                    if team_jam.id.period == max_period_num
+                    if team_jam.num.period == max_period_num
                 ],
-                key=lambda jam_team: jam_team.id.jam,
+                key=lambda jam_team: jam_team.num.jam,
             )
             self._most_recent_jam = ref(team_jam)
         return self._score_strategy(team_jam) if team_jam is not None else 0
@@ -89,7 +89,7 @@ class Team(ProjectModel):
             [
                 self._score_strategy(team_jam)
                 for team_jam in self._team_jams
-                if team_jam.id.period == period
+                if team_jam.num.period == period
             ]
         )
 

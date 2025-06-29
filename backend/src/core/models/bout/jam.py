@@ -11,7 +11,7 @@ from core.models.bout.team import Team
 from core.models.time.timer import Timer
 
 if TYPE_CHECKING:
-    from core.models.bout.bout import Bout
+    from core.models.bout.bout import Bout, Period
 
 type StopReason = Literal['called', 'time', 'injury', 'other']
 
@@ -56,13 +56,13 @@ class TeamJam(ProjectModel):
         self._jam = jam
 
     @property
-    def id(self) -> JamId:
-        return self._jam.id
+    def num(self) -> JamId:
+        return self._jam.num
 
     @property
     def team(self) -> Team:
         return self._team
-    
+
     @property
     def jam(self) -> Jam:
         return self._jam
@@ -71,30 +71,39 @@ class TeamJam(ProjectModel):
 class Jam(Timer):
     REQUIRED_NUM_TEAMS: ClassVar[Final[int]] = 2
 
-    _bout: Final[Bout]
-    id: JamId = Field(final=True)
+    _period: Final[Period]
+    _num: Final[int]
     stop_reason: StopReason | None = Field(None, init=False)
     _team_jams: list[TeamJam] = []
 
     def __hash__(self):
-        return hash(self.id)
+        return hash(self._num)
 
-    def __init__(self, bout: Bout, period: int, jam: int) -> None:
-        super().__init__(id=JamId(period, jam))
-        self._bout = bout
-        
+    def __init__(self, period: Period, num: int) -> None:
+        super().__init__()
+        self._period = period
+        self._num = num
+
+    @cached_property
+    def num(self) -> int:
+        return self._num
+
+    @cached_property
+    def period(self) -> Period:
+        return self._period
+
     @cached_property
     def key(self) -> ModelKey:
-        return 'jam', self._bout.id, self.id.period, self.id.jam
+        return 'jam', self._period.bout.id, self._period.num, self._num
 
     @computed_field
     @property
     def team_jams(self) -> tuple[TeamJam, TeamJam]:
         return tuple(self._team_jams)
-    
+
     @property
     def bout(self) -> Bout:
-        return self._bout
+        return self._period.bout
 
     def assign_teams(self, teams: Sequence[Team]) -> None:
         if len(teams) > Jam.REQUIRED_NUM_TEAMS:
