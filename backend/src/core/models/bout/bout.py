@@ -137,22 +137,12 @@ class Bout(ProjectModel):
 
     def get_active_jam(self) -> Jam | None:
         latest_jam: Jam = self.get_latest_jam()
-        jam_num: int = latest_jam.id.jam
-        if latest_jam._start_timestamp is None:
-            if latest_jam.id.jam == 0:
+        jam_num: int = latest_jam.num
+        if not latest_jam.is_running():
+            if jam_num == 0:
                 return None  # There is no active Jam
             jam_num -= 1
         return self.get_jam(-1, jam_num)
-
-    def push_jam(self) -> Jam:
-        period: list[Jam] = self._jams[-1]
-        jam: Jam = Jam(self, len(self._jams) - 1, len(period))
-        period.append(jam)
-        return jam
-
-    def pop_jam(self) -> Jam:
-        period: list[Jam] = self._jams[-1]
-        return period.pop()
 
     def is_in_timeout(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
