@@ -30,14 +30,14 @@ class Team(ProjectModel):
     HOME: ClassVar[Final[int]] = 0
     AWAY: ClassVar[Final[int]] = 1
 
-    roster: Roster = Field(final=True)
+    roster: Roster = Field()
     timeouts: int = Field(0, init=False)
     reviews: int = Field(0, init=False)
     score_offset: int = Field(0, init=False)
 
     _score_strategy: Callable[[TeamJam], int]
 
-    _most_recent_jam: ReferenceType[TeamJam] = None
+    _most_recent_jam: ReferenceType[TeamJam] | None = None
     _team_jams: WeakSet[TeamJam] = WeakSet()
 
     def __init__(self, roster: Roster) -> None:
@@ -50,16 +50,16 @@ class Team(ProjectModel):
         self._most_recent_jam = ref(team_jam)
         self._team_jams.add(team_jam)
 
-    @computed_field
     @property
+    @computed_field
     def game_score(self) -> int:
         return sum(
             [self._score_strategy(team_jam) for team_jam in self._team_jams],
             self.score_offset,
         )
 
-    @computed_field
     @property
+    @computed_field
     def jam_score(self) -> int:
         team_jam: TeamJam | None = (
             self._most_recent_jam() if self._most_recent_jam is not None else None
@@ -79,8 +79,8 @@ class Team(ProjectModel):
             self._most_recent_jam = ref(team_jam)
         return self._score_strategy(team_jam) if team_jam is not None else 0
 
-    @computed_field
     @property
+    @computed_field
     def num_jams(self) -> int:
         return len(self._team_jams)
 
