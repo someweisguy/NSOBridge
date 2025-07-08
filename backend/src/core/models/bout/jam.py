@@ -2,23 +2,22 @@ from __future__ import annotations
 
 from datetime import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar, Final, Literal, Sequence
+from typing import TYPE_CHECKING, Final, Literal, Sequence
 
 from pydantic import Field, computed_field, model_serializer
 
 from core.models import ModelKey, ProjectModel
 from core.models.bout.team import Team
-from core.models.time.timer import Timer
 
 if TYPE_CHECKING:
     from core.models.bout.bout import Bout
 
-type StopReason = Literal['called', 'time', 'injury', 'other']
+type StopReason = Literal["called", "time", "injury", "other"]
 
 
 class JamId(ProjectModel):
-    period: int = Field(final=True)
-    jam: int = Field(final=True)
+    period: int = Field()
+    jam: int = Field()
 
     def __hash__(self) -> int:
         return hash((self.period, self.jam))
@@ -45,7 +44,7 @@ class TeamJam(ProjectModel):
     lead: bool = Field(False, init=False)
     lost: bool = Field(False, init=False)
     star_pass: int | None = Field(None, init=False)
-    trips: list[Trip] = Field([], final=True, init=False)
+    trips: list[Trip] = Field([], init=False)
 
     def __hash__(self):
         return hash(self._jam)
@@ -68,14 +67,15 @@ class TeamJam(ProjectModel):
         return self._jam
 
 
-class Jam(Timer):
-    REQUIRED_NUM_TEAMS: ClassVar[Final[int]] = 2
-
+class Jam(ProjectModel):
     _bout: Final[Bout]
     _period_num: Final[int]
     _jam_num: Final[int]
-    stop_reason: StopReason | None = Field(None, init=False)
     _team_jams: list[TeamJam] = []
+
+    start_timestamp: datetime | None = Field(None, init=False)
+    end_timestamp: datetime | None = Field(None, init=False)
+    stop_reason: StopReason | None = Field(None, init=False)
 
     def __hash__(self):
         return hash(self._jam_num)
@@ -96,11 +96,11 @@ class Jam(Timer):
 
     @cached_property
     def key(self) -> ModelKey:
-        return 'jam', self.bout.id, self._period_num, self._jam_num
+        return "jam", self.bout.id, self._period_num, self._jam_num
 
-    @computed_field
     @property
-    def team_jams(self) -> tuple[TeamJam, TeamJam]:
+    @computed_field
+    def team_jams(self) -> tuple[TeamJam, ...]:
         return tuple(self._team_jams)
 
     @property
@@ -108,21 +108,18 @@ class Jam(Timer):
         return self._bout
 
     def assign_teams(self, teams: Sequence[Team]) -> None:
-        if len(teams) > Jam.REQUIRED_NUM_TEAMS:
-            raise ValueError(f'A Jam may only have {Jam.REQUIRED_NUM_TEAMS} Teams')
+        NUM_TEAMS: Final[int] = 2
+        if len(teams) > NUM_TEAMS:
+            raise ValueError(f"A Jam may only have {NUM_TEAMS} Teams")
         if teams[0] is teams[1]:
-            raise ValueError('Jam Teams cannot contain duplicates')
+            raise ValueError("Jam Teams cannot contain duplicates")
         for team in teams:
             team_jam: TeamJam = TeamJam(team, self)
             self._team_jams.append(team_jam)
             team.add_team_jam(team_jam)
 
-    def start(self, timestamp: datetime) -> None:
-        if len(self._team_jams) < Jam.REQUIRED_NUM_TEAMS:
-            raise RuntimeError(
-                f'At least {Jam.REQUIRED_NUM_TEAMS} Teams are required to start a Jam'
-            )
-        super().start(timestamp)
+    def is_running(self) -> bool:
+        return self.start_timestamp is not None and self.end_timestamp is None
 
     def lead_is_declared(self) -> bool:
         return any(team_jam.lead for team_jam in self.team_jams)

@@ -18,13 +18,13 @@ type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
 
 
 class Timeout(Timer):
-    jam_id: JamId = Field(final=True)
-    period_clock_elapsed: timedelta = Field(final=True)
+    jam_id: JamId = Field()
+    period_clock_elapsed: timedelta = Field()
     is_review: bool = Field(False, init=False)
-    type: Literal['timeout', 'review', 'unknown'] = Field('unknown', init=False)
+    type: Literal["timeout", "review", "unknown"] = Field("unknown", init=False)
     team: Team | None = Field(None, init=False)
-    details: str = Field('', init=False)
-    result: str = Field('', init=False)
+    details: str = Field("", init=False)
+    result: str = Field("", init=False)
     retained: bool = Field(False, init=False)
 
     def __init__(self, jam_id: JamId, period_clock_elapsed: timedelta) -> None:
@@ -39,33 +39,33 @@ class Bout(ProjectModel):
     @classmethod
     def generate_id(cls) -> str:
         for _ in range(50):
-            bout_id: str = non_secure_generate('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4)
+            bout_id: str = non_secure_generate("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 4)
             if bout_id not in BAD_WORDS and bout_id not in Bout.bouts.keys():
                 return bout_id
-        raise RuntimeError('Unable to generate a valid Bout ID')
+        raise RuntimeError("Unable to generate a valid Bout ID")
 
-    @field_validator('teams', mode='after')
+    @field_validator("teams", mode="after")
     @classmethod
-    def teams_validator(cls, teams: Sequence[Team]) -> None:
+    def teams_validator(cls, teams: Sequence[Team]) -> Sequence[Team]:
         MIN_NUM_TEAMS: int = 2
         if len(teams) < MIN_NUM_TEAMS:
-            raise ValueError('A Bout requires at least 2 Teams')
+            raise ValueError("A Bout requires at least 2 Teams")
         if any(teams.count(team) > 1 for team in teams):
-            raise ValueError('A Bout cannot contain duplicate Teams')
+            raise ValueError("A Bout cannot contain duplicate Teams")
         return teams
 
     class _Clocks(ProjectModel):
-        intermission: Alarm = Field(Alarm(), final=True)
-        game: Alarm = Field(Alarm(), final=True)
-        lineup: Alarm = Field(Alarm(), final=True)
-        jam: Alarm = Field(Alarm(), final=True)
+        intermission: Alarm = Field(default_factory=Alarm)
+        game: Alarm = Field(default_factory=Alarm)
+        lineup: Alarm = Field(default_factory=Alarm)
+        jam: Alarm = Field(default_factory=Alarm)
 
-    id: str = Field(init=False, final=True)
+    id: str = Field(init=False)
     is_final: bool = Field(False, init=False)
-    clocks: _Clocks = Field(_Clocks(), final=True, init=False)
-    teams: tuple[Team, ...] = Field(final=True)
-    timeouts: list[Timeout] = Field([], final=True, init=False)
-    referee: Referee = Field(alias='ruleset', final=True)
+    clocks: _Clocks = Field(_Clocks(), init=False)
+    teams: tuple[Team, ...] = Field()
+    timeouts: list[Timeout] = Field([], init=False)
+    referee: Referee = Field(alias="ruleset")
     _periods: list[list[Jam]] = []
 
     def __init__(self, *, rosters: Sequence[Roster], referee: Referee) -> None:
@@ -78,10 +78,10 @@ class Bout(ProjectModel):
 
     @cached_property
     def key(self) -> ModelKey:
-        return ('bout', self.id)
+        return ("bout", self.id)
 
-    @computed_field
     @property
+    @computed_field
     def num_jams(self) -> tuple[int, ...]:
         return tuple(len(period) for period in self._periods)
 
@@ -101,34 +101,40 @@ class Bout(ProjectModel):
         return self.get_jam(-1, jam_num)
 
     def start_jam(self, timestamp: datetime) -> None:
+        MIN_NUM_TEAMS: Final[int] = 2
+        if len(self.get_latest_jam().team_jams) < MIN_NUM_TEAMS:
+            raise RuntimeError(
+                f"Cannot start a Jam with fewer than {MIN_NUM_TEAMS} Teams"
+            )
         jam: Jam = self.get_latest_jam()
         if jam.is_running():
-            raise RuntimeError('Cannot start a Jam when one is already running')
-        jam.start(timestamp)
+            raise RuntimeError("Cannot start a Jam when one is already running")
+        jam.start_timestamp = timestamp
 
     def end_jam(self, timestamp: datetime) -> None:
         jam: Jam = self.get_latest_jam()
         if not jam.is_running():
-            raise RuntimeError('Cannot end a Jam when one is not already running')
-        jam.stop(timestamp)
+            raise RuntimeError("Cannot end a Jam when one is not already running")
+        jam.end_timestamp = timestamp
 
         # Append a new Jam to the latest period
         period: list[Jam] = self._periods[-1]
-        period.append(Jam(self, len(self._periods), len(period)))
+        period.append(Jam(self, len(self._periods) - 1, len(period)))
 
     def end_period(self) -> None:
-        if self.get_latest_jam().is_running():
-            raise RuntimeError('Cannot end the Period when a Jam is running')
+        jam: Jam = self.get_latest_jam()
+        if jam.is_running():
+            raise RuntimeError("Cannot end the Period when a Jam is running")
         self._periods[-1].pop()
         self._periods.append([])
-        self._periods[-1].append(Jam())
+        self._periods[-1].append(Jam(self, len(self._periods) - 1, 0))
 
     def is_in_timeout(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
 
 
 class Referee(ProjectModel):
-    name: str = Field(final=True)
+    name: str = Field()
     setup_game: Rule[Bout]
     start_jam: Rule[Bout, datetime]
     stop_jam: Rule[Bout, datetime]
