@@ -17,44 +17,6 @@ from core.models.time.timer import Timer
 type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
 
 
-class Period(Timer):
-    _bout: Bout
-    _num: int
-    _jams: list[Jam] = []
-
-    def __len__(self) -> int:
-        return len(self.jams)
-
-    def __getitem__(self, index: int) -> Jam:
-        return self.jams[index]
-
-    def __iter__(self) -> Jam:
-        return iter(self.jams)
-
-    def __init__(self, bout: Bout, num: int) -> None:
-        super().__init__()
-        self._bout = bout
-        self._num = num
-
-    @cached_property
-    def num(self) -> int:
-        return self._num
-
-    @cached_property
-    def bout(self) -> Bout:
-        return self._bout
-
-    @computed_field
-    @property
-    def jams(self) -> tuple[Jam, ...]:
-        return tuple(self._jams)
-
-    def push(self) -> Jam:
-        jam: Jam = Jam(self, len(self._jams))
-        self._jams.append(jam)
-        return jam
-
-
 class Timeout(Timer):
     jam_id: JamId = Field(final=True)
     period_clock_elapsed: timedelta = Field(final=True)
@@ -104,13 +66,12 @@ class Bout(ProjectModel):
     teams: tuple[Team, ...] = Field(final=True)
     timeouts: list[Timeout] = Field([], final=True, init=False)
     referee: Referee = Field(alias='ruleset', final=True)
-    _periods: list[Period] = []
+    _periods: list[list[Jam]] = []
 
     def __init__(self, *, rosters: Sequence[Roster], referee: Referee) -> None:
         teams: tuple[Team, ...] = tuple(Team(roster) for roster in rosters)
         super().__init__(id=Bout.generate_id(), teams=teams, referee=referee)
-        self._periods.append(Period(self, len(self._periods)))
-        self._periods[0].push()
+        self._periods.append([Jam(self, 0, 0)])
 
         self.referee.setup_game(self)
         Bout.bouts[self.id] = self
@@ -118,11 +79,6 @@ class Bout(ProjectModel):
     @cached_property
     def key(self) -> ModelKey:
         return ('bout', self.id)
-
-    @computed_field
-    @property
-    def periods(self) -> tuple[Period, ...]:
-        return tuple(self._periods)
 
     @computed_field
     @property
@@ -137,42 +93,38 @@ class Bout(ProjectModel):
 
     def get_active_jam(self) -> Jam | None:
         latest_jam: Jam = self.get_latest_jam()
-        jam_num: int = latest_jam.num
+        jam_num: int = latest_jam.jam_num
         if not latest_jam.is_running():
             if jam_num == 0:
                 return None  # There is no active Jam
             jam_num -= 1
         return self.get_jam(-1, jam_num)
 
-    def is_in_timeout(self) -> bool:
-        return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
+    def start_jam(self, timestamp: datetime) -> None:
+        jam: Jam = self.get_latest_jam()
+        if jam.is_running():
+            raise RuntimeError('Cannot start a Jam when one is already running')
+        jam.start(timestamp)
 
-    def start(self, timestamp: datetime) -> None:
-        if self.is_running():
-            raise RuntimeError(f'This {self.__class__.__name__} is already running')
-        self._start_timestamp = timestamp
+    def end_jam(self, timestamp: datetime) -> None:
+        jam: Jam = self.get_latest_jam()
+        if not jam.is_running():
+            raise RuntimeError('Cannot end a Jam when one is not already running')
+        jam.stop(timestamp)
 
-    def stop(self, timestamp: datetime) -> None:
-        if self._start_timestamp > timestamp:
-            raise ValueError('Stop timestamp cannot be in the past')
-        if not self.is_running():
-            raise RuntimeError(f'This {self.__class__.__name__} has already stopped')
-        if self.get_active_jam() is not None:
-            raise RuntimeError('The Period cannot be stopped when a Jam is running')
-        self._elapsed += timestamp - self._start_timestamp
-        self._start_timestamp = None
-
-        self.pop_jam()
-        self._periods.append(Period(self))
-        self._periods[-1].jams.append(Jam())
-
-    def is_running(self) -> bool:
-        return any(period.is_running() for period in self._periods)
+        # Append a new Jam to the latest period
+        period: list[Jam] = self._periods[-1]
+        period.append(Jam(self, len(self._periods), len(period)))
 
     def end_period(self) -> None:
-        self.pop_jam()  # Discard the un-started last Jam
-        self._jams.append([])
-        self.push_jam()
+        if self.get_latest_jam().is_running():
+            raise RuntimeError('Cannot end the Period when a Jam is running')
+        self._periods[-1].pop()
+        self._periods.append([])
+        self._periods[-1].append(Jam())
+
+    def is_in_timeout(self) -> bool:
+        return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
 
 
 class Referee(ProjectModel):

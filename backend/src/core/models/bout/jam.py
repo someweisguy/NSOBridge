@@ -11,7 +11,7 @@ from core.models.bout.team import Team
 from core.models.time.timer import Timer
 
 if TYPE_CHECKING:
-    from core.models.bout.bout import Bout, Period
+    from core.models.bout.bout import Bout
 
 type StopReason = Literal['called', 'time', 'injury', 'other']
 
@@ -57,7 +57,7 @@ class TeamJam(ProjectModel):
 
     @property
     def num(self) -> JamId:
-        return self._jam.num
+        return self._jam.jam_num
 
     @property
     def team(self) -> Team:
@@ -71,30 +71,32 @@ class TeamJam(ProjectModel):
 class Jam(Timer):
     REQUIRED_NUM_TEAMS: ClassVar[Final[int]] = 2
 
-    _period: Final[Period]
-    _num: Final[int]
+    _bout: Final[Bout]
+    _period_num: Final[int]
+    _jam_num: Final[int]
     stop_reason: StopReason | None = Field(None, init=False)
     _team_jams: list[TeamJam] = []
 
     def __hash__(self):
-        return hash(self._num)
+        return hash(self._jam_num)
 
-    def __init__(self, period: Period, num: int) -> None:
+    def __init__(self, bout: Bout, period_num: int, jam_num: int) -> None:
         super().__init__()
-        self._period = period
-        self._num = num
+        self._bout = bout
+        self._period_num = period_num
+        self._jam_num = jam_num
 
     @cached_property
-    def num(self) -> int:
-        return self._num
+    def jam_num(self) -> int:
+        return self._jam_num
 
     @cached_property
-    def period(self) -> Period:
-        return self._period
+    def period_num(self) -> int:
+        return self._period_num
 
     @cached_property
     def key(self) -> ModelKey:
-        return 'jam', self._period.bout.id, self._period.num, self._num
+        return 'jam', self.bout.id, self._period_num, self._jam_num
 
     @computed_field
     @property
@@ -103,7 +105,7 @@ class Jam(Timer):
 
     @property
     def bout(self) -> Bout:
-        return self._period.bout
+        return self._bout
 
     def assign_teams(self, teams: Sequence[Team]) -> None:
         if len(teams) > Jam.REQUIRED_NUM_TEAMS:

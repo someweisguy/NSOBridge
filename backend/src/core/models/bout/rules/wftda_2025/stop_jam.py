@@ -32,8 +32,7 @@ class StopJam(ProjectModel):
         else:
             jam.stop_reason = None
 
-        # Add a new Jam
-        new_jam: Jam = bout.periods[-1].push()
-        new_jam.assign_teams(bout.teams)
+        # Assign teams to the Jam
+        bout.get_latest_jam().assign_teams(bout.teams)
 
-        return bout, jam, new_jam
+        return bout, jam, bout.get_latest_jam()

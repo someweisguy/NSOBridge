@@ -2,7 +2,6 @@ from datetime import datetime
 
 from core.models import Gettable, ProjectModel
 from core.models.bout.bout import Bout
-from core.models.bout.jam import Jam
 
 
 class StartJam(ProjectModel):
@@ -21,8 +20,6 @@ class StartJam(ProjectModel):
         bout.clocks.jam.reset()
         bout.clocks.jam.start(timestamp)
 
-        # Set Jam data
-        latest_jam: Jam = bout.get_latest_jam()
-        latest_jam.start(timestamp)
+        bout.start_jam(timestamp)
 
-        return bout, latest_jam
+        return bout, bout.get_latest_jam()
