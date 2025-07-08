@@ -8,9 +8,5 @@
   },
   "python.analysis.extraPaths": [
     "${workspaceFolder}/backend/src",
-  ],
-  "ty.interpreter": [
-    ".venv"
-  ],
-  "mypy.runUsingActiveInterpreter": true
+  ]
 }
