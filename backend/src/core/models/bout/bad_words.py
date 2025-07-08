@@ -10,6 +10,7 @@ See: https://www.noswearing.com/fourletterwords.php
 
 from typing import Final
 
+# spell-checker: disable
 BAD_WORDS: Final[set[str]] = {
     string.upper()
     for string in [
@@ -69,3 +70,8 @@ BAD_WORDS: Final[set[str]] = {
         'WANK',
     ]
 }
+# spell-checker: enable
+"""
+A set of inappropriate, four-letter words in upper-case that should not be used when
+generating a Bout ID.
+"""
