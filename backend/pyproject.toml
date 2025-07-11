@@ -1,3 +1,23 @@
 [tool.mypy]
+disable_error_code = ["prop-decorator"]
 plugins = ['pydantic.mypy']
-disable_error_code = ["prop-decorator",]
+
+[tool.ruff]
+extend-select = ["A", "B", "C", "D", "E", "F", "I", "FAST", "PL", "EXE"]
+fix = true
+fixable = ["ALL"]
+ignore = [
+  "D",
+  "PLR0913", # Too many arguments in method definition
+]
+indent-width = 4
+line-length = 88
+unfixable = []
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "single"
+
+[tool.ruff.isort]
+combine-as-imports = true
+force-single-line = false
