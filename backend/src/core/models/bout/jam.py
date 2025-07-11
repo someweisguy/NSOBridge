@@ -12,7 +12,7 @@ from core.models.bout.team import Team
 if TYPE_CHECKING:
     from core.models.bout.bout import Bout
 
-type StopReason = Literal["called", "time", "injury", "other"]
+type StopReason = Literal['called', 'time', 'injury', 'other']
 
 
 class JamId(ProjectModel):
@@ -96,7 +96,7 @@ class Jam(ProjectModel):
 
     @cached_property
     def key(self) -> ModelKey:
-        return "jam", self.bout.id, self._period_num, self._jam_num
+        return 'jam', self.bout.id, self._period_num, self._jam_num
 
     @computed_field
     @property
@@ -110,9 +110,9 @@ class Jam(ProjectModel):
     def assign_teams(self, teams: Sequence[Team]) -> None:
         NUM_TEAMS: Final[int] = 2
         if len(teams) > NUM_TEAMS:
-            raise ValueError(f"A Jam may only have {NUM_TEAMS} Teams")
+            raise ValueError(f'A Jam may only have {NUM_TEAMS} Teams')
         if teams[0] is teams[1]:
-            raise ValueError("Jam Teams cannot contain duplicates")
+            raise ValueError('Jam Teams cannot contain duplicates')
         for team in teams:
             team_jam: TeamJam = TeamJam(team, self)
             self._team_jams.append(team_jam)
