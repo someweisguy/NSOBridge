@@ -39,8 +39,8 @@ class Trip(ProjectModel):
 
 
 class TeamJam(ProjectModel):
-    _team: Final[Team]
-    _jam: Final[Jam]
+    _team: Team
+    _jam: Jam
     lead: bool = Field(False, init=False)
     lost: bool = Field(False, init=False)
     star_pass: int | None = Field(None, init=False)
