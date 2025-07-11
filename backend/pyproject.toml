@@ -1,2 +1,3 @@
 [tool.mypy]
 plugins = ['pydantic.mypy']
+disable_error_code = ["prop-decorator",]
