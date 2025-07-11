@@ -80,8 +80,8 @@ class Bout(ProjectModel):
     def key(self) -> ModelKey:
         return ("bout", self.id)
 
-    @property
     @computed_field
+    @property
     def num_jams(self) -> tuple[int, ...]:
         return tuple(len(period) for period in self._periods)
 

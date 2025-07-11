@@ -98,8 +98,8 @@ class Jam(ProjectModel):
     def key(self) -> ModelKey:
         return "jam", self.bout.id, self._period_num, self._jam_num
 
-    @property
     @computed_field
+    @property
     def team_jams(self) -> tuple[TeamJam, ...]:
         return tuple(self._team_jams)
 
