@@ -27,7 +27,7 @@ class ReadOnlyOneShotTimer(ProjectModel):
 
 
 class ReadOnlyInterval(ReadOnlyOneShotTimer):
-    elapsed: timedelta = timedelta(seconds=0)
+    elapsed: timedelta = Field(timedelta(seconds=0))
 
     def get_duration(self, timestamp: datetime | None = None) -> timedelta:
         return super().get_duration(timestamp) + self.elapsed
