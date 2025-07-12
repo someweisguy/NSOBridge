@@ -7,7 +7,7 @@ from core.models.bout.jam import TeamJam, Trip
 
 class AddTrip(ProjectModel):
     def __call__(self, team_jam: TeamJam, passes: int) -> tuple[Gettable, ...]:
-        team_jam.trips.append(Trip(passes, datetime.now()))
+        team_jam.trips.append(Trip.create(passes, datetime.now()))
 
         lead_updates: tuple[Gettable, ...] = ()
         bout: Bout = team_jam.jam.bout

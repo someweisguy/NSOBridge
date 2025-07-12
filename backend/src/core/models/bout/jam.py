@@ -32,8 +32,9 @@ class Trip(ProjectModel):
     points: int = Field()
     timestamp: datetime = Field()
 
-    def __init__(self, passes: int, timestamp: datetime) -> None:
-        super().__init__(points=passes, timestamp=timestamp)
+    @classmethod
+    def create(cls, passes: int, timestamp: datetime) -> Trip:
+        return Trip(points=passes, timestamp=timestamp)
 
 
 class TeamJam(ProjectModel):
@@ -55,7 +56,7 @@ class TeamJam(ProjectModel):
     @cached_property
     def jam_num(self) -> int:
         return self._jam.jam_num
-    
+
     @cached_property
     def period_num(self) -> int:
         return self._jam.period_num

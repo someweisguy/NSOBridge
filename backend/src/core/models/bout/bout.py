@@ -31,7 +31,11 @@ class Timeout(OneShotTimer):
     @classmethod
     def create(cls, period_num: int, jam_num: int, clock_elapsed: timedelta) -> Timeout:
         timeout: Timeout = Timeout(
-            period_num=period_num, jam_num=jam_num, clock_elapsed=clock_elapsed
+            start_timestamp=None,
+            stop_timestamp=None,
+            period_num=period_num,
+            jam_num=jam_num,
+            clock_elapsed=clock_elapsed,
         )
         return timeout
 
