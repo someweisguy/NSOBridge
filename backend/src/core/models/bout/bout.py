@@ -9,7 +9,7 @@ from pydantic import Field, computed_field, field_validator
 
 from core.models import Gettable, ModelKey, ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
-from core.models.bout.jam import Jam, JamId, TeamJam
+from core.models.bout.jam import Jam, TeamJam
 from core.models.bout.team import Roster, Team
 from core.models.time.alarm import Alarm
 from core.models.time.timer import Timer
@@ -18,8 +18,9 @@ type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
 
 
 class Timeout(Timer):
-    jam_id: JamId = Field()
-    period_clock_elapsed: timedelta = Field()
+    period_num: int = Field()
+    jam_num: int = Field()
+    clock_elapsed: timedelta = Field()
     is_review: bool = Field(False, init=False)
     type: Literal['timeout', 'review', 'unknown'] = Field('unknown', init=False)
     team: Team | None = Field(None, init=False)
@@ -27,9 +28,12 @@ class Timeout(Timer):
     result: str = Field('', init=False)
     retained: bool = Field(False, init=False)
 
-    def __init__(self, jam_id: JamId, period_clock_elapsed: timedelta) -> None:
-        self.jam_id = jam_id
-        self.period_clock_elapsed = period_clock_elapsed
+    @classmethod
+    def create(cls, period_num: int, jam_num: int, clock_elapsed: timedelta) -> Timeout:
+        timeout: Timeout = Timeout(
+            period_num=period_num, jam_num=jam_num, clock_elapsed=clock_elapsed
+        )
+        return timeout
 
 
 class Bout(ProjectModel):
@@ -68,7 +72,7 @@ class Bout(ProjectModel):
     timeouts: list[Timeout] = Field([], init=False)
     referee: Referee = Field(alias='ruleset')
     _periods: list[list[Jam]] = []
-    
+
     @classmethod
     def create(cls, *, rosters: Sequence[Roster], referee: Referee) -> Bout:
         teams: tuple[Team, ...] = tuple(Team.create(roster) for roster in rosters)
@@ -77,10 +81,10 @@ class Bout(ProjectModel):
         bout.referee.setup_game(bout)
         Bout.bouts[bout.id] = bout
         return bout
-        
+
     def model_post_init(self, context: Any):
         if len(self._periods) == 0:
-            self._periods.append([Jam(self, 0, 0)]) 
+            self._periods.append([Jam(self, 0, 0)])
 
     @cached_property
     def key(self) -> ModelKey:
