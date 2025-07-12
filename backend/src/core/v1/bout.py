@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Annotated, Final
+from typing import Final
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter
 
 from core import updater
 from core.models import Gettable
@@ -16,25 +16,22 @@ async def get(bout: BoutDepend) -> Bout:
 
 
 @router.post('/start-jam')
-async def start_jam(
-    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
-):
+async def start_jam(referee: RefereeDepend, bout: BoutDepend):
+    timestamp: datetime = datetime.now()
     updated_models: tuple[Gettable, ...] = referee.start_jam(bout, timestamp)
     updater.post(updated_models)
 
 
 @router.post('/stop-jam')
-async def stop_jam(
-    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
-):
+async def stop_jam(referee: RefereeDepend, bout: BoutDepend):
+    timestamp: datetime = datetime.now()
     updated_models: tuple[Gettable, ...] = referee.stop_jam(bout, timestamp)
     updater.post(updated_models)
 
 
 @router.post('/call-timeout')
-async def call_timeout(
-    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
-) -> None:
+async def call_timeout(referee: RefereeDepend, bout: BoutDepend) -> None:
+    timestamp: datetime = datetime.now()
     updated_models: tuple[Gettable, ...] = referee.call_timeout(bout, timestamp)
     updater.post(updated_models)
 
@@ -71,17 +68,15 @@ async def call_timeout(
 
 
 @router.post('/end-timeout')
-async def end_timeout(
-    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
-) -> None:
+async def end_timeout(referee: RefereeDepend, bout: BoutDepend) -> None:
+    timestamp: datetime = datetime.now()
     updated_models: tuple[Gettable, ...] = referee.end_timeout(bout, timestamp)
     updater.post(updated_models)
 
 
 @router.post('/end-period')
-async def end_period(
-    referee: RefereeDepend, bout: BoutDepend, timestamp: Annotated[datetime, Body()]
-) -> None:
+async def end_period(referee: RefereeDepend, bout: BoutDepend) -> None:
+    timestamp: datetime = datetime.now()
     updated_models: tuple[Gettable, ...] = referee.end_period(bout, timestamp)
     updater.post(updated_models)
 

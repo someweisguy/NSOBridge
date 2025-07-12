@@ -156,7 +156,7 @@ class Referee(ProjectModel):
     end_timeout: Rule[Bout, datetime]
     end_period: Rule[Bout, datetime]
 
-    add_trip: Rule[TeamJam, int]
+    add_trip: Rule[TeamJam, int, datetime]
     set_lead: Rule[TeamJam, bool]
     set_lost: Rule[TeamJam, bool]
     set_star_pass: Rule[TeamJam, bool]
