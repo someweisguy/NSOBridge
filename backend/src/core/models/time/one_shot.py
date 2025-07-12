@@ -1,3 +1,4 @@
+from abc import ABC
 from datetime import datetime, timedelta
 
 from pydantic import Field, ValidationInfo, field_validator
@@ -5,7 +6,7 @@ from pydantic import Field, ValidationInfo, field_validator
 from core.models import ProjectModel
 
 
-class Runnable(ProjectModel):
+class AbstractTimer(ProjectModel, ABC):
     start_timestamp: datetime | None = Field(None)
     stop_timestamp: datetime | None = Field(None)
 
@@ -50,7 +51,7 @@ class Runnable(ProjectModel):
             return timedelta(seconds=0)
 
 
-class OneShotTimer(Runnable):
+class OneShotTimer(AbstractTimer):
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
             raise RuntimeError(f'This {self.__class__.__name__} is already running')
