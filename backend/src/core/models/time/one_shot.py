@@ -1,7 +1,8 @@
 from abc import ABC
 from datetime import datetime, timedelta
+from typing import Self
 
-from pydantic import Field, ValidationInfo, field_validator
+from pydantic import Field, model_validator
 
 from core.models import ProjectModel
 
@@ -10,30 +11,17 @@ class AbstractTimer(ProjectModel, ABC):
     start_timestamp: datetime | None = Field(None)
     stop_timestamp: datetime | None = Field(None)
 
-    @classmethod
-    @field_validator('start_timestamp', mode='after')
-    def _start_validator(
-        cls, value: datetime | None, info: ValidationInfo
-    ) -> datetime | None:
-        if value is None and info.data['stop_timestamp'] is not None:
-            raise ValueError('Invalid start timestamp state')
-        return value
-
-    @classmethod
-    @field_validator('stop_timestamp', mode='after')
-    def _stop_validator(
-        cls, value: datetime | None, info: ValidationInfo
-    ) -> datetime | None:
-        start_timestamp: datetime | None = info.data['start_timestamp']
-        if value is not None and start_timestamp is None:
-            raise ValueError('Invalid stop timestamp state')
+    @model_validator(mode='after')
+    def _model_validator(self) -> Self:
+        if self.start_timestamp is None and self.stop_timestamp is not None:
+            raise ValueError('Invalid timestamp state')
         if (
-            value is not None
-            and start_timestamp is not None
-            and start_timestamp < value
+            self.start_timestamp is not None
+            and self.stop_timestamp is not None
+            and self.start_timestamp > self.stop_timestamp
         ):
-            raise ValueError('Stop timestamp cannot be before start timestamp')
-        return value
+            raise ValueError('Start timestamp must be before stop timestamp')
+        return self
 
     def is_running(self) -> bool:
         return self.start_timestamp is not None and self.stop_timestamp is None
