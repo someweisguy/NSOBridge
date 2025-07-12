@@ -12,6 +12,7 @@ class AddTrip(ProjectModel):
         lead_updates: tuple[Gettable, ...] = ()
         bout: Bout = team_jam.jam.bout
         if not team_jam.jam.lead_is_declared():
+            # Keep track of which objects update when setting the Lead Jammer
             lead_updates = bout.referee.set_lead(team_jam, True)
 
         return team_jam.jam.bout, team_jam.jam, *lead_updates
