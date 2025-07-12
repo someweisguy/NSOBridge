@@ -26,11 +26,34 @@ class ReadOnlyOneShotTimer(ProjectModel):
             return timedelta(seconds=0)
 
 
-class ReadOnlyInterval(ReadOnlyOneShotTimer):
+class ReadOnlyIntervalTimer(ReadOnlyOneShotTimer):
     elapsed: timedelta = Field(timedelta(seconds=0))
 
     def get_duration(self, timestamp: datetime | None = None) -> timedelta:
         return super().get_duration(timestamp) + self.elapsed
+
+
+class OneShotTimer(ReadOnlyOneShotTimer):
+    def start(self, timestamp: datetime) -> None:
+        if self.is_running():
+            raise RuntimeError(f'This {self.__class__.__name__} is already running')
+        self.start_timestamp = timestamp
+
+    def stop(self, timestamp: datetime) -> None:
+        if self.start_timestamp is None:
+            raise RuntimeError(f'This {self.__class__.__name__} has already stopped')
+        if self.start_timestamp > timestamp:
+            raise ValueError('Stop timestamp cannot be in the past')
+        self.stop_timestamp = timestamp
+
+
+class IntervalTimer(ReadOnlyIntervalTimer, OneShotTimer):
+    def stop(self, timestamp: datetime) -> None:
+        super().stop(timestamp)
+        assert self.start_timestamp is not None and self.stop_timestamp is not None
+        self.elapsed += self.stop_timestamp - self.start_timestamp
+        self.start_timestamp = None
+        self.stop_timestamp = None
 
 
 class Timer(ProjectModel):
