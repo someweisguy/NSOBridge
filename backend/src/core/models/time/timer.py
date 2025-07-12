@@ -5,7 +5,7 @@ from pydantic import Field, computed_field
 from core.models import ProjectModel
 
 
-class ReadOnlyOneShotTimer(ProjectModel):
+class Runnable(ProjectModel):
     start_timestamp: datetime | None = Field(None)
     stop_timestamp: datetime | None = Field(None)
 
@@ -25,14 +25,14 @@ class ReadOnlyOneShotTimer(ProjectModel):
             return timedelta(seconds=0)
 
 
-class ReadOnlyIntervalTimer(ReadOnlyOneShotTimer):
+class Resettable(Runnable):
     elapsed: timedelta = Field(timedelta(seconds=0))
 
     def get_duration(self, timestamp: datetime | None = None) -> timedelta:
         return super().get_duration(timestamp) + self.elapsed
 
 
-class OneShotTimer(ReadOnlyOneShotTimer):
+class OneShotTimer(Runnable):
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
             raise RuntimeError(f'This {self.__class__.__name__} is already running')
@@ -46,7 +46,7 @@ class OneShotTimer(ReadOnlyOneShotTimer):
         self.stop_timestamp = timestamp
 
 
-class IntervalTimer(ReadOnlyIntervalTimer, OneShotTimer):
+class IntervalTimer(Resettable, OneShotTimer):
     def stop(self, timestamp: datetime) -> None:
         super().stop(timestamp)
         assert self.start_timestamp is not None and self.stop_timestamp is not None
