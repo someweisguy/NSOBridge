@@ -15,8 +15,7 @@ class ReadOnlyOneShotTimer(ProjectModel):
     def get_duration(self, timestamp: datetime | None = None) -> timedelta:
         if self.stop_timestamp is not None and self.start_timestamp is not None:
             return self.stop_timestamp - self.start_timestamp
-        elif self.is_running():
-            assert self.start_timestamp is not None
+        elif self.start_timestamp is not None:
             if timestamp is None:
                 timestamp = datetime.now()
             if timestamp < self.start_timestamp:
