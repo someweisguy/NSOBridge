@@ -19,7 +19,7 @@ class ReadOnlyOneShotTimer(ProjectModel):
             if timestamp is None:
                 timestamp = datetime.now()
             if timestamp < self.start_timestamp:
-                raise RuntimeError('Timestamp cannot be in the past')
+                raise RuntimeError('Cannot get a duration for a time in the past')
             return timestamp - self.start_timestamp
         else:
             return timedelta(seconds=0)
@@ -42,7 +42,7 @@ class OneShotTimer(ReadOnlyOneShotTimer):
         if self.start_timestamp is None:
             raise RuntimeError(f'This {self.__class__.__name__} has already stopped')
         if self.start_timestamp > timestamp:
-            raise ValueError('Stop timestamp cannot be in the past')
+            raise ValueError(f'Cannot stop a {self.__class__.__name__} in the past')
         self.stop_timestamp = timestamp
 
 
