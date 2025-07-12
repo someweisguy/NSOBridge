@@ -22,9 +22,6 @@ class JamId(ProjectModel):
     def __hash__(self) -> int:
         return hash((self.period, self.jam))
 
-    def __init__(self, period: int, jam: int) -> None:
-        super().__init__(period=period, jam=jam)
-
     @model_serializer
     def _model_serializer(self) -> tuple[int, int]:
         return self.period, self.jam

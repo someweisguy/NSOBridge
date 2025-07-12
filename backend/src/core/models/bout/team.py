@@ -39,10 +39,12 @@ class Team(ProjectModel):
 
     _most_recent_jam: ReferenceType[TeamJam] | None = None
     _team_jams: WeakSet[TeamJam] = WeakSet()
-
-    def __init__(self, roster: Roster) -> None:
-        super().__init__(roster=roster)
-        self.set_score_strategy(_uninitialized_score_strategy)
+    
+    @classmethod
+    def create(cls, roster: Roster) -> Team:
+        team: Team = Team(roster=roster)
+        team.set_score_strategy(_uninitialized_score_strategy)
+        return team
 
     def add_team_jam(self, team_jam: TeamJam) -> None:
         if team_jam.team != self:

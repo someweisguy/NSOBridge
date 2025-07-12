@@ -11,7 +11,7 @@ from .jam import Jam, JamId, StopReason, TeamJam, Trip
 from .team import Roster, Team
 
 # TODO: Instantiating the initial Bout should eventually be handled by the user
-Bout(rosters=(Roster('Home'), Roster('Away')), referee=get_ruleset('WFTDA 2025'))
+Bout.create(rosters=(Roster('Home'), Roster('Away')), referee=get_ruleset('WFTDA 2025'))
 
 
 bouts = Bout.bouts

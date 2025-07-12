@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from functools import cached_property
-from typing import Callable, ClassVar, Final, Literal, Sequence
+from typing import Any, Callable, ClassVar, Final, Literal, Sequence
 
 from nanoid import non_secure_generate
 from pydantic import Field, computed_field, field_validator
@@ -68,14 +68,19 @@ class Bout(ProjectModel):
     timeouts: list[Timeout] = Field([], init=False)
     referee: Referee = Field(alias='ruleset')
     _periods: list[list[Jam]] = []
+    
+    @classmethod
+    def create(cls, *, rosters: Sequence[Roster], referee: Referee) -> Bout:
+        teams: tuple[Team, ...] = tuple(Team.create(roster) for roster in rosters)
+        bout: Bout = Bout(id=Bout.generate_id(), teams=teams, referee=referee)
 
-    def __init__(self, *, rosters: Sequence[Roster], referee: Referee) -> None:
-        teams: tuple[Team, ...] = tuple(Team(roster) for roster in rosters)
-        super().__init__(id=Bout.generate_id(), teams=teams, referee=referee)
-        self._periods.append([Jam(self, 0, 0)])
-
-        self.referee.setup_game(self)
-        Bout.bouts[self.id] = self
+        bout.referee.setup_game(bout)
+        Bout.bouts[bout.id] = bout
+        return bout
+        
+    def model_post_init(self, context: Any):
+        if len(self._periods) == 0:
+            self._periods.append([Jam(self, 0, 0)]) 
 
     @cached_property
     def key(self) -> ModelKey:
