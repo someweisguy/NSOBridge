@@ -10,7 +10,7 @@
     "${workspaceFolder}/backend/src",
   ],
   "mypy.configFile": "backend/pyproject.toml",
-  "mypy.dmypyExecutable": "",
+  "mypy.dmypyExecutable": "${workspaceFolder}/.venv/Scripts/",
   "mypy.runUsingActiveInterpreter": true,
   "mypy-type-checker.reportingScope": "workspace",
   "mypy-type-checker.preferDaemon": true,
