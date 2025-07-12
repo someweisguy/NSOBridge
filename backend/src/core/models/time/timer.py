@@ -1,8 +1,36 @@
 from datetime import datetime, timedelta
 
-from pydantic import computed_field
+from pydantic import Field, computed_field
 
 from core.models import ProjectModel
+
+
+class ReadOnlyOneShotTimer(ProjectModel):
+    start_timestamp: datetime | None = Field(None)
+    stop_timestamp: datetime | None = Field(None)
+
+    def is_running(self) -> bool:
+        return self.start_timestamp is not None and self.stop_timestamp is None
+
+    def get_duration(self, timestamp: datetime | None = None) -> timedelta:
+        if self.stop_timestamp is not None and self.start_timestamp is not None:
+            return self.stop_timestamp - self.start_timestamp
+        elif self.is_running():
+            assert self.start_timestamp is not None
+            if timestamp is None:
+                timestamp = datetime.now()
+            if timestamp < self.start_timestamp:
+                raise RuntimeError('Timestamp cannot be in the past')
+            return timestamp - self.start_timestamp
+        else:
+            return timedelta(seconds=0)
+
+
+class ReadOnlyInterval(ReadOnlyOneShotTimer):
+    elapsed: timedelta = timedelta(seconds=0)
+
+    def get_duration(self, timestamp: datetime | None = None) -> timedelta:
+        return super().get_duration(timestamp) + self.elapsed
 
 
 class Timer(ProjectModel):
