@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Body
@@ -18,7 +19,8 @@ async def get(jam: JamDepend) -> Jam:
 async def add_trip(
     referee: RefereeDepend, team_jam: TeamJamDepend, passes: Annotated[int, Body()]
 ) -> None:
-    updated_models: tuple[Gettable, ...] = referee.add_trip(team_jam, passes)
+    timestamp: datetime = datetime.now()
+    updated_models: tuple[Gettable, ...] = referee.add_trip(team_jam, passes, timestamp)
     updater.post(updated_models)
 
 
