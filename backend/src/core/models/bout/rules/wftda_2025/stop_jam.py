@@ -21,13 +21,13 @@ class StopJam(ProjectModel):
         bout.clocks.lineup.reset()
         bout.clocks.lineup.start(timestamp)
 
-        # Stop the current Jam
-        jam.stop(timestamp)
+        # End the current Jam
+        bout.end_jam(timestamp)
 
         # Guess the reason that the Jam is being stopped
         if jam.lead_is_declared():
             jam.stop_reason = 'called'
-        elif jam.elapsed >= self.JAM_DURATION:
+        elif jam.get_duration() >= self.JAM_DURATION:
             jam.stop_reason = 'time'
         else:
             jam.stop_reason = None

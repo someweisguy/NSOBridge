@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, Final, Literal, Sequence
 
@@ -124,3 +124,16 @@ class Jam(ProjectModel):
 
     def lead_is_declared(self) -> bool:
         return any(team_jam.lead for team_jam in self.team_jams)
+
+    def get_duration(self, timestamp: datetime | None = None) -> timedelta:
+        if self.end_timestamp is not None and self.start_timestamp is not None:
+            return self.end_timestamp - self.start_timestamp
+        elif self.is_running():
+            assert self.start_timestamp is not None
+            if timestamp is None:
+                timestamp = datetime.now()
+            if timestamp < self.start_timestamp:
+                raise RuntimeError('Timestamp cannot be in the past')
+            return timestamp - self.start_timestamp
+        else:
+            return timedelta(seconds=0)
