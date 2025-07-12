@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING, Final, Literal, Sequence
 
@@ -8,6 +8,7 @@ from pydantic import Field, computed_field, model_serializer
 
 from core.models import ModelKey, ProjectModel
 from core.models.bout.team import Team
+from core.models.time.one_shot import AbstractTimer
 
 if TYPE_CHECKING:
     from core.models.bout.bout import Bout
@@ -68,14 +69,12 @@ class TeamJam(ProjectModel):
         return self._jam
 
 
-class Jam(ProjectModel):
+class Jam(AbstractTimer):
     _bout: Bout
     _period_num: int
     _jam_num: int
     _team_jams: list[TeamJam] = []
 
-    start_timestamp: datetime | None = Field(None, init=False)
-    end_timestamp: datetime | None = Field(None, init=False)
     stop_reason: StopReason | None = Field(None, init=False)
 
     def __hash__(self):
@@ -119,21 +118,5 @@ class Jam(ProjectModel):
             self._team_jams.append(team_jam)
             team.add_team_jam(team_jam)
 
-    def is_running(self) -> bool:
-        return self.start_timestamp is not None and self.end_timestamp is None
-
     def lead_is_declared(self) -> bool:
         return any(team_jam.lead for team_jam in self.team_jams)
-
-    def get_duration(self, timestamp: datetime | None = None) -> timedelta:
-        if self.end_timestamp is not None and self.start_timestamp is not None:
-            return self.end_timestamp - self.start_timestamp
-        elif self.is_running():
-            assert self.start_timestamp is not None
-            if timestamp is None:
-                timestamp = datetime.now()
-            if timestamp < self.start_timestamp:
-                raise RuntimeError('Timestamp cannot be in the past')
-            return timestamp - self.start_timestamp
-        else:
-            return timedelta(seconds=0)

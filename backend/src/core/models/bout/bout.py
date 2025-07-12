@@ -11,13 +11,13 @@ from core.models import Gettable, ModelKey, ProjectModel
 from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, TeamJam
 from core.models.bout.team import Roster, Team
-from core.models.time.alarm import Alarm
-from core.models.time.timer import Timer
+from core.models.time.alarm import IntervalAlarm
+from core.models.time.one_shot import AbstractTimer
 
 type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
 
 
-class Timeout(Timer):
+class Timeout(AbstractTimer):
     period_num: int = Field()
     jam_num: int = Field()
     clock_elapsed: timedelta = Field()
@@ -60,10 +60,10 @@ class Bout(ProjectModel):
         return teams
 
     class _Clocks(ProjectModel):
-        intermission: Alarm = Field(default_factory=Alarm)
-        game: Alarm = Field(default_factory=Alarm)
-        lineup: Alarm = Field(default_factory=Alarm)
-        jam: Alarm = Field(default_factory=Alarm)
+        intermission: IntervalAlarm = Field(default_factory=IntervalAlarm)
+        game: IntervalAlarm = Field(default_factory=IntervalAlarm)
+        lineup: IntervalAlarm = Field(default_factory=IntervalAlarm)
+        jam: IntervalAlarm = Field(default_factory=IntervalAlarm)
 
     id: str = Field(init=False)
     is_final: bool = Field(False, init=False)
@@ -125,7 +125,7 @@ class Bout(ProjectModel):
         jam: Jam = self.get_latest_jam()
         if not jam.is_running():
             raise RuntimeError('Cannot end a Jam when one is not already running')
-        jam.end_timestamp = timestamp
+        jam.stop_timestamp = timestamp
 
         # Append a new Jam to the latest period
         period: list[Jam] = self._periods[-1]
