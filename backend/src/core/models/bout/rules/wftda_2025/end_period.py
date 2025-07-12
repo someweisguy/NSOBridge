@@ -4,7 +4,7 @@ from typing import ClassVar
 from core.models import Gettable, ProjectModel
 from core.models.bout.bout import Bout
 from core.models.bout.jam import Jam
-from core.models.time.alarm import Alarm
+from core.models.time.alarm import IntervalAlarm
 
 
 class EndPeriod(ProjectModel):
@@ -12,7 +12,7 @@ class EndPeriod(ProjectModel):
 
     def __call__(self, bout: Bout, timestamp: datetime) -> tuple[Gettable, ...]:
         # Stop the clocks
-        for clock in dict[str, Alarm](bout.clocks).values():
+        for clock in dict[str, IntervalAlarm](bout.clocks).values():
             if clock.is_running():
                 clock.stop(timestamp)
         bout.clocks.jam.reset()

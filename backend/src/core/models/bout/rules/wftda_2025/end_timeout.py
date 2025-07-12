@@ -17,7 +17,7 @@ class EndTimeout(ProjectModel):
         # Add the Timeout duration to the Lineup clock and start the Lineup clock
         # This is done because it can help prevent some logic errors in the frontend
         # code. The game-state will be 'lineup' only when the Lineup clock is running.
-        bout.clocks.lineup.start(timestamp - timeout.elapsed)
+        bout.clocks.lineup.start(timestamp - timeout.get_duration(timestamp))
 
         # Subtract the timeout or official review, if not retained
         if (not timeout.is_review or not timeout.retained) and timeout.team is not None:

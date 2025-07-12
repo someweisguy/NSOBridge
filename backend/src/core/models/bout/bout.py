@@ -12,12 +12,12 @@ from core.models.bout.bad_words import BAD_WORDS
 from core.models.bout.jam import Jam, TeamJam
 from core.models.bout.team import Roster, Team
 from core.models.time.alarm import IntervalAlarm
-from core.models.time.one_shot import AbstractTimer
+from core.models.time.one_shot import OneShotTimer
 
 type Rule[*T] = Callable[[*T], tuple[Gettable, ...]]
 
 
-class Timeout(AbstractTimer):
+class Timeout(OneShotTimer):
     period_num: int = Field()
     jam_num: int = Field()
     clock_elapsed: timedelta = Field()

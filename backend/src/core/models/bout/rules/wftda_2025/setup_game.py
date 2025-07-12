@@ -23,9 +23,9 @@ class SetupGame(ProjectModel):
 
     def __call__(self, bout: Bout) -> tuple[Gettable, ...]:
         # Initialize clocks
-        bout.clocks.game.set_alarm(self.PERIOD_DURATION)
-        bout.clocks.lineup.set_alarm(self.LINEUP_DURATION)
-        bout.clocks.jam.set_alarm(self.JAM_DURATION)
+        bout.clocks.game.alarm = self.PERIOD_DURATION
+        bout.clocks.lineup.alarm = self.LINEUP_DURATION
+        bout.clocks.jam.alarm = self.JAM_DURATION
 
         # Initialize Teams
         for team in bout.teams:
