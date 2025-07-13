@@ -77,15 +77,14 @@ class Jam(AbstractTimer):
     _team_jams: list[TeamJam] = []
 
     stop_reason: StopReason | None = Field(None, init=False)
+    
+    @classmethod
+    def create(cls, bout: Bout, period_num: int, jam_num: int) -> Jam:
+        jam: Jam = Jam(_bout=bout, _period_num=period_num, _jam_num=jam_num)
+        return jam
 
     def __hash__(self):
         return hash(self._jam_num)
-
-    def __init__(self, bout: Bout, period_num: int, jam_num: int) -> None:
-        super().__init__()
-        self._bout = bout
-        self._period_num = period_num
-        self._jam_num = jam_num
 
     @cached_property
     def jam_num(self) -> int:

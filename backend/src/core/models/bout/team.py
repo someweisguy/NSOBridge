@@ -18,8 +18,9 @@ class Roster(ProjectModel):
     # TODO: color
     # TODO: skaters: list[Skater]
 
-    def __init__(self, name: str) -> None:
-        super().__init__(name=name)
+    @classmethod
+    def create(cls, name: str) -> Roster:
+        return Roster(name=name)
 
 
 def _uninitialized_score_strategy(_: TeamJam) -> int:

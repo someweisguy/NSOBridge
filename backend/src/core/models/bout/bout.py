@@ -88,7 +88,7 @@ class Bout(ProjectModel):
 
     def model_post_init(self, context: Any):
         if len(self._periods) == 0:
-            self._periods.append([Jam(self, 0, 0)])
+            self._periods.append([Jam.create(self, 0, 0)])
 
     @cached_property
     def key(self) -> ModelKey:
@@ -133,7 +133,7 @@ class Bout(ProjectModel):
 
         # Append a new Jam to the latest period
         period: list[Jam] = self._periods[-1]
-        period.append(Jam(self, len(self._periods) - 1, len(period)))
+        period.append(Jam.create(self, len(self._periods) - 1, len(period)))
 
     def end_period(self) -> None:
         jam: Jam = self.get_latest_jam()
@@ -141,7 +141,7 @@ class Bout(ProjectModel):
             raise RuntimeError('Cannot end the Period when a Jam is running')
         self._periods[-1].pop()
         self._periods.append([])
-        self._periods[-1].append(Jam(self, len(self._periods) - 1, 0))
+        self._periods[-1].append(Jam.create(self, len(self._periods) - 1, 0))
 
     def is_in_timeout(self) -> bool:
         return len(self.timeouts) > 0 and self.timeouts[-1].is_running()
