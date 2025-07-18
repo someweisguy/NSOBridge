@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from sqlalchemy import Engine, ForeignKey, create_engine
+from sqlalchemy import Engine, ForeignKey, UniqueConstraint, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 engine: Engine = create_engine('sqlite+pysqlite:///:memory:', echo=True)
@@ -72,8 +72,8 @@ class SQLJam(SQLBase):
     __tablename__ = 'jams'
     bout_id: Mapped[int] = mapped_column(ForeignKey(SQLBout.id))
 
-    period: Mapped[int] = mapped_column()
-    jam: Mapped[int] = mapped_column()
+    period: Mapped[int] = mapped_column(index=True)
+    jam: Mapped[int] = mapped_column(index=True)
 
     start: Mapped[datetime] = mapped_column()
     stop: Mapped[datetime] = mapped_column()
@@ -83,6 +83,10 @@ class SQLJam(SQLBase):
     # away: Mapped[SQLTeamJam] = relationship()
 
     stop_reason: Mapped[str | None] = mapped_column()  # TODO
+
+    __table_args__ = (
+        UniqueConstraint('bout_id', 'period', 'jam'),  # TODO: metadata naming
+    )
 
 
 class SQLTeamJam(SQLBase):
