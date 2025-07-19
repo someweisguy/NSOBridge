@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 
 from sqlalchemy import Engine, ForeignKey, UniqueConstraint, create_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 
 engine: Engine = create_engine('sqlite+pysqlite:///:memory:', echo=True)
 
@@ -18,9 +18,10 @@ class SQLBout(SQLBase):
     teams: Mapped[list[SQLTeam]] = relationship()
 
     intermission_clock: Mapped[SQLClock] = relationship()
-    game_clock: Mapped[SQLClock] = relationship()
-    lineup_clock: Mapped[SQLClock] = relationship()
-    jam_clock: Mapped[SQLClock] = relationship()
+    # FIXME: better one-to-many here
+    # game_clock: Mapped[SQLClock] = relationship()
+    # lineup_clock: Mapped[SQLClock] = relationship()
+    # jam_clock: Mapped[SQLClock] = relationship()
 
     timeouts: Mapped[list[SQLTimeout]] = relationship()
     jams: Mapped[list[SQLJam]] = relationship()
@@ -96,7 +97,7 @@ class SQLTeamJam(SQLBase):
 
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
-    star_pass: Mapped[bool]
+    # star_pass: Mapped[SQLTrip | None] = relationship()
 
     trips: Mapped[list[SQLTrip]] = relationship()
 
@@ -109,3 +110,11 @@ class SQLTrip(SQLBase):
 
 
 SQLBase.metadata.create_all(engine)
+
+
+with Session(engine) as session:
+    tj = SQLTeamJam()
+    trip = SQLTrip(timestamp=datetime.now(), passes=0)
+    tj.trips.append(trip)
+
+    print(trip)
