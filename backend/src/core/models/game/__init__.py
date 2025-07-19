@@ -39,7 +39,7 @@ class SQLTeam(SQLBase):
     reviews_remaining: Mapped[int] = mapped_column()
     score_offset: Mapped[int] = mapped_column()
 
-    timeouts: Mapped[list[SQLTimeout]] = relationship()
+    timeouts: Mapped[list[SQLTimeout]] = relationship(back_populates='team')
     team_jams: Mapped[list[SQLTeamJam]] = relationship()
 
 
@@ -55,17 +55,16 @@ class SQLClock(SQLBase):
 class SQLTimeout(SQLBase):
     __tablename__ = 'timeouts'
     id: Mapped[int] = mapped_column(primary_key=True)
-    bout_id: Mapped[int] = mapped_column(ForeignKey(SQLBout.id))
-
-    # TODO: index on period and jam
-    period: Mapped[int] = mapped_column()
-    jam: Mapped[int] = mapped_column()
-    clock_elapsed: Mapped[timedelta] = mapped_column()
-
+    bout_id: Mapped[int] = mapped_column(ForeignKey(SQLBout.id), index=True)
+    period: Mapped[int] = mapped_column(index=True)
+    jam: Mapped[int] = mapped_column(index=True)
+    
     start: Mapped[datetime] = mapped_column()
     stop: Mapped[datetime | None] = mapped_column()
 
-    team_id: Mapped[int] = mapped_column(ForeignKey(SQLTeam.id))
+    clock_elapsed: Mapped[timedelta] = mapped_column()
+    _team_id: Mapped[int] = mapped_column(ForeignKey(SQLTeam.id))
+    team: Mapped[SQLTeam] = relationship()
     is_review: Mapped[bool] = mapped_column(default=False)
 
     details: Mapped[str | None] = mapped_column(default=None)
