@@ -104,8 +104,7 @@ class SQLTeamJam(SQLBase):
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
     _star_pass_trip_id: Mapped[int | None] = mapped_column(
-        ForeignKey('trips.team_jam_id'),
-        default=None,
+        ForeignKey('trips.team_jam_id', ondelete='SET NULL'), default=None
     )
 
     _star_pass_trip: Mapped[SQLTrip | None] = relationship(
