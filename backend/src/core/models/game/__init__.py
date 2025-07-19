@@ -3,17 +3,18 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 
 from sqlalchemy import Engine, ForeignKey, UniqueConstraint, create_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship
 
 engine: Engine = create_engine('sqlite+pysqlite:///:memory:', echo=True)
 
 
 class SQLBase(DeclarativeBase):
-    id: Mapped[int] = mapped_column(primary_key=True)
+    pass
 
 
 class SQLBout(SQLBase):
     __tablename__ = 'bouts'
+    id: Mapped[int] = mapped_column(primary_key=True)
 
     teams: Mapped[list[SQLTeam]] = relationship()
 
@@ -29,6 +30,7 @@ class SQLBout(SQLBase):
 
 class SQLTeam(SQLBase):
     __tablename__ = 'teams'
+    id: Mapped[int] = mapped_column(primary_key=True)
     bout_id: Mapped[int] = mapped_column(ForeignKey(SQLBout.id))
 
     # TODO: roster
@@ -43,6 +45,7 @@ class SQLTeam(SQLBase):
 
 class SQLClock(SQLBase):
     __tablename__ = 'clocks'
+    id: Mapped[int] = mapped_column(primary_key=True)
     bout_id: Mapped[int] = mapped_column(ForeignKey(SQLBout.id))
 
     start: Mapped[datetime | None] = mapped_column()
@@ -51,6 +54,7 @@ class SQLClock(SQLBase):
 
 class SQLTimeout(SQLBase):
     __tablename__ = 'timeouts'
+    id: Mapped[int] = mapped_column(primary_key=True)
     bout_id: Mapped[int] = mapped_column(ForeignKey(SQLBout.id))
 
     # TODO: index on period and jam
@@ -71,6 +75,7 @@ class SQLTimeout(SQLBase):
 
 class SQLJam(SQLBase):
     __tablename__ = 'jams'
+    id: Mapped[int] = mapped_column(primary_key=True)
     bout_id: Mapped[int] = mapped_column(ForeignKey(SQLBout.id))
 
     period: Mapped[int] = mapped_column(index=True)
@@ -92,19 +97,41 @@ class SQLJam(SQLBase):
 
 class SQLTeamJam(SQLBase):
     __tablename__ = 'team_jams'
-    jam_id: Mapped[int] = mapped_column(ForeignKey(SQLJam.id))
-    team_id: Mapped[int] = mapped_column(ForeignKey(SQLTeam.id))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    # jam_id: Mapped[int | None] = mapped_column(ForeignKey(SQLJam.id))
+    team_id: Mapped[int | None] = mapped_column(ForeignKey(SQLTeam.id))
 
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
-    # star_pass: Mapped[SQLTrip | None] = relationship()
+    _star_pass_trip_id: Mapped[int | None] = mapped_column(
+        ForeignKey('trips.team_jam_id'),
+        default=None,
+    )
 
-    trips: Mapped[list[SQLTrip]] = relationship()
+    _star_pass_trip: Mapped[SQLTrip | None] = relationship(
+        foreign_keys='SQLTeamJam._star_pass_trip_id',
+        post_update=True,
+    )
+    trips: Mapped[list[SQLTrip]] = relationship(
+        order_by='SQLTrip.timestamp', primaryjoin='SQLTeamJam.id == SQLTrip.team_jam_id'
+    )
+
+    @property
+    def star_pass_trip(self) -> SQLTrip | None:
+        return self._star_pass_trip
+
+    @star_pass_trip.setter
+    def star_pass_trip(self, other: SQLTrip | None) -> None:
+        if other is not None and other not in self.trips:
+            self.trips.append(other)
+        self._star_pass_trip = other
 
 
 class SQLTrip(SQLBase):
     __tablename__ = 'trips'
+    id: Mapped[int] = mapped_column(primary_key=True)
     team_jam_id: Mapped[int] = mapped_column(ForeignKey(SQLTeamJam.id))
+
     timestamp: Mapped[datetime] = mapped_column()
     passes: Mapped[int] = mapped_column()
 
@@ -113,8 +140,14 @@ SQLBase.metadata.create_all(engine)
 
 
 with Session(engine) as session:
-    tj = SQLTeamJam()
+    tj = SQLTeamJam(lead=False, lost=False)
     trip = SQLTrip(timestamp=datetime.now(), passes=0)
-    tj.trips.append(trip)
+    tj.star_pass_trip = trip
+    # tj.trips.append(trip)
 
-    print(trip)
+    session.add(tj)
+
+    session.commit()
+    # session.refresh(trip)
+
+    print(tj.trips)
