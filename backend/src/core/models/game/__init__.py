@@ -118,11 +118,10 @@ class SQLTeamJam(SQLBase):
         return self._star_pass_trip
 
     @star_pass_trip.setter
-    def star_pass_trip(self, trip: SQLTrip | None) -> None:
-        if trip is not None and trip.team_jam_id is None:
-            # Add the trip to self.trips
-            trip.team_jam_id = self.id
-        self._star_pass_trip = trip
+    def star_pass_trip(self, other: SQLTrip | None) -> None:
+        if other is not None and other.team_jam_id is None:
+            self.trips.append(other)
+        self._star_pass_trip = other
 
 
 class SQLTrip(SQLBase):
