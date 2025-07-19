@@ -109,8 +109,7 @@ class SQLTeamJam(SQLBase):
     )
 
     _star_pass_trip: Mapped[SQLTrip | None] = relationship(
-        foreign_keys='SQLTeamJam._star_pass_trip_id',
-        post_update=True,
+        foreign_keys='SQLTeamJam._star_pass_trip_id', post_update=True
     )
     trips: Mapped[list[SQLTrip]] = relationship(
         order_by='SQLTrip.timestamp', primaryjoin='SQLTeamJam.id == SQLTrip.team_jam_id'
