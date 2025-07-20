@@ -30,10 +30,13 @@ class SQLBout(SQLBase):
 
 class SQLTimeout(SQLBase):
     __tablename__ = 'timeouts'
-    bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), index=True, init=False)
+    _bout_id: Mapped[int] = mapped_column(
+        ForeignKey('bouts.id'), index=True, init=False
+    )
+    bout: Mapped[SQLBout] = relationship()
+    
     period: Mapped[int] = mapped_column(index=True)
     jam: Mapped[int] = mapped_column(index=True)
-    bout: Mapped[SQLBout] = relationship()
 
     start: Mapped[datetime] = mapped_column()
     stop: Mapped[datetime | None] = mapped_column()

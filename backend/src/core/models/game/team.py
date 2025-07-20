@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 class SQLTeam(SQLBase):
     __tablename__ = 'teams'
-    bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
 
     # TODO: roster
 
