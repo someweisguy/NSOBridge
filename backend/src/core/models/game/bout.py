@@ -21,7 +21,7 @@ class SQLBout(SQLBase):
         ForeignKey('clocks.id', ondelete='RESTRICT'), init=False
     )
 
-    teams: Mapped[list[SQLTeam]] = relationship(init=False)
+    teams: Mapped[list[SQLTeam]] = relationship(back_populates='bout', init=False)
     clock: Mapped[SQLClock] = relationship(foreign_keys=[_clock_id])
     timeouts: Mapped[list[SQLTimeout]] = relationship(back_populates='bout', init=False)
     jams: Mapped[list[SQLJam]] = relationship(

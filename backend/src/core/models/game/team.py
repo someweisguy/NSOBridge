@@ -12,6 +12,7 @@ from sqlalchemy.orm import (
 )
 
 from core.models.game.base import SQLBase
+from core.models.game.bout import SQLBout
 
 if TYPE_CHECKING:
     from core.models.game.bout import SQLTimeout
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
 class SQLTeam(SQLBase):
     __tablename__ = 'teams'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
+    bout: Mapped[SQLBout] = relationship(back_populates='teams')
 
     # TODO: roster
 
