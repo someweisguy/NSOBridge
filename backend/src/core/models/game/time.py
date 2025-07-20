@@ -35,6 +35,15 @@ class SQLClock(SQLBase):
     def is_running(self) -> bool:
         return self.start_timestamp is not None
 
+    def get_duration(self, timestamp: datetime | None = None) -> timedelta:
+        if timestamp is None:
+            timestamp = datetime.now()
+        if self.start_timestamp is None:
+            return self.elapsed
+        if timestamp < self.start_timestamp:
+            raise ValueError('Cannot get a duration for a time that is in the past')
+        return (timestamp - self.start_timestamp) + self.elapsed
+
 
 class SQLOneShot(SQLBase):
     __abstract__ = True
@@ -67,3 +76,15 @@ class SQLOneShot(SQLBase):
 
     def is_finished(self) -> bool:
         return self.start_timestamp is not None and self.stop_timestamp is not None
+
+    def get_duration(self, timestamp: datetime | None = None) -> timedelta:
+        if timestamp is None:
+            timestamp = datetime.now()
+        if self.start_timestamp is None:
+            return timedelta(seconds=0)
+        elif self.stop_timestamp is not None:
+            return self.stop_timestamp - self.start_timestamp
+        else:
+            if timestamp < self.start_timestamp:
+                raise ValueError('Cannot get a duration for a time that is in the past')
+            return timestamp - self.start_timestamp
