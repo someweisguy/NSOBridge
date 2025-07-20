@@ -35,7 +35,6 @@ class SQLTimeout(SQLOneShot):
     _team_id: Mapped[int] = mapped_column(ForeignKey('teams.id'), init=False)
 
     bout: Mapped[SQLBout] = relationship(init=False)
-
     period: Mapped[int] = mapped_column(index=True, kw_only=True)
     jam: Mapped[int] = mapped_column(index=True, kw_only=True)
 
