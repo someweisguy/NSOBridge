@@ -32,7 +32,7 @@ class SQLTeamJam(SQLBase):
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
 
-    _star_pass_trip: Mapped[SQLTrip | None] = relationship(
+    star_pass_trip: Mapped[SQLTrip | None] = relationship(
         default=None,
         foreign_keys=[_star_pass_trip_id],
         init=False,
@@ -43,15 +43,12 @@ class SQLTeamJam(SQLBase):
         init=False, order_by=[SQLTrip.timestamp]
     )
 
-    @property
-    def star_pass_trip(self) -> SQLTrip | None:
-        return self._star_pass_trip
-
-    @star_pass_trip.setter
-    def star_pass_trip(self, other: SQLTrip | None) -> None:
-        if other is not None and other._team_jam_id is None:
-            self.trips.append(other)
-        self._star_pass_trip = other
+    def add_trip(self, passes: int, timestamp: datetime | None = None) -> SQLTrip:
+        if timestamp is None:
+            timestamp = datetime.now()
+        trip: SQLTrip = SQLTrip(timestamp=timestamp, passes=passes)
+        self.trips.append(trip)
+        return trip
 
 
 class SQLJam(SQLOneShot):

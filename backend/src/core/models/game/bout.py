@@ -28,6 +28,17 @@ class SQLBout(SQLBase):
         back_populates='bout', init=False, order_by=[SQLJam.period, SQLJam.jam]
     )
 
+    def add_jam(self) -> SQLJam:
+        period_num: int = 0
+        jam_num: int = 0
+        if len(self.jams) > 0:
+            latest: SQLJam = self.jams[-1]
+            period_num = latest.period
+            jam_num = latest.jam
+        jam: SQLJam = SQLJam(period=period_num, jam=jam_num)
+        self.jams.append(jam)
+        return jam
+
 
 class SQLTimeout(SQLOneShot):
     __tablename__ = 'timeouts'
