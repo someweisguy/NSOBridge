@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models.game.base import SQLBase
@@ -76,7 +77,9 @@ class SQLJam(SQLOneShot):
         foreign_keys=[_away_team_jam_id], init=False
     )
 
-    __table_args__ = (
-        UniqueConstraint(_bout_id, period, jam),  # TODO: metadata naming
-        CheckConstraint(_home_team_jam_id != _away_team_jam_id),
-    )
+    @declared_attr
+    def __table_args__(cls):
+        return super().__table_args__ + (
+            UniqueConstraint(cls._bout_id, cls.period, cls.jam),
+            CheckConstraint(cls._home_team_jam_id != cls._away_team_jam_id),
+        )
