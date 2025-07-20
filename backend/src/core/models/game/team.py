@@ -19,12 +19,17 @@ if TYPE_CHECKING:
     from core.models.game.jam import SQLTeamJam
 
 
+class SQLRoster(SQLBase):
+    __tablename__ = 'rosters'
+
+
 class SQLTeam(SQLBase):
     __tablename__ = 'teams'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
+    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'), init=False)
+    
     bout: Mapped[SQLBout] = relationship(back_populates='teams')
-
-    # TODO: roster
+    roster: Mapped[SQLRoster] = relationship(foreign_keys=[_roster_id])
 
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
