@@ -4,10 +4,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy import CheckConstraint
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-)
+from sqlalchemy.orm import Mapped, mapped_column
 
 from core.models.game.base import SQLBase, TimedeltaAsMilliseconds
 
@@ -41,7 +38,7 @@ class SQLClock(SQLBase):
 
 class SQLOneShot(SQLBase):
     __abstract__ = True
-    
+
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     stop_timestamp: Mapped[datetime | None] = mapped_column(default=None)
 
