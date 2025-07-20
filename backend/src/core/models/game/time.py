@@ -45,8 +45,8 @@ class SQLOneShot(SQLBase):
     @declared_attr
     def __table_args__(cls):
         return (
-            CheckConstraint(cls.start_timestamp < cls.stop_timestamp),
-            CheckConstraint('start_timestamp IS NULL or stop_timestamp is NOT NULL'),
+            CheckConstraint('start_timestamp < stop_timestamp'),
+            CheckConstraint('start_timestamp IS NULL OR stop_timestamp IS NOT NULL'),
         )
 
     def start(self, timestamp: datetime) -> None:

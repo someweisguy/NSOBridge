@@ -81,5 +81,7 @@ class SQLJam(SQLOneShot):
     def __table_args__(cls):
         return super().__table_args__ + (
             UniqueConstraint(cls._bout_id, cls.period, cls.jam),
-            CheckConstraint(cls._home_team_jam_id != cls._away_team_jam_id),
+            UniqueConstraint(cls._home_team_jam_id),
+            UniqueConstraint(cls._away_team_jam_id),
+            CheckConstraint('_home_team_jam_id != _away_team_jam_id'),
         )
