@@ -7,16 +7,19 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
-from core.models.game.base import SQLBase
+from core.models.game.base import SQLBase, TimedeltaAsMilliseconds
 
 
 class SQLClock(SQLBase):
     __tablename__ = 'clocks'
     start: Mapped[datetime | None] = mapped_column(default=None, init=False)
-    elapsed: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0), init=False)
-    alarm: Mapped[timedelta] = mapped_column()
+    elapsed: Mapped[timedelta] = mapped_column(
+        TimedeltaAsMilliseconds, default=timedelta(seconds=0), init=False
+    )
+    alarm: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
 
 
 class SQLOneShot(SQLBase):
+    __abstract__ = True
     start: Mapped[datetime | None] = mapped_column(default=None)
     stop: Mapped[datetime | None] = mapped_column(default=None)
