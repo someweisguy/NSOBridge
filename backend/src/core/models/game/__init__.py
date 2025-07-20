@@ -2,7 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from sqlalchemy import Engine, ForeignKey, UniqueConstraint, create_engine
+from sqlalchemy import (
+    CheckConstraint,
+    Engine,
+    ForeignKey,
+    UniqueConstraint,
+    create_engine,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship
 
 engine: Engine = create_engine('sqlite+pysqlite:///:memory:', echo=True)
@@ -18,14 +24,14 @@ class SQLBout(SQLBase):
 
     teams: Mapped[list[SQLTeam]] = relationship()
 
-    intermission_clock: Mapped[SQLClock] = relationship()
+    # intermission_clock: Mapped[SQLClock] = relationship()
     # FIXME: better one-to-many here
     # game_clock: Mapped[SQLClock] = relationship()
     # lineup_clock: Mapped[SQLClock] = relationship()
     # jam_clock: Mapped[SQLClock] = relationship()
 
-    timeouts: Mapped[list[SQLTimeout]] = relationship()
-    jams: Mapped[list[SQLJam]] = relationship()
+    timeouts: Mapped[list[SQLTimeout]] = relationship(back_populates='bout')
+    jams: Mapped[list[SQLJam]] = relationship(back_populates='bout')
 
 
 class SQLTeam(SQLBase):
@@ -58,7 +64,8 @@ class SQLTimeout(SQLBase):
     bout_id: Mapped[int] = mapped_column(ForeignKey(SQLBout.id), index=True)
     period: Mapped[int] = mapped_column(index=True)
     jam: Mapped[int] = mapped_column(index=True)
-    
+    bout: Mapped[SQLBout] = relationship()
+
     start: Mapped[datetime] = mapped_column()
     stop: Mapped[datetime | None] = mapped_column()
 
@@ -76,21 +83,28 @@ class SQLJam(SQLBase):
     __tablename__ = 'jams'
     id: Mapped[int] = mapped_column(primary_key=True)
     bout_id: Mapped[int] = mapped_column(ForeignKey(SQLBout.id))
+    bout: Mapped[SQLBout] = relationship()
 
     period: Mapped[int] = mapped_column(index=True)
     jam: Mapped[int] = mapped_column(index=True)
 
-    start: Mapped[datetime] = mapped_column()
-    stop: Mapped[datetime] = mapped_column()
+    start: Mapped[datetime | None] = mapped_column(default=None)
+    stop: Mapped[datetime | None] = mapped_column(default=None)
 
-    # FIXME: only 2 SQLTeamJams are allowed to be attached to this record
-    # home: Mapped[SQLTeamJam] = relationship()
-    # away: Mapped[SQLTeamJam] = relationship()
+    _home_team_jam_id: Mapped[int | None] = mapped_column(
+        ForeignKey('team_jams.id', ondelete='SET NULL'), default=None
+    )
+    _away_team_jam_id: Mapped[int | None] = mapped_column(
+        ForeignKey('team_jams.id', ondelete='SET NULL'), default=None
+    )
+    home: Mapped[SQLTeamJam] = relationship(foreign_keys='SQLJam._home_team_jam_id')
+    away: Mapped[SQLTeamJam] = relationship(foreign_keys='SQLJam._away_team_jam_id')
 
-    stop_reason: Mapped[str | None] = mapped_column()  # TODO
+    stop_reason: Mapped[str | None] = mapped_column(default=None)
 
     __table_args__ = (
         UniqueConstraint('bout_id', 'period', 'jam'),  # TODO: metadata naming
+        CheckConstraint('_home_team_jam_id <> _away_team_jam_id'),
     )
 
 
@@ -137,14 +151,18 @@ SQLBase.metadata.create_all(engine)
 
 
 with Session(engine) as session:
+    bout = SQLBout()
+    jam = SQLJam(period=0, jam=0)
+    bout.jams.append(jam)
+    
+    session.add(bout)
+    
     tj = SQLTeamJam(lead=False, lost=False)
-    trip = SQLTrip(timestamp=datetime.now(), passes=0)
-    tj.star_pass_trip = trip
-    # tj.trips.append(trip)
+    
+    jam.home = tj
+
 
     session.add(tj)
+    
 
     session.commit()
-    # session.refresh(trip)
-
-    print(tj.trips)
