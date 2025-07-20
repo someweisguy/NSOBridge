@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey
@@ -17,18 +17,12 @@ if TYPE_CHECKING:
 
 class SQLBout(SQLBase):
     __tablename__ = 'bouts'
+    _clock_id: Mapped[int] = mapped_column(
+        ForeignKey('clocks.id', ondelete='RESTRICT'), init=False
+    )
 
     teams: Mapped[list[SQLTeam]] = relationship(init=False)
-
-    _game_clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id'), init=False)
-    game_clock: Mapped[SQLClock] = relationship(foreign_keys=[_game_clock_id])
-
-    # intermission_clock: Mapped[SQLClock] = relationship()
-    # FIXME: better one-to-many here
-    # game_clock: Mapped[SQLClock] = relationship()
-    # lineup_clock: Mapped[SQLClock] = relationship()
-    # jam_clock: Mapped[SQLClock] = relationship()
-
+    clock: Mapped[SQLClock] = relationship(foreign_keys=[_clock_id])
     timeouts: Mapped[list[SQLTimeout]] = relationship(back_populates='bout', init=False)
     jams: Mapped[list[SQLJam]] = relationship(
         back_populates='bout', init=False, order_by=[SQLJam.period, SQLJam.jam]
@@ -37,18 +31,18 @@ class SQLBout(SQLBase):
 
 class SQLTimeout(SQLOneShot):
     __tablename__ = 'timeouts'
-    _bout_id: Mapped[int] = mapped_column(
-        ForeignKey('bouts.id'), index=True, init=False
-    )
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
+    _team_id: Mapped[int] = mapped_column(ForeignKey('teams.id'), init=False)
+
     bout: Mapped[SQLBout] = relationship(init=False)
 
     period: Mapped[int] = mapped_column(index=True, kw_only=True)
     jam: Mapped[int] = mapped_column(index=True, kw_only=True)
 
+    start_timestamp: Mapped[datetime] = mapped_column(use_existing_column=True)
     clock_elapsed: Mapped[timedelta] = mapped_column(
         TimedeltaAsMilliseconds, kw_only=True
     )
-    _team_id: Mapped[int] = mapped_column(ForeignKey('teams.id'), init=False)
     team: Mapped[SQLTeam | None] = relationship(back_populates='timeouts', default=None)
     is_review: Mapped[bool] = mapped_column(default=False)
 

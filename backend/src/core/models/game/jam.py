@@ -7,6 +7,7 @@ from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models.game.base import SQLBase
+from core.models.game.time import SQLOneShot
 
 if TYPE_CHECKING:
     from core.models.game.bout import SQLBout
@@ -23,12 +24,12 @@ class SQLTrip(SQLBase):
 class SQLTeamJam(SQLBase):
     __tablename__ = 'team_jams'
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'), init=False)
-
-    lead: Mapped[bool] = mapped_column(default=False)
-    lost: Mapped[bool] = mapped_column(default=False)
     _star_pass_trip_id: Mapped[int | None] = mapped_column(
         ForeignKey('team_jams.id', ondelete='SET NULL'), default=None, init=False
     )
+
+    lead: Mapped[bool] = mapped_column(default=False)
+    lost: Mapped[bool] = mapped_column(default=False)
 
     _star_pass_trip: Mapped[SQLTrip | None] = relationship(
         default=None,
@@ -52,30 +53,28 @@ class SQLTeamJam(SQLBase):
         self._star_pass_trip = other
 
 
-class SQLJam(SQLBase):
+class SQLJam(SQLOneShot):
     __tablename__ = 'jams'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
-    bout: Mapped[SQLBout] = relationship(init=False)
-
-    period: Mapped[int] = mapped_column(index=True)
-    jam: Mapped[int] = mapped_column(index=True)
-
     _home_team_jam_id: Mapped[int | None] = mapped_column(
         ForeignKey('team_jams.id', ondelete='SET NULL'), default=None
     )
     _away_team_jam_id: Mapped[int | None] = mapped_column(
         ForeignKey('team_jams.id', ondelete='SET NULL'), default=None
     )
-    home: Mapped[SQLTeamJam] = relationship(
+
+    bout: Mapped[SQLBout] = relationship(init=False)
+
+    period: Mapped[int] = mapped_column(index=True, kw_only=True)
+    jam: Mapped[int] = mapped_column(index=True, kw_only=True)
+    stop_reason: Mapped[str | None] = mapped_column(default=None, init=False)
+
+    home: Mapped[SQLTeamJam | None] = relationship(
         foreign_keys=[_home_team_jam_id], init=False
     )
-    away: Mapped[SQLTeamJam] = relationship(
+    away: Mapped[SQLTeamJam | None] = relationship(
         foreign_keys=[_away_team_jam_id], init=False
     )
-
-    start: Mapped[datetime | None] = mapped_column(default=None)
-    stop: Mapped[datetime | None] = mapped_column(default=None, init=False)
-    stop_reason: Mapped[str | None] = mapped_column(default=None, init=False)
 
     __table_args__ = (
         UniqueConstraint(_bout_id, period, jam),  # TODO: metadata naming
