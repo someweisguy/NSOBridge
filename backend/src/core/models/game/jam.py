@@ -35,12 +35,10 @@ class SQLTeamJam(SQLBase):
         foreign_keys=[_star_pass_trip_id],
         init=False,
         post_update=True,
-        primaryjoin='SQLTeamJam._star_pass_trip_id==SQLTrip.id',
+        primaryjoin=(_star_pass_trip_id == SQLTrip.id),
     )
     trips: Mapped[list[SQLTrip]] = relationship(
-        init=False,
-        order_by=[SQLTrip.timestamp],
-        primaryjoin='SQLTeamJam.id==SQLTrip._team_jam_id',
+        init=False, order_by=[SQLTrip.timestamp]
     )
 
     @property
@@ -81,5 +79,5 @@ class SQLJam(SQLBase):
 
     __table_args__ = (
         UniqueConstraint(_bout_id, period, jam),  # TODO: metadata naming
-        CheckConstraint('_home_team_jam_id <> _away_team_jam_id'),
+        CheckConstraint(_home_team_jam_id != _away_team_jam_id),
     )
