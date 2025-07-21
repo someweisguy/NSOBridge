@@ -8,6 +8,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models.game.base import SQLBase
+from core.models.game.team import SQLTeam
 from core.models.game.time import SQLOneShot
 
 if TYPE_CHECKING:
@@ -28,6 +29,8 @@ class SQLTeamJam(SQLBase):
     _star_pass_trip_id: Mapped[int | None] = mapped_column(
         ForeignKey('team_jams.id', ondelete='SET NULL'), default=None, init=False
     )
+    
+    team: Mapped[SQLTeam] = relationship(foreign_keys=[_team_id])
 
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
@@ -67,10 +70,10 @@ class SQLJam(SQLOneShot):
     jam: Mapped[int] = mapped_column(index=True, kw_only=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None, init=False)
 
-    home: Mapped[SQLTeamJam | None] = relationship(
+    _home: Mapped[SQLTeamJam | None] = relationship(
         foreign_keys=[_home_team_jam_id], init=False
     )
-    away: Mapped[SQLTeamJam | None] = relationship(
+    _away: Mapped[SQLTeamJam | None] = relationship(
         foreign_keys=[_away_team_jam_id], init=False
     )
 
@@ -81,4 +84,24 @@ class SQLJam(SQLOneShot):
             UniqueConstraint(cls._home_team_jam_id),
             UniqueConstraint(cls._away_team_jam_id),
             CheckConstraint('_home_team_jam_id != _away_team_jam_id'),
+            CheckConstraint("""(_home_team_jam_id IS NOT NULL
+                               AND _away_team_jam_id IS NOT NULL)
+                               OR start_timestamp IS NULL"""),
         )
+        
+    @property
+    def home(self) -> SQLTeamJam | None:
+        return self._home
+    
+    @property
+    def away(self) -> SQLTeamJam | None:
+        return self._away
+    
+    def assign_teams(self, home: SQLTeam, away: SQLTeam) -> None:
+        self._home = SQLTeamJam(team=home)
+        self._away = SQLTeamJam(team=away)
+
+    def start(self, timestamp: datetime) -> None:
+        if self.home is None or self.away is None:
+            raise RuntimeError('A Jam cannot be started without assigning Teams')
+        return super().start(timestamp)
