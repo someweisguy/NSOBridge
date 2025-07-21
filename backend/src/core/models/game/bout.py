@@ -20,6 +20,8 @@ class SQLBout(SQLBase):
     _clock_id: Mapped[int] = mapped_column(
         ForeignKey('clocks.id', ondelete='RESTRICT'), init=False
     )
+    
+    ruleset: Mapped[str] = mapped_column()
 
     teams: Mapped[list[SQLTeam]] = relationship(back_populates='bout', init=False)
     clock: Mapped[SQLClock] = relationship(foreign_keys=[_clock_id])

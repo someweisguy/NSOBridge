@@ -1,18 +1,35 @@
 from datetime import datetime
-from typing import Final
+from typing import Annotated, Final
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 
 from core import updater
 from core.models import Gettable
 from core.models.bout import Bout, BoutDepend, RefereeDepend
+from core.models.game import get_bout, get_db
+from core.models.game.bout import SQLBout
+from sqlalchemy.orm import Query
+from sqlalchemy.orm import Session
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
+
+
+DatabaseDepends = Annotated[Session, Depends(get_db)]
+BoutDepends = Annotated[SQLBout, Depends(get_bout)]
 
 
 @router.get('')
 async def get(bout: BoutDepend) -> Bout:
     return bout
+
+
+@router.post('/post/{event}')
+async def post_event(
+    event: str, db: DatabaseDepends, bout: BoutDepends
+) -> JSONResponse:
+    ruleset: str = bout.ruleset
+    return {}
 
 
 @router.post('/start-jam')
