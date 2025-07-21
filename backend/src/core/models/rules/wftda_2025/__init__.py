@@ -1,5 +1,8 @@
-from referees import RefereeType
+from dataclasses import dataclass
 
-REFEREE: RefereeType = {
-    
-}
+from core.models.rules.wftda_2025.start_jam import StartJam
+
+
+@dataclass
+class Referee:
+    start_jam: type[StartJam] = StartJam

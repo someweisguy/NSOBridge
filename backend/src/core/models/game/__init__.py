@@ -22,14 +22,17 @@ def before_flush(session: Session, flush_context, instances):
         raise Exception('Read-only session: flush not allowed')
 
 
-async def get_db():
+async def get_db():  # TODO: return type hint
     with SessionLocal() as db:
         yield db
 
 
-async def get_bout(bout_id: int) -> SQLBout | None:
+async def get_bout(bout_id: int) -> SQLBout:
     with SessionLocal() as db:
-        return db.get(SQLBout, bout_id)
+        bout: SQLBout | None = db.get(SQLBout, bout_id)
+        if bout is None:
+            raise KeyError(f'Bout was not found ({bout_id=})')
+        return bout
 
 
 __all__ = ('engine', 'SQLBout', 'SQLClock', 'SQLJam', 'SQLTeamJam', 'SQLTeam')

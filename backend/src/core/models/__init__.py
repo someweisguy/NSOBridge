@@ -1,7 +1,6 @@
 from datetime import timedelta
-from functools import cached_property
 from math import floor
-from typing import Literal, Protocol
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
@@ -20,8 +19,3 @@ class ProjectModel(BaseModel):
         validate_by_alias=True,
         validate_by_name=True,
     )
-
-
-class Gettable(Protocol):
-    @cached_property
-    def key(self) -> ModelKey: ...
