@@ -1,5 +1,9 @@
-from sqlalchemy import Engine, create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from core.models.game.base import SQLBase
 from core.models.game.bout import SQLBout
@@ -7,18 +11,22 @@ from core.models.game.jam import SQLJam, SQLTeamJam
 from core.models.game.team import SQLTeam
 from core.models.game.time import SQLClock
 
-engine: Engine = create_engine('sqlite+pysqlite:///data.db', echo=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-SQLBase.metadata.create_all(engine)
+engine: AsyncEngine = create_async_engine('sqlite+pysqlite:///data.db', echo=True)
+SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-def get_db() -> Session:
+async def setup_db() -> None:
+    async with engine.connect() as connection:
+        await connection.run_sync(SQLBase.metadata.create_all)
+
+
+def get_db() -> AsyncSession:
     return SessionLocal()
 
 
 async def get_bout(bout_id: int) -> SQLBout:
-    with get_db() as db:
-        bout: SQLBout | None = db.get(SQLBout, bout_id)
+    async with get_db() as db:
+        bout: SQLBout | None = await db.get(SQLBout, bout_id)
         if bout is None:
             raise KeyError(f'Bout was not found ({bout_id=})')
         return bout
