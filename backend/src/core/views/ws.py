@@ -6,8 +6,6 @@ from typing import Any, Final, Iterable
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
 
-from core.models import Gettable, ModelKey
-
 app: Final[FastAPI] = FastAPI()
 
 
@@ -25,15 +23,15 @@ async def handle_socket(websocket: WebSocket) -> None:
 
 
 clients: set[WebSocket] = set()
-updates: set[ModelKey] = set()
+updates: set = set()
 background_tasks: set[asyncio.Task] = set()
 
 
-def post(model_or_models: Gettable | Iterable[Gettable]) -> None:
-    if isinstance(model_or_models, Iterable):
-        updates.update([model.key for model in model_or_models])
-    else:
-        updates.add(model_or_models.key)
+# def post(model_or_models: Gettable | Iterable[Gettable]) -> None:
+#     if isinstance(model_or_models, Iterable):
+#         updates.update([model.key for model in model_or_models])
+#     else:
+#         updates.add(model_or_models.key)
 
 
 def broadcast() -> int:
@@ -48,4 +46,4 @@ def broadcast() -> int:
     return num_updates
 
 
-__all__ = ('app', 'broadcast', 'post')
+__all__ = ('app', 'broadcast')

@@ -8,14 +8,14 @@ from fastapi.responses import FileResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 
-from core import updater
+from core.views import ws
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'frontend' / 'dist'
 
 app: FastAPI = FastAPI(
     routes=[
         Mount('/assets', StaticFiles(directory=FRONTEND / 'assets')),
-        Mount('/ws', updater.app),
+        Mount('/ws', ws.app),
     ],
     debug=True,
 )
@@ -47,5 +47,5 @@ async def broadcast_updates_middleware(
 ) -> Response:
     response: Response = await call_next(request)
     if request.method != 'GET':
-        updater.broadcast()
+        ws.broadcast()
     return response

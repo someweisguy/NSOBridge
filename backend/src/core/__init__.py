@@ -3,15 +3,16 @@ from typing import LiteralString
 
 from uvicorn import Config, Server
 
-from core.v1.bout import router as bout_router
-from core.v1.jam import router as jam_router
-from core.v1.series import router as series_router
+# FIXME
+# from core.v1.bout import router as bout_router
+# from core.v1.jam import router as jam_router
+# from core.v1.series import router as series_router
 from core.views.fastapi import app
 
 API_PREFIX: LiteralString = '/api'
-app.include_router(series_router, prefix=API_PREFIX, tags=['series'])
-app.include_router(bout_router, prefix=API_PREFIX, tags=['bout'])
-app.include_router(jam_router, prefix=API_PREFIX, tags=['jam'])
+# app.include_router(series_router, prefix=API_PREFIX, tags=['series'])
+# app.include_router(bout_router, prefix=API_PREFIX, tags=['bout'])
+# app.include_router(jam_router, prefix=API_PREFIX, tags=['jam'])
 
 
 def get_ip_address() -> str:
