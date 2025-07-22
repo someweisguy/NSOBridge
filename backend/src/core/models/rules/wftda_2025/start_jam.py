@@ -5,7 +5,7 @@ from core.models.rules.referees import AbstractRule
 
 
 class StartJam(AbstractRule):
-    def __call__(self, bout: SQLBout):
+    async def __call__(self, bout: SQLBout):
         now: datetime = datetime.now()
 
         bout.jams[-1].start(now)

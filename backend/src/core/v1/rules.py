@@ -32,24 +32,24 @@ router: Final[APIRouter] = APIRouter(prefix='/rules')
 
 @router.post('/start-jam')
 async def start_jam(referee: RefereeDepends, bout: BoutDepends) -> dict:
-    with get_db() as db:
+    async with get_db() as db:
         rule: Callable = referee.start_jam(db=db.begin_nested())
-        response: dict = rule(bout)
+        response: dict = await rule(bout)
 
         # TODO: Post the updated objects to the Updater
 
-        db.commit()
+        await db.commit()
 
     return response
 
 
 @router.post('/stop-jam')
 async def stop_jam(referee: RefereeDepends, bout: BoutDepends) -> dict:
-    with get_db() as db:
+    async with get_db() as db:
         rule: Callable = referee.stop_jam(db=db.begin_nested())
-        response: dict = rule(bout)
+        response: dict = await rule(bout)
 
-        db.commit()
+        await db.commit()
 
     return response
 
