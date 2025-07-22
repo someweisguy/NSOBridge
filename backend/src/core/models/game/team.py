@@ -20,6 +20,10 @@ if TYPE_CHECKING:
 
 class SQLRoster(SQLBase):
     __tablename__ = 'rosters'
+    # TODO: mnemonic: str
+    # TODO: league
+    # TODO: color
+    # TODO: skaters: list[Skater]
 
 
 class SQLTeam(SQLBase):
