@@ -10,6 +10,7 @@ class Referee:
     # call_timeout
     # end_period
     # end_timeout
+    # get_score
     # set_lead
     # set_lost
     # set_star_pass
