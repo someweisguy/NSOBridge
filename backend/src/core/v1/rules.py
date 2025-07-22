@@ -19,8 +19,7 @@ async def get_referee(bout_id: int) -> Referee:
     return referee
 
 
-RefereeDepends = Annotated[Referee, Depends()]
-
+RefereeDepends = Annotated[Referee, Depends(get_referee)]
 DatabaseDepends = Annotated[Session, Depends(get_db)]
 BoutDepends = Annotated[SQLBout, Depends(get_bout)]
 
@@ -49,9 +48,10 @@ async def stop_jam(referee: RefereeDepends, bout: BoutDepends) -> dict:
     with get_db() as db:
         rule: Callable = referee.stop_jam(db=db.begin_nested())
         response: dict = rule(bout)
-        
+
         db.commit()
-        
+
     return response
+
 
 __all__ = ('router',)
