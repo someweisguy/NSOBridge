@@ -3,10 +3,23 @@ from typing import Annotated, Callable, Final
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from core.models.game import SESSION_READ_ONLY, get_bout, get_db
+from core.models.game import get_bout, get_db
 from core.models.game.bout import SQLBout
 from core.models.rules.referees import REFEREES
 from core.models.rules.wftda_2025 import Referee
+
+
+async def get_referee(bout_id: int) -> Referee:
+    bout: SQLBout | None = await get_bout(bout_id)
+    if bout is None:
+        raise KeyError(f'Bout not found ({bout_id=})')
+    referee: Referee | None = REFEREES.get(bout.ruleset)
+    if referee is None:
+        raise KeyError(f'Referee not found ({bout.ruleset=})')
+    return referee
+
+
+RefereeDepends = Annotated[Referee, Depends()]
 
 DatabaseDepends = Annotated[Session, Depends(get_db)]
 BoutDepends = Annotated[SQLBout, Depends(get_bout)]
@@ -19,23 +32,26 @@ router: Final[APIRouter] = APIRouter(prefix='/rules')
 
 
 @router.post('/start-jam')
-async def start_jam(db: DatabaseDepends, bout: BoutDepends) -> dict:
-    # Get the appropriate Referee for the specified Bout
-    referee: Referee | None = REFEREES.get(bout.ruleset)
-    if referee is None:
-        raise KeyError(f'Referee not found ({bout.ruleset=})')
+async def start_jam(referee: RefereeDepends, bout: BoutDepends) -> dict:
+    with get_db() as db:
+        rule: Callable = referee.start_jam(db=db.begin_nested())
+        response: dict = rule(bout)
 
-    # Instantiate the Rule, set the session to read-only, and call the Rule
-    rule: Callable = referee.start_jam(db=db)
-    db.info[SESSION_READ_ONLY] = True
-    response: dict = rule(bout)
-    db.info[SESSION_READ_ONLY] = False
+        # TODO: Post the updated objects to the Updater
 
-    # TODO: Post the updated objects to the Updater
-
-    db.commit()
+        db.commit()
 
     return response
 
+
+@router.post('/stop-jam')
+async def stop_jam(referee: RefereeDepends, bout: BoutDepends) -> dict:
+    with get_db() as db:
+        rule: Callable = referee.stop_jam(db=db.begin_nested())
+        response: dict = rule(bout)
+        
+        db.commit()
+        
+    return response
 
 __all__ = ('router',)

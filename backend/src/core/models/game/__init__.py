@@ -1,6 +1,4 @@
-from typing import Final
-
-from sqlalchemy import Engine, create_engine, event
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from core.models.game.base import SQLBase
@@ -13,22 +11,13 @@ engine: Engine = create_engine('sqlite+pysqlite:///data.db', echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 SQLBase.metadata.create_all(engine)
 
-SESSION_READ_ONLY: Final[str] = 'read_only'
 
-
-@event.listens_for(Session, 'before_flush')
-def before_flush(session: Session, flush_context, instances):
-    if session.info.get(SESSION_READ_ONLY):
-        raise Exception('Read-only session: flush not allowed')
-
-
-async def get_db():  # TODO: return type hint
-    with SessionLocal() as db:
-        yield db
+def get_db() -> Session:
+    return SessionLocal()
 
 
 async def get_bout(bout_id: int) -> SQLBout:
-    with SessionLocal() as db:
+    with get_db() as db:
         bout: SQLBout | None = db.get(SQLBout, bout_id)
         if bout is None:
             raise KeyError(f'Bout was not found ({bout_id=})')
