@@ -24,8 +24,9 @@ BoutDepends = Annotated[SQLBout, Depends(get_bout)]
 
 async def get_api_db(ruleset: RulesetDepends):
     async with get_db() as db:
-        yield ruleset(db=db)
-        await db.commit()
+        async with db.begin():
+            yield ruleset(db=db)
+            await db.commit()
 
 
 RefereeDepends = Annotated[Referee, Depends(get_api_db)]
