@@ -8,7 +8,6 @@ from core.models.rules.referees import Referee
 class WFTDA_2025_Referee(Referee):
     async def start_jam(self, bout: SQLBout):
         now: datetime = datetime.now()
-        print(f'!!!!!!!!!!!!!!!!!!!!!!!!  Starting Jam at {now}')
 
         bout.jams[-1].start(now)
         if not bout.clock.is_running():
