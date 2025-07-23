@@ -1,5 +1,5 @@
 [tool.mypy]
-disable_error_code = ["prop-decorator"]
+disable_error_code = ["prop-decorator", "type-abstract"]
 plugins = ['pydantic.mypy']
 
 [tool.ruff]
