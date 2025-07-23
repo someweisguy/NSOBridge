@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Final, final
 
 from sqlalchemy.ext.asyncio import AsyncSession
