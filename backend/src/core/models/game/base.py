@@ -4,6 +4,7 @@ from datetime import timedelta
 from math import floor
 from typing import Any
 
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -26,5 +27,5 @@ class TimedeltaAsMilliseconds(TypeDecorator):
         return timedelta(milliseconds=value)
 
 
-class SQLBase(MappedAsDataclass, DeclarativeBase):
+class SQLBase(AsyncAttrs, MappedAsDataclass, DeclarativeBase):
     id: Mapped[int] = mapped_column(primary_key=True, init=False)

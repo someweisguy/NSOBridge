@@ -8,10 +8,10 @@ from sqlalchemy.ext.asyncio import (
 from core.models.game.base import SQLBase
 from core.models.game.bout import SQLBout
 from core.models.game.jam import SQLJam, SQLTeamJam
-from core.models.game.team import SQLTeam
+from core.models.game.team import SQLRoster, SQLTeam
 from core.models.game.time import SQLClock
 
-engine: AsyncEngine = create_async_engine('sqlite+pysqlite:///data.db', echo=True)
+engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=True)
 SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -20,8 +20,8 @@ async def setup_db() -> None:
         await connection.run_sync(SQLBase.metadata.create_all)
 
 
-def get_db() -> AsyncSession:
-    return SessionLocal()
+def get_db(**kwargs) -> AsyncSession:
+    return SessionLocal(**kwargs)
 
 
 async def get_bout(bout_id: int) -> SQLBout:
@@ -32,4 +32,12 @@ async def get_bout(bout_id: int) -> SQLBout:
         return bout
 
 
-__all__ = ('engine', 'SQLBout', 'SQLClock', 'SQLJam', 'SQLTeamJam', 'SQLTeam')
+__all__ = (
+    'engine',
+    'SQLBout',
+    'SQLClock',
+    'SQLJam',
+    'SQLRoster',
+    'SQLTeamJam',
+    'SQLTeam',
+)

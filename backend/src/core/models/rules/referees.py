@@ -1,17 +1,29 @@
-from typing import Callable, Final
+from __future__ import annotations
 
-from pydantic import Field
-from sqlalchemy.orm import Session
+from abc import ABC, abstractmethod
+from typing import Final, final
 
-from core.models import ProjectModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from .wftda_2025 import Referee as WFTDA_2025_REFEREE
-
-type RefereeType = dict[str, AbstractRule | Callable[[Session], Callable[..., None]]]
+from core.models.game.bout import SQLBout
 
 
-REFEREES: Final[dict[str, WFTDA_2025_REFEREE]] = {'WFTDA 2025': WFTDA_2025_REFEREE()}
+class Referee:
+    @final
+    def __init__(self, db: AsyncSession) -> None:
+        self.db: Final[AsyncSession] = db
 
+    # add_trip
+    # call_timeout
+    # end_period
+    # end_timeout
+    # get_score
+    # set_lead
+    # set_lost
+    # set_star_pass
+    # setup_game
+    @abstractmethod
+    async def start_jam(self, bout: SQLBout): ...
 
-class AbstractRule(ProjectModel):
-    db: Session = Field(exclude=True, frozen=True)
+    @abstractmethod
+    async def stop_jam(self, bout: SQLBout): ...
