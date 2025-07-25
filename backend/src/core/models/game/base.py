@@ -28,4 +28,4 @@ class TimedeltaAsMilliseconds(TypeDecorator):
 
 
 class SQLBase(AsyncAttrs, MappedAsDataclass, DeclarativeBase):
-    id: Mapped[int] = mapped_column(primary_key=True, init=False)
+    _id: Mapped[int] = mapped_column(primary_key=True, init=False)
