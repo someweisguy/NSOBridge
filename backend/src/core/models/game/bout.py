@@ -20,7 +20,7 @@ class SQLBout(SQLBase):
     _clock_id: Mapped[int] = mapped_column(
         ForeignKey('clocks.id', ondelete='RESTRICT'), init=False
     )
-    
+
     ruleset: Mapped[str] = mapped_column()
 
     teams: Mapped[list[SQLTeam]] = relationship(back_populates='bout', init=False)
@@ -41,13 +41,32 @@ class SQLBout(SQLBase):
         self.jams.append(jam)
         return jam
 
+    def add_timeout(self, timestamp: datetime | None) -> SQLTimeout:
+        if timestamp is None:
+            timestamp = datetime.now()
+        period_num: int = 0
+        jam_num: int = 0
+        if len(self.jams) > 1:
+            # Timeouts are recorded on the latest running Jam
+            latest: SQLJam = self.jams[-2]
+            period_num = latest.period
+            jam_num = latest.jam
+        timeout: SQLTimeout = SQLTimeout(
+            period=period_num,
+            jam=jam_num,
+            start_timestamp=timestamp,
+            clock_elapsed=self.clock.get_duration(timestamp),
+        )
+        self.timeouts.append(timeout)
+        return timeout
+
 
 class SQLTimeout(SQLOneShot):
     __tablename__ = 'timeouts'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
     _team_id: Mapped[int] = mapped_column(ForeignKey('teams.id'), init=False)
 
-    bout: Mapped[SQLBout] = relationship(init=False)
+    bout: Mapped[SQLBout] = relationship(back_populates='timeouts', init=False)
     period: Mapped[int] = mapped_column(index=True, kw_only=True)
     jam: Mapped[int] = mapped_column(index=True, kw_only=True)
 
