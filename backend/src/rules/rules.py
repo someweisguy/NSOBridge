@@ -6,6 +6,7 @@ from typing import Final, final
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.bout import BoutModel
+from models.jam import TeamJamModel
 
 
 class AbstractReferee:
@@ -13,25 +14,29 @@ class AbstractReferee:
     def __init__(self, db: AsyncSession) -> None:
         self.db: Final[AsyncSession] = db
 
-    # add_trip
+    @abstractmethod
+    async def add_trip(self, team_jam: TeamJamModel, passes: int) -> None: ...
+
     # end_period
-    
+
     @abstractmethod
     async def get_score(self, bout: BoutModel) -> tuple[int, ...]: ...
-    
-    # set_lead
+
+    @abstractmethod
+    async def set_lead(self, team_jam: TeamJamModel, lead: bool) -> None: ...
+
     # set_lost
     # set_star_pass
     # setup_game
-    
+
     @abstractmethod
     async def start_jam(self, bout: BoutModel) -> None: ...
 
     @abstractmethod
     async def stop_jam(self, bout: BoutModel) -> None: ...
-    
+
     @abstractmethod
     async def start_timeout(self, bout: BoutModel) -> None: ...
-    
+
     @abstractmethod
     async def stop_timeout(self, bout: BoutModel) -> None: ...

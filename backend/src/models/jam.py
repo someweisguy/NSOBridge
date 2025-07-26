@@ -31,6 +31,7 @@ class TeamJamModel(SQLModel):
     )
 
     team: Mapped[TeamModel] = relationship(foreign_keys=[_team_id])
+    jam: Mapped[JamModel] = relationship(init=False)
 
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
@@ -71,10 +72,10 @@ class JamModel(AbstractOneShotModel):
     stop_reason: Mapped[str | None] = mapped_column(default=None, init=False)
 
     _home: Mapped[TeamJamModel | None] = relationship(
-        foreign_keys=[_home_team_jam_id], init=False
+        back_populates='jam', foreign_keys=[_home_team_jam_id], init=False
     )
     _away: Mapped[TeamJamModel | None] = relationship(
-        foreign_keys=[_away_team_jam_id], init=False
+        back_populates='jam', foreign_keys=[_away_team_jam_id], init=False
     )
 
     @declared_attr
@@ -106,3 +107,8 @@ class JamModel(AbstractOneShotModel):
         if self.home is None or self.away is None:
             raise RuntimeError('A Jam cannot be started without assigning Teams')
         return super().start(timestamp)
+
+    def lead_is_declared(self) -> bool:
+        if self.home is None or self.away is None:
+            return False
+        return self.home.lead or self.away.lead

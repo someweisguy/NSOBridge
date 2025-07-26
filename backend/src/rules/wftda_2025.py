@@ -2,15 +2,36 @@ from datetime import datetime
 
 from models import BoutModel, JamModel
 from models.bout import TimeoutModel
+from models.jam import TeamJamModel
 from rules.rules import AbstractReferee
 
 
 class WFTDA2025Referee(AbstractReferee):
+    async def add_trip(self, team_jam: TeamJamModel, passes: int) -> None:
+        now: datetime = datetime.now()
+        num_trips: int = len(team_jam.trips)
+
+        # Set Lead Jammer on initial Trip
+        if passes > 0 and num_trips == 0 and not team_jam.jam.lead_is_declared():
+            await self.set_lead(team_jam, True)
+
+        # The initial Trip should always be set to 0 Passes
+        team_jam.add_trip(passes if num_trips > 0 else 0, now)
+
     async def get_score(self, bout: BoutModel) -> tuple[int, ...]:
         return tuple(
-            sum(trip.passes for team_jam in team.team_jams for trip in team_jam.trips)
+            sum(
+                trip.passes
+                for team_jam in team.team_jams
+                for trip in team_jam.trips[1:]  # The first Trip should always be 0
+            )
             for team in bout.teams
         )
+
+    async def set_lead(self, team_jam: TeamJamModel, lead: bool) -> None:
+        if lead and team_jam.jam.lead_is_declared():
+            raise RuntimeError('A Lead Jammer has already been declared')
+        team_jam.lead = lead
 
     async def start_jam(self, bout: BoutModel):
         now: datetime = datetime.now()
@@ -41,19 +62,18 @@ class WFTDA2025Referee(AbstractReferee):
 
     async def stop_timeout(self, bout: BoutModel) -> None:
         now: datetime = datetime.now()
-        
+
         if len(bout.timeouts) == 0 or not bout.timeouts[-1].is_running():
             raise RuntimeError('Cannot stop a Timeout if one is not already running')
         timeout: TimeoutModel = bout.timeouts[-1]
-        
+
         # TODO: Enforce TimeoutModel rules here
-        
+
         timeout.stop(now)
-        
+
         # Decrement the Timeout or Official Review if it was not retained
         if timeout.team is not None and not timeout.retained:
             if timeout.is_review:
                 timeout.team.reviews_remaining -= 1
             else:
                 timeout.team.timeouts_remaining -= 1
-        
