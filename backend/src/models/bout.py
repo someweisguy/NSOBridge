@@ -56,10 +56,10 @@ class BoutModel(SQLModel):
         timeout: TimeoutModel = TimeoutModel(
             period=period_num,
             jam=jam_num,
-            start_timestamp=timestamp,
             clock_elapsed=self.clock.get_duration(timestamp),
         )
         self.timeouts.append(timeout)
+        timeout.start(timestamp)
         return timeout
 
 
@@ -72,7 +72,6 @@ class TimeoutModel(AbstractOneShotModel):
     period: Mapped[int] = mapped_column(index=True, kw_only=True)
     jam: Mapped[int] = mapped_column(index=True, kw_only=True)
 
-    start_timestamp: Mapped[datetime] = mapped_column(use_existing_column=True)
     clock_elapsed: Mapped[timedelta] = mapped_column(
         TimedeltaAsMilliseconds, kw_only=True
     )
