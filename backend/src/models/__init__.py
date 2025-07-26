@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from core.models.game.base import SQLBase
-from core.models.game.bout import SQLBout
-from core.models.game.jam import SQLJam, SQLTeamJam
-from core.models.game.team import SQLRoster, SQLTeam
-from core.models.game.time import SQLClock
+from models.base import SQLBase
+from models.bout import SQLBout
+from models.jam import SQLJam, SQLTeamJam
+from models.team import SQLRoster, SQLTeam
+from models.time import SQLClock
 
 engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=True)
 SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)

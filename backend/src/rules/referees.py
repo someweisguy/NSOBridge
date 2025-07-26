@@ -5,7 +5,7 @@ from typing import Final, final
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models.game.bout import SQLBout
+from models.bout import SQLBout
 
 
 class Referee:

@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from core.models.game.base import SQLBase, TimedeltaAsMilliseconds
-from core.models.game.jam import SQLJam
-from core.models.game.time import SQLOneShot
+from models.base import SQLBase, TimedeltaAsMilliseconds
+from models.jam import SQLJam
+from models.time import SQLOneShot
 
 if TYPE_CHECKING:
-    from core.models.game.team import SQLTeam
-    from core.models.game.time import SQLClock
+    from models.team import SQLTeam
+    from models.time import SQLClock
 
 
 class SQLBout(SQLBase):

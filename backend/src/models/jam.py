@@ -7,12 +7,12 @@ from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from core.models.game.base import SQLBase
-from core.models.game.team import SQLTeam
-from core.models.game.time import SQLOneShot
+from models.base import SQLBase
+from models.team import SQLTeam
+from models.time import SQLOneShot
 
 if TYPE_CHECKING:
-    from core.models.game.bout import SQLBout
+    from models.bout import SQLBout
 
 
 class SQLTrip(SQLBase):
@@ -29,7 +29,7 @@ class SQLTeamJam(SQLBase):
     _star_pass_trip_id: Mapped[int | None] = mapped_column(
         ForeignKey('team_jams._id', ondelete='SET NULL'), default=None, init=False
     )
-    
+
     team: Mapped[SQLTeam] = relationship(foreign_keys=[_team_id])
 
     lead: Mapped[bool] = mapped_column(default=False)
@@ -88,15 +88,15 @@ class SQLJam(SQLOneShot):
                                AND _away_team_jam_id IS NOT NULL)
                                OR start_timestamp IS NULL"""),
         )
-        
+
     @property
     def home(self) -> SQLTeamJam | None:
         return self._home
-    
+
     @property
     def away(self) -> SQLTeamJam | None:
         return self._away
-    
+
     def assign_teams(self, home: SQLTeam, away: SQLTeam) -> None:
         self._home = SQLTeamJam(team=home)
         self._away = SQLTeamJam(team=away)

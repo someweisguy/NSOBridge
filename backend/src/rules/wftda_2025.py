@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from core.models.game.bout import SQLBout
-from core.models.game.jam import SQLJam
-from core.models.rules.referees import Referee
+from models.bout import SQLBout
+from models.jam import SQLJam
+from rules.referees import Referee
 
 
 class WFTDA_2025_Referee(Referee):

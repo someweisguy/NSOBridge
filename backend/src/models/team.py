@@ -11,11 +11,11 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from core.models.game.base import SQLBase
+from models.base import SQLBase
 
 if TYPE_CHECKING:
-    from core.models.game.bout import SQLBout, SQLTimeout
-    from core.models.game.jam import SQLTeamJam
+    from models.bout import SQLBout, SQLTimeout
+    from models.jam import SQLTeamJam
 
 
 class SQLRoster(SQLBase):

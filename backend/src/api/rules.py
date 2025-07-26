@@ -2,10 +2,9 @@ from typing import Annotated, AsyncGenerator, Final
 
 from fastapi import APIRouter, Depends
 
-from core.models.game import get_bout, get_db
-from core.models.game.bout import SQLBout
-from core.models.rules import REFEREES
-from core.models.rules.wftda_2025 import Referee
+from models import get_bout, get_db
+from models.bout import SQLBout
+from rules import REFEREES, Referee
 
 
 async def get_referee(bout_id: int) -> AsyncGenerator[Referee, None]:
@@ -16,7 +15,7 @@ async def get_referee(bout_id: int) -> AsyncGenerator[Referee, None]:
         referee: type[Referee] | None = REFEREES.get(bout.ruleset)
         if referee is None:
             raise KeyError(f'Referee not found ({bout.ruleset=})')
-        
+
         yield referee(db=db)
 
         # TODO: Pass session dirty/deleted/new identity maps to updater module

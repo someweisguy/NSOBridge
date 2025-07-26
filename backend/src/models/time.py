@@ -6,7 +6,7 @@ from sqlalchemy import CheckConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column
 
-from core.models.game.base import SQLBase, TimedeltaAsMilliseconds
+from models.base import SQLBase, TimedeltaAsMilliseconds
 
 
 class SQLClock(SQLBase):
