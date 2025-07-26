@@ -36,12 +36,12 @@ class SQLBout(SQLBase):
         if len(self.jams) > 0:
             latest: SQLJam = self.jams[-1]
             period_num = latest.period
-            jam_num = latest.jam
+            jam_num = latest.jam + 1
         jam: SQLJam = SQLJam(period=period_num, jam=jam_num)
         self.jams.append(jam)
         return jam
 
-    def add_timeout(self, timestamp: datetime | None) -> SQLTimeout:
+    def add_timeout(self, timestamp: datetime | None = None) -> SQLTimeout:
         if timestamp is None:
             timestamp = datetime.now()
         period_num: int = 0
