@@ -7,15 +7,15 @@ from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.base import SQLBase
-from models.team import SQLTeam
-from models.time import SQLOneShot
+from models.base import SQLModel
+from models.team import TeamModel
+from models.time import AbstractOneShotModel
 
 if TYPE_CHECKING:
-    from models.bout import SQLBout
+    from models.bout import BoutModel
 
 
-class SQLTrip(SQLBase):
+class TripModel(SQLModel):
     __tablename__ = 'trips'
     _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'), init=False)
 
@@ -23,38 +23,38 @@ class SQLTrip(SQLBase):
     passes: Mapped[int] = mapped_column()
 
 
-class SQLTeamJam(SQLBase):
+class TeamJamModel(SQLModel):
     __tablename__ = 'team_jams'
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'), init=False)
     _star_pass_trip_id: Mapped[int | None] = mapped_column(
         ForeignKey('team_jams._id', ondelete='SET NULL'), default=None, init=False
     )
 
-    team: Mapped[SQLTeam] = relationship(foreign_keys=[_team_id])
+    team: Mapped[TeamModel] = relationship(foreign_keys=[_team_id])
 
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
 
-    star_pass_trip: Mapped[SQLTrip | None] = relationship(
+    star_pass_trip: Mapped[TripModel | None] = relationship(
         default=None,
         foreign_keys=[_star_pass_trip_id],
         init=False,
         post_update=True,
-        primaryjoin=(_star_pass_trip_id == SQLTrip._id),
+        primaryjoin=(_star_pass_trip_id == TripModel._id),
     )
-    trips: Mapped[list[SQLTrip]] = relationship(
-        init=False, order_by=[SQLTrip.timestamp]
+    trips: Mapped[list[TripModel]] = relationship(
+        init=False, order_by=[TripModel.timestamp]
     )
 
-    def add_trip(self, passes: int, timestamp: datetime | None = None) -> SQLTrip:
+    def add_trip(self, passes: int, timestamp: datetime | None = None) -> TripModel:
         if timestamp is None:
             timestamp = datetime.now()
-        trip: SQLTrip = SQLTrip(timestamp=timestamp, passes=passes)
+        trip: TripModel = TripModel(timestamp=timestamp, passes=passes)
         self.trips.append(trip)
         return trip
 
 
-class SQLJam(SQLOneShot):
+class JamModel(AbstractOneShotModel):
     __tablename__ = 'jams'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
     _home_team_jam_id: Mapped[int | None] = mapped_column(
@@ -64,16 +64,16 @@ class SQLJam(SQLOneShot):
         ForeignKey('team_jams._id', ondelete='SET NULL'), default=None
     )
 
-    bout: Mapped[SQLBout] = relationship(init=False)
+    bout: Mapped[BoutModel] = relationship(init=False)
 
     period: Mapped[int] = mapped_column(index=True, kw_only=True)
     jam: Mapped[int] = mapped_column(index=True, kw_only=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None, init=False)
 
-    _home: Mapped[SQLTeamJam | None] = relationship(
+    _home: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_home_team_jam_id], init=False
     )
-    _away: Mapped[SQLTeamJam | None] = relationship(
+    _away: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_away_team_jam_id], init=False
     )
 
@@ -90,16 +90,16 @@ class SQLJam(SQLOneShot):
         )
 
     @property
-    def home(self) -> SQLTeamJam | None:
+    def home(self) -> TeamJamModel | None:
         return self._home
 
     @property
-    def away(self) -> SQLTeamJam | None:
+    def away(self) -> TeamJamModel | None:
         return self._away
 
-    def assign_teams(self, home: SQLTeam, away: SQLTeam) -> None:
-        self._home = SQLTeamJam(team=home)
-        self._away = SQLTeamJam(team=away)
+    def assign_teams(self, home: TeamModel, away: TeamModel) -> None:
+        self._home = TeamJamModel(team=home)
+        self._away = TeamJamModel(team=away)
 
     def start(self, timestamp: datetime) -> None:
         if self.home is None or self.away is None:

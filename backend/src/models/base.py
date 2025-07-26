@@ -27,5 +27,5 @@ class TimedeltaAsMilliseconds(TypeDecorator):
         return timedelta(milliseconds=value)
 
 
-class SQLBase(AsyncAttrs, MappedAsDataclass, DeclarativeBase):
+class SQLModel(AsyncAttrs, MappedAsDataclass, DeclarativeBase):
     _id: Mapped[int] = mapped_column(primary_key=True, init=False)

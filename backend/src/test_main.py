@@ -1,13 +1,13 @@
 import asyncio
 from datetime import timedelta
 
-from models import SessionLocal, SQLBout, SQLClock, SQLRoster, SQLTeam, setup_db
-from models.jam import SQLJam
+from models import BoutModel, ClockModel, RosterModel, SessionLocal, TeamModel, setup_db
+from models.jam import JamModel
 from rules import REFEREES, Referee
 from schemas.bout import BoutSchema
 
-home_roster: SQLRoster = SQLRoster()
-away_roster: SQLRoster = SQLRoster()
+home_roster: RosterModel = RosterModel()
+away_roster: RosterModel = RosterModel()
 
 BOUT_OPTIONS: dict[str, int] = {
     'timeouts_remaining': 3,
@@ -19,18 +19,18 @@ async def main() -> None:
     await setup_db()
 
     async with SessionLocal() as session, session.begin():
-        bout: SQLBout = SQLBout(
-            clock=SQLClock(alarm=timedelta(minutes=30)), ruleset='WFTDA 2025'
+        bout: BoutModel = BoutModel(
+            clock=ClockModel(alarm=timedelta(minutes=30)), ruleset='WFTDA 2025'
         )
         bout.teams = [
-            SQLTeam(roster=home_roster, **BOUT_OPTIONS),
-            SQLTeam(roster=away_roster, **BOUT_OPTIONS),
+            TeamModel(roster=home_roster, **BOUT_OPTIONS),
+            TeamModel(roster=away_roster, **BOUT_OPTIONS),
         ]
 
         Ruleset: type[Referee] | None = REFEREES.get(bout.ruleset)
         assert Ruleset is not None
 
-        jam: SQLJam = bout.add_jam()
+        jam: JamModel = bout.add_jam()
         jam.assign_teams(*bout.teams)
         session.add(bout)
 

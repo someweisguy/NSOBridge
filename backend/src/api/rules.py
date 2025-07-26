@@ -3,13 +3,13 @@ from typing import Annotated, AsyncGenerator, Final
 from fastapi import APIRouter, Depends
 
 from models import get_bout, get_db
-from models.bout import SQLBout
+from models.bout import BoutModel
 from rules import REFEREES, Referee
 
 
 async def get_referee(bout_id: int) -> AsyncGenerator[Referee, None]:
     async with get_db() as db, db.begin():
-        bout: SQLBout | None = await get_bout(bout_id)
+        bout: BoutModel | None = await get_bout(bout_id)
         if bout is None:
             raise KeyError(f'Bout not found ({bout_id=})')
         referee: type[Referee] | None = REFEREES.get(bout.ruleset)
@@ -24,7 +24,7 @@ async def get_referee(bout_id: int) -> AsyncGenerator[Referee, None]:
 
 
 RefereeDepends = Annotated[Referee, Depends(get_referee)]
-BoutDepends = Annotated[SQLBout, Depends(get_bout)]
+BoutDepends = Annotated[BoutModel, Depends(get_bout)]
 
 
 router: Final[APIRouter] = APIRouter(prefix='/rules')

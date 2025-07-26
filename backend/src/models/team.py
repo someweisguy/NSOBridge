@@ -11,14 +11,14 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from models.base import SQLBase
+from models.base import SQLModel
 
 if TYPE_CHECKING:
-    from models.bout import SQLBout, SQLTimeout
-    from models.jam import SQLTeamJam
+    from models.bout import BoutModel, TimeoutModel
+    from models.jam import TeamJamModel
 
 
-class SQLRoster(SQLBase):
+class RosterModel(SQLModel):
     __tablename__ = 'rosters'
     # TODO: mnemonic: str
     # TODO: league
@@ -26,17 +26,19 @@ class SQLRoster(SQLBase):
     # TODO: skaters: list[Skater]
 
 
-class SQLTeam(SQLBase):
+class TeamModel(SQLModel):
     __tablename__ = 'teams'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
     _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'), init=False)
 
-    bout: Mapped[SQLBout] = relationship(back_populates='teams', init=False)
-    roster: Mapped[SQLRoster] = relationship(foreign_keys=[_roster_id])
+    bout: Mapped[BoutModel] = relationship(back_populates='teams', init=False)
+    roster: Mapped[RosterModel] = relationship(foreign_keys=[_roster_id])
 
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
     score_offset: Mapped[int] = mapped_column(default=0, init=False)
 
-    timeouts: Mapped[list[SQLTimeout]] = relationship(back_populates='team', init=False)
-    team_jams: Mapped[list[SQLTeamJam]] = relationship(init=False)
+    timeouts: Mapped[list[TimeoutModel]] = relationship(
+        back_populates='team', init=False
+    )
+    team_jams: Mapped[list[TeamJamModel]] = relationship(init=False)

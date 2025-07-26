@@ -6,10 +6,10 @@ from sqlalchemy import CheckConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column
 
-from models.base import SQLBase, TimedeltaAsMilliseconds
+from models.base import SQLModel, TimedeltaAsMilliseconds
 
 
-class SQLClock(SQLBase):
+class ClockModel(SQLModel):
     __tablename__ = 'clocks'
 
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None, init=False)
@@ -45,7 +45,7 @@ class SQLClock(SQLBase):
         return (timestamp - self.start_timestamp) + self.elapsed
 
 
-class SQLOneShot(SQLBase):
+class AbstractOneShotModel(SQLModel):
     __abstract__ = True
 
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)

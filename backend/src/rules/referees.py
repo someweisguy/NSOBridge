@@ -5,7 +5,7 @@ from typing import Final, final
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.bout import SQLBout
+from models.bout import BoutModel
 
 
 class Referee:
@@ -23,7 +23,7 @@ class Referee:
     # set_star_pass
     # setup_game
     @abstractmethod
-    async def start_jam(self, bout: SQLBout): ...
+    async def start_jam(self, bout: BoutModel): ...
 
     @abstractmethod
-    async def stop_jam(self, bout: SQLBout): ...
+    async def stop_jam(self, bout: BoutModel): ...

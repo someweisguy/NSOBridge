@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from models.base import SQLBase
-from models.bout import SQLBout
-from models.jam import SQLJam, SQLTeamJam
-from models.team import SQLRoster, SQLTeam
-from models.time import SQLClock
+from models.base import SQLModel
+from models.bout import BoutModel
+from models.jam import JamModel, TeamJamModel
+from models.team import RosterModel, TeamModel
+from models.time import ClockModel
 
 engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=True)
 SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -17,16 +17,16 @@ SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine
 
 async def setup_db() -> None:
     async with engine.connect() as connection:
-        await connection.run_sync(SQLBase.metadata.create_all)
+        await connection.run_sync(SQLModel.metadata.create_all)
 
 
 def get_db(**kwargs) -> AsyncSession:
     return SessionLocal(**kwargs)
 
 
-async def get_bout(bout_id: int) -> SQLBout:
+async def get_bout(bout_id: int) -> BoutModel:
     async with get_db() as db:
-        bout: SQLBout | None = await db.get(SQLBout, bout_id)
+        bout: BoutModel | None = await db.get(BoutModel, bout_id)
         if bout is None:
             raise KeyError(f'Bout was not found ({bout_id=})')
         return bout
@@ -34,10 +34,10 @@ async def get_bout(bout_id: int) -> SQLBout:
 
 __all__ = (
     'engine',
-    'SQLBout',
-    'SQLClock',
-    'SQLJam',
-    'SQLRoster',
-    'SQLTeamJam',
-    'SQLTeam',
+    'BoutModel',
+    'ClockModel',
+    'JamModel',
+    'RosterModel',
+    'TeamJamModel',
+    'TeamModel',
 )
