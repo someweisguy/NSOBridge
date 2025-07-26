@@ -4,7 +4,13 @@ from datetime import timedelta
 from math import floor
 from typing import Any
 
-from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy import Dialect
+from sqlalchemy.ext.asyncio import (
+    AsyncAttrs,
+    AsyncEngine,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -13,16 +19,21 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.types import Integer, TypeDecorator
 
+engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=True)
+SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-class TimedeltaAsMilliseconds(TypeDecorator):
+
+class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
     impl = Integer
     cache_ok = True
 
-    def process_bind_param(self, value: Any, _) -> int:
-        assert isinstance(value, timedelta)
-        return floor(value.total_seconds() * 1000)
+    def process_bind_param(self, value: Any | None, dialect: Dialect) -> Any:
+        if value is not None:
+            assert isinstance(value, timedelta)
+            return floor(value.total_seconds() * 1000)
+        return value
 
-    def process_result_value(self, value: Any, _) -> timedelta:
+    def process_result_value(self, value: Any | None, dialect: Dialect) -> Any | None:
         assert isinstance(value, (float, int))
         return timedelta(milliseconds=value)
 

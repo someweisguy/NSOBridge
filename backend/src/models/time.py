@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from typing import Any
 
 from sqlalchemy import CheckConstraint
 from sqlalchemy.ext.declarative import declared_attr
@@ -52,7 +53,7 @@ class AbstractOneShotModel(SQLModel):
     stop_timestamp: Mapped[datetime | None] = mapped_column(default=None)
 
     @declared_attr
-    def __table_args__(cls):
+    def __table_args__(cls) -> Any:
         return (
             CheckConstraint('start_timestamp < stop_timestamp'),
             CheckConstraint('start_timestamp IS NOT NULL OR stop_timestamp IS NULL'),

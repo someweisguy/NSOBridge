@@ -1,20 +1,12 @@
 from typing import Any
 
-from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.bout import BoutModel
 from models.jam import JamModel, TeamJamModel
-from models.models import SQLModel
+from models.models import SessionLocal, SQLModel, engine
 from models.team import RosterModel, TeamModel
 from models.time import ClockModel
-
-engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=True)
-SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 async def setup_db() -> None:
@@ -35,7 +27,6 @@ async def get_bout(bout_id: int) -> BoutModel:
 
 
 __all__ = (
-    'engine',
     'BoutModel',
     'ClockModel',
     'JamModel',

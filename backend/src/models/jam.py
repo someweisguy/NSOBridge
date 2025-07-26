@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
@@ -78,14 +78,15 @@ class JamModel(AbstractOneShotModel):
     )
 
     @declared_attr
-    def __table_args__(cls):
+    @classmethod
+    def __table_args__(cls) -> Any:
         return super().__table_args__ + (
             UniqueConstraint(cls._bout_id, cls.period, cls.jam),
             UniqueConstraint(cls._home_team_jam_id),
             UniqueConstraint(cls._away_team_jam_id),
             CheckConstraint('_home_team_jam_id != _away_team_jam_id'),
             CheckConstraint("""(_home_team_jam_id IS NOT NULL
-                               AND _away_team_jam_id IS NOT NULL)
+                                AND _away_team_jam_id IS NOT NULL)
                                OR start_timestamp IS NULL"""),
         )
 
