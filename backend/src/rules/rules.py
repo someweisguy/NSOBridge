@@ -17,13 +17,14 @@ class AbstractReferee:
     # call_timeout
     # end_period
     # end_timeout
-    # get_score
+    @abstractmethod
+    async def get_score(self, bout: BoutModel) -> tuple[int, ...]: ...
     # set_lead
     # set_lost
     # set_star_pass
     # setup_game
     @abstractmethod
-    async def start_jam(self, bout: BoutModel): ...
+    async def start_jam(self, bout: BoutModel) -> None: ...
 
     @abstractmethod
-    async def stop_jam(self, bout: BoutModel): ...
+    async def stop_jam(self, bout: BoutModel) -> None: ...

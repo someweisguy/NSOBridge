@@ -1,11 +1,16 @@
 from datetime import datetime
 
-from models.bout import BoutModel
-from models.jam import JamModel
+from models import BoutModel, JamModel
 from rules.rules import AbstractReferee
 
 
 class WFTDA2025Referee(AbstractReferee):
+    async def get_score(self, bout: BoutModel) -> tuple[int, ...]:
+        return tuple(
+            sum(trip.passes for team_jam in team.team_jams for trip in team_jam.trips)
+            for team in bout.teams
+        )
+
     async def start_jam(self, bout: BoutModel):
         now: datetime = datetime.now()
 
@@ -18,4 +23,4 @@ class WFTDA2025Referee(AbstractReferee):
 
         bout.jams[-1].stop(now)
         jam: JamModel = bout.add_jam()
-        jam.assign_teams(*bout.teams)
+        jam.assign_teams(*bout.teams[:2])

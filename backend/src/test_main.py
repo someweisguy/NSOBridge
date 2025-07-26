@@ -38,13 +38,15 @@ async def main() -> None:
         assert Ruleset is not None
 
         jam: JamModel = bout.add_jam()
-        jam.assign_teams(*bout.teams)
+        jam.assign_teams(*bout.teams[:2])
         session.add(bout)
 
         referee: AbstractReferee = Ruleset(db=session)
         await referee.start_jam(bout)
 
         await referee.stop_jam(bout)
+
+        print(await referee.get_score(bout))
 
         bout_model: BoutSchema = BoutSchema.model_validate(bout)
         print(bout_model.model_dump())
