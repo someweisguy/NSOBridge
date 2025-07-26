@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 class SQLTrip(SQLBase):
     __tablename__ = 'trips'
-    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'), init=False)
+    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'), init=False)
 
     timestamp: Mapped[datetime] = mapped_column()
     passes: Mapped[int] = mapped_column()
@@ -25,9 +25,9 @@ class SQLTrip(SQLBase):
 
 class SQLTeamJam(SQLBase):
     __tablename__ = 'team_jams'
-    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'), init=False)
+    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'), init=False)
     _star_pass_trip_id: Mapped[int | None] = mapped_column(
-        ForeignKey('team_jams.id', ondelete='SET NULL'), default=None, init=False
+        ForeignKey('team_jams._id', ondelete='SET NULL'), default=None, init=False
     )
     
     team: Mapped[SQLTeam] = relationship(foreign_keys=[_team_id])
@@ -40,7 +40,7 @@ class SQLTeamJam(SQLBase):
         foreign_keys=[_star_pass_trip_id],
         init=False,
         post_update=True,
-        primaryjoin=(_star_pass_trip_id == SQLTrip.id),
+        primaryjoin=(_star_pass_trip_id == SQLTrip._id),
     )
     trips: Mapped[list[SQLTrip]] = relationship(
         init=False, order_by=[SQLTrip.timestamp]
@@ -56,12 +56,12 @@ class SQLTeamJam(SQLBase):
 
 class SQLJam(SQLOneShot):
     __tablename__ = 'jams'
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
     _home_team_jam_id: Mapped[int | None] = mapped_column(
-        ForeignKey('team_jams.id', ondelete='SET NULL'), default=None
+        ForeignKey('team_jams._id', ondelete='SET NULL'), default=None
     )
     _away_team_jam_id: Mapped[int | None] = mapped_column(
-        ForeignKey('team_jams.id', ondelete='SET NULL'), default=None
+        ForeignKey('team_jams._id', ondelete='SET NULL'), default=None
     )
 
     bout: Mapped[SQLBout] = relationship(init=False)

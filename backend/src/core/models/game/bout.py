@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class SQLBout(SQLBase):
     __tablename__ = 'bouts'
     _clock_id: Mapped[int] = mapped_column(
-        ForeignKey('clocks.id', ondelete='RESTRICT'), init=False
+        ForeignKey('clocks._id', ondelete='RESTRICT'), init=False
     )
 
     ruleset: Mapped[str] = mapped_column()
@@ -63,8 +63,8 @@ class SQLBout(SQLBase):
 
 class SQLTimeout(SQLOneShot):
     __tablename__ = 'timeouts'
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
-    _team_id: Mapped[int] = mapped_column(ForeignKey('teams.id'), init=False)
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
+    _team_id: Mapped[int] = mapped_column(ForeignKey('teams._id'), init=False)
 
     bout: Mapped[SQLBout] = relationship(back_populates='timeouts', init=False)
     period: Mapped[int] = mapped_column(index=True, kw_only=True)

@@ -28,8 +28,8 @@ class SQLRoster(SQLBase):
 
 class SQLTeam(SQLBase):
     __tablename__ = 'teams'
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'), init=False)
-    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'), init=False)
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
+    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'), init=False)
 
     bout: Mapped[SQLBout] = relationship(back_populates='teams', init=False)
     roster: Mapped[SQLRoster] = relationship(foreign_keys=[_roster_id])
