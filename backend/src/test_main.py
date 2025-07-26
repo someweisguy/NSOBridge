@@ -6,8 +6,8 @@ from models import (
     ClockModel,
     JamModel,
     RosterModel,
-    SessionLocal,
     TeamModel,
+    get_db,
     setup_db,
 )
 from rules import REFEREES, AbstractReferee
@@ -25,7 +25,7 @@ BOUT_OPTIONS: dict[str, int] = {
 async def main() -> None:
     await setup_db()
 
-    async with SessionLocal() as session, session.begin():
+    async with get_db() as session, session.begin():
         bout: BoutModel = BoutModel(
             clock=ClockModel(alarm=timedelta(minutes=30)), ruleset='WFTDA 2025'
         )

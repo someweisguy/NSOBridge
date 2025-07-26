@@ -1,12 +1,16 @@
-from typing import Any
+from typing import Any, Callable
 
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 from models.bout import BoutModel
 from models.jam import JamModel, TeamJamModel
 from models.models import SessionLocal, SQLModel, engine
 from models.team import RosterModel, TeamModel
 from models.time import ClockModel
+
+pre_commit_hook: Callable[[Session], None] | None = None
 
 
 async def setup_db() -> None:
@@ -15,7 +19,10 @@ async def setup_db() -> None:
 
 
 def get_db(**kwargs: Any) -> AsyncSession:
-    return SessionLocal(**kwargs)
+    session: AsyncSession = SessionLocal(**kwargs)
+    if pre_commit_hook is not None:
+        event.listen(session.sync_session, 'before_commit', pre_commit_hook)
+    return session
 
 
 async def get_bout(bout_id: int) -> BoutModel:
@@ -30,6 +37,7 @@ __all__ = (
     'BoutModel',
     'ClockModel',
     'JamModel',
+    'pre_commit_hook',
     'RosterModel',
     'TeamJamModel',
     'TeamModel',
