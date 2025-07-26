@@ -3,15 +3,15 @@ from typing import Annotated, AsyncGenerator, Final
 from fastapi import APIRouter, Depends
 
 from models import BoutModel, get_bout, get_db
-from rules import REFEREES, Referee
+from rules import REFEREES, AbstractReferee
 
 
-async def get_referee(bout_id: int) -> AsyncGenerator[Referee, None]:
+async def get_referee(bout_id: int) -> AsyncGenerator[AbstractReferee, None]:
     async with get_db() as db, db.begin():
         bout: BoutModel | None = await get_bout(bout_id)
         if bout is None:
             raise KeyError(f'Bout not found ({bout_id=})')
-        referee: type[Referee] | None = REFEREES.get(bout.ruleset)
+        referee: type[AbstractReferee] | None = REFEREES.get(bout.ruleset)
         if referee is None:
             raise KeyError(f'Referee not found ({bout.ruleset=})')
 
@@ -22,7 +22,7 @@ async def get_referee(bout_id: int) -> AsyncGenerator[Referee, None]:
         await db.commit()
 
 
-RefereeDepends = Annotated[Referee, Depends(get_referee)]
+RefereeDepends = Annotated[AbstractReferee, Depends(get_referee)]
 BoutDepends = Annotated[BoutModel, Depends(get_bout)]
 
 

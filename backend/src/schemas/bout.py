@@ -1,7 +1,7 @@
 from pydantic import Field, computed_field
 
-from schemas.schemas import ServerSchema
 from schemas.jam import JamSchema
+from schemas.schemas import ServerSchema
 
 
 class TimeoutSchema(ServerSchema):

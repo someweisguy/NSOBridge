@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.bout import BoutModel
 
 
-class Referee:
+class AbstractReferee:
     @final
     def __init__(self, db: AsyncSession) -> None:
         self.db: Final[AsyncSession] = db

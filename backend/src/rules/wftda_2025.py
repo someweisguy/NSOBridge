@@ -2,10 +2,10 @@ from datetime import datetime
 
 from models.bout import BoutModel
 from models.jam import JamModel
-from rules.rules import Referee
+from rules.rules import AbstractReferee
 
 
-class WFTDA_2025_Referee(Referee):
+class WFTDA2025Referee(AbstractReferee):
     async def start_jam(self, bout: BoutModel):
         now: datetime = datetime.now()
 

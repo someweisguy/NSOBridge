@@ -5,9 +5,9 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from models.models import SQLModel
 from models.bout import BoutModel
 from models.jam import JamModel, TeamJamModel
+from models.models import SQLModel
 from models.team import RosterModel, TeamModel
 from models.time import ClockModel
 

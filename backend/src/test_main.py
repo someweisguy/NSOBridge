@@ -10,7 +10,7 @@ from models import (
     TeamModel,
     setup_db,
 )
-from rules import REFEREES, Referee
+from rules import REFEREES, AbstractReferee
 from schemas import BoutSchema
 
 home_roster: RosterModel = RosterModel()
@@ -34,14 +34,14 @@ async def main() -> None:
             TeamModel(roster=away_roster, **BOUT_OPTIONS),
         ]
 
-        Ruleset: type[Referee] | None = REFEREES.get(bout.ruleset)
+        Ruleset: type[AbstractReferee] | None = REFEREES.get(bout.ruleset)
         assert Ruleset is not None
 
         jam: JamModel = bout.add_jam()
         jam.assign_teams(*bout.teams)
         session.add(bout)
 
-        referee: Referee = Ruleset(db=session)
+        referee: AbstractReferee = Ruleset(db=session)
         await referee.start_jam(bout)
 
         await referee.stop_jam(bout)
