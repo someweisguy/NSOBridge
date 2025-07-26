@@ -1,4 +1,4 @@
-from typing import Annotated, AsyncGenerator, Final
+from typing import Annotated, Any, AsyncGenerator, Final
 
 from fastapi import APIRouter, Depends
 
@@ -8,9 +8,7 @@ from rules import REFEREES, AbstractReferee
 
 async def get_referee(bout_id: int) -> AsyncGenerator[AbstractReferee, None]:
     async with get_db() as db, db.begin():
-        bout: BoutModel | None = await get_bout(bout_id)
-        if bout is None:
-            raise KeyError(f'Bout not found ({bout_id=})')
+        bout: BoutModel = await get_bout(bout_id)
         referee: type[AbstractReferee] | None = REFEREES.get(bout.ruleset)
         if referee is None:
             raise KeyError(f'Referee not found ({bout.ruleset=})')
@@ -33,13 +31,13 @@ router: Final[APIRouter] = APIRouter(prefix='/rules')
 
 
 @router.post('/start-jam')
-async def start_jam(referee: RefereeDepends, bout: BoutDepends) -> dict:
+async def start_jam(referee: RefereeDepends, bout: BoutDepends) -> dict[str, Any]:
     await referee.start_jam(bout)
     return {}
 
 
 @router.post('/stop-jam')
-async def stop_jam(referee: RefereeDepends, bout: BoutDepends) -> dict:
+async def stop_jam(referee: RefereeDepends, bout: BoutDepends) -> dict[str, Any]:
     await referee.stop_jam(bout)
     return {}
 

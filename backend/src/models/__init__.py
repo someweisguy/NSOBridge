@@ -1,3 +1,5 @@
+from typing import Any
+
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -20,7 +22,7 @@ async def setup_db() -> None:
         await connection.run_sync(SQLModel.metadata.create_all)
 
 
-def get_db(**kwargs) -> AsyncSession:
+def get_db(**kwargs: Any) -> AsyncSession:
     return SessionLocal(**kwargs)
 
 
