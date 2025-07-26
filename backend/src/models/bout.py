@@ -43,7 +43,7 @@ class BoutModel(SQLModel):
         self.jams.append(jam)
         return jam
 
-    def add_timeout(self, timestamp: datetime | None = None) -> TimeoutModel:
+    def call_timeout(self, timestamp: datetime | None = None) -> TimeoutModel:
         if timestamp is None:
             timestamp = datetime.now()
         period_num: int = 0

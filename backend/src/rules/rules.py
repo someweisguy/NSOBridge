@@ -28,3 +28,9 @@ class AbstractReferee:
 
     @abstractmethod
     async def stop_jam(self, bout: BoutModel) -> None: ...
+    
+    @abstractmethod
+    async def start_timeout(self, bout: BoutModel) -> None: ...
+    
+    @abstractmethod
+    async def stop_timeout(self, bout: BoutModel) -> None: ...
