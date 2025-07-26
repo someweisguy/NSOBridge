@@ -9,6 +9,7 @@
   "python.analysis.extraPaths": [
     "${workspaceFolder}/backend/src",
   ],
+  "python.analysis.typeCheckingMode": "strict",
   "mypy.configFile": "backend/pyproject.toml",
   "mypy.dmypyExecutable": "${workspaceFolder}/.venv/Scripts/",
   "mypy.runUsingActiveInterpreter": true,
