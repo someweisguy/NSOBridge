@@ -4,10 +4,11 @@ from datetime import timedelta
 from math import floor
 from typing import Any
 
-from sqlalchemy import Dialect
+from sqlalchemy import Dialect, event
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncEngine,
+    AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
@@ -19,8 +20,14 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.types import Integer, TypeDecorator
 
+
+def pre_commit_hook(session: AsyncSession) -> None:
+    pass
+
+
 engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=True)
 SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
+event.listen(SessionLocal, 'before_commit', pre_commit_hook)
 
 
 class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
