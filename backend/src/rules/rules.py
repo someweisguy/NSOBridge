@@ -14,15 +14,16 @@ class AbstractReferee:
         self.db: Final[AsyncSession] = db
 
     # add_trip
-    # call_timeout
     # end_period
-    # end_timeout
+    
     @abstractmethod
     async def get_score(self, bout: BoutModel) -> tuple[int, ...]: ...
+    
     # set_lead
     # set_lost
     # set_star_pass
     # setup_game
+    
     @abstractmethod
     async def start_jam(self, bout: BoutModel) -> None: ...
 
