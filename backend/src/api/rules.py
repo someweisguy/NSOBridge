@@ -34,12 +34,14 @@ router: Final[APIRouter] = APIRouter(prefix='/rules')
 
 @router.post('/start-jam')
 async def start_jam(referee: RefereeDepends, bout: BoutDepends) -> dict:
-    return await referee.start_jam(bout)
+    await referee.start_jam(bout)
+    return {}
 
 
 @router.post('/stop-jam')
 async def stop_jam(referee: RefereeDepends, bout: BoutDepends) -> dict:
-    return await referee.stop_jam(bout)
+    await referee.stop_jam(bout)
+    return {}
 
 
 __all__ = ('router',)
