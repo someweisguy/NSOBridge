@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 
-from core.views import ws
+from core import ws
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'frontend' / 'dist'
 

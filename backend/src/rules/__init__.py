@@ -1,6 +1,6 @@
 from typing import Final
 
-from core.models.rules.referees import Referee
+from rules.referees import Referee
 
 from .wftda_2025 import WFTDA_2025_Referee
 
