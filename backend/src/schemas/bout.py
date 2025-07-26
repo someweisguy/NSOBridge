@@ -1,14 +1,14 @@
 from pydantic import Field, computed_field
 
-from schemas.base import ServerModel
+from schemas.base import ServerSchema
 from schemas.jam import JamSchema
 
 
-class TimeoutSchema(ServerModel):
+class TimeoutSchema(ServerSchema):
     pass
 
 
-class BoutSchema(ServerModel):
+class BoutSchema(ServerSchema):
     ruleset: str
     jams: list[JamSchema] = Field(exclude=True)
     timeouts: list[TimeoutSchema] = Field(exclude=True)

@@ -12,7 +12,7 @@ def _timedelta_encoder(value: timedelta) -> int:
     return floor(value.total_seconds() * 1000)
 
 
-class ServerModel(BaseModel):
+class ServerSchema(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
         from_attributes=True,
@@ -21,7 +21,7 @@ class ServerModel(BaseModel):
     )
 
 
-class ClientModel(BaseModel):
+class ClientSchema(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
         from_attributes=True,

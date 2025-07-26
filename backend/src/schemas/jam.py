@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from schemas.base import ServerModel
+from schemas.base import ServerSchema
 
 
-class JamSchema(ServerModel):
+class JamSchema(ServerSchema):
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
     period: int
