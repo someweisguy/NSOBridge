@@ -2,8 +2,7 @@ from typing import Annotated, AsyncGenerator, Final
 
 from fastapi import APIRouter, Depends
 
-from models import get_bout, get_db
-from models.bout import BoutModel
+from models import BoutModel, get_bout, get_db
 from rules import REFEREES, Referee
 
 

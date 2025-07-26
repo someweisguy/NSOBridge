@@ -11,7 +11,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from models.base import SQLModel
+from models.models import SQLModel
 
 if TYPE_CHECKING:
     from models.bout import BoutModel, TimeoutModel

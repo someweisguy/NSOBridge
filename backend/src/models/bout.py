@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.base import SQLModel, TimedeltaAsMilliseconds
+from models.models import SQLModel, TimedeltaAsMilliseconds
 from models.jam import JamModel
 from models.time import AbstractOneShotModel
 

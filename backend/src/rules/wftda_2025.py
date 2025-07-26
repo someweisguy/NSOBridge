@@ -2,7 +2,7 @@ from datetime import datetime
 
 from models.bout import BoutModel
 from models.jam import JamModel
-from rules.referees import Referee
+from rules.rules import Referee
 
 
 class WFTDA_2025_Referee(Referee):

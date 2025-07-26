@@ -7,7 +7,7 @@ from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.base import SQLModel
+from models.models import SQLModel
 from models.team import TeamModel
 from models.time import AbstractOneShotModel
 

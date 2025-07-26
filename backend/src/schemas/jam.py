@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from schemas.base import ServerSchema
+from schemas.schemas import ServerSchema
 
 
 class JamSchema(ServerSchema):

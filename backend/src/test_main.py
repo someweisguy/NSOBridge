@@ -1,10 +1,17 @@
 import asyncio
 from datetime import timedelta
 
-from models import BoutModel, ClockModel, RosterModel, SessionLocal, TeamModel, setup_db
-from models.jam import JamModel
+from models import (
+    BoutModel,
+    ClockModel,
+    JamModel,
+    RosterModel,
+    SessionLocal,
+    TeamModel,
+    setup_db,
+)
 from rules import REFEREES, Referee
-from schemas.bout import BoutSchema
+from schemas import BoutSchema
 
 home_roster: RosterModel = RosterModel()
 away_roster: RosterModel = RosterModel()

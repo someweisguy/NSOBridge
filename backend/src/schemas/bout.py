@@ -1,6 +1,6 @@
 from pydantic import Field, computed_field
 
-from schemas.base import ServerSchema
+from schemas.schemas import ServerSchema
 from schemas.jam import JamSchema
 
 
