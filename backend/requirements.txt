@@ -1,3 +1,4 @@
+aiosqlite~=0.21.0
 fastapi~=0.115.12
 mypy~=1.16.1
 nanoid~=2.0.0
