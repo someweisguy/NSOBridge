@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-from pydantic import Field
-
-from schemas.bout import BoutSchema
-from schemas.jam import TeamJamSchema
 from schemas.schemas import ServerSchema
 
 
@@ -23,10 +19,9 @@ class TeamSchema(ServerSchema):
     reviews_remaining: int
     score_offset: int
 
-    team_jams: list[TeamJamSchema] = Field(exclude=True)
-    bout: BoutSchema = Field(exclude=True)
+    # score: int = Field()
 
     # timeouts: Mapped[list[TimeoutModel]] = relationship(
     #     back_populates='team', init=False
     # )
-    # team_jams: Mapped[list[TeamJamModel]] = relationship(init=False)
+    # team_jams: Mapped[list[TeamJamModel]] = relationship(init=False, lazy='selectin')
