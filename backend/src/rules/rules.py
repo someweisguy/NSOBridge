@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.bout import BoutModel
 from models.jam import JamModel, TeamName
+from models.team import TeamModel
 
 
 class AbstractReferee:
@@ -20,7 +21,7 @@ class AbstractReferee:
     # end_period
 
     @abstractmethod
-    async def get_score(self, bout: BoutModel) -> tuple[int, ...]: ...
+    async def get_score(self, team: TeamModel) -> int: ...
 
     @abstractmethod
     async def set_lead(self, jam: JamModel, team: TeamName, lead: bool) -> None: ...

@@ -46,7 +46,7 @@ async def main() -> None:
 
         await referee.stop_jam(bout)
 
-        print(await referee.get_score(bout))
+        print([await referee.get_score(team) for team in bout.teams])
 
         bout_model: BoutSchema = BoutSchema.model_validate(bout)
         print(bout_model.model_dump())

@@ -4,16 +4,18 @@ from typing import Final
 from models import BoutModel, JamModel
 from models.bout import TimeoutModel
 from models.jam import TeamJamModel, TeamName
+from models.team import TeamModel
 from rules.rules import AbstractReferee
 
 MAX_PASSES_PER_TRIP: Final[int] = 4
+
 
 class WFTDA2025Referee(AbstractReferee):
     async def add_trip(self, jam: JamModel, team: TeamName, passes: int) -> None:
         now: datetime = datetime.now()
         if 0 > passes > MAX_PASSES_PER_TRIP:
             raise ValueError(f'Number of passes must be 4 or less ({passes=})')
-        
+
         num_trips: int = len(jam[team].trips)
 
         # Set Lead Jammer on initial Trip
@@ -23,14 +25,11 @@ class WFTDA2025Referee(AbstractReferee):
         # The initial Trip should always be set to 0 Passes
         jam[team].add_trip(passes if num_trips > 0 else 0, now)
 
-    async def get_score(self, bout: BoutModel) -> tuple[int, ...]:
-        return tuple(
-            sum(
-                trip.passes
-                for team_jam in team.team_jams
-                for trip in team_jam.trips[1:]  # The first Trip is ignored
-            )
-            for team in bout.teams
+    async def get_score(self, team: TeamModel) -> int:
+        return sum(
+            trip.passes
+            for team_jam in team.team_jams
+            for trip in team_jam.trips[1:]  # The first Trip is ignored
         )
 
     async def set_lead(self, jam: JamModel, team: TeamName, lead: bool) -> None:
