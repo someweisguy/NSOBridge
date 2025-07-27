@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
@@ -13,6 +13,8 @@ from models.time import AbstractOneShotModel
 
 if TYPE_CHECKING:
     from models.bout import BoutModel
+
+type TeamName = Literal['home', 'away']
 
 
 class TripModel(SQLModel):
@@ -31,7 +33,6 @@ class TeamJamModel(SQLModel):
     )
 
     team: Mapped[TeamModel] = relationship(foreign_keys=[_team_id])
-    jam: Mapped[JamModel] = relationship(init=False)
 
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
@@ -72,10 +73,10 @@ class JamModel(AbstractOneShotModel):
     stop_reason: Mapped[str | None] = mapped_column(default=None, init=False)
 
     _home: Mapped[TeamJamModel | None] = relationship(
-        back_populates='jam', foreign_keys=[_home_team_jam_id], init=False
+        foreign_keys=[_home_team_jam_id], init=False
     )
     _away: Mapped[TeamJamModel | None] = relationship(
-        back_populates='jam', foreign_keys=[_away_team_jam_id], init=False
+        foreign_keys=[_away_team_jam_id], init=False
     )
 
     @declared_attr
@@ -91,12 +92,21 @@ class JamModel(AbstractOneShotModel):
                                OR start_timestamp IS NULL"""),
         )
 
+    def __getitem__(self, team_name: TeamName) -> TeamJamModel:
+        if team_name not in {'home', 'away'}:
+            raise KeyError(f'Unknown team name ({team_name=})')
+        return self.home if team_name == 'home' else self.away
+
     @property
-    def home(self) -> TeamJamModel | None:
+    def home(self) -> TeamJamModel:
+        if self._home is None:
+            raise RuntimeError('There is no Home Team assigned to this Jam')
         return self._home
 
     @property
-    def away(self) -> TeamJamModel | None:
+    def away(self) -> TeamJamModel:
+        if self._away is None:
+            raise RuntimeError('There is no Away Team assigned to this Jam')
         return self._away
 
     def assign_teams(self, home: TeamModel, away: TeamModel) -> None:
@@ -104,11 +114,11 @@ class JamModel(AbstractOneShotModel):
         self._away = TeamJamModel(team=away)
 
     def start(self, timestamp: datetime) -> None:
-        if self.home is None or self.away is None:
+        if self._home is None or self._away is None:
             raise RuntimeError('A Jam cannot be started without assigning Teams')
         return super().start(timestamp)
 
     def lead_is_declared(self) -> bool:
-        if self.home is None or self.away is None:
+        if self._home is None or self._away is None:
             return False
         return self.home.lead or self.away.lead
