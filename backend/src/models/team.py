@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from models.models import SQLModel
 
 if TYPE_CHECKING:
-    from models.bout import TimeoutModel
+    from models.bout import BoutModel, TimeoutModel
     from models.jam import TeamJamModel
 
 
@@ -27,6 +27,7 @@ class TeamModel(SQLModel):
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
     _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'), init=False)
 
+    bout: Mapped[BoutModel] = relationship(foreign_keys=[_bout_id], init=False)
     roster: Mapped[RosterModel] = relationship(foreign_keys=[_roster_id], lazy='joined')
 
     timeouts_remaining: Mapped[int] = mapped_column()
@@ -40,11 +41,14 @@ class TeamModel(SQLModel):
         back_populates='team', init=False, lazy='selectin'
     )
 
-    # TODO
-    # @property
-    # def score(self) -> int:
-    #     return sum(
-    #         trip.passes
-    #         for team_jam in self.team_jams
-    #         for trip in team_jam.trips[1:]  # The first Trip is ignored
-    #     )
+    @staticmethod
+    def get_jam_score(team_jam: TeamJamModel) -> int:
+        return sum(trip.passes for trip in team_jam.trips[1:])
+
+    @property
+    def jam_score(self) -> int:
+        return self.get_jam_score(self.team_jams[-1])
+
+    @property
+    def bout_score(self) -> int:
+        return sum(self.get_jam_score(team_jam) for team_jam in self.team_jams)

@@ -15,11 +15,11 @@ class TeamSchema(ServerSchema):
     # bout: Mapped[BoutModel] = relationship(back_populates='teams', init=False)
     # roster: Mapped[RosterModel] = relationship(foreign_keys=[_roster_id])
 
+    bout_score: int
+    jam_score: int
     timeouts_remaining: int
     reviews_remaining: int
     score_offset: int
-
-    # score: int = Field()
 
     # timeouts: Mapped[list[TimeoutModel]] = relationship(
     #     back_populates='team', init=False
