@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from models.bout import BoutModel
-from models.jam import JamModel, TeamJamModel
+from models.jam import JamModel, TeamJamModel, TeamName
 from models.models import SessionLocal, SQLModel, engine
 from models.team import RosterModel, TeamModel
 from models.time import ClockModel
@@ -41,4 +41,5 @@ __all__ = (
     'RosterModel',
     'TeamJamModel',
     'TeamModel',
+    'TeamName',
 )
