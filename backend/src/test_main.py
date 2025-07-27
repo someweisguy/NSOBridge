@@ -11,7 +11,8 @@ from models import (
     setup_db,
 )
 from rules import REFEREES, AbstractReferee
-from schemas import BoutSchema
+from schemas.bout import BoutSchema
+from schemas.jam import JamSchema
 
 home_roster: RosterModel = RosterModel()
 away_roster: RosterModel = RosterModel()
@@ -20,6 +21,20 @@ BOUT_OPTIONS: dict[str, int] = {
     'timeouts_remaining': 3,
     'reviews_remaining': 1,
 }
+
+
+async def inspect() -> None:
+    async with get_db() as session:
+        bout: BoutModel | None = await session.get(BoutModel, 1)
+        assert bout is not None
+
+        print(bout.jams[-1])
+
+        jam_schema: JamSchema = JamSchema.model_validate(bout.jams[-1])
+        print(jam_schema.model_dump())
+
+        # bout_schema: BoutSchema = BoutSchema.model_validate(bout)
+        # print(bout_schema.model_dump())
 
 
 async def main() -> None:
@@ -43,16 +58,14 @@ async def main() -> None:
 
         referee: AbstractReferee = Ruleset(db=session)
         await referee.start_jam(bout)
+        await referee.add_trip(bout.jams[-1], 'home', 4)
+        # await referee.add_trip(bout.jams[-1], 'away', 4)
 
         await referee.stop_jam(bout)
+        await session.flush()
+        
+    await inspect()
 
-        print([await referee.get_score(team) for team in bout.teams])
-
-        bout_model: BoutSchema = BoutSchema.model_validate(bout)
-        print(bout_model.model_dump())
-
-        await session.commit()
-        # await session.refresh(bout)
 
 
 asyncio.run(main())

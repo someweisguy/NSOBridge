@@ -23,13 +23,14 @@ class BoutModel(SQLModel):
 
     ruleset: Mapped[str] = mapped_column()
 
-    teams: Mapped[list[TeamModel]] = relationship(back_populates='bout', init=False)
-    clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id])
-    timeouts: Mapped[list[TimeoutModel]] = relationship(
-        back_populates='bout', init=False
-    )
+    teams: Mapped[list[TeamModel]] = relationship(init=False, lazy='selectin')
+    clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
+    timeouts: Mapped[list[TimeoutModel]] = relationship(init=False, lazy='selectin')
     jams: Mapped[list[JamModel]] = relationship(
-        back_populates='bout', init=False, order_by=[JamModel.period, JamModel.jam]
+        init=False,
+        lazy='selectin',
+        load_on_pending=True,
+        order_by=[JamModel.period, JamModel.jam],
     )
 
     def add_jam(self) -> JamModel:
