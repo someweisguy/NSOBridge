@@ -11,7 +11,7 @@ class TripSchema(ServerSchema):
 
 
 class TeamJamSchema(ServerSchema):
-    lead: bool
+    lead: datetime | None
     lost: bool
     trips: list[TripSchema]
 
