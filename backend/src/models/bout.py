@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.jam import JamModel
-from models.models import SQLModel, TimedeltaAsMilliseconds
-from models.time import AbstractOneShotModel
+from models.models import SQLModel
+from models.time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
     from models.team import TeamModel
-    from models.time import ClockModel
 
 
 class BoutModel(SQLModel):
@@ -32,6 +31,8 @@ class BoutModel(SQLModel):
         load_on_pending=True,
         order_by=[JamModel.period, JamModel.jam],
     )
+
+    __mapper_args__ = {'polymorphic_on': 'ruleset'}
 
     def add_jam(self) -> JamModel:
         period_num: int = 0
@@ -62,25 +63,3 @@ class BoutModel(SQLModel):
         self.timeouts.append(timeout)
         timeout.start(timestamp)
         return timeout
-
-
-class TimeoutModel(AbstractOneShotModel):
-    __tablename__ = 'timeouts'
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
-    _team_id: Mapped[int] = mapped_column(ForeignKey('teams._id'), init=False)
-
-    bout: Mapped[BoutModel] = relationship(back_populates='timeouts', init=False)
-    period: Mapped[int] = mapped_column(index=True, kw_only=True)
-    jam: Mapped[int] = mapped_column(index=True, kw_only=True)
-
-    clock_elapsed: Mapped[timedelta] = mapped_column(
-        TimedeltaAsMilliseconds, kw_only=True
-    )
-    team: Mapped[TeamModel | None] = relationship(
-        back_populates='timeouts', default=None
-    )
-    is_review: Mapped[bool] = mapped_column(default=False)
-
-    details: Mapped[str | None] = mapped_column(default=None)
-    result: Mapped[str | None] = mapped_column(default=None)
-    retained: Mapped[bool] = mapped_column(default=False)

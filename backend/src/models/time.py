@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import CheckConstraint
+from sqlalchemy import CheckConstraint, ForeignKey
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.models import SQLModel, TimedeltaAsMilliseconds
+from models.team import TeamModel
+
+if TYPE_CHECKING:
+    from models.bout import BoutModel
 
 
 class ClockModel(SQLModel):
@@ -89,3 +93,25 @@ class AbstractOneShotModel(SQLModel):
             if timestamp < self.start_timestamp:
                 raise ValueError('Cannot get a duration for a time that is in the past')
             return timestamp - self.start_timestamp
+
+
+class TimeoutModel(AbstractOneShotModel):
+    __tablename__ = 'timeouts'
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
+    _team_id: Mapped[int] = mapped_column(ForeignKey('teams._id'), init=False)
+
+    bout: Mapped[BoutModel] = relationship(back_populates='timeouts', init=False)
+    period: Mapped[int] = mapped_column(index=True, kw_only=True)
+    jam: Mapped[int] = mapped_column(index=True, kw_only=True)
+
+    clock_elapsed: Mapped[timedelta] = mapped_column(
+        TimedeltaAsMilliseconds, kw_only=True
+    )
+    team: Mapped[TeamModel | None] = relationship(
+        back_populates='timeouts', default=None
+    )
+    is_review: Mapped[bool] = mapped_column(default=False)
+
+    details: Mapped[str | None] = mapped_column(default=None)
+    result: Mapped[str | None] = mapped_column(default=None)
+    retained: Mapped[bool] = mapped_column(default=False)
