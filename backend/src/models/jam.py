@@ -38,7 +38,7 @@ class TeamJamModel(SQLModel):
 
     team: Mapped[TeamModel] = relationship(foreign_keys=[_team_id], lazy='selectin')
 
-    lead: Mapped[bool] = mapped_column(default=False)
+    lead: Mapped[datetime | None] = mapped_column(default=None)
     lost: Mapped[bool] = mapped_column(default=False)
     star_passes: Mapped[list[StarPassModel]] = relationship(init=False, lazy='selectin')
     trips: Mapped[list[TripModel]] = relationship(
@@ -64,10 +64,10 @@ class TeamJamModel(SQLModel):
 class JamModel(AbstractOneShotModel):
     __tablename__ = 'jams'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
-    _home_team_jam_id: Mapped[int | None] = mapped_column(
+    _home_team_jam_id: Mapped[int] = mapped_column(
         ForeignKey('team_jams._id', ondelete='SET NULL'), default=None
     )
-    _away_team_jam_id: Mapped[int | None] = mapped_column(
+    _away_team_jam_id: Mapped[int] = mapped_column(
         ForeignKey('team_jams._id', ondelete='SET NULL'), default=None
     )
 
@@ -75,11 +75,11 @@ class JamModel(AbstractOneShotModel):
     jam: Mapped[int] = mapped_column(index=True, kw_only=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None, init=False)
 
-    _home: Mapped[TeamJamModel | None] = relationship(
-        foreign_keys=[_home_team_jam_id], lazy='joined', init=False
+    home: Mapped[TeamJamModel] = relationship(
+        foreign_keys=[_home_team_jam_id], kw_only=True, lazy='joined'
     )
-    _away: Mapped[TeamJamModel | None] = relationship(
-        foreign_keys=[_away_team_jam_id], lazy='joined', init=False
+    away: Mapped[TeamJamModel] = relationship(
+        foreign_keys=[_away_team_jam_id], kw_only=True, lazy='joined'
     )
 
     @declared_attr
@@ -100,28 +100,5 @@ class JamModel(AbstractOneShotModel):
             raise KeyError(f'Unknown team name ({team_name=})')
         return self.home if team_name == 'home' else self.away
 
-    @property
-    def home(self) -> TeamJamModel:
-        if self._home is None:
-            raise RuntimeError('There is no Home Team assigned to this Jam')
-        return self._home
-
-    @property
-    def away(self) -> TeamJamModel:
-        if self._away is None:
-            raise RuntimeError('There is no Away Team assigned to this Jam')
-        return self._away
-
-    def assign_teams(self, home: TeamModel, away: TeamModel) -> None:
-        self._home = TeamJamModel(team=home)
-        self._away = TeamJamModel(team=away)
-
-    def start(self, timestamp: datetime) -> None:
-        if self._home is None or self._away is None:
-            raise RuntimeError('A Jam cannot be started without assigning Teams')
-        return super().start(timestamp)
-
     def lead_is_declared(self) -> bool:
-        if self._home is None or self._away is None:
-            return False
-        return self.home.lead or self.away.lead
+        return self.home.lead is not None or self.away.lead is not None

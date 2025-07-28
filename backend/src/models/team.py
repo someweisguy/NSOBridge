@@ -41,14 +41,10 @@ class TeamModel(SQLModel):
         back_populates='team', init=False, lazy='selectin'
     )
 
-    @staticmethod
-    def get_jam_score(team_jam: TeamJamModel) -> int:
-        return sum(trip.passes for trip in team_jam.trips[1:])
+    @property
+    def bout_score(self) -> int:
+        return self.bout.fetch_team_bout_score(self)
 
     @property
     def jam_score(self) -> int:
-        return self.get_jam_score(self.team_jams[-1])
-
-    @property
-    def bout_score(self) -> int:
-        return sum(self.get_jam_score(team_jam) for team_jam in self.team_jams)
+        return self.bout.fetch_team_jam_score(self)
