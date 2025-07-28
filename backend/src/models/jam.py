@@ -21,27 +21,26 @@ class TripModel(SQLModel):
     passes: Mapped[int] = mapped_column()
 
 
+class StarPassModel(SQLModel):
+    __tablename__ = 'star_passes'
+    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'), init=False)
+    _trip_id: Mapped[int | None] = mapped_column(
+        ForeignKey('trips._id', ondelete='CASCADE'), init=False
+    )
+    timestamp: Mapped[datetime] = mapped_column()
+
+    trip: Mapped[TripModel | None] = relationship(foreign_keys=[_trip_id])
+
+
 class TeamJamModel(SQLModel):
     __tablename__ = 'team_jams'
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'), init=False)
-    # FIXME
-    # _star_pass_trip_id: Mapped[int | None] = mapped_column(
-    #     ForeignKey('team_jams._id', ondelete='SET NULL'), default=None, init=False
-    # )
 
     team: Mapped[TeamModel] = relationship(foreign_keys=[_team_id], lazy='selectin')
 
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
-
-    # FIXME
-    # star_pass_trip: Mapped[TripModel | None] = relationship(
-    #     default=None,
-    #     foreign_keys=[_star_pass_trip_id],
-    #     init=False,
-    #     post_update=True,
-    #     primaryjoin=(_star_pass_trip_id == TripModel._id),
-    # )
+    star_passes: Mapped[list[StarPassModel]] = relationship(init=False, lazy='selectin')
     trips: Mapped[list[TripModel]] = relationship(
         init=False, lazy='selectin', order_by=[TripModel.timestamp]
     )
@@ -52,6 +51,14 @@ class TeamJamModel(SQLModel):
         trip: TripModel = TripModel(timestamp=timestamp, passes=passes)
         self.trips.append(trip)
         return trip
+
+    def add_star_pass(self, timestamp: datetime | None = None) -> StarPassModel:
+        if timestamp is None:
+            timestamp = datetime.now()
+        trip: TripModel | None = self.trips[-1] if len(self.trips) > 0 else None
+        star_pass: StarPassModel = StarPassModel(timestamp=timestamp, trip=trip)
+        self.star_passes.append(star_pass)
+        return star_pass
 
 
 class JamModel(AbstractOneShotModel):
