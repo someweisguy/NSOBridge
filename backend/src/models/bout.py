@@ -25,7 +25,9 @@ class GenericBoutModel(SQLModel):
 
     ruleset: Mapped[str] = mapped_column()
 
-    teams: Mapped[list[TeamModel]] = relationship(init=False, lazy='selectin')
+    teams: Mapped[list[TeamModel]] = relationship(
+        back_populates='bout', init=False, lazy='selectin'
+    )
     clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
     timeouts: Mapped[list[TimeoutModel]] = relationship(init=False, lazy='selectin')
     jams: Mapped[list[JamModel]] = relationship(
