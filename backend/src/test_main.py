@@ -1,10 +1,9 @@
 import asyncio
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from models import (
     BoutModel,
     ClockModel,
-    JamModel,
     RosterModel,
     TeamModel,
     get_db,
@@ -12,7 +11,6 @@ from models import (
 )
 from rules import REFEREES, AbstractReferee
 from schemas.bout import BoutSchema
-from schemas.jam import JamSchema
 
 home_roster: RosterModel = RosterModel()
 away_roster: RosterModel = RosterModel()
@@ -28,13 +26,11 @@ async def inspect() -> None:
         bout: BoutModel | None = await session.get(BoutModel, 1)
         assert bout is not None
 
-        print(bout.jams[-1])
+        # jam_schema: JamSchema = JamSchema.model_validate(bout.jams[-1])
+        # print(jam_schema.model_dump_json())
 
-        jam_schema: JamSchema = JamSchema.model_validate(bout.jams[-1])
-        print(jam_schema.model_dump())
-
-        # bout_schema: BoutSchema = BoutSchema.model_validate(bout)
-        # print(bout_schema.model_dump())
+        bout_schema: BoutSchema = BoutSchema.model_validate(bout)
+        print(bout_schema.model_dump_json())
 
 
 async def main() -> None:
@@ -52,20 +48,19 @@ async def main() -> None:
         Ruleset: type[AbstractReferee] | None = REFEREES.get(bout.ruleset)
         assert Ruleset is not None
 
-        jam: JamModel = bout.add_jam()
-        jam.assign_teams(*bout.teams[:2])
+        bout.ready()
         session.add(bout)
 
-        referee: AbstractReferee = Ruleset(db=session)
-        await referee.start_jam(bout)
-        await referee.add_trip(bout.jams[-1], 'home', 4)
-        # await referee.add_trip(bout.jams[-1], 'away', 4)
+        bout.start_jam(datetime.now())
 
-        await referee.stop_jam(bout)
+        bout.add_trip('home', 4, datetime.now())
+        bout.add_trip('home', 4, datetime.now())
+        # bout.add_trip('away', 4, datetime.now())
+
+        # await referee.stop_jam(bout)
         await session.flush()
-        
-    await inspect()
 
+    await inspect()
 
 
 asyncio.run(main())
