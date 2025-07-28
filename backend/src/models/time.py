@@ -11,7 +11,7 @@ from models.models import SQLModel, TimedeltaAsMilliseconds
 from models.team import TeamModel
 
 if TYPE_CHECKING:
-    from models.bout import BoutModel
+    from models.bout import GenericBoutModel
 
 
 class ClockModel(SQLModel):
@@ -100,7 +100,7 @@ class TimeoutModel(AbstractOneShotModel):
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
     _team_id: Mapped[int] = mapped_column(ForeignKey('teams._id'), init=False)
 
-    bout: Mapped[BoutModel] = relationship(back_populates='timeouts', init=False)
+    bout: Mapped[GenericBoutModel] = relationship(back_populates='timeouts', init=False)
     period: Mapped[int] = mapped_column(index=True, kw_only=True)
     jam: Mapped[int] = mapped_column(index=True, kw_only=True)
 

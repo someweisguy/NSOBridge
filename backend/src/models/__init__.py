@@ -4,7 +4,8 @@ from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
-from models.bout import BoutModel
+from models import rulesets
+from models.bout import GenericBoutModel
 from models.jam import JamModel, TeamJamModel, TeamName
 from models.models import SessionLocal, SQLModel, engine
 from models.team import RosterModel, TeamModel
@@ -25,16 +26,16 @@ def get_db(**kwargs: Any) -> AsyncSession:
     return session
 
 
-async def get_bout(bout_id: int) -> BoutModel:
+async def get_bout(bout_id: int) -> GenericBoutModel:
     async with get_db() as db:
-        bout: BoutModel | None = await db.get(BoutModel, bout_id)
+        bout: GenericBoutModel | None = await db.get(GenericBoutModel, bout_id)
         if bout is None:
             raise KeyError(f'Bout was not found ({bout_id=})')
         return bout
 
 
 __all__ = (
-    'BoutModel',
+    'GenericBoutModel',
     'ClockModel',
     'JamModel',
     'pre_commit_hook',
@@ -42,4 +43,5 @@ __all__ = (
     'TeamJamModel',
     'TeamModel',
     'TeamName',
+    'rulesets',
 )

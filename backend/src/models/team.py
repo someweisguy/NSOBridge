@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from models.models import SQLModel
 
 if TYPE_CHECKING:
-    from models.bout import BoutModel, TimeoutModel
+    from models.bout import GenericBoutModel, TimeoutModel
     from models.jam import TeamJamModel
 
 
@@ -27,7 +27,7 @@ class TeamModel(SQLModel):
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
     _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'), init=False)
 
-    bout: Mapped[BoutModel] = relationship(foreign_keys=[_bout_id], init=False)
+    bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[_bout_id], init=False)
     roster: Mapped[RosterModel] = relationship(foreign_keys=[_roster_id], lazy='joined')
 
     timeouts_remaining: Mapped[int] = mapped_column()
