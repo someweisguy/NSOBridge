@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Final
 
+from sqlalchemy.orm.attributes import flag_dirty
+
 from models.bout import GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamJamModel, TeamName, TripModel
 from models.time import TimeoutModel
@@ -69,6 +71,7 @@ class BoutModel(GenericBoutModel):
             passes = 0  # The initial Trip should always be set to 0 passes
 
         jam[team].trips.append(TripModel(timestamp=timestamp, passes=passes))
+        flag_dirty(self)  # Recompute the scores
 
     def set_lead(self, team: TeamName, lead: bool, timestamp: datetime) -> None:
         if len(self.jams) == 0:
