@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -13,8 +13,6 @@ from models.time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
     from models.team import TeamModel
-
-MAX_POINTS_PER_TRIP: Final[int] = 4
 
 
 class GenericBoutModel(SQLModel):
