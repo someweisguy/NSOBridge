@@ -46,7 +46,7 @@ class BoutModel(GenericBoutModel):
         self.jams.append(
             JamModel(
                 period=latest.period,
-                jam=latest.jam,
+                jam=latest.jam + 1,
                 home=TeamJamModel(team=self.teams[0]),
                 away=TeamJamModel(team=self.teams[1]),
             )
