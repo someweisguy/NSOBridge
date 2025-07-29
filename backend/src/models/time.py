@@ -98,7 +98,7 @@ class AbstractOneShotModel(SQLModel):
 class TimeoutModel(AbstractOneShotModel):
     __tablename__ = 'timeouts'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
-    _team_id: Mapped[int] = mapped_column(ForeignKey('teams._id'), init=False)
+    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'), init=False)
 
     bout: Mapped[GenericBoutModel] = relationship(back_populates='timeouts', init=False)
     period: Mapped[int] = mapped_column(index=True, kw_only=True)
@@ -108,7 +108,7 @@ class TimeoutModel(AbstractOneShotModel):
         TimedeltaAsMilliseconds, kw_only=True
     )
     team: Mapped[TeamModel | None] = relationship(
-        back_populates='timeouts', default=None
+        back_populates='timeouts', foreign_keys=[_team_id], default=None
     )
     is_review: Mapped[bool] = mapped_column(default=False)
 
