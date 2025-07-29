@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timedelta
 
-from sqlalchemy import Result, desc, select
+from sqlalchemy import Result, select
 
 from models import (
     ClockModel,
