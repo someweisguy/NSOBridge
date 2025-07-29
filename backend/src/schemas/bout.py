@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import Field, computed_field
 
@@ -8,7 +9,10 @@ from schemas.time import ClockSchema
 
 
 class TimeoutSchema(ServerSchema):
-    pass
+    period: int
+    jam: int
+    start_timestamp: datetime
+    stop_timestamp: datetime | None
 
 
 class JamSchema(ServerSchema):
@@ -27,31 +31,50 @@ class BoutSchema(CacheableSchema):
 
     @computed_field
     @property
-    def num_jams(self) -> list[int]:
-        num_jams: list[int] = []
+    def jam_counts(self) -> list[int]:
+        counts: list[int] = []
         for jam in self.jams:
             # A naive solution but it works because data is ordered
-            if len(num_jams) <= jam.period:
-                num_jams.append(0)
-            num_jams[-1] += 1
-        return num_jams
+            if len(counts) <= jam.period:
+                counts.append(0)
+            counts[-1] += 1
+        return counts
 
     @computed_field
     @property
-    def current_jam(self) -> JamSchema | None:
-        num_jams: list[int] = self.num_jams
-        if len(num_jams) == 0:
-            return None
-        jam: JamSchema = self.jams[-1]
-        if jam.start_timestamp is None:
-            if jam.jam == 0:
-                return None
-            jam = self.jams[-2]
-        return jam
+    def num_timeouts(self) -> int:
+        return len(self.timeouts)
 
-    # @computed_field
-    # @property
-    # def current_timeout(self) -> TimeoutSchema | None:
-    #     if len(self.timeouts) == 0:
-    #         return None
-    #     return self.timeouts[-1]
+    @computed_field
+    @property
+    def timer_type(self) -> Literal['jam', 'timeout'] | None:
+        timer: JamSchema | TimeoutSchema | None = self.timer
+        if isinstance(timer, JamSchema):
+            return 'jam'
+        elif isinstance(timer, TimeoutSchema):
+            return 'timeout'
+        else:
+            return None
+
+    @computed_field
+    @property
+    def timer(self) -> JamSchema | TimeoutSchema | None:
+        active_jam: JamSchema | None = next(
+            (jam for jam in self.jams if jam.start_timestamp is not None), None
+        )
+        previous_timeout: TimeoutSchema | None = (
+            self.timeouts[-1] if len(self.timeouts) > 0 else None
+        )
+
+        # Guard against one or the other being None
+        if active_jam is None:
+            return previous_timeout
+        elif previous_timeout is None:
+            return active_jam
+
+        assert active_jam.start_timestamp is not None
+        return (
+            active_jam
+            if active_jam.start_timestamp > previous_timeout.start_timestamp
+            else previous_timeout
+        )
