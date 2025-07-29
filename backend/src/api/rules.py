@@ -1,45 +1,34 @@
-from typing import Annotated, Any, AsyncGenerator, Final
+from datetime import datetime
+from typing import Annotated, AsyncGenerator, Final
 
 from fastapi import APIRouter, Depends
 
-from models import GenericBoutModel, get_bout, get_db
-from rules import REFEREES, AbstractReferee
+from models import GenericBoutModel, get_db
 
 
-async def get_referee(bout_id: int) -> AsyncGenerator[AbstractReferee, None]:
+async def get_session_bout(bout_id: int) -> AsyncGenerator[GenericBoutModel, None]:
     async with get_db() as db, db.begin():
-        bout: GenericBoutModel = await get_bout(bout_id)
-        referee: type[AbstractReferee] | None = REFEREES.get(bout.ruleset)
-        if referee is None:
-            raise KeyError(f'Referee not found ({bout.ruleset=})')
-
-        yield referee(db=db)
-
-        # TODO: Pass session dirty/deleted/new identity maps to updater module
-
+        bout: GenericBoutModel | None = await db.get(GenericBoutModel, bout_id)
+        if bout is None:
+            raise KeyError(f'Bout was not found ({bout_id=})')
+        yield bout
         await db.commit()
 
 
-RefereeDepends = Annotated[AbstractReferee, Depends(get_referee)]
-BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
+BoutDepends = Annotated[GenericBoutModel, Depends(get_session_bout)]
 
 
 router: Final[APIRouter] = APIRouter(prefix='/rules')
 
 
-# TODO: async def get_series()
-
-
 @router.post('/start-jam')
-async def start_jam(referee: RefereeDepends, bout: BoutDepends) -> dict[str, Any]:
-    await referee.start_jam(bout)
-    return {}
+async def start_jam(bout: BoutDepends) -> None:
+    bout.start_jam(datetime.now())
 
 
 @router.post('/stop-jam')
-async def stop_jam(referee: RefereeDepends, bout: BoutDepends) -> dict[str, Any]:
-    await referee.stop_jam(bout)
-    return {}
+async def stop_jam(bout: BoutDepends) -> None:
+    bout.stop_jam(datetime.now())
 
 
 __all__ = ('router',)

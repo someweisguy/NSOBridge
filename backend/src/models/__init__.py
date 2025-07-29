@@ -26,20 +26,14 @@ def get_db(**kwargs: Any) -> AsyncSession:
     return session
 
 
-async def get_bout(bout_id: int) -> GenericBoutModel:
-    async with get_db() as db:
-        bout: GenericBoutModel | None = await db.get(GenericBoutModel, bout_id)
-        if bout is None:
-            raise KeyError(f'Bout was not found ({bout_id=})')
-        return bout
-
-
 __all__ = (
     'GenericBoutModel',
     'ClockModel',
+    'get_db',
     'JamModel',
     'pre_commit_hook',
     'RosterModel',
+    'setup_db',
     'TeamJamModel',
     'TeamModel',
     'TeamName',

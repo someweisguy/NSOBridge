@@ -19,7 +19,7 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.types import Integer, TypeDecorator
 
-engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=True)
+engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=False)
 SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
