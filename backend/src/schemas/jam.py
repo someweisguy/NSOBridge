@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import Field, computed_field
 
-from .schemas import ServerSchema
+from .schemas import CacheableSchema, ServerSchema
 
 
 class TripSchema(ServerSchema):
@@ -18,7 +18,7 @@ class StarPassSchema(ServerSchema):
 class TeamJamSchema(ServerSchema):
     lead: datetime | None
     lost: bool
-    trips: list[TripSchema]
+    trips: list[TripSchema] = Field(exclude=True)
     star_passes: list[StarPassSchema] = Field(exclude=True)
 
     @computed_field
@@ -31,11 +31,14 @@ class TeamJamSchema(ServerSchema):
             return 0
         return self.trips.index(star_pass.trip)
 
+    @computed_field
+    @property
+    def trip_passes(self) -> list[int]:
+        return [trip.passes for trip in self.trips]
 
-class JamSchema(ServerSchema):
-    start_timestamp: datetime | None
-    stop_timestamp: datetime | None
+
+class JamSchema(CacheableSchema):
     period: int
     jam: int
-    home: TeamJamSchema | None = Field(alias='_home')
-    away: TeamJamSchema | None = Field(alias='_away')
+    home: TeamJamSchema | None
+    away: TeamJamSchema | None
