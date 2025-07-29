@@ -29,6 +29,7 @@ class GenericBoutModel(SQLModel):
     clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
     timeouts: Mapped[list[TimeoutModel]] = relationship(init=False, lazy='selectin')
     jams: Mapped[list[JamModel]] = relationship(
+        back_populates='bout',
         init=False,
         lazy='selectin',
         load_on_pending=True,

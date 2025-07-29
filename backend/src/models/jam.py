@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
@@ -10,6 +10,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from models.models import SQLModel
 from models.team import TeamModel
 from models.time import AbstractOneShotModel
+
+if TYPE_CHECKING:
+    from models.bout import GenericBoutModel
 
 type TeamName = Literal['home', 'away']
 
@@ -69,6 +72,10 @@ class JamModel(AbstractOneShotModel):
     )
     _away_team_jam_id: Mapped[int] = mapped_column(
         ForeignKey('team_jams._id', ondelete='SET NULL'), default=None
+    )
+
+    bout: Mapped[GenericBoutModel] = relationship(
+        foreign_keys=[_bout_id], init=False
     )
 
     period: Mapped[int] = mapped_column(index=True, kw_only=True)
