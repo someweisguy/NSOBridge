@@ -22,7 +22,7 @@ async def setup_db() -> None:
 def get_db(**kwargs: Any) -> AsyncSession:
     session: AsyncSession = SessionLocal(**kwargs)
     if pre_commit_hook is not None:
-        event.listen(session.sync_session, 'before_commit', pre_commit_hook)
+        event.listen(session.sync_session, 'after_flush', pre_commit_hook)
     return session
 
 
