@@ -17,9 +17,9 @@ if TYPE_CHECKING:
 class ClockModel(SQLModel):
     __tablename__ = 'clocks'
 
-    start_timestamp: Mapped[datetime | None] = mapped_column(default=None, init=False)
+    start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     elapsed: Mapped[timedelta] = mapped_column(
-        TimedeltaAsMilliseconds, default=timedelta(seconds=0), init=False
+        TimedeltaAsMilliseconds, default=timedelta(seconds=0)
     )
     alarm: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
 
@@ -97,15 +97,15 @@ class AbstractOneShotModel(SQLModel):
 
 class TimeoutModel(AbstractOneShotModel):
     __tablename__ = 'timeouts'
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
-    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'), init=False)
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
+    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'))
 
-    bout: Mapped[GenericBoutModel] = relationship(back_populates='timeouts', init=False)
-    period: Mapped[int] = mapped_column(index=True, kw_only=True)
-    jam: Mapped[int] = mapped_column(index=True, kw_only=True)
+    bout: Mapped[GenericBoutModel] = relationship(back_populates='timeouts')
+    period: Mapped[int] = mapped_column(index=True)
+    jam: Mapped[int] = mapped_column(index=True)
 
     clock_elapsed: Mapped[timedelta] = mapped_column(
-        TimedeltaAsMilliseconds, kw_only=True
+        TimedeltaAsMilliseconds
     )
     team: Mapped[TeamModel | None] = relationship(
         back_populates='timeouts', foreign_keys=[_team_id], default=None

@@ -7,7 +7,7 @@ from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.models import SQLModel
+from models.models import CacheableModel, SQLModel
 from models.team import TeamModel
 from models.time import AbstractOneShotModel
 
@@ -19,16 +19,16 @@ type TeamName = Literal['home', 'away']
 
 class TripModel(SQLModel):
     __tablename__ = 'trips'
-    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'), init=False)
+    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'))
     timestamp: Mapped[datetime] = mapped_column()
     passes: Mapped[int] = mapped_column()
 
 
 class StarPassModel(SQLModel):
     __tablename__ = 'star_passes'
-    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'), init=False)
+    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'))
     _trip_id: Mapped[int | None] = mapped_column(
-        ForeignKey('trips._id', ondelete='CASCADE'), init=False
+        ForeignKey('trips._id', ondelete='CASCADE')
     )
     timestamp: Mapped[datetime] = mapped_column()
 
@@ -37,15 +37,15 @@ class StarPassModel(SQLModel):
 
 class TeamJamModel(SQLModel):
     __tablename__ = 'team_jams'
-    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'), init=False)
+    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'))
 
     team: Mapped[TeamModel] = relationship(foreign_keys=[_team_id], lazy='selectin')
 
     lead: Mapped[datetime | None] = mapped_column(default=None)
     lost: Mapped[bool] = mapped_column(default=False)
-    star_passes: Mapped[list[StarPassModel]] = relationship(init=False, lazy='selectin')
+    star_passes: Mapped[list[StarPassModel]] = relationship( lazy='selectin')
     trips: Mapped[list[TripModel]] = relationship(
-        init=False, lazy='selectin', order_by=[TripModel.timestamp]
+        lazy='selectin', order_by=[TripModel.timestamp]
     )
 
     def add_trip(self, passes: int, timestamp: datetime | None = None) -> TripModel:
@@ -64,29 +64,29 @@ class TeamJamModel(SQLModel):
         return star_pass
 
 
-class JamModel(AbstractOneShotModel):
+class JamModel(AbstractOneShotModel, CacheableModel):
     __tablename__ = 'jams'
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
     _home_team_jam_id: Mapped[int] = mapped_column(
-        ForeignKey('team_jams._id', ondelete='SET NULL'), default=None
+        ForeignKey('team_jams._id', ondelete='SET NULL')
     )
     _away_team_jam_id: Mapped[int] = mapped_column(
-        ForeignKey('team_jams._id', ondelete='SET NULL'), default=None
+        ForeignKey('team_jams._id', ondelete='SET NULL')
     )
 
     bout: Mapped[GenericBoutModel] = relationship(
-        foreign_keys=[_bout_id], init=False
+        foreign_keys=[_bout_id]
     )
 
-    period: Mapped[int] = mapped_column(index=True, kw_only=True)
-    jam: Mapped[int] = mapped_column(index=True, kw_only=True)
-    stop_reason: Mapped[str | None] = mapped_column(default=None, init=False)
+    period: Mapped[int] = mapped_column(index=True)
+    jam: Mapped[int] = mapped_column(index=True)
+    stop_reason: Mapped[str | None] = mapped_column(default=None)
 
     home: Mapped[TeamJamModel] = relationship(
-        foreign_keys=[_home_team_jam_id], kw_only=True, lazy='joined'
+        foreign_keys=[_home_team_jam_id], lazy='joined'
     )
     away: Mapped[TeamJamModel] = relationship(
-        foreign_keys=[_away_team_jam_id], kw_only=True, lazy='joined'
+        foreign_keys=[_away_team_jam_id], lazy='joined'
     )
 
     @declared_attr

@@ -8,29 +8,28 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.jam import JamModel, TeamJamModel, TeamName
-from models.models import SQLModel
+from models.models import CacheableModel
 from models.time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
     from models.team import TeamModel
 
 
-class GenericBoutModel(SQLModel):
+class GenericBoutModel(CacheableModel):
     __tablename__ = 'bouts'
     _clock_id: Mapped[int] = mapped_column(
-        ForeignKey('clocks._id', ondelete='RESTRICT'), init=False
+        ForeignKey('clocks._id', ondelete='RESTRICT')
     )
 
     ruleset: Mapped[str] = mapped_column()
 
     teams: Mapped[list[TeamModel]] = relationship(
-        back_populates='bout', init=False, lazy='selectin'
+        back_populates='bout', lazy='selectin'
     )
     clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
-    timeouts: Mapped[list[TimeoutModel]] = relationship(init=False, lazy='selectin')
+    timeouts: Mapped[list[TimeoutModel]] = relationship(lazy='selectin')
     jams: Mapped[list[JamModel]] = relationship(
         back_populates='bout',
-        init=False,
         lazy='selectin',
         load_on_pending=True,
         order_by=[JamModel.period, JamModel.jam],

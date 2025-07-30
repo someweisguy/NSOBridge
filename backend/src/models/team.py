@@ -24,21 +24,21 @@ class RosterModel(SQLModel):
 
 class TeamModel(SQLModel):
     __tablename__ = 'teams'
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'), init=False)
-    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'), init=False)
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
+    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'))
 
-    bout: Mapped[GenericBoutModel] = relationship(init=False)
+    bout: Mapped[GenericBoutModel] = relationship()
     roster: Mapped[RosterModel] = relationship(foreign_keys=[_roster_id], lazy='joined')
 
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
-    score_offset: Mapped[int] = mapped_column(default=0, init=False)
+    score_offset: Mapped[int] = mapped_column(default=0)
 
     timeouts: Mapped[list[TimeoutModel]] = relationship(
-        back_populates='team', init=False, lazy='selectin'
+        back_populates='team', lazy='selectin'
     )
     team_jams: Mapped[list[TeamJamModel]] = relationship(
-        back_populates='team', init=False, lazy='selectin'
+        back_populates='team', lazy='selectin'
     )
 
     @property

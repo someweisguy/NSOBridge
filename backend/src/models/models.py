@@ -6,7 +6,7 @@ from typing import Any
 
 from sqlalchemy import Dialect
 from sqlalchemy.ext.asyncio import (
-    AsyncAttrs,
+    AsyncAttrs,  # TODO: should this import be used?
     AsyncEngine,
     async_sessionmaker,
     create_async_engine,
@@ -14,7 +14,6 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
-    MappedAsDataclass,
     mapped_column,
 )
 from sqlalchemy.types import Integer, TypeDecorator
@@ -38,5 +37,20 @@ class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
         return timedelta(milliseconds=value)
 
 
-class SQLModel(AsyncAttrs, MappedAsDataclass, DeclarativeBase):
-    _id: Mapped[int] = mapped_column(primary_key=True, init=False)
+class SQLModel(DeclarativeBase):
+    __abstract__ = True
+    _id: Mapped[int] = mapped_column(primary_key=True)
+
+
+class CacheableModel(SQLModel):   
+    __abstract__ = True
+    
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, CacheableModel) and other.key == self.key
+    
+    def __hash__(self) -> int:
+        return hash(self.key)
+
+    @property
+    def key(self) -> tuple[str, int]:
+        return (self.__tablename__, self._id)
