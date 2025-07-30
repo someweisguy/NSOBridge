@@ -108,7 +108,7 @@ class TimeoutModel(AbstractOneShotModel):
         TimedeltaAsMilliseconds
     )
     team: Mapped[TeamModel | None] = relationship(
-        back_populates='timeouts', foreign_keys=[_team_id], default=None
+        back_populates='timeouts', foreign_keys=[_team_id]
     )
     is_review: Mapped[bool] = mapped_column(default=False)
 
