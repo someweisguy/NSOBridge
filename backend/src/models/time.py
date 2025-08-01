@@ -17,11 +17,17 @@ if TYPE_CHECKING:
 class ClockModel(SQLModel):
     __tablename__ = 'clocks'
 
+    bout: Mapped[GenericBoutModel] = relationship(back_populates='clock')
+
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     elapsed: Mapped[timedelta] = mapped_column(
         TimedeltaAsMilliseconds, default=timedelta(seconds=0)
     )
     alarm: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
+
+    @property
+    def parents(self) -> tuple[SQLModel, ...]:
+        return (self.bout,)
 
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
@@ -104,9 +110,7 @@ class TimeoutModel(AbstractOneShotModel):
     period: Mapped[int] = mapped_column(index=True)
     jam: Mapped[int] = mapped_column(index=True)
 
-    clock_elapsed: Mapped[timedelta] = mapped_column(
-        TimedeltaAsMilliseconds
-    )
+    clock_elapsed: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
     team: Mapped[TeamModel | None] = relationship(
         back_populates='timeouts', foreign_keys=[_team_id]
     )
@@ -115,3 +119,7 @@ class TimeoutModel(AbstractOneShotModel):
     details: Mapped[str | None] = mapped_column(default=None)
     result: Mapped[str | None] = mapped_column(default=None)
     retained: Mapped[bool] = mapped_column(default=False)
+
+    @property
+    def parents(self) -> tuple[SQLModel, ...]:
+        return (self.bout,)

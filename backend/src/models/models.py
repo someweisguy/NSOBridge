@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from datetime import timedelta
 from math import floor
 from typing import Any
 
 from sqlalchemy import Dialect
 from sqlalchemy.ext.asyncio import (
-    AsyncAttrs,  # TODO: should this import be used?
     AsyncEngine,
     async_sessionmaker,
     create_async_engine,
@@ -41,13 +41,17 @@ class SQLModel(DeclarativeBase):
     __abstract__ = True
     _id: Mapped[int] = mapped_column(primary_key=True)
 
+    @property
+    @abstractmethod
+    def parents(self) -> tuple[SQLModel, ...]: ...
 
-class CacheableModel(SQLModel):   
+
+class CacheableModel(SQLModel):
     __abstract__ = True
-    
+
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, CacheableModel) and other.key == self.key
-    
+
     def __hash__(self) -> int:
         return hash(self.key)
 

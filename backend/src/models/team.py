@@ -21,6 +21,10 @@ class RosterModel(SQLModel):
     # TODO: color
     # TODO: skaters: list[Skater]
 
+    @property
+    def parents(self) -> tuple[SQLModel, ...]:
+        return ()  # TODO
+
 
 class TeamModel(SQLModel):
     __tablename__ = 'teams'
@@ -40,6 +44,10 @@ class TeamModel(SQLModel):
     team_jams: Mapped[list[TeamJamModel]] = relationship(
         back_populates='team', lazy='selectin'
     )
+
+    @property
+    def parents(self) -> tuple[SQLModel, ...]:
+        return (self.bout,)
 
     @property
     def bout_score(self) -> int:

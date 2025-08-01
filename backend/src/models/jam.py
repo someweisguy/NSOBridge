@@ -23,6 +23,14 @@ class TripModel(SQLModel):
     timestamp: Mapped[datetime] = mapped_column()
     passes: Mapped[int] = mapped_column()
 
+    _team_jam: Mapped[TeamJamModel] = relationship(
+        foreign_keys=[_team_jam_id], lazy='joined'
+    )
+
+    @property
+    def parents(self) -> tuple[SQLModel, ...]:
+        return (self._team_jam,)
+
 
 class StarPassModel(SQLModel):
     __tablename__ = 'star_passes'
@@ -34,19 +42,42 @@ class StarPassModel(SQLModel):
 
     trip: Mapped[TripModel | None] = relationship(foreign_keys=[_trip_id])
 
+    _team_jam: Mapped[TeamJamModel] = relationship(
+        foreign_keys=[_team_jam_id], lazy='joined'
+    )
+
+    @property
+    def parents(self) -> tuple[SQLModel, ...]:
+        return (self._team_jam,)
+
 
 class TeamJamModel(SQLModel):
     __tablename__ = 'team_jams'
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'))
 
+    _home: Mapped[JamModel | None] = relationship(
+        foreign_keys='JamModel._home_team_jam_id'
+    )
+    _away: Mapped[JamModel | None] = relationship(
+        foreign_keys='JamModel._away_team_jam_id'
+    )
     team: Mapped[TeamModel] = relationship(foreign_keys=[_team_id], lazy='selectin')
 
     lead: Mapped[datetime | None] = mapped_column(default=None)
     lost: Mapped[bool] = mapped_column(default=False)
-    star_passes: Mapped[list[StarPassModel]] = relationship( lazy='selectin')
+    star_passes: Mapped[list[StarPassModel]] = relationship(lazy='selectin')
     trips: Mapped[list[TripModel]] = relationship(
         lazy='selectin', order_by=[TripModel.timestamp]
     )
+
+    @property
+    def parents(self) -> tuple[SQLModel, ...]:
+        if self._home is not None:
+            return (self._home,)
+        elif self._away is not None:
+            return (self._away,)
+        else:
+            raise RuntimeError('This TeamJam does not have a parent Jam')
 
     def add_trip(self, passes: int, timestamp: datetime | None = None) -> TripModel:
         if timestamp is None:
@@ -74,19 +105,21 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         ForeignKey('team_jams._id', ondelete='SET NULL')
     )
 
-    bout: Mapped[GenericBoutModel] = relationship(
-        foreign_keys=[_bout_id]
-    )
+    bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[_bout_id])
 
     period: Mapped[int] = mapped_column(index=True)
     jam: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
     home: Mapped[TeamJamModel] = relationship(
-        foreign_keys=[_home_team_jam_id], lazy='joined'
+        back_populates='_home',
+        foreign_keys=[_home_team_jam_id],
+        lazy='joined',
     )
     away: Mapped[TeamJamModel] = relationship(
-        foreign_keys=[_away_team_jam_id], lazy='joined'
+        back_populates='_away',
+        foreign_keys=[_away_team_jam_id],
+        lazy='joined',
     )
 
     @declared_attr
@@ -106,6 +139,10 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         if team_name not in {'home', 'away'}:
             raise KeyError(f'Unknown team name ({team_name=})')
         return self.home if team_name == 'home' else self.away
+
+    @property
+    def parents(self) -> tuple[SQLModel, ...]:
+        return (self.bout,)
 
     def lead_is_declared(self) -> bool:
         return self.home.lead is not None or self.away.lead is not None

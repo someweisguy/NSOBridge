@@ -8,7 +8,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.jam import JamModel, TeamJamModel, TeamName
-from models.models import CacheableModel
+from models.models import CacheableModel, SQLModel
 from models.time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
@@ -53,6 +53,10 @@ class GenericBoutModel(CacheableModel):
         if len(team.team_jams) == 0:
             return 0
         return cls.calculate_score(team.team_jams[-1])
+
+    @property
+    def parents(self) -> tuple[SQLModel, ...]:
+        return ()
 
     @abstractmethod
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...
