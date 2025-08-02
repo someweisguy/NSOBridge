@@ -72,7 +72,7 @@ class CacheableModel(SQLModel):
 
 
 @event.listens_for(Session, 'after_flush')
-def post_flush_hook(session: Session, flush_context: UOWTransaction) -> None:
+def after_flush_hook(session: Session, flush_context: UOWTransaction) -> None:
     # Get each new cacheable model
     # This is done separately because parents of these models could be None
     cacheables: set[CacheableModel] = {
