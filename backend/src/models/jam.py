@@ -23,12 +23,12 @@ class TripModel(SQLModel):
     timestamp: Mapped[datetime] = mapped_column()
     passes: Mapped[int] = mapped_column()
 
-    _team_jam: Mapped[TeamJamModel] = relationship(
+    _team_jam: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_team_jam_id], lazy='joined'
     )
 
     @property
-    def parents(self) -> tuple[SQLModel, ...]:
+    def parents(self) -> tuple[SQLModel | None, ...]:
         return (self._team_jam,)
 
 
@@ -42,12 +42,12 @@ class StarPassModel(SQLModel):
 
     trip: Mapped[TripModel | None] = relationship(foreign_keys=[_trip_id])
 
-    _team_jam: Mapped[TeamJamModel] = relationship(
+    _team_jam: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_team_jam_id], lazy='joined'
     )
 
     @property
-    def parents(self) -> tuple[SQLModel, ...]:
+    def parents(self) -> tuple[SQLModel | None, ...]:
         return (self._team_jam,)
 
 
@@ -61,7 +61,9 @@ class TeamJamModel(SQLModel):
     _away: Mapped[JamModel | None] = relationship(
         foreign_keys='JamModel._away_team_jam_id'
     )
-    team: Mapped[TeamModel] = relationship(foreign_keys=[_team_id], lazy='selectin')
+    team: Mapped[TeamModel | None] = relationship(
+        foreign_keys=[_team_id], lazy='selectin'
+    )
 
     lead: Mapped[datetime | None] = mapped_column(default=None)
     lost: Mapped[bool] = mapped_column(default=False)
@@ -71,7 +73,7 @@ class TeamJamModel(SQLModel):
     )
 
     @property
-    def parents(self) -> tuple[SQLModel, ...]:
+    def parents(self) -> tuple[SQLModel | None, ...]:
         if self._home is not None:
             return (self._home,)
         elif self._away is not None:
@@ -111,12 +113,12 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     jam: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
-    home: Mapped[TeamJamModel] = relationship(
+    home: Mapped[TeamJamModel | None] = relationship(
         back_populates='_home',
         foreign_keys=[_home_team_jam_id],
         lazy='joined',
     )
-    away: Mapped[TeamJamModel] = relationship(
+    away: Mapped[TeamJamModel | None] = relationship(
         back_populates='_away',
         foreign_keys=[_away_team_jam_id],
         lazy='joined',
@@ -138,11 +140,15 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     def __getitem__(self, team_name: TeamName) -> TeamJamModel:
         if team_name not in {'home', 'away'}:
             raise KeyError(f'Unknown team name ({team_name=})')
+        if self.home is None or self.away is None:
+            raise RuntimeError('This Jam must be flushed before updating')
         return self.home if team_name == 'home' else self.away
 
     @property
-    def parents(self) -> tuple[SQLModel, ...]:
+    def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
 
     def lead_is_declared(self) -> bool:
+        if self.home is None or self.away is None:
+            raise RuntimeError('This Jam must be flushed before updating')
         return self.home.lead is not None or self.away.lead is not None

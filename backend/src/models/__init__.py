@@ -12,27 +12,30 @@ from models.team import RosterModel, TeamModel
 from models.time import ClockModel
 
 
-def recursive_add(model: SQLModel, cacheables: set[CacheableModel]) -> None:
+def _recursive_add(model: SQLModel) -> set[CacheableModel]:
+    cacheables: set[CacheableModel] = set()
     for parent in model.parents:
-        if isinstance(parent, CacheableModel):
+        if parent is None:
+            continue  # TODO: log a warning of improper use of this function
+        elif isinstance(parent, CacheableModel):
             cacheables.add(parent)
-            recursive_add(parent, cacheables)
+        cacheables |= _recursive_add(parent)
+    return cacheables
 
 
 def test_hook(session: Session, flush_context: UOWTransaction) -> None:
-    # Get each cacheable model that is new, dirty, or deleted
-    models: set[SQLModel] = {
+    # Get each cacheable model that is new
+    cacheables: set[CacheableModel] = {
+        item for item in session.new if isinstance(item, CacheableModel)
+    }
+    # Recursively add each item that is dirty or deleted
+    for model in [
         item
         for identity_map in [session.dirty, session.deleted]
         for item in identity_map
         if isinstance(item, SQLModel)
-    }
-    cacheables: set[CacheableModel] = {
-        item for item in session.new if isinstance(item, CacheableModel)
-    }
-    # Add the parents of each cacheable to the update list
-    for model in models:
-        recursive_add(model, cacheables)
+    ]:
+        cacheables |= _recursive_add(model)
 
     print(list(cacheables))
 

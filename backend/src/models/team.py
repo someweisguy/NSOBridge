@@ -22,7 +22,7 @@ class RosterModel(SQLModel):
     # TODO: skaters: list[Skater]
 
     @property
-    def parents(self) -> tuple[SQLModel, ...]:
+    def parents(self) -> tuple[SQLModel, ...]:  # TODO: does this need to be None?
         return ()  # TODO
 
 
@@ -31,8 +31,10 @@ class TeamModel(SQLModel):
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
     _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'))
 
-    bout: Mapped[GenericBoutModel] = relationship()
-    roster: Mapped[RosterModel] = relationship(foreign_keys=[_roster_id], lazy='joined')
+    bout: Mapped[GenericBoutModel | None] = relationship()
+    roster: Mapped[RosterModel | None] = relationship(
+        foreign_keys=[_roster_id], lazy='joined'
+    )
 
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
@@ -46,13 +48,17 @@ class TeamModel(SQLModel):
     )
 
     @property
-    def parents(self) -> tuple[SQLModel, ...]:
+    def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
 
     @property
     def bout_score(self) -> int:
+        if self.bout is None:
+            return 0
         return self.bout.fetch_team_bout_score(self)
 
     @property
     def jam_score(self) -> int:
+        if self.bout is None:
+            return 0
         return self.bout.fetch_team_jam_score(self)

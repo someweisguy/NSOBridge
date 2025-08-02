@@ -43,7 +43,7 @@ class SQLModel(DeclarativeBase):
 
     @property
     @abstractmethod
-    def parents(self) -> tuple[SQLModel, ...]: ...
+    def parents(self) -> tuple[SQLModel | None, ...]: ...
 
 
 class CacheableModel(SQLModel):

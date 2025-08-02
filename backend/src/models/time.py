@@ -17,7 +17,9 @@ if TYPE_CHECKING:
 class ClockModel(SQLModel):
     __tablename__ = 'clocks'
 
-    bout: Mapped[GenericBoutModel] = relationship(back_populates='clock', lazy='joined')
+    bout: Mapped[GenericBoutModel | None] = relationship(
+        back_populates='clock', lazy='joined'
+    )
 
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     elapsed: Mapped[timedelta] = mapped_column(
@@ -26,7 +28,7 @@ class ClockModel(SQLModel):
     alarm: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
 
     @property
-    def parents(self) -> tuple[SQLModel, ...]:
+    def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
 
     def start(self, timestamp: datetime) -> None:
@@ -106,7 +108,7 @@ class TimeoutModel(AbstractOneShotModel):
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'))
 
-    bout: Mapped[GenericBoutModel] = relationship(back_populates='timeouts')
+    bout: Mapped[GenericBoutModel | None] = relationship(back_populates='timeouts')
     period: Mapped[int] = mapped_column(index=True)
     jam: Mapped[int] = mapped_column(index=True)
 
@@ -121,5 +123,5 @@ class TimeoutModel(AbstractOneShotModel):
     retained: Mapped[bool] = mapped_column(default=False)
 
     @property
-    def parents(self) -> tuple[SQLModel, ...]:
+    def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
