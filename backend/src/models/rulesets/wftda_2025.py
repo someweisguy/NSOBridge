@@ -71,7 +71,6 @@ class BoutModel(GenericBoutModel):
             passes = 0  # The initial Trip should always be set to 0 passes
 
         jam[team].trips.append(TripModel(timestamp=timestamp, passes=passes))
-        flag_dirty(self)  # Recompute the scores
 
     def set_lead(self, team: TeamName, lead: bool, timestamp: datetime) -> None:
         if len(self.jams) == 0:
