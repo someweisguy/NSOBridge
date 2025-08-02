@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import Field, computed_field
 
-from .schemas import CacheableSchema, ServerSchema
+from .schemas import ServerSchema
 
 
 class TripSchema(ServerSchema):
@@ -37,7 +37,7 @@ class TeamJamSchema(ServerSchema):
         return [trip.passes for trip in self.trips]
 
 
-class JamSchema(CacheableSchema):
+class JamSchema(ServerSchema):
     period: int
     jam: int
     home: TeamJamSchema | None

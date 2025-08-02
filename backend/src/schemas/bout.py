@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import Field, computed_field
 
-from schemas.schemas import CacheableSchema, ServerSchema
+from schemas.schemas import ServerSchema
 from schemas.team import TeamSchema
 from schemas.time import ClockSchema
 
@@ -22,7 +22,7 @@ class JamSchema(ServerSchema):
     stop_timestamp: datetime | None
 
 
-class BoutSchema(CacheableSchema):
+class BoutSchema(ServerSchema):
     ruleset: str
     clock: ClockSchema
     teams: list[TeamSchema]
