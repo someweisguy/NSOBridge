@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey
@@ -9,10 +8,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.jam import JamModel, TeamJamModel, TeamName
 from models.models import CacheableModel, SQLModel
-from models.time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from models.team import TeamModel
+    from models.time import ClockModel, TimeoutModel
 
 
 class GenericBoutModel(CacheableModel):

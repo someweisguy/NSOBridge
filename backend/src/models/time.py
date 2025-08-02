@@ -8,10 +8,10 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.models import SQLModel, TimedeltaAsMilliseconds
-from models.team import TeamModel
 
 if TYPE_CHECKING:
     from models.bout import GenericBoutModel
+    from models.team import TeamModel
 
 
 class ClockModel(SQLModel):
