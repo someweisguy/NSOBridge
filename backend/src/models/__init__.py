@@ -7,18 +7,27 @@ from sqlalchemy.orm import Session, UOWTransaction
 from models import rulesets
 from models.bout import GenericBoutModel
 from models.jam import JamModel, TeamJamModel, TeamName
-from models.models import SessionLocal, SQLModel, engine
+from models.models import CacheableModel, SessionLocal, SQLModel, engine
 from models.team import RosterModel, TeamModel
 from models.time import ClockModel
 
 
 def test_hook(session: Session, flush_context: UOWTransaction) -> None:
-    print(
-        [
-            [type(i).__name__ for i in collection]
-            for collection in [session.dirty, session.new, session.deleted]
-        ]
-    )
+    # Get each cacheable model that is new, dirty, or deleted
+    cacheables: set[CacheableModel] = {
+        item
+        for identity_map in [session.new, session.dirty, session.deleted]
+        for item in identity_map
+        if isinstance(item, CacheableModel)
+    }
+    # Add the parents of each cacheable to the update list
+    cacheables |= {
+        parent
+        for cacheable in cacheables
+        for parent in cacheable.parents
+        if isinstance(parent, CacheableModel)
+    }
+    print(list(cacheables))
 
 
 pre_commit_hook: Callable[[Session, UOWTransaction], None] | None = test_hook
