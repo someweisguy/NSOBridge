@@ -44,6 +44,16 @@ class SQLModel(DeclarativeBase):
     @property
     @abstractmethod
     def parents(self) -> tuple[SQLModel | None, ...]: ...
+    
+    def search_parents(self) -> set[SQLModel]:
+        cacheables: set[SQLModel] = set()
+        for parent in self.parents:
+            if parent is None:
+                continue  # TODO: log a warning of improper use of this function
+            cacheables.add(parent)
+            cacheables |= parent.search_parents()
+        return cacheables
+
 
 
 class CacheableModel(SQLModel):
