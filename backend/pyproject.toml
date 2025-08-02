@@ -1,14 +1,28 @@
 [tool.mypy]
-disable_error_code = ["prop-decorator", "type-abstract"]
+disable_error_code = [
+  "prop-decorator", # Prevent errors when using Pydantic's computed_field
+  "type-abstract",
+]
 plugins = ['pydantic.mypy']
 
 [tool.ruff]
-extend-select = ["A", "B", "C", "D", "E", "F", "I", "FAST", "PL", "EXE"]
+extend-select = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "I",
+  "FAST",
+  "PL",
+  "EXE",
+  "TC", # Put imports in TYPE_CHECKING blocks when possible
+]
 fix = true
 fixable = ["ALL"]
 ignore = [
-  "D",
-  "PLR0913", # Too many arguments in method definition
+  "D",  # TODO: Remove me when ready to begin documentation
 ]
 indent-width = 4
 line-length = 88
