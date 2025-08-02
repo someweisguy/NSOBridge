@@ -67,9 +67,11 @@ class TeamJamModel(SQLModel):
 
     lead: Mapped[datetime | None] = mapped_column(default=None)
     lost: Mapped[bool] = mapped_column(default=False)
-    star_passes: Mapped[list[StarPassModel]] = relationship(lazy='selectin')
+    star_passes: Mapped[list[StarPassModel]] = relationship(
+        back_populates='_team_jam', lazy='selectin'
+    )
     trips: Mapped[list[TripModel]] = relationship(
-        lazy='selectin', order_by=[TripModel.timestamp]
+        back_populates='_team_jam', lazy='selectin', order_by=[TripModel.timestamp]
     )
 
     @property
