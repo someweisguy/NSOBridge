@@ -30,14 +30,23 @@ async def inspect() -> None:
         )
         bout: GenericBoutModel | None = results.scalar()
         assert bout is not None
+        
+        
+        bout.add_trip('home', 4, datetime.now())
+        # bout.add_trip('home', 4, datetime.now())
 
-        jam_schema: JamSchema = JamSchema.model_validate(bout.jams[-1])
-        print(jam_schema.model_dump_json(indent=2))
+        # bout.stop_jam(datetime.now())
+        # await session.flush()
+        # await session.refresh(bout)
+        # bout.start_jam(datetime.now())
 
-        print()
+        # jam_schema: JamSchema = JamSchema.model_validate(bout.jams[-1])
+        # print(jam_schema.model_dump_json(indent=2))
 
-        bout_schema: BoutSchema = BoutSchema.model_validate(bout)
-        print(bout_schema.model_dump_json(indent=2))
+        # print()
+
+        # bout_schema: BoutSchema = BoutSchema.model_validate(bout)
+        # print(bout_schema.model_dump_json(indent=2))
 
         await session.commit()
 
@@ -56,10 +65,10 @@ async def main() -> None:
         session.add(bout)
 
         bout.ready()
-
         bout.start_jam(datetime.now())
-        # bout.add_trip('home', 4, datetime.now())
-        # bout.add_trip('home', 4, datetime.now())
+
+        # bout.start_jam(datetime.now())
+
         # bout.set_star_pass('away', datetime.now())
         # # bout.add_trip('away', 4, datetime.now())
         # bout.stop_jam(datetime.now())
