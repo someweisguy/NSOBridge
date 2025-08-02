@@ -47,8 +47,8 @@ async def inspect() -> None:
 
         # bout_schema: BoutSchema = BoutSchema.model_validate(bout)
         # print(bout_schema.model_dump_json(indent=2))
-
         await session.commit()
+        print('commit 2 done')
 
 
 async def main() -> None:
@@ -63,6 +63,9 @@ async def main() -> None:
             TeamModel(roster=away_roster, **BOUT_OPTIONS),
         ]
         session.add(bout)
+        
+        await session.flush()
+        await session.refresh(bout)
 
         bout.ready()
         bout.start_jam(datetime.now())
@@ -77,6 +80,7 @@ async def main() -> None:
         # bout.stop_timeout(datetime.now())
 
         await session.commit()
+        print('commit 1 done')
 
     await inspect()
 

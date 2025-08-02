@@ -3,8 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Final
 
-from sqlalchemy.orm.attributes import flag_dirty
-
 from models.bout import GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamJamModel, TeamName, TripModel
 from models.time import TimeoutModel

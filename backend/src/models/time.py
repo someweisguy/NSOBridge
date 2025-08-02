@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class ClockModel(SQLModel):
     __tablename__ = 'clocks'
 
-    bout: Mapped[GenericBoutModel] = relationship(back_populates='clock')
+    bout: Mapped[GenericBoutModel] = relationship(back_populates='clock', lazy='joined')
 
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     elapsed: Mapped[timedelta] = mapped_column(
