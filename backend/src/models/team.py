@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 class RosterModel(SQLModel):
     __tablename__ = 'rosters'
+
     # TODO: mnemonic: str
     # TODO: league
     # TODO: color
@@ -28,24 +29,30 @@ class RosterModel(SQLModel):
 
 class TeamModel(SQLModel):
     __tablename__ = 'teams'
+
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
     _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'))
-
-    bout: Mapped[GenericBoutModel | None] = relationship()
-    roster: Mapped[RosterModel | None] = relationship(
-        foreign_keys=[_roster_id], lazy='joined'
-    )
 
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
     score_offset: Mapped[int] = mapped_column(default=0)
 
+    bout: Mapped[GenericBoutModel | None] = relationship()
+    roster: Mapped[RosterModel | None] = relationship(
+        foreign_keys=[_roster_id], lazy='joined'
+    )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
         back_populates='team', lazy='selectin'
     )
     team_jams: Mapped[list[TeamJamModel]] = relationship(
         back_populates='team', lazy='selectin'
     )
+
+    def __init__(self, roster: RosterModel) -> None:
+        super().__init__(roster=roster)
+        self.timeouts_remaining = 0
+        self.reviews_remaining = 0
+        self.score_offset = 0
 
     @property
     def parents(self) -> tuple[SQLModel | None, ...]:
