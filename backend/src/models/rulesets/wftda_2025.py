@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from models.bout import GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamJamModel, TeamName, TripModel
 from models.time import TimeoutModel
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 MAX_POINTS_PER_TRIP: Final[int] = 4
 
