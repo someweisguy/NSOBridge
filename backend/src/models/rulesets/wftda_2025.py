@@ -10,6 +10,8 @@ if TYPE_CHECKING:
     from datetime import datetime
 
 MAX_POINTS_PER_TRIP: Final[int] = 4
+MAX_TIMEOUTS: Final[int] = 3
+MAX_OFFICIAL_REVIEWS: Final[int] = 1
 
 
 class BoutModel(GenericBoutModel):
@@ -18,16 +20,32 @@ class BoutModel(GenericBoutModel):
     }
 
     def ready(self) -> None:
-        if len(self.jams) > 0:
-            raise RuntimeError('This Bout has already been setup')
-        self.jams.append(
-            JamModel(
-                period=0,
-                jam=0,
-                home=TeamJamModel(team=self.teams[0]),
-                away=TeamJamModel(team=self.teams[1]),
-            )
-        )
+        current_period: int | None = None
+        if len(self.jams):
+            current_period = self.jams[-1].period
+        
+        match current_period:
+            case None:
+                # The Bout has not started yet
+                for team in self.teams:
+                    team.timeouts_remaining = MAX_TIMEOUTS
+                    team.reviews_remaining = MAX_OFFICIAL_REVIEWS
+                self.jams.append(
+                    JamModel(
+                        period=0,
+                        jam=0,
+                        home=TeamJamModel(team=self.teams[0]),
+                        away=TeamJamModel(team=self.teams[1]),
+                    )
+                )
+            case 0:
+                # The Bout is being prepared for its second Period
+                raise NotImplementedError()  # TODO
+            case 1:
+                # The Bout is being prepared for Overtime
+                raise NotImplementedError()  # TODO
+            case _:
+                raise RuntimeError(f'This Bout cannot be prepared. ({current_period=})')
 
     def pause(self) -> None:
         pass
