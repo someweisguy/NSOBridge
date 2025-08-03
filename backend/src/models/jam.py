@@ -19,13 +19,15 @@ type TeamName = Literal['home', 'away']
 
 class TripModel(SQLModel):
     __tablename__ = 'trips'
+
     _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'))
-    timestamp: Mapped[datetime] = mapped_column()
-    passes: Mapped[int] = mapped_column()
 
     _team_jam: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_team_jam_id], lazy='joined'
     )
+
+    timestamp: Mapped[datetime] = mapped_column()
+    passes: Mapped[int] = mapped_column()
 
     @property
     def parents(self) -> tuple[SQLModel | None, ...]:
@@ -34,17 +36,19 @@ class TripModel(SQLModel):
 
 class StarPassModel(SQLModel):
     __tablename__ = 'star_passes'
+
     _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'))
     _trip_id: Mapped[int | None] = mapped_column(
         ForeignKey('trips._id', ondelete='CASCADE')
     )
-    timestamp: Mapped[datetime] = mapped_column()
-
-    trip: Mapped[TripModel | None] = relationship(foreign_keys=[_trip_id])
 
     _team_jam: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_team_jam_id], lazy='joined'
     )
+
+    timestamp: Mapped[datetime] = mapped_column()
+
+    trip: Mapped[TripModel | None] = relationship(foreign_keys=[_trip_id])
 
     @property
     def parents(self) -> tuple[SQLModel | None, ...]:
@@ -53,6 +57,7 @@ class StarPassModel(SQLModel):
 
 class TeamJamModel(SQLModel):
     __tablename__ = 'team_jams'
+
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'))
 
     _home: Mapped[JamModel | None] = relationship(
@@ -61,18 +66,24 @@ class TeamJamModel(SQLModel):
     _away: Mapped[JamModel | None] = relationship(
         foreign_keys='JamModel._away_team_jam_id'
     )
-    team: Mapped[TeamModel | None] = relationship(
-        foreign_keys=[_team_id], lazy='selectin'
-    )
 
     lead: Mapped[datetime | None] = mapped_column(default=None)
     lost: Mapped[bool] = mapped_column(default=False)
+
+    team: Mapped[TeamModel | None] = relationship(
+        foreign_keys=[_team_id], lazy='selectin'
+    )
     star_passes: Mapped[list[StarPassModel]] = relationship(
         back_populates='_team_jam', lazy='selectin'
     )
     trips: Mapped[list[TripModel]] = relationship(
         back_populates='_team_jam', lazy='selectin', order_by=[TripModel.timestamp]
     )
+
+    def __init__(self, team: TeamModel) -> None:
+        super().__init__(team=team)
+        self.lead = None
+        self.lost = False
 
     @property
     def parents(self) -> tuple[SQLModel | None, ...]:
@@ -101,6 +112,7 @@ class TeamJamModel(SQLModel):
 
 class JamModel(AbstractOneShotModel, CacheableModel):
     __tablename__ = 'jams'
+
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
     _home_team_jam_id: Mapped[int] = mapped_column(
         ForeignKey('team_jams._id', ondelete='SET NULL')
@@ -109,12 +121,11 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         ForeignKey('team_jams._id', ondelete='SET NULL')
     )
 
-    bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[_bout_id])
-
     period: Mapped[int] = mapped_column(index=True)
     jam: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
+    bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[_bout_id])
     home: Mapped[TeamJamModel | None] = relationship(
         back_populates='_home',
         foreign_keys=[_home_team_jam_id],
@@ -149,7 +160,7 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     @property
     def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
-    
+
     @property
     def key(self) -> tuple[str, int, int, int]:
         return (self.__tablename__, self._bout_id, self.period, self.jam)
