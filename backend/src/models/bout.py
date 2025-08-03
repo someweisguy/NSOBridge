@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -55,10 +55,12 @@ class GenericBoutModel(CacheableModel):
             return 0
         return cls.calculate_score(team.team_jams[-1])
 
+    @final
     @property
     def parents(self) -> tuple[SQLModel, ...]:
         return ()
     
+    @final
     @property
     def key(self) -> tuple[str, int]:
         return (self.__tablename__, self._id)
