@@ -17,11 +17,6 @@ from schemas import BoutSchema, JamSchema
 home_roster: RosterModel = RosterModel()
 away_roster: RosterModel = RosterModel()
 
-BOUT_OPTIONS: dict[str, int] = {
-    'timeouts_remaining': 3,
-    'reviews_remaining': 1,
-}
-
 
 async def inspect() -> None:
     async with get_db() as session, session.begin():
@@ -30,8 +25,7 @@ async def inspect() -> None:
         )
         bout: GenericBoutModel | None = results.scalar()
         assert bout is not None
-        
-        
+
         bout.add_trip('home', 4, datetime.now())
         # bout.add_trip('home', 4, datetime.now())
 
@@ -59,11 +53,11 @@ async def main() -> None:
             clock=ClockModel(alarm=timedelta(minutes=30)), ruleset='WFTDA 2025'
         )
         bout.teams = [
-            TeamModel(roster=home_roster, **BOUT_OPTIONS),
-            TeamModel(roster=away_roster, **BOUT_OPTIONS),
+            TeamModel(roster=home_roster),
+            TeamModel(roster=away_roster),
         ]
         session.add(bout)
-        
+
         await session.flush()
         await session.refresh(bout)
 
