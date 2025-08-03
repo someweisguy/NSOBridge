@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 class GenericBoutModel(CacheableModel):
     __tablename__ = 'bouts'
+    
     _clock_id: Mapped[int] = mapped_column(
         ForeignKey('clocks._id', ondelete='RESTRICT')
     )
