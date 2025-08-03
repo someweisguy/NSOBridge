@@ -149,6 +149,10 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     @property
     def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
+    
+    @property
+    def key(self) -> tuple[str, int, int, int]:
+        return (self.__tablename__, self._bout_id, self.period, self.jam)
 
     def lead_is_declared(self) -> bool:
         if self.home is None or self.away is None:

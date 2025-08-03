@@ -67,8 +67,8 @@ class CacheableModel(SQLModel):
         return hash(self.key)
 
     @property
-    def key(self) -> tuple[str, int]:
-        return (self.__tablename__, self._id)
+    @abstractmethod
+    def key(self) -> tuple[Any, ...]: ...
 
 
 @event.listens_for(Session, 'after_flush')

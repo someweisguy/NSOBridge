@@ -58,6 +58,10 @@ class GenericBoutModel(CacheableModel):
     @property
     def parents(self) -> tuple[SQLModel, ...]:
         return ()
+    
+    @property
+    def key(self) -> tuple[str, int]:
+        return (self.__tablename__, self._id)
 
     @abstractmethod
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...
