@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import Field, computed_field
 
-from .schemas import ServerSchema
+from schemas.schemas import ServerSchema
 
 
 class TripSchema(ServerSchema):
