@@ -3,11 +3,12 @@ from __future__ import annotations
 from abc import abstractmethod
 from datetime import timedelta
 from math import floor
-from typing import Any
+from typing import Any, Callable, Final
 
 from sqlalchemy import Dialect, event
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
+    AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
@@ -21,7 +22,8 @@ from sqlalchemy.orm import (
 from sqlalchemy.types import Integer, TypeDecorator
 
 engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=False)
-SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(bind=engine)
+callbacks: Final[list[Callable[[set[CacheableModel]], None]]] = []
 
 
 class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
@@ -41,7 +43,7 @@ class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
 
 class SQLModel(DeclarativeBase):
     __abstract__ = True
-    
+
     _id: Mapped[int] = mapped_column(primary_key=True)
 
     @property
@@ -74,6 +76,9 @@ class CacheableModel(SQLModel):
 
 @event.listens_for(Session, 'after_flush')
 def after_flush_hook(session: Session, flush_context: UOWTransaction) -> None:
+    if len(callbacks) == 0:
+        return
+
     # Get each new cacheable model
     # This is done separately because parents of these models could be None
     cacheables: set[CacheableModel] = {
@@ -92,4 +97,5 @@ def after_flush_hook(session: Session, flush_context: UOWTransaction) -> None:
         if isinstance(parent, CacheableModel)
     }
 
-    print([cacheable.key for cacheable in cacheables])  # TODO: hook into websockets
+    for callback in callbacks:
+        callback(cacheables)

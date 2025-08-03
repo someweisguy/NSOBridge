@@ -1,11 +1,11 @@
-from typing import Any
+from typing import Any, Callable
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import rulesets
 from models.bout import GenericBoutModel
 from models.jam import JamModel, TeamJamModel, TeamName
-from models.models import SessionLocal, SQLModel, engine
+from models.models import CacheableModel, SessionLocal, SQLModel, callbacks, engine
 from models.team import RosterModel, TeamModel
 from models.time import ClockModel
 
@@ -20,11 +20,19 @@ def get_db(**kwargs: Any) -> AsyncSession:
     return session
 
 
+def on_update(
+    callback: Callable[[set[CacheableModel]], None],
+) -> Callable[[set[CacheableModel]], None]:
+    callbacks.append(callback)
+    return callback
+
+
 __all__ = (
     'GenericBoutModel',
     'ClockModel',
     'get_db',
     'JamModel',
+    'on_update',
     'RosterModel',
     'setup_db',
     'TeamJamModel',
