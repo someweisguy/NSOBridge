@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from models.team import TeamModel
-    from models.time import ClockModel, TimeoutModel
+    from models.time import ClockModel, TimeoutModel, TimerModel
 
 
 class GenericBoutModel(CacheableModel):
@@ -22,19 +22,25 @@ class GenericBoutModel(CacheableModel):
     _clock_id: Mapped[int] = mapped_column(
         ForeignKey('clocks._id', ondelete='RESTRICT')
     )
+    _timer_id: Mapped[int | None] = mapped_column(
+        ForeignKey('timers._id', ondelete='CASCADE')
+    )
 
     ruleset: Mapped[str] = mapped_column()
 
-    teams: Mapped[list[TeamModel]] = relationship(
-        back_populates='bout', lazy='selectin'
-    )
     clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
-    timeouts: Mapped[list[TimeoutModel]] = relationship(lazy='selectin')
     jams: Mapped[list[JamModel]] = relationship(
         back_populates='bout',
         lazy='selectin',
         load_on_pending=True,
         order_by=[JamModel.period, JamModel.jam],
+    )
+    teams: Mapped[list[TeamModel]] = relationship(
+        back_populates='bout', lazy='selectin'
+    )
+    timeouts: Mapped[list[TimeoutModel]] = relationship(lazy='selectin')
+    timer: Mapped[TimerModel | None] = relationship(
+        foreign_keys=[_timer_id], lazy='joined'
     )
 
     __mapper_args__ = {
@@ -79,7 +85,7 @@ class GenericBoutModel(CacheableModel):
     def set_star_pass(self, team: TeamName, timestamp: datetime) -> None: ...
 
     @abstractmethod
-    def start(self) -> None: ...
+    def start(self, timestamp: datetime) -> None: ...
 
     @abstractmethod
     def start_jam(self, timestamp: datetime) -> JamModel: ...
@@ -88,7 +94,7 @@ class GenericBoutModel(CacheableModel):
     def start_timeout(self, timestamp: datetime) -> TimeoutModel: ...
 
     @abstractmethod
-    def stop(self) -> None: ...
+    def stop(self, timestamp: datetime) -> None: ...
 
     @abstractmethod
     def stop_jam(self, timestamp: datetime) -> None: ...

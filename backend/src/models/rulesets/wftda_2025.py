@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Final
 from models.bout import GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamJamModel, TeamName, TripModel
 from models.team import RosterModel, TeamModel
-from models.time import ClockModel, TimeoutModel
+from models.time import ClockModel, TimeoutModel, TimerModel
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -39,11 +39,14 @@ class BoutModel(GenericBoutModel):
             for roster in rosters
         ]
 
-    def start(self) -> None:
+    def start(self, timestamp: datetime) -> None:
+        if self.timer is not None:
+            raise RuntimeError('This Bout is already active.')
+        self.timer = TimerModel()
+        
         current_period: int | None = None
         if len(self.jams):
             current_period = self.jams[-1].period
-
         match current_period:
             case None:
                 # The Bout has not started yet
@@ -57,15 +60,21 @@ class BoutModel(GenericBoutModel):
                 )
             case 0:
                 # The Bout is being prepared for its second Period
+                self.jams[-1].period = 1
                 raise NotImplementedError()  # TODO
             case 1:
+                self.jams[-1].period = 2
                 # The Bout is being prepared for Overtime
                 raise NotImplementedError()  # TODO
             case _:
                 raise StopIteration()
+        self.jams[-1].jam = 0
 
-    def stop(self) -> None:
-        pass
+    def stop(self, timestamp: datetime) -> None:
+        if self.timer is None:
+            raise RuntimeError('This Bout is already inactive')
+        self.clock.stop(timestamp)
+        self._is_active = False
 
     def start_jam(self, timestamp: datetime) -> JamModel:
         if len(self.timeouts) > 0 and self.timeouts[-1].is_running():

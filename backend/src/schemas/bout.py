@@ -8,18 +8,19 @@ from schemas.team import TeamSchema
 from schemas.time import ClockSchema
 
 
-class TimeoutSchema(ServerSchema):
-    period: int
-    jam: int
-    start_timestamp: datetime
-    stop_timestamp: datetime | None
-
-
-class JamSchema(ServerSchema):
-    period: int
-    jam: int
+class TimerSchema(ServerSchema):
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
+
+
+class JamSchema(TimerSchema):
+    period: int
+    jam: int
+
+
+class TimeoutSchema(TimerSchema):
+    period: int
+    jam: int
 
 
 class BoutSchema(ServerSchema):
@@ -28,6 +29,9 @@ class BoutSchema(ServerSchema):
     teams: list[TeamSchema]
     jams: list[JamSchema] = Field(exclude=True)
     timeouts: list[TimeoutSchema] = Field(exclude=True)
+    intermission_timer: TimerSchema | None = Field(
+        validation_alias='timer', exclude=True
+    )
 
     @computed_field
     @property
@@ -47,18 +51,23 @@ class BoutSchema(ServerSchema):
 
     @computed_field
     @property
-    def timer_type(self) -> Literal['jam', 'timeout'] | None:
-        timer: JamSchema | TimeoutSchema | None = self.timer
-        if isinstance(timer, JamSchema):
-            return 'jam'
+    def timer_type(self) -> Literal['jam', 'timeout', 'intermission'] | None:
+        timer: JamSchema | TimeoutSchema | TimerSchema | None = self.timer
+        if timer is None:
+            return None
         elif isinstance(timer, TimeoutSchema):
             return 'timeout'
+        elif isinstance(timer, JamSchema):
+            return 'jam'
         else:
-            return None
+            return 'intermission'
 
     @computed_field
     @property
-    def timer(self) -> JamSchema | TimeoutSchema | None:
+    def timer(self) -> JamSchema | TimeoutSchema | TimerSchema | None:
+        if self.intermission_timer is not None:
+            return self.intermission_timer
+
         active_jam: JamSchema | None = next(
             (jam for jam in self.jams if jam.start_timestamp is not None), None
         )
@@ -72,7 +81,10 @@ class BoutSchema(ServerSchema):
         elif previous_timeout is None:
             return active_jam
 
-        assert active_jam.start_timestamp is not None
+        assert (
+            active_jam.start_timestamp is not None
+            and previous_timeout.start_timestamp is not None
+        )
         return (
             active_jam
             if active_jam.start_timestamp > previous_timeout.start_timestamp
