@@ -29,7 +29,11 @@ class BoutModel(GenericBoutModel):
     def __init__(self, *rosters: RosterModel) -> None:
         if len(set(rosters)) != NUM_TEAMS:
             raise ValueError(f'This Bout must have exactly {NUM_TEAMS} unique Teams')
-        super().__init__(clock=ClockModel(alarm=timedelta(minutes=30)), ruleset=RULESET)
+        super().__init__(
+            clock=ClockModel(alarm=timedelta(minutes=30)),
+            ruleset=RULESET,
+            timer=TimerModel(),
+        )
         self.teams = [
             TeamModel(
                 roster=roster,
@@ -40,10 +44,10 @@ class BoutModel(GenericBoutModel):
         ]
 
     def start(self, timestamp: datetime) -> None:
-        if self.timer is not None:
-            raise RuntimeError('This Bout is already active.')
-        self.timer = TimerModel()
-        
+        if self.timer is None:
+            raise RuntimeError('This Bout has already started')
+        self.timer = None
+
         current_period: int | None = None
         if len(self.jams):
             current_period = self.jams[-1].period
@@ -71,10 +75,12 @@ class BoutModel(GenericBoutModel):
         self.jams[-1].jam = 0
 
     def stop(self, timestamp: datetime) -> None:
-        if self.timer is None:
-            raise RuntimeError('This Bout is already inactive')
+        if self.timer is not None:
+            raise RuntimeError('This Bout has already stopped')
+        if self.jams[-1].is_running():
+            raise RuntimeError('Cannot stop the Bout when a Jam is running')
+        self.timer = TimerModel()
         self.clock.stop(timestamp)
-        self._is_active = False
 
     def start_jam(self, timestamp: datetime) -> JamModel:
         if len(self.timeouts) > 0 and self.timeouts[-1].is_running():
