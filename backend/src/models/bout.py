@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 class GenericBoutModel(CacheableModel):
     __tablename__ = 'bouts'
-    
+
     _clock_id: Mapped[int] = mapped_column(
         ForeignKey('clocks._id', ondelete='RESTRICT')
     )
@@ -60,7 +60,7 @@ class GenericBoutModel(CacheableModel):
     @property
     def parents(self) -> tuple[SQLModel, ...]:
         return ()
-    
+
     @final
     @property
     def key(self) -> tuple[str, int]:
@@ -68,12 +68,6 @@ class GenericBoutModel(CacheableModel):
 
     @abstractmethod
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...
-
-    @abstractmethod
-    def pause(self) -> None: ...
-
-    @abstractmethod
-    def ready(self) -> None: ...
 
     @abstractmethod
     def set_lead(self, team: TeamName, lead: bool, timestamp: datetime) -> None: ...
@@ -85,10 +79,16 @@ class GenericBoutModel(CacheableModel):
     def set_star_pass(self, team: TeamName, timestamp: datetime) -> None: ...
 
     @abstractmethod
+    def start(self) -> None: ...
+
+    @abstractmethod
     def start_jam(self, timestamp: datetime) -> JamModel: ...
 
     @abstractmethod
     def start_timeout(self, timestamp: datetime) -> TimeoutModel: ...
+
+    @abstractmethod
+    def stop(self) -> None: ...
 
     @abstractmethod
     def stop_jam(self, timestamp: datetime) -> None: ...

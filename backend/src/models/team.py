@@ -48,12 +48,6 @@ class TeamModel(SQLModel):
         back_populates='team', lazy='selectin'
     )
 
-    def __init__(self, roster: RosterModel) -> None:
-        super().__init__(roster=roster)
-        self.timeouts_remaining = 0
-        self.reviews_remaining = 0
-        self.score_offset = 0
-
     @property
     def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)

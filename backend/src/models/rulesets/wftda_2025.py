@@ -1,35 +1,52 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING, Final
 
 from models.bout import GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamJamModel, TeamName, TripModel
-from models.time import TimeoutModel
+from models.team import RosterModel, TeamModel
+from models.time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
     from datetime import datetime
 
+RULESET: Final[str] = 'WFTDA 2025'
+
 MAX_POINTS_PER_TRIP: Final[int] = 4
 MAX_TIMEOUTS: Final[int] = 3
 MAX_OFFICIAL_REVIEWS: Final[int] = 1
+NUM_TEAMS: Final[int] = 2
+NUM_TIMEOUTS: Final[int] = 3
+NUM_OFFICIAL_REVIEWS: Final[int] = 1
 
 
 class BoutModel(GenericBoutModel):
     __mapper_args__ = {
-        'polymorphic_identity': 'WFTDA 2025',
+        'polymorphic_identity': RULESET,
     }
 
-    def ready(self) -> None:
+    def __init__(self, *rosters: RosterModel) -> None:
+        if len(set(rosters)) != NUM_TEAMS:
+            raise ValueError(f'This Bout must have exactly {NUM_TEAMS} unique Teams')
+        super().__init__(clock=ClockModel(alarm=timedelta(minutes=30)), ruleset=RULESET)
+        self.teams = [
+            TeamModel(
+                roster=roster,
+                timeouts_remaining=NUM_TIMEOUTS,
+                reviews_remaining=NUM_OFFICIAL_REVIEWS,
+            )
+            for roster in rosters
+        ]
+
+    def start(self) -> None:
         current_period: int | None = None
         if len(self.jams):
             current_period = self.jams[-1].period
-        
+
         match current_period:
             case None:
                 # The Bout has not started yet
-                for team in self.teams:
-                    team.timeouts_remaining = MAX_TIMEOUTS
-                    team.reviews_remaining = MAX_OFFICIAL_REVIEWS
                 self.jams.append(
                     JamModel(
                         period=0,
@@ -45,9 +62,9 @@ class BoutModel(GenericBoutModel):
                 # The Bout is being prepared for Overtime
                 raise NotImplementedError()  # TODO
             case _:
-                raise RuntimeError(f'This Bout cannot be prepared. ({current_period=})')
+                raise StopIteration()
 
-    def pause(self) -> None:
+    def stop(self) -> None:
         pass
 
     def start_jam(self, timestamp: datetime) -> JamModel:
