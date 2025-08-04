@@ -13,14 +13,13 @@ class TimerSchema(ServerSchema):
     stop_timestamp: datetime | None
 
 
-class JamSchema(TimerSchema):
-    period: int
-    jam: int
-
-
 class TimeoutSchema(TimerSchema):
-    period: int
-    jam: int
+    pass
+
+
+class JamSchema(TimerSchema):
+    period: int = Field(exclude=True)
+    jam: int = Field(exclude=True)
 
 
 class BoutSchema(ServerSchema):
