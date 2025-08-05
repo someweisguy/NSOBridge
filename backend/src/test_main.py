@@ -1,13 +1,11 @@
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from sqlalchemy import Result, select
 
 from models import (
-    ClockModel,
     GenericBoutModel,
     RosterModel,
-    TeamModel,
     get_db,
     setup_db,
 )
@@ -27,6 +25,9 @@ async def inspect() -> None:
         assert bout is not None
 
         bout.add_trip('home', 4, datetime.now())
+        
+        bout.stop_jam(datetime.now())
+        bout.stop(datetime.now())
         # bout.add_trip('home', 4, datetime.now())
 
         # bout.stop_jam(datetime.now())
@@ -39,29 +40,22 @@ async def inspect() -> None:
 
         # print()
 
-        # bout_schema: BoutSchema = BoutSchema.model_validate(bout)
-        # print(bout_schema.model_dump_json(indent=2))
+        bout_schema: BoutSchema = BoutSchema.model_validate(bout)
+        print(bout_schema.model_dump_json(indent=2))
         await session.commit()
-        print('commit 2 done')
 
 
 async def main() -> None:
     await setup_db()
 
     async with get_db() as session, session.begin():
-        bout: GenericBoutModel = BoutModel(
-            clock=ClockModel(alarm=timedelta(minutes=30)), ruleset='WFTDA 2025'
-        )
-        bout.teams = [
-            TeamModel(roster=home_roster),
-            TeamModel(roster=away_roster),
-        ]
+        bout: GenericBoutModel = BoutModel(home_roster, away_roster)
         session.add(bout)
 
         await session.flush()
         await session.refresh(bout)
 
-        bout.ready()
+        bout.start(datetime.now())
         bout.start_jam(datetime.now())
 
         # bout.start_jam(datetime.now())
@@ -74,7 +68,6 @@ async def main() -> None:
         # bout.stop_timeout(datetime.now())
 
         await session.commit()
-        print('commit 1 done')
 
     await inspect()
 
