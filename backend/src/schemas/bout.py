@@ -1,11 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Literal
 
 from pydantic import Field, computed_field
 
 from schemas.schemas import ServerSchema
-from schemas.team import TeamSchema
-from schemas.time import ClockSchema
+
+
+class ClockSchema(ServerSchema):
+    start_timestamp: datetime | None
+    elapsed: timedelta
+    alarm: timedelta
 
 
 class TimerSchema(ServerSchema):
@@ -21,6 +25,15 @@ class TimeoutSchema(TimerSchema):
 class JamSchema(TimerSchema):
     period: int
     jam: int
+
+
+class TeamSchema(ServerSchema):
+    # TODO: name: str
+    bout_score: int
+    jam_score: int
+    timeouts_remaining: int
+    reviews_remaining: int
+    score_offset: int
 
 
 class BoutSchema(ServerSchema):
@@ -81,8 +94,8 @@ class BoutSchema(ServerSchema):
             return self.intermission_timer
         if len(self.timeouts) == 0:
             return None
-        
-        timeout: TimeoutSchema = self.timeouts[-1] 
+
+        timeout: TimeoutSchema = self.timeouts[-1]
         active_jam: JamSchema | None = self.active_jam
         if active_jam is None:
             # This situation should never occur
