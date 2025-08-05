@@ -7,10 +7,8 @@ from sqlalchemy import Result, Select, select
 
 import core
 import models
-from models.bout import GenericBoutModel
-from models.models import CacheableModel
+from models import CacheableModel, GenericBoutModel, RosterModel
 from models.rulesets.wftda_2025 import BoutModel
-from models.team import RosterModel
 
 HTTP_PORT: Final[int] = 80
 
