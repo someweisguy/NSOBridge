@@ -14,7 +14,8 @@ class TimerSchema(ServerSchema):
 
 
 class TimeoutSchema(TimerSchema):
-    pass
+    period: int
+    jam: int
 
 
 class JamSchema(TimerSchema):
@@ -78,7 +79,15 @@ class BoutSchema(ServerSchema):
     def timer(self) -> TimeoutSchema | TimerSchema | None:
         if self.intermission_timer is not None:
             return self.intermission_timer
-        elif len(self.timeouts) > 0:
-            return self.timeouts[-1]
-        else:
+        if len(self.timeouts) == 0:
             return None
+        
+        timeout: TimeoutSchema = self.timeouts[-1] 
+        active_jam: JamSchema | None = self.active_jam
+        if active_jam is None:
+            # This situation should never occur
+            return timeout
+        if timeout.period < active_jam.period or timeout.jam < active_jam.jam:
+            return None
+
+        return timeout
