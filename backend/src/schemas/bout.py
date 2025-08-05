@@ -18,8 +18,8 @@ class TimeoutSchema(TimerSchema):
 
 
 class JamSchema(TimerSchema):
-    period: int = Field(exclude=True)
-    jam: int = Field(exclude=True)
+    period: int
+    jam: int
 
 
 class BoutSchema(ServerSchema):
@@ -50,42 +50,35 @@ class BoutSchema(ServerSchema):
 
     @computed_field
     @property
-    def timer_type(self) -> Literal['jam', 'timeout', 'intermission'] | None:
-        timer: JamSchema | TimeoutSchema | TimerSchema | None = self.timer
+    def active_jam(self) -> JamSchema | None:
+        num_jams: int = len(self.jams)
+        if num_jams == 0:
+            return None
+        if num_jams == 1:
+            return self.jams[0]
+        else:
+            jam: JamSchema = self.jams[-1]
+            if jam.start_timestamp is None:
+                jam = self.jams[-2]
+            return jam
+
+    @computed_field
+    @property
+    def timer_type(self) -> Literal['timeout', 'intermission'] | None:
+        timer: TimeoutSchema | TimerSchema | None = self.timer
         if timer is None:
             return None
         elif isinstance(timer, TimeoutSchema):
             return 'timeout'
-        elif isinstance(timer, JamSchema):
-            return 'jam'
         else:
             return 'intermission'
 
     @computed_field
     @property
-    def timer(self) -> JamSchema | TimeoutSchema | TimerSchema | None:
+    def timer(self) -> TimeoutSchema | TimerSchema | None:
         if self.intermission_timer is not None:
             return self.intermission_timer
-
-        active_jam: JamSchema | None = next(
-            (jam for jam in self.jams if jam.start_timestamp is not None), None
-        )
-        previous_timeout: TimeoutSchema | None = (
-            self.timeouts[-1] if len(self.timeouts) > 0 else None
-        )
-
-        # Guard against one or the other being None
-        if active_jam is None:
-            return previous_timeout
-        elif previous_timeout is None:
-            return active_jam
-
-        assert (
-            active_jam.start_timestamp is not None
-            and previous_timeout.start_timestamp is not None
-        )
-        return (
-            active_jam
-            if active_jam.start_timestamp > previous_timeout.start_timestamp
-            else previous_timeout
-        )
+        elif len(self.timeouts) > 0:
+            return self.timeouts[-1]
+        else:
+            return None
