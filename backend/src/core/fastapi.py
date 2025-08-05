@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Awaitable, Callable, Final, Literal
+from typing import Final, Literal
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse
@@ -40,12 +40,3 @@ async def server_sync() -> dict[Literal['t1', 't2'], str]:
         't2': datetime.now().isoformat(),
     }
 
-
-@app.middleware('http')
-async def broadcast_updates_middleware(
-    request: Request, call_next: Callable[[Request], Awaitable[Response]]
-) -> Response:
-    response: Response = await call_next(request)
-    if request.method != 'GET':
-        ws.broadcast()
-    return response

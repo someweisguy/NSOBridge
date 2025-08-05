@@ -1,9 +1,14 @@
 import asyncio
+import json
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import Result, select
 
+import core
+import models
 from models import (
+    CacheableModel,
     GenericBoutModel,
     RosterModel,
     get_db,
@@ -11,6 +16,14 @@ from models import (
 )
 from models.rulesets.wftda_2025 import BoutModel
 from schemas import BoutSchema, JamSchema
+
+
+@models.on_update
+def broadcast_model_updates(cacheables: set[CacheableModel]) -> None:
+    keys: list[tuple[Any, ...]] = [cacheable.key for cacheable in cacheables]
+    payload: str = json.dumps(keys, separators=(',', ':'))
+    core.broadcast(payload)
+
 
 home_roster: RosterModel = RosterModel()
 away_roster: RosterModel = RosterModel()
@@ -25,9 +38,9 @@ async def inspect() -> None:
         assert bout is not None
 
         bout.add_trip('home', 4, datetime.now())
-        
+
         bout.stop_jam(datetime.now())
-        bout.stop(datetime.now())
+        # bout.stop(datetime.now())
         # bout.add_trip('home', 4, datetime.now())
 
         # bout.stop_jam(datetime.now())
@@ -40,8 +53,8 @@ async def inspect() -> None:
 
         # print()
 
-        bout_schema: BoutSchema = BoutSchema.model_validate(bout)
-        print(bout_schema.model_dump_json(indent=2))
+        # bout_schema: BoutSchema = BoutSchema.model_validate(bout)
+        # print(bout_schema.model_dump_json(indent=2))
         await session.commit()
 
 

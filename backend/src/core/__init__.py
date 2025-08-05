@@ -8,6 +8,7 @@ from uvicorn import Config, Server
 # from core.v1.jam import router as jam_router
 # from core.v1.series import router as series_router
 from core.fastapi import app
+from core.ws import broadcast
 
 API_PREFIX: LiteralString = '/api'
 # app.include_router(series_router, prefix=API_PREFIX, tags=['series'])
@@ -36,4 +37,8 @@ async def serve(ip: str = '0.0.0.0', port: int = 8000) -> None:
     await host.serve()
 
 
-__all__ = ('get_ip_address', 'serve')
+__all__ = (
+    'broadcast',
+    'get_ip_address',
+    'serve',
+)
