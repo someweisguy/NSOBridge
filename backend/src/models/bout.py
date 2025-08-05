@@ -1,19 +1,24 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Final, final
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.jam import JamModel, TeamJamModel, TeamName
 from models.models import CacheableModel, SQLModel
+from models.team import TeamModel
+from models.time import ClockModel
 
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from models.team import TeamModel
-    from models.time import ClockModel, TimeoutModel, TimerModel
+    from models.team import RosterModel
+    from models.time import TimeoutModel, TimerModel
+
+
+REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
 class GenericBoutModel(CacheableModel):
@@ -61,6 +66,12 @@ class GenericBoutModel(CacheableModel):
         if len(team.team_jams) == 0:
             return 0
         return cls.calculate_score(team.team_jams[-1])
+
+    def __init__(self, ruleset: str, *rosters: RosterModel) -> None:
+        if len(rosters) < REQUIRED_NUM_TEAMS:
+            raise ValueError(f'A Bout must have at least {REQUIRED_NUM_TEAMS} Teams')
+        super().__init__(clock=ClockModel(), ruleset=ruleset)
+        self.teams = [TeamModel(roster=roster) for roster in rosters]
 
     @final
     @property

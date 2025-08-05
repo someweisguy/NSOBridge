@@ -5,18 +5,18 @@ from typing import TYPE_CHECKING, Final
 
 from models.bout import GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamJamModel, TeamName, TripModel
-from models.team import RosterModel, TeamModel
-from models.time import ClockModel, TimeoutModel, TimerModel
+from models.time import TimeoutModel, TimerModel
 
 if TYPE_CHECKING:
     from datetime import datetime
+
+    from models.team import RosterModel
 
 RULESET: Final[str] = 'WFTDA 2025'
 
 MAX_POINTS_PER_TRIP: Final[int] = 4
 MAX_TIMEOUTS: Final[int] = 3
 MAX_OFFICIAL_REVIEWS: Final[int] = 1
-NUM_TEAMS: Final[int] = 2
 NUM_TIMEOUTS: Final[int] = 3
 NUM_OFFICIAL_REVIEWS: Final[int] = 1
 
@@ -26,22 +26,13 @@ class BoutModel(GenericBoutModel):
         'polymorphic_identity': RULESET,
     }
 
-    def __init__(self, *rosters: RosterModel) -> None:
-        if len(set(rosters)) != NUM_TEAMS:
-            raise ValueError(f'This Bout must have exactly {NUM_TEAMS} unique Teams')
-        super().__init__(
-            clock=ClockModel(alarm=timedelta(minutes=30)),
-            ruleset=RULESET,
-            timer=TimerModel(),
-        )
-        self.teams = [
-            TeamModel(
-                roster=roster,
-                timeouts_remaining=NUM_TIMEOUTS,
-                reviews_remaining=NUM_OFFICIAL_REVIEWS,
-            )
-            for roster in rosters
-        ]
+    def __init__(self, home: RosterModel, away: RosterModel) -> None:
+        super().__init__(RULESET, *(home, away))
+        self.clock.alarm = timedelta(minutes=30)
+        for team in self.teams:
+            team.timeouts_remaining = NUM_TIMEOUTS
+            team.reviews_remaining = NUM_OFFICIAL_REVIEWS
+        self.timer = TimerModel()
 
     def start(self, timestamp: datetime) -> None:
         if self.timer is None:
