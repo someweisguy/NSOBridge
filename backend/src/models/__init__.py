@@ -10,7 +10,7 @@ from models.team import RosterModel, TeamModel
 from models.time import ClockModel
 
 
-async def setup_db() -> None:
+async def setup() -> None:
     async with engine.connect() as connection:
         await connection.run_sync(SQLModel.metadata.create_all)
 
@@ -34,7 +34,7 @@ __all__ = (
     'JamModel',
     'on_update',
     'RosterModel',
-    'setup_db',
+    'setup',
     'TeamJamModel',
     'TeamModel',
     'TeamName',
