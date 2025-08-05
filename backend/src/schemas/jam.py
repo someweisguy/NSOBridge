@@ -40,5 +40,5 @@ class TeamJamSchema(ServerSchema):
 class JamSchema(ServerSchema):
     period: int
     jam: int
-    home: TeamJamSchema | None
-    away: TeamJamSchema | None
+    home: TeamJamSchema
+    away: TeamJamSchema
