@@ -33,7 +33,7 @@ async def render_generic(request: Request, path: str) -> Response:
 
 @app.get('/api/sync')
 async def server_sync() -> dict[Literal['t1', 't2'], str]:
-    # TODO: make this a ProjectModel
+    # TODO: move this functionality to websocket to reduce TCP handshake delays
     start: datetime = datetime.now()
     return {
         't1': start.isoformat(),
