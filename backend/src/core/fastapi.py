@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Final, Literal
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
@@ -22,12 +22,12 @@ app: FastAPI = FastAPI(
 
 
 @app.get('/')
-async def render_index(request: Request) -> Response:
-    return await render_generic(request, 'index.html')
+async def render_index() -> FileResponse:
+    return await render_generic('index.html')
 
 
 @app.get('/{path}')
-async def render_generic(request: Request, path: str) -> Response:
+async def render_generic(path: str) -> FileResponse:
     return FileResponse(FRONTEND / path)
 
 
