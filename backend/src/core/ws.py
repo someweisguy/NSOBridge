@@ -4,7 +4,7 @@ from typing import Final
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
-from schemas.time import ProcessTimeSchema
+from schemas.ws import SyncSchema, WebsocketSchema
 
 app: Final[FastAPI] = FastAPI()
 clients: set[WebSocket] = set()
@@ -19,15 +19,19 @@ async def handle_socket(websocket: WebSocket) -> None:
     try:
         while True:
             # Get the payload and automatically add the server time in the response
-            payload: ProcessTimeSchema = ProcessTimeSchema.model_validate_json(
+            data: SyncSchema = SyncSchema.model_validate_json(
                 await websocket.receive_text()
             )
+
+            # Wrap the data in a websocket schema
+            payload: WebsocketSchema = WebsocketSchema(type='sync', data=data)
             await websocket.send_text(payload.model_dump_json())
     except WebSocketDisconnect:
         pass  # TODO: log client disconnection
     except ValidationError:
-        pass  # TODO
-    clients.discard(websocket)
+        await websocket.close()  # TODO: log error
+    finally:
+        clients.discard(websocket)
 
 
 def broadcast(payload: str) -> None:
