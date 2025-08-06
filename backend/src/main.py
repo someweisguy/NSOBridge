@@ -8,7 +8,7 @@ import core
 import models
 from models import CacheableModel, GenericBoutModel, RosterModel
 from models.rulesets.wftda_2025 import BoutModel
-from schemas.ws import WebsocketSchema
+from schemas.ws import WebSocketSchema
 
 HTTP_PORT: Final[int] = 80
 
@@ -22,7 +22,7 @@ logging.basicConfig(
 
 @models.on_update
 def broadcast_model_updates(cacheables: set[CacheableModel]) -> None:
-    payload: WebsocketSchema = WebsocketSchema(type='update')
+    payload: WebSocketSchema = WebSocketSchema(type='update')
     payload.data = tuple(cacheable.key for cacheable in cacheables)
     core.broadcast(payload.model_dump_json())
 

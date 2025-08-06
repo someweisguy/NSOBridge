@@ -4,7 +4,7 @@ from typing import Final
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
-from schemas.ws import SyncSchema, WebsocketSchema
+from schemas.ws import SyncSchema, WebSocketSchema
 
 app: Final[FastAPI] = FastAPI()
 clients: set[WebSocket] = set()
@@ -24,7 +24,7 @@ async def handle_socket(websocket: WebSocket) -> None:
             )
 
             # Wrap the data in a websocket schema
-            payload: WebsocketSchema = WebsocketSchema(type='sync', data=data)
+            payload: WebSocketSchema = WebSocketSchema(type='sync', data=data)
             await websocket.send_text(payload.model_dump_json())
     except WebSocketDisconnect:
         pass  # TODO: log client disconnection
