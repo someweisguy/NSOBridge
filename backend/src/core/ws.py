@@ -29,7 +29,9 @@ async def handle_socket(websocket: WebSocket) -> None:
     except WebSocketDisconnect:
         pass  # TODO: log client disconnection
     except ValidationError:
-        await websocket.close()  # TODO: log error
+        await websocket.close(1007)  # TODO: log error
+    except Exception:
+        await websocket.close(1011)  # TODO: log error
     finally:
         clients.discard(websocket)
 
