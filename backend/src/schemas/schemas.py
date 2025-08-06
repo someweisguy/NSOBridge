@@ -22,6 +22,7 @@ class ServerSchema(BaseModel):
 class ClientSchema(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
+        extra='forbid',
         from_attributes=True,
         json_encoders={timedelta: _timedelta_encoder},
         validate_by_alias=True,
