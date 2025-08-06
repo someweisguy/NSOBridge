@@ -2,6 +2,9 @@ import asyncio
 from typing import Final
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from pydantic import ValidationError
+
+from schemas.time import ProcessTimeSchema
 
 app: Final[FastAPI] = FastAPI()
 clients: set[WebSocket] = set()
@@ -13,13 +16,18 @@ async def handle_socket(websocket: WebSocket) -> None:
     await websocket.accept()
     clients.add(websocket)
 
-    # Keep the connection open indefinitely
     try:
         while True:
-            # TODO: Handle time synchronization
-            await websocket.receive_text()
+            # Get the payload and automatically add the server time in the response
+            payload: ProcessTimeSchema = ProcessTimeSchema.model_validate_json(
+                await websocket.receive_text()
+            )
+            await websocket.send_text(payload.model_dump_json())
     except WebSocketDisconnect:
-        clients.discard(websocket)
+        pass  # TODO: log client disconnection
+    except ValidationError:
+        pass  # TODO
+    clients.discard(websocket)
 
 
 def broadcast(payload: str) -> None:

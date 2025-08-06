@@ -1,7 +1,6 @@
 import os
-from datetime import datetime
 from pathlib import Path
-from typing import Final, Literal
+from typing import Final
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
@@ -29,14 +28,3 @@ async def render_index() -> FileResponse:
 @app.get('/{path}')
 async def render_generic(path: str) -> FileResponse:
     return FileResponse(FRONTEND / path)
-
-
-@app.get('/api/sync')
-async def server_sync() -> dict[Literal['t1', 't2'], str]:
-    # TODO: move this functionality to websocket to reduce TCP handshake delays
-    start: datetime = datetime.now()
-    return {
-        't1': start.isoformat(),
-        't2': datetime.now().isoformat(),
-    }
-
