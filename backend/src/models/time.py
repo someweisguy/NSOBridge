@@ -117,8 +117,8 @@ class TimerModel(AbstractOneShotModel):
 
 class TimeoutModel(AbstractOneShotModel):
     __tablename__ = 'timeouts'
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
-    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'))
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
+    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
     bout: Mapped[GenericBoutModel | None] = relationship(back_populates='timeouts')
     period: Mapped[int] = mapped_column(index=True)

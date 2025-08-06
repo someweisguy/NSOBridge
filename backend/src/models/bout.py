@@ -25,10 +25,10 @@ class GenericBoutModel(CacheableModel):
     __tablename__ = 'bouts'
 
     _clock_id: Mapped[int] = mapped_column(
-        ForeignKey('clocks._id', ondelete='RESTRICT')
+        ForeignKey('clocks.id', ondelete='RESTRICT')
     )
     _timer_id: Mapped[int | None] = mapped_column(
-        ForeignKey('timers._id', ondelete='CASCADE')
+        ForeignKey('timers.id', ondelete='CASCADE')
     )
 
     ruleset: Mapped[str] = mapped_column()
@@ -81,7 +81,7 @@ class GenericBoutModel(CacheableModel):
     @final
     @property
     def key(self) -> tuple[str, int]:
-        return (self.__tablename__, self._id)
+        return (self.__tablename__, self.id)
 
     @abstractmethod
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...

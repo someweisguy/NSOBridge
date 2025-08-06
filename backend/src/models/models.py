@@ -44,7 +44,7 @@ class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
 class SQLModel(DeclarativeBase):
     __abstract__ = True
 
-    _id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
 
     @property
     @abstractmethod

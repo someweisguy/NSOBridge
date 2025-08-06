@@ -15,7 +15,7 @@ async def get_bout(bout_id: int | None = None) -> tuple[BoutSchema, ...] | BoutS
     async with models.get_db() as session:
         statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel)
         if bout_id is not None:
-            statement = statement.where(GenericBoutModel._id == bout_id)
+            statement = statement.where(GenericBoutModel.id == bout_id)
         results: Result[tuple[GenericBoutModel]] = await session.execute(statement)
         bout_models = results.scalars()
         if bout_id is not None:

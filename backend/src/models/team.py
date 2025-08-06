@@ -30,8 +30,8 @@ class RosterModel(SQLModel):
 class TeamModel(SQLModel):
     __tablename__ = 'teams'
 
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
-    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'))
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
+    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
 
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()

@@ -20,7 +20,7 @@ type TeamName = Literal['home', 'away']
 class TripModel(SQLModel):
     __tablename__ = 'trips'
 
-    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'))
+    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
 
     _team_jam: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_team_jam_id], lazy='joined'
@@ -37,9 +37,9 @@ class TripModel(SQLModel):
 class StarPassModel(SQLModel):
     __tablename__ = 'star_passes'
 
-    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams._id'))
+    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
     _trip_id: Mapped[int | None] = mapped_column(
-        ForeignKey('trips._id', ondelete='CASCADE')
+        ForeignKey('trips.id', ondelete='CASCADE')
     )
 
     _team_jam: Mapped[TeamJamModel | None] = relationship(
@@ -58,7 +58,7 @@ class StarPassModel(SQLModel):
 class TeamJamModel(SQLModel):
     __tablename__ = 'team_jams'
 
-    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'))
+    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
     _home: Mapped[JamModel | None] = relationship(
         foreign_keys='JamModel._home_team_jam_id'
@@ -113,12 +113,12 @@ class TeamJamModel(SQLModel):
 class JamModel(AbstractOneShotModel, CacheableModel):
     __tablename__ = 'jams'
 
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _home_team_jam_id: Mapped[int] = mapped_column(
-        ForeignKey('team_jams._id', ondelete='SET NULL')
+        ForeignKey('team_jams.id', ondelete='SET NULL')
     )
     _away_team_jam_id: Mapped[int] = mapped_column(
-        ForeignKey('team_jams._id', ondelete='SET NULL')
+        ForeignKey('team_jams.id', ondelete='SET NULL')
     )
 
     period: Mapped[int] = mapped_column(index=True)
