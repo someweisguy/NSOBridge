@@ -27,3 +27,9 @@ class SyncSchema(ClientSchema):
     def _reject_server_field(cls, value: Any) -> Any:
         # Prevents the client from providing a 'server' field
         raise ValueError(f'Clients cannot provide a server datetime ({value=})')
+
+    @field_serializer('server', mode='plain')
+    @classmethod
+    def _serialize_server(cls, value: datetime) -> str:
+        # This method is required to silence Pydantic serialization warnings
+        return value.isoformat()
