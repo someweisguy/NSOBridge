@@ -1,7 +1,6 @@
 import asyncio
-import json
 import logging
-from typing import Any, Final
+from typing import Final
 
 from sqlalchemy import Result, Select, select
 
@@ -9,6 +8,7 @@ import core
 import models
 from models import CacheableModel, GenericBoutModel, RosterModel
 from models.rulesets.wftda_2025 import BoutModel
+from schemas.ws import WebsocketSchema
 
 HTTP_PORT: Final[int] = 80
 
@@ -22,9 +22,9 @@ logging.basicConfig(
 
 @models.on_update
 def broadcast_model_updates(cacheables: set[CacheableModel]) -> None:
-    keys: list[tuple[Any, ...]] = [cacheable.key for cacheable in cacheables]
-    payload: str = json.dumps(keys, separators=(',', ':'))
-    core.broadcast(payload)
+    payload: WebsocketSchema = WebsocketSchema(type='update')
+    payload.data = tuple(cacheable.key for cacheable in cacheables)
+    core.broadcast(payload.model_dump_json())
 
 
 IP: str = core.get_ip_address()
