@@ -19,9 +19,10 @@ async def get_bout(bout_id: int | None = None) -> tuple[BoutSchema, ...] | BoutS
         results: Result[tuple[GenericBoutModel]] = await session.execute(statement)
         bout_models = results.scalars()
         if bout_id is not None:
-            if len(bout_models.all()) == 0:
+            model: GenericBoutModel | None = bout_models.first()
+            if model is None:
                 raise KeyError(f'Bout not found ({bout_id=})')
-            return BoutSchema.model_validate(bout_models.one())
+            return BoutSchema.model_validate(model)
         return tuple(BoutSchema.model_validate(model) for model in bout_models)
 
 
