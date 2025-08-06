@@ -13,7 +13,7 @@ class WebsocketSchema(ServerSchema):
     @field_serializer('data')
     def _reject_null_data(self, data: Any | None) -> Any:
         if data is None:
-            raise ValueError('Cannot send a Websocket packet without')
+            raise ValueError('Cannot send a Websocket packet without data')
         return data
 
 
