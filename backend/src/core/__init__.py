@@ -7,10 +7,12 @@ from uvicorn import Config, Server
 # from core.v1.bout import router as bout_router
 # from core.v1.jam import router as jam_router
 # from core.v1.series import router as series_router
+from api.bout import router as get_router
 from core.fastapi import app
 from core.ws import broadcast
 
 API_PREFIX: LiteralString = '/api'
+app.include_router(get_router, prefix=API_PREFIX)
 # app.include_router(series_router, prefix=API_PREFIX, tags=['series'])
 # app.include_router(bout_router, prefix=API_PREFIX, tags=['bout'])
 # app.include_router(jam_router, prefix=API_PREFIX, tags=['jam'])
