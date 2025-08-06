@@ -11,7 +11,7 @@ clients: set[WebSocket] = set()
 background_tasks: set[asyncio.Task[None]] = set()
 
 
-@app.websocket('/updates')
+@app.websocket('/')
 async def handle_socket(websocket: WebSocket) -> None:
     await websocket.accept()
     clients.add(websocket)
