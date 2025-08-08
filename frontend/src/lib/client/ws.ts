@@ -1,11 +1,15 @@
-const callbacks: Map<string, (d: unknown, ts: Date) => void> = new Map();
+type Callback = (d: unknown, ts: Date) => void;
+
+const all_callbacks: Map<string, Callback[]> = new Map<string, Callback[]>();
 const socket: WebSocket = new WebSocket(`ws://${window.location.host}/ws/`);
 
 function handle_connection_event(connect: boolean) {
   const now = new Date();
-  const callback = callbacks.get("connection");
-  if (callback != undefined) {
-    callback(connect, now);
+  const callbacks = all_callbacks.get("connection");
+  if (callbacks != undefined) {
+    for (const callback of callbacks) {
+      callback(connect, now);
+    }
   }
 }
 
@@ -14,19 +18,19 @@ socket.onclose = () => handle_connection_event(false);
 socket.onmessage = (event: MessageEvent<string>) => {
   const now = new Date();
   const payload = JSON.parse(event.data) as { type: string; data: unknown };
-  const callback = callbacks.get(payload.type);
-  if (callback != undefined) {
-    callback(payload.data, now);
+  const callbacks: Callback[] | undefined = all_callbacks.get(payload.type);
+  if (callbacks != undefined) {
+    for (const callback of callbacks) {
+      callback(payload.data, now);
+    }
   }
 };
 
-export function register_callback(
-  type: string,
-  cb: (d: any, ts: Date) => void
-): void {
-  callbacks.set(type, cb);
-}
-
-export function delete_callback(type: string): boolean {
-  return callbacks.delete(type);
+export function register_callback(type: string, cb: Callback): void {
+  let callbacks: Callback[] | undefined = all_callbacks.get(type);
+  if (callbacks === undefined) {
+    all_callbacks.set(type, []);
+    callbacks = all_callbacks.get(type)!;
+  }
+  callbacks.push(cb);
 }
