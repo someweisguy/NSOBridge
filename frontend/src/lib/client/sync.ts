@@ -1,67 +1,53 @@
-import genericRequest from "./request";
+import {
+  CONNECT_EVENT,
+  getServerInfo,
+  registerCallback,
+  ServerInfoType,
+} from "./ws";
 
-let timedelta = 0;
+const NUM_SYNC_SAMPLES = 5;
+const SYNC_INTERVAL_PERIOD = 1000 * 60 * 5;
 
-export function getServerTimedelta(): number {
-  return timedelta;
+let timeOffset: number;
+let syncIntervalId: NodeJS.Timeout;
+
+async function calculateTimeOffset(): Promise<number> {
+  // Collect a number of round-trip time samples
+  let clientNow: Date;
+  let serverNow: Date;
+  const syncSamples: number[] = [];
+  do {
+    const serverInfo: ServerInfoType = await getServerInfo();
+    clientNow = new Date();
+    serverNow = serverInfo.server;
+    syncSamples.push(clientNow.getTime() - serverInfo.process.getTime());
+  } while (syncSamples.length < NUM_SYNC_SAMPLES);
+
+  // Calculate the average round-trip time
+  const rtt = syncSamples.reduce((acc, val) => acc + val) / syncSamples.length;
+  const serverTime = serverNow.getTime() + rtt / 2;
+
+  return serverTime - clientNow.getTime();
 }
 
-async function clockSynchronize(): Promise<{ offset: number; rtt: number }> {
-  // Send the synchronization request
-  const start: Date = new Date();
-  const message = await genericRequest<{ t1: string; t2: string }>(
-    "/api/sync",
-    "GET",
-    null,
-    undefined,
-    false // Do not sanitize the request
-  );
-  const stop: Date = new Date();
-
-  // Compute the time difference between client and server
-  // See: https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
-  const t: number[] = [
-    start.getTime(),
-    new Date(message.t1).getTime(),
-    new Date(message.t2).getTime(),
-    stop.getTime(),
-  ];
-
-  const offset: number = (t[1] - t[0] + (t[3] - t[2])) / 2;
-  const rtt: number = t[3] - t[0] - (t[2] - t[1]); // Round-Trip Time
-  return { offset, rtt };
+export async function getServerTime(now?: Date): Promise<Date> {
+  timeOffset ??= await calculateTimeOffset();
+  now ??= new Date();
+  return new Date(timeOffset + now.getTime());
 }
 
-async function calculateClockOffset(iterations = 5): Promise<number> {
-  let rtt: number = Number.MAX_VALUE;
-  let offset = 0;
-
-  // Calculate the clock offset by running the clockSynchronize() algorithm `n` number
-  // of times. The chosen offset is the request with the lowest round-trip latency.
-  for (let i = 0; i < iterations; ++i) {
-    const { offset: currentOffset, rtt: currentRtt } = await clockSynchronize();
-    if (currentRtt < rtt) {
-      rtt = currentRtt;
-      offset = currentOffset;
-    }
+registerCallback(CONNECT_EVENT, (connected: boolean) => {
+  if (!connected) {
+    clearInterval(syncIntervalId);
+    return;
   }
 
-  return offset;
-}
-
-// Calculate the offset between the client and server clocks periodically
-export const timeIsSynchronized = new Promise((resolve) => {
-  const periodSeconds = 300;
-  const iterations = 5;
-  void calculateClockOffset(iterations).then((offset: number) => {
-    timedelta = offset;
-    resolve(true);
-    setInterval(() => {
-      void calculateClockOffset(iterations).then(
-        (offset: number) => (timedelta = offset)
-      );
-    }, 1000 * periodSeconds);
+  void calculateTimeOffset().then((newTimeOffset) => {
+    timeOffset = newTimeOffset;
   });
-}).catch((rejectReason: string) => {
-  throw new Error(rejectReason);
+  syncIntervalId = setInterval(() => {
+    void calculateTimeOffset().then((newTimeOffset) => {
+      timeOffset = newTimeOffset;
+    });
+  }, SYNC_INTERVAL_PERIOD);
 });
