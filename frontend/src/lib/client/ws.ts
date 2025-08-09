@@ -1,32 +1,78 @@
-const callbacks: Map<string, (d: unknown, ts: Date) => void> = new Map();
-const socket: WebSocket = new WebSocket(`ws://${window.location.host}/ws/`);
+type CallbackType = (d: unknown) => void;
 
-function handle_connection_event(connect: boolean) {
-  const now = new Date();
-  const callback = callbacks.get("connection");
-  if (callback != undefined) {
-    callback(connect, now);
+const allCallbacks = new Map<string, CallbackType[]>();
+const allResolutions = new Map<string, CallbackType[]>();
+const socket = new WebSocket(`ws://${window.location.host}/ws/`);
+
+function handleSocketEvent<T = unknown>(
+  payload: { type: string; data: T },
+  now?: Date
+) {
+  now ??= new Date();
+  // Resolve all promises
+  const resolutions: CallbackType[] | undefined = allResolutions.get(
+    payload.type
+  );
+  if (resolutions !== undefined) {
+    for (const resolution of resolutions) {
+      resolution(payload.data);
+    }
+    allResolutions.delete(payload.type);
+  }
+
+  // Handle all callbacks
+  const callbacks: CallbackType[] | undefined = allCallbacks.get(payload.type);
+  if (callbacks !== undefined) {
+    for (const callback of callbacks) {
+      callback(payload.data);
+    }
   }
 }
 
-socket.onopen = () => handle_connection_event(true);
-socket.onclose = () => handle_connection_event(false);
+socket.onopen = () => handleSocketEvent({ type: "", data: true });
+socket.onclose = () => handleSocketEvent({ type: "", data: false });
 socket.onmessage = (event: MessageEvent<string>) => {
   const now = new Date();
   const payload = JSON.parse(event.data) as { type: string; data: unknown };
-  const callback = callbacks.get(payload.type);
-  if (callback != undefined) {
-    callback(payload.data, now);
-  }
+  handleSocketEvent(payload, now);
 };
 
-export function register_callback(
+export function registerCallback<T = unknown>(
   type: string,
-  cb: (d: any, ts: Date) => void
+  cb: (d: T) => void
 ): void {
-  callbacks.set(type, cb);
+  let callbacks: CallbackType[] | undefined = allCallbacks.get(type);
+  callbacks ??= [];
+  callbacks.push(cb as CallbackType);
+
+  allCallbacks.set(type, callbacks);
 }
 
-export function delete_callback(type: string): boolean {
-  return callbacks.delete(type);
+export function receiveMessage<T = unknown>(
+  type: string,
+  timeout = 5000
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    let resolutions: CallbackType[] | undefined = allResolutions.get(type);
+    resolutions ??= [];
+
+    resolutions.push(resolve as CallbackType);
+    allResolutions.set(type, resolutions);
+    setTimeout(() => reject(new Error("WebSocket timed out")), timeout);
+  });
+}
+
+export async function getServerInfo(): Promise<number> {
+  // Wait until the WebSocket is connected
+  if (!socket.OPEN) {
+    const connected: boolean = await receiveMessage<boolean>("").catch(
+      () => false
+    );
+    if (!connected) {
+      return 0;
+    }
+  }
+
+  socket.send(JSON.stringify({ process: new Date() }));
+  return await receiveMessage("sync");
 }
