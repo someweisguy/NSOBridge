@@ -70,7 +70,7 @@ export function receiveMessage<T = unknown>(
 
 export async function getServerInfo(): Promise<ServerInfoType> {
   // Wait until the WebSocket is connected
-  if (!socket.OPEN) {
+  if (socket.readyState !== WebSocket.OPEN) {
     const connected = await receiveMessage<boolean>(CONNECT_EVENT).catch(
       () => false
     );
@@ -80,5 +80,8 @@ export async function getServerInfo(): Promise<ServerInfoType> {
   }
 
   socket.send(JSON.stringify({ process: new Date() }));
-  return await receiveMessage("sync");
+  const payload: ServerInfoType = await receiveMessage("sync");
+  payload.process = new Date(payload.process);
+  payload.server = new Date(payload.server);
+  return payload;
 }
