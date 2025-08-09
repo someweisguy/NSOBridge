@@ -71,9 +71,9 @@ export function receiveMessage<T = unknown>(
 export async function getServerInfo(): Promise<ServerInfoType> {
   // Wait until the WebSocket is connected
   if (!socket.OPEN) {
-    const connected: boolean = await receiveMessage<boolean>(
-      CONNECT_EVENT
-    ).catch(() => false);
+    const connected = await receiveMessage<boolean>(CONNECT_EVENT).catch(
+      () => false
+    );
     if (!connected) {
       throw new Error("Could not get server info (not connected)");
     }
