@@ -31,15 +31,20 @@ async function calculateTimeOffset(): Promise<number> {
   return serverTime - clientNow.getTime();
 }
 
-export async function getServerTime(now?: Date): Promise<Date> {
+export async function getTimeOffset(): Promise<number> {
   if (timeOffset === undefined) {
     initialSync ??= calculateTimeOffset().then(
       (newOffset) => (timeOffset = newOffset)
     );
     await initialSync;
   }
+  return timeOffset;
+}
+
+export async function getServerTime(now?: Date): Promise<Date> {
+  const offset = await getTimeOffset();
   now ??= new Date();
-  return new Date(timeOffset + now.getTime());
+  return new Date(offset + now.getTime());
 }
 
 registerCallback(CONNECT_EVENT, (connected: boolean) => {
