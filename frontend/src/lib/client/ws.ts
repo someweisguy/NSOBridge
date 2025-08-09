@@ -1,5 +1,11 @@
 type CallbackType = (d: unknown) => void;
 
+export interface ServerInfoType {
+  process: Date;
+  server: Date;
+}
+
+export const CONNECT_EVENT = "";
 const allCallbacks = new Map<string, CallbackType[]>();
 const allResolutions = new Map<string, CallbackType[]>();
 const socket = new WebSocket(`ws://${window.location.host}/ws/`);
@@ -29,8 +35,8 @@ function handleSocketEvent<T = unknown>(
   }
 }
 
-socket.onopen = () => handleSocketEvent({ type: "", data: true });
-socket.onclose = () => handleSocketEvent({ type: "", data: false });
+socket.onopen = () => handleSocketEvent({ type: CONNECT_EVENT, data: true });
+socket.onclose = () => handleSocketEvent({ type: CONNECT_EVENT, data: false });
 socket.onmessage = (event: MessageEvent<string>) => {
   const now = new Date();
   const payload = JSON.parse(event.data) as { type: string; data: unknown };
@@ -62,14 +68,14 @@ export function receiveMessage<T = unknown>(
   });
 }
 
-export async function getServerInfo(): Promise<number> {
+export async function getServerInfo(): Promise<ServerInfoType> {
   // Wait until the WebSocket is connected
   if (!socket.OPEN) {
-    const connected: boolean = await receiveMessage<boolean>("").catch(
-      () => false
-    );
+    const connected: boolean = await receiveMessage<boolean>(
+      CONNECT_EVENT
+    ).catch(() => false);
     if (!connected) {
-      return 0;
+      throw new Error("Could not get server info (not connected)");
     }
   }
 
