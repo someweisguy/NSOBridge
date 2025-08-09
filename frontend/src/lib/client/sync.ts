@@ -28,8 +28,6 @@ async function calculateTimeOffset(): Promise<number> {
   const rtt = syncSamples.reduce((acc, val) => acc + val) / syncSamples.length;
   const serverTime = serverNow.getTime() + rtt / 2;
 
-  console.log(`Calculated RTT: ${rtt} ms`);
-
   return serverTime - clientNow.getTime();
 }
 
