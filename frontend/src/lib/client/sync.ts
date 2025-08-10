@@ -8,43 +8,46 @@ import {
 const NUM_SYNC_SAMPLES = 5;
 const SYNC_INTERVAL_PERIOD = 1000 * 60 * 5;
 
-let timeOffset: number;
+let syncData: { offset: number; error: number };
 let syncIntervalId: NodeJS.Timeout;
-let initialSync: Promise<number>;
+let initialSync: Promise<typeof syncData>;
 
-async function calculateTimeOffset(): Promise<number> {
+async function calculateSyncData(): Promise<typeof syncData> {
   // Collect a number of round-trip time samples
   let clientNow: Date;
-  let serverNow: Date;
+  let lastSyncPacket: ServerInfoType;
   const syncSamples: number[] = [];
   do {
     const serverInfo: ServerInfoType = await getServerInfo();
     clientNow = new Date();
-    serverNow = serverInfo.server;
     syncSamples.push(clientNow.getTime() - serverInfo.process.getTime());
+    lastSyncPacket = serverInfo;
   } while (syncSamples.length < NUM_SYNC_SAMPLES);
 
   // Calculate the average round-trip time
   const rtt = syncSamples.reduce((acc, val) => acc + val) / syncSamples.length;
-  const serverTime = serverNow.getTime() + rtt / 2;
+  const serverTime = lastSyncPacket.server.getTime() + rtt / 2;
 
-  return serverTime - clientNow.getTime();
+  return {
+    offset: serverTime - clientNow.getTime(),
+    error: rtt / 2,
+  };
 }
 
-export async function getTimeOffset(): Promise<number> {
-  if (timeOffset === undefined) {
-    initialSync ??= calculateTimeOffset().then(
-      (newOffset) => (timeOffset = newOffset)
+export async function getSyncData(): Promise<typeof syncData> {
+  if (syncData === undefined) {
+    initialSync ??= calculateSyncData().then(
+      (newOffset) => (syncData = newOffset)
     );
     await initialSync;
   }
-  return timeOffset;
+  return syncData;
 }
 
 export async function getServerTime(now?: Date): Promise<Date> {
-  const offset = await getTimeOffset();
+  const sync = await getSyncData();
   now ??= new Date();
-  return new Date(offset + now.getTime());
+  return new Date(sync.offset + now.getTime());
 }
 
 registerCallback(CONNECT_EVENT, (connected: boolean) => {
@@ -53,12 +56,12 @@ registerCallback(CONNECT_EVENT, (connected: boolean) => {
     return;
   }
 
-  initialSync ??= calculateTimeOffset().then(
-    (newOffset) => (timeOffset = newOffset)
+  initialSync ??= calculateSyncData().then(
+    (newOffset) => (syncData = newOffset)
   );
   syncIntervalId = setInterval(() => {
-    void calculateTimeOffset().then((newOffset) => {
-      timeOffset = newOffset;
+    void calculateSyncData().then((newOffset) => {
+      syncData = newOffset;
     });
   }, SYNC_INTERVAL_PERIOD);
 });
