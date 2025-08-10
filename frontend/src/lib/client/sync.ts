@@ -36,9 +36,7 @@ async function calculateSyncData(): Promise<typeof syncData> {
 
 export async function getSyncData(): Promise<typeof syncData> {
   if (syncData === undefined) {
-    initialSync ??= calculateSyncData().then(
-      (newOffset) => (syncData = newOffset)
-    );
+    initialSync ??= calculateSyncData().then((newSync) => (syncData = newSync));
     await initialSync;
   }
   return syncData;
@@ -56,12 +54,18 @@ registerCallback(CONNECT_EVENT, (connected: boolean) => {
     return;
   }
 
-  initialSync ??= calculateSyncData().then(
-    (newOffset) => (syncData = newOffset)
-  );
+  let previousSyncComplete = false;
+  void calculateSyncData().then((newSync) => {
+    previousSyncComplete = true;
+    syncData = newSync;
+  });
   syncIntervalId = setInterval(() => {
-    void calculateSyncData().then((newOffset) => {
-      syncData = newOffset;
-    });
+    if (previousSyncComplete) {
+      previousSyncComplete = false;
+      void calculateSyncData().then((newSync) => {
+        previousSyncComplete = true;
+        syncData = newSync;
+      });
+    }
   }, SYNC_INTERVAL_PERIOD);
 });
