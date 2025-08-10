@@ -20,6 +20,10 @@ export class Jam {
     this.home = Object.assign(new TeamJam(), init?.home);
     this.away = Object.assign(new TeamJam(), init?.away);
   }
+
+  leadIsDeclared(): boolean {
+    return this.home.lead !== null || this.away.lead !== null;
+  }
 }
 
 export async function getJam(
