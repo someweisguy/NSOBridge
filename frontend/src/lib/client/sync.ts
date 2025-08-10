@@ -55,17 +55,11 @@ registerCallback(CONNECT_EVENT, (connected: boolean) => {
   }
 
   let previousSyncComplete = false;
-  void calculateSyncData().then((newSync) => {
-    previousSyncComplete = true;
-    syncData = newSync;
-  });
+  void getSyncData().then(() => (previousSyncComplete = true));
   syncIntervalId = setInterval(() => {
     if (previousSyncComplete) {
       previousSyncComplete = false;
-      void calculateSyncData().then((newSync) => {
-        previousSyncComplete = true;
-        syncData = newSync;
-      });
+      void getSyncData().then(() => (previousSyncComplete = true));
     }
   }, SYNC_INTERVAL_PERIOD);
 });
