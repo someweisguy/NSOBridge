@@ -19,9 +19,8 @@ async def handle_socket(websocket: WebSocket) -> None:
     try:
         while True:
             # Get the payload and automatically add the server time in the response
-            data: SyncSchema = SyncSchema.model_validate_json(
-                await websocket.receive_text()
-            )
+            text: str = await websocket.receive_text()
+            data: SyncSchema = SyncSchema.model_validate_json(text)
 
             # Wrap the data in a websocket schema
             payload: WebSocketSchema = WebSocketSchema(type='sync', data=data)

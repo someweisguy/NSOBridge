@@ -27,7 +27,6 @@ def broadcast_model_updates(cacheables: set[CacheableModel]) -> None:
     core.broadcast(payload.model_dump_json())
 
 
-IP: str = core.get_ip_address()
 PORT: int = 8000
 
 
@@ -44,7 +43,8 @@ async def main() -> None:
             session.add(bout)
         await session.commit()
 
-    print(f'Starting server at http://{IP}{f":{PORT}" if PORT != HTTP_PORT else ""}')
+    ip: str = core.get_ip_address()
+    print(f'Starting server at http://{ip}{f":{PORT}" if PORT != HTTP_PORT else ""}')
     await core.serve(port=PORT)
 
 
