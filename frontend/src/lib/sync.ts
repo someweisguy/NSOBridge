@@ -1,7 +1,6 @@
 import {
-  CONNECT_EVENT,
   getServerInfo,
-  registerCallback,
+  registerWebSocketCallback,
   ServerInfoType,
 } from "./ws";
 
@@ -48,7 +47,7 @@ export async function getServerTime(now?: Date): Promise<Date> {
   return new Date(sync.offset + now.getTime());
 }
 
-registerCallback(CONNECT_EVENT, (connected: boolean) => {
+registerWebSocketCallback("connect", (connected: boolean) => {
   if (!connected) {
     clearInterval(syncIntervalId);
     return;

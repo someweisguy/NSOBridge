@@ -1,17 +1,22 @@
-type CallbackType = (d: unknown) => void;
+type CallbackType<T = unknown> = (d: T) => void;
+
+interface API {
+  connect: boolean;
+  updates: object[][];
+  sync: ServerInfoType;
+}
 
 export interface ServerInfoType {
   process: Date;
   server: Date;
 }
 
-export const CONNECT_EVENT = "";
 const allCallbacks = new Map<string, CallbackType[]>();
 const allResolutions = new Map<string, CallbackType[]>();
 const socket = new WebSocket(`ws://${window.location.host}/ws/`);
 
-function handleSocketEvent<T = unknown>(
-  payload: { type: string; data: T },
+function handleSocketEvent<K extends keyof API>(
+  payload: { type: K; data: API[K] },
   now?: Date
 ) {
   now ??= new Date();
@@ -35,30 +40,33 @@ function handleSocketEvent<T = unknown>(
   }
 }
 
-socket.onopen = () => handleSocketEvent({ type: CONNECT_EVENT, data: true });
-socket.onclose = () => handleSocketEvent({ type: CONNECT_EVENT, data: false });
-socket.onmessage = (event: MessageEvent<string>) => {
+socket.onopen = () => handleSocketEvent({ type: "connect", data: true });
+socket.onclose = () => handleSocketEvent({ type: "connect", data: false });
+socket.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
   const now = new Date();
-  const payload = JSON.parse(event.data) as { type: string; data: unknown };
+  const payload = JSON.parse(event.data) as {
+    type: K;
+    data: API[K];
+  };
   handleSocketEvent(payload, now);
 };
 
-export function registerCallback<T = unknown>(
-  type: string,
-  cb: (d: T) => void
+export function registerWebSocketCallback<T extends keyof API>(
+  type: T,
+  cb: CallbackType<API[T]>
 ): void {
   let callbacks: CallbackType[] | undefined = allCallbacks.get(type);
   callbacks ??= [];
-  callbacks.push(cb as CallbackType);
+  callbacks.push(cb as unknown as CallbackType);
 
   allCallbacks.set(type, callbacks);
 }
 
-export function receiveMessage<T = unknown>(
-  type: string,
+export function receiveWebSocketMessage<K extends keyof API>(
+  type: K,
   timeout = 5000
-): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
+): Promise<API[K]> {
+  return new Promise((resolve, reject) => {
     let resolutions: CallbackType[] | undefined = allResolutions.get(type);
     resolutions ??= [];
 
@@ -71,7 +79,7 @@ export function receiveMessage<T = unknown>(
 export async function getServerInfo(): Promise<ServerInfoType> {
   // Wait until the WebSocket is connected
   if (socket.readyState !== WebSocket.OPEN) {
-    const connected = await receiveMessage<boolean>(CONNECT_EVENT).catch(
+    const connected = await receiveWebSocketMessage("connect").catch(
       () => false
     );
     if (!connected) {
@@ -80,7 +88,7 @@ export async function getServerInfo(): Promise<ServerInfoType> {
   }
 
   socket.send(JSON.stringify({ process: new Date() }));
-  const payload: ServerInfoType = await receiveMessage("sync");
+  const payload: ServerInfoType = await receiveWebSocketMessage("sync");
   payload.process = new Date(payload.process);
   payload.server = new Date(payload.server);
   return payload;
