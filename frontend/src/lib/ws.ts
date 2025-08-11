@@ -15,40 +15,18 @@ const allCallbacks = new Map<string, CallbackType[]>();
 const allResolutions = new Map<string, CallbackType[]>();
 const socket = new WebSocket(`ws://${window.location.host}/ws/`);
 
-function handleSocketEvent<K extends keyof API>(
-  payload: { type: K; data: API[K] },
-  now?: Date
-) {
-  now ??= new Date();
-  // Resolve all promises
-  const resolutions: CallbackType[] | undefined = allResolutions.get(
-    payload.type
-  );
-  if (resolutions !== undefined) {
-    for (const resolution of resolutions) {
-      resolution(payload.data);
-    }
-    allResolutions.delete(payload.type);
-  }
-
-  // Handle all callbacks
-  const callbacks: CallbackType[] | undefined = allCallbacks.get(payload.type);
-  if (callbacks !== undefined) {
-    for (const callback of callbacks) {
-      callback(payload.data);
-    }
+function handleSocketEvent<K extends keyof API>(type: K, data: API[K]) {
+  for (const callbackMap of [allCallbacks, allResolutions]) {
+    const callbacks = callbackMap.get(type);
+    callbacks?.forEach((callback) => callback(data));
   }
 }
 
-socket.onopen = () => handleSocketEvent({ type: "connect", data: true });
-socket.onclose = () => handleSocketEvent({ type: "connect", data: false });
+socket.onopen = () => handleSocketEvent("connect", true);
+socket.onclose = () => handleSocketEvent("connect", false);
 socket.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
-  const now = new Date();
-  const payload = JSON.parse(event.data) as {
-    type: K;
-    data: API[K];
-  };
-  handleSocketEvent(payload, now);
+  const { type, data } = JSON.parse(event.data) as { type: K; data: API[K] };
+  handleSocketEvent(type, data);
 };
 
 export function registerWebSocketCallback<T extends keyof API>(
