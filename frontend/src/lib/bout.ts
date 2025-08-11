@@ -39,6 +39,10 @@ export class Bout {
   public readonly activeJam: Timer | null;
   public readonly timer: Timer | null;
 
+  static generateKey(id: number) {
+    return ["bouts", id];
+  }
+
   constructor(init?: Partial<Bout>) {
     Object.assign(this, init);
     this.clock = Object.assign(new Clock(), init?.clock);

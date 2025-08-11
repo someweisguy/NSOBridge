@@ -14,6 +14,10 @@ export class Jam {
   public readonly jam: number;
   public readonly home: TeamJam;
   public readonly away: TeamJam;
+  
+  static generateKey(id: number, period: number, jam: number) {
+    return ["jams", id, period, jam];
+  }
 
   constructor(init?: Partial<Jam>) {
     Object.assign(this, init);
