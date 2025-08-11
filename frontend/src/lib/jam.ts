@@ -31,10 +31,15 @@ export async function getJam(
   period: number,
   jam: number
 ): Promise<Jam> {
-  const response: Partial<Jam> = await genericRequest("/api/jam", "GET", {
+  const response: Partial<Jam> = await genericRequest("jam", "GET", {
     boutId,
     period,
     jam,
   });
   return new Jam(response);
 }
+
+
+type d = Pick<{ get: Partial<Jam>; }, "get">
+
+

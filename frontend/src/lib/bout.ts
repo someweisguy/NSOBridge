@@ -53,7 +53,7 @@ export class Bout {
 }
 
 export async function getBout(key: number): Promise<Bout> {
-  const response: Partial<Bout> = await genericRequest("/api/bout", "GET", {
+  const response: Partial<Bout> = await genericRequest("bout", "GET", {
     key,
   });
   return new Bout(response);
