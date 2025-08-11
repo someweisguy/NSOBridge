@@ -1,5 +1,5 @@
 import { onlineManager, QueryClient } from "@tanstack/react-query";
-import { APIEvent, ConnectionEvent } from "./client/request";
+import { registerWebSocketCallback } from "./ws";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -10,20 +10,21 @@ const queryClient = new QueryClient({
   },
 });
 
-window.addEventListener("connection", (event: ConnectionEvent) => {
-  onlineManager.setOnline(event.online);
+registerWebSocketCallback("connect", (connected: boolean) => {
+  onlineManager.setOnline(connected);
 });
 
-window.addEventListener("update", (event: APIEvent) => {
-  // Force the query client to refetch the data
-  void queryClient.refetchQueries(
-    {
-      queryKey: event.key,
-      type: "active",
-      exact: true,
-    },
-    { cancelRefetch: false }
-  );
+registerWebSocketCallback("updates", (keys: object[][]) => {
+  for (const key of keys) {
+    void queryClient.refetchQueries(
+      {
+        queryKey: key,
+        type: "active",
+        exact: true,
+      },
+      { cancelRefetch: false }
+    );
+  }
 });
 
 export default queryClient;
