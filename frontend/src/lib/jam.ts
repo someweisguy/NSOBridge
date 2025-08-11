@@ -38,8 +38,3 @@ export async function getJam(
   });
   return new Jam(response);
 }
-
-
-type d = Pick<{ get: Partial<Jam>; }, "get">
-
-
