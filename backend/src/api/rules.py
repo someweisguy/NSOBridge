@@ -20,6 +20,9 @@ BoutDepends = Annotated[GenericBoutModel, Depends(get_session_bout)]
 
 router: Final[APIRouter] = APIRouter(prefix='/rules')
 
+@router.post('/start-bout')
+async def start_bout(bout: BoutDepends) -> None:
+    bout.start(datetime.now())
 
 @router.post('/start-jam')
 async def start_jam(bout: BoutDepends) -> None:
