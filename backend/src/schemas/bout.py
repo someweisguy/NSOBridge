@@ -37,6 +37,7 @@ class TeamSchema(ServerSchema):
 
 
 class BoutSchema(ServerSchema):
+    id: int
     ruleset: str
     clock: ClockSchema
     teams: list[TeamSchema]

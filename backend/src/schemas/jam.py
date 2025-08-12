@@ -37,10 +37,21 @@ class TeamJamSchema(ServerSchema):
         return [trip.passes for trip in self.trips]
 
 
+class BoutSchema(ServerSchema):
+    id: int
+
+
 class JamSchema(ServerSchema):
+    parent: BoutSchema = Field(exclude=True, validation_alias='bout')
+    
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
     period: int
     jam: int
     home: TeamJamSchema
     away: TeamJamSchema
+
+    @computed_field
+    @property
+    def bout(self) -> int:
+        return self.parent.id
