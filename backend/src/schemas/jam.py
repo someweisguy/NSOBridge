@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Any
 
 from pydantic import Field, computed_field
 
@@ -39,7 +38,6 @@ class TeamJamSchema(ServerSchema):
 
 
 class JamSchema(ServerSchema):
-    key: tuple[Any, ...]
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
     period: int

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import Field, computed_field
 
@@ -37,7 +37,6 @@ class TeamSchema(ServerSchema):
 
 
 class BoutSchema(ServerSchema):
-    key: tuple[Any, ...]
     ruleset: str
     clock: ClockSchema
     teams: list[TeamSchema]
