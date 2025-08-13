@@ -93,7 +93,7 @@ def after_flush_hook(session: Session, flush_context: UOWTransaction) -> None:
             for record in identity_map
             if isinstance(record, SQLModel)
         ]
-        for parent in model.search_parents()
+        for parent in model.search_parents() | {model}
         if isinstance(parent, CacheableModel)
     }
 
