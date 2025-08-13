@@ -15,7 +15,6 @@ registerWebSocketCallback("connect", (connected: boolean) => {
 });
 
 registerWebSocketCallback("cache", (keys: object[][]) => {
-  console.log(`Got keys: ${JSON.stringify(keys)}`)
   for (const key of keys) {
     void queryClient.refetchQueries(
       {
