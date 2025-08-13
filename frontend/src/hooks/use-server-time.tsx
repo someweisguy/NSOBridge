@@ -2,6 +2,8 @@ import { getServerTime, getSyncData } from "@/lib/sync";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
+const INTERVAL_PERIOD = 50;
+
 export default function useServerTime(
   run: boolean,
   clientTime: Date = new Date()
@@ -23,7 +25,7 @@ export default function useServerTime(
 
     const intervalId = setInterval(() => {
       setServerTime(getServerTime(data, clientTime));
-    }, 100);
+    }, INTERVAL_PERIOD);
 
     return () => {
       clearInterval(intervalId);
