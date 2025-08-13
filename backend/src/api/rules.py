@@ -6,11 +6,11 @@ from fastapi import APIRouter, Depends
 from models import GenericBoutModel, get_db
 
 
-async def get_session_bout(bout_id: int) -> AsyncGenerator[GenericBoutModel, None]:
+async def get_session_bout(key: int) -> AsyncGenerator[GenericBoutModel, None]:
     async with get_db() as db, db.begin():
-        bout: GenericBoutModel | None = await db.get(GenericBoutModel, bout_id)
+        bout: GenericBoutModel | None = await db.get(GenericBoutModel, key)
         if bout is None:
-            raise KeyError(f'Bout was not found ({bout_id=})')
+            raise KeyError(f'Bout was not found ({key=})')
         yield bout
         await db.commit()
 
