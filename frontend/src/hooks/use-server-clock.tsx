@@ -10,6 +10,9 @@ export default function useServerClock(
   stopTimestamp ??= serverNow;
 
   if (startTimestamp !== null) {
+    if (stopTimestamp < startTimestamp) {
+      stopTimestamp = startTimestamp;
+    }
     elapsed += stopTimestamp.getTime() - startTimestamp.getTime();
   }
 
