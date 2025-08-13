@@ -30,6 +30,7 @@ class Team {
 }
 
 export class Bout {
+  public readonly id: number;
   public readonly ruleset: string;
   public readonly jamCounts: number[];
   public readonly numTimeouts: number;
@@ -53,6 +54,14 @@ export class Bout {
     if (this.timer !== null) {
       this.timer = Object.assign(new Timer(), init?.timer);
     }
+  }
+
+  async start(): Promise<void> {
+    await genericRequest("rules/start-bout", "POST", { key: this.id });
+  }
+
+  async startJam(): Promise<void> {
+    await genericRequest("rules/start-jam", "POST", { key: this.id });
   }
 }
 
