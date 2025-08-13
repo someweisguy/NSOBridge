@@ -5,6 +5,13 @@ class Clock {
   public readonly elapsed: number;
   public readonly alarm: number;
 
+  constructor(init?: Partial<Clock>) {
+    Object.assign(this, init);
+    if (this.startTimestamp !== null) {
+      this.startTimestamp = new Date(this.startTimestamp);
+    }
+  }
+
   isRunning(): boolean {
     return this.startTimestamp !== null;
   }
@@ -16,6 +23,15 @@ class Timer {
   public readonly period: number;
   public readonly jam: number;
 
+  constructor(init?: Partial<Timer>) {
+    Object.assign(this, init);
+    if (this.startTimestamp !== null) {
+      this.startTimestamp = new Date(this.startTimestamp);
+    }
+    if (this.stopTimestamp !== null) {
+      this.stopTimestamp = new Date(this.stopTimestamp);
+    }
+  }
   isRunning(): boolean {
     return this.startTimestamp !== null && this.stopTimestamp !== null;
   }
@@ -46,13 +62,13 @@ export class Bout {
 
   constructor(init?: Partial<Bout>) {
     Object.assign(this, init);
-    this.clock = Object.assign(new Clock(), init?.clock);
+    this.clock = new Clock(this.clock);
     this.teams = this.teams.map<Team>((t) => Object.assign(new Team(), t));
     if (this.activeJam !== null) {
       this.activeJam = Object.assign(new Timer(), init?.activeJam);
     }
     if (this.timer !== null) {
-      this.timer = Object.assign(new Timer(), init?.timer);
+      this.timer = new Timer(this.timer);
     }
   }
 
