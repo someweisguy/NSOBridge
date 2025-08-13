@@ -22,9 +22,9 @@ logging.basicConfig(
 
 @models.on_update
 def broadcast_model_updates(cacheables: set[CacheableModel]) -> None:
-    payload: WebSocketSchema = WebSocketSchema(type='update')
+    payload: WebSocketSchema = WebSocketSchema(type='cache')
     payload.data = tuple(cacheable.key for cacheable in cacheables)
-    core.broadcast(payload.model_dump_json())
+    core.broadcast(payload)
 
 
 PORT: int = 8000

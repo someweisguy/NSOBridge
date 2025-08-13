@@ -7,7 +7,7 @@ from schemas.schemas import ClientSchema, ServerSchema
 
 
 class WebSocketSchema(ServerSchema):
-    type: Literal['sync', 'update']
+    type: Literal['cache', 'sync']
     data: Any | None = None
 
     @field_serializer('data')

@@ -35,8 +35,8 @@ async def handle_socket(websocket: WebSocket) -> None:
         clients.discard(websocket)
 
 
-def broadcast(payload: str) -> None:
+def broadcast(payload: WebSocketSchema) -> None:
     for client in clients:
-        task: asyncio.Task[None] = asyncio.create_task(client.send_json(payload))
-        background_tasks.add(task)
+        task = asyncio.create_task(client.send_text(payload.model_dump_json()))
         task.add_done_callback(background_tasks.discard)
+        background_tasks.add(task)
