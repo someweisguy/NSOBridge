@@ -1,17 +1,13 @@
-import {
-  getServerInfo,
-  registerWebSocketCallback,
-  ServerInfoType,
-} from "./ws";
+import { getServerInfo, ServerInfoType } from "./ws";
+
+interface SyncDataType {
+  offset: number;
+  error: number;
+}
 
 const NUM_SYNC_SAMPLES = 5;
-const SYNC_INTERVAL_PERIOD = 1000 * 60 * 5;
 
-let syncData: { offset: number; error: number };
-let syncIntervalId: NodeJS.Timeout;
-let initialSync: Promise<typeof syncData>;
-
-async function calculateSyncData(): Promise<typeof syncData> {
+export async function getSyncData(): Promise<SyncDataType> {
   // Collect a number of round-trip time samples
   let clientNow: Date;
   let lastSyncPacket: ServerInfoType;
@@ -33,32 +29,6 @@ async function calculateSyncData(): Promise<typeof syncData> {
   };
 }
 
-export async function getSyncData(): Promise<typeof syncData> {
-  if (syncData === undefined) {
-    initialSync ??= calculateSyncData().then((newSync) => (syncData = newSync));
-    await initialSync;
-  }
-  return syncData;
+export function getServerTime(offset: number, now: Date = new Date()): Date {
+  return new Date(offset + now.getTime());
 }
-
-export async function getServerTime(now?: Date): Promise<Date> {
-  const sync = await getSyncData();
-  now ??= new Date();
-  return new Date(sync.offset + now.getTime());
-}
-
-registerWebSocketCallback("connect", (connected: boolean) => {
-  if (!connected) {
-    clearInterval(syncIntervalId);
-    return;
-  }
-
-  let previousSyncComplete = false;
-  void getSyncData().then(() => (previousSyncComplete = true));
-  syncIntervalId = setInterval(() => {
-    if (previousSyncComplete) {
-      previousSyncComplete = false;
-      void getSyncData().then(() => (previousSyncComplete = true));
-    }
-  }, SYNC_INTERVAL_PERIOD);
-});
