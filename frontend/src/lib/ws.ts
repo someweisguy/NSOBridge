@@ -1,8 +1,8 @@
 type CallbackType<T = unknown> = (d: T) => void;
 
 interface API {
+  cache: object[][];
   connect: boolean;
-  updates: object[][];
   sync: ServerInfoType;
 }
 

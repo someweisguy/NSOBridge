@@ -14,7 +14,8 @@ registerWebSocketCallback("connect", (connected: boolean) => {
   onlineManager.setOnline(connected);
 });
 
-registerWebSocketCallback("updates", (keys: object[][]) => {
+registerWebSocketCallback("cache", (keys: object[][]) => {
+  console.log(`Got keys: ${JSON.stringify(keys)}`)
   for (const key of keys) {
     void queryClient.refetchQueries(
       {
