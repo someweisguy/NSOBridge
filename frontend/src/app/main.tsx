@@ -35,6 +35,10 @@ function Test() {
       }
     }, 1000);
   }, [bout]);
+  
+  if (bout.activeJam !== null) {
+    return <><Clock {...bout.clock} />{" "}<Clock {...bout.activeJam} /></>
+  }
 
   return <><Clock {...bout.clock} /></>;
 }
