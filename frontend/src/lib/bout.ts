@@ -65,7 +65,7 @@ export class Bout {
     this.clock = new Clock(this.clock);
     this.teams = this.teams.map<Team>((t) => Object.assign(new Team(), t));
     if (this.activeJam !== null) {
-      this.activeJam = Object.assign(new Timer(), init?.activeJam);
+      this.activeJam = new Timer(this.activeJam)
     }
     if (this.timer !== null) {
       this.timer = new Timer(this.timer);
