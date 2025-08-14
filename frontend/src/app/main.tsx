@@ -1,10 +1,10 @@
-import queryClient from "@/lib/cache";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode, Suspense } from "react";
+import { StrictMode, Suspense, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { ScoreboardOperator } from "./pages/operator";
-import { BoutIdProvider } from "./provider";
+import useBout from "@/hooks/use-bout";
+import { QueryClientProvider } from "@tanstack/react-query";
+import queryClient from "@/lib/cache";
+import Clock from "@/components/clock";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -12,13 +12,29 @@ createRoot(root).render(<App />);
 export default function App() {
   return (
     <StrictMode>
-      <Suspense fallback={"Loading..."}>
-        <QueryClientProvider client={queryClient}>
-          <BoutIdProvider>
-              <ScoreboardOperator />
-          </BoutIdProvider>
-        </QueryClientProvider>
-      </Suspense>
+      <QueryClientProvider client={queryClient}>
+        <Suspense fallback={"Loading..."}>
+          <Test />
+        </Suspense>
+      </QueryClientProvider>
     </StrictMode>
   );
+}
+
+function Test() {
+  const bout = useBout(1);
+  console.log(bout);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (!bout.activeJam) {
+        console.log("Starting Bout");
+        void bout.start();
+      } else if (!bout.clock.isRunning()) {
+        void bout.startJam();
+      }
+    }, 1000);
+  }, [bout]);
+
+  return <><Clock {...bout.clock} /></>;
 }
