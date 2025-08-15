@@ -8,6 +8,7 @@ import core
 import models
 from models import CacheableModel, GenericBoutModel, RosterModel
 from models.rulesets.wftda_2025 import BoutModel
+from models.team import TeamModel
 from schemas.ws import WebSocketSchema
 
 HTTP_PORT: Final[int] = 80
@@ -39,7 +40,9 @@ async def main() -> None:
         results: Result[tuple[GenericBoutModel]] = await session.execute(statement)
         if results.scalar() is None:
             print('Creating initial Bout model')
-            bout: BoutModel = BoutModel(RosterModel(), RosterModel())
+            bout: BoutModel = BoutModel(
+                TeamModel('Home', RosterModel()), TeamModel('Away', RosterModel())
+            )
             session.add(bout)
         await session.commit()
 

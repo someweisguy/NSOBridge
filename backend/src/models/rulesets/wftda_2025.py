@@ -10,7 +10,7 @@ from models.time import TimeoutModel, TimerModel
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from models.team import RosterModel
+    from models.team import TeamModel
 
 RULESET: Final[str] = 'WFTDA 2025'
 
@@ -26,7 +26,7 @@ class BoutModel(GenericBoutModel):
         'polymorphic_identity': RULESET,
     }
 
-    def __init__(self, home: RosterModel, away: RosterModel) -> None:
+    def __init__(self, home: TeamModel, away: TeamModel) -> None:
         super().__init__(RULESET, *(home, away))
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:

@@ -28,7 +28,7 @@ class JamSchema(TimerSchema):
 
 
 class TeamSchema(ServerSchema):
-    # TODO: name: str
+    name: str
     bout_score: int
     jam_score: int
     timeouts_remaining: int

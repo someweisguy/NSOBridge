@@ -33,6 +33,7 @@ class TeamModel(SQLModel):
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
 
+    name: Mapped[str] = mapped_column()
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
     score_offset: Mapped[int] = mapped_column(default=0)
@@ -47,6 +48,11 @@ class TeamModel(SQLModel):
     team_jams: Mapped[list[TeamJamModel]] = relationship(
         back_populates='team', lazy='selectin'
     )
+    
+    def __init__(self, name: str, roster: RosterModel):
+        if not name.strip():
+            raise ValueError('Team name cannot be blank')
+        super().__init__(name=name, roster=roster)
 
     @property
     def parents(self) -> tuple[SQLModel | None, ...]:

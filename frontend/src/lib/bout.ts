@@ -38,6 +38,7 @@ class Timer {
 }
 
 class Team {
+  public readonly name: string;
   public readonly boutScore: number;
   public readonly jamScore: number;
   public readonly timeoutsRemaining: number;
