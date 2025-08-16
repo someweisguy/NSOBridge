@@ -32,6 +32,8 @@ class BoutModel(GenericBoutModel):
     @cached_property
     def context(self) -> BoutContext:
         return BoutContext(
+            jam_duration=timedelta(minutes=2),
+            lineup_duration=timedelta(seconds=30),
             points_per_trip=4,
             num_timeouts=3,
             num_reviews=1,

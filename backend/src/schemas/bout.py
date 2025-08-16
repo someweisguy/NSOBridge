@@ -108,6 +108,8 @@ class BoutSchema(ServerSchema):
 
 
 class BoutContextSchema(ServerSchema):
+    jam_duration: timedelta
+    lineup_duration: timedelta
     points_per_trip: int
     num_timeouts: int
     num_reviews: int

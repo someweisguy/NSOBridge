@@ -13,7 +13,7 @@ from models.models import CacheableModel, SQLModel
 from models.time import ClockModel
 
 if TYPE_CHECKING:
-    from datetime import datetime
+    from datetime import datetime, timedelta
 
     from models.team import TeamModel
     from models.time import TimeoutModel, TimerModel
@@ -24,6 +24,8 @@ REQUIRED_NUM_TEAMS: Final[int] = 2
 
 @dataclass(frozen=True)
 class BoutContext:
+    jam_duration: timedelta
+    lineup_duration: timedelta
     points_per_trip: int
     num_timeouts: int
     num_reviews: int
