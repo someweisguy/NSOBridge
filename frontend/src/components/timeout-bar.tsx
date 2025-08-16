@@ -3,16 +3,19 @@ import { twMerge } from "tailwind-merge";
 interface TimeoutBarProps {
   timeoutsRemaining: number;
   reviewsRemaining: number;
+  numTimeouts: number;
+  numReviews: number;
 }
 
 export default function TimeoutBar({
   timeoutsRemaining,
   reviewsRemaining,
+  numTimeouts,
+  numReviews,
 }: TimeoutBarProps) {
   return (
     <div className="gap-2 grid grid-flow-row bg-slate-200 m-2 p-2 rounded-lg w-fit h-fit">
-      {Array.from({ length: 3 }, (_, k) => (
-        // FIXME: add maxTimeouts
+      {Array.from({ length: numTimeouts }, (_, k) => (
         <div
           key={`t${k}`}
           className={twMerge(
@@ -22,8 +25,7 @@ export default function TimeoutBar({
         ></div>
       ))}
       <hr className="border-gray-400"></hr>
-      {Array.from({ length: 1 }, (_, k) => (
-        // FIXME: add maxReviews
+      {Array.from({ length: numReviews }, (_, k) => (
         <div
           key={`r${k}`}
           className={twMerge(
