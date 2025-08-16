@@ -14,7 +14,7 @@ export default function ScoreView({
       <div className="w-full font-bold text-7xl text-right">
         {boutScore + scoreOffset}
       </div>
-      <div className="w-full text-4xl">{jamScore}</div>
+      <div className="w-full text-4xl text-left">{jamScore}</div>
     </div>
   );
 }
