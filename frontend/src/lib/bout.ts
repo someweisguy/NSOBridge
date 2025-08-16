@@ -83,6 +83,8 @@ export class Bout {
 }
 
 export interface BoutContext {
+  jamDuration: number;
+  lineupDuration: number;
   pointsPerTrip: number;
   numTimeouts: number;
   numReviews: number;
