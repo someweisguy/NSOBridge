@@ -20,7 +20,7 @@ export default function TimeoutBar({
           key={`t${k}`}
           className={twMerge(
             "bg-black rounded-full size-4",
-            k < timeoutsRemaining ? "visible" : "invisible"
+            k >= timeoutsRemaining && "invisible"
           )}
         ></div>
       ))}
@@ -30,7 +30,7 @@ export default function TimeoutBar({
           key={`r${k}`}
           className={twMerge(
             "bg-black rounded-full size-4",
-            k < reviewsRemaining ? "visible" : "invisible"
+            k >= reviewsRemaining && "invisible"
           )}
         ></div>
       ))}
