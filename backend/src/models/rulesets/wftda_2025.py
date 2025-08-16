@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from functools import cached_property
 from typing import TYPE_CHECKING, Final
 
-from models.bout import GenericBoutModel
+from models.bout import BoutContext, GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamJamModel, TeamName, TripModel
 from models.time import TimeoutModel, TimerModel
 
@@ -13,12 +14,6 @@ if TYPE_CHECKING:
     from models.team import TeamModel
 
 RULESET: Final[str] = 'WFTDA 2025'
-
-MAX_POINTS_PER_TRIP: Final[int] = 4
-MAX_TIMEOUTS: Final[int] = 3
-MAX_OFFICIAL_REVIEWS: Final[int] = 1
-NUM_TIMEOUTS: Final[int] = 3
-NUM_OFFICIAL_REVIEWS: Final[int] = 1
 
 
 class BoutModel(GenericBoutModel):
@@ -30,9 +25,17 @@ class BoutModel(GenericBoutModel):
         super().__init__(RULESET, *(home, away))
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:
-            team.timeouts_remaining = NUM_TIMEOUTS
-            team.reviews_remaining = NUM_OFFICIAL_REVIEWS
+            team.timeouts_remaining = self.context.num_timeouts
+            team.reviews_remaining = self.context.num_reviews
         self.timer = TimerModel()
+
+    @cached_property
+    def context(self) -> BoutContext:
+        return BoutContext(
+            points_per_trip=4,
+            num_timeouts=3,
+            num_reviews=1,
+        )
 
     def start(self, timestamp: datetime) -> None:
         if self.timer is None:
@@ -96,10 +99,9 @@ class BoutModel(GenericBoutModel):
         )
 
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None:
-        if 0 > passes > MAX_POINTS_PER_TRIP:
-            raise ValueError(
-                f'Number of passes must be {MAX_POINTS_PER_TRIP} or less ({passes=})'
-            )
+        if 0 > passes > self.context.points_per_trip:
+            raise ValueError(f"""Number of passes must be {self.context.points_per_trip}
+                             or less ({passes=})""")
         if len(self.jams) == 0:
             raise RuntimeError('Cannot add a Trip to a Bout that has not been setup')
         jam: JamModel = self.jams[-1]

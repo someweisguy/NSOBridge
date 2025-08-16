@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from abc import abstractmethod
+from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Final, final
 
 from sqlalchemy import ForeignKey
@@ -18,6 +20,13 @@ if TYPE_CHECKING:
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
+
+
+@dataclass(frozen=True)
+class BoutContext:
+    points_per_trip: int
+    num_timeouts: int
+    num_reviews: int
 
 
 class GenericBoutModel(CacheableModel):
@@ -78,6 +87,10 @@ class GenericBoutModel(CacheableModel):
     @property
     def key(self) -> tuple[str, int]:
         return (self.__tablename__, self.id)
+
+    @cached_property
+    @abstractmethod
+    def context(self) -> BoutContext: ...
 
     @abstractmethod
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...

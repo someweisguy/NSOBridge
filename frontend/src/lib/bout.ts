@@ -66,7 +66,7 @@ export class Bout {
     this.clock = new Clock(this.clock);
     this.teams = this.teams.map<Team>((t) => Object.assign(new Team(), t));
     if (this.activeJam !== null) {
-      this.activeJam = new Timer(this.activeJam)
+      this.activeJam = new Timer(this.activeJam);
     }
     if (this.timer !== null) {
       this.timer = new Timer(this.timer);
@@ -87,4 +87,11 @@ export async function getBout(key: number): Promise<Bout> {
     key,
   });
   return new Bout(response);
+}
+
+export async function getBoutContext(key: number): Promise<void> {
+  const response: Partial<Bout> = await genericRequest("bout-context", "GET", {
+    key,
+  });
+  console.log(response);
 }

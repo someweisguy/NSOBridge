@@ -6,8 +6,11 @@ from sqlalchemy import Result, Select, select
 import models
 from models import GenericBoutModel
 from schemas import BoutSchema
+from schemas.bout import BoutContextSchema
 
 router: Final[APIRouter] = APIRouter()
+
+# TODO: bout dependency injection
 
 
 @router.get('/bout')
@@ -24,6 +27,19 @@ async def get_bout(key: int | None = None) -> tuple[BoutSchema, ...] | BoutSchem
                 raise KeyError(f'Bout not found ({key=})')
             return BoutSchema.model_validate(model)
         return tuple(BoutSchema.model_validate(model) for model in bout_models)
+
+
+@router.get('/bout-context')
+async def get_bout_context(key: int) -> BoutContextSchema:
+    async with models.get_db() as session:
+        statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel).where(
+            GenericBoutModel.id == key
+        )
+        results: Result[tuple[GenericBoutModel]] = await session.execute(statement)
+        model: GenericBoutModel | None = results.scalars().first()
+        if model is None:
+            raise KeyError(f'Bout not found ({key=})')
+        return BoutContextSchema.model_validate(model.context)
 
 
 __all__ = ('router',)

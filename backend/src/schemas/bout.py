@@ -105,3 +105,9 @@ class BoutSchema(ServerSchema):
             return None
 
         return timeout
+
+
+class BoutContextSchema(ServerSchema):
+    points_per_trip: int
+    num_timeouts: int
+    num_reviews: int
