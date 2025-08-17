@@ -1,5 +1,8 @@
 import genericRequest from "./requests";
 
+export const HOME = 0;
+export const AWAY = 1;
+
 class Clock {
   public readonly startTimestamp: Date | null;
   public readonly elapsed: number;
@@ -37,7 +40,7 @@ class Timer {
   }
 }
 
-class Team {
+export class Team {
   public readonly name: string;
   public readonly boutScore: number;
   public readonly jamScore: number;
