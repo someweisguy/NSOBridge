@@ -1,14 +1,15 @@
 import Clock from "@/components/clock";
 import JamNumView from "@/components/jam-num-view";
+import TeamView from "@/components/teams-view";
 import TimeoutBar from "@/components/timeout-bar";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
+import { Team } from "@/lib/bout";
 import queryClient from "@/lib/cache";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import TeamsView from "@/components/teams-view";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -44,7 +45,13 @@ function Test() {
     return (
       <>
         <JamNumView {...bout.activeJam} />
-        <TeamsView teams={bout.teams} context={context} PeerElement={<>Hello!</>} />
+        <div className="place-content-around grid grid-flow-col">
+          {bout.teams.map((team: Team, index: number) => (
+            <TeamView key={index} team={team} context={context}>
+              Hello
+            </TeamView>
+          ))}
+        </div>
         <Clock {...bout.clock} />{" "}
         <Clock {...bout.activeJam} alarm={context.jamDuration} />
       </>
