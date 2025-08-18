@@ -52,7 +52,7 @@ export default function Clock({
   alarm,
 }: ClockProps) {
   const [run, setRun] = useState<boolean>(false);
-  const clockMillis = useClock(
+  const [clockMillis] = useClock(
     { startTimestamp, stopTimestamp, elapsed, alarm },
     run
   );
@@ -64,5 +64,9 @@ export default function Clock({
 
   const displayMillis = clockMillis > 0 ? clockMillis : 0;
   const showTenths = clockMillis < 10000 && clockMillis > -2000;
-  return <>{formatMilliseconds(displayMillis, showTenths)}</>;
+  return (
+    <div className="m-3 text-center">
+      {formatMilliseconds(displayMillis, showTenths)}
+    </div>
+  );
 }

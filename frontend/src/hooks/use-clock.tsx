@@ -1,5 +1,5 @@
 import { getServerTime } from "@/lib/sync";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useServerOffset from "./use-server-offset";
 
 interface ClockObject {
@@ -13,20 +13,24 @@ export default function useClock(
   { startTimestamp, stopTimestamp, elapsed = 0, alarm }: ClockObject,
   run = true,
   refreshPeriod = 50
-) {
+): [number, () => void] {
   const { offset } = useServerOffset();
   const [serverTime, setServerTime] = useState<Date>(getServerTime(offset));
+
+  // Define a callback that can be used to refresh the clock value
+  const refreshClock = useCallback(
+    () => setServerTime(getServerTime(offset)),
+    [offset]
+  );
 
   useEffect(() => {
     if (startTimestamp === null || stopTimestamp || !run) {
       return; // Clock is not running
     }
 
-    const intervalId = setInterval(() => {
-      setServerTime(getServerTime(offset));
-    }, refreshPeriod);
+    const intervalId = setInterval(() => refreshClock(), refreshPeriod);
     return () => clearInterval(intervalId);
-  }, [startTimestamp, stopTimestamp, run, refreshPeriod, offset]);
+  }, [startTimestamp, stopTimestamp, run, refreshPeriod, refreshClock]);
 
   // Compute the amount of time that has elapsed
   if (startTimestamp !== null) {
@@ -42,5 +46,5 @@ export default function useClock(
     elapsed = alarm - elapsed;
   }
 
-  return elapsed;
+  return [elapsed, refreshClock];
 }
