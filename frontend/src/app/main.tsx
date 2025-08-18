@@ -1,6 +1,6 @@
 import Clock from "@/components/clock";
 import JamNumView from "@/components/jam-num-view";
-import TeamView from "@/components/teams-view";
+import TeamView from "@/components/team-view";
 import TimeoutBar from "@/components/timeout-bar";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
@@ -44,16 +44,16 @@ function Test() {
   if (bout.activeJam !== null) {
     return (
       <>
-        <JamNumView {...bout.activeJam} />
         <div className="place-content-around grid grid-flow-col">
           {bout.teams.map((team: Team, index: number) => (
-            <TeamView key={index} team={team} context={context}>
-              Hello
-            </TeamView>
+            <TeamView key={index} team={team} context={context} />
           ))}
         </div>
-        <Clock {...bout.clock} />{" "}
-        <Clock {...bout.activeJam} alarm={context.jamDuration} />
+        <div className="gap-3 grid grid-flow-col">
+          <Clock {...bout.clock} />
+          <JamNumView {...bout.activeJam} />
+          <Clock {...bout.activeJam} alarm={context.jamDuration} />
+        </div>
       </>
     );
   }
