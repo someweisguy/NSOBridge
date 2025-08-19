@@ -17,6 +17,8 @@ class TimerSchema(ServerSchema):
 
 
 class TimeoutSchema(TimerSchema):
+    # TODO: type: Literal['timeout', 'review']
+    # team_index: int
     period: int
     jam: int
 
@@ -40,6 +42,7 @@ class BoutSchema(ServerSchema):
     ruleset: str
     is_running: bool
     expected_start_timestamp: datetime | None
+    is_final: bool
     clock: ClockSchema
     teams: list[TeamSchema]
     jams: list[JamSchema] = Field(exclude=True)

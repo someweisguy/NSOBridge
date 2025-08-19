@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from dataclasses import dataclass
+from datetime import datetime  # noqa: TC003
 from functools import cached_property
 from typing import TYPE_CHECKING, Final, final
 
@@ -13,7 +14,7 @@ from models.models import CacheableModel, SQLModel
 from models.time import ClockModel
 
 if TYPE_CHECKING:
-    from datetime import datetime, timedelta
+    from datetime import timedelta
 
     from models.team import TeamModel
     from models.time import TimeoutModel
@@ -39,6 +40,7 @@ class GenericBoutModel(CacheableModel):
     ruleset: Mapped[str] = mapped_column()
     is_running: Mapped[bool] = mapped_column(default=False)
     expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
+    is_final: Mapped[bool] = mapped_column(default=False)
 
     clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
     jams: Mapped[list[JamModel]] = relationship(

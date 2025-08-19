@@ -40,6 +40,12 @@ class Timer {
   }
 }
 
+class Timeout extends Timer {
+  constructor(init?: Partial<Timeout>) {
+    super(init);
+  }
+}
+
 export class Team {
   public readonly name: string;
   public readonly boutScore: number;
@@ -52,13 +58,15 @@ export class Team {
 export class Bout {
   public readonly id: number;
   public readonly ruleset: string;
+  public readonly isRunning: boolean;
+  public readonly expectedStartTimestamp: Date | null;
+  public readonly isFinal: boolean;
   public readonly jamCounts: number[];
   public readonly numTimeouts: number;
-  public readonly timerType: "timeout" | "intermission" | null;
   public readonly clock: Clock;
   public readonly teams: Team[];
   public readonly activeJam: Timer | null;
-  public readonly timer: Timer | null;
+  public readonly activeTimeout: Timeout | null;
 
   static generateKey(id: number) {
     return ["bouts", id];
@@ -67,13 +75,16 @@ export class Bout {
   constructor(init?: Partial<Bout>) {
     Object.assign(this, init);
     this.clock = new Clock(this.clock);
-    this.teams = this.teams.map<Team>((t) => Object.assign(new Team(), t));
+    if (this.expectedStartTimestamp !== null) {
+      this.expectedStartTimestamp = new Date(this.expectedStartTimestamp);
+    }
     if (this.activeJam !== null) {
       this.activeJam = new Timer(this.activeJam);
     }
-    if (this.timer !== null) {
-      this.timer = new Timer(this.timer);
+    if (this.activeTimeout !== null) {
+      this.activeTimeout = new Timeout(this.activeTimeout);
     }
+    this.teams = this.teams.map<Team>((t) => Object.assign(new Team(), t));
   }
 
   async start(): Promise<void> {
