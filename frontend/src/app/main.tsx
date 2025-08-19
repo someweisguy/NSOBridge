@@ -59,11 +59,11 @@ function BoutTimeInformation() {
   const context = useBoutContext(1);
 
   if (bout.activeJam === null) {
-    const currentPeriod = bout.getPeriod();
+    const numPeriods = bout.jamCounts.length;
     let copy = "";
-    if (currentPeriod === null) {
+    if (numPeriods === 0) {
       copy = "Starting Soon";
-    } else if (currentPeriod === 0) {
+    } else if (numPeriods === 1) {
       copy = "Halftime";
     }
 
