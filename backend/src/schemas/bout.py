@@ -74,13 +74,14 @@ class BoutSchema(ServerSchema):
         num_jams: int = len(self.jams)
         if num_jams == 0 or not self.is_running:
             return None
+        
         if num_jams == 1:
             return self.jams[0]
-        else:
-            jam: JamSchema = self.jams[-1]
-            if jam.start_timestamp is None:
-                jam = self.jams[-2]
-            return jam
+        jam: JamSchema = self.jams[-1]
+        if jam.start_timestamp is None and jam.period == self.jams[-2].period:
+            # Only show the active Jam in the current Period
+            jam = self.jams[-2]
+        return jam
 
     @computed_field
     @property
