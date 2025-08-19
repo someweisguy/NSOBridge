@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import Literal
 
 from pydantic import Field, computed_field
 
@@ -39,13 +38,12 @@ class TeamSchema(ServerSchema):
 class BoutSchema(ServerSchema):
     id: int
     ruleset: str
+    is_running: bool
+    expected_start_timestamp: datetime | None
     clock: ClockSchema
     teams: list[TeamSchema]
     jams: list[JamSchema] = Field(exclude=True)
     timeouts: list[TimeoutSchema] = Field(exclude=True)
-    intermission_timer: TimerSchema | None = Field(
-        validation_alias='timer', exclude=True
-    )
 
     @computed_field
     @property
@@ -67,7 +65,7 @@ class BoutSchema(ServerSchema):
     @property
     def active_jam(self) -> JamSchema | None:
         num_jams: int = len(self.jams)
-        if num_jams == 0:
+        if num_jams == 0 or not self.is_running:
             return None
         if num_jams == 1:
             return self.jams[0]
@@ -79,29 +77,18 @@ class BoutSchema(ServerSchema):
 
     @computed_field
     @property
-    def timer_type(self) -> Literal['timeout', 'intermission'] | None:
-        timer: TimeoutSchema | TimerSchema | None = self.timer
-        if timer is None:
+    def active_timeout(self) -> TimeoutSchema | None:
+        if len(self.timeouts) == 0 or not self.is_running:
             return None
-        elif isinstance(timer, TimeoutSchema):
-            return 'timeout'
-        else:
-            return 'intermission'
 
-    @computed_field
-    @property
-    def timer(self) -> TimeoutSchema | TimerSchema | None:
-        if self.intermission_timer is not None:
-            return self.intermission_timer
-        if len(self.timeouts) == 0:
+        # Get the active Jam to see if the latest Timeout is considered active
+        active_jam: JamSchema | None = self.active_jam
+        if active_jam is None:
+            # This condition should never be True
             return None
 
         timeout: TimeoutSchema = self.timeouts[-1]
-        active_jam: JamSchema | None = self.active_jam
-        if active_jam is None:
-            # This situation should never occur
-            return timeout
-        if timeout.period < active_jam.period or timeout.jam < active_jam.jam:
+        if timeout.period != active_jam.period and timeout.jam != active_jam.jam:
             return None
 
         return timeout

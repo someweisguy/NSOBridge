@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Final
 
 from models.bout import BoutContext, GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamJamModel, TeamName, TripModel
-from models.time import TimeoutModel, TimerModel
+from models.time import TimeoutModel
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -27,7 +27,6 @@ class BoutModel(GenericBoutModel):
         for team in self.teams:
             team.timeouts_remaining = self.context.num_timeouts
             team.reviews_remaining = self.context.num_reviews
-        self.timer = TimerModel()
 
     @cached_property
     def context(self) -> BoutContext:
@@ -40,9 +39,10 @@ class BoutModel(GenericBoutModel):
         )
 
     def start(self, timestamp: datetime) -> None:
-        if self.timer is None:
+        if self.is_running:
             raise RuntimeError('This Bout has already started')
-        self.timer = None
+        self.is_running = True
+        self.expected_start_timestamp = None
 
         current_period: int | None = None
         if len(self.jams):
@@ -71,12 +71,12 @@ class BoutModel(GenericBoutModel):
         self.jams[-1].jam = 0
 
     def stop(self, timestamp: datetime) -> None:
-        if self.timer is not None:
+        if not self.is_running:
             raise RuntimeError('This Bout has already stopped')
         if self.jams[-1].is_running():
             raise RuntimeError('Cannot stop the Bout when a Jam is running')
-        self.timer = TimerModel()
         self.clock.stop(timestamp)
+        self.is_running = False
 
     def start_jam(self, timestamp: datetime) -> JamModel:
         if len(self.timeouts) > 0 and self.timeouts[-1].is_running():

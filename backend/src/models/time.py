@@ -103,18 +103,6 @@ class AbstractOneShotModel(SQLModel):
             return timestamp - self.start_timestamp
 
 
-class TimerModel(AbstractOneShotModel):
-    __tablename__ = 'timers'
-    
-    bout: Mapped[GenericBoutModel | None] = relationship(
-        back_populates='timer', lazy='joined'
-    )
-
-    @property
-    def parents(self) -> tuple[SQLModel | None, ...]:
-        return (self.bout,)
-
-
 class TimeoutModel(AbstractOneShotModel):
     __tablename__ = 'timeouts'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from datetime import datetime, timedelta
 
     from models.team import TeamModel
-    from models.time import TimeoutModel, TimerModel
+    from models.time import TimeoutModel
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
@@ -35,11 +35,10 @@ class GenericBoutModel(CacheableModel):
     __tablename__ = 'bouts'
 
     _clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
-    _timer_id: Mapped[int | None] = mapped_column(
-        ForeignKey('timers.id', ondelete='CASCADE')
-    )
 
     ruleset: Mapped[str] = mapped_column()
+    is_running: Mapped[bool] = mapped_column(default=False)
+    expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
 
     clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
     jams: Mapped[list[JamModel]] = relationship(
@@ -52,9 +51,6 @@ class GenericBoutModel(CacheableModel):
         back_populates='bout', lazy='selectin'
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(lazy='selectin')
-    timer: Mapped[TimerModel | None] = relationship(
-        foreign_keys=[_timer_id], lazy='joined'
-    )
 
     __mapper_args__ = {
         'polymorphic_on': 'ruleset',
