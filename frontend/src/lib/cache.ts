@@ -16,13 +16,13 @@ registerWebSocketCallback("connect", (connected: boolean) => {
 
 registerWebSocketCallback("cache", (keys: object[][]) => {
   for (const key of keys) {
-    void queryClient.refetchQueries(
+    void queryClient.invalidateQueries(
       {
         queryKey: key,
         type: "active",
         exact: true,
       },
-      { cancelRefetch: false }
+      { cancelRefetch: true }
     );
   }
 });
