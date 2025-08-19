@@ -62,7 +62,7 @@ export class Bout {
   public readonly expectedStartTimestamp: Date | null;
   public readonly isFinal: boolean;
   public readonly jamCounts: number[];
-  public readonly numTimeouts: number;
+  public readonly timeoutCounts: number[];
   public readonly clock: Clock;
   public readonly teams: Team[];
   public readonly activeJam: Timer | null;
