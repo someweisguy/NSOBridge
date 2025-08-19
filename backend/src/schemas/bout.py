@@ -92,8 +92,7 @@ class BoutSchema(ServerSchema):
         # Get the active Jam to see if the latest Timeout is considered active
         active_jam: JamSchema | None = self.active_jam
         if active_jam is None:
-            # This condition should never be True
-            return None
+            return None  # This condition should never occur
 
         timeout: TimeoutSchema = self.timeouts[-1]
         if timeout.period != active_jam.period and timeout.jam != active_jam.jam:
