@@ -4,7 +4,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from functools import cached_property
-from typing import TYPE_CHECKING, Final, final
+from typing import TYPE_CHECKING, Final, Literal, final
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -91,6 +91,16 @@ class GenericBoutModel(CacheableModel):
     @cached_property
     @abstractmethod
     def context(self) -> BoutContext: ...
+
+    def get_state(self) -> Literal['jam', 'lineup', 'stopped', 'timeout']:
+        if len(self.jams) > 0 and self.jams[-1].is_running():
+            return 'jam'
+        elif len(self.timeouts) > 0 and self.timeouts[-1].is_running():
+            return 'timeout'
+        elif self.is_running:
+            return 'lineup'
+        else:
+            return 'stopped'
 
     @abstractmethod
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...

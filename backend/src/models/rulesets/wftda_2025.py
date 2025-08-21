@@ -39,8 +39,8 @@ class BoutModel(GenericBoutModel):
         )
 
     def setup_track(self, timestamp: datetime) -> None:
-        if self.is_running:
-            raise RuntimeError('This Bout has already started')
+        if self.get_state() != 'stopped':
+            raise RuntimeError('The Bout cannot be started now')
         self.is_running = True
         self.expected_start_timestamp = None
 
@@ -69,24 +69,22 @@ class BoutModel(GenericBoutModel):
         self.jams[-1].jam = 0
 
     def clear_track(self, timestamp: datetime) -> None:
-        if not self.is_running:
-            raise RuntimeError('This Bout has already stopped')
-        if self.jams[-1].is_running():
-            raise RuntimeError('Cannot stop the Bout when a Jam is running')
+        if self.get_state() != 'lineup':
+            raise RuntimeError('The Bout cannot be stopped now')
         self.clock.stop(timestamp)
         self.is_running = False
 
     def start_jam(self, timestamp: datetime) -> JamModel:
-        # FIXME Ensure Bout has started
-        if len(self.timeouts) > 0 and self.timeouts[-1].is_running():
-            raise RuntimeError('Cannot start a Jam during a Timeout')
-
+        if self.get_state() != 'lineup':
+            raise RuntimeError('The Jam cannot be started now')
         self.jams[-1].start(timestamp)
         if not self.clock.is_running():
             self.clock.start(timestamp)
         return self.jams[-1]
 
     def stop_jam(self, timestamp: datetime) -> None:
+        if self.get_state() != 'jam':
+            raise RuntimeError('There is no active Jam to stop')
         self.jams[-1].stop(timestamp)
 
         latest: JamModel = self.jams[-1]
@@ -100,6 +98,8 @@ class BoutModel(GenericBoutModel):
         )
 
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None:
+        if self.get_state() != 'jam':
+            raise RuntimeError('There is no active Jam to which to add a Trip')
         if 0 > passes > self.context.points_per_trip:
             raise ValueError(f"""Number of passes must be {self.context.points_per_trip}
                              or less ({passes=})""")
@@ -117,32 +117,24 @@ class BoutModel(GenericBoutModel):
         jam[team].trips.append(TripModel(timestamp=timestamp, passes=passes))
 
     def set_lead(self, team: TeamName, lead: bool, timestamp: datetime) -> None:
-        if len(self.jams) == 0:
-            raise RuntimeError('Cannot set Lead on a Bout that has not been setup')
+        if self.get_state() != 'jam':
+            raise RuntimeError('There is no active Jam to which to set Lead')
         jam: JamModel = self.jams[-1]
-        if not jam.is_running():
-            raise RuntimeError('There is no running Jam to which to set Lead')
         if lead and jam.lead_is_declared():
             raise RuntimeError('A Lead Jammer has already been declared in this Jam')
 
         jam[team].lead = timestamp if lead else None
 
     def set_lost(self, team: TeamName, lost: bool) -> None:
-        if len(self.jams) == 0:
-            raise RuntimeError('Cannot set Lost on a Bout that has not been setup')
+        if self.get_state() != 'jam':
+            raise RuntimeError('There is no active Jam to which to set Lost')
         jam: JamModel = self.jams[-1]
-        if not jam.is_running():
-            raise RuntimeError('There is no running Jam to which to set Lost')
-
         jam[team].lost = lost
 
     def set_star_pass(self, team: TeamName, timestamp: datetime) -> None:
-        if len(self.jams) == 0:
-            raise RuntimeError('Cannot set Star Pass on a Bout that has not been setup')
+        if self.get_state() != 'jam':
+            raise RuntimeError('There is no active Jam to which to add a Star Pass')
         jam: JamModel = self.jams[-1]
-        if not jam.is_running():
-            raise RuntimeError('There is no running Jam to which to set Star Pass')
-
         star_pass: StarPassModel = StarPassModel(
             timestamp=timestamp,
             trip=jam[team].trips[-1] if len(jam[team].trips) > 0 else None,
@@ -150,12 +142,8 @@ class BoutModel(GenericBoutModel):
         jam[team].star_passes.append(star_pass)
 
     def start_timeout(self, timestamp: datetime) -> TimeoutModel:
-        if len(self.jams) == 0:
-            raise RuntimeError(
-                'Cannot start a Timeout on a Bout that has not been setup'
-            )
-        if self.jams[-1].is_running():
-            raise RuntimeError('Cannot start a Timeout when a Jam is running')
+        if self.get_state() != 'lineup':
+            raise RuntimeError('A Timeout cannot be started now')
 
         # Timeouts are recorded on the latest running Jam
         latest: JamModel = self.jams[-2]
@@ -169,8 +157,8 @@ class BoutModel(GenericBoutModel):
         return timeout
 
     def stop_timeout(self, timestamp: datetime) -> None:
-        if len(self.timeouts) == 0 or not self.timeouts[-1].is_running():
-            raise RuntimeError('Cannot stop a Timeout if one is not already running')
+        if self.get_state() != 'timeout':
+            raise RuntimeError('There is no active Timeout to stop')
         timeout: TimeoutModel = self.timeouts[-1]
 
         # TODO: Enforce TimeoutModel rules here
