@@ -41,10 +41,10 @@ function Test() {
       </div>
       <BoutTimeInformation />
       <div className="place-content-around grid grid-flow-col">
-        <Button onClick={() => void bout.start()}>Start Period</Button>
+        <Button onClick={() => void bout.setupTrack()}>Start Period</Button>
         <Button onClick={() => void bout.startJam()}>Start Jam</Button>
         <Button onClick={() => void bout.stopJam()}>Stop Jam</Button>
-        <Button onClick={() => void bout.stop()}>End Period</Button>
+        <Button onClick={() => void bout.clearTrack()}>End Period</Button>
       </div>
     </>
   );
@@ -61,9 +61,13 @@ function BoutTimeInformation() {
       copy = "Starting Soon";
     } else if (numPeriods === 1) {
       copy = "Halftime";
+    } else if (!bout.isFinal) {
+      copy = "Unofficial Score";
+    } else {
+      copy = "Final Score";
     }
 
-    return <div className="text-center">{copy}</div>;
+    return <div className="m-2 text-center">{copy}</div>;
   }
 
   return (

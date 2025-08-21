@@ -38,7 +38,7 @@ class BoutModel(GenericBoutModel):
             num_reviews=1,
         )
 
-    def start(self, timestamp: datetime) -> None:
+    def setup_track(self, timestamp: datetime) -> None:
         if self.is_running:
             raise RuntimeError('This Bout has already started')
         self.is_running = True
@@ -68,7 +68,7 @@ class BoutModel(GenericBoutModel):
                 raise StopIteration()
         self.jams[-1].jam = 0
 
-    def stop(self, timestamp: datetime) -> None:
+    def clear_track(self, timestamp: datetime) -> None:
         if not self.is_running:
             raise RuntimeError('This Bout has already stopped')
         if self.jams[-1].is_running():

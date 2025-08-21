@@ -91,12 +91,12 @@ export class Bout {
     this.teams = this.teams.map<Team>((t) => Object.assign(new Team(), t));
   }
 
-  async start(): Promise<void> {
-    await genericRequest("rules/start-bout", "POST", { key: this.id });
+  async setupTrack(): Promise<void> {
+    await genericRequest("rules/setup-track", "POST", { key: this.id });
   }
 
-  async stop(): Promise<void> {
-    await genericRequest("rules/stop-bout", "POST", { key: this.id });
+  async clearTrack(): Promise<void> {
+    await genericRequest("rules/clear-track", "POST", { key: this.id });
   }
 
   async startJam(): Promise<void> {

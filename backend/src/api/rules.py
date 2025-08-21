@@ -21,14 +21,14 @@ BoutDepends = Annotated[GenericBoutModel, Depends(get_session_bout)]
 router: Final[APIRouter] = APIRouter(prefix='/rules')
 
 
-@router.post('/start-bout')
-async def start_bout(bout: BoutDepends) -> None:
-    bout.start(datetime.now())
+@router.post('/setup-track')
+async def setup_track(bout: BoutDepends) -> None:
+    bout.setup_track(datetime.now())
 
 
-@router.post('/stop-bout')
-async def stop_bout(bout: BoutDepends) -> None:
-    bout.stop(datetime.now())
+@router.post('/clear-track')
+async def clear_track(bout: BoutDepends) -> None:
+    bout.clear_track(datetime.now())
 
 
 @router.post('/start-jam')
