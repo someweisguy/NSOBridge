@@ -35,8 +35,13 @@ class Timer {
       this.stopTimestamp = new Date(this.stopTimestamp);
     }
   }
+
+  hasStarted(): boolean {
+    return this.startTimestamp !== null;
+  }
+
   isRunning(): boolean {
-    return this.startTimestamp !== null && this.stopTimestamp !== null;
+    return this.hasStarted() && this.stopTimestamp === null;
   }
 }
 

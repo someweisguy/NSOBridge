@@ -28,7 +28,7 @@ export default function App() {
 }
 
 function Test() {
-  void useServerOffset();  // Prefetch
+  void useServerOffset(); // Prefetch
   const bout = useBout(1);
   const context = useBoutContext(1);
 
@@ -43,7 +43,7 @@ function Test() {
       <div className="place-content-around grid grid-flow-col">
         <Button onClick={() => void bout.start()}>Start Period</Button>
         <Button onClick={() => void bout.startJam()}>Start Jam</Button>
-        <Button onClick={() => void bout.stopJam()} >Stop Jam</Button>
+        <Button onClick={() => void bout.stopJam()}>Stop Jam</Button>
         <Button onClick={() => void bout.stop()}>End Period</Button>
       </div>
     </>
@@ -70,7 +70,14 @@ function BoutTimeInformation() {
     <div className="gap-3 grid grid-flow-col">
       <Clock {...bout.clock} />
       <JamNumView {...bout.activeJam} />
-      <Clock {...bout.activeJam} alarm={context.jamDuration} />
+      {!bout.activeJam.hasStarted() || bout.activeJam.isRunning() ? (
+        <Clock {...bout.activeJam} alarm={context.jamDuration} />
+      ) : (
+        <Clock
+          startTimestamp={bout.activeJam.stopTimestamp}
+          alarm={context.lineupDuration}
+        />
+      )}
     </div>
   );
 }
