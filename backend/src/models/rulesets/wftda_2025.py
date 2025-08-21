@@ -61,11 +61,9 @@ class BoutModel(GenericBoutModel):
             case 0:
                 # The Bout is being prepared for its second Period
                 self.jams[-1].period = 1
-                raise NotImplementedError()  # TODO
             case 1:
                 self.jams[-1].period = 2
                 # The Bout is being prepared for Overtime
-                raise NotImplementedError()  # TODO
             case _:
                 raise StopIteration()
         self.jams[-1].jam = 0
@@ -79,6 +77,7 @@ class BoutModel(GenericBoutModel):
         self.is_running = False
 
     def start_jam(self, timestamp: datetime) -> JamModel:
+        # FIXME Ensure Bout has started
         if len(self.timeouts) > 0 and self.timeouts[-1].is_running():
             raise RuntimeError('Cannot start a Jam during a Timeout')
 
