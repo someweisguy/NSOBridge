@@ -27,6 +27,14 @@ class BoutModel(GenericBoutModel):
         for team in self.teams:
             team.timeouts_remaining = self.context.num_timeouts
             team.reviews_remaining = self.context.num_reviews
+        self.jams.append(
+            JamModel(
+                period=0,
+                jam=0,
+                home=TeamJamModel(team=self.teams[0]),
+                away=TeamJamModel(team=self.teams[1]),
+            )
+        )
 
     @cached_property
     def context(self) -> BoutContext:
@@ -44,29 +52,10 @@ class BoutModel(GenericBoutModel):
         self.is_running = True
         self.expected_start_timestamp = None
 
-        current_period: int | None = None
-        if len(self.jams):
-            current_period = self.jams[-1].period
-        match current_period:
-            case None:
-                # The Bout has not started yet
-                self.jams.append(
-                    JamModel(
-                        period=0,
-                        jam=0,
-                        home=TeamJamModel(team=self.teams[0]),
-                        away=TeamJamModel(team=self.teams[1]),
-                    )
-                )
-            case 0:
-                # The Bout is being prepared for its second Period
-                self.jams[-1].period = 1
-            case 1:
-                self.jams[-1].period = 2
-                # The Bout is being prepared for Overtime
-            case _:
-                raise StopIteration()
-        self.jams[-1].jam = 0
+        # Increment the Period if the Bout has not yet started
+        if len(self.jams) > 1:
+            self.jams[-1].period += 1
+            self.jams[-1].jam = 0
 
     def clear_track(self, timestamp: datetime) -> None:
         if self.get_state() != 'lineup':
