@@ -63,7 +63,6 @@ export class Team {
 export class Bout {
   public readonly id: number;
   public readonly ruleset: string;
-  public readonly isRunning: boolean;
   public readonly expectedStartTimestamp: Date | null;
   public readonly isFinal: boolean;
   public readonly jamCounts: number[];

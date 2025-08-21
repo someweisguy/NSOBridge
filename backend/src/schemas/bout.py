@@ -40,7 +40,7 @@ class TeamSchema(ServerSchema):
 class BoutSchema(ServerSchema):
     id: int
     ruleset: str
-    is_running: bool
+    is_running: bool = Field(exclude=True)
     expected_start_timestamp: datetime | None
     is_final: bool
     clock: ClockSchema
