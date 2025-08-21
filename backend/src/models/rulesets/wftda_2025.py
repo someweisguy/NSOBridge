@@ -58,6 +58,7 @@ class BoutModel(GenericBoutModel):
             self.jams[-1].jam = 0
 
     def clear_track(self, timestamp: datetime) -> None:
+        # TODO: Add logic to end the Bout
         if self.get_state() != 'lineup':
             raise RuntimeError('The Bout cannot be stopped now')
         self.clock.stop(timestamp)
