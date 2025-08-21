@@ -91,8 +91,16 @@ export class Bout {
     await genericRequest("rules/start-bout", "POST", { key: this.id });
   }
 
+  async stop(): Promise<void> {
+    await genericRequest("rules/stop-bout", "POST", { key: this.id });
+  }
+
   async startJam(): Promise<void> {
     await genericRequest("rules/start-jam", "POST", { key: this.id });
+  }
+
+  async stopJam(): Promise<void> {
+    await genericRequest("rules/stop-jam", "POST", { key: this.id });
   }
 }
 
