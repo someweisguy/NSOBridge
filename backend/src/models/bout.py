@@ -92,7 +92,9 @@ class GenericBoutModel(CacheableModel):
     @abstractmethod
     def context(self) -> BoutContext: ...
 
-    def get_state(self) -> Literal['jam', 'lineup', 'stopped', 'timeout']:
+    def get_state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
+        if self.is_final:
+            return 'final'
         if len(self.jams) > 0 and self.jams[-1].is_running():
             return 'jam'
         elif len(self.timeouts) > 0 and self.timeouts[-1].is_running():
