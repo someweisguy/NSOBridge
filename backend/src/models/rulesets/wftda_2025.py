@@ -27,14 +27,6 @@ class BoutModel(GenericBoutModel):
         for team in self.teams:
             team.timeouts_remaining = self.context.num_timeouts
             team.reviews_remaining = self.context.num_reviews
-        self.jams.append(
-            JamModel(
-                period=0,
-                jam=0,
-                home=TeamJamModel(team=self.teams[0]),
-                away=TeamJamModel(team=self.teams[1]),
-            )
-        )
 
     @cached_property
     def context(self) -> BoutContext:
@@ -49,11 +41,22 @@ class BoutModel(GenericBoutModel):
     def setup_track(self, timestamp: datetime) -> None:
         if self.get_state() != 'stopped':
             raise RuntimeError('The Bout cannot be started now')
+
+        self.clock.reset()
         self.is_running = True
         self.expected_start_timestamp = None
-
-        # Increment the Period if the Bout has not yet started
-        if len(self.jams) > 1:
+        if len(self.jams) == 0:
+            # Add the initial Jam when the Bout is ready to start
+            self.jams.append(
+                JamModel(
+                    period=0,
+                    jam=0,
+                    home=TeamJamModel(team=self.teams[0]),
+                    away=TeamJamModel(team=self.teams[1]),
+                )
+            )
+        else:
+            # Increment the Period if the Bout has not yet started
             self.jams[-1].period += 1
             self.jams[-1].jam = 0
 
@@ -70,6 +73,8 @@ class BoutModel(GenericBoutModel):
             self.is_running = False
 
     def start_jam(self, timestamp: datetime) -> JamModel:
+        if not self.is_running:
+            self.setup_track(timestamp)  # Handle immediate game start
         if self.get_state() != 'lineup':
             raise RuntimeError('The Jam cannot be started now')
         self.jams[-1].start(timestamp)
