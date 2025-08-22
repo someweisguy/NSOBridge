@@ -126,12 +126,12 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
     bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[_bout_id])
-    home: Mapped[TeamJamModel | None] = relationship(
+    home: Mapped[TeamJamModel] = relationship(
         back_populates='_home',
         foreign_keys=[_home_team_jam_id],
         lazy='joined',
     )
-    away: Mapped[TeamJamModel | None] = relationship(
+    away: Mapped[TeamJamModel] = relationship(
         back_populates='_away',
         foreign_keys=[_away_team_jam_id],
         lazy='joined',
@@ -153,8 +153,6 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     def __getitem__(self, team_name: TeamName) -> TeamJamModel:
         if team_name not in {'home', 'away'}:
             raise KeyError(f'Unknown team name ({team_name=})')
-        if self.home is None or self.away is None:
-            raise RuntimeError('This Jam must be flushed before updating')
         return self.home if team_name == 'home' else self.away
 
     @property
@@ -166,6 +164,4 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         return (self.__tablename__, self._bout_id, self.period, self.jam)
 
     def lead_is_declared(self) -> bool:
-        if self.home is None or self.away is None:
-            raise RuntimeError('This Jam must be flushed before updating')
         return self.home.lead is not None or self.away.lead is not None
