@@ -52,8 +52,8 @@ class BoutModel(GenericBoutModel):
         if self.is_running and self.get_state() != 'lineup':
             raise RuntimeError('The Bout cannot be stopped now')
 
-        if not self.is_running:
-            # TODO: Can a Bout be finalized without playing two halves, e.g. a forfeit?
+        if not self.is_running or self.get_period() >= 2:  # FIXME: magic number
+            # TODO: Figure out a method to forfeit a Bout
             self.is_final = True
             return
 
