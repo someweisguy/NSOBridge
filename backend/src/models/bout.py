@@ -92,6 +92,7 @@ class GenericBoutModel(CacheableModel):
     @abstractmethod
     def context(self) -> BoutContext: ...
 
+    @final
     def get_state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
         if self.is_final:
             return 'final'
@@ -103,6 +104,30 @@ class GenericBoutModel(CacheableModel):
             return 'lineup'
         else:
             return 'stopped'
+
+    @final
+    def _prepare_next_jam(self, home: TeamModel, away: TeamModel) -> JamModel:
+        period_num: int = 0
+        jam_num: int = 0
+        if len(self.jams) > 0:
+            latest: JamModel = self.jams[-1]
+            period_num = latest.period
+            jam_num = latest.jam + 1
+
+        jam: JamModel = JamModel(period=period_num, jam=jam_num, home=home, away=away)
+        self.jams.append(jam)
+        return jam
+
+    @final
+    def _prepare_next_period(self, home: TeamModel, away: TeamModel) -> JamModel:
+        if len(self.jams) == 0:
+            return self._prepare_next_jam(home, away)
+        latest: JamModel = self.jams[-1]
+        latest.period += 1
+        latest.jam = 0
+        latest.home.team = home
+        latest.away.team = away
+        return latest
 
     @abstractmethod
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...
