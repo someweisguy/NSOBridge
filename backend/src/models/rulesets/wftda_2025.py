@@ -45,7 +45,8 @@ class BoutModel(GenericBoutModel):
         self._prepare_next_period(self.teams[0], self.teams[1])
         self.expected_start_timestamp = None
         self.is_running = True
-        self.clock.reset()
+        if self.get_period() < 2:  # FIXME: magic number
+            self.clock.reset()
 
     def clear_track(self, timestamp: datetime) -> None:
         if self.is_running and self.get_state() != 'lineup':
