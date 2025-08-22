@@ -58,11 +58,16 @@ class BoutModel(GenericBoutModel):
             self.jams[-1].jam = 0
 
     def clear_track(self, timestamp: datetime) -> None:
-        # TODO: Add logic to end the Bout
-        if self.get_state() != 'lineup':
+        if self.is_running and self.get_state() != 'lineup':
             raise RuntimeError('The Bout cannot be stopped now')
-        self.clock.stop(timestamp)
-        self.is_running = False
+        if not self.is_running:
+            # Finalize the Bout
+            # TODO: Can a Bout be finalized without playing two halves, e.g. a forfeit?
+            self.is_final = True
+        else:
+            # End the Period
+            self.clock.stop(timestamp)
+            self.is_running = False
 
     def start_jam(self, timestamp: datetime) -> JamModel:
         if self.get_state() != 'lineup':

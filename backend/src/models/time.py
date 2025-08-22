@@ -47,6 +47,9 @@ class ClockModel(SQLModel):
 
     def is_running(self) -> bool:
         return self.start_timestamp is not None
+    
+    def reset(self) -> None:
+        self.elapsed = timedelta(seconds=0)
 
     def get_duration(self, timestamp: datetime | None = None) -> timedelta:
         if timestamp is None:
