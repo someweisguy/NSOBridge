@@ -114,7 +114,12 @@ class GenericBoutModel(CacheableModel):
             period_num = latest.period
             jam_num = latest.jam + 1
 
-        jam: JamModel = JamModel(period=period_num, jam=jam_num, home=home, away=away)
+        jam: JamModel = JamModel(
+            period=period_num,
+            jam=jam_num,
+            home=TeamJamModel(home),
+            away=TeamJamModel(away),
+        )
         self.jams.append(jam)
         return jam
 
