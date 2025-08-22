@@ -134,6 +134,10 @@ class GenericBoutModel(CacheableModel):
         latest.away.team = away
         return latest
 
+    @final
+    def get_period(self) -> int:
+        return 0 if len(self.jams) == 0 else self.jams[-1].period
+
     @abstractmethod
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...
 
