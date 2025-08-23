@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
+NUM_PERIODS: Final[int] = 2
 
 
 @dataclass(frozen=True)

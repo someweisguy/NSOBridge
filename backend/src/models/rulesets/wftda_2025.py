@@ -4,7 +4,7 @@ from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, Final
 
-from models.bout import BoutContext, GenericBoutModel
+from models.bout import NUM_PERIODS, BoutContext, GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamName, TripModel
 from models.time import TimeoutModel
 
@@ -45,14 +45,14 @@ class BoutModel(GenericBoutModel):
         self._prepare_next_period(self.teams[0], self.teams[1])
         self.expected_start_timestamp = None
         self.is_running = True
-        if self.get_period() < 2:  # FIXME: magic number
+        if self.get_period() < NUM_PERIODS:
             self.clock.reset()
 
     def clear_track(self, timestamp: datetime) -> None:
         if self.is_running and self.get_state() != 'lineup':
             raise RuntimeError('The Bout cannot be stopped now')
 
-        if not self.is_running or self.get_period() >= 2:  # FIXME: magic number
+        if not self.is_running or self.get_period() >= NUM_PERIODS:
             # TODO: Figure out a method to forfeit a Bout
             self.is_final = True
             return
