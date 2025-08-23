@@ -55,10 +55,10 @@ class BoutModel(GenericBoutModel):
         if not self.is_running or self.get_period() >= NUM_PERIODS:
             # TODO: Figure out a method to forfeit a Bout
             self.is_final = True
-            return
 
         # End the Period
-        self.clock.stop(timestamp)
+        if self.clock.is_running():
+            self.clock.stop(timestamp)
         self.is_running = False
 
     def start_jam(self, timestamp: datetime) -> JamModel:
@@ -68,7 +68,7 @@ class BoutModel(GenericBoutModel):
             raise RuntimeError('The Jam cannot be started now')
 
         self.jams[-1].start(timestamp)
-        if not self.clock.is_running():
+        if not self.clock.is_running() and self.get_period() < NUM_PERIODS:
             self.clock.start(timestamp)
         return self.jams[-1]
 
