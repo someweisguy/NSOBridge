@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from abc import abstractmethod
 from datetime import timedelta
 from math import floor
@@ -21,7 +22,8 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.types import Integer, TypeDecorator
 
-engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///data.db', echo=False)
+database: str = os.environ.get('DB_PATH') or ':memory:'
+engine: AsyncEngine = create_async_engine(f'sqlite+aiosqlite:///{database}', echo=False)
 SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(bind=engine)
 callbacks: Final[list[Callable[[set[CacheableModel]], None]]] = []
 

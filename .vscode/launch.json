@@ -7,6 +7,9 @@
       "request": "launch",
       "program": "backend/src/main.py",
       "console": "integratedTerminal",
+      "env": {
+        "DB_PATH": ""
+      }
     },
   ]
 }
