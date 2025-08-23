@@ -72,8 +72,8 @@ function BoutTimeInformation() {
 
   return (
     <div className="gap-3 grid grid-flow-col">
-      <Clock {...bout.clock} />
-      <JamNumView {...bout.activeJam} />
+      {bout.jamCounts.length > 2 ? "OT" : <Clock {...bout.clock} />}
+      <JamNumView {...bout.activeJam} jamCounts={bout.jamCounts} />
       {!bout.activeJam.hasStarted() || bout.activeJam.isRunning() ? (
         <Clock {...bout.activeJam} alarm={context.jamDuration} />
       ) : (
