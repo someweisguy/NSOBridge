@@ -24,13 +24,6 @@
     "noUncheckedSideEffectImports": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    /* shadcn UI */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
   },
   "include": [
     "src"
