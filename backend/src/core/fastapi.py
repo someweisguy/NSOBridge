@@ -27,4 +27,6 @@ async def render_index() -> FileResponse:
 
 @app.get('/{path}')
 async def render_generic(path: str) -> FileResponse:
+    if '.' not in path:
+        path += '.html'
     return FileResponse(FRONTEND / path)
