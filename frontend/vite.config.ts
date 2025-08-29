@@ -11,7 +11,7 @@ export default defineConfig({
     tailwindcss(),
     createMpaPlugin({
       htmlMinify: true,
-      template: "src/app/index.html",
+      template: "src/app/template.html",
       pages: [
         {
           name: "Main",
