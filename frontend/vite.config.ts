@@ -23,7 +23,7 @@ export default defineConfig({
         },
         {
           name: "Scoreboard",
-          filename: "sbo.html",
+          filename: "sb.html",
           entry: "/src/app/scoreboard.tsx",
           data: {
             scriptPath: `src/app/scoreboard.tsx`,
