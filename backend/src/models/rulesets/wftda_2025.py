@@ -11,6 +11,7 @@ from models.time import TimeoutModel
 if TYPE_CHECKING:
     from datetime import datetime
 
+    from models.series import SeriesModel
     from models.team import TeamModel
 
 RULESET: Final[str] = 'WFTDA 2025'
@@ -21,8 +22,8 @@ class BoutModel(GenericBoutModel):
         'polymorphic_identity': RULESET,
     }
 
-    def __init__(self, home: TeamModel, away: TeamModel) -> None:
-        super().__init__(RULESET, *(home, away))
+    def __init__(self, series: SeriesModel, home: TeamModel, away: TeamModel) -> None:
+        super().__init__(series, RULESET, *(home, away))
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:
             team.timeouts_remaining = self.context.num_timeouts

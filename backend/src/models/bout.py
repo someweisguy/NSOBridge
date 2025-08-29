@@ -16,6 +16,7 @@ from models.time import ClockModel
 if TYPE_CHECKING:
     from datetime import timedelta
 
+    from models.series import SeriesModel
     from models.team import TeamModel
     from models.time import TimeoutModel
 
@@ -36,6 +37,7 @@ class BoutContext:
 class GenericBoutModel(CacheableModel):
     __tablename__ = 'bouts'
 
+    _series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     _clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
 
     ruleset: Mapped[str] = mapped_column()
@@ -43,6 +45,7 @@ class GenericBoutModel(CacheableModel):
     expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
 
+    series: Mapped[SeriesModel] = relationship(foreign_keys=[_series_id], lazy='joined')
     clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
     jams: Mapped[list[JamModel]] = relationship(
         back_populates='bout',
@@ -74,10 +77,12 @@ class GenericBoutModel(CacheableModel):
             return 0
         return cls.calculate_score(team.team_jams[-1])
 
-    def __init__(self, ruleset: str, *teams: TeamModel) -> None:
+    def __init__(self, series: SeriesModel, ruleset: str, *teams: TeamModel) -> None:
         if len(teams) < REQUIRED_NUM_TEAMS:
             raise ValueError(f'A Bout must have at least {REQUIRED_NUM_TEAMS} Teams')
-        super().__init__(clock=ClockModel(), ruleset=ruleset, teams=list(teams))
+        super().__init__(
+            series=series, clock=ClockModel(), ruleset=ruleset, teams=list(teams)
+        )
 
     @final
     @property

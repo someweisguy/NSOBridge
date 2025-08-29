@@ -6,6 +6,7 @@ from models import rulesets
 from models.bout import GenericBoutModel
 from models.jam import JamModel, TeamJamModel, TeamName
 from models.models import CacheableModel, SessionLocal, SQLModel, callbacks, engine
+from models.series import SeriesModel
 from models.team import RosterModel, TeamModel
 from models.time import ClockModel
 
@@ -28,15 +29,16 @@ def on_update(
 
 
 __all__ = (
-    'GenericBoutModel',
     'ClockModel',
+    'GenericBoutModel',
     'get_db',
     'JamModel',
     'on_update',
     'RosterModel',
+    'rulesets',
+    'SeriesModel',
     'setup',
     'TeamJamModel',
     'TeamModel',
     'TeamName',
-    'rulesets',
 )
