@@ -140,9 +140,9 @@ class BoutModel(GenericBoutModel):
     def stop_timeout(self, timestamp: datetime) -> None:
         if self.get_state() != 'timeout':
             raise RuntimeError('There is no active Timeout to stop')
-
-        # TODO: Enforce TimeoutModel rules here
         timeout: TimeoutModel = self.timeouts[-1]
+        if timeout.team is None and timeout.is_review:
+            raise RuntimeError('Officials cannot call an Official Review')
 
         timeout.stop(timestamp)
 
