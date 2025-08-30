@@ -126,7 +126,8 @@ class BoutModel(GenericBoutModel):
             raise RuntimeError('A Timeout cannot be started now')
 
         # Timeouts are recorded on the latest running Jam
-        latest: JamModel = self.jams[-2]
+
+        latest: JamModel = self.jams[-2] if len(self.jams) > 1 else self.jams[-1]
         timeout: TimeoutModel = TimeoutModel(
             period=latest.period,
             jam=latest.jam,
