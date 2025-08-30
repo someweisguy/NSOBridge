@@ -148,7 +148,8 @@ class BoutModel(GenericBoutModel):
 
         # Decrement the Timeout or Official Review if it was not retained
         if timeout.team is not None and not timeout.retained:
-            if timeout.is_review:
+            # Only decrement if the value is greater than zero
+            if timeout.is_review and timeout.team.reviews_remaining > 0:
                 timeout.team.reviews_remaining -= 1
-            else:
+            elif timeout.team.timeouts_remaining > 0:
                 timeout.team.timeouts_remaining -= 1
