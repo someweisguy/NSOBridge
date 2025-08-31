@@ -124,9 +124,11 @@ class BoutModel(GenericBoutModel):
     def start_timeout(self, timestamp: datetime) -> TimeoutModel:
         if self.get_state() != 'lineup':
             raise RuntimeError('A Timeout cannot be started now')
+        
+        if self.clock.is_running():
+            self.clock.stop(timestamp)
 
         # Timeouts are recorded on the latest running Jam
-
         latest: JamModel = self.jams[-2] if len(self.jams) > 1 else self.jams[-1]
         timeout: TimeoutModel = TimeoutModel(
             period=latest.period,
