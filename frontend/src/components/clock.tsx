@@ -63,7 +63,7 @@ export default function Clock({
   }, [clockMillis]);
 
   const displayMillis = clockMillis > 0 ? clockMillis : 0;
-  const showTenths = clockMillis < 10000 && clockMillis > -2000;
+  const showTenths = alarm != null && clockMillis < 10000 && clockMillis > -2000;
   return (
     <div className="m-3 text-center">
       {formatMilliseconds(displayMillis, showTenths)}
