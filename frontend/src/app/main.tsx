@@ -6,7 +6,7 @@ import useBoutContext from "@/hooks/use-bout-context";
 import { Team } from "@/lib/bout";
 import queryClient from "@/lib/cache";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode, Suspense } from "react";
+import { StrictMode, Suspense, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import useServerOffset from "@/hooks/use-server-offset";
@@ -32,6 +32,10 @@ function Test() {
   const bout = useBout(1);
   const context = useBoutContext(1);
 
+  useEffect(() => {
+    console.log(`Bout state: ${bout.getState()}`);
+  }, [bout]);
+
   return (
     <>
       <div className="place-content-around grid grid-flow-col">
@@ -56,20 +60,20 @@ function BoutTimeInformation() {
   const bout = useBout(1);
   const context = useBoutContext(1);
 
+  // Render a placeholder message when the Bout is not running
   if (bout.activeJam === null) {
+    let content: string;
     const numPeriods = bout.jamCounts.length;
-    let copy = "";
     if (numPeriods === 0) {
-      copy = "Starting Soon";
+      content = "Starting Soon";
     } else if (numPeriods === 1) {
-      copy = "Halftime";
+      content = "Halftime";
     } else if (!bout.isFinal) {
-      copy = "Unofficial Score";
+      content = "Unofficial Score";
     } else {
-      copy = "Final Score";
+      content = "Final Score";
     }
-
-    return <div className="m-2 text-center">{copy}</div>;
+    return <div className="m-2 text-center">{content}</div>;
   }
 
   // Determine the parameters for the action Clock
