@@ -72,18 +72,32 @@ function BoutTimeInformation() {
     return <div className="m-2 text-center">{copy}</div>;
   }
 
+  // Determine the parameters for the action Clock
+  let startTimestamp: Date | null;
+  let stopTimestamp: Date | null | undefined;
+  let alarm: number | undefined;
+  if (!bout.activeJam.hasStarted() || bout.activeJam.isRunning()) {
+    startTimestamp = bout.activeJam.startTimestamp;
+    stopTimestamp = bout.activeJam.stopTimestamp;
+    alarm = context.jamDuration;
+  } else if (bout.activeTimeout?.isRunning()) {
+    startTimestamp = bout.activeTimeout.startTimestamp;
+  } else {
+    startTimestamp = bout.activeJam.stopTimestamp;
+  }
+
   return (
     <div className="gap-3 grid grid-flow-col">
+      {/* Show the Bout clock, except during overtime */}
       {bout.jamCounts.length > 2 ? "OT" : <Clock {...bout.clock} />}
+
       <JamNumView {...bout.activeJam} jamCounts={bout.jamCounts} />
-      {!bout.activeJam.hasStarted() || bout.activeJam.isRunning() ? (
-        <Clock {...bout.activeJam} alarm={context.jamDuration} />
-      ) : (
-        <Clock
-          startTimestamp={bout.activeJam.stopTimestamp}
-          alarm={context.lineupDuration}
-        />
-      )}
+
+      <Clock
+        startTimestamp={startTimestamp}
+        stopTimestamp={stopTimestamp}
+        alarm={alarm}
+      />
     </div>
   );
 }
