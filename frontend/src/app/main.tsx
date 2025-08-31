@@ -44,6 +44,8 @@ function Test() {
         <Button onClick={() => void bout.setupTrack()}>Start Period</Button>
         <Button onClick={() => void bout.startJam()}>Start Jam</Button>
         <Button onClick={() => void bout.stopJam()}>Stop Jam</Button>
+        <Button onClick={() => void bout.callTimeout()}>Call Timeout</Button>
+        <Button onClick={() => void bout.endTimeout()}>End Timeout</Button>
         <Button onClick={() => void bout.clearTrack()}>End Period</Button>
       </div>
     </>

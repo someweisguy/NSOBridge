@@ -41,4 +41,14 @@ async def stop_jam(bout: BoutDepends) -> None:
     bout.stop_jam(datetime.now())
 
 
+@router.post('/call-timeout')
+async def call_timeout(bout: BoutDepends) -> None:
+    bout.start_timeout(datetime.now())
+
+
+@router.post('/end-timeout')
+async def end_timeout(bout: BoutDepends) -> None:
+    bout.stop_timeout(datetime.now())
+
+
 __all__ = ('router',)

@@ -106,6 +106,14 @@ export class Bout {
   async stopJam(): Promise<void> {
     await genericRequest("rules/stop-jam", "POST", { key: this.id });
   }
+
+  async callTimeout(): Promise<void> {
+    await genericRequest("rules/call-timeout", "POST", { key: this.id });
+  }
+
+  async endTimeout(): Promise<void> {
+    await genericRequest("rules/end-timeout", "POST", { key: this.id });
+  }
 }
 
 export interface BoutContext {

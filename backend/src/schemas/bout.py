@@ -20,10 +20,15 @@ class TimerSchema(ServerSchema):
 
 
 class TimeoutSchema(TimerSchema):
-    # TODO: type: Literal['timeout', 'review']
-    # team_index: int
+    team: TeamSchema | None = Field(exclude=True)
+    is_review: bool
     period: int
     jam: int
+    
+    @computed_field
+    @property
+    def team_id(self) -> int | None:
+        return self.team.id if self.team is not None else None
 
 
 class TeamJamSchema(ServerSchema):
