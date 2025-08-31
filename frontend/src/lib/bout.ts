@@ -91,6 +91,20 @@ export class Bout {
     this.teams = this.teams.map<Team>((t) => Object.assign(new Team(), t));
   }
 
+  getState(): "final" | "jam" | "lineup" | "stopped" | "timeout" {
+    if (this.isFinal) {
+      return "final";
+    } else if (this.activeJam?.isRunning()) {
+      return "jam";
+    } else if (this.activeTimeout?.isRunning()) {
+      return "timeout";
+    } else if (this.activeJam !== null) {
+      return "lineup";
+    } else {
+      return "stopped";
+    }
+  }
+
   async setupTrack(): Promise<void> {
     await genericRequest("rules/setup-track", "POST", { key: this.id });
   }
