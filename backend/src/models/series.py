@@ -18,7 +18,9 @@ class SeriesModel(SQLModel):
     __tablename__ = 'series'
 
     name: Mapped[str] = mapped_column(default='')
-    bouts: Mapped[list[GenericBoutModel]] = relationship(back_populates='series')
+    bouts: Mapped[list[GenericBoutModel]] = relationship(
+        back_populates='series', order_by='series_order'
+    )
 
     @property
     def parents(self) -> tuple[SQLModel, ...]:
