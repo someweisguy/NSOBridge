@@ -34,7 +34,7 @@ class BoutContext:
     num_reviews: int
 
 
-class GenericBoutModel(CacheableModel):
+class GenericDataBoutModel(CacheableModel):
     __tablename__ = 'bouts'
 
     _series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
@@ -101,10 +101,6 @@ class GenericBoutModel(CacheableModel):
     def key(self) -> tuple[str, int]:
         return (self.__tablename__, self.id)
 
-    @cached_property
-    @abstractmethod
-    def context(self) -> BoutContext: ...
-
     @final
     def get_state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
         if self.is_final:
@@ -150,6 +146,16 @@ class GenericBoutModel(CacheableModel):
     @final
     def get_period(self) -> int:
         return 0 if len(self.jams) == 0 else self.jams[-1].period
+
+
+class GenericBoutModel(GenericDataBoutModel):
+    __mapper_args__ = {
+        'polymorphic_abstract': True,
+    }
+
+    @cached_property
+    @abstractmethod
+    def context(self) -> BoutContext: ...
 
     @abstractmethod
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...

@@ -3,7 +3,7 @@ from typing import Any, Callable
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import rulesets
-from models.bout import GenericBoutModel
+from models.bout import GenericBoutModel, GenericDataBoutModel
 from models.jam import JamModel, TeamJamModel, TeamName
 from models.models import CacheableModel, SessionLocal, SQLModel, callbacks, engine
 from models.series import SeriesModel
@@ -31,6 +31,7 @@ def on_update(
 __all__ = (
     'ClockModel',
     'GenericBoutModel',
+    'GenericDataBoutModel',
     'get_db',
     'JamModel',
     'on_update',

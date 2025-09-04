@@ -5,7 +5,9 @@ from sqlalchemy import Result, Select, select
 
 import models
 from models import GenericBoutModel
+from models.bout import GenericDataBoutModel
 from models.series import SeriesModel
+from models.team import RosterModel, TeamModel
 from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
 from schemas.series import SeriesSchema
@@ -46,6 +48,25 @@ async def get_bout(key: int | None = None) -> tuple[BoutSchema, ...] | BoutSchem
                 raise KeyError(f'Bout not found ({key=})')
             return BoutSchema.model_validate(model)
         return tuple(BoutSchema.model_validate(model) for model in bout_models)
+
+
+@router.post('/bout')
+async def create_bout(
+    ruleset: str, roster_ids: list[int], series_index: int = 0, order: int | None = 0
+) -> None:
+    async with models.get_db() as session:
+        # FIXME: should team name be tied to rosters?
+        series: SeriesModel = SeriesModel()
+        rosters: list[RosterModel] = []
+        bout: GenericDataBoutModel = GenericDataBoutModel(
+            series,
+            ruleset,
+            *[
+                TeamModel(name, roster)
+                for name, roster in zip(['Home', 'away'], rosters)
+            ],
+        )
+        session.add(bout)
 
 
 @router.get('/bout-context')
