@@ -74,7 +74,7 @@ class BoutSchema(ServerSchema):
     timeouts: list[TimeoutSchema] = Field(exclude=True)
 
     @staticmethod
-    def get_counts(events: list[JamSchema] | list[TimeoutSchema]) -> list[int]:
+    def _get_counts(events: list[JamSchema] | list[TimeoutSchema]) -> list[int]:
         counts: list[int] = []
         for event in events:
             # A naive solution but it works because data is ordered
@@ -86,12 +86,12 @@ class BoutSchema(ServerSchema):
     @computed_field
     @property
     def jam_counts(self) -> list[int]:
-        return self.get_counts(self.jams)
+        return self._get_counts(self.jams)
 
     @computed_field
     @property
     def timeout_counts(self) -> list[int]:
-        return self.get_counts(self.timeouts)
+        return self._get_counts(self.timeouts)
 
     @computed_field
     @property
