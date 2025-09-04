@@ -23,7 +23,9 @@ from sqlalchemy.orm import (
 from sqlalchemy.types import Integer, TypeDecorator
 
 database: str = os.environ.get('DB_PATH') or ':memory:'
-engine: AsyncEngine = create_async_engine(f'sqlite+aiosqlite:///{database}', echo=False)
+debug: bool = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {'true', 'yes'}
+
+engine: AsyncEngine = create_async_engine(f'sqlite+aiosqlite:///{database}', echo=debug)
 SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(bind=engine)
 callbacks: Final[list[Callable[[set[CacheableModel]], None]]] = []
 

@@ -8,7 +8,8 @@
       "program": "backend/src/main.py",
       "console": "integratedTerminal",
       "env": {
-        "DB_PATH": ""
+        "DB_PATH": "",
+        "SQLALCHEMY_DEBUG": "false"
       }
     },
   ]
