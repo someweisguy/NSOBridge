@@ -33,6 +33,7 @@ function Test() {
   void useServerOffset(); // Prefetch
   const series: Series = useSeries(0);
   if (series.bouts.length == 0) {
+    // TODO: Go to Bout creation page
     throw new Error("This Series does not have any Bouts");
   }
   const bout: Bout = useBout(series.bouts[0].id);
