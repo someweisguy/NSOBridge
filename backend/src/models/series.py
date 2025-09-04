@@ -19,7 +19,9 @@ class SeriesModel(CacheableModel):
 
     name: Mapped[str] = mapped_column(default='')
     bouts: Mapped[list[GenericBoutModel]] = relationship(
-        back_populates='series'  # TODO: order_by='order'
+        back_populates='series',
+        lazy='selectin',
+        # TODO: order_by='order' throws an error
     )
 
     @final
