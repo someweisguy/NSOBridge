@@ -31,13 +31,12 @@ export default function App() {
 
 function Test() {
   void useServerOffset(); // Prefetch
-  const series: Series = useSeries(1);
-  const bout: Bout = useBout(1);
-  const context = useBoutContext(1);
-
-  useEffect(() => {
-    console.log(series);
-  }, [series]);
+  const series: Series = useSeries(0);
+  if (series.bouts.length == 0) {
+    throw new Error("This Series does not have any Bouts");
+  }
+  const bout: Bout = useBout(series.bouts[0].id);
+  const context = useBoutContext(series.bouts[0].id);
 
   useEffect(() => {
     console.log(`Bout state: ${bout.getState()}`);

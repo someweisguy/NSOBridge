@@ -16,13 +16,18 @@ router: Final[APIRouter] = APIRouter()
 
 
 @router.get('/series')
-async def get_series(key: int) -> SeriesSchema:
+async def get_series(index: int) -> SeriesSchema:
     async with models.get_db() as session:
-        statement: Select[tuple[SeriesModel]] = select(SeriesModel).where(
-            SeriesModel.id == key
+        statement: Select[tuple[SeriesModel]] = (
+            select(SeriesModel).limit(1).offset(index - 1)
         )
         results: Result[tuple[SeriesModel]] = await session.execute(statement)
-        return SeriesSchema.model_validate(results.scalar_one())
+        series: SeriesModel | None = results.scalar_one_or_none()
+        if series is None:
+            # TODO: Warn that a default Series had to be instantiated
+            series = SeriesModel()
+            session.add(series)
+        return SeriesSchema.model_validate(series)
 
 
 @router.get('/bout')
