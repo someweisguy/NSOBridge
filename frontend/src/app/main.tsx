@@ -4,9 +4,11 @@ import JamNumView from "@/components/jam-num-view";
 import TeamView from "@/components/team-view";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
+import useSeries from "@/hooks/use-series";
 import useServerOffset from "@/hooks/use-server-offset";
 import { Bout, Team } from "@/lib/bout";
 import queryClient from "@/lib/cache";
+import { Series } from "@/lib/series";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense, useEffect } from "react";
 import { createRoot } from "react-dom/client";
@@ -29,8 +31,13 @@ export default function App() {
 
 function Test() {
   void useServerOffset(); // Prefetch
+  const series: Series = useSeries(1);
   const bout: Bout = useBout(1);
   const context = useBoutContext(1);
+
+  useEffect(() => {
+    console.log(series);
+  }, [series]);
 
   useEffect(() => {
     console.log(`Bout state: ${bout.getState()}`);
