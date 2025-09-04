@@ -1,27 +1,27 @@
 import genericRequest from "./requests";
 
 interface Team {
-  id: number;
-  name: string;
-  boutScore: number;
-  jamScore: number;
-  scoreOffset: number;
+  readonly id: number;
+  readonly name: string;
+  readonly boutScore: number;
+  readonly jamScore: number;
+  readonly scoreOffset: number;
 }
 
 interface Bout {
-  id: number;
-  ruleset: string;
-  isRunning: boolean;
-  isFinal: boolean;
-  teams: Team[];
-  period: number;
-  jam: number;
+  readonly id: number;
+  readonly ruleset: string;
+  readonly isRunning: boolean;
+  readonly isFinal: boolean;
+  readonly teams: Team[];
+  readonly period: number;
+  readonly jam: number;
 }
 
 export interface Series {
-  id: number;
-  name: string;
-  bouts: Bout[];
+  readonly id: number;
+  readonly name: string;
+  readonly bouts: Bout[];
 }
 
 export async function getSeries(index: number): Promise<Series> {
