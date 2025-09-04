@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, final
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.models import SQLModel
+from models.models import CacheableModel, SQLModel
 
 if TYPE_CHECKING:
     from models.bout import GenericBoutModel
@@ -14,13 +14,18 @@ REQUIRED_NUM_TEAMS: Final[int] = 2
 NUM_PERIODS: Final[int] = 2
 
 
-class SeriesModel(SQLModel):
+class SeriesModel(CacheableModel):
     __tablename__ = 'series'
 
     name: Mapped[str] = mapped_column(default='')
     bouts: Mapped[list[GenericBoutModel]] = relationship(
-        back_populates='series', order_by='series_order'
+        back_populates='series'  # TODO: order_by='order'
     )
+
+    @final
+    @property
+    def key(self) -> tuple[str, int]:
+        return (self.__tablename__, self.id)
 
     @property
     def parents(self) -> tuple[SQLModel, ...]:

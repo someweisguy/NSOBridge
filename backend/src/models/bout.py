@@ -40,7 +40,7 @@ class GenericBoutModel(CacheableModel):
     _series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     _clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
 
-    series_order: Mapped[int] = mapped_column()
+    order: Mapped[int] = mapped_column()
     ruleset: Mapped[str] = mapped_column()
     is_running: Mapped[bool] = mapped_column(default=False)
     expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
@@ -59,7 +59,7 @@ class GenericBoutModel(CacheableModel):
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(lazy='selectin')
 
-    __table_args__ = UniqueConstraint('_series_id', 'series_order')
+    __table_args__ = (UniqueConstraint(_series_id, order),)
     __mapper_args__ = {
         'polymorphic_on': 'ruleset',
     }
@@ -82,12 +82,10 @@ class GenericBoutModel(CacheableModel):
     def __init__(self, series: SeriesModel, ruleset: str, *teams: TeamModel) -> None:
         if len(teams) < REQUIRED_NUM_TEAMS:
             raise ValueError(f'A Bout must have at least {REQUIRED_NUM_TEAMS} Teams')
-        series_order: int = (
-            0 if len(series.bouts) == 0 else series.bouts[-1].series_order + 1
-        )
+        order: int = 0 if len(series.bouts) == 0 else series.bouts[-1].order + 1
         super().__init__(
             series=series,
-            series_order=series_order,
+            order=order,
             clock=ClockModel(),
             ruleset=ruleset,
             teams=list(teams),
@@ -96,7 +94,7 @@ class GenericBoutModel(CacheableModel):
     @final
     @property
     def parents(self) -> tuple[SQLModel, ...]:
-        return ()
+        return (self.series,)
 
     @final
     @property
