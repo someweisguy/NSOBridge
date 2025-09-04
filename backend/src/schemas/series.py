@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import datetime  # noqa: TC003
 
 from pydantic import Field, computed_field
 
 from schemas.schemas import ServerSchema
-
-if TYPE_CHECKING:
-    from datetime import datetime
 
 
 class JamSchema(ServerSchema):
