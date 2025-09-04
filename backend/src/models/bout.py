@@ -46,7 +46,7 @@ class GenericDataBoutModel(CacheableModel):
     expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
 
-    series: Mapped[SeriesModel] = relationship(foreign_keys=[_series_id], lazy='joined')
+    series: Mapped[SeriesModel] = relationship(foreign_keys=[_series_id], lazy='select')
     clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
     jams: Mapped[list[JamModel]] = relationship(
         back_populates='bout',
