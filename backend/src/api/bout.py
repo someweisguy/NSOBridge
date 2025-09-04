@@ -56,8 +56,8 @@ async def create_bout(
 ) -> None:
     async with models.get_db() as session:
         # FIXME: should team name be tied to rosters?
-        series: SeriesModel = SeriesModel()
-        rosters: list[RosterModel] = []
+        series: SeriesModel = SeriesModel()  # FIXME: lookup Series by index
+        rosters: list[RosterModel] = []  # FIXME: lookup Rosters by ID or get defaults
         bout: GenericDataBoutModel = GenericDataBoutModel(
             series,
             ruleset,
