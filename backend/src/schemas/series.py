@@ -56,6 +56,5 @@ class BoutSchema(ServerSchema):
 
 
 class SeriesSchema(ServerSchema):
-    id: int
     name: str
     bouts: list[BoutSchema]
