@@ -22,10 +22,10 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.types import Integer, TypeDecorator
 
-database: str = os.environ.get('DB_PATH') or ':memory:'
-debug: bool = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {'true', 'yes'}
+DATABASE: str = os.environ.get('DB_PATH', ':memory:')
+DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {'true', 'yes'}
 
-engine: AsyncEngine = create_async_engine(f'sqlite+aiosqlite:///{database}', echo=debug)
+engine: AsyncEngine = create_async_engine(f'sqlite+aiosqlite:///{DATABASE}', echo=DEBUG)
 SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(bind=engine)
 callbacks: Final[list[Callable[[set[CacheableModel]], None]]] = []
 
