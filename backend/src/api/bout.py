@@ -5,12 +5,24 @@ from sqlalchemy import Result, Select, select
 
 import models
 from models import GenericBoutModel
+from models.series import SeriesModel
 from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
+from schemas.series import SeriesSchema
 
 router: Final[APIRouter] = APIRouter()
 
 # TODO: bout dependency injection
+
+
+@router.get('/series')
+async def get_series(key: int) -> SeriesSchema:
+    async with models.get_db() as session:
+        statement: Select[tuple[SeriesModel]] = select(SeriesModel).where(
+            SeriesModel.id == key
+        )
+        results: Result[tuple[SeriesModel]] = await session.execute(statement)
+        return SeriesSchema.model_validate(results.scalar_one())
 
 
 @router.get('/bout')
