@@ -22,7 +22,9 @@ async def get_series(index: int) -> SeriesSchema:
             select(SeriesModel).limit(1).offset(index - 1)
         )
         results: Result[tuple[SeriesModel]] = await session.execute(statement)
-        series: SeriesModel | None = results.scalar_one_or_none()
+        series: SeriesModel | None = (
+            results.scalar_one_or_none() if index == 0 else results.scalar_one()
+        )
         if series is None:
             # TODO: Warn that a default Series had to be instantiated
             series = SeriesModel()
