@@ -31,6 +31,7 @@ async def get_series(index: int) -> SeriesSchema:
             # TODO: Warn that a default Series had to be instantiated
             series = SeriesModel()
             session.add(series)
+            await session.flush()
         return SeriesSchema.model_validate(series)
 
 
@@ -67,6 +68,7 @@ async def create_bout(
             ],
         )
         session.add(bout)
+        await session.commit()
 
 
 @router.get('/bout-context')
