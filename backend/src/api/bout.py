@@ -1,40 +1,46 @@
-from typing import TYPE_CHECKING, Final
+from typing import Annotated, AsyncGenerator, Final, Sequence
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from sqlalchemy import Result, Select, select
 
 import models
-from models import GenericBoutModel
+from models import AsyncSession, GenericBoutModel
 from models.bout import GenericDataBoutModel
 from models.series import SeriesModel
+from models.team import RosterModel
 from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
 from schemas.series import SeriesSchema
-
-if TYPE_CHECKING:
-    from models.team import RosterModel
 
 router: Final[APIRouter] = APIRouter()
 
 # TODO: bout dependency injection
 
 
-@router.get('/series')
-async def get_series(index: int) -> SeriesSchema:
+async def inject_db() -> AsyncGenerator[AsyncSession]:
     async with models.get_db() as session:
-        statement: Select[tuple[SeriesModel]] = (
-            select(SeriesModel).limit(1).offset(index - 1)
-        )
-        results: Result[tuple[SeriesModel]] = await session.execute(statement)
-        series: SeriesModel | None = (
-            results.scalar_one_or_none() if index == 0 else results.scalar_one()
-        )
-        if series is None:
-            # TODO: Warn that a default Series had to be instantiated
-            series = SeriesModel()
-            session.add(series)
-            await session.flush()
-        return SeriesSchema.model_validate(series)
+        yield session
+        await session.commit()
+
+
+DatabaseDepends = Annotated[AsyncSession, Depends(inject_db)]
+
+
+@router.get('/series', response_model=SeriesSchema)
+async def get_series(db: DatabaseDepends, series_index: int) -> SeriesModel:
+    statement: Select[tuple[SeriesModel]] = (
+        select(SeriesModel).limit(1).offset(series_index - 1)
+    )
+    results: Result[tuple[SeriesModel]] = await db.execute(statement)
+    series: SeriesModel | None = (
+        results.scalar_one_or_none() if series_index == 0 else results.scalar_one()
+    )
+    if series is None:
+        # No default Series exists so instantiate one
+        series = SeriesModel()
+        db.add(series)
+        await db.flush()
+    return series
 
 
 @router.get('/bout')
@@ -53,13 +59,29 @@ async def get_bout(key: int | None = None) -> tuple[BoutSchema, ...] | BoutSchem
         return tuple(BoutSchema.model_validate(model) for model in bout_models)
 
 
+async def get_rosters(roster_ids: list[int]) -> Sequence[RosterModel]:
+    if len(roster_ids) == 0:
+        raise ValueError('At least one Roster ID is required')
+    if len(roster_ids) != len(set(roster_ids)):
+        raise ValueError('Duplicate Roster IDs are not permitted')
+    async with models.get_db() as session:
+        results: Result[tuple[RosterModel]] = await session.execute(
+            select(RosterModel).where(RosterModel.id.in_(roster_ids))
+        )
+        rosters: Sequence[RosterModel] = results.scalars().all()
+        if len(rosters) != len(roster_ids):
+            raise KeyError('Unknown Roster ID provided')
+        return rosters
+
+
 @router.post('/bout')
 async def create_bout(
-    ruleset: str, roster_ids: list[int], series_index: int = 0, order: int | None = 0
+    ruleset: str,
+    rosters: Annotated[Sequence[RosterModel], Depends(get_rosters)],
+    series: Annotated[SeriesModel, Depends(get_series)],
+    order: int | None = 0,
 ) -> None:
     async with models.get_db() as session:
-        series: SeriesModel = SeriesModel()  # FIXME: lookup Series by index
-        rosters: list[RosterModel] = []  # FIXME: lookup Rosters by ID or get defaults
         bout: GenericDataBoutModel = GenericDataBoutModel(series, ruleset, *rosters)
         session.add(bout)
         await session.commit()
