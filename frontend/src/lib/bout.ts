@@ -51,7 +51,26 @@ class Timeout extends Timer {
   }
 }
 
+class TeamJam {
+  public readonly teamId: number;
+  public readonly lead: Date | null;
+  public readonly lost: boolean;
+  public readonly starPass: boolean;
+}
+
+class Jam extends Timer {
+  public readonly home: TeamJam;
+  public readonly away: TeamJam;
+
+  constructor(init?: Partial<Jam>) {
+    super(init);
+    this.home = Object.assign(new TeamJam(), init?.home);
+    this.away = Object.assign(new TeamJam(), init?.away);
+  }
+}
+
 export class Team {
+  public readonly id: number;
   public readonly roster: { id: number; name: string };
   public readonly boutScore: number;
   public readonly jamScore: number;
@@ -69,7 +88,7 @@ export class Bout {
   public readonly timeoutCounts: number[];
   public readonly clock: Clock;
   public readonly teams: Team[];
-  public readonly activeJam: Timer | null;
+  public readonly activeJam: Jam | null;
   public readonly activeTimeout: Timeout | null;
 
   static generateKey(id: number) {
@@ -83,7 +102,7 @@ export class Bout {
       this.expectedStartTimestamp = new Date(this.expectedStartTimestamp);
     }
     if (this.activeJam !== null) {
-      this.activeJam = new Timer(this.activeJam);
+      this.activeJam = new Jam(this.activeJam);
     }
     if (this.activeTimeout !== null) {
       this.activeTimeout = new Timeout(this.activeTimeout);
@@ -149,5 +168,20 @@ export async function getBoutContext(boutId: number): Promise<BoutContext> {
   const response: BoutContext = await genericRequest("bout-context", "GET", {
     boutId,
   });
+  return response;
+}
+
+export async function createBout(
+  rosterIds: number[],
+  seriesId: number,
+  ruleset: string,
+  order = 0
+): Promise<number> {
+  const response: number = await genericRequest(
+    "create-bout",
+    "POST",
+    { rosterIds, seriesId },
+    { ruleset, order }
+  );
   return response;
 }
