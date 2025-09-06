@@ -6,11 +6,11 @@ import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
 import useSeries from "@/hooks/use-series";
 import useServerOffset from "@/hooks/use-server-offset";
-import { Bout, Team } from "@/lib/bout";
+import { Bout, createBout, Team } from "@/lib/bout";
 import queryClient from "@/lib/cache";
 import { Series } from "@/lib/series";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode, Suspense, useEffect } from "react";
+import { StrictMode, Suspense, useCallback, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 
@@ -36,11 +36,16 @@ function Test() {
     // TODO: Go to Bout creation page
     throw new Error("This Series does not have any Bouts");
   }
-  const bout: Bout = useBout(series.bouts[0].id);
-  const context = useBoutContext(series.bouts[0].id);
+  const bout: Bout = useBout(series.bouts.at(-1)!.id);
+  const context = useBoutContext(series.bouts.at(-1)!.id);
 
   useEffect(() => {
     console.log(`Bout state: ${bout.getState()}`);
+  }, [bout]);
+
+  const createBoutCallback = useCallback(() => {
+    const rosterIds = bout.teams.map((t) => t.roster.id);
+    void createBout("WFTDA 2025", rosterIds);
   }, [bout]);
 
   return (
@@ -58,6 +63,7 @@ function Test() {
         <Button onClick={() => void bout.callTimeout()}>Call Timeout</Button>
         <Button onClick={() => void bout.endTimeout()}>End Timeout</Button>
         <Button onClick={() => void bout.clearTrack()}>End Period</Button>
+        <Button onClick={createBoutCallback}>New Bout</Button>
       </div>
     </>
   );
