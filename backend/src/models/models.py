@@ -83,17 +83,12 @@ def after_flush_hook(session: Session, flush_context: UOWTransaction) -> None:
     if len(callbacks) == 0:
         return
 
-    # Get each new cacheable model
-    # This is done separately because parents of these models could be None
+    # Recursively add each dirty, deleted, or new model
     cacheables: set[CacheableModel] = {
-        item for item in session.new if isinstance(item, CacheableModel)
-    }
-    # Recursively add each dirty or deleted model
-    cacheables |= {
         parent
         for model in [
             record
-            for identity_map in [session.dirty, session.deleted]
+            for identity_map in [session.dirty, session.deleted, session.new]
             for record in identity_map
             if isinstance(record, SQLModel)
         ]
