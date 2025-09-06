@@ -56,7 +56,7 @@ async def get_bout(
 
 
 async def get_rosters(
-    db: DatabaseDepends, roster_ids: list[int]
+    db: DatabaseDepends, roster_ids: list[int] = Body(alias='rosterIds')
 ) -> Sequence[RosterModel]:
     if len(roster_ids) == 0:
         raise ValueError('At least one Roster ID is required')
@@ -74,14 +74,13 @@ async def get_rosters(
 @router.post('/bout')
 async def create_bout(
     db: DatabaseDepends,
-    rosters: Annotated[Sequence[RosterModel], Depends(get_rosters)],
     series: Annotated[SeriesModel, Depends(get_series)],
+    rosters: Annotated[Sequence[RosterModel], Depends(get_rosters)],
     ruleset: str = Body(),
     order: int = Body(default=0),
-) -> int:
+) -> None:
     bout = GenericDataBoutModel(series, ruleset, *rosters)
-    await db.flush((bout,))
-    return bout.id
+    db.add(bout)
 
 
 @router.get('/bout-context', response_model=BoutContextSchema)
