@@ -13,12 +13,21 @@ class JamSchema(ServerSchema):
     jam: int
 
 
+class RosterSchema(ServerSchema):
+    name: str
+
+
 class TeamSchema(ServerSchema):
     id: int
-    name: str
+    roster: RosterSchema = Field(exclude=True)
     bout_score: int
     jam_score: int
     score_offset: int
+
+    @computed_field
+    @property
+    def name(self) -> str:
+        return self.roster.name
 
 
 class BoutSchema(ServerSchema):

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from models.series import SeriesModel
-    from models.team import TeamModel
+    from models.team import RosterModel
 
 RULESET: Final[str] = 'WFTDA 2025'
 
@@ -22,7 +22,9 @@ class BoutModel(GenericBoutModel):
         'polymorphic_identity': RULESET,
     }
 
-    def __init__(self, series: SeriesModel, home: TeamModel, away: TeamModel) -> None:
+    def __init__(
+        self, series: SeriesModel, home: RosterModel, away: RosterModel
+    ) -> None:
         super().__init__(series, RULESET, *(home, away))
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:
@@ -124,7 +126,7 @@ class BoutModel(GenericBoutModel):
     def start_timeout(self, timestamp: datetime) -> TimeoutModel:
         if self.get_state() != 'lineup':
             raise RuntimeError('A Timeout cannot be started now')
-        
+
         if self.clock.is_running():
             self.clock.stop(timestamp)
 

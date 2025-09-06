@@ -11,13 +11,14 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.jam import JamModel, TeamJamModel, TeamName
 from models.models import CacheableModel, SQLModel
+from models.team import TeamModel
 from models.time import ClockModel
 
 if TYPE_CHECKING:
     from datetime import timedelta
 
     from models.series import SeriesModel
-    from models.team import TeamModel
+    from models.team import RosterModel
     from models.time import TimeoutModel
 
 
@@ -79,8 +80,10 @@ class GenericDataBoutModel(CacheableModel):
             return 0
         return cls.calculate_score(team.team_jams[-1])
 
-    def __init__(self, series: SeriesModel, ruleset: str, *teams: TeamModel) -> None:
-        if len(teams) < REQUIRED_NUM_TEAMS:
+    def __init__(
+        self, series: SeriesModel, ruleset: str, *rosters: RosterModel
+    ) -> None:
+        if len(rosters) < REQUIRED_NUM_TEAMS:
             raise ValueError(f'A Bout must have at least {REQUIRED_NUM_TEAMS} Teams')
         order: int = 0 if len(series.bouts) == 0 else series.bouts[-1].order + 1
         super().__init__(
@@ -88,7 +91,7 @@ class GenericDataBoutModel(CacheableModel):
             order=order,
             clock=ClockModel(),
             ruleset=ruleset,
-            teams=list(teams),
+            teams=[TeamModel(roster) for roster in rosters],
         )
 
     @final

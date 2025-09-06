@@ -1,4 +1,4 @@
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from fastapi import APIRouter
 from sqlalchemy import Result, Select, select
@@ -7,10 +7,12 @@ import models
 from models import GenericBoutModel
 from models.bout import GenericDataBoutModel
 from models.series import SeriesModel
-from models.team import RosterModel, TeamModel
 from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
 from schemas.series import SeriesSchema
+
+if TYPE_CHECKING:
+    from models.team import RosterModel
 
 router: Final[APIRouter] = APIRouter()
 
@@ -56,17 +58,9 @@ async def create_bout(
     ruleset: str, roster_ids: list[int], series_index: int = 0, order: int | None = 0
 ) -> None:
     async with models.get_db() as session:
-        # FIXME: should team name be tied to rosters?
         series: SeriesModel = SeriesModel()  # FIXME: lookup Series by index
         rosters: list[RosterModel] = []  # FIXME: lookup Rosters by ID or get defaults
-        bout: GenericDataBoutModel = GenericDataBoutModel(
-            series,
-            ruleset,
-            *[
-                TeamModel(name, roster)
-                for name, roster in zip(['Home', 'away'], rosters)
-            ],
-        )
+        bout: GenericDataBoutModel = GenericDataBoutModel(series, ruleset, *rosters)
         session.add(bout)
         await session.commit()
 

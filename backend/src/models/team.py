@@ -17,10 +17,17 @@ if TYPE_CHECKING:
 class RosterModel(SQLModel):
     __tablename__ = 'rosters'
 
+    name: Mapped[str] = mapped_column()
     # TODO: mnemonic: str
     # TODO: league
     # TODO: color
     # TODO: skaters: list[Skater]
+
+    def __init__(self, name: str) -> None:
+        name = name.strip()
+        if name == '':
+            raise ValueError('Team name cannot be blank')
+        super().__init__(name=name)
 
     @property
     def parents(self) -> tuple[SQLModel, ...]:  # TODO: does this need to be None?
@@ -33,7 +40,6 @@ class TeamModel(SQLModel):
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
 
-    name: Mapped[str] = mapped_column()
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
     score_offset: Mapped[int] = mapped_column(default=0)
@@ -48,11 +54,9 @@ class TeamModel(SQLModel):
     team_jams: Mapped[list[TeamJamModel]] = relationship(
         back_populates='team', lazy='selectin'
     )
-    
-    def __init__(self, name: str, roster: RosterModel):
-        if not name.strip():
-            raise ValueError('Team name cannot be blank')
-        super().__init__(name=name, roster=roster)
+
+    def __init__(self, roster: RosterModel):
+        super().__init__(roster=roster)
 
     @property
     def parents(self) -> tuple[SQLModel | None, ...]:

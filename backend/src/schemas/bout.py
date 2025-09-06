@@ -24,7 +24,7 @@ class TimeoutSchema(TimerSchema):
     is_review: bool
     period: int
     jam: int
-    
+
     @computed_field
     @property
     def team_id(self) -> int | None:
@@ -52,14 +52,23 @@ class JamSchema(TimerSchema):
         return teams
 
 
+class RosterSchema(ServerSchema):
+    name: str
+
+
 class TeamSchema(ServerSchema):
     id: int
-    name: str
+    roster: RosterSchema = Field(exclude=True)
     bout_score: int
     jam_score: int
     timeouts_remaining: int
     reviews_remaining: int
     score_offset: int
+
+    @computed_field
+    @property
+    def name(self) -> str:
+        return self.roster.name
 
 
 class BoutSchema(ServerSchema):
