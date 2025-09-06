@@ -29,7 +29,7 @@ DatabaseDepends = Annotated[AsyncSession, Depends(inject_db)]
 
 @router.get('/series', response_model=SeriesSchema)
 async def get_series(
-    db: DatabaseDepends, index: int = Query(alias='seriesIndex')
+    db: DatabaseDepends, index: int = Query(default=0, alias='seriesIndex')
 ) -> SeriesModel:
     statement: Select[tuple[SeriesModel]] = (
         select(SeriesModel).limit(1).offset(index - 1)
