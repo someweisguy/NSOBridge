@@ -5,7 +5,7 @@ from sqlalchemy import Result, Select, select
 
 import models
 from models import AsyncSession, GenericBoutModel
-from models.bout import BoutContext, GenericDataBoutModel
+from models.bout import BoutContext
 from models.rulesets.wftda_2025 import BoutModel
 from models.series import SeriesModel
 from models.team import RosterModel
@@ -29,7 +29,7 @@ DatabaseDepends = Annotated[AsyncSession, Depends(inject_db)]
 
 @router.get('/series', response_model=SeriesSchema)
 async def get_series(
-    db: DatabaseDepends, index: int = Query(default=0, alias='seriesIndex')
+    db: DatabaseDepends, index: int = Query(alias='seriesIndex')
 ) -> SeriesModel:
     statement: Select[tuple[SeriesModel]] = (
         select(SeriesModel).limit(1).offset(index - 1)
@@ -71,15 +71,14 @@ async def get_rosters(
     return rosters
 
 
-@router.post('/bout')
+@router.post('/bout/wftda2025')
 async def create_bout(
     db: DatabaseDepends,
     series: Annotated[SeriesModel, Depends(get_series)],
     rosters: Annotated[Sequence[RosterModel], Depends(get_rosters)],
-    ruleset: str = Body(),
     order: int = Body(default=0),
 ) -> None:
-    bout = GenericDataBoutModel(series, ruleset, *rosters)
+    bout = BoutModel(series, *rosters)
     db.add(bout)
 
 

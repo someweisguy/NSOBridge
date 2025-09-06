@@ -182,15 +182,14 @@ export async function getBoutContext(boutId: number): Promise<BoutContext> {
 }
 
 export async function createBout(
-  ruleset: string,
   rosterIds: number[],
-  seriesId = 0,
+  seriesIndex = 1,
   order = 0
 ): Promise<void> {
   await genericRequest(
-    "bout",
+    "bout/wftda2025",
     "POST",
-    { seriesId },
-    { rosterIds, ruleset, order }
+    { seriesIndex },
+    { rosterIds, order }
   );
 }
