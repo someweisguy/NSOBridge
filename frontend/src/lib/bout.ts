@@ -138,16 +138,16 @@ export interface BoutContext {
   numReviews: number;
 }
 
-export async function getBout(key: number): Promise<Bout> {
+export async function getBout(boutId: number): Promise<Bout> {
   const response: Partial<Bout> = await genericRequest("bout", "GET", {
-    key,
+    boutId,
   });
   return new Bout(response);
 }
 
-export async function getBoutContext(key: number): Promise<BoutContext> {
+export async function getBoutContext(boutId: number): Promise<BoutContext> {
   const response: BoutContext = await genericRequest("bout-context", "GET", {
-    key,
+    boutId,
   });
   return response;
 }

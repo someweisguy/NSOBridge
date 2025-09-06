@@ -24,8 +24,8 @@ export interface Series {
   readonly bouts: Bout[];
 }
 
-export async function getSeries(index: number): Promise<Series> {
+export async function getSeries(seriesIndex: number): Promise<Series> {
   return await genericRequest("series", "GET", {
-    index,
+    seriesIndex,
   });
 }
