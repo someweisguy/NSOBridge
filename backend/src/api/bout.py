@@ -78,9 +78,10 @@ async def create_bout(
     series: Annotated[SeriesModel, Depends(get_series)],
     ruleset: str = Body(),
     order: int = Body(default=0),
-) -> None:
+) -> int:
     bout = GenericDataBoutModel(series, ruleset, *rosters)
-    db.add(bout)
+    await db.flush((bout,))
+    return bout.id
 
 
 @router.get('/bout-context', response_model=BoutContextSchema)
