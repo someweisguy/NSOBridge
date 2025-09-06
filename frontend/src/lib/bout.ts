@@ -182,16 +182,15 @@ export async function getBoutContext(boutId: number): Promise<BoutContext> {
 }
 
 export async function createBout(
-  rosterIds: number[],
-  seriesId: number,
   ruleset: string,
+  rosterIds: number[],
+  seriesId = 0,
   order = 0
-): Promise<number> {
-  const response: number = await genericRequest(
-    "create-bout",
+): Promise<void> {
+  await genericRequest(
+    "bout",
     "POST",
-    { rosterIds, seriesId },
-    { ruleset, order }
+    { seriesId },
+    { rosterIds, ruleset, order }
   );
-  return response;
 }
