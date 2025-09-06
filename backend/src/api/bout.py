@@ -5,7 +5,7 @@ from sqlalchemy import Result, Select, select
 
 import models
 from models import AsyncSession, GenericBoutModel
-from models.bout import GenericDataBoutModel
+from models.bout import BoutContext, GenericDataBoutModel
 from models.series import SeriesModel
 from models.team import RosterModel
 from schemas import BoutSchema
@@ -43,61 +43,49 @@ async def get_series(db: DatabaseDepends, series_index: int) -> SeriesModel:
     return series
 
 
-@router.get('/bout')
-async def get_bout(key: int | None = None) -> tuple[BoutSchema, ...] | BoutSchema:
-    async with models.get_db() as session:
-        statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel)
-        if key is not None:
-            statement = statement.where(GenericBoutModel.id == key)
-        results: Result[tuple[GenericBoutModel]] = await session.execute(statement)
-        bout_models = results.scalars()
-        if key is not None:
-            model: GenericBoutModel | None = bout_models.first()
-            if model is None:
-                raise KeyError(f'Bout not found ({key=})')
-            return BoutSchema.model_validate(model)
-        return tuple(BoutSchema.model_validate(model) for model in bout_models)
+@router.get('/bout', response_model=BoutSchema)
+async def get_bout(db: DatabaseDepends, key: int) -> GenericBoutModel:
+    statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel).where(
+        GenericBoutModel.id == key
+    )
+    results: Result[tuple[GenericBoutModel]] = await db.execute(statement)
+    return results.scalar_one()
 
 
-async def get_rosters(roster_ids: list[int]) -> Sequence[RosterModel]:
+async def get_rosters(
+    db: DatabaseDepends, roster_ids: list[int]
+) -> Sequence[RosterModel]:
     if len(roster_ids) == 0:
         raise ValueError('At least one Roster ID is required')
     if len(roster_ids) != len(set(roster_ids)):
         raise ValueError('Duplicate Roster IDs are not permitted')
-    async with models.get_db() as session:
-        results: Result[tuple[RosterModel]] = await session.execute(
-            select(RosterModel).where(RosterModel.id.in_(roster_ids))
-        )
-        rosters: Sequence[RosterModel] = results.scalars().all()
-        if len(rosters) != len(roster_ids):
-            raise KeyError('Unknown Roster ID provided')
-        return rosters
+    results: Result[tuple[RosterModel]] = await db.execute(
+        select(RosterModel).where(RosterModel.id.in_(roster_ids))
+    )
+    rosters: Sequence[RosterModel] = results.scalars().all()
+    if len(rosters) != len(roster_ids):
+        raise KeyError('Unknown Roster ID provided')
+    return rosters
 
 
 @router.post('/bout')
 async def create_bout(
+    db: DatabaseDepends,
     ruleset: str,
     rosters: Annotated[Sequence[RosterModel], Depends(get_rosters)],
     series: Annotated[SeriesModel, Depends(get_series)],
     order: int | None = 0,
 ) -> None:
-    async with models.get_db() as session:
-        bout: GenericDataBoutModel = GenericDataBoutModel(series, ruleset, *rosters)
-        session.add(bout)
-        await session.commit()
+    bout = GenericDataBoutModel(series, ruleset, *rosters)
+    db.add(bout)
 
 
-@router.get('/bout-context')
-async def get_bout_context(key: int) -> BoutContextSchema:
-    async with models.get_db() as session:
-        statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel).where(
-            GenericBoutModel.id == key
-        )
-        results: Result[tuple[GenericBoutModel]] = await session.execute(statement)
-        model: GenericBoutModel | None = results.scalars().first()
-        if model is None:
-            raise KeyError(f'Bout not found ({key=})')
-        return BoutContextSchema.model_validate(model.context)
+@router.get('/bout-context', response_model=BoutContextSchema)
+async def get_bout_context(db: DatabaseDepends, key: int) -> BoutContext:
+    statement = select(GenericBoutModel).where(GenericBoutModel.id == key)
+    results = await db.execute(statement)
+    model: GenericBoutModel = results.scalar_one()
+    return model.context
 
 
 __all__ = ('router',)
