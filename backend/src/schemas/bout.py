@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta  # noqa: TC003
-from typing import Literal
+from typing import Any
 
 from pydantic import Field, computed_field
 
@@ -32,24 +32,27 @@ class TimeoutSchema(TimerSchema):
 
 
 class TeamJamSchema(ServerSchema):
-    team: TeamSchema
+    team: TeamSchema = Field(exclude=True)
     lead: datetime | None
     lost: bool
+    star_passes: list[Any] = Field(exclude=True)
+
+    @computed_field
+    @property
+    def team_id(self) -> int:
+        return self.team.id
+
+    @computed_field
+    @property
+    def star_pass(self) -> bool:
+        return len(self.star_passes) > 0
 
 
 class JamSchema(TimerSchema):
     period: int
     jam: int
-    home: TeamJamSchema = Field(exclude=True)
-    away: TeamJamSchema = Field(exclude=True)
-
-    @computed_field
-    @property
-    def teams(self) -> dict[int, Literal['lead', 'lost'] | None]:
-        teams: dict[int, Literal['lead', 'lost'] | None] = {}
-        for team in (self.home, self.away):
-            teams[team.team.id] = 'lost' if team.lost else 'lead' if team.lead else None
-        return teams
+    home: TeamJamSchema
+    away: TeamJamSchema
 
 
 class RosterSchema(ServerSchema):
