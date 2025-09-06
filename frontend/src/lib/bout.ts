@@ -3,16 +3,31 @@ import genericRequest from "./requests";
 export const HOME = 0;
 export const AWAY = 1;
 
+type DateToString<T> = T extends Date
+  ? string
+  : T extends object
+  ? { [K in keyof T]: DateToString<T[K]> }
+  : T;
+
+function nullOrDate(dateString: string | null): Date | null {
+  if (dateString === null) {
+    return null;
+  }
+  if (!Date.parse(dateString)) {
+    throw new Error("Invalid datetime string");
+  }
+  return new Date(dateString);
+}
+
 class Clock {
   public readonly startTimestamp: Date | null;
   public readonly elapsed: number;
   public readonly alarm: number;
 
-  constructor(init?: Partial<Clock>) {
-    Object.assign(this, init);
-    if (this.startTimestamp !== null) {
-      this.startTimestamp = new Date(this.startTimestamp);
-    }
+  constructor(init: DateToString<Clock>) {
+    this.startTimestamp = nullOrDate(init.startTimestamp);
+    this.elapsed = init.elapsed;
+    this.alarm = init.alarm;
   }
 
   isRunning(): boolean {
@@ -26,14 +41,11 @@ class Timer {
   public readonly period: number;
   public readonly jam: number;
 
-  constructor(init?: Partial<Timer>) {
-    Object.assign(this, init);
-    if (this.startTimestamp !== null) {
-      this.startTimestamp = new Date(this.startTimestamp);
-    }
-    if (this.stopTimestamp !== null) {
-      this.stopTimestamp = new Date(this.stopTimestamp);
-    }
+  constructor(init: DateToString<Timer>) {
+    this.startTimestamp = nullOrDate(init.startTimestamp);
+    this.stopTimestamp = nullOrDate(init.stopTimestamp);
+    this.period = init.period;
+    this.jam = init.jam;
   }
 
   hasStarted(): boolean {
@@ -46,7 +58,7 @@ class Timer {
 }
 
 class Timeout extends Timer {
-  constructor(init?: Partial<Timeout>) {
+  constructor(init: DateToString<Timeout>) {
     super(init);
   }
 }
@@ -62,10 +74,10 @@ class Jam extends Timer {
   public readonly home: TeamJam;
   public readonly away: TeamJam;
 
-  constructor(init?: Partial<Jam>) {
+  constructor(init: DateToString<Jam>) {
     super(init);
-    this.home = Object.assign(new TeamJam(), init?.home);
-    this.away = Object.assign(new TeamJam(), init?.away);
+    this.home = Object.assign(new TeamJam(), init.home);
+    this.away = Object.assign(new TeamJam(), init.away);
   }
 }
 
@@ -95,19 +107,17 @@ export class Bout {
     return ["bouts", id];
   }
 
-  constructor(init?: Partial<Bout>) {
+  constructor(init: DateToString<Bout>) {
     Object.assign(this, init);
-    this.clock = new Clock(this.clock);
-    if (this.expectedStartTimestamp !== null) {
-      this.expectedStartTimestamp = new Date(this.expectedStartTimestamp);
+    this.clock = new Clock(init.clock);
+    this.expectedStartTimestamp = nullOrDate(init.expectedStartTimestamp);
+    if (init.activeJam !== null) {
+      this.activeJam = new Jam(init.activeJam);
     }
-    if (this.activeJam !== null) {
-      this.activeJam = new Jam(this.activeJam);
+    if (init.activeTimeout !== null) {
+      this.activeTimeout = new Timeout(init.activeTimeout);
     }
-    if (this.activeTimeout !== null) {
-      this.activeTimeout = new Timeout(this.activeTimeout);
-    }
-    this.teams = this.teams.map<Team>((t) => Object.assign(new Team(), t));
+    this.teams = init.teams.map<Team>((t) => Object.assign(new Team(), t));
   }
 
   getState(): "final" | "jam" | "lineup" | "stopped" | "timeout" {
@@ -158,7 +168,7 @@ export interface BoutContext {
 }
 
 export async function getBout(boutId: number): Promise<Bout> {
-  const response: Partial<Bout> = await genericRequest("bout", "GET", {
+  const response: DateToString<Bout> = await genericRequest("bout", "GET", {
     boutId,
   });
   return new Bout(response);
