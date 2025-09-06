@@ -52,7 +52,7 @@ class Timeout extends Timer {
 }
 
 export class Team {
-  public readonly name: string;
+  public readonly roster: { id: number; name: string };
   public readonly boutScore: number;
   public readonly jamScore: number;
   public readonly timeoutsRemaining: number;
