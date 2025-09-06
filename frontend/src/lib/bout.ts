@@ -106,27 +106,27 @@ export class Bout {
   }
 
   async setupTrack(): Promise<void> {
-    await genericRequest("rules/setup-track", "POST", { key: this.id });
+    await genericRequest("rules/setup-track", "POST", { boutId: this.id });
   }
 
   async clearTrack(): Promise<void> {
-    await genericRequest("rules/clear-track", "POST", { key: this.id });
+    await genericRequest("rules/clear-track", "POST", { boutId: this.id });
   }
 
   async startJam(): Promise<void> {
-    await genericRequest("rules/start-jam", "POST", { key: this.id });
+    await genericRequest("rules/start-jam", "POST", { boutId: this.id });
   }
 
   async stopJam(): Promise<void> {
-    await genericRequest("rules/stop-jam", "POST", { key: this.id });
+    await genericRequest("rules/stop-jam", "POST", { boutId: this.id });
   }
 
   async callTimeout(): Promise<void> {
-    await genericRequest("rules/call-timeout", "POST", { key: this.id });
+    await genericRequest("rules/call-timeout", "POST", { boutId: this.id });
   }
 
   async endTimeout(): Promise<void> {
-    await genericRequest("rules/end-timeout", "POST", { key: this.id });
+    await genericRequest("rules/end-timeout", "POST", { boutId: this.id });
   }
 }
 
