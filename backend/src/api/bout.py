@@ -1,11 +1,12 @@
 from typing import Annotated, AsyncGenerator, Final, Sequence
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy import Result, Select, select
 
 import models
 from models import AsyncSession, GenericBoutModel
 from models.bout import BoutContext, GenericDataBoutModel
+from models.rulesets.wftda_2025 import BoutModel
 from models.series import SeriesModel
 from models.team import RosterModel
 from schemas import BoutSchema
@@ -27,13 +28,15 @@ DatabaseDepends = Annotated[AsyncSession, Depends(inject_db)]
 
 
 @router.get('/series', response_model=SeriesSchema)
-async def get_series(db: DatabaseDepends, series_index: int) -> SeriesModel:
+async def get_series(
+    db: DatabaseDepends, index: int = Query(alias='seriesIndex')
+) -> SeriesModel:
     statement: Select[tuple[SeriesModel]] = (
-        select(SeriesModel).limit(1).offset(series_index - 1)
+        select(SeriesModel).limit(1).offset(index - 1)
     )
     results: Result[tuple[SeriesModel]] = await db.execute(statement)
     series: SeriesModel | None = (
-        results.scalar_one_or_none() if series_index == 0 else results.scalar_one()
+        results.scalar_one_or_none() if index == 0 else results.scalar_one()
     )
     if series is None:
         # No default Series exists so instantiate one
@@ -44,11 +47,11 @@ async def get_series(db: DatabaseDepends, series_index: int) -> SeriesModel:
 
 
 @router.get('/bout', response_model=BoutSchema)
-async def get_bout(db: DatabaseDepends, key: int) -> GenericBoutModel:
-    statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel).where(
-        GenericBoutModel.id == key
-    )
-    results: Result[tuple[GenericBoutModel]] = await db.execute(statement)
+async def get_bout(
+    db: DatabaseDepends, bout_id: int = Query(alias='boutId')
+) -> GenericBoutModel:
+    statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
+    results = await db.execute(statement)
     return results.scalar_one()
 
 
@@ -71,21 +74,20 @@ async def get_rosters(
 @router.post('/bout')
 async def create_bout(
     db: DatabaseDepends,
-    ruleset: str,
     rosters: Annotated[Sequence[RosterModel], Depends(get_rosters)],
     series: Annotated[SeriesModel, Depends(get_series)],
-    order: int | None = 0,
+    ruleset: str = Body(),
+    order: int = Body(default=0),
 ) -> None:
     bout = GenericDataBoutModel(series, ruleset, *rosters)
     db.add(bout)
 
 
 @router.get('/bout-context', response_model=BoutContextSchema)
-async def get_bout_context(db: DatabaseDepends, key: int) -> BoutContext:
-    statement = select(GenericBoutModel).where(GenericBoutModel.id == key)
-    results = await db.execute(statement)
-    model: GenericBoutModel = results.scalar_one()
-    return model.context
+async def get_bout_context(
+    bout: Annotated[BoutModel, Depends(get_bout)],
+) -> BoutContext:
+    return bout.context
 
 
 __all__ = ('router',)
