@@ -55,3 +55,17 @@ py-modules = ["backend"]
 
 [tool.ty.environment]
 root = ["./backend"]
+
+[tool.uv.workspace]
+members = [
+    ".",
+    ".",
+]
+
+[tool.uv.sources]
+nso-bridge = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "nso-bridge",
+]
