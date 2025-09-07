@@ -16,4 +16,7 @@
   "mypy.runUsingActiveInterpreter": true,
   "mypy-type-checker.reportingScope": "workspace",
   "mypy-type-checker.preferDaemon": true,
+  "[toml]": {
+    "editor.defaultFormatter": "be5invis.toml"
+  },
 }
