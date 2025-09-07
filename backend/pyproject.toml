@@ -6,6 +6,15 @@ disable_error_code = [
 plugins = ['pydantic.mypy']
 
 [tool.ruff]
+fix = true
+indent-width = 4
+line-length = 88
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "single"
+
+[tool.ruff.lint]
 extend-select = [
   "A",
   "B",
@@ -19,22 +28,15 @@ extend-select = [
   "EXE",
   "TC", # Put imports in TYPE_CHECKING blocks when possible
 ]
-fix = true
 fixable = ["ALL"]
 ignore = [
   "D", # TODO: Remove me when ready to begin documentation
 ]
-indent-width = 4
-line-length = 88
 unfixable = []
 
-[tool.ruff.format]
-indent-style = "space"
-quote-style = "single"
-
 [tool.ruff.lint.per-file-ignores]
-"api/*" = ["B008"] # Ignore use of Query() and Body() in API method arguments
+"src/api/*.py" = ["B008"] # Ignore use of Query() and Body() in API method arguments
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
