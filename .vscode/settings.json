@@ -7,7 +7,5 @@
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "python.analysis.languageServerMode": "default",
-  "python.analysis.typeCheckingMode": "off",
   "ty.diagnosticMode": "workspace",
 }
