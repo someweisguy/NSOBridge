@@ -5,7 +5,7 @@
       "name": "No GUI",
       "type": "debugpy",
       "request": "launch",
-      "program": "backend/src/main.py",
+      "program": "backend/main.py",
       "console": "integratedTerminal",
       "env": {
         "DB_PATH": "",
