@@ -1,6 +1,7 @@
 [project]
 name = "nso-bridge"
 version = "0.1.0"
+requires-python = ">=3.13"
 dependencies = [
   "aiosqlite~=0.21.0",
   "fastapi~=0.115.12",
@@ -58,6 +59,8 @@ root = ["./backend"]
 
 [tool.uv.workspace]
 members = [
+    ".",
+    ".",
     ".",
     ".",
 ]
