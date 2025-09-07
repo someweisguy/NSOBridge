@@ -99,7 +99,7 @@ async def set_expected_start(
 ) -> None:
     if bout.is_running:
         raise RuntimeError('Cannot set the expected start timestamp now')
-    bout.expected_start_timestamp = timestamp
+    bout.expected_start_timestamp = timestamp.astimezone()
 
 
 __all__ = ('router',)
