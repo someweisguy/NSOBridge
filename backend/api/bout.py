@@ -18,7 +18,7 @@ router: Final[APIRouter] = APIRouter(prefix='/bout')
 
 @router.get('/', response_model=BoutSchema)
 async def get_bout(
-    db: DatabaseDepends, bout_id: int = Query(alias='boutId')
+    db: DatabaseDepends, bout_id: Annotated[int, Query(alias='boutId')]
 ) -> GenericBoutModel:
     statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
     results = await db.execute(statement)
@@ -30,7 +30,7 @@ BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
 # TODO: Move this to its own FastAPI router
 async def get_rosters(
-    db: DatabaseDepends, roster_ids: list[int] = Body(alias='rosterIds')
+    db: DatabaseDepends, roster_ids: Annotated[list[int], Body(alias='rosterIds')]
 ) -> Sequence[RosterModel]:
     if len(roster_ids) == 0:
         raise ValueError('At least one Roster ID is required')
@@ -91,6 +91,15 @@ async def call_timeout(bout: BoutDepends) -> None:
 @router.post('/end-timeout')
 async def end_timeout(bout: BoutDepends) -> None:
     bout.stop_timeout(datetime.now())
+
+
+@router.post('/expected-start')
+async def set_expected_start(
+    bout: BoutDepends, timestamp: Annotated[datetime, Body()]
+) -> None:
+    if bout.is_running:
+        raise RuntimeError('Cannot set the expected start timestamp now')
+    bout.expected_start_timestamp = timestamp
 
 
 __all__ = ('router',)

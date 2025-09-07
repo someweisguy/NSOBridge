@@ -157,6 +157,15 @@ export class Bout {
   async endTimeout(): Promise<void> {
     await genericRequest("bout/end-timeout", "POST", { boutId: this.id });
   }
+
+  async setExpectedStart(timestamp: Date): Promise<void> {
+    await genericRequest(
+      "bout/expected-start",
+      "POST",
+      { boutId: this.id },
+      timestamp,
+    );
+  }
 }
 
 export interface BoutContext {

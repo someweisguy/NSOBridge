@@ -83,6 +83,13 @@ function Test() {
         <Button onClick={() => void bout.endTimeout()}>End Timeout</Button>
         <Button onClick={() => void bout.clearTrack()}>End Period</Button>
         <Button onClick={createBoutCallback}>New Bout</Button>
+        <Button
+          onClick={() =>
+            void bout.setExpectedStart(new Date(new Date().setMinutes(30)))
+          }
+        >
+          Set Timer
+        </Button>
       </div>
     </>
   );
