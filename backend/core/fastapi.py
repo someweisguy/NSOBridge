@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 
 from core import ws
 
-FRONTEND: Final[Path] = Path(os.getcwd()) / 'frontend' / 'dist'
+FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
 
 
 app: FastAPI = FastAPI(
