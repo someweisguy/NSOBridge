@@ -22,7 +22,7 @@ extend-select = [
 fix = true
 fixable = ["ALL"]
 ignore = [
-  "D",  # TODO: Remove me when ready to begin documentation
+  "D", # TODO: Remove me when ready to begin documentation
 ]
 indent-width = 4
 line-length = 88
@@ -31,6 +31,9 @@ unfixable = []
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "single"
+
+[tool.ruff.lint.per-file-ignores]
+"api/*" = ["B008"] # Ignore use of Query() and Body() in API method arguments
 
 [tool.ruff.isort]
 combine-as-imports = true
