@@ -55,9 +55,11 @@ class BoutModel(GenericBoutModel):
         if self.is_running and self.get_state() != 'lineup':
             raise RuntimeError('The Bout cannot be stopped now')
 
-        if not self.is_running or self.get_period() >= NUM_PERIODS:
+        if not self.is_running and self.get_period() >= NUM_PERIODS:
             # TODO: Figure out a method to forfeit a Bout
             self.is_final = True
+        elif not self.is_running: 
+            raise RuntimeError('The Bout cannot be ended yet')
 
         # End the Period
         if self.clock.is_running():
