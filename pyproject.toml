@@ -60,9 +60,6 @@ root = ["./backend"]
 [tool.uv.workspace]
 members = [
     ".",
-    ".",
-    ".",
-    ".",
 ]
 
 [tool.uv.sources]
