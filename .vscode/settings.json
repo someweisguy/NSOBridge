@@ -9,8 +9,5 @@
   "editor.formatOnSave": true,
   "python.analysis.languageServerMode": "default",
   "python.analysis.typeCheckingMode": "off",
-  "ruff.interpreter": [
-    "${workspaceFolder}/.venv/Scripts/python.exe"
-  ],
   "ty.diagnosticMode": "workspace",
 }
