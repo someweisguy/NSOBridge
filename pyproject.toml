@@ -1,4 +1,6 @@
 [project]
+name = "nso-bridge"
+version = "0.1.0"
 dependencies = [
   "aiosqlite~=0.21.0",
   "fastapi~=0.115.12",
@@ -47,6 +49,9 @@ unfixable = []
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
+
+[tool.setuptools]
+py-modules = ["backend"]
 
 [tool.ty.environment]
 root = ["./backend"]
