@@ -1,8 +1,8 @@
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import LiteralString
 
-from api.bout import router as get_router
-from api.rules import router as rules_router
+from api.bout import router as bout_router
+from api.series import router as series_router
 from uvicorn import Config, Server
 
 from core.fastapi import app
@@ -10,7 +10,7 @@ from core.ws import broadcast
 
 API_PREFIX: LiteralString = '/api'
 
-for router in [get_router, rules_router]:
+for router in [bout_router, series_router]:
     app.include_router(router, prefix=API_PREFIX)
 
 

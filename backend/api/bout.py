@@ -1,49 +1,22 @@
-from typing import Annotated, AsyncGenerator, Final, Sequence
+from datetime import datetime
+from typing import Annotated, Final, Sequence
 
-import models
 from fastapi import APIRouter, Body, Depends, Query
-from models import AsyncSession, GenericBoutModel
+from models import GenericBoutModel
 from models.bout import BoutContext
 from models.rulesets.wftda_2025 import BoutModel
-from models.series import SeriesModel
 from models.team import RosterModel
 from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
-from schemas.series import SeriesSchema
 from sqlalchemy import Result, select
 
-router: Final[APIRouter] = APIRouter()
+from .api import DatabaseDepends
+from .series import SeriesDepends
 
-# TODO: bout dependency injection
-
-
-async def inject_db() -> AsyncGenerator[AsyncSession]:
-    async with models.get_db() as session:
-        yield session
-        await session.commit()
+router: Final[APIRouter] = APIRouter(prefix='/bout')
 
 
-DatabaseDepends = Annotated[AsyncSession, Depends(inject_db)]
-
-
-@router.get('/series', response_model=SeriesSchema)
-async def get_series(
-    db: DatabaseDepends, index: int = Query(alias='seriesIndex')
-) -> SeriesModel:
-    statement = select(SeriesModel).limit(1).offset(index - 1)
-    results = await db.execute(statement)
-    series: SeriesModel | None = (
-        results.scalar_one_or_none() if index == 0 else results.scalar_one()
-    )
-    if series is None:
-        # No default Series exists so instantiate one
-        series = SeriesModel()
-        db.add(series)
-        await db.flush()
-    return series
-
-
-@router.get('/bout', response_model=BoutSchema)
+@router.get('/', response_model=BoutSchema)
 async def get_bout(
     db: DatabaseDepends, bout_id: int = Query(alias='boutId')
 ) -> GenericBoutModel:
@@ -52,6 +25,10 @@ async def get_bout(
     return results.scalar_one()
 
 
+BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
+
+
+# TODO: Move this to its own FastAPI router
 async def get_rosters(
     db: DatabaseDepends, roster_ids: list[int] = Body(alias='rosterIds')
 ) -> Sequence[RosterModel]:
@@ -68,10 +45,10 @@ async def get_rosters(
     return rosters
 
 
-@router.post('/bout/wftda2025')
+@router.post('/wftda2025')
 async def create_bout(
     db: DatabaseDepends,
-    series: Annotated[SeriesModel, Depends(get_series)],
+    series: SeriesDepends,
     rosters: Annotated[Sequence[RosterModel], Depends(get_rosters)],
     order: int = Body(default=0),
 ) -> None:
@@ -79,11 +56,41 @@ async def create_bout(
     db.add(bout)
 
 
-@router.get('/bout-context', response_model=BoutContextSchema)
+@router.get('/context', response_model=BoutContextSchema)
 async def get_bout_context(
     bout: Annotated[BoutModel, Depends(get_bout)],
 ) -> BoutContext:
     return bout.context
+
+
+@router.post('/setup-track')
+async def setup_track(bout: BoutDepends) -> None:
+    bout.setup_track(datetime.now())
+
+
+@router.post('/clear-track')
+async def clear_track(bout: BoutDepends) -> None:
+    bout.clear_track(datetime.now())
+
+
+@router.post('/start-jam')
+async def start_jam(bout: BoutDepends) -> None:
+    bout.start_jam(datetime.now())
+
+
+@router.post('/stop-jam')
+async def stop_jam(bout: BoutDepends) -> None:
+    bout.stop_jam(datetime.now())
+
+
+@router.post('/call-timeout')
+async def call_timeout(bout: BoutDepends) -> None:
+    bout.start_timeout(datetime.now())
+
+
+@router.post('/end-timeout')
+async def end_timeout(bout: BoutDepends) -> None:
+    bout.stop_timeout(datetime.now())
 
 
 __all__ = ('router',)
