@@ -6,8 +6,8 @@ export const AWAY = 1;
 type DateToString<T> = T extends Date
   ? string
   : T extends object
-  ? { [K in keyof T]: DateToString<T[K]> }
-  : T;
+    ? { [K in keyof T]: DateToString<T[K]> }
+    : T;
 
 function nullOrDate(dateString: string | null): Date | null {
   if (dateString === null) {
@@ -135,27 +135,27 @@ export class Bout {
   }
 
   async setupTrack(): Promise<void> {
-    await genericRequest("rules/setup-track", "POST", { boutId: this.id });
+    await genericRequest("bout/setup-track", "POST", { boutId: this.id });
   }
 
   async clearTrack(): Promise<void> {
-    await genericRequest("rules/clear-track", "POST", { boutId: this.id });
+    await genericRequest("bout/clear-track", "POST", { boutId: this.id });
   }
 
   async startJam(): Promise<void> {
-    await genericRequest("rules/start-jam", "POST", { boutId: this.id });
+    await genericRequest("bout/start-jam", "POST", { boutId: this.id });
   }
 
   async stopJam(): Promise<void> {
-    await genericRequest("rules/stop-jam", "POST", { boutId: this.id });
+    await genericRequest("bout/stop-jam", "POST", { boutId: this.id });
   }
 
   async callTimeout(): Promise<void> {
-    await genericRequest("rules/call-timeout", "POST", { boutId: this.id });
+    await genericRequest("bout/call-timeout", "POST", { boutId: this.id });
   }
 
   async endTimeout(): Promise<void> {
-    await genericRequest("rules/end-timeout", "POST", { boutId: this.id });
+    await genericRequest("bout/end-timeout", "POST", { boutId: this.id });
   }
 }
 
@@ -175,7 +175,7 @@ export async function getBout(boutId: number): Promise<Bout> {
 }
 
 export async function getBoutContext(boutId: number): Promise<BoutContext> {
-  const response: BoutContext = await genericRequest("bout-context", "GET", {
+  const response: BoutContext = await genericRequest("bout/context", "GET", {
     boutId,
   });
   return response;
@@ -184,12 +184,12 @@ export async function getBoutContext(boutId: number): Promise<BoutContext> {
 export async function createBout(
   rosterIds: number[],
   seriesIndex = 1,
-  order = 0
+  order = 0,
 ): Promise<void> {
   await genericRequest(
     "bout/wftda2025",
     "POST",
     { seriesIndex },
-    { rosterIds, order }
+    { rosterIds, order },
   );
 }
