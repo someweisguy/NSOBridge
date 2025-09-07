@@ -14,8 +14,6 @@
   "mypy.configFile": "backend/pyproject.toml",
   "mypy.dmypyExecutable": "${workspaceFolder}/.venv/Scripts/",
   "mypy.runUsingActiveInterpreter": true,
-  "mypy-type-checker.reportingScope": "workspace",
-  "mypy-type-checker.preferDaemon": true,
   "[toml]": {
     "editor.defaultFormatter": "be5invis.toml"
   },
