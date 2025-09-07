@@ -11,22 +11,22 @@ export default defineConfig({
     tailwindcss(),
     createMpaPlugin({
       htmlMinify: true,
-      template: "src/app/template.html",
+      template: "frontend/app/template.html",
       pages: [
         {
           name: "Main",
           filename: "index.html",
-          entry: "/src/app/main.tsx",
+          entry: "/frontend/app/main.tsx",
           data: {
-            scriptPath: `src/app/main.tsx`,
+            scriptPath: `frontend/app/main.tsx`,
           },
         },
         {
           name: "Scoreboard",
           filename: "sb.html",
-          entry: "/src/app/scoreboard.tsx",
+          entry: "/frontend/app/scoreboard.tsx",
           data: {
-            scriptPath: `src/app/scoreboard.tsx`,
+            scriptPath: `frontend/app/scoreboard.tsx`,
           },
         },
       ],
@@ -34,7 +34,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(__dirname, "./frontend"),
     },
   },
 });

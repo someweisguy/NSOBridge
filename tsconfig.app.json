@@ -20,7 +20,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"
+        "./frontend/*"
       ]
     },
     /* Linting */
@@ -32,6 +32,6 @@
     "strictPropertyInitialization": false,
   },
   "include": [
-    "src"
+    "frontend"
   ]
 }
