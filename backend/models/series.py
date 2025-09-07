@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import final
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from models.bout import GenericBoutModel
 from models.models import CacheableModel, SQLModel
-
-if TYPE_CHECKING:
-    from models.bout import GenericBoutModel
 
 
 class SeriesModel(CacheableModel):
@@ -16,9 +14,7 @@ class SeriesModel(CacheableModel):
     rowid: Mapped[int] = mapped_column(system=True)
     name: Mapped[str] = mapped_column(default='')
     bouts: Mapped[list[GenericBoutModel]] = relationship(
-        back_populates='series',
-        lazy='selectin',
-        # TODO: order_by='order' throws an error
+        back_populates='series', lazy='selectin', order_by=GenericBoutModel.order
     )
 
     @final
