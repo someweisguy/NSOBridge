@@ -3,7 +3,6 @@ from typing import Final
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
-
 from schemas.ws import SyncSchema, WebSocketSchema
 
 app: Final[FastAPI] = FastAPI()

@@ -1,10 +1,10 @@
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import LiteralString
 
-from uvicorn import Config, Server
-
 from api.bout import router as get_router
 from api.rules import router as rules_router
+from uvicorn import Config, Server
+
 from core.fastapi import app
 from core.ws import broadcast
 

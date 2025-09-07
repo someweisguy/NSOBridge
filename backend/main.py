@@ -2,14 +2,13 @@ import asyncio
 import logging
 from typing import Final
 
-from sqlalchemy import Result, Select, select
-
 import core
 import models
 from models import CacheableModel, GenericBoutModel, RosterModel
 from models.rulesets.wftda_2025 import BoutModel
 from models.series import SeriesModel
 from schemas.ws import WebSocketSchema
+from sqlalchemy import Result, Select, select
 
 HTTP_PORT: Final[int] = 80
 

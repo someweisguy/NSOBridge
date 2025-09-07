@@ -2,9 +2,9 @@ from datetime import datetime
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Depends
+from models import GenericBoutModel
 
 from api.bout import get_bout
-from models import GenericBoutModel
 
 BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
