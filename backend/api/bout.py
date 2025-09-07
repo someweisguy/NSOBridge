@@ -1,9 +1,7 @@
 from typing import Annotated, AsyncGenerator, Final, Sequence
 
-from fastapi import APIRouter, Body, Depends, Query
-from sqlalchemy import Result, Select, select
-
 import models
+from fastapi import APIRouter, Body, Depends, Query
 from models import AsyncSession, GenericBoutModel
 from models.bout import BoutContext
 from models.rulesets.wftda_2025 import BoutModel
@@ -12,6 +10,7 @@ from models.team import RosterModel
 from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
 from schemas.series import SeriesSchema
+from sqlalchemy import Result, select
 
 router: Final[APIRouter] = APIRouter()
 
@@ -31,10 +30,8 @@ DatabaseDepends = Annotated[AsyncSession, Depends(inject_db)]
 async def get_series(
     db: DatabaseDepends, index: int = Query(alias='seriesIndex')
 ) -> SeriesModel:
-    statement: Select[tuple[SeriesModel]] = (
-        select(SeriesModel).limit(1).offset(index - 1)
-    )
-    results: Result[tuple[SeriesModel]] = await db.execute(statement)
+    statement = select(SeriesModel).limit(1).offset(index - 1)
+    results = await db.execute(statement)
     series: SeriesModel | None = (
         results.scalar_one_or_none() if index == 0 else results.scalar_one()
     )

@@ -1,20 +1,16 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.detectIndentation": false,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 4
   },
-  "python.analysis.extraPaths": [
-    "${workspaceFolder}/backend/src",
-  ],
-  "python.analysis.typeCheckingMode": "strict",
-  "mypy.configFile": "backend/pyproject.toml",
-  "mypy.dmypyExecutable": "${workspaceFolder}/.venv/Scripts/",
-  "mypy.runUsingActiveInterpreter": true,
   "[toml]": {
     "editor.defaultFormatter": "be5invis.toml"
   },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "python.analysis.languageServerMode": "default",
+  "python.analysis.typeCheckingMode": "off",
+  "ruff.interpreter": [
+    "${workspaceFolder}/.venv/Scripts/python.exe"
+  ],
+  "ty.diagnosticMode": "workspace",
 }
