@@ -84,9 +84,12 @@ function Test() {
         <Button onClick={() => void bout.clearTrack()}>End Period</Button>
         <Button onClick={createBoutCallback}>New Bout</Button>
         <Button
-          onClick={() =>
-            void bout.setExpectedStart(new Date(new Date().setMinutes(30)))
-          }
+          onClick={() => {
+            const now = new Date();
+            void bout.setExpectedStart(
+              new Date(now.setMinutes(now.getMinutes() + 30)),
+            );
+          }}
         >
           Set Timer
         </Button>
@@ -112,7 +115,17 @@ function BoutTimeInformation({ boutId }: { boutId: number }) {
     } else {
       content = "Final Score";
     }
-    return <div className="m-2 text-center">{content}</div>;
+    return (
+      <div className="m-2 text-center">
+        {content}
+        {bout.expectedStartTimestamp && (
+          <Clock
+            startTimestamp={new Date()}
+            alarm={bout.expectedStartTimestamp.getTime() - new Date().getTime()}
+          />
+        )}
+      </div>
+    );
   }
 
   // Determine the parameters for the action Clock
