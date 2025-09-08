@@ -4,6 +4,7 @@ from datetime import timedelta
 from functools import cached_property
 from typing import TYPE_CHECKING, Final
 
+from core.fastapi import RulesError
 from models.bout import NUM_PERIODS, BoutContext, GenericBoutModel
 from models.jam import JamModel, StarPassModel, TeamName, TripModel
 from models.time import TimeoutModel
@@ -43,7 +44,7 @@ class BoutModel(GenericBoutModel):
 
     def setup_track(self, timestamp: datetime) -> None:
         if self.get_state() != 'stopped':
-            raise RuntimeError('The Bout cannot be started now')
+            raise RulesError('The Bout cannot be started now')
 
         self._prepare_next_period(self.teams[0], self.teams[1])
         self.expected_start_timestamp = None
@@ -53,13 +54,13 @@ class BoutModel(GenericBoutModel):
 
     def clear_track(self, timestamp: datetime) -> None:
         if self.is_running and self.get_state() != 'lineup':
-            raise RuntimeError('The Bout cannot be stopped now')
+            raise RulesError('The Bout cannot be stopped now')
 
         if not self.is_running and self.get_period() >= NUM_PERIODS:
             # TODO: Figure out a method to forfeit a Bout
             self.is_final = True
-        elif not self.is_running: 
-            raise RuntimeError('The Bout cannot be ended yet')
+        elif not self.is_running:
+            raise RulesError('The Bout cannot be ended yet')
 
         # End the Period
         if self.clock.is_running():
@@ -70,7 +71,7 @@ class BoutModel(GenericBoutModel):
         if not self.is_running:
             self.setup_track(timestamp)  # Handle immediate game start
         if self.get_state() != 'lineup':
-            raise RuntimeError('The Jam cannot be started now')
+            raise RulesError('The Jam cannot be started now')
 
         self.jams[-1].start(timestamp)
         if not self.clock.is_running() and self.get_period() < NUM_PERIODS:
@@ -79,7 +80,7 @@ class BoutModel(GenericBoutModel):
 
     def stop_jam(self, timestamp: datetime) -> None:
         if self.get_state() != 'jam':
-            raise RuntimeError('There is no active Jam to stop')
+            raise RulesError('There is no active Jam to stop')
 
         self.jams[-1].stop(timestamp)
         self._prepare_next_jam(self.teams[0], self.teams[1])
@@ -88,7 +89,7 @@ class BoutModel(GenericBoutModel):
         if self.get_state() != 'jam':
             raise RuntimeError('There is no active Jam to which to add a Trip')
         if 0 > passes > self.context.points_per_trip:
-            raise ValueError(f"""Number of passes must be {self.context.points_per_trip}
+            raise RulesError(f"""Number of passes must be {self.context.points_per_trip}
                              or less ({passes=})""")
 
         jam: JamModel = self.jams[-1]
@@ -104,7 +105,7 @@ class BoutModel(GenericBoutModel):
 
         jam: JamModel = self.jams[-1]
         if lead and jam.lead_is_declared():
-            raise RuntimeError('A Lead Jammer has already been declared in this Jam')
+            raise RulesError('A Lead Jammer has already been declared in this Jam')
         jam[team].lead = timestamp if lead else None
 
     def set_lost(self, team: TeamName, lost: bool) -> None:
@@ -127,7 +128,7 @@ class BoutModel(GenericBoutModel):
 
     def start_timeout(self, timestamp: datetime) -> TimeoutModel:
         if self.get_state() != 'lineup':
-            raise RuntimeError('A Timeout cannot be started now')
+            raise RulesError('A Timeout cannot be started now')
 
         if self.clock.is_running():
             self.clock.stop(timestamp)
@@ -148,7 +149,7 @@ class BoutModel(GenericBoutModel):
             raise RuntimeError('There is no active Timeout to stop')
         timeout: TimeoutModel = self.timeouts[-1]
         if timeout.team is None and timeout.is_review:
-            raise RuntimeError('Officials cannot call an Official Review')
+            raise RulesError('Officials cannot call an Official Review')
 
         timeout.stop(timestamp)
 
