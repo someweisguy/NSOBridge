@@ -18,7 +18,8 @@ export default defineConfig({
           filename: "index.html",
           entry: "/frontend/app/main.tsx",
           data: {
-            scriptPath: `frontend/app/main.tsx`,
+            templateTitle: "NSO Bridge",
+            scriptPath: "frontend/app/main.tsx",
           },
         },
         {
@@ -26,7 +27,8 @@ export default defineConfig({
           filename: "sb.html",
           entry: "/frontend/app/scoreboard.tsx",
           data: {
-            scriptPath: `frontend/app/scoreboard.tsx`,
+            templateTitle: "Scoreboard",
+            scriptPath: "frontend/app/scoreboard.tsx",
           },
         },
       ],
