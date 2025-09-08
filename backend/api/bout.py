@@ -16,7 +16,7 @@ from .series import SeriesDepends
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
 
-@router.get('/', response_model=BoutSchema)
+@router.get('', response_model=BoutSchema)
 async def get_bout(
     db: DatabaseDepends, bout_id: Annotated[int, Query(alias='boutId')]
 ) -> GenericBoutModel:

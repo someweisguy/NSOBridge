@@ -10,7 +10,7 @@ from .api import DatabaseDepends
 router: Final[APIRouter] = APIRouter(prefix='/series')
 
 
-@router.get('/', response_model=SeriesSchema)
+@router.get('', response_model=SeriesSchema)
 async def get_series(
     db: DatabaseDepends, index: int = Query(alias='seriesIndex')
 ) -> SeriesModel:
