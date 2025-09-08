@@ -5,10 +5,7 @@ export default async function genericRequest<T = unknown>(
   body?: string | number | boolean | object | null,
 ): Promise<T> {
   // Generate the request URL
-  const url = new URL(
-    `/api/${endpoint}${query == null ? "/" : ""}`,
-    window.location.href,
-  );
+  const url = new URL(`/api/${endpoint}`, window.location.href);
   if (query !== undefined) {
     url.search = new URLSearchParams(
       query as Record<string, string>,
