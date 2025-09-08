@@ -135,27 +135,39 @@ export class Bout {
   }
 
   async setupTrack(): Promise<void> {
-    await genericRequest("bout/setup-track", "POST", { boutId: this.id });
+    await genericRequest("bout/setup-track", "POST", { boutId: this.id }).catch(
+      (e) => console.error(e),
+    );
   }
 
   async clearTrack(): Promise<void> {
-    await genericRequest("bout/clear-track", "POST", { boutId: this.id });
+    await genericRequest("bout/clear-track", "POST", { boutId: this.id }).catch(
+      (e: Error) => console.error(e.message),
+    );
   }
 
   async startJam(): Promise<void> {
-    await genericRequest("bout/start-jam", "POST", { boutId: this.id });
+    await genericRequest("bout/start-jam", "POST", { boutId: this.id }).catch(
+      (e: Error) => console.error(e.message),
+    );
   }
 
   async stopJam(): Promise<void> {
-    await genericRequest("bout/stop-jam", "POST", { boutId: this.id });
+    await genericRequest("bout/stop-jam", "POST", { boutId: this.id }).catch(
+      (e: Error) => console.error(e.message),
+    );
   }
 
   async callTimeout(): Promise<void> {
-    await genericRequest("bout/call-timeout", "POST", { boutId: this.id });
+    await genericRequest("bout/call-timeout", "POST", {
+      boutId: this.id,
+    }).catch((e: Error) => console.error(e.message));
   }
 
   async endTimeout(): Promise<void> {
-    await genericRequest("bout/end-timeout", "POST", { boutId: this.id });
+    await genericRequest("bout/end-timeout", "POST", { boutId: this.id }).catch(
+      (e: Error) => console.error(e.message),
+    );
   }
 
   async setExpectedStart(timestamp: Date): Promise<void> {
@@ -164,7 +176,7 @@ export class Bout {
       "POST",
       { boutId: this.id },
       timestamp,
-    );
+    ).catch((e: Error) => console.error(e.message));
   }
 }
 
@@ -200,5 +212,5 @@ export async function createBout(
     "POST",
     { seriesIndex },
     { rosterIds, order },
-  );
+  ).catch((e: Error) => console.error(e.message));
 }

@@ -2,13 +2,13 @@ export default async function genericRequest<T = unknown>(
   endpoint: string,
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
   query?: Record<string, unknown>,
-  body?: string | number | boolean | object | null
+  body?: string | number | boolean | object | null,
 ): Promise<T> {
   // Generate the request URL
   const url = new URL(`/api/${endpoint}`, window.location.href);
   if (query !== undefined) {
     url.search = new URLSearchParams(
-      query as Record<string, string>
+      query as Record<string, string>,
     ).toString();
   }
 
@@ -19,12 +19,12 @@ export default async function genericRequest<T = unknown>(
       "Content-Type": "application/json",
     },
     body: body instanceof Object ? JSON.stringify(body) : body?.toString(),
-  })
+  });
 
   // Parse the response
   if (!response.ok) {
-    const error = (await response.json()) as { detail: string };
-    throw new Error(error.detail);
+    const error = (await response.json()) as { message: string };
+    throw new Error(error.message);
   }
   return (await response.json()) as T;
 }
