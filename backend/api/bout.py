@@ -50,7 +50,7 @@ async def create_bout(
     db: DatabaseDepends,
     series: SeriesDepends,
     rosters: Annotated[Sequence[RosterModel], Depends(get_rosters)],
-    order: int = Body(default=0),
+    order: Annotated[int, Body()] = 0,
 ) -> None:
     bout = BoutModel(series, *rosters)
     db.add(bout)
