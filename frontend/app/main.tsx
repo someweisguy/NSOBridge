@@ -62,7 +62,7 @@ function Test() {
   }, [bout]);
 
   const createBoutCallback = useCallback(() => {
-    const rosterIds = bout.teams.map((t) => t.roster.id);
+    const rosterIds = bout.teams.map((t) => t.rosterId);
     goToNextBout.current = true;
     void createBout(rosterIds);
   }, [bout]);
