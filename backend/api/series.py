@@ -12,7 +12,7 @@ router: Final[APIRouter] = APIRouter(prefix='/series')
 
 @router.get('', response_model=SeriesSchema)
 async def get_series(
-    db: DatabaseDepends, index: int = Query(alias='seriesIndex')
+    db: DatabaseDepends, index: Annotated[int, Query(alias='seriesIndex')]
 ) -> SeriesModel:
     statement = select(SeriesModel).limit(1).offset(index - 1)
     results = await db.execute(statement)
