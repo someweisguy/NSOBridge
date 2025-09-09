@@ -83,7 +83,7 @@ class Jam extends Timer {
 
 export class Team {
   public readonly id: number;
-  public readonly roster: { id: number; name: string };
+  public readonly rosterId: number;
   public readonly boutScore: number;
   public readonly jamScore: number;
   public readonly timeoutsRemaining: number;

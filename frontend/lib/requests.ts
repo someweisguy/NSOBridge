@@ -1,7 +1,7 @@
 export default async function genericRequest<T = unknown>(
   endpoint: string,
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
-  query?: Record<string, unknown>,
+  query?: URLSearchParams | Record<string, unknown>,
   body?: string | number | boolean | object | null,
 ): Promise<T> {
   // Generate the request URL
