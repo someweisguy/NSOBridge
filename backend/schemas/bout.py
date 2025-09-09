@@ -57,17 +57,21 @@ class JamSchema(TimerSchema):
 
 class RosterSchema(ServerSchema):
     id: int
-    name: str
 
 
 class TeamSchema(ServerSchema):
     id: int
-    roster: RosterSchema
+    roster: RosterSchema = Field(exclude=True)
     bout_score: int
     jam_score: int
     timeouts_remaining: int
     reviews_remaining: int
     score_offset: int
+
+    @computed_field
+    @property
+    def roster_id(self) -> int:
+        return self.roster.id
 
 
 class BoutSchema(ServerSchema):

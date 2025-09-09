@@ -1,16 +1,16 @@
 from datetime import datetime
-from typing import Annotated, Final, Sequence
+from typing import Annotated, Final
 
 from fastapi import APIRouter, Body, Depends, Query
 from models import GenericBoutModel
 from models.bout import BoutContext
 from models.rulesets.wftda_2025 import BoutModel
-from models.team import RosterModel
 from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
-from sqlalchemy import Result, select
+from sqlalchemy import select
 
 from .api import DatabaseDepends
+from .roster import RostersDepends
 from .series import SeriesDepends
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
@@ -28,28 +28,11 @@ async def get_bout(
 BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
 
-# TODO: Move this to its own FastAPI router
-async def get_rosters(
-    db: DatabaseDepends, roster_ids: Annotated[list[int], Body(alias='rosterIds')]
-) -> Sequence[RosterModel]:
-    if len(roster_ids) == 0:
-        raise ValueError('At least one Roster ID is required')
-    if len(roster_ids) != len(set(roster_ids)):
-        raise ValueError('Duplicate Roster IDs are not permitted')
-    results: Result[tuple[RosterModel]] = await db.execute(
-        select(RosterModel).where(RosterModel.id.in_(roster_ids))
-    )
-    rosters: Sequence[RosterModel] = results.scalars().all()
-    if len(rosters) != len(roster_ids):
-        raise KeyError('Unknown Roster ID provided')
-    return rosters
-
-
 @router.post('/wftda2025')
 async def create_bout(
     db: DatabaseDepends,
     series: SeriesDepends,
-    rosters: Annotated[Sequence[RosterModel], Depends(get_rosters)],
+    rosters: RostersDepends,
     order: Annotated[int, Body()] = 0,
 ) -> None:
     bout = BoutModel(series, *rosters)

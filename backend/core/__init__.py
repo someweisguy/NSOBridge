@@ -2,6 +2,7 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from typing import LiteralString
 
 from api.bout import router as bout_router
+from api.roster import router as roster_router
 from api.series import router as series_router
 from uvicorn import Config, Server
 
@@ -10,7 +11,7 @@ from core.ws import broadcast
 
 API_PREFIX: LiteralString = '/api'
 
-for router in [bout_router, series_router]:
+for router in [bout_router, series_router, roster_router]:
     app.include_router(router, prefix=API_PREFIX)
 
 
