@@ -10,7 +10,7 @@ from schemas.bout import BoutContextSchema
 from sqlalchemy import select
 
 from .api import DatabaseDepends
-from .roster import RostersDepends
+from .roster import RosterDepends
 from .series import SeriesDepends
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
@@ -28,11 +28,12 @@ async def get_bout(
 BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
 
+# FIXME: fix roster dependency
 @router.post('/wftda2025')
 async def create_bout(
     db: DatabaseDepends,
     series: SeriesDepends,
-    rosters: RostersDepends,
+    rosters: RosterDepends,
     order: Annotated[int, Body()] = 0,
 ) -> None:
     bout = BoutModel(series, *rosters)

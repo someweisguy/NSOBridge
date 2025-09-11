@@ -20,6 +20,8 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import useRoster from "@/hooks/use-roster";
+import { Roster } from "@/lib/roster";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -54,7 +56,6 @@ function Test() {
       goToNextBout.current = false;
       setBoutIndex((i) => i + 1);
     }
-    console.log("series or boutIndex update");
   }, [series, boutIndex]);
 
   useEffect(() => {
@@ -66,6 +67,9 @@ function Test() {
     goToNextBout.current = true;
     void createBout(rosterIds);
   }, [bout]);
+
+  const roster: Roster = useRoster(1);
+  console.log(roster);
 
   return (
     <>
