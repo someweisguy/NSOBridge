@@ -20,8 +20,6 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import useRoster from "@/hooks/use-roster";
-import { Roster } from "@/lib/roster";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -43,7 +41,7 @@ function Test() {
   const [boutIndex, setBoutIndex] = useState(0);
   const goToNextBout = useRef(false);
 
-  const series: Series = useSeries(1);
+  const series: Series = useSeries(0);
   if (series.bouts.length == 0) {
     // TODO: Go to Bout creation page
     throw new Error("This Series does not have any Bouts");
@@ -67,9 +65,6 @@ function Test() {
     goToNextBout.current = true;
     void createBout(rosterIds);
   }, [bout]);
-
-  const roster: Roster = useRoster(1);
-  console.log(roster);
 
   return (
     <>
