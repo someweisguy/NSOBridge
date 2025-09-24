@@ -6,6 +6,9 @@ import { createMpaPlugin } from "vite-plugin-virtual-mpa";
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    minify: false,
+  },
   plugins: [
     react(),
     tailwindcss(),
