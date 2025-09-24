@@ -1,12 +1,12 @@
 import Button from "@/components/button";
 import Clock from "@/components/clock";
 import JamNumView from "@/components/jam-num-view";
-import TeamView from "@/components/team-view";
+import { PlainTeamComponent } from "@/components/team-component";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
 import useSeries from "@/hooks/use-series";
 import useServerOffset from "@/hooks/use-server-offset";
-import { Bout, createBout, Team } from "@/lib/bout";
+import { Bout, createBout } from "@/lib/bout";
 import queryClient from "@/lib/cache";
 import { Series } from "@/lib/series";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -67,12 +67,8 @@ function Test() {
   }, [bout]);
 
   return (
-    <>
-      <div className="place-content-around grid grid-flow-col">
-        {bout.teams.map((team: Team, index: number) => (
-          <TeamView key={index} team={team} context={context} />
-        ))}
-      </div>
+    <div className="">
+      <PlainTeamComponent bout={bout} context={context} />
       <BoutTimeInformation boutId={bout.id} />
       <div className="place-content-around grid grid-flow-col">
         <Button onClick={() => void bout.setupTrack()}>Start Period</Button>
@@ -93,7 +89,7 @@ function Test() {
           Set Timer
         </Button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -115,7 +111,7 @@ function BoutTimeInformation({ boutId }: { boutId: number }) {
       content = "Final Score";
     }
     return (
-      <div className="m-2 text-center">
+      <div className="m-2 h-24 text-center">
         {content}
         {bout.expectedStartTimestamp && (
           <Clock
@@ -142,7 +138,7 @@ function BoutTimeInformation({ boutId }: { boutId: number }) {
   }
 
   return (
-    <div className="gap-3 grid grid-flow-col">
+    <div className="gap-3 grid grid-flow-col h-24">
       {/* Show the Bout clock, except during overtime */}
       {bout.jamCounts.length > 2 ? "OT" : <Clock {...bout.clock} />}
 
