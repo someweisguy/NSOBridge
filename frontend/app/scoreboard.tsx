@@ -32,14 +32,23 @@ function Test() {
   const context = useBoutContext(1);
 
   return (
-    <>
-      <div className="place-content-around grid grid-flow-col">
-        {bout.teams.map((team: Team, index: number) => (
-          <TeamView key={index} team={team} context={context} />
-        ))}
+    <div className="gap-4 grid grid-rows-24 grid-flow-row h-screen size-full">
+      <div className="place-content-center row-span-12 bg-red-400 text-center">
+        {/* Primary Information (Team Info) */}
+        <div className="place-content-around grid grid-flow-col">
+          {bout.teams.map((team: Team, index: number) => (
+            <TeamView key={index} team={team} context={context} />
+          ))}
+        </div>
       </div>
-      <BoutTimeInformation />
-    </>
+      <div className="place-content-center row-span-5 bg-blue-400 text-center">
+        Tertiary Information (Game State)
+      </div>
+      <div className="place-content-center row-span-7 bg-green-400 text-center">
+        {/* Secondary Information (Clocks, etc.) */}
+        <BoutTimeInformation />
+      </div>
+    </div>
   );
 }
 
