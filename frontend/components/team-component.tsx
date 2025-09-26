@@ -12,9 +12,9 @@ export function TeamComponent(
     context: BoutContext;
   }) => {
     return (
-      <div className="place-content-around grid grid-flow-col w-full">
+      <div className="flex flex-row h-full size-full">
         {bout.teams.map((team: Team, index: number) => (
-          <div key={index} className="grid grid-flow-row">
+          <div key={index} className="grid grid-flow-row size-full">
             <TeamView team={team} context={context} />
             {FooterComponent && <FooterComponent team={team} />}
           </div>

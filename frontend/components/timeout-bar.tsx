@@ -14,23 +14,23 @@ export default function TimeoutBar({
   numReviews,
 }: TimeoutBarProps) {
   return (
-    <div className="gap-2 grid grid-flow-row bg-slate-200 m-2 p-2 rounded-lg w-fit h-fit">
+    <div className="place-content-stretch gap-2 grid grid-cols-1 bg-gray-200 p-2 rounded-2xl min-w-fit h-full">
       {Array.from({ length: numTimeouts }, (_, k) => (
         <div
           key={`t${k}`}
           className={twMerge(
-            "bg-black rounded-full size-4",
-            k >= timeoutsRemaining && "invisible"
+            "bg-black p-1 rounded-full aspect-square",
+            k >= timeoutsRemaining && "invisible",
           )}
         ></div>
       ))}
-      <hr className="border-gray-400"></hr>
+      <hr className="border-gray-400 shrink"></hr>
       {Array.from({ length: numReviews }, (_, k) => (
         <div
           key={`r${k}`}
           className={twMerge(
-            "bg-black rounded-full size-4",
-            k >= reviewsRemaining && "invisible"
+            "bg-black p-1 rounded-full aspect-square",
+            k >= reviewsRemaining && "invisible",
           )}
         ></div>
       ))}

@@ -1,15 +1,14 @@
 import Clock from "@/components/clock";
 import JamNumView from "@/components/jam-num-view";
-import TeamView from "@/components/team-view";
+import { PlainTeamComponent } from "@/components/team-component";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
-import { Team } from "@/lib/bout";
+import useServerOffset from "@/hooks/use-server-offset";
 import queryClient from "@/lib/cache";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import useServerOffset from "@/hooks/use-server-offset";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -32,19 +31,15 @@ function Test() {
   const context = useBoutContext(1);
 
   return (
-    <div className="gap-4 grid grid-rows-24 grid-flow-row h-screen size-full">
-      <div className="place-content-center row-span-12 bg-red-400 text-center">
+    <div className="flex flex-col flex-nowrap gap-4 grid-flow-row h-screen size-screen">
+      <div className="place-content-center bg-red-400 text-center basis-1/2 shrink-0 grow-0">
         {/* Primary Information (Team Info) */}
-        <div className="place-content-around grid grid-flow-col">
-          {bout.teams.map((team: Team, index: number) => (
-            <TeamView key={index} team={team} context={context} />
-          ))}
-        </div>
+        <PlainTeamComponent bout={bout} context={context} />
       </div>
-      <div className="place-content-center row-span-5 bg-blue-400 text-center">
+      <div className="place-content-center bg-blue-400 text-center basis-1/8 shrink-0 grow-0">
         Tertiary Information (Game State)
       </div>
-      <div className="place-content-center row-span-7 bg-green-400 text-center">
+      <div className="place-content-center bg-green-400 text-center basis-3/8 shrink-0">
         {/* Secondary Information (Clocks, etc.) */}
         <BoutTimeInformation />
       </div>

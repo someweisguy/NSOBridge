@@ -10,11 +10,13 @@ export default function ScoreView({
   jamScore,
 }: ScoreViewProps) {
   return (
-    <div className="flex justify-evenly items-baseline gap-4 m-4">
-      <div className="w-full font-bold text-7xl text-right">
+    <div className="flex flex-row content-center-safe gap-1 h-full">
+      <h1 className="content-center min-w-fit max-w-1/2 text-7xl text-right grow shrink">
         {boutScore + scoreOffset}
-      </div>
-      <div className="w-full text-4xl text-left">{jamScore}</div>
+      </h1>
+      <h2 className="content-center ps-2 text-4xl text-left shrink-0">
+        {jamScore}
+      </h2>
     </div>
   );
 }

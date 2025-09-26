@@ -17,15 +17,20 @@ export default function TeamView({
 }: PropsWithChildren<TeamsViewProps>) {
   const roster: Roster = useRoster(team.rosterId);
   return (
-    <div className="justify-around grid grid-flow-col w-full">
-      <div className="place-items-center gap-7 grid grid-flow-row">
-        <div className="text-5xl text-center">{roster.name}</div>
-        <div className="grid grid-flow-col w-56">
-          <TimeoutBar {...team} {...context} />
-          <ScoreView {...team} />
-        </div>
-        <div>{children}</div>
+    <div className="place-content-stretch gap-7 grid grid-cols-3 p-4">
+      <div className="place-content-center col-span-full text-5xl text-center">
+        {roster.name}
       </div>
+      <div className="place-items-center col-span-1">
+        <TimeoutBar {...team} {...context} />
+      </div>
+      <div className="col-span-1">
+        <ScoreView {...team} />
+      </div>
+      {/* <div className="col-span-1">
+          .
+      </div> */}
+      {children && <div className="col-span-full row-start-3">{children}</div>}
     </div>
   );
 }
