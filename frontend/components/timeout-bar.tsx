@@ -7,6 +7,8 @@ interface TimeoutBarProps {
   numReviews: number;
 }
 
+const dotStyle = "bg-black rounded-full aspect-square";
+
 export default function TimeoutBar({
   timeoutsRemaining,
   reviewsRemaining,
@@ -14,24 +16,18 @@ export default function TimeoutBar({
   numReviews,
 }: TimeoutBarProps) {
   return (
-    <div className="place-content-stretch gap-2 grid grid-cols-1 bg-gray-200 p-2 rounded-2xl min-w-fit h-full">
+    <div className="flex flex-col justify-start place-items-stretch gap-2 bg-gray-200 p-4 rounded-2xl w-full h-fit min-h-fit align-middle">
       {Array.from({ length: numTimeouts }, (_, k) => (
         <div
           key={`t${k}`}
-          className={twMerge(
-            "bg-black p-1 rounded-full aspect-square",
-            k >= timeoutsRemaining && "invisible",
-          )}
+          className={twMerge(dotStyle, k >= timeoutsRemaining && "invisible")}
         ></div>
       ))}
-      <hr className="border-gray-400 shrink"></hr>
+      <hr className="border-gray-400"></hr>
       {Array.from({ length: numReviews }, (_, k) => (
         <div
           key={`r${k}`}
-          className={twMerge(
-            "bg-black p-1 rounded-full aspect-square",
-            k >= reviewsRemaining && "invisible",
-          )}
+          className={twMerge(dotStyle, k >= reviewsRemaining && "invisible")}
         ></div>
       ))}
     </div>
