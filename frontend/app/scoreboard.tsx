@@ -19,7 +19,7 @@ export default function App() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <Suspense fallback={"Loading..."}>
-          <FitScreen width={1920} height={1080} mode="fit">
+          <FitScreen waitTime={25} mode="fit">
             <Test />
           </FitScreen>
         </Suspense>
