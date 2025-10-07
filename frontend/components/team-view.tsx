@@ -18,18 +18,18 @@ export default function TeamView({
   const roster: Roster = useRoster(team.rosterId);
   return (
     <div className="place-content-stretch gap-7 grid grid-cols-3 p-4">
-      <div className="place-content-center col-span-full text-5xl text-center">
+      <div className="place-content-center col-span-full text-7xl text-center">
         {roster.name}
       </div>
-      <div className="place-items-center col-span-1">
+      <div className="justify-center items-center grid">
         <TimeoutBar {...team} {...context} />
       </div>
-      <div className="col-span-1">
+      <div className="justify-stretch items-center grid">
         <ScoreView {...team} />
       </div>
-      {/* <div className="col-span-1">
-          .
-      </div> */}
+      <div className="justify-center items-center grid">
+        {/* TODO: Jammer Status Icon */}
+      </div>
       {children && <div className="col-span-full row-start-3">{children}</div>}
     </div>
   );

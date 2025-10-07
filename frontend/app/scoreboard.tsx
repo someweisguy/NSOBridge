@@ -35,7 +35,7 @@ function Test() {
 
   return (
     <div className="flex flex-col flex-nowrap gap-4 grid-flow-row h-screen size-screen">
-      <div className="place-content-center bg-red-400 text-center basis-1/2 shrink-0 grow-0">
+      <div className="place-content-center text-center basis-1/2 shrink-0 grow-0">
         {/* Primary Information (Team Info) */}
         <PlainTeamComponent bout={bout} context={context} />
       </div>
