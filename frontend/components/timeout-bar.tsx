@@ -1,29 +1,42 @@
 import { twMerge } from "tailwind-merge";
 
+const dotStyle = "bg-black rounded-full aspect-square";
+
+const sizeStyles = {
+  small: "w-10",
+  medium: "w-16",
+  large: "w-20",
+};
+
 interface TimeoutBarProps {
   timeoutsRemaining: number;
   reviewsRemaining: number;
   numTimeouts: number;
   numReviews: number;
+  size?: keyof typeof sizeStyles;
 }
-
-const dotStyle = "bg-black rounded-full aspect-square";
 
 export default function TimeoutBar({
   timeoutsRemaining,
   reviewsRemaining,
   numTimeouts,
   numReviews,
+  size = "medium",
 }: TimeoutBarProps) {
   return (
-    <div className="flex flex-col justify-start place-items-stretch gap-2 bg-gray-200 p-4 rounded-2xl w-full h-fit min-h-fit align-middle">
+    <div
+      className={twMerge(
+        sizeStyles[size],
+        "flex flex-col justify-start gap-4 bg-gray-300 p-2 rounded-2xl h-fit",
+      )}
+    >
       {Array.from({ length: numTimeouts }, (_, k) => (
         <div
           key={`t${k}`}
           className={twMerge(dotStyle, k >= timeoutsRemaining && "invisible")}
         ></div>
       ))}
-      <hr className="border-gray-400"></hr>
+      <hr className="mx-1 border-gray-400"></hr>
       {Array.from({ length: numReviews }, (_, k) => (
         <div
           key={`r${k}`}
