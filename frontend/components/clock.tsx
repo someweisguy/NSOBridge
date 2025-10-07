@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 function formatMilliseconds(
   millis: number,
   showTenths: boolean,
-  sign = "+"
+  sign = "+",
 ): string {
   const isNegative = millis < 0;
   millis = Math.abs(millis);
@@ -54,7 +54,7 @@ export default function Clock({
   const [run, setRun] = useState<boolean>(false);
   const [clockMillis] = useClock(
     { startTimestamp, stopTimestamp, elapsed, alarm },
-    run
+    run,
   );
 
   // Stop the clock when it when it has elapsed
@@ -63,10 +63,7 @@ export default function Clock({
   }, [clockMillis]);
 
   const displayMillis = clockMillis > 0 ? clockMillis : 0;
-  const showTenths = alarm != null && clockMillis < 10000 && clockMillis > -2000;
-  return (
-    <div className="m-3 text-center">
-      {formatMilliseconds(displayMillis, showTenths)}
-    </div>
-  );
+  const showTenths =
+    alarm != null && clockMillis < 10000 && clockMillis > -2000;
+  return <>{formatMilliseconds(displayMillis, showTenths)}</>;
 }

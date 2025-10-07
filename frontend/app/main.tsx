@@ -1,7 +1,6 @@
 import Button from "@/components/button";
 import Clock from "@/components/clock";
-import JamNumView from "@/components/jam-num-view";
-import { PlainTeamComponent } from "@/components/team-component";
+import { TeamComponent } from "@/components/team-component";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
 import useSeries from "@/hooks/use-series";
@@ -68,8 +67,8 @@ function Test() {
 
   return (
     <div className="">
-      <PlainTeamComponent bout={bout} context={context} />
-      <BoutTimeInformation boutId={bout.id} />
+      <TeamComponent bout={bout} context={context} />
+      <BoutTimeInformation />
       <div className="place-content-around grid grid-flow-col">
         <Button onClick={() => void bout.setupTrack()}>Start Period</Button>
         <Button onClick={() => void bout.startJam()}>Start Jam</Button>
@@ -93,62 +92,58 @@ function Test() {
   );
 }
 
-function BoutTimeInformation({ boutId }: { boutId: number }) {
-  const bout = useBout(boutId);
-  const context = useBoutContext(boutId);
+function BoutTimeInformation() {
+  const bout = useBout(1);
+  const context = useBoutContext(1);
 
-  // Render a placeholder message when the Bout is not running
   if (bout.activeJam === null) {
-    let content: string;
     const numPeriods = bout.jamCounts.length;
+    let copy = "";
     if (numPeriods === 0) {
-      content = "Starting Soon";
+      copy = "Starting Soon";
     } else if (numPeriods === 1) {
-      content = "Halftime";
+      copy = "Halftime";
     } else if (!bout.isFinal) {
-      content = "Unofficial Score";
+      copy = "Unofficial Score";
     } else {
-      content = "Final Score";
+      copy = "Final Score";
     }
+
     return (
-      <div className="m-2 h-24 text-center">
-        {content}
-        {bout.expectedStartTimestamp && (
-          <Clock
-            startTimestamp={new Date()}
-            alarm={bout.expectedStartTimestamp.getTime() - new Date().getTime()}
-          />
-        )}
+      <div className="items-center grid m-2 h-full text-8xl text-center">
+        {copy}
       </div>
     );
   }
 
-  // Determine the parameters for the action Clock
-  let startTimestamp: Date | null;
-  let stopTimestamp: Date | null | undefined;
-  let alarm: number | undefined;
-  if (!bout.activeJam.hasStarted() || bout.activeJam.isRunning()) {
-    startTimestamp = bout.activeJam.startTimestamp;
-    stopTimestamp = bout.activeJam.stopTimestamp;
-    alarm = context.jamDuration;
-  } else if (bout.activeTimeout?.isRunning()) {
-    startTimestamp = bout.activeTimeout.startTimestamp;
-  } else {
-    startTimestamp = bout.activeJam.stopTimestamp;
+  let displayPeriod = bout.activeJam.period;
+  let displayJam = bout.activeJam.jam;
+
+  // Overtime Jams should be considered a continuation of the second half
+  if (displayPeriod >= 2) {
+    displayPeriod = 1;
+    displayJam += bout.jamCounts[1];
   }
 
   return (
-    <div className="gap-3 grid grid-flow-col h-24">
-      {/* Show the Bout clock, except during overtime */}
-      {bout.jamCounts.length > 2 ? "OT" : <Clock {...bout.clock} />}
-
-      <JamNumView {...bout.activeJam} jamCounts={bout.jamCounts} />
-
-      <Clock
-        startTimestamp={startTimestamp}
-        stopTimestamp={stopTimestamp}
-        alarm={alarm}
-      />
+    <div className="flex justify-around items-center text-9xl text-center align-middle">
+      <div className="bg-red w-full text-7xl text-center">
+        {bout.jamCounts.length > 2 ? "OT" : <Clock {...bout.clock} />}
+      </div>
+      <div className="flex justify-between items-baseline gap-20 w-full grow">
+        <h1 className="text-center">P{displayPeriod + 1}</h1>
+        <h1 className="text-center">J{displayJam + 1}</h1>
+      </div>
+      <div className="w-full text-7xl text-center">
+        {!bout.activeJam.hasStarted() || bout.activeJam.isRunning() ? (
+          <Clock {...bout.activeJam} alarm={context.jamDuration} />
+        ) : (
+          <Clock
+            startTimestamp={bout.activeJam.stopTimestamp}
+            alarm={context.lineupDuration}
+          />
+        )}
+      </div>
     </div>
   );
 }
