@@ -55,10 +55,6 @@ function Test() {
     }
   }, [series, boutIndex]);
 
-  useEffect(() => {
-    console.log(`Bout state: ${bout.getState()}`);
-  }, [bout]);
-
   const createBoutCallback = useCallback(() => {
     const rosterIds = bout.teams.map((t) => t.rosterId);
     goToNextBout.current = true;
