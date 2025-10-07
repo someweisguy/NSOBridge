@@ -9,6 +9,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import { Bout } from "@/lib/bout";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -38,8 +39,9 @@ function Test() {
         {/* Primary Information (Team Info) */}
         <TeamComponent bout={bout} context={context} />
       </div>
-      <div className="place-content-center bg-blue-400 text-center basis-1/8 shrink-0 grow-0">
-        TODO: Tertiary Information (Game State)
+      <div className="place-content-center text-center basis-1/8 shrink-0 grow-0">
+        {/* Tertiary Information (Game State) */}
+        <BoutTertiaryInformation bout={bout} />
       </div>
       <div className="justify-stretch items-stretch grid basis-3/8 shrink-0">
         {/* Secondary Information (Clocks, etc.) */}
@@ -84,14 +86,14 @@ function BoutTimeInformation() {
 
   return (
     <div className="flex justify-evenly items-center text-9xl text-center align-middle">
-      <div className="bg-red text-7xl text-center shrink">
+      <div className="bg-red w-full text-7xl text-center">
         {bout.jamCounts.length > 2 ? "OT" : <Clock {...bout.clock} />}
       </div>
-      <div className="flex justify-between items-baseline gap-20">
+      <div className="flex justify-between items-baseline gap-20 w-full">
         <h1 className="text-center">P{displayPeriod + 1}</h1>
         <h1 className="text-center">J{displayJam + 1}</h1>
       </div>
-      <div className="text-7xl text-center shrink">
+      <div className="w-full text-7xl text-center">
         {!bout.activeJam.hasStarted() || bout.activeJam.isRunning() ? (
           <Clock {...bout.activeJam} alarm={context.jamDuration} />
         ) : (
@@ -103,4 +105,22 @@ function BoutTimeInformation() {
       </div>
     </div>
   );
+}
+
+function BoutTertiaryInformation({ bout }: { bout: Bout }) {
+  const boutState = bout.getState();
+  if (["timeout", "lineup"].includes(boutState)) {
+    let content = "";
+    if (boutState == "timeout") {
+      // TODO: Implement Team Timeout and Official Review
+      content = "Timeout";
+    } else if (boutState == "lineup") {
+      content = "Lineup";
+    }
+
+    return <h1 className="text-7xl">{content}</h1>;
+  }
+
+  // TODO: Implement Jam state
+  return <></>;
 }
