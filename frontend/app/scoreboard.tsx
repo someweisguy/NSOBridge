@@ -51,6 +51,34 @@ function Test() {
   );
 }
 
+function IntermissionStatus({ bout }: { bout: Bout }) {
+  const numPeriods = bout.jamCounts.length;
+  let content = "";
+  if (numPeriods === 0) {
+    if (bout.expectedStartTimestamp == null) {
+      content = "Starting Soon";
+    } else {
+      content = "Starting in ";
+    }
+  } else if (numPeriods === 1) {
+    content = "Halftime";
+  } else if (!bout.isFinal) {
+    content = "Unofficial Score";
+  } else {
+    content = "Final Score";
+  }
+
+  // FIXME
+  return (
+    <div className="items-center grid m-2 h-full text-8xl text-center">
+      {content}{" "}
+      {bout.expectedStartTimestamp && (
+        <Clock startTimestamp={bout.expectedStartTimestamp} />
+      )}
+    </div>
+  );
+}
+
 function BoutTimeInformation({
   bout,
   context,
@@ -59,23 +87,7 @@ function BoutTimeInformation({
   context: BoutContext;
 }) {
   if (bout.activeJam === null) {
-    const numPeriods = bout.jamCounts.length;
-    let copy = "";
-    if (numPeriods === 0) {
-      copy = "Starting Soon";
-    } else if (numPeriods === 1) {
-      copy = "Halftime";
-    } else if (!bout.isFinal) {
-      copy = "Unofficial Score";
-    } else {
-      copy = "Final Score";
-    }
-
-    return (
-      <div className="items-center grid m-2 h-full text-8xl text-center">
-        {copy}
-      </div>
-    );
+    return <IntermissionStatus bout={bout} />;
   }
 
   let displayPeriod = bout.activeJam.period;
