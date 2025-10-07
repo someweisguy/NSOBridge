@@ -9,7 +9,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import { Bout } from "@/lib/bout";
+import { Bout, BoutContext } from "@/lib/bout";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -45,16 +45,19 @@ function Test() {
       </div>
       <div className="justify-stretch items-stretch grid basis-3/8 shrink-0">
         {/* Secondary Information (Clocks, etc.) */}
-        <BoutTimeInformation />
+        <BoutTimeInformation bout={bout} context={context} />
       </div>
     </div>
   );
 }
 
-function BoutTimeInformation() {
-  const bout = useBout(1);
-  const context = useBoutContext(1);
-
+function BoutTimeInformation({
+  bout,
+  context,
+}: {
+  bout: Bout;
+  context: BoutContext;
+}) {
   if (bout.activeJam === null) {
     const numPeriods = bout.jamCounts.length;
     let copy = "";
