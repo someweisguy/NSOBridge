@@ -83,15 +83,15 @@ function BoutTimeInformation() {
   }
 
   return (
-    <div className="flex justify-around items-center text-9xl text-center align-middle">
-      <div className="bg-red w-full text-7xl text-center">
+    <div className="flex justify-evenly items-center text-9xl text-center align-middle">
+      <div className="bg-red text-7xl text-center shrink">
         {bout.jamCounts.length > 2 ? "OT" : <Clock {...bout.clock} />}
       </div>
-      <div className="flex justify-between items-baseline gap-20 w-full grow">
+      <div className="flex justify-between items-baseline gap-20">
         <h1 className="text-center">P{displayPeriod + 1}</h1>
         <h1 className="text-center">J{displayJam + 1}</h1>
       </div>
-      <div className="w-full text-7xl text-center">
+      <div className="text-7xl text-center shrink">
         {!bout.activeJam.hasStarted() || bout.activeJam.isRunning() ? (
           <Clock {...bout.activeJam} alarm={context.jamDuration} />
         ) : (
