@@ -1,1 +1,26 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Rubik";
+  src:
+    url("/static/font/Rubik/Rubik-VariableFont_wght.woff2") format("woff2"),
+    url("/static/font/Rubik/Rubik-VariableFont_wght.woff") format("woff"),
+    url("/static/font/Rubik/Rubik-VariableFont_wght.ttf") format("ttf");
+  font-style: normal;
+  font-weight: 300 900;
+}
+
+@font-face {
+  font-family: "Rubik";
+  src:
+    url("/static/font/Rubik/Rubik-Italic-VariableFont_wght.woff2")
+      format("woff2"),
+    url("/static/font/Rubik/Rubik-Italic-VariableFont_wght.woff") format("woff"),
+    url("/static/font/Rubik/Rubik-Italic-VariableFont_wght.ttf") format("ttf");
+  font-style: italic;
+  font-weight: 300 900;
+}
+
+@theme {
+  --default-font-family: "Rubik";
+}
