@@ -65,5 +65,9 @@ export default function Clock({
   const displayMillis = clockMillis > 0 ? clockMillis : 0;
   const showTenths =
     alarm != null && clockMillis < 10000 && clockMillis > -2000;
-  return <>{formatMilliseconds(displayMillis, showTenths)}</>;
+  return (
+    <label className="tabular-nums">
+      {formatMilliseconds(displayMillis, showTenths)}
+    </label>
+  );
 }
