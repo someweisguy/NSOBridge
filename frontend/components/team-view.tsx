@@ -18,7 +18,7 @@ export default function TeamView({
   const roster: Roster = useRoster(team.rosterId);
   return (
     <div className="place-content-stretch gap-7 grid grid-cols-3 p-4">
-      <div className="place-content-center col-span-full text-7xl text-center">
+      <div className="place-content-center col-span-full font-bold text-7xl text-center">
         {roster.name}
       </div>
       <div className="justify-center items-center grid">
