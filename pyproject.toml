@@ -7,7 +7,6 @@ dependencies = [
   "requests~=2.31.0",
   "ruff~=0.12.2",
   "SQLAlchemy~=2.0.41",
-  "ty~=0.0.1a20",
   "uvicorn~=0.34.2",
   "websockets~=15.0.1",
 ]
