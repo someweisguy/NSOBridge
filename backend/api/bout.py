@@ -1,6 +1,11 @@
 from datetime import datetime
 from typing import Annotated, Final
 
+import commands
+from commands import Command
+from commands.bout import SetBoutIsFinalCommand, SetBoutIsRunningCommand
+from commands.jam import CreateJamCommand, StartJamCommand, StopJamCommand
+from commands.time import ResetClockCommand, StartClockCommand, StopClockCommand
 from fastapi import APIRouter, Body, Depends, Query
 from models import GenericBoutModel
 from models.bout import BoutContext
@@ -50,22 +55,78 @@ async def get_bout_context(
 
 @router.post('/setup-track')
 async def setup_track(bout: BoutDepends) -> None:
-    bout.setup_track(datetime.now())
+    if bout.get_state() != 'stopped':
+        raise RuntimeError('The Bout cannot be started now')
+
+    cmd: list[Command] = []
+
+    cmd.append(CreateJamCommand(bout, bout.teams[0], bout.teams[1], True))
+    cmd.append(SetBoutIsRunningCommand(bout, True))
+
+    if bout.get_period() < 2:  # TODO: NUM_PERIODS
+        cmd.append(ResetClockCommand(bout.clock))
+
+    # Execute the commands
+    for command in cmd:
+        commands.execute(command)
 
 
 @router.post('/clear-track')
 async def clear_track(bout: BoutDepends) -> None:
-    bout.clear_track(datetime.now())
+    timestamp: datetime = datetime.now()
+    cmd: list[Command] = []
+
+    if bout.is_running and bout.get_state() != 'lineup':
+        raise RuntimeError('The Bout cannot be stopped now')
+
+    if not bout.is_running and bout.get_period() >= 2:  # TODO: NUM_PERIODS
+        # TODO: Figure out a method to forfeit a Bout
+        cmd.append(SetBoutIsFinalCommand(bout, True))
+    elif not bout.is_running:
+        raise RuntimeError('The Bout cannot be ended yet')
+
+    # End the Period
+    if bout.clock.is_running():
+        cmd.append(StopClockCommand(bout.clock, timestamp))
+    cmd.append(SetBoutIsRunningCommand(bout, False))
+
+    # Execute the commands
+    for command in cmd:
+        commands.execute(command)
 
 
 @router.post('/start-jam')
 async def start_jam(bout: BoutDepends) -> None:
-    bout.start_jam(datetime.now())
+    timestamp: datetime = datetime.now()
+    cmd: list[Command] = []
+    if not bout.is_running:
+        await setup_track(bout)  # Handle immediate game start
+    if bout.get_state() != 'lineup':
+        raise RuntimeError('The Jam cannot be started now')
+
+    cmd.append(StartJamCommand(bout, timestamp))
+    if not bout.clock.is_running() and bout.get_period() < 2:  # TODO: NUM_PERIODS
+        cmd.append(StartClockCommand(bout.clock, timestamp))
+
+    # Execute the commands
+    for command in cmd:
+        commands.execute(command)
 
 
 @router.post('/stop-jam')
 async def stop_jam(bout: BoutDepends) -> None:
-    bout.stop_jam(datetime.now())
+    timestamp: datetime = datetime.now()
+    cmd: list[Command] = []
+
+    if bout.get_state() != 'jam':
+        raise RuntimeError('There is no active Jam to stop')
+
+    cmd.append(StopJamCommand(bout, timestamp))
+    cmd.append(CreateJamCommand(bout, bout.teams[0], bout.teams[1]))
+
+    # Execute the commands
+    for command in cmd:
+        commands.execute(command)
 
 
 @router.post('/call-timeout')
