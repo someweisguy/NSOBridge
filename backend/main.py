@@ -1,16 +1,19 @@
 import asyncio
 import logging
-from typing import Final
+from typing import Final, LiteralString
 
 import core
 import models
+from api.bout import router as bout_router
+from api.roster import router as roster_router
+from api.series import router as series_router
+from core.ws import WebSocketSchema
 from models import CacheableModel, GenericBoutModel, RosterModel
 from models.rulesets.wftda_2025 import BoutModel
 from models.series import SeriesModel
-from schemas.ws import WebSocketSchema
 from sqlalchemy import Result, Select, select
 
-HTTP_PORT: Final[int] = 80
+PORT: int = 8000
 
 logging.basicConfig(
     format='{levelname}: {message}',
@@ -20,6 +23,7 @@ logging.basicConfig(
 )
 
 
+# Broadcast model updates over WebSocket
 @models.on_update
 def broadcast_model_updates(cacheables: set[CacheableModel]) -> None:
     payload: WebSocketSchema = WebSocketSchema(type='cache')
@@ -27,7 +31,10 @@ def broadcast_model_updates(cacheables: set[CacheableModel]) -> None:
     core.broadcast(payload)
 
 
-PORT: int = 8000
+# Attach the API to the server
+API_PREFIX: LiteralString = '/api'
+for router in [bout_router, series_router, roster_router]:
+    core.app.include_router(router, prefix=API_PREFIX)
 
 
 async def main() -> None:
@@ -47,6 +54,7 @@ async def main() -> None:
             session.add(bout)
         await session.commit()
 
+    HTTP_PORT: Final[int] = 80
     ip: str = core.get_ip_address()
     print(f'Starting server at http://{ip}{f":{PORT}" if PORT != HTTP_PORT else ""}')
     await core.serve(port=PORT)

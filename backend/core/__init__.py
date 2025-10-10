@@ -1,18 +1,10 @@
 from socket import AF_INET, SOCK_DGRAM, socket
-from typing import LiteralString
 
-from api.bout import router as bout_router
-from api.roster import router as roster_router
-from api.series import router as series_router
 from uvicorn import Config, Server
 
 from .fastapi import app
+from .schemas import ClientSchema, ServerSchema
 from .ws import broadcast
-
-API_PREFIX: LiteralString = '/api'
-
-for router in [bout_router, series_router, roster_router]:
-    app.include_router(router, prefix=API_PREFIX)
 
 
 def get_ip_address() -> str:
@@ -37,7 +29,10 @@ async def serve(ip: str = '0.0.0.0', port: int = 8000) -> None:
 
 
 __all__ = (
+    'app',
     'broadcast',
+    'ClientSchema',
     'get_ip_address',
     'serve',
+    'ServerSchema',
 )

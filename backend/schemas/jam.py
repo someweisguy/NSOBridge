@@ -1,8 +1,7 @@
 from datetime import datetime
 
+from core import ServerSchema
 from pydantic import Field, computed_field
-
-from .schemas import ServerSchema
 
 
 class TripSchema(ServerSchema):
@@ -43,7 +42,7 @@ class BoutSchema(ServerSchema):
 
 class JamSchema(ServerSchema):
     parent: BoutSchema = Field(exclude=True, validation_alias='bout')
-    
+
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
     period: int
