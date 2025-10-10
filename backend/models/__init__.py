@@ -2,7 +2,6 @@ from typing import Any, Callable
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import rulesets
 from models.bout import GenericBoutModel, GenericDataBoutModel
 from models.jam import JamModel, TeamJamModel, TeamName
 from models.models import CacheableModel, SessionLocal, SQLModel, callbacks, engine
@@ -37,7 +36,6 @@ __all__ = (
     'JamModel',
     'on_update',
     'RosterModel',
-    'rulesets',
     'SeriesModel',
     'setup',
     'TeamJamModel',
