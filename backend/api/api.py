@@ -1,4 +1,5 @@
-from typing import Annotated, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Annotated
 
 import models
 from fastapi import Depends

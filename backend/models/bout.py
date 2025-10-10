@@ -4,7 +4,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from functools import cached_property
-from typing import TYPE_CHECKING, Final, Literal, final
+from typing import TYPE_CHECKING, Final, Literal, final, override
 
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
