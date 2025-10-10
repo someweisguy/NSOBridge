@@ -36,7 +36,8 @@ async def create_bout(
     rosters: RosterDepends,
     order: Annotated[int, Body()] = 0,
 ) -> None:
-    bout = BoutModel(series, *rosters)
+    home, away = rosters
+    bout = BoutModel(series, home, away)
     db.add(bout)
 
 
