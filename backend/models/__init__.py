@@ -29,6 +29,7 @@ def on_update(
 
 __all__ = (
     'AsyncSession',
+    'CacheableModel',
     'ClockModel',
     'GenericBoutModel',
     'GenericDataBoutModel',
