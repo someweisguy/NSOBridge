@@ -1,7 +1,4 @@
 [project]
-name = "nso-bridge"
-version = "0.1.0"
-requires-python = ">=3.13"
 dependencies = [
   "aiosqlite~=0.21.0",
   "fastapi~=0.115.12",
@@ -14,6 +11,9 @@ dependencies = [
   "uvicorn~=0.34.2",
   "websockets~=15.0.1",
 ]
+name = "nso-bridge"
+requires-python = ">=3.13"
+version = "0.1.0"
 
 [tool.ruff]
 fix = true
@@ -50,22 +50,3 @@ unfixable = []
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
-
-[tool.setuptools]
-py-modules = ["backend"]
-
-[tool.ty.environment]
-root = ["./backend"]
-
-[tool.uv.workspace]
-members = [
-    ".",
-]
-
-[tool.uv.sources]
-nso-bridge = { workspace = true }
-
-[dependency-groups]
-dev = [
-    "nso-bridge",
-]
