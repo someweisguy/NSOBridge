@@ -17,8 +17,8 @@ async def get_rosters(
     results: Result[tuple[RosterModel]] = await db.execute(
         select(RosterModel).where(RosterModel.id.in_(roster_ids))
     )
-    rosters: Sequence[RosterModel] = results.scalars()
+    rosters: Sequence[RosterModel] = results.scalars().all()
     return rosters
 
 
-RosterDepends = Annotated[RosterModel, Depends(get_rosters)]
+RosterDepends = Annotated[Sequence[RosterModel], Depends(get_rosters)]
