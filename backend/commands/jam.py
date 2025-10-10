@@ -41,20 +41,20 @@ class CreateJamCommand(Command):
 
 
 class StartJamCommand(Command):
-    def __init__(self, jam: JamModel, timestamp: datetime) -> None:
-        self.jam: JamModel = jam
+    def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
+        self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
 
     @override
     def execute(self) -> None:
-        self.jam.start(self.timestamp)
+        self.bout.jams[-1].start(self.timestamp)
 
 
 class StopJamCommand(Command):
-    def __init__(self, jam: JamModel, timestamp: datetime) -> None:
-        self.jam: JamModel = jam
+    def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
+        self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
 
     @override
     def execute(self) -> None:
-        self.jam.stop(self.timestamp)
+        self.bout.jams[-1].stop(self.timestamp)
