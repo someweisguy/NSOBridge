@@ -26,3 +26,6 @@ def redo() -> None:
     command: Command = redo_history.pop()
     command.execute()
     undo_history.append(command)
+
+
+__all__ = ('Command',)
