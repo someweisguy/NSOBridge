@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
 
-from pydantic import Field, computed_field
-
 from core import ServerSchema
+from pydantic import Field, computed_field
 
 
 class JamSchema(ServerSchema):
