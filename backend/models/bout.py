@@ -9,17 +9,17 @@ from typing import TYPE_CHECKING, Final, Literal, final
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.jam import JamModel, TeamJamModel, TeamName
-from models.models import CacheableModel, SQLModel
-from models.team import TeamModel
-from models.time import ClockModel
+from .jam import JamModel, TeamJamModel, TeamName
+from .models import CacheableModel, SQLModel
+from .team import TeamModel
+from .time import ClockModel
 
 if TYPE_CHECKING:
     from datetime import timedelta
 
-    from models.series import SeriesModel
-    from models.team import RosterModel
-    from models.time import TimeoutModel
+    from .series import SeriesModel
+    from .team import RosterModel
+    from .time import TimeoutModel
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2

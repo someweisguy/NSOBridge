@@ -7,12 +7,12 @@ from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.models import CacheableModel, SQLModel
-from models.time import AbstractOneShotModel
+from .models import CacheableModel, SQLModel
+from .time import AbstractOneShotModel
 
 if TYPE_CHECKING:
-    from models.bout import GenericBoutModel
-    from models.team import TeamModel
+    from .bout import GenericBoutModel
+    from .team import TeamModel
 
 type TeamName = Literal['home', 'away']
 

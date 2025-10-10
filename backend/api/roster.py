@@ -5,7 +5,7 @@ from models.team import RosterModel
 from schemas.roster import RosterSchema
 from sqlalchemy import Result, select
 
-from api.api import DatabaseDepends
+from .api import DatabaseDepends
 
 router: Final[APIRouter] = APIRouter(prefix='/roster')
 

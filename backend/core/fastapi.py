@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 
-from core import ws
+from . import ws
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
 

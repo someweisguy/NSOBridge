@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 from pydantic import Field, field_serializer, field_validator
 
-from schemas.schemas import ClientSchema, ServerSchema
+from .schemas import ClientSchema, ServerSchema
 
 
 class WebSocketSchema(ServerSchema):

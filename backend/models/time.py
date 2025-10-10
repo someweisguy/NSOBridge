@@ -7,11 +7,11 @@ from sqlalchemy import CheckConstraint, ForeignKey
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.models import SQLModel, TimedeltaAsMilliseconds
+from .models import SQLModel, TimedeltaAsMilliseconds
 
 if TYPE_CHECKING:
-    from models.bout import GenericBoutModel
-    from models.team import TeamModel
+    from .bout import GenericBoutModel
+    from .team import TeamModel
 
 
 class ClockModel(SQLModel):

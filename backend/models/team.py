@@ -7,11 +7,11 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.models import SQLModel
+from .models import SQLModel
 
 if TYPE_CHECKING:
-    from models.bout import GenericBoutModel, TimeoutModel
-    from models.jam import TeamJamModel
+    from .bout import GenericBoutModel, TimeoutModel
+    from .jam import TeamJamModel
 
 
 class RosterModel(SQLModel):

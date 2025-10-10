@@ -4,8 +4,8 @@ from typing import final
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.bout import GenericBoutModel
-from models.models import CacheableModel, SQLModel
+from .bout import GenericBoutModel
+from .models import CacheableModel, SQLModel
 
 
 class SeriesModel(CacheableModel):

@@ -5,15 +5,16 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Final
 
 from core.fastapi import RulesError
-from models.bout import NUM_PERIODS, BoutContext, GenericBoutModel
-from models.jam import JamModel, StarPassModel, TeamName, TripModel
-from models.time import TimeoutModel
+
+from ..bout import NUM_PERIODS, BoutContext, GenericBoutModel
+from ..jam import JamModel, StarPassModel, TeamName, TripModel
+from ..time import TimeoutModel
 
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from models.series import SeriesModel
-    from models.team import RosterModel
+    from ..series import SeriesModel
+    from ..team import RosterModel
 
 RULESET: Final[str] = 'WFTDA 2025'
 

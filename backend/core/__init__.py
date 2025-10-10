@@ -6,8 +6,8 @@ from api.roster import router as roster_router
 from api.series import router as series_router
 from uvicorn import Config, Server
 
-from core.fastapi import app
-from core.ws import broadcast
+from .fastapi import app
+from .ws import broadcast
 
 API_PREFIX: LiteralString = '/api'
 

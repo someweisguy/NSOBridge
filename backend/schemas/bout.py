@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import Field, computed_field
 
-from schemas.schemas import ServerSchema
+from .schemas import ServerSchema
 
 
 class ClockSchema(ServerSchema):

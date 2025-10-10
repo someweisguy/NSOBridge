@@ -4,7 +4,7 @@ from datetime import datetime  # noqa: TC003
 
 from pydantic import Field, computed_field
 
-from schemas.schemas import ServerSchema
+from .schemas import ServerSchema
 
 
 class JamSchema(ServerSchema):
