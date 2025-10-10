@@ -28,3 +28,13 @@ class SetNextPeriodStartTime(Command):
     @override
     def execute(self) -> None:
         self.bout.expected_start_timestamp = self.start_timestamp
+
+
+class SetBoutIsFinalCommand(Command):
+    def __init__(self, bout: GenericBoutModel, is_final: bool) -> None:
+        self.bout: GenericBoutModel = bout
+        self.is_final: bool = is_final
+
+    @override
+    def execute(self) -> None:
+        self.bout.is_final = self.is_final
