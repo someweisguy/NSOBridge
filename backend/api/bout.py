@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated, Final
 
 import commands
-from commands import Command
+from commands import Command, HistoryDepends
 from commands.bout import SetBoutIsFinalCommand, SetBoutIsRunningCommand
 from commands.jam import CreateJamCommand, StartJamCommand, StopJamCommand
 from commands.time import ResetClockCommand, StartClockCommand, StopClockCommand
@@ -33,7 +33,6 @@ async def get_bout(
 BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
 
-# FIXME: fix roster dependency
 @router.post('/wftda2025')
 async def create_bout(
     db: DatabaseDepends,
@@ -54,7 +53,7 @@ async def get_bout_context(
 
 
 @router.post('/setup-track')
-async def setup_track(bout: BoutDepends) -> None:
+async def setup_track(bout: BoutDepends, history: HistoryDepends) -> None:
     if bout.get_state() != 'stopped':
         raise RuntimeError('The Bout cannot be started now')
 
@@ -68,11 +67,11 @@ async def setup_track(bout: BoutDepends) -> None:
 
     # Execute the commands
     for command in cmd:
-        commands.execute(command)
+        history.execute(command)
 
 
 @router.post('/clear-track')
-async def clear_track(bout: BoutDepends) -> None:
+async def clear_track(bout: BoutDepends, history: HistoryDepends) -> None:
     timestamp: datetime = datetime.now()
     cmd: list[Command] = []
 
@@ -92,15 +91,15 @@ async def clear_track(bout: BoutDepends) -> None:
 
     # Execute the commands
     for command in cmd:
-        commands.execute(command)
+        history.execute(command)
 
 
 @router.post('/start-jam')
-async def start_jam(bout: BoutDepends) -> None:
+async def start_jam(bout: BoutDepends, history: HistoryDepends) -> None:
     timestamp: datetime = datetime.now()
     cmd: list[Command] = []
     if not bout.is_running:
-        await setup_track(bout)  # Handle immediate game start
+        await setup_track(bout, history)  # Handle immediate game start
     if bout.get_state() != 'lineup':
         raise RuntimeError('The Jam cannot be started now')
 
@@ -110,11 +109,11 @@ async def start_jam(bout: BoutDepends) -> None:
 
     # Execute the commands
     for command in cmd:
-        commands.execute(command)
+        history.execute(command)
 
 
 @router.post('/stop-jam')
-async def stop_jam(bout: BoutDepends) -> None:
+async def stop_jam(bout: BoutDepends, history: HistoryDepends) -> None:
     timestamp: datetime = datetime.now()
     cmd: list[Command] = []
 
@@ -126,7 +125,7 @@ async def stop_jam(bout: BoutDepends) -> None:
 
     # Execute the commands
     for command in cmd:
-        commands.execute(command)
+        history.execute(command)
 
 
 @router.post('/call-timeout')
