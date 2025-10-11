@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Annotated, Final
 
-import commands
 from commands import Command, HistoryDepends
 from commands.bout import SetBoutIsFinalCommand, SetBoutIsRunningCommand
 from commands.jam import CreateJamCommand, StartJamCommand, StopJamCommand
