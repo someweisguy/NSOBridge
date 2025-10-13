@@ -7,7 +7,7 @@ from models.time import TimeoutModel
 from .commands import Command
 
 
-class SetBoutIsRunningCommand(Command):
+class BoutSetIsRunning(Command):
     def __init__(self, bout: GenericBoutModel, is_running: bool) -> None:
         self.bout: GenericBoutModel = bout
         self.is_running: bool = is_running
@@ -19,7 +19,7 @@ class SetBoutIsRunningCommand(Command):
             self.bout.expected_start_timestamp = None
 
 
-class SetNextPeriodStartTime(Command):
+class BoutSetPeriodStartTimestamp(Command):
     def __init__(
         self, bout: GenericBoutModel, start_timestamp: datetime | None
     ) -> None:
@@ -31,7 +31,7 @@ class SetNextPeriodStartTime(Command):
         self.bout.expected_start_timestamp = self.start_timestamp
 
 
-class SetBoutIsFinalCommand(Command):
+class BoutSetFinal(Command):
     def __init__(self, bout: GenericBoutModel, is_final: bool) -> None:
         self.bout: GenericBoutModel = bout
         self.is_final: bool = is_final
