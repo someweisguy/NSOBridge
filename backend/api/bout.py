@@ -2,7 +2,13 @@ from datetime import datetime
 from typing import Annotated, Final
 
 from commands import Command, HistoryDepends
-from commands.bout import SetBoutIsFinalCommand, SetBoutIsRunningCommand
+from commands.bout import (
+    BoutStartTimeout,
+    BoutStopTimeout,
+    SetBoutIsFinalCommand,
+    SetBoutIsRunningCommand,
+    SetNextPeriodStartTime,
+)
 from commands.jam import CreateJamCommand, StartJamCommand, StopJamCommand
 from commands.time import ResetClockCommand, StartClockCommand, StopClockCommand
 from fastapi import APIRouter, Body, Depends, Query
@@ -128,22 +134,20 @@ async def stop_jam(bout: BoutDepends, history: HistoryDepends) -> None:
 
 
 @router.post('/call-timeout')
-async def call_timeout(bout: BoutDepends) -> None:
-    bout.start_timeout(datetime.now())
+async def call_timeout(bout: BoutDepends, history: HistoryDepends) -> None:
+    history.execute(BoutStartTimeout(bout, datetime.now()))
 
 
 @router.post('/end-timeout')
-async def end_timeout(bout: BoutDepends) -> None:
-    bout.stop_timeout(datetime.now())
+async def end_timeout(bout: BoutDepends, history: HistoryDepends) -> None:
+    history.execute(BoutStopTimeout(bout, datetime.now()))
 
 
 @router.post('/expected-start')
 async def set_expected_start(
-    bout: BoutDepends, timestamp: Annotated[datetime, Body()]
+    bout: BoutDepends, timestamp: Annotated[datetime, Body()], history: HistoryDepends
 ) -> None:
-    if bout.is_running:
-        raise RuntimeError('Cannot set the expected start timestamp now')
-    bout.expected_start_timestamp = timestamp.astimezone()
+    history.execute(SetNextPeriodStartTime(bout, timestamp))
 
 
 __all__ = ('router',)
