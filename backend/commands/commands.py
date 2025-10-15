@@ -1,8 +1,19 @@
-from typing import Protocol, override
+from abc import ABC, abstractmethod
+from typing import override
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class Command(Protocol):
-    def execute(self) -> None: ...
+class Command(ABC):
+    @abstractmethod
+    def execute(self, db: AsyncSession) -> None: ...
+
+    @abstractmethod
+    async def undo(self, db: AsyncSession) -> None: ...
+
+    # @abstractmethod
+    # async def redo(self, db: AsyncSession) -> None:
+    #     self.execute(db)
 
 
 class AggregateCommand(Command):
@@ -13,6 +24,15 @@ class AggregateCommand(Command):
         self._commands.append(command)
 
     @override
-    def execute(self) -> None:
+    def execute(self, db: AsyncSession) -> None:
         for command in self._commands:
-            command.execute()
+            command.execute(db)
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        for command in reversed[Command](self._commands):
+            await command.undo(db)
+
+    # @override
+    # async def redo(self, db: AsyncSession) -> None:
+    #     return await super().redo(db)

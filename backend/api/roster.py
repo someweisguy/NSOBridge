@@ -2,11 +2,10 @@ from collections.abc import Sequence
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Depends, Query
+from models import DatabaseDepends
 from models.team import RosterModel
 from schemas.roster import RosterSchema
 from sqlalchemy import Result, select
-
-from .api import DatabaseDepends
 
 router: Final[APIRouter] = APIRouter(prefix='/roster')
 

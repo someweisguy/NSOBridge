@@ -1,15 +1,11 @@
-from collections.abc import AsyncGenerator
-from typing import Annotated
+from typing import Final
 
-import models
-from fastapi import Depends
-from models import AsyncSession
+from commands import HistoryDepends
+from fastapi import APIRouter
 
-
-async def inject_db() -> AsyncGenerator[AsyncSession]:
-    async with models.get_db() as session:
-        yield session
-        await session.commit()
+router: Final[APIRouter] = APIRouter()
 
 
-DatabaseDepends = Annotated[AsyncSession, Depends(inject_db)]
+@router.post('/undo')
+async def undo(history: HistoryDepends) -> None:
+    await history.undo()

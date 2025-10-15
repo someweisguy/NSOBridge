@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import override
 
 from models import ClockModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .commands import Command
 
@@ -12,8 +13,12 @@ class StartClockCommand(Command):
         self.timestamp: datetime = timestamp
 
     @override
-    def execute(self) -> None:
+    def execute(self, db: AsyncSession) -> None:
         self.clock.start(self.timestamp)
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        return  # TODO
 
 
 class StopClockCommand(Command):
@@ -22,8 +27,12 @@ class StopClockCommand(Command):
         self.timestamp: datetime = timestamp
 
     @override
-    def execute(self) -> None:
+    def execute(self, db: AsyncSession) -> None:
         self.clock.stop(self.timestamp)
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        return  # TODO
 
 
 class SetClockCommand(Command):
@@ -32,10 +41,14 @@ class SetClockCommand(Command):
         self.elapsed: timedelta = elapsed
 
     @override
-    def execute(self) -> None:
+    def execute(self, db: AsyncSession) -> None:
         if self.clock.is_running():
             raise RuntimeError('Cannot set a Clock when it is running')
         self.clock.elapsed = self.elapsed
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        return  # TODO
 
 
 class ResetClockCommand(SetClockCommand):

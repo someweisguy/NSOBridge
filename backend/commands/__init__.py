@@ -1,9 +1,13 @@
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 from uuid import UUID, uuid4
 
 from fastapi import Cookie, Depends, Response
+from models import DatabaseDepends
 
 from .commands import Command
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class CommandHistory:
@@ -11,9 +15,10 @@ class CommandHistory:
         self.max_history_len: int = max_history_len
         self.undo_history: list[Command] = []
         self.redo_history: list[Command] = []
+        self.session: AsyncSession
 
     def execute(self, command: Command) -> None:
-        command.execute()
+        command.execute(self.session)
         if len(self.redo_history) > 0:
             self.redo_history.clear()
         self.undo_history.append(command)
@@ -22,18 +27,18 @@ class CommandHistory:
         if len(self.undo_history) > self.max_history_len:
             self.undo_history = self.undo_history[-self.max_history_len :]
 
-    def undo(self) -> None:
+    async def undo(self) -> None:
         if len(self.undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
         command: Command = self.undo_history.pop()
-        # TODO: command.undo()
+        await command.undo(self.session)
         self.redo_history.append(command)
 
-    def redo(self) -> None:
+    async def redo(self) -> None:
         if len(self.redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
         command: Command = self.redo_history.pop()
-        command.execute()
+        # await command.redo(self.session)  # TODO
         self.undo_history.append(command)
 
 
@@ -41,6 +46,7 @@ _histories: dict[UUID, CommandHistory] = {}
 
 
 async def get_command_history(
+    db: DatabaseDepends,
     response: Response,
     nso_id: Annotated[UUID | None, Cookie(alias='nsoId')] = None,
 ) -> CommandHistory:
@@ -51,6 +57,7 @@ async def get_command_history(
     if history is None:
         history = CommandHistory()
         _histories[nso_id] = history
+    history.session = db
     return history
 
 

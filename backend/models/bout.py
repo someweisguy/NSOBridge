@@ -118,37 +118,16 @@ class GenericDataBoutModel(CacheableModel):
             return 'stopped'
 
     @final
-    def _prepare_next_jam(self, home: TeamModel, away: TeamModel) -> JamModel:
-        period_num: int = 0
-        jam_num: int = 0
-        if len(self.jams) > 0:
-            latest: JamModel = self.jams[-1]
-            period_num = latest.period
-            jam_num = latest.jam + 1
-
-        jam: JamModel = JamModel(
-            period=period_num,
-            jam=jam_num,
-            home=TeamJamModel(home),
-            away=TeamJamModel(away),
-        )
-        self.jams.append(jam)
-        return jam
-
-    @final
-    def _prepare_next_period(self, home: TeamModel, away: TeamModel) -> JamModel:
-        if len(self.jams) == 0:
-            return self._prepare_next_jam(home, away)
-        latest: JamModel = self.jams[-1]
-        latest.period += 1
-        latest.jam = 0
-        latest.home.team = home
-        latest.away.team = away
-        return latest
-
-    @final
     def get_period(self) -> int:
         return 0 if len(self.jams) == 0 else self.jams[-1].period
+
+    def get_latest_played_jam(self) -> JamModel | None:
+        if len(self.jams) == 0:
+            return None
+        jam: JamModel | None = self.jams[-1]
+        if jam.start_timestamp is None:
+            jam = self.jams[-2] if len(self.jams) > 1 else None
+        return jam
 
 
 class GenericBoutModel(GenericDataBoutModel):

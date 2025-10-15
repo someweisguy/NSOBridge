@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import override
 
-from models import GenericBoutModel, JamModel, TeamJamModel, TeamModel
+from models import AsyncSession, GenericBoutModel, JamModel, TeamJamModel, TeamModel
 
 from .commands import Command
 
@@ -20,7 +20,7 @@ class CreateJamCommand(Command):
         self.create_new_period: bool = create_new_period
 
     @override
-    def execute(self) -> None:
+    def execute(self, db: AsyncSession) -> None:
         period_num: int = 0
         jam_num: int = 0
         if len(self.bout.jams) > 0:
@@ -39,6 +39,10 @@ class CreateJamCommand(Command):
         )
         self.bout.jams.append(jam)
 
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        return  # TODO
+
 
 class StartJamCommand(Command):
     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
@@ -46,8 +50,12 @@ class StartJamCommand(Command):
         self.timestamp: datetime = timestamp
 
     @override
-    def execute(self) -> None:
+    def execute(self, db: AsyncSession) -> None:
         self.bout.jams[-1].start(self.timestamp)
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        return  #  TODO:
 
 
 class StopJamCommand(Command):
@@ -56,5 +64,9 @@ class StopJamCommand(Command):
         self.timestamp: datetime = timestamp
 
     @override
-    def execute(self) -> None:
+    def execute(self, db: AsyncSession) -> None:
         self.bout.jams[-1].stop(self.timestamp)
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        return  # TODO

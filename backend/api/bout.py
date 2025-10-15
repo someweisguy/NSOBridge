@@ -3,23 +3,22 @@ from typing import Annotated, Final
 
 from commands import Command, HistoryDepends
 from commands.bout import (
-    BoutStartTimeout,
-    BoutStopTimeout,
     BoutSetFinal,
     BoutSetIsRunning,
     BoutSetPeriodStartTimestamp,
+    BoutStartTimeout,
+    BoutStopTimeout,
 )
 from commands.jam import CreateJamCommand, StartJamCommand, StopJamCommand
 from commands.time import ResetClockCommand, StartClockCommand, StopClockCommand
 from fastapi import APIRouter, Body, Depends, Query
-from models import GenericBoutModel
+from models import DatabaseDepends, GenericBoutModel
 from models.bout import BoutContext
 from models.rulesets.wftda_2025 import BoutModel
 from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
 from sqlalchemy import select
 
-from .api import DatabaseDepends
 from .roster import RosterDepends
 from .series import SeriesDepends
 

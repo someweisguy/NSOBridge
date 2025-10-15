@@ -3,6 +3,7 @@ from typing import override
 
 from models import GenericBoutModel, JamModel
 from models.time import TimeoutModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .commands import Command
 
@@ -10,13 +11,25 @@ from .commands import Command
 class BoutSetIsRunning(Command):
     def __init__(self, bout: GenericBoutModel, is_running: bool) -> None:
         self.bout: GenericBoutModel = bout
-        self.is_running: bool = is_running
+        self.new_value: bool = is_running
+        self.old_value: bool = bout.is_running
 
     @override
-    def execute(self) -> None:
-        self.bout.is_running = self.is_running
-        if self.bout.is_running:
-            self.bout.expected_start_timestamp = None
+    def execute(self, db: AsyncSession) -> None:
+        if self.bout.get_state() == 'final':
+            raise RuntimeError('Cannot update a Period if the Bout has been finalized')
+        elif self.bout.get_state() != 'lineup' and not self.new_value:
+            raise RuntimeError('The Period cannot be ended right now')
+        self.bout.is_running = self.new_value
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        await db.refresh(self.bout)
+        if self.bout.get_state() == 'final':
+            raise RuntimeError('Cannot update a Period if the Bout has been finalized')
+        elif self.bout.get_state() != 'lineup' and not self.old_value:
+            raise RuntimeError('The Period cannot be ended right now')
+        self.bout.is_running = self.old_value
 
 
 class BoutSetPeriodStartTimestamp(Command):
@@ -24,66 +37,113 @@ class BoutSetPeriodStartTimestamp(Command):
         self, bout: GenericBoutModel, start_timestamp: datetime | None
     ) -> None:
         self.bout: GenericBoutModel = bout
-        self.start_timestamp: datetime | None = start_timestamp
+        self.new_value: datetime | None = start_timestamp
+        self.old_value: datetime | None = bout.expected_start_timestamp
 
     @override
-    def execute(self) -> None:
-        self.bout.expected_start_timestamp = self.start_timestamp
+    def execute(self, db: AsyncSession) -> None:
+        self.bout.expected_start_timestamp = self.new_value
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        await db.refresh(self.bout)
+        self.bout.expected_start_timestamp = self.old_value
 
 
 class BoutSetFinal(Command):
     def __init__(self, bout: GenericBoutModel, is_final: bool) -> None:
         self.bout: GenericBoutModel = bout
-        self.is_final: bool = is_final
+        self.new_value: bool = is_final
+        self.old_value: bool = bout.is_final
 
     @override
-    def execute(self) -> None:
-        self.bout.is_final = self.is_final
+    def execute(self, db: AsyncSession) -> None:
+        if self.bout.get_state() != 'lineup' and self.new_value:
+            raise RuntimeError('The Bout cannot be finalized right now')
+        self.bout.is_final = self.new_value
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        await db.refresh(self.bout)
+        if self.bout.get_state() != 'lineup' and self.old_value:
+            raise RuntimeError('The Bout cannot be finalized right now')
+        self.bout.is_final = self.old_value
 
 
 class BoutStartTimeout(Command):
-    def __init__(
-        self, bout: GenericBoutModel, timestamp: datetime, stop_clock: bool = True
-    ) -> None:
+    def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
         self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
-        self.stop_clock: bool = stop_clock
+        self.timeout: TimeoutModel | None = None
 
     @override
-    def execute(self) -> None:
-        if self.stop_clock and self.bout.clock.is_running():
-            self.bout.clock.stop(self.timestamp)
+    def execute(self, db: AsyncSession) -> None:
+        latest_jam: JamModel | None = self.bout.get_latest_played_jam()
+        if latest_jam is None:
+            raise RuntimeError('A Timeout cannot be called until the Bout has started')
+        if self.timeout is None:
+            self.timeout = TimeoutModel(
+                period=latest_jam.period,
+                jam=latest_jam.jam,
+                start_timestamp=self.timestamp,
+                clock_elapsed=self.bout.clock.get_duration(self.timestamp),
+            )
+            db.add(self.timeout)
 
-        # Timeouts are recorded on the latest running Jam
-        latest: JamModel = (
-            self.bout.jams[-2] if len(self.bout.jams) > 1 else self.bout.jams[-1]
-        )
-        timeout: TimeoutModel = TimeoutModel(
-            period=latest.period,
-            jam=latest.jam,
-            start_timestamp=self.timestamp,
-            clock_elapsed=self.bout.clock.get_duration(self.timestamp),
-        )
-        self.bout.timeouts.append(timeout)
+        # Protect against redoing this command if the bout state is invalid
+        if (
+            self.timeout.period != latest_jam.period
+            or self.timeout.jam != self.timeout.jam
+        ):
+            raise RuntimeError('Cannot start Timeout; Bout state is invalid')
+
+        self.bout.timeouts.append(self.timeout)
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        self.bout = await db.merge(self.bout)
+        self.timeout = await db.merge(self.timeout)
+        if self.timeout is None:
+            # If this condition is True then there is an error in the History logic
+            raise RuntimeError('BoutStartTimeout has not yet been executed')
+        if self.timeout not in self.bout.timeouts:
+            raise RuntimeError('Cannot undo start Timeout; Timeout does not exist')
+        self.bout.timeouts.remove(self.timeout)
+        await db.delete(self.timeout)
 
 
 class BoutStopTimeout(Command):
     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
         self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
+        self.timeout: TimeoutModel | None = None
 
     @override
-    def execute(self) -> None:
+    def execute(self, db: AsyncSession) -> None:
         if self.bout.get_state() != 'timeout':
             raise RuntimeError('There is no active Timeout to stop')
-        timeout: TimeoutModel = self.bout.timeouts[-1]
+        if self.timeout is None:
+            self.timeout = self.bout.timeouts[-1]
 
-        timeout.stop(self.timestamp)
+        self.timeout.stop(self.timestamp)
 
-        # Decrement the Timeout or Official Review if it was not retained
-        if timeout.team is not None and not timeout.retained:
-            # Only decrement if the value is greater than zero
-            if timeout.is_review and timeout.team.reviews_remaining > 0:
-                timeout.team.reviews_remaining -= 1
-            elif timeout.team.timeouts_remaining > 0:
-                timeout.team.timeouts_remaining -= 1
+        # TODO: move this to its own command
+        # # Decrement the Timeout or Official Review if it was not retained
+        # if self.timeout.team is not None and not self.timeout.retained:
+        #     # Only decrement if the value is greater than zero
+        #     if self.timeout.is_review and self.timeout.team.reviews_remaining > 0:
+        #         self.timeout.team.reviews_remaining -= 1
+        #     elif self.timeout.team.timeouts_remaining > 0:
+        #         self.timeout.team.timeouts_remaining -= 1
+
+    @override
+    async def undo(self, db: AsyncSession) -> None:
+        if self.timeout is None:
+            # If this condition is True then there is an error in the History logic
+            raise RuntimeError('BoutStartTimeout has not yet been executed')
+        self.bout = await db.merge(self.bout)
+        self.timeout = await db.merge(self.timeout)
+        
+        if self.bout.get_state() != 'timeout' or self.timeout != self.bout.timeouts[-1]:
+            raise RuntimeError('Cannot undo stop Timeout; Bout state is invalid')
+        self.timeout.stop_timestamp = None

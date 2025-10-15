@@ -1,5 +1,7 @@
-from typing import Any, Callable
+from collections.abc import AsyncGenerator
+from typing import Annotated, Any, Callable
 
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .bout import GenericBoutModel, GenericDataBoutModel
@@ -25,6 +27,15 @@ def on_update(
 ) -> Callable[[set[CacheableModel]], None]:
     callbacks.append(callback)
     return callback
+
+
+async def inject_db() -> AsyncGenerator[AsyncSession]:
+    async with get_db() as session:
+        yield session
+        await session.commit()
+
+
+DatabaseDepends = Annotated[AsyncSession, Depends(inject_db)]
 
 
 __all__ = (

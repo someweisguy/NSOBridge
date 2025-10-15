@@ -1,11 +1,10 @@
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Depends, Query
+from models import DatabaseDepends
 from models.series import SeriesModel
 from schemas.series import SeriesSchema
 from sqlalchemy import select
-
-from .api import DatabaseDepends
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
 

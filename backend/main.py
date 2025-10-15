@@ -4,6 +4,7 @@ from typing import Final, LiteralString
 
 import core
 import models
+from api.api import router as history_router
 from api.bout import router as bout_router
 from api.roster import router as roster_router
 from api.series import router as series_router
@@ -33,7 +34,7 @@ def broadcast_model_updates(cacheables: set[CacheableModel]) -> None:
 
 # Attach the API to the server
 API_PREFIX: LiteralString = '/api'
-for router in [bout_router, series_router, roster_router]:
+for router in [bout_router, series_router, roster_router, history_router]:
     core.app.include_router(router, prefix=API_PREFIX)
 
 
