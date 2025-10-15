@@ -19,7 +19,7 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import { undo } from "@/lib/history";
+import { redo, undo } from "@/lib/history";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -85,6 +85,7 @@ function Test() {
           Set Timer
         </Button>
         <Button onClick={() => void undo()}>Undo</Button>
+        <Button onClick={() => void redo()}>Redo</Button>
       </div>
     </div>
   );

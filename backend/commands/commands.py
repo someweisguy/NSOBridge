@@ -11,9 +11,12 @@ class Command(ABC):
     @abstractmethod
     async def undo(self, db: AsyncSession) -> None: ...
 
-    # @abstractmethod
-    # async def redo(self, db: AsyncSession) -> None:
-    #     self.execute(db)
+    async def _merge(self, db: AsyncSession) -> None:
+        return
+
+    async def redo(self, db: AsyncSession) -> None:
+        await self._merge(db)
+        self.execute(db)
 
 
 class AggregateCommand(Command):
@@ -32,7 +35,3 @@ class AggregateCommand(Command):
     async def undo(self, db: AsyncSession) -> None:
         for command in reversed[Command](self._commands):
             await command.undo(db)
-
-    # @override
-    # async def redo(self, db: AsyncSession) -> None:
-    #     return await super().redo(db)

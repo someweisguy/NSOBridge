@@ -38,7 +38,7 @@ class CommandHistory:
         if len(self.redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
         command: Command = self.redo_history.pop()
-        # await command.redo(self.session)  # TODO
+        await command.redo(self.session)
         self.undo_history.append(command)
 
 
