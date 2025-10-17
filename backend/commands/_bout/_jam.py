@@ -4,7 +4,7 @@ from typing import override
 from models import GenericBoutModel, JamModel, TeamJamModel, TeamModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from commands import Command
+from commands._commands import Command
 
 
 class Create(Command):

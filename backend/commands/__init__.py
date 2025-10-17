@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 from fastapi import Cookie, Depends, Response
 from models import DatabaseDepends
 
-from . import _clock as Clock, _team as Team, bout as Bout
+from . import _bout as Bout, _clock as Clock, _team as Team
 from ._commands import Command
 
 if TYPE_CHECKING:

@@ -4,7 +4,7 @@ from typing import override
 from models import GenericBoutModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from commands import Command
+from commands._commands import Command
 
 from . import _jam as Jam, _timeout as Timeout
 

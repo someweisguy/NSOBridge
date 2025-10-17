@@ -5,7 +5,7 @@ from models import GenericBoutModel, JamModel
 from models.time import TimeoutModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from commands import Command
+from commands._commands import Command
 
 
 class Start(Command):
