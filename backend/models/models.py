@@ -4,7 +4,7 @@ import os
 from abc import abstractmethod
 from datetime import timedelta
 from math import floor
-from typing import Any, Callable, Final
+from typing import Any, Callable, Final, override
 
 from sqlalchemy import Dialect, event
 from sqlalchemy.ext.asyncio import (
@@ -49,6 +49,12 @@ class SQLModel(DeclarativeBase):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(primary_key=True)
+
+    @override
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, SQLModel):
+            return False
+        return self.id == value.id and self.__table__ == value.__table__
 
     @property
     @abstractmethod
