@@ -21,13 +21,6 @@ class CreateJamCommand(Command):
         self.jam: JamModel | None = None
 
     @override
-    async def merge(self, db: AsyncSession) -> None:
-        self.bout = await db.merge(self.bout)
-        self.home = await db.merge(self.home)
-        self.away = await db.merge(self.away)
-        self.jam = await db.merge(self.jam)
-
-    @override
     def execute(self, db: AsyncSession) -> None:
         period_num: int = 0
         jam_num: int = 0
@@ -68,11 +61,6 @@ class StartJamCommand(Command):
         self.jam: JamModel | None = None
 
     @override
-    async def merge(self, db: AsyncSession) -> None:
-        self.bout = await db.merge(self.bout)
-        self.jam = await db.merge(self.jam)
-
-    @override
     def execute(self, db: AsyncSession) -> None:
         if self.jam is None:
             self.jam = self.bout.jams[-1]
@@ -98,11 +86,6 @@ class StopJamCommand(Command):
         self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
         self.jam: JamModel | None = None
-
-    @override
-    async def merge(self, db: AsyncSession) -> None:
-        self.bout = await db.merge(self.bout)
-        self.jam = await db.merge(self.jam)
 
     @override
     def execute(self, db: AsyncSession) -> None:

@@ -13,10 +13,6 @@ class StartClockCommand(Command):
         self.timestamp: datetime = timestamp
 
     @override
-    async def merge(self, db: AsyncSession) -> None:
-        self.clock = await db.merge(self.clock)
-
-    @override
     def execute(self, db: AsyncSession) -> None:
         if self.clock.is_running():
             raise RuntimeError('Clock is already running')
@@ -33,10 +29,6 @@ class StopClockCommand(Command):
         self.timestamp: datetime = timestamp
         self.old_elapsed: timedelta | None = None
         self.old_start_timestamp: datetime | None = None
-        
-    @override
-    async def merge(self, db: AsyncSession) -> None:
-        self.clock = await db.merge(self.clock)
 
     @override
     def execute(self, db: AsyncSession) -> None:
@@ -65,10 +57,6 @@ class SetClockCommand(Command):
         self.clock: ClockModel = clock
         self.elapsed: timedelta = elapsed
         self.old_elapsed: timedelta | None = None
-
-    @override
-    async def merge(self, db: AsyncSession) -> None:
-        self.clock = await db.merge(self.clock)
 
     @override
     def execute(self, db: AsyncSession) -> None:

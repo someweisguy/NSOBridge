@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import override
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Command(ABC):
@@ -11,12 +12,10 @@ class Command(ABC):
     @abstractmethod
     async def undo(self, db: AsyncSession) -> None: ...
 
-    async def _merge(self, db: AsyncSession) -> None:
-        return
-
-    async def redo(self, db: AsyncSession) -> None:
-        await self._merge(db)
-        self.execute(db)
+    async def merge(self, db: AsyncSession) -> None:
+        for attr_name, attr_value in self.__dict__.items():
+            if isinstance(attr_value, DeclarativeBase):
+                setattr(self, attr_name, await db.merge(attr_value))
 
 
 class AggregateCommand(Command):
@@ -34,4 +33,5 @@ class AggregateCommand(Command):
     @override
     async def undo(self, db: AsyncSession) -> None:
         for command in reversed[Command](self._commands):
+            await command.merge(db)
             await command.undo(db)
