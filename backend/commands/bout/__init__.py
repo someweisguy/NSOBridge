@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from commands import Command
 
-from . import jam as Jam, timeout as Timeout
+from . import _jam as Jam, _timeout as Timeout
 
 
 class SetIsRunning(Command):

@@ -4,8 +4,8 @@ from uuid import UUID, uuid4
 from fastapi import Cookie, Depends, Response
 from models import DatabaseDepends
 
-from . import bout as Bout, clock as Clock, team as Team
-from .commands import Command
+from . import _clock as Clock, _team as Team, bout as Bout
+from ._commands import Command
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession

@@ -3,7 +3,7 @@ from typing import override
 from models import TeamModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .commands import Command
+from ._commands import Command
 
 
 class SetTimeoutsRemaining(Command):
