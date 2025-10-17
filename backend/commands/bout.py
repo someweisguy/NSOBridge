@@ -86,15 +86,16 @@ class BoutStartTimeout(Command):
             )
 
         # Protect against redoing this command if the bout state is invalid
-        if self.timeout.jam.id != latest_jam.id:
-            raise RuntimeError('Cannot start Timeout; Bout state is invalid')
+        if self.timeout.jam != latest_jam:
+            raise RuntimeError('Bout state is invalid')
 
         self.bout.timeouts.append(self.timeout)
 
     @override
     async def undo(self, db: AsyncSession) -> None:
+        assert self.timeout is not None
         if self.timeout not in self.bout.timeouts:
-            raise RuntimeError('Cannot undo start Timeout; Timeout does not exist')
+            raise RuntimeError('Timeout does not exist')
         self.bout.timeouts.remove(self.timeout)
         await db.delete(self.timeout)
 
@@ -115,8 +116,8 @@ class BoutStopTimeout(Command):
             self.timeout = self.bout.timeouts[-1]
 
         # Protect against redoing this command if the bout state is invalid
-        if self.timeout.jam.id != self.bout.timeouts[-1].jam.id:
-            raise RuntimeError('Cannot undo stop Timeout; Bout state is invalid')
+        if self.timeout.jam != self.bout.timeouts[-1].jam:
+            raise RuntimeError('Bout state is invalid')
 
         self.timeout.stop(self.timestamp)
 
@@ -132,6 +133,6 @@ class BoutStopTimeout(Command):
     @override
     async def undo(self, db: AsyncSession) -> None:
         assert self.timeout is not None
-        if (self.timeout.id != self.bout.timeouts[-1].id):
-            raise RuntimeError('Cannot undo stop Timeout; Bout state is invalid')
+        if self.timeout != self.bout.timeouts[-1]:
+            raise RuntimeError('Bout state is invalid')
         self.timeout.stop_timestamp = None
