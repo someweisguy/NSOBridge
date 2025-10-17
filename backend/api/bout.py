@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated, Final
 
-from commands import Bout, Command, HistoryDepends
+from commands import Bout, Clock, Command, HistoryDepends
 from fastapi import APIRouter, Body, Depends, Query
 from models import DatabaseDepends, GenericBoutModel
 from models.bout import BoutContext
@@ -58,7 +58,7 @@ async def setup_track(bout: BoutDepends, history: HistoryDepends) -> None:
     cmd.append(Bout.SetIsRunning(bout, True))
 
     if bout.get_period() < 2:  # TODO: NUM_PERIODS
-        cmd.append(Bout.Clock.Reset(bout.clock))
+        cmd.append(Clock.Reset(bout.clock))
 
     # Execute the commands
     for command in cmd:
@@ -81,7 +81,7 @@ async def clear_track(bout: BoutDepends, history: HistoryDepends) -> None:
 
     # End the Period
     if bout.clock.is_running():
-        cmd.append(Bout.Clock.Stop(bout.clock, timestamp))
+        cmd.append(Clock.Stop(bout.clock, timestamp))
     cmd.append(Bout.SetIsRunning(bout, False))
 
     # Execute the commands
@@ -100,7 +100,7 @@ async def start_jam(bout: BoutDepends, history: HistoryDepends) -> None:
 
     cmd.append(Bout.Jam.Start(bout, timestamp))
     if not bout.clock.is_running() and bout.get_period() < 2:  # TODO: NUM_PERIODS
-        cmd.append(Bout.Clock.Start(bout.clock, timestamp))
+        cmd.append(Clock.Start(bout.clock, timestamp))
 
     # Execute the commands
     for command in cmd:

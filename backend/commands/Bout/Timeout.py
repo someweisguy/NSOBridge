@@ -62,15 +62,6 @@ class Stop(Command):
 
         self.timeout.stop(self.timestamp)
 
-        # TODO: move this to its own command
-        # # Decrement the Timeout or Official Review if it was not retained
-        # if self.timeout.team is not None and not self.timeout.retained:
-        #     # Only decrement if the value is greater than zero
-        #     if self.timeout.is_review and self.timeout.team.reviews_remaining > 0:
-        #         self.timeout.team.reviews_remaining -= 1
-        #     elif self.timeout.team.timeouts_remaining > 0:
-        #         self.timeout.team.timeouts_remaining -= 1
-
     @override
     async def undo(self, db: AsyncSession) -> None:
         assert self.timeout is not None

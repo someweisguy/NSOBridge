@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from commands import Command
 
-from . import Clock, Jam, Timeout
+from . import Jam, Timeout
 
 
 class SetIsRunning(Command):
@@ -71,4 +71,4 @@ class SetIsFinal(Command):
 # TODO: class SetOrder(Command)
 
 
-__all__ = 'Clock', 'Jam', 'Timeout'
+__all__ = 'Jam', 'Timeout'

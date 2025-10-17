@@ -4,7 +4,7 @@ from typing import override
 from models import ClockModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from commands import Command
+from .commands import Command
 
 
 class Start(Command):
