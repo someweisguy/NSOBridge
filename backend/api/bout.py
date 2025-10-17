@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated, Final
 
-from commands import Command, HistoryDepends, bout as Bout, clock as Clock
+from commands import Bout, Clock, Command, HistoryDepends
 from fastapi import APIRouter, Body, Depends, Query
 from models import DatabaseDepends, GenericBoutModel
 from models.bout import BoutContext
