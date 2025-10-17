@@ -31,6 +31,7 @@ class CommandHistory:
         if len(self.undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
         command: Command = self.undo_history.pop()
+        await command.merge(self.session)
         await command.undo(self.session)
         self.redo_history.append(command)
 
@@ -38,7 +39,8 @@ class CommandHistory:
         if len(self.redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
         command: Command = self.redo_history.pop()
-        await command.redo(self.session)
+        await command.merge(self.session)
+        command.execute(self.session)
         self.undo_history.append(command)
 
 

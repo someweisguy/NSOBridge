@@ -13,7 +13,7 @@ class StartClockCommand(Command):
         self.timestamp: datetime = timestamp
 
     @override
-    async def _merge(self, db: AsyncSession) -> None:
+    async def merge(self, db: AsyncSession) -> None:
         self.clock = await db.merge(self.clock)
 
     @override
@@ -24,7 +24,6 @@ class StartClockCommand(Command):
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        await self._merge(db)
         self.clock.start_timestamp = None
 
 
@@ -36,7 +35,7 @@ class StopClockCommand(Command):
         self.old_start_timestamp: datetime | None = None
         
     @override
-    async def _merge(self, db: AsyncSession) -> None:
+    async def merge(self, db: AsyncSession) -> None:
         self.clock = await db.merge(self.clock)
 
     @override
@@ -56,7 +55,6 @@ class StopClockCommand(Command):
     async def undo(self, db: AsyncSession) -> None:
         if self.old_elapsed is None or self.old_start_timestamp is None:
             raise RuntimeError('This action has not been executed')
-        await self._merge(db)
 
         self.clock.elapsed = self.old_elapsed
         self.clock.start_timestamp = self.old_start_timestamp
@@ -69,7 +67,7 @@ class SetClockCommand(Command):
         self.old_elapsed: timedelta | None = None
 
     @override
-    async def _merge(self, db: AsyncSession) -> None:
+    async def merge(self, db: AsyncSession) -> None:
         self.clock = await db.merge(self.clock)
 
     @override
@@ -83,7 +81,6 @@ class SetClockCommand(Command):
     async def undo(self, db: AsyncSession) -> None:
         if self.old_elapsed is None:
             raise RuntimeError('This action has not been executed')
-        await self._merge(db)
         self.clock.elapsed = self.old_elapsed
 
 

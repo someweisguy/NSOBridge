@@ -15,7 +15,7 @@ class BoutSetIsRunning(Command):
         self.old_value: bool = bout.is_running
 
     @override
-    async def _merge(self, db: AsyncSession) -> None:
+    async def merge(self, db: AsyncSession) -> None:
         self.bout = await db.merge(self.bout)
 
     @override
@@ -28,7 +28,6 @@ class BoutSetIsRunning(Command):
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        await self._merge(db)
         if self.bout.get_state() == 'final':
             raise RuntimeError('Cannot update a Period if the Bout has been finalized')
         elif self.bout.get_state() != 'lineup' and not self.old_value:
@@ -45,7 +44,7 @@ class BoutSetPeriodStartTimestamp(Command):
         self.old_value: datetime | None = bout.expected_start_timestamp
 
     @override
-    async def _merge(self, db: AsyncSession) -> None:
+    async def merge(self, db: AsyncSession) -> None:
         self.bout = await db.merge(self.bout)
 
     @override
@@ -54,7 +53,6 @@ class BoutSetPeriodStartTimestamp(Command):
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        await db.refresh(self.bout)
         self.bout.expected_start_timestamp = self.old_value
 
 
@@ -65,7 +63,7 @@ class BoutSetFinal(Command):
         self.old_value: bool = bout.is_final
 
     @override
-    async def _merge(self, db: AsyncSession) -> None:
+    async def merge(self, db: AsyncSession) -> None:
         self.bout = await db.merge(self.bout)
 
     @override
@@ -76,7 +74,6 @@ class BoutSetFinal(Command):
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        self.bout = await db.merge(self.bout)
         if self.bout.get_state() != 'lineup' and self.old_value:
             raise RuntimeError('The Bout cannot be finalized right now')
         self.bout.is_final = self.old_value
@@ -89,7 +86,7 @@ class BoutStartTimeout(Command):
         self.timeout: TimeoutModel | None = None
 
     @override
-    async def _merge(self, db: AsyncSession) -> None:
+    async def merge(self, db: AsyncSession) -> None:
         self.bout = await db.merge(self.bout)
         self.timeout = await db.merge(self.timeout)
 
@@ -117,10 +114,6 @@ class BoutStartTimeout(Command):
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        await self._merge(db)
-        if self.timeout is None:
-            # If this condition is True then there is an error in the History logic
-            raise RuntimeError('BoutStartTimeout has not yet been executed')
         if self.timeout not in self.bout.timeouts:
             raise RuntimeError('Cannot undo start Timeout; Timeout does not exist')
         self.bout.timeouts.remove(self.timeout)
@@ -134,7 +127,7 @@ class BoutStopTimeout(Command):
         self.timeout: TimeoutModel | None = None
 
     @override
-    async def _merge(self, db: AsyncSession) -> None:
+    async def merge(self, db: AsyncSession) -> None:
         self.bout = await db.merge(self.bout)
         self.timeout = await db.merge(self.timeout)
 
@@ -167,10 +160,7 @@ class BoutStopTimeout(Command):
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        if self.timeout is None:
-            # If this condition is True then there is an error in the History logic
-            raise RuntimeError('BoutStartTimeout has not yet been executed')
-        await self._merge(db)
+        assert self.timeout is not None
         if self.bout.get_state() != 'timeout' or self.timeout != self.bout.timeouts[-1]:
             raise RuntimeError('Cannot undo stop Timeout; Bout state is invalid')
         self.timeout.stop_timestamp = None
