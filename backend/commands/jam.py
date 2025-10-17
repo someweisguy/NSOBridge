@@ -18,6 +18,14 @@ class CreateJamCommand(Command):
         self.home: TeamModel = home
         self.away: TeamModel = away
         self.create_new_period: bool = create_new_period
+        self.jam: JamModel | None = None
+
+    @override
+    async def _merge(self, db: AsyncSession) -> None:
+        self.bout = await db.merge(self.bout)
+        self.home = await db.merge(self.home)
+        self.away = await db.merge(self.away)
+        self.jam = await db.merge(self.jam)
 
     @override
     def execute(self, db: AsyncSession) -> None:
@@ -31,42 +39,89 @@ class CreateJamCommand(Command):
             else:
                 jam_num = latest.jam + 1
 
-        jam: JamModel = JamModel(
-            period=period_num,
-            jam=jam_num,
-            home=TeamJamModel(self.home),
-            away=TeamJamModel(self.away),
-        )
-        self.bout.jams.append(jam)
+        if self.jam is None:
+            self.jam = JamModel(
+                period=period_num,
+                jam=jam_num,
+                home=TeamJamModel(self.home),
+                away=TeamJamModel(self.away),
+            )
+
+        if self.jam.period != period_num or self.jam.jam != jam_num:
+            raise RuntimeError('Cannot redo Create Jam; Bout state is invalid')
+
+        self.bout.jams.append(self.jam)
+        self.jam.bout = self.bout
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        return  # TODO
+        assert self.jam is not None
+        await self._merge(db)
+        self.bout.jams.remove(self.jam)
 
 
 class StartJamCommand(Command):
     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
         self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
+        self.jam: JamModel | None = None
+
+    @override
+    async def _merge(self, db: AsyncSession) -> None:
+        self.bout = await db.merge(self.bout)
+        self.jam = await db.merge(self.jam)
 
     @override
     def execute(self, db: AsyncSession) -> None:
-        self.bout.jams[-1].start(self.timestamp)
+        if self.jam is None:
+            self.jam = self.bout.jams[-1]
+
+        if self.jam.id != self.bout.jams[-1].id:
+            raise RuntimeError('Invalid Bout state')
+
+        self.jam.start(self.timestamp)
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        return  #  TODO:
+        assert self.jam is not None
+        await self._merge(db)
+        
+        # Ensure that only the latest Jam is modified
+        if self.jam.id != self.bout.jams[-1].id:
+            raise RuntimeError('Invalid Bout state')
+        
+        self.jam.start_timestamp = None
 
 
 class StopJamCommand(Command):
     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
         self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
+        self.jam: JamModel | None = None
+        
+    @override
+    async def _merge(self, db: AsyncSession) -> None:
+        self.bout = await db.merge(self.bout)
+        self.jam = await db.merge(self.jam)
 
     @override
     def execute(self, db: AsyncSession) -> None:
-        self.bout.jams[-1].stop(self.timestamp)
+        if self.jam is None:
+            self.jam = self.bout.jams[-1]
+        
+        # Ensure only the latest Jam is modified
+        if self.jam.id != self.bout.jams[-1].id:
+            raise RuntimeError('Invalid Bout state')
+        
+        self.jam.stop(self.timestamp)
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        return  # TODO
+        assert self.jam is not None
+        await self._merge(db)
+        
+        # Ensure that only the latest Jam is modified
+        if self.jam.id != self.bout.jams[-1].id:
+            raise RuntimeError('Invalid Bout state')
+        
+        self.jam.stop_timestamp = None
