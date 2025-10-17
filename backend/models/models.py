@@ -50,12 +50,6 @@ class SQLModel(DeclarativeBase):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    @override
-    def __eq__(self, value: object) -> bool:
-        if not isinstance(value, SQLModel):
-            return False
-        return self.id == value.id and self.__table__ == value.__table__
-
     @property
     @abstractmethod
     def parents(self) -> tuple[SQLModel | None, ...]: ...

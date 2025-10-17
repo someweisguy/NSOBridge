@@ -59,11 +59,12 @@ class StartJamCommand(Command):
     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
         self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
+        self.jam: JamModel | None = None
 
     @override
     def execute(self, db: AsyncSession) -> None:
         if self.jam is None:
-            self.jam: JamModel | None = self.bout.jams[-1]
+            self.jam = self.bout.jams[-1]
 
         if self.jam != self.bout.jams[-1]:
             raise RuntimeError('Invalid Bout state')
