@@ -93,7 +93,6 @@ class BoutStartTimeout(Command):
                 start_timestamp=self.timestamp,
                 clock_elapsed=self.bout.clock.get_duration(self.timestamp),
             )
-            db.add(self.timeout)
 
         # Protect against redoing this command if the bout state is invalid
         if (
@@ -132,7 +131,16 @@ class BoutStopTimeout(Command):
         if self.bout.get_state() != 'timeout':
             raise RuntimeError('There is no active Timeout to stop')
         if self.timeout is None:
+            if len(self.bout.timeouts) == 0:
+                raise RuntimeError('There is no Timeout to stop')
             self.timeout = self.bout.timeouts[-1]
+
+        # Protect against redoing this command if the bout state is invalid
+        if (
+            self.timeout.period != self.bout.timeouts[-1].period
+            or self.timeout.jam != self.bout.timeouts[-1].jam
+        ):
+            raise RuntimeError('Cannot undo stop Timeout; Bout state is invalid')
 
         self.timeout.stop(self.timestamp)
 
@@ -154,9 +162,3 @@ class BoutStopTimeout(Command):
         if self.bout.get_state() != 'timeout' or self.timeout != self.bout.timeouts[-1]:
             raise RuntimeError('Cannot undo stop Timeout; Bout state is invalid')
         self.timeout.stop_timestamp = None
-
-    @override
-    async def redo(self, db: AsyncSession) -> None:
-        self.bout = await db.merge(self.bout)
-        self.timeout = await db.merge(self.timeout)
-        return await super().redo(db)
