@@ -58,6 +58,7 @@ class CreateJamCommand(Command):
         assert self.jam is not None
         await self._merge(db)
         self.bout.jams.remove(self.jam)
+        await db.delete(self.jam)
 
 
 class StartJamCommand(Command):

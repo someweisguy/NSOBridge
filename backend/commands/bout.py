@@ -15,6 +15,10 @@ class BoutSetIsRunning(Command):
         self.old_value: bool = bout.is_running
 
     @override
+    async def _merge(self, db: AsyncSession) -> None:
+        self.bout = await db.merge(self.bout)
+
+    @override
     def execute(self, db: AsyncSession) -> None:
         if self.bout.get_state() == 'final':
             raise RuntimeError('Cannot update a Period if the Bout has been finalized')
@@ -24,7 +28,7 @@ class BoutSetIsRunning(Command):
 
     @override
     async def undo(self, db: AsyncSession) -> None:
-        await db.refresh(self.bout)
+        await self._merge(db)
         if self.bout.get_state() == 'final':
             raise RuntimeError('Cannot update a Period if the Bout has been finalized')
         elif self.bout.get_state() != 'lineup' and not self.old_value:
@@ -41,6 +45,10 @@ class BoutSetPeriodStartTimestamp(Command):
         self.old_value: datetime | None = bout.expected_start_timestamp
 
     @override
+    async def _merge(self, db: AsyncSession) -> None:
+        self.bout = await db.merge(self.bout)
+
+    @override
     def execute(self, db: AsyncSession) -> None:
         self.bout.expected_start_timestamp = self.new_value
 
@@ -55,6 +63,10 @@ class BoutSetFinal(Command):
         self.bout: GenericBoutModel = bout
         self.new_value: bool = is_final
         self.old_value: bool = bout.is_final
+
+    @override
+    async def _merge(self, db: AsyncSession) -> None:
+        self.bout = await db.merge(self.bout)
 
     @override
     def execute(self, db: AsyncSession) -> None:
