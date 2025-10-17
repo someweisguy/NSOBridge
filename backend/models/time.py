@@ -11,6 +11,7 @@ from .models import SQLModel, TimedeltaAsMilliseconds
 
 if TYPE_CHECKING:
     from .bout import GenericBoutModel
+    from .jam import JamModel
     from .team import TeamModel
 
 
@@ -47,7 +48,7 @@ class ClockModel(SQLModel):
 
     def is_running(self) -> bool:
         return self.start_timestamp is not None
-    
+
     def reset(self) -> None:
         self.elapsed = timedelta(seconds=0)
 
@@ -110,10 +111,10 @@ class TimeoutModel(AbstractOneShotModel):
     __tablename__ = 'timeouts'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
+    _jam_id: Mapped[int] = mapped_column(ForeignKey('jams.id'))
 
     bout: Mapped[GenericBoutModel | None] = relationship(back_populates='timeouts')
-    period: Mapped[int] = mapped_column(index=True)
-    jam: Mapped[int] = mapped_column(index=True)
+    jam: Mapped[JamModel] = relationship(foreign_keys=[_jam_id])
 
     clock_elapsed: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
     team: Mapped[TeamModel | None] = relationship(

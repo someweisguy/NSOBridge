@@ -21,13 +21,22 @@ class TimerSchema(ServerSchema):
 class TimeoutSchema(TimerSchema):
     team: TeamSchema | None = Field(exclude=True)
     is_review: bool
-    period: int
-    jam: int
+    jam: JamSchema = Field(exclude=True)
 
     @computed_field
     @property
     def team_id(self) -> int | None:
         return self.team.id if self.team is not None else None
+    
+    @computed_field
+    @property
+    def period(self) -> int:
+        return self.jam.period
+    
+    @computed_field(alias='jam')
+    @property
+    def jam_num(self) -> int:
+        return self.jam.jam
 
 
 class TeamJamSchema(ServerSchema):

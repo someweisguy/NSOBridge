@@ -80,18 +80,13 @@ class BoutStartTimeout(Command):
             raise RuntimeError('A Timeout cannot be called until the Bout has started')
         if self.timeout is None:
             self.timeout = TimeoutModel(
-                period=latest_jam.period,
-                jam=latest_jam.jam,
+                jam=latest_jam,
                 start_timestamp=self.timestamp,
                 clock_elapsed=self.bout.clock.get_duration(self.timestamp),
             )
 
-        # FIXME: Normalize the database to fix this comparison
         # Protect against redoing this command if the bout state is invalid
-        if (
-            self.timeout.period != latest_jam.period
-            or self.timeout.jam != latest_jam.jam
-        ):
+        if self.timeout.jam.id != latest_jam.id:
             raise RuntimeError('Cannot start Timeout; Bout state is invalid')
 
         self.bout.timeouts.append(self.timeout)
@@ -120,10 +115,7 @@ class BoutStopTimeout(Command):
             self.timeout = self.bout.timeouts[-1]
 
         # Protect against redoing this command if the bout state is invalid
-        if (
-            self.timeout.period != self.bout.timeouts[-1].period
-            or self.timeout.jam != self.bout.timeouts[-1].jam
-        ):
+        if self.timeout.jam.id != self.bout.timeouts[-1].jam.id:
             raise RuntimeError('Cannot undo stop Timeout; Bout state is invalid')
 
         self.timeout.stop(self.timestamp)
@@ -140,6 +132,6 @@ class BoutStopTimeout(Command):
     @override
     async def undo(self, db: AsyncSession) -> None:
         assert self.timeout is not None
-        if self.bout.get_state() != 'timeout' or self.timeout != self.bout.timeouts[-1]:
+        if (self.timeout.id != self.bout.timeouts[-1].id):
             raise RuntimeError('Cannot undo stop Timeout; Bout state is invalid')
         self.timeout.stop_timestamp = None
