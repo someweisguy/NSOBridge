@@ -4,10 +4,10 @@ from typing import override
 from models import ClockModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .commands import Command
+from commands import Command
 
 
-class StartClockCommand(Command):
+class Start(Command):
     def __init__(self, clock: ClockModel, timestamp: datetime) -> None:
         self.clock: ClockModel = clock
         self.timestamp: datetime = timestamp
@@ -23,7 +23,7 @@ class StartClockCommand(Command):
         self.clock.start_timestamp = None
 
 
-class StopClockCommand(Command):
+class Stop(Command):
     def __init__(self, clock: ClockModel, timestamp: datetime) -> None:
         self.clock: ClockModel = clock
         self.timestamp: datetime = timestamp
@@ -52,7 +52,7 @@ class StopClockCommand(Command):
         self.clock.start_timestamp = self.old_start_timestamp
 
 
-class SetClockCommand(Command):
+class Set(Command):
     def __init__(self, clock: ClockModel, elapsed: timedelta) -> None:
         self.clock: ClockModel = clock
         self.elapsed: timedelta = elapsed
@@ -72,6 +72,6 @@ class SetClockCommand(Command):
         self.clock.elapsed = self.old_elapsed
 
 
-class ResetClockCommand(SetClockCommand):
+class Reset(Set):
     def __init__(self, clock: ClockModel) -> None:
         super().__init__(clock, timedelta(seconds=0))

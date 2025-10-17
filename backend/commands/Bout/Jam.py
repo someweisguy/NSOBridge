@@ -1,12 +1,13 @@
 from datetime import datetime
 from typing import override
 
-from models import AsyncSession, GenericBoutModel, JamModel, TeamJamModel, TeamModel
+from models import GenericBoutModel, JamModel, TeamJamModel, TeamModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from .commands import Command
+from commands import Command
 
 
-class CreateJamCommand(Command):
+class Create(Command):
     def __init__(
         self,
         bout: GenericBoutModel,
@@ -51,11 +52,15 @@ class CreateJamCommand(Command):
     async def undo(self, db: AsyncSession) -> None:
         assert self.jam is not None
 
+        # Prevent deletion of a Jam if it already has data associated with it
+        if self.jam.start_timestamp is not None:
+            raise RuntimeError('Jam has already started')
+
         self.bout.jams.remove(self.jam)
         await db.delete(self.jam)
 
 
-class StartJamCommand(Command):
+class Start(Command):
     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
         self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
@@ -82,7 +87,7 @@ class StartJamCommand(Command):
         self.jam.start_timestamp = None
 
 
-class StopJamCommand(Command):
+class Stop(Command):
     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
         self.bout: GenericBoutModel = bout
         self.timestamp: datetime = timestamp
