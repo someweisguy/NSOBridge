@@ -86,10 +86,11 @@ class BoutStartTimeout(Command):
                 clock_elapsed=self.bout.clock.get_duration(self.timestamp),
             )
 
+        # FIXME: Normalize the database to fix this comparison
         # Protect against redoing this command if the bout state is invalid
         if (
             self.timeout.period != latest_jam.period
-            or self.timeout.jam != self.timeout.jam
+            or self.timeout.jam != latest_jam.jam
         ):
             raise RuntimeError('Cannot start Timeout; Bout state is invalid')
 
