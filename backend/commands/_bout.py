@@ -133,7 +133,7 @@ class JamCreate(Command):
         if self.jam.start_timestamp is not None:
             raise RuntimeError('Jam has already started')
 
-        self.bout.jams.remove(self.jam)
+        # Do not remove the Jam from the Bout - just delete it from the database
         await db.delete(self.jam)
 
 
