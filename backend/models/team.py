@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from sqlalchemy import (
     ForeignKey,
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class RosterModel(SQLModel):
-    __tablename__ = 'rosters'
+    __tablename__: str = 'rosters'
 
     name: Mapped[str] = mapped_column()
     # TODO: mnemonic: str
@@ -30,12 +30,13 @@ class RosterModel(SQLModel):
         super().__init__(name=name)
 
     @property
+    @override
     def parents(self) -> tuple[SQLModel, ...]:  # TODO: does this need to be None?
         return ()  # TODO
 
 
 class TeamModel(SQLModel):
-    __tablename__ = 'teams'
+    __tablename__: str = 'teams'
 
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
@@ -59,6 +60,7 @@ class TeamModel(SQLModel):
         super().__init__(roster=roster)
 
     @property
+    @override
     def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
 

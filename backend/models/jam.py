@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, override
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
@@ -18,7 +18,7 @@ type TeamName = Literal['home', 'away']
 
 
 class TripModel(SQLModel):
-    __tablename__ = 'trips'
+    __tablename__: str = 'trips'
 
     _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
 
@@ -30,12 +30,13 @@ class TripModel(SQLModel):
     passes: Mapped[int] = mapped_column()
 
     @property
+    @override
     def parents(self) -> tuple[SQLModel | None, ...]:
         return (self._team_jam,)
 
 
 class StarPassModel(SQLModel):
-    __tablename__ = 'star_passes'
+    __tablename__: str = 'star_passes'
 
     _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
     _trip_id: Mapped[int | None] = mapped_column(
@@ -51,12 +52,13 @@ class StarPassModel(SQLModel):
     trip: Mapped[TripModel | None] = relationship(foreign_keys=[_trip_id])
 
     @property
+    @override
     def parents(self) -> tuple[SQLModel | None, ...]:
         return (self._team_jam,)
 
 
 class TeamJamModel(SQLModel):
-    __tablename__ = 'team_jams'
+    __tablename__: str = 'team_jams'
 
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
@@ -86,6 +88,7 @@ class TeamJamModel(SQLModel):
         self.lost = False
 
     @property
+    @override
     def parents(self) -> tuple[SQLModel | None, ...]:
         if self._home is not None:
             return (self._home,)
@@ -111,7 +114,7 @@ class TeamJamModel(SQLModel):
 
 
 class JamModel(AbstractOneShotModel, CacheableModel):
-    __tablename__ = 'jams'
+    __tablename__: str = 'jams'
 
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _home_team_jam_id: Mapped[int] = mapped_column(
@@ -156,10 +159,12 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         return self.home if team_name == 'home' else self.away
 
     @property
+    @override
     def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
 
     @property
+    @override
     def key(self) -> tuple[str, int, int, int]:
         return (self.__tablename__, self._bout_id, self.period, self.jam)
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from abc import abstractmethod
 from datetime import timedelta
 from math import floor
 from typing import Any, Callable, Final, override
@@ -20,7 +19,7 @@ from sqlalchemy.orm import (
     UOWTransaction,
     mapped_column,
 )
-from sqlalchemy.types import Integer, TypeDecorator
+from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
 DATABASE: str = os.environ.get('DB_PATH', ':memory:')
 DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {'true', 'yes'}
@@ -31,27 +30,28 @@ callbacks: Final[list[Callable[[set[CacheableModel]], None]]] = []
 
 
 class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
-    impl = Integer
-    cache_ok = True
+    impl: TypeEngine[Any] | type[TypeEngine[Any]] = Integer
+    cache_ok: bool | None = True
 
+    @override
     def process_bind_param(self, value: Any | None, dialect: Dialect) -> Any:
         if value is not None:
             assert isinstance(value, timedelta)
             return floor(value.total_seconds() * 1000)
         return value
 
+    @override
     def process_result_value(self, value: Any | None, dialect: Dialect) -> Any | None:
         assert isinstance(value, (float, int))
         return timedelta(milliseconds=value)
 
 
 class SQLModel(DeclarativeBase):
-    __abstract__ = True
+    __abstract__: bool = True
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
     @property
-    @abstractmethod
     def parents(self) -> tuple[SQLModel | None, ...]: ...
 
     def search_parents(self) -> set[SQLModel]:
@@ -65,21 +65,22 @@ class SQLModel(DeclarativeBase):
 
 
 class CacheableModel(SQLModel):
-    __abstract__ = True
+    __abstract__: bool = True
 
+    @override
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, CacheableModel) and other.key == self.key
 
+    @override
     def __hash__(self) -> int:
         return hash(self.key)
 
     @property
-    @abstractmethod
     def key(self) -> tuple[Any, ...]: ...
 
 
 @event.listens_for(Session, 'after_flush')
-def after_flush_hook(session: Session, flush_context: UOWTransaction) -> None:
+def after_flush_hook(session: Session, _: UOWTransaction) -> None:
     if len(callbacks) == 0:
         return
 

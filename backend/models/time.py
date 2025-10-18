@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 
 from sqlalchemy import CheckConstraint, ForeignKey
 from sqlalchemy.ext.declarative import declared_attr
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class ClockModel(SQLModel):
-    __tablename__ = 'clocks'
+    __tablename__: str = 'clocks'
 
     bout: Mapped[GenericBoutModel | None] = relationship(
         back_populates='clock', lazy='joined'
@@ -29,6 +29,7 @@ class ClockModel(SQLModel):
     alarm: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
 
     @property
+    @override
     def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
 
@@ -63,7 +64,7 @@ class ClockModel(SQLModel):
 
 
 class AbstractOneShotModel(SQLModel):
-    __abstract__ = True
+    __abstract__: bool = True
 
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     stop_timestamp: Mapped[datetime | None] = mapped_column(default=None)
@@ -108,7 +109,7 @@ class AbstractOneShotModel(SQLModel):
 
 
 class TimeoutModel(AbstractOneShotModel):
-    __tablename__ = 'timeouts'
+    __tablename__: str = 'timeouts'
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
     _jam_id: Mapped[int] = mapped_column(ForeignKey('jams.id'))
@@ -127,5 +128,6 @@ class TimeoutModel(AbstractOneShotModel):
     retained: Mapped[bool] = mapped_column(default=False)
 
     @property
+    @override
     def parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)

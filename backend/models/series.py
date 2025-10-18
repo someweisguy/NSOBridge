@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import final
+from typing import final, override
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -9,7 +9,7 @@ from .models import CacheableModel, SQLModel
 
 
 class SeriesModel(CacheableModel):
-    __tablename__ = 'series'
+    __tablename__: str = 'series'
 
     rowid: Mapped[int] = mapped_column(system=True)
     name: Mapped[str] = mapped_column(default='')
@@ -19,9 +19,11 @@ class SeriesModel(CacheableModel):
 
     @final
     @property
+    @override
     def key(self) -> tuple[str, int]:
         return (self.__tablename__, self.rowid)
 
     @property
+    @override
     def parents(self) -> tuple[SQLModel, ...]:
         return ()
