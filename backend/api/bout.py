@@ -54,8 +54,8 @@ async def setup_track(bout: BoutDepends, history: HistoryDepends) -> None:
 
     cmd: list[Command] = []
 
-    cmd.append(Bout.Jam.Create(bout, bout.teams[0], bout.teams[1], True))
-    cmd.append(Bout.SetIsRunning(bout, True))
+    cmd.append(Bout.JamCreate(bout, bout.teams[0], bout.teams[1], True))
+    cmd.append(Bout.PeriodBegin(bout))
 
     if bout.get_period() < 2:  # TODO: NUM_PERIODS
         cmd.append(Clock.Reset(bout.clock))
@@ -82,7 +82,7 @@ async def clear_track(bout: BoutDepends, history: HistoryDepends) -> None:
     # End the Period
     if bout.clock.is_running():
         cmd.append(Clock.Stop(bout.clock, timestamp))
-    cmd.append(Bout.SetIsRunning(bout, False))
+    cmd.append(Bout.PeriodEnd(bout))
 
     # Execute the commands
     for command in cmd:
@@ -98,7 +98,7 @@ async def start_jam(bout: BoutDepends, history: HistoryDepends) -> None:
     if bout.get_state() != 'lineup':
         raise RuntimeError('The Jam cannot be started now')
 
-    cmd.append(Bout.Jam.Start(bout, timestamp))
+    cmd.append(Bout.JamStart(bout, timestamp))
     if not bout.clock.is_running() and bout.get_period() < 2:  # TODO: NUM_PERIODS
         cmd.append(Clock.Start(bout.clock, timestamp))
 
@@ -115,8 +115,8 @@ async def stop_jam(bout: BoutDepends, history: HistoryDepends) -> None:
     if bout.get_state() != 'jam':
         raise RuntimeError('There is no active Jam to stop')
 
-    cmd.append(Bout.Jam.Stop(bout, timestamp))
-    cmd.append(Bout.Jam.Create(bout, bout.teams[0], bout.teams[1]))
+    cmd.append(Bout.JamStop(bout, timestamp))
+    cmd.append(Bout.JamCreate(bout, bout.teams[0], bout.teams[1]))
 
     # Execute the commands
     for command in cmd:
@@ -125,19 +125,19 @@ async def stop_jam(bout: BoutDepends, history: HistoryDepends) -> None:
 
 @router.post('/call-timeout')
 async def call_timeout(bout: BoutDepends, history: HistoryDepends) -> None:
-    history.execute(Bout.Timeout.Start(bout, datetime.now()))
+    history.execute(Bout.TimeoutStart(bout, datetime.now()))
 
 
 @router.post('/end-timeout')
 async def end_timeout(bout: BoutDepends, history: HistoryDepends) -> None:
-    history.execute(Bout.Timeout.Stop(bout, datetime.now()))
+    history.execute(Bout.TimeoutStop(bout, datetime.now()))
 
 
 @router.post('/expected-start')
 async def set_expected_start(
     bout: BoutDepends, timestamp: Annotated[datetime, Body()], history: HistoryDepends
 ) -> None:
-    history.execute(Bout.SetPeriodStartTimestamp(bout, timestamp))
+    history.execute(Bout.PeriodStartCountdown(bout, timestamp))
 
 
 __all__ = ('router',)
