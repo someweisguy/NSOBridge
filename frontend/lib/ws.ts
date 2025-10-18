@@ -13,7 +13,7 @@ export interface ServerInfoType {
 
 const allCallbacks = new Map<string, CallbackType[]>();
 const allResolutions = new Map<string, CallbackType[]>();
-const socket = new WebSocket(`ws://${window.location.host}/ws/`);
+let socket = connectSocket(`ws://${window.location.host}/ws/`);
 
 function handleSocketEvent<K extends keyof API>(type: K, data: API[K]) {
   for (const callbackMap of [allCallbacks, allResolutions]) {
@@ -22,16 +22,24 @@ function handleSocketEvent<K extends keyof API>(type: K, data: API[K]) {
   }
 }
 
-socket.onopen = () => handleSocketEvent("connect", true);
-socket.onclose = () => handleSocketEvent("connect", false);
-socket.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
-  const { type, data } = JSON.parse(event.data) as { type: K; data: API[K] };
-  handleSocketEvent(type, data);
-};
+function connectSocket(url: string) {
+  const ws = new WebSocket(url);
+  ws.onopen = () => handleSocketEvent("connect", true);
+  ws.onclose = () => {
+    handleSocketEvent("connect", false);
+    setTimeout(() => (socket = connectSocket(url)), 1000);
+  };
+  ws.onerror = () => ws.close();
+  ws.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
+    const { type, data } = JSON.parse(event.data) as { type: K; data: API[K] };
+    handleSocketEvent(type, data);
+  };
+  return ws;
+}
 
 export function registerWebSocketCallback<T extends keyof API>(
   type: T,
-  cb: CallbackType<API[T]>
+  cb: CallbackType<API[T]>,
 ): void {
   let callbacks: CallbackType[] | undefined = allCallbacks.get(type);
   callbacks ??= [];
@@ -42,7 +50,7 @@ export function registerWebSocketCallback<T extends keyof API>(
 
 export function receiveWebSocketMessage<K extends keyof API>(
   type: K,
-  timeout = 5000
+  timeout = 5000,
 ): Promise<API[K]> {
   return new Promise((resolve, reject) => {
     let resolutions: CallbackType[] | undefined = allResolutions.get(type);
@@ -58,7 +66,7 @@ export async function getServerInfo(): Promise<ServerInfoType> {
   // Wait until the WebSocket is connected
   if (socket.readyState !== WebSocket.OPEN) {
     const connected = await receiveWebSocketMessage("connect").catch(
-      () => false
+      () => false,
     );
     if (!connected) {
       throw new Error("Could not get server info (not connected)");
