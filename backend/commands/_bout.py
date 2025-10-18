@@ -185,8 +185,8 @@ class JamStop(Command):
     async def undo(self, db: AsyncSession) -> None:
         assert self.jam is not None
 
-        # Ensure that only the latest Jam is modified
-        if self.jam != self.bout.jams[-1]:
+        # Ensure that only the latest played Jam is modified
+        if self.jam != self.bout.get_latest_played_jam():
             raise RuntimeError('Invalid Bout state')
 
         self.jam.stop_timestamp = None

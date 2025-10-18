@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated, Final
 
-from commands import Bout, Command, HistoryDepends
+from commands import Bout, HistoryDepends
 from commands.rulesets import wftda_2025
 from fastapi import APIRouter, Body, Depends, Query
 from models import DatabaseDepends, GenericBoutModel
@@ -65,18 +65,7 @@ async def start_jam(bout: BoutDepends, history: HistoryDepends) -> None:
 
 @router.post('/stop-jam')
 async def stop_jam(bout: BoutDepends, history: HistoryDepends) -> None:
-    timestamp: datetime = datetime.now()
-    cmd: list[Command] = []
-
-    if bout.get_state() != 'jam':
-        raise RuntimeError('There is no active Jam to stop')
-
-    cmd.append(Bout.JamStop(bout, timestamp))
-    cmd.append(Bout.JamCreate(bout, bout.teams[0], bout.teams[1]))
-
-    # Execute the commands
-    for command in cmd:
-        await history.execute(command)
+    await history.execute(wftda_2025.StopJam(bout, datetime.now()))
 
 
 @router.post('/call-timeout')

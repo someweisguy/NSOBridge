@@ -30,7 +30,7 @@ class EndPeriod(AggregateCommand):
             raise RuntimeError('The Bout cannot be stopped now')
 
         # TODO: Figure out a method to forfeit a Bout
-        
+
         if not bout.is_running and bout.get_period() >= NUM_PERIODS:
             # Two EndPeriod commands in a row finalizes the bout
             self.add(Bout.SetIsFinal(bout, True))
@@ -46,7 +46,7 @@ class EndPeriod(AggregateCommand):
 class StartJam(AggregateCommand):
     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
         super().__init__()
-        
+
         if not bout.is_running:
             self.add(BeginPeriod(bout))  # Handle immediate game start
         elif bout.get_state() != 'lineup':
@@ -55,3 +55,14 @@ class StartJam(AggregateCommand):
         self.add(Bout.JamStart(bout, timestamp))
         if not bout.clock.is_running() and bout.get_period() < NUM_PERIODS:
             self.add(Clock.Start(bout.clock, timestamp))
+
+
+class StopJam(AggregateCommand):
+    def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
+        super().__init__()
+
+        if bout.get_state() != 'jam':
+            raise RuntimeError('There is no active Jam to stop')
+
+        self.add(Bout.JamStop(bout, timestamp))
+        self.add(Bout.JamCreate(bout, bout.teams[0], bout.teams[1]))
