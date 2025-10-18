@@ -10,8 +10,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .models import SQLModel
 
 if TYPE_CHECKING:
-    from .bout import GenericBoutModel, TimeoutModel
+    from .bout import GenericBoutModel
     from .jam import TeamJamModel
+    from .time import TimeoutModel
 
 
 class RosterModel(SQLModel):
