@@ -7,7 +7,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 class Command(ABC):
     @abstractmethod
-    def execute(self, db: AsyncSession) -> None: ...
+    async def execute(self, db: AsyncSession) -> None: ...
 
     @abstractmethod
     async def undo(self, db: AsyncSession) -> None: ...
@@ -26,12 +26,14 @@ class AggregateCommand(Command):
         self._commands.append(command)
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         for command in self._commands:
-            command.execute(db)
-
+            await command.merge(db)
+            await command.execute(db)
+            await db.flush()
+            
     @override
     async def undo(self, db: AsyncSession) -> None:
-        for command in reversed[Command](self._commands):
+        for command in reversed(self._commands):
             await command.merge(db)
             await command.undo(db)
