@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 
     from .series import SeriesModel
     from .team import RosterModel
-    from .time import TimeoutModel
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2

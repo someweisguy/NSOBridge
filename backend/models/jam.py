@@ -7,8 +7,7 @@ from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .models import CacheableModel, SQLModel
-from .time import AbstractOneShotModel
+from .models import AbstractOneShotModel, CacheableModel, SQLModel
 
 if TYPE_CHECKING:
     from .bout import GenericBoutModel
