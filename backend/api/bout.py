@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Annotated, Final
 
-from commands import Bout, Clock, Command, HistoryDepends
+from commands import Bout, Command, HistoryDepends
+from commands.rulesets import wftda_2025
 from fastapi import APIRouter, Body, Depends, Query
 from models import DatabaseDepends, GenericBoutModel
 from models.bout import BoutContext
@@ -49,62 +50,17 @@ async def get_bout_context(
 
 @router.post('/setup-track')
 async def setup_track(bout: BoutDepends, history: HistoryDepends) -> None:
-    if bout.get_state() != 'stopped':
-        raise RuntimeError('The Bout cannot be started now')
-
-    cmd: list[Command] = []
-
-    cmd.append(Bout.JamCreate(bout, bout.teams[0], bout.teams[1], True))
-    cmd.append(Bout.PeriodBegin(bout))
-
-    if bout.get_period() < 2:  # TODO: NUM_PERIODS
-        cmd.append(Clock.Reset(bout.clock))
-
-    # Execute the commands
-    for command in cmd:
-        history.execute(command)
+    await history.execute(wftda_2025.BeginPeriod(bout))
 
 
 @router.post('/clear-track')
 async def clear_track(bout: BoutDepends, history: HistoryDepends) -> None:
-    timestamp: datetime = datetime.now()
-    cmd: list[Command] = []
-
-    if bout.is_running and bout.get_state() != 'lineup':
-        raise RuntimeError('The Bout cannot be stopped now')
-
-    if not bout.is_running and bout.get_period() >= 2:  # TODO: NUM_PERIODS
-        # TODO: Figure out a method to forfeit a Bout
-        cmd.append(Bout.SetIsFinal(bout, True))
-    elif not bout.is_running:
-        raise RuntimeError('The Bout cannot be ended yet')
-
-    # End the Period
-    if bout.clock.is_running():
-        cmd.append(Clock.Stop(bout.clock, timestamp))
-    cmd.append(Bout.PeriodEnd(bout))
-
-    # Execute the commands
-    for command in cmd:
-        history.execute(command)
+    await history.execute(wftda_2025.EndPeriod(bout, datetime.now()))
 
 
 @router.post('/start-jam')
 async def start_jam(bout: BoutDepends, history: HistoryDepends) -> None:
-    timestamp: datetime = datetime.now()
-    cmd: list[Command] = []
-    if not bout.is_running:
-        await setup_track(bout, history)  # Handle immediate game start
-    if bout.get_state() != 'lineup':
-        raise RuntimeError('The Jam cannot be started now')
-
-    cmd.append(Bout.JamStart(bout, timestamp))
-    if not bout.clock.is_running() and bout.get_period() < 2:  # TODO: NUM_PERIODS
-        cmd.append(Clock.Start(bout.clock, timestamp))
-
-    # Execute the commands
-    for command in cmd:
-        history.execute(command)
+    await history.execute(wftda_2025.StartJam(bout, datetime.now()))
 
 
 @router.post('/stop-jam')
@@ -120,24 +76,24 @@ async def stop_jam(bout: BoutDepends, history: HistoryDepends) -> None:
 
     # Execute the commands
     for command in cmd:
-        history.execute(command)
+        await history.execute(command)
 
 
 @router.post('/call-timeout')
 async def call_timeout(bout: BoutDepends, history: HistoryDepends) -> None:
-    history.execute(Bout.TimeoutStart(bout, datetime.now()))
+    await history.execute(Bout.TimeoutStart(bout, datetime.now()))
 
 
 @router.post('/end-timeout')
 async def end_timeout(bout: BoutDepends, history: HistoryDepends) -> None:
-    history.execute(Bout.TimeoutStop(bout, datetime.now()))
+    await history.execute(Bout.TimeoutStop(bout, datetime.now()))
 
 
 @router.post('/expected-start')
 async def set_expected_start(
     bout: BoutDepends, timestamp: Annotated[datetime, Body()], history: HistoryDepends
 ) -> None:
-    history.execute(Bout.PeriodStartCountdown(bout, timestamp))
+    await history.execute(Bout.PeriodStartCountdown(bout, timestamp))
 
 
 __all__ = ('router',)

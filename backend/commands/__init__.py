@@ -18,8 +18,8 @@ class CommandHistory:
         self.redo_history: list[Command] = []
         self.session: AsyncSession
 
-    def execute(self, command: Command) -> None:
-        command.execute(self.session)
+    async def execute(self, command: Command) -> None:
+        await command.execute(self.session)
         if len(self.redo_history) > 0:
             self.redo_history.clear()
         self.undo_history.append(command)
@@ -41,7 +41,7 @@ class CommandHistory:
             raise RuntimeError('There is nothing to redo')
         command: Command = self.redo_history.pop()
         await command.merge(self.session)
-        command.execute(self.session)
+        await command.execute(self.session)
         self.undo_history.append(command)
 
 

@@ -17,7 +17,7 @@ class PeriodStartCountdown(Command):
         self.old_value: datetime | None = bout.expected_start_timestamp
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         self.bout.expected_start_timestamp = self.new_value
 
     @override
@@ -30,7 +30,7 @@ class PeriodBegin(Command):
         self.bout: GenericBoutModel = bout
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         if self.bout.get_state() == 'final':
             raise RuntimeError('Cannot begin a Period if the Bout has been finalized')
         self.bout.is_running = True
@@ -48,7 +48,7 @@ class PeriodEnd(Command):
         self.bout: GenericBoutModel = bout
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         if self.bout.get_state() == 'final':
             raise RuntimeError('Cannot end a Period if the Bout has been finalized')
         elif self.bout.get_state() != 'lineup':
@@ -69,7 +69,7 @@ class SetIsFinal(Command):
         self.old_value: bool = bout.is_final
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         if self.bout.get_state() != 'lineup' and self.new_value:
             raise RuntimeError('The Bout cannot be finalized right now')
         self.bout.is_final = self.new_value
@@ -99,7 +99,7 @@ class JamCreate(Command):
         self.jam: JamModel | None = None
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         # Determine what the next Jam and Period number should be
         period_num: int = 0
         jam_num: int = 0
@@ -144,7 +144,7 @@ class JamStart(Command):
         self.jam: JamModel | None = None
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         if self.jam is None:
             self.jam = self.bout.jams[-1]
 
@@ -171,7 +171,7 @@ class JamStop(Command):
         self.jam: JamModel | None = None
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         if self.jam is None:
             self.jam = self.bout.jams[-1]
 
@@ -199,7 +199,7 @@ class TimeoutStart(Command):
         self.timeout: TimeoutModel | None = None
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         latest_jam: JamModel | None = self.bout.get_latest_played_jam()
         if latest_jam is None:
             raise RuntimeError('A Timeout cannot be called until the Bout has started')
@@ -232,7 +232,7 @@ class TimeoutStop(Command):
         self.timeout: TimeoutModel | None = None
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         if self.bout.get_state() != 'timeout':
             raise RuntimeError('There is no active Timeout to stop')
         if self.timeout is None:

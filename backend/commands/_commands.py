@@ -28,12 +28,15 @@ class AggregateCommand(Command):
     @override
     async def execute(self, db: AsyncSession) -> None:
         for command in self._commands:
-            await command.merge(db)
             await command.execute(db)
-            await db.flush()
             
     @override
     async def undo(self, db: AsyncSession) -> None:
         for command in reversed(self._commands):
             await command.merge(db)
             await command.undo(db)
+
+    @override
+    async def merge(self, db: AsyncSession) -> None:
+        for command in self._commands:
+            await command.merge(db)

@@ -13,7 +13,7 @@ class Start(Command):
         self.timestamp: datetime = timestamp
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         if self.clock.is_running():
             raise RuntimeError('Clock is already running')
         self.clock.start_timestamp = self.timestamp
@@ -31,7 +31,7 @@ class Stop(Command):
         self.old_start_timestamp: datetime | None = None
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         if not self.clock.is_running():
             raise RuntimeError('Cannot stop a Clock when it is already stopped')
         assert self.clock.start_timestamp is not None
@@ -59,7 +59,7 @@ class Set(Command):
         self.old_elapsed: timedelta | None = None
 
     @override
-    def execute(self, db: AsyncSession) -> None:
+    async def execute(self, db: AsyncSession) -> None:
         if self.clock.is_running():
             raise RuntimeError('Cannot set a Clock when it is running')
         self.old_elapsed = self.clock.elapsed
