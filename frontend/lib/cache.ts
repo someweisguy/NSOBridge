@@ -12,6 +12,11 @@ const queryClient = new QueryClient({
 
 registerWebSocketCallback("connect", (connected: boolean) => {
   onlineManager.setOnline(connected);
+
+  // Invalidate all queries on disconnection
+  if (!connected) {
+    void queryClient.invalidateQueries();
+  }
 });
 
 registerWebSocketCallback("cache", (keys: object[][]) => {
@@ -22,7 +27,7 @@ registerWebSocketCallback("cache", (keys: object[][]) => {
         type: "active",
         exact: true,
       },
-      { cancelRefetch: true }
+      { cancelRefetch: true },
     );
   }
 });
