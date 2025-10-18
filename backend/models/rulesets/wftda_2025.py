@@ -6,9 +6,8 @@ from typing import TYPE_CHECKING, Final
 
 from core.fastapi import RulesError
 
-from ..bout import NUM_PERIODS, BoutContext, GenericBoutModel
+from ..bout import BoutContext, GenericBoutModel
 from ..jam import JamModel, StarPassModel, TeamName, TripModel
-from ..time import TimeoutModel
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -20,7 +19,7 @@ RULESET: Final[str] = 'WFTDA 2025'
 
 
 class BoutModel(GenericBoutModel):
-    __mapper_args__ = {
+    __mapper_args__: dict[str, str | bool] = {
         'polymorphic_identity': RULESET,
     }
 
@@ -42,49 +41,6 @@ class BoutModel(GenericBoutModel):
             num_timeouts=3,
             num_reviews=1,
         )
-
-    def setup_track(self, timestamp: datetime) -> None:
-        if self.get_state() != 'stopped':
-            raise RulesError('The Bout cannot be started now')
-
-        self._prepare_next_period(self.teams[0], self.teams[1])
-        self.expected_start_timestamp = None
-        self.is_running = True
-        if self.get_period() < NUM_PERIODS:
-            self.clock.reset()
-
-    def clear_track(self, timestamp: datetime) -> None:
-        if self.is_running and self.get_state() != 'lineup':
-            raise RulesError('The Bout cannot be stopped now')
-
-        if not self.is_running and self.get_period() >= NUM_PERIODS:
-            # TODO: Figure out a method to forfeit a Bout
-            self.is_final = True
-        elif not self.is_running:
-            raise RulesError('The Bout cannot be ended yet')
-
-        # End the Period
-        if self.clock.is_running():
-            self.clock.stop(timestamp)
-        self.is_running = False
-
-    def start_jam(self, timestamp: datetime) -> JamModel:
-        if not self.is_running:
-            self.setup_track(timestamp)  # Handle immediate game start
-        if self.get_state() != 'lineup':
-            raise RulesError('The Jam cannot be started now')
-
-        self.jams[-1].start(timestamp)
-        if not self.clock.is_running() and self.get_period() < NUM_PERIODS:
-            self.clock.start(timestamp)
-        return self.jams[-1]
-
-    def stop_jam(self, timestamp: datetime) -> None:
-        if self.get_state() != 'jam':
-            raise RulesError('There is no active Jam to stop')
-
-        self.jams[-1].stop(timestamp)
-        self._prepare_next_jam(self.teams[0], self.teams[1])
 
     def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None:
         if self.get_state() != 'jam':
@@ -126,38 +82,3 @@ class BoutModel(GenericBoutModel):
             trip=jam[team].trips[-1] if len(jam[team].trips) > 0 else None,
         )
         jam[team].star_passes.append(star_pass)
-
-    def start_timeout(self, timestamp: datetime) -> TimeoutModel:
-        if self.get_state() != 'lineup':
-            raise RulesError('A Timeout cannot be started now')
-
-        if self.clock.is_running():
-            self.clock.stop(timestamp)
-
-        # Timeouts are recorded on the latest running Jam
-        latest: JamModel = self.jams[-2] if len(self.jams) > 1 else self.jams[-1]
-        timeout: TimeoutModel = TimeoutModel(
-            period=latest.period,
-            jam=latest.jam,
-            start_timestamp=timestamp,
-            clock_elapsed=self.clock.get_duration(timestamp),
-        )
-        self.timeouts.append(timeout)
-        return timeout
-
-    def stop_timeout(self, timestamp: datetime) -> None:
-        if self.get_state() != 'timeout':
-            raise RuntimeError('There is no active Timeout to stop')
-        timeout: TimeoutModel = self.timeouts[-1]
-        if timeout.team is None and timeout.is_review:
-            raise RulesError('Officials cannot call an Official Review')
-
-        timeout.stop(timestamp)
-
-        # Decrement the Timeout or Official Review if it was not retained
-        if timeout.team is not None and not timeout.retained:
-            # Only decrement if the value is greater than zero
-            if timeout.is_review and timeout.team.reviews_remaining > 0:
-                timeout.team.reviews_remaining -= 1
-            elif timeout.team.timeouts_remaining > 0:
-                timeout.team.timeouts_remaining -= 1

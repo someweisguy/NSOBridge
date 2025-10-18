@@ -4,12 +4,12 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from functools import cached_property
-from typing import TYPE_CHECKING, Final, Literal, final
+from typing import TYPE_CHECKING, Final, Literal, final, override
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .jam import JamModel, TeamJamModel, TeamName
+from .jam import JamModel, TeamJamModel
 from .models import CacheableModel, SQLModel
 from .team import TeamModel
 from .time import ClockModel
@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
-NUM_PERIODS: Final[int] = 2
 
 
 @dataclass(frozen=True)
@@ -36,7 +35,7 @@ class BoutContext:
 
 
 class GenericDataBoutModel(CacheableModel):
-    __tablename__ = 'bouts'
+    __tablename__: str = 'bouts'
 
     _series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     _clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
@@ -60,8 +59,8 @@ class GenericDataBoutModel(CacheableModel):
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(lazy='selectin')
 
-    __table_args__ = (UniqueConstraint(_series_id, order),)
-    __mapper_args__ = {
+    __table_args__: tuple[Constraint] = (UniqueConstraint(_series_id, order),)
+    __mapper_args__: dict[str, str | bool] = {
         'polymorphic_on': 'ruleset',
     }
 
@@ -96,11 +95,13 @@ class GenericDataBoutModel(CacheableModel):
 
     @final
     @property
+    @override
     def parents(self) -> tuple[SQLModel, ...]:
         return (self.series,)
 
     @final
     @property
+    @override
     def key(self) -> tuple[str, int]:
         return (self.__tablename__, self.id)
 
@@ -131,40 +132,10 @@ class GenericDataBoutModel(CacheableModel):
 
 
 class GenericBoutModel(GenericDataBoutModel):
-    __mapper_args__ = {
+    __mapper_args__: dict[str, str | bool] = {
         'polymorphic_abstract': True,
     }
 
     @cached_property
     @abstractmethod
     def context(self) -> BoutContext: ...
-
-    @abstractmethod
-    def add_trip(self, team: TeamName, passes: int, timestamp: datetime) -> None: ...
-
-    @abstractmethod
-    def clear_track(self, timestamp: datetime) -> None: ...
-
-    @abstractmethod
-    def set_lead(self, team: TeamName, lead: bool, timestamp: datetime) -> None: ...
-
-    @abstractmethod
-    def set_lost(self, team: TeamName, lost: bool) -> None: ...
-
-    @abstractmethod
-    def set_star_pass(self, team: TeamName, timestamp: datetime) -> None: ...
-
-    @abstractmethod
-    def setup_track(self, timestamp: datetime) -> None: ...
-
-    @abstractmethod
-    def start_jam(self, timestamp: datetime) -> JamModel: ...
-
-    @abstractmethod
-    def start_timeout(self, timestamp: datetime) -> TimeoutModel: ...
-
-    @abstractmethod
-    def stop_jam(self, timestamp: datetime) -> None: ...
-
-    @abstractmethod
-    def stop_timeout(self, timestamp: datetime) -> None: ...

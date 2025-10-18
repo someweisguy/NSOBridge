@@ -3,13 +3,13 @@ import { TeamComponent } from "@/components/team-component";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
 import useServerOffset from "@/hooks/use-server-offset";
+import { Bout, BoutContext } from "@/lib/bout";
 import queryClient from "@/lib/cache";
 import FitScreen from "@fit-screen/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import { Bout, BoutContext } from "@/lib/bout";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
