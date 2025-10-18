@@ -70,12 +70,12 @@ async def stop_jam(bout: BoutDepends, history: HistoryDepends) -> None:
 
 @router.post('/call-timeout')
 async def call_timeout(bout: BoutDepends, history: HistoryDepends) -> None:
-    await history.execute(Bout.TimeoutStart(bout, datetime.now()))
+    await history.execute(wftda_2025.StartTimeout(bout, datetime.now()))
 
 
 @router.post('/end-timeout')
 async def end_timeout(bout: BoutDepends, history: HistoryDepends) -> None:
-    await history.execute(Bout.TimeoutStop(bout, datetime.now()))
+    await history.execute(wftda_2025.StopTimeout(bout, datetime.now()))
 
 
 @router.post('/expected-start')

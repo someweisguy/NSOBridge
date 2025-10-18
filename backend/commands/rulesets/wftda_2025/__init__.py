@@ -66,3 +66,22 @@ class StopJam(AggregateCommand):
 
         self.add(Bout.JamStop(bout, timestamp))
         self.add(Bout.JamCreate(bout, bout.teams[0], bout.teams[1]))
+
+
+class StartTimeout(AggregateCommand):
+    def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
+        super().__init__()
+
+        self.add(Bout.TimeoutStart(bout, timestamp))
+
+        if bout.clock.is_running():
+            self.add(Clock.Stop(bout.clock, timestamp))
+
+
+class StopTimeout(AggregateCommand):
+    def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
+        super().__init__()
+
+        self.add(Bout.TimeoutStop(bout, timestamp))
+
+        # TODO: reduce team timeout count
