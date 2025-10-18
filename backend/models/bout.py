@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from functools import cached_property
@@ -137,5 +136,4 @@ class GenericBoutModel(GenericDataBoutModel):
     }
 
     @cached_property
-    @abstractmethod
     def context(self) -> BoutContext: ...
