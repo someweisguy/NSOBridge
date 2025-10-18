@@ -140,7 +140,7 @@ class BoutSchema(ServerSchema):
             return None  # This condition should never occur
 
         timeout: TimeoutSchema = self.timeouts[-1]
-        if timeout.period != active_jam.period and timeout.jam != active_jam.jam:
+        if timeout.period != active_jam.period and timeout.jam.jam != active_jam.jam:
             return None
 
         return timeout
