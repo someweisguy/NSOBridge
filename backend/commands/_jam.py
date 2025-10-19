@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import override
 
 from models import TeamJamModel
-from models.jam import TripModel
+from models.jam import TripEventModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from commands._commands import Command
@@ -19,7 +19,7 @@ class AddTrip(Command):
                              or less ({passes=})""")
 
         self.team_jam: TeamJamModel = team_jam
-        self.trip: TripModel = TripModel(timestamp=timestamp, passes=passes)
+        self.trip: TripEventModel = TripEventModel(timestamp=timestamp, passes=passes)
 
     @override
     async def execute(self, db: AsyncSession) -> None:
@@ -90,6 +90,7 @@ class SetStarPass(Command):
             trip=jam[team].trips[-1] if len(jam[team].trips) > 0 else None,
         )
         jam[team].star_passes.append(star_pass)
+
     @override
     async def undo(self, db: AsyncSession) -> None:
         pass  # TODO

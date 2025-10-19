@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, Literal, override
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
@@ -16,36 +16,23 @@ if TYPE_CHECKING:
 type TeamName = Literal['home', 'away']
 
 
-class TripModel(SQLModel):
-    __tablename__: str = 'trips'
+class TripEventModel(SQLModel):
+    __tablename__: str = 'trip_events'
 
     _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
-    passes: Mapped[int] = mapped_column()
     timestamp: Mapped[datetime] = mapped_column()
+    lead: Mapped[bool] = mapped_column(default=False)
+    lost: Mapped[bool] = mapped_column(default=False)
+    passes: Mapped[int | None] = mapped_column(default=None)
+    star_pass: Mapped[bool] = mapped_column(default=False)
 
     _team_jam: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_team_jam_id], lazy='joined'
     )
 
-    @property
-    @override
-    def parents(self) -> tuple[SQLModel | None, ...]:
-        return (self._team_jam,)
-
-
-class StarPassModel(SQLModel):
-    __tablename__: str = 'star_passes'
-
-    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
-    _trip_id: Mapped[int | None] = mapped_column(
-        ForeignKey('trips.id', ondelete='CASCADE')
+    __table_args__ = (
+        CheckConstraint('passes IS NULL OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
     )
-    timestamp: Mapped[datetime] = mapped_column()
-
-    _team_jam: Mapped[TeamJamModel | None] = relationship(
-        foreign_keys=[_team_jam_id], lazy='joined'
-    )
-    trip: Mapped[TripModel | None] = relationship(foreign_keys=[_trip_id])
 
     @property
     @override
@@ -57,8 +44,6 @@ class TeamJamModel(SQLModel):
     __tablename__: str = 'team_jams'
 
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
-    lead: Mapped[datetime | None] = mapped_column(default=None)
-    lost: Mapped[bool] = mapped_column(default=False)
 
     _home: Mapped[JamModel | None] = relationship(
         foreign_keys='JamModel._home_team_jam_id'
@@ -69,17 +54,12 @@ class TeamJamModel(SQLModel):
     team: Mapped[TeamModel | None] = relationship(
         foreign_keys=[_team_id], lazy='selectin'
     )
-    star_passes: Mapped[list[StarPassModel]] = relationship(
-        back_populates='_team_jam', lazy='selectin'
-    )
-    trips: Mapped[list[TripModel]] = relationship(
-        back_populates='_team_jam', lazy='selectin', order_by=[TripModel.timestamp]
+    trips: Mapped[list[TripEventModel]] = relationship(
+        back_populates='_team_jam', lazy='selectin', order_by=[TripEventModel.timestamp]
     )
 
     def __init__(self, team: TeamModel) -> None:
         super().__init__(team=team)
-        self.lead = None
-        self.lost = False
 
     @property
     @override
@@ -90,21 +70,6 @@ class TeamJamModel(SQLModel):
             return (self._away,)
         else:
             raise RuntimeError('This TeamJam does not have a parent Jam')
-
-    def add_trip(self, passes: int, timestamp: datetime | None = None) -> TripModel:
-        if timestamp is None:
-            timestamp = datetime.now()
-        trip: TripModel = TripModel(timestamp=timestamp, passes=passes)
-        self.trips.append(trip)
-        return trip
-
-    def add_star_pass(self, timestamp: datetime | None = None) -> StarPassModel:
-        if timestamp is None:
-            timestamp = datetime.now()
-        trip: TripModel | None = self.trips[-1] if len(self.trips) > 0 else None
-        star_pass: StarPassModel = StarPassModel(timestamp=timestamp, trip=trip)
-        self.star_passes.append(star_pass)
-        return star_pass
 
 
 class JamModel(AbstractOneShotModel, CacheableModel):
@@ -160,6 +125,3 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     @override
     def key(self) -> tuple[str, int, int, int]:
         return (self.__tablename__, self._bout_id, self.period, self.jam)
-
-    def lead_is_declared(self) -> bool:
-        return self.home.lead is not None or self.away.lead is not None

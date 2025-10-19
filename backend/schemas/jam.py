@@ -4,36 +4,48 @@ from core import ServerSchema
 from pydantic import Field, computed_field
 
 
-class TripSchema(ServerSchema):
+class TripEventSchema(ServerSchema):
     timestamp: datetime
-    passes: int
-
-
-class StarPassSchema(ServerSchema):
-    trip: TripSchema | None
-    timestamp: datetime
+    lead: bool
+    lost: bool
+    passes: int | None
+    star_pass: bool
 
 
 class TeamJamSchema(ServerSchema):
-    lead: datetime | None
-    lost: bool
-    trips: list[TripSchema] = Field(exclude=True)
-    star_passes: list[StarPassSchema] = Field(exclude=True)
+    events: list[TripEventSchema] = Field(exclude=True)
+
+    @computed_field
+    @property
+    def lead(self) -> int | None:
+        for event in self.events:
+            if event.lead:
+                return True
+        return False
+
+    @computed_field
+    @property
+    def lost(self) -> bool:
+        for event in self.events:
+            if event.lost:
+                return True
+        return False
 
     @computed_field
     @property
     def star_pass(self) -> int | None:
-        if len(self.star_passes) == 0:
-            return None
-        star_pass: StarPassSchema = self.star_passes[0]
-        if star_pass.trip is None:
-            return 0
-        return self.trips.index(star_pass.trip)
+        trip_index: int = 0
+        for event in self.events:
+            if event.passes is not None:
+                trip_index += 1
+            if event.star_pass:
+                return trip_index
+        return None
 
     @computed_field
     @property
-    def trip_passes(self) -> list[int]:
-        return [trip.passes for trip in self.trips]
+    def passes(self) -> list[int]:
+        return [trip.passes for trip in self.events if trip.passes is not None]
 
 
 class BoutSchema(ServerSchema):
