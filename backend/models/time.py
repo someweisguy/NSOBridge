@@ -17,15 +17,15 @@ if TYPE_CHECKING:
 class ClockModel(SQLModel):
     __tablename__: str = 'clocks'
 
-    bout: Mapped[GenericBoutModel | None] = relationship(
-        back_populates='clock', lazy='joined'
-    )
-
-    start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
+    alarm: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
     elapsed: Mapped[timedelta] = mapped_column(
         TimedeltaAsMilliseconds, default=timedelta(seconds=0)
     )
-    alarm: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
+    start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
+
+    bout: Mapped[GenericBoutModel | None] = relationship(
+        back_populates='clock', lazy='joined'
+    )
 
     @property
     @override
@@ -64,22 +64,22 @@ class ClockModel(SQLModel):
 
 class TimeoutModel(AbstractOneShotModel):
     __tablename__: str = 'timeouts'
+    
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
-    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
     _jam_id: Mapped[int] = mapped_column(ForeignKey('jams.id'))
+    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
+    
+    clock_elapsed: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
+    details: Mapped[str | None] = mapped_column(default=None)
+    is_review: Mapped[bool] = mapped_column(default=False)
+    result: Mapped[str | None] = mapped_column(default=None)
+    retained: Mapped[bool] = mapped_column(default=False)
 
     bout: Mapped[GenericBoutModel | None] = relationship(back_populates='timeouts')
     jam: Mapped[JamModel] = relationship(foreign_keys=[_jam_id])
-
-    clock_elapsed: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
     team: Mapped[TeamModel | None] = relationship(
         back_populates='timeouts', foreign_keys=[_team_id]
     )
-    is_review: Mapped[bool] = mapped_column(default=False)
-
-    details: Mapped[str | None] = mapped_column(default=None)
-    result: Mapped[str | None] = mapped_column(default=None)
-    retained: Mapped[bool] = mapped_column(default=False)
 
     @property
     @override

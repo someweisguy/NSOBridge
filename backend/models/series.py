@@ -11,8 +11,9 @@ from .models import CacheableModel, SQLModel
 class SeriesModel(CacheableModel):
     __tablename__: str = 'series'
 
-    rowid: Mapped[int] = mapped_column(system=True)
     name: Mapped[str] = mapped_column(default='')
+    rowid: Mapped[int] = mapped_column(system=True)
+
     bouts: Mapped[list[GenericBoutModel]] = relationship(
         back_populates='series', lazy='selectin', order_by=GenericBoutModel.order
     )

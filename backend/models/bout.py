@@ -37,14 +37,12 @@ class GenericDataBoutModel(CacheableModel):
 
     _series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     _clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
-
-    order: Mapped[int] = mapped_column()
-    ruleset: Mapped[str] = mapped_column()
-    is_running: Mapped[bool] = mapped_column(default=False)
     expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
+    is_running: Mapped[bool] = mapped_column(default=False)
+    order: Mapped[int] = mapped_column()
+    ruleset: Mapped[str] = mapped_column()
 
-    series: Mapped[SeriesModel] = relationship(foreign_keys=[_series_id], lazy='select')
     clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
     jams: Mapped[list[JamModel]] = relationship(
         back_populates='bout',
@@ -52,6 +50,7 @@ class GenericDataBoutModel(CacheableModel):
         load_on_pending=True,
         order_by=[JamModel.period, JamModel.jam],
     )
+    series: Mapped[SeriesModel] = relationship(foreign_keys=[_series_id], lazy='select')
     teams: Mapped[list[TeamModel]] = relationship(
         back_populates='bout', lazy='selectin'
     )

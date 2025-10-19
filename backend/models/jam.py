@@ -20,13 +20,12 @@ class TripModel(SQLModel):
     __tablename__: str = 'trips'
 
     _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
+    passes: Mapped[int] = mapped_column()
+    timestamp: Mapped[datetime] = mapped_column()
 
     _team_jam: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_team_jam_id], lazy='joined'
     )
-
-    timestamp: Mapped[datetime] = mapped_column()
-    passes: Mapped[int] = mapped_column()
 
     @property
     @override
@@ -41,13 +40,11 @@ class StarPassModel(SQLModel):
     _trip_id: Mapped[int | None] = mapped_column(
         ForeignKey('trips.id', ondelete='CASCADE')
     )
+    timestamp: Mapped[datetime] = mapped_column()
 
     _team_jam: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_team_jam_id], lazy='joined'
     )
-
-    timestamp: Mapped[datetime] = mapped_column()
-
     trip: Mapped[TripModel | None] = relationship(foreign_keys=[_trip_id])
 
     @property
@@ -60,6 +57,8 @@ class TeamJamModel(SQLModel):
     __tablename__: str = 'team_jams'
 
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
+    lead: Mapped[datetime | None] = mapped_column(default=None)
+    lost: Mapped[bool] = mapped_column(default=False)
 
     _home: Mapped[JamModel | None] = relationship(
         foreign_keys='JamModel._home_team_jam_id'
@@ -67,10 +66,6 @@ class TeamJamModel(SQLModel):
     _away: Mapped[JamModel | None] = relationship(
         foreign_keys='JamModel._away_team_jam_id'
     )
-
-    lead: Mapped[datetime | None] = mapped_column(default=None)
-    lost: Mapped[bool] = mapped_column(default=False)
-
     team: Mapped[TeamModel | None] = relationship(
         foreign_keys=[_team_id], lazy='selectin'
     )
@@ -116,26 +111,25 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     __tablename__: str = 'jams'
 
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
-    _home_team_jam_id: Mapped[int] = mapped_column(
-        ForeignKey('team_jams.id', ondelete='SET NULL')
-    )
     _away_team_jam_id: Mapped[int] = mapped_column(
         ForeignKey('team_jams.id', ondelete='SET NULL')
     )
-
-    period: Mapped[int] = mapped_column(index=True)
+    _home_team_jam_id: Mapped[int] = mapped_column(
+        ForeignKey('team_jams.id', ondelete='SET NULL')
+    )
     jam: Mapped[int] = mapped_column(index=True)
+    period: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
+    away: Mapped[TeamJamModel] = relationship(
+        back_populates='_away',
+        foreign_keys=[_away_team_jam_id],
+        lazy='joined',
+    )
     bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[_bout_id])
     home: Mapped[TeamJamModel] = relationship(
         back_populates='_home',
         foreign_keys=[_home_team_jam_id],
-        lazy='joined',
-    )
-    away: Mapped[TeamJamModel] = relationship(
-        back_populates='_away',
-        foreign_keys=[_away_team_jam_id],
         lazy='joined',
     )
 

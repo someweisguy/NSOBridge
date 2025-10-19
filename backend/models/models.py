@@ -101,6 +101,7 @@ def after_flush_hook(session: Session, _: UOWTransaction) -> None:
     for callback in callbacks:
         callback(cacheables)
 
+
 class AbstractOneShotModel(SQLModel):
     __abstract__: bool = True
 
