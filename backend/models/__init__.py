@@ -4,7 +4,7 @@ from typing import Annotated, Any, Callable
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .bout import GenericBoutModel, GenericDataBoutModel
+from .bout import GenericBoutModel
 from .jam import JamModel, TeamJamModel, TeamName
 from .models import CacheableModel, SessionLocal, SQLModel, callbacks, engine
 from .series import SeriesModel
@@ -43,7 +43,6 @@ __all__ = (
     'CacheableModel',
     'ClockModel',
     'GenericBoutModel',
-    'GenericDataBoutModel',
     'get_db',
     'JamModel',
     'on_update',

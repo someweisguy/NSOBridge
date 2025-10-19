@@ -32,7 +32,7 @@ class BoutContext:
     num_reviews: int
 
 
-class GenericDataBoutModel(CacheableModel):
+class GenericBoutModel(CacheableModel):
     __tablename__: str = 'bouts'
 
     _series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
@@ -58,6 +58,7 @@ class GenericDataBoutModel(CacheableModel):
 
     __table_args__: tuple[Constraint] = (UniqueConstraint(_series_id, order),)
     __mapper_args__: dict[str, str | bool] = {
+        'polymorphic_abstract': True,
         'polymorphic_on': 'ruleset',
     }
 
@@ -126,12 +127,6 @@ class GenericDataBoutModel(CacheableModel):
         if jam.start_timestamp is None:
             jam = self.jams[-2] if len(self.jams) > 1 else None
         return jam
-
-
-class GenericBoutModel(GenericDataBoutModel):
-    __mapper_args__: dict[str, str | bool] = {
-        'polymorphic_abstract': True,
-    }
 
     @cached_property
     def context(self) -> BoutContext: ...
