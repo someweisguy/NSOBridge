@@ -221,7 +221,6 @@ class TimeoutStart(Command):
         assert self.timeout is not None
         if self.timeout not in self.bout.timeouts:
             raise RuntimeError('Timeout does not exist')
-        self.bout.timeouts.remove(self.timeout)
         await db.delete(self.timeout)
 
 
