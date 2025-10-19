@@ -29,13 +29,13 @@ def on_update(
     return callback
 
 
-async def inject_db() -> AsyncGenerator[AsyncSession]:
+async def _inject_db() -> AsyncGenerator[AsyncSession]:
     async with get_db() as session:
         yield session
         await session.commit()
 
 
-DatabaseDepends = Annotated[AsyncSession, Depends(inject_db)]
+DatabaseDepends = Annotated[AsyncSession, Depends(_inject_db)]
 
 
 __all__ = (
