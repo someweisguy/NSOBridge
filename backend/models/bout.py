@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .jam import JamModel, TeamJamModel
 from .models import CacheableModel, SQLModel
 from .team import TeamModel
-from .time import ClockModel
+from .time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
     from datetime import timedelta
