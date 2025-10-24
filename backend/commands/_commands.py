@@ -6,12 +6,15 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 class Command(ABC):
+    # TODO: change arg name to 'session'
     @abstractmethod
     async def execute(self, db: AsyncSession) -> None: ...
 
+    # TODO: change arg name to 'session'
     @abstractmethod
     async def undo(self, db: AsyncSession) -> None: ...
 
+    # TODO: change arg name to 'session'
     async def merge(self, db: AsyncSession) -> None:
         for attr_name, attr_value in self.__dict__.items():
             if isinstance(attr_value, DeclarativeBase):

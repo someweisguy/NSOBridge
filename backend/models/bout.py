@@ -65,7 +65,7 @@ class GenericBoutModel(CacheableModel):
     @classmethod
     def calculate_score(cls, team_jam: TeamJamModel) -> int:
         # Sum the Trip passes, ignoring the first Trip
-        return sum(trip.passes for trip in team_jam.trips)
+        return sum(trip.passes for trip in team_jam.events)
 
     @classmethod
     def fetch_team_bout_score(cls, team: TeamModel) -> int:

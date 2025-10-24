@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, Literal, override
 
-from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
+from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,18 +26,18 @@ class TripEventModel(SQLModel):
     passes: Mapped[int | None] = mapped_column(default=None)
     star_pass: Mapped[bool] = mapped_column(default=False)
 
-    _team_jam: Mapped[TeamJamModel | None] = relationship(
+    team_jam: Mapped[TeamJamModel | None] = relationship(
         foreign_keys=[_team_jam_id], lazy='joined'
     )
 
-    __table_args__ = (
+    __table_args__: tuple[Constraint, ...] = (
         CheckConstraint('passes IS NULL OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
     )
 
     @property
     @override
     def parents(self) -> tuple[SQLModel | None, ...]:
-        return (self._team_jam,)
+        return (self.team_jam,)
 
 
 class TeamJamModel(SQLModel):
@@ -54,8 +54,8 @@ class TeamJamModel(SQLModel):
     team: Mapped[TeamModel | None] = relationship(
         foreign_keys=[_team_id], lazy='selectin'
     )
-    trips: Mapped[list[TripEventModel]] = relationship(
-        back_populates='_team_jam', lazy='selectin', order_by=[TripEventModel.timestamp]
+    events: Mapped[list[TripEventModel]] = relationship(
+        back_populates='team_jam', lazy='selectin', order_by=[TripEventModel.timestamp]
     )
 
     def __init__(self, team: TeamModel) -> None:
@@ -75,7 +75,7 @@ class TeamJamModel(SQLModel):
 class JamModel(AbstractOneShotModel, CacheableModel):
     __tablename__: str = 'jams'
 
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
+    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
     _away_team_jam_id: Mapped[int] = mapped_column(
         ForeignKey('team_jams.id', ondelete='SET NULL')
     )
@@ -91,7 +91,7 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         foreign_keys=[_away_team_jam_id],
         lazy='joined',
     )
-    bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[_bout_id])
+    bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[bout_id])
     home: Mapped[TeamJamModel] = relationship(
         back_populates='_home',
         foreign_keys=[_home_team_jam_id],
@@ -102,7 +102,7 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     @classmethod
     def __table_args__(cls) -> Any:
         return super().__table_args__ + (
-            UniqueConstraint(cls._bout_id, cls.period, cls.jam),
+            UniqueConstraint(cls.bout_id, cls.period, cls.jam),
             UniqueConstraint(cls._home_team_jam_id),
             UniqueConstraint(cls._away_team_jam_id),
             CheckConstraint('_home_team_jam_id != _away_team_jam_id'),
@@ -123,5 +123,5 @@ class JamModel(AbstractOneShotModel, CacheableModel):
 
     @property
     @override
-    def key(self) -> tuple[str, int, int, int]:
-        return (self.__tablename__, self._bout_id, self.period, self.jam)
+    def key(self) -> tuple[str, int | None, int, int]:
+        return (self.__tablename__, self.bout_id, self.period, self.jam)

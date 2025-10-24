@@ -41,9 +41,6 @@ class TimeoutSchema(TimerSchema):
 
 class TeamJamSchema(ServerSchema):
     team: TeamSchema = Field(exclude=True)
-    lead: datetime | None
-    lost: bool
-    star_passes: list[Any] = Field(exclude=True)
 
     @computed_field
     @property
@@ -53,7 +50,7 @@ class TeamJamSchema(ServerSchema):
     @computed_field
     @property
     def star_pass(self) -> bool:
-        return len(self.star_passes) > 0
+        return False  # FIXME
 
 
 class JamSchema(TimerSchema):

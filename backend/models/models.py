@@ -7,6 +7,7 @@ from typing import Any, Callable, Final, override
 
 from sqlalchemy import CheckConstraint, Dialect, event
 from sqlalchemy.ext.asyncio import (
+    AsyncAttrs,
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
@@ -47,10 +48,10 @@ class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
         return timedelta(milliseconds=value)
 
 
-class SQLModel(DeclarativeBase):
+class SQLModel(AsyncAttrs, DeclarativeBase):
     __abstract__: bool = True
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
     @property
     def parents(self) -> tuple[SQLModel | None, ...]: ...
