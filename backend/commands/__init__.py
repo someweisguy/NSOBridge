@@ -46,6 +46,7 @@ class CommandHistory:
 
 
 _histories: dict[UUID, CommandHistory] = {}
+singleton = CommandHistory()
 
 
 async def get_command_history(
@@ -60,6 +61,7 @@ async def get_command_history(
     if history is None:
         history = CommandHistory()
         _histories[nso_id] = history
+    history = singleton  # FIXME: remove this
     history.session = db
     return history
 

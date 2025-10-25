@@ -1,10 +1,13 @@
+from models.jam import TripEventModel
+
+
 from datetime import datetime
 from typing import Annotated, Final
 
 from commands import HistoryDepends
 from commands._jam import AddTrip
 from fastapi import APIRouter, Body, Depends, Query
-from models import DatabaseDepends, JamModel
+from models import DatabaseDepends, JamModel, TeamJamModel
 from models.jam import TripEventModel
 from schemas import JamSchema
 from sqlalchemy import select
@@ -35,8 +38,9 @@ JamDepends = Annotated[JamModel, Depends(get_jam)]
 async def add_trip(jam: JamDepends, history: HistoryDepends) -> None:
     # TODO: make commands dataclasses
     # FIXME: remove this test endpoint
-    trip = TripEventModel(timestamp=datetime.now(), passes=4)
-    await history.execute(AddTrip(jam.home, trip))
+    trip: TripEventModel = TripEventModel(timestamp=datetime.now(), passes=4)
+    team_jam: TeamJamModel = await jam.awaitable_attrs.home
+    await history.execute(AddTrip(team_jam, trip))
 
 
 __all__ = ('router',)
