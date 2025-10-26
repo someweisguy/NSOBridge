@@ -91,7 +91,9 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         foreign_keys=[_away_team_jam_id],
         lazy='joined',
     )
-    bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[bout_id], lazy='selectin')
+    bout: Mapped[GenericBoutModel] = relationship(
+        foreign_keys=[bout_id], lazy='selectin'
+    )
     home: Mapped[TeamJamModel] = relationship(
         back_populates='_home',
         foreign_keys=[_home_team_jam_id],
