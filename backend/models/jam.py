@@ -46,10 +46,10 @@ class TeamJamModel(SQLModel):
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
     _home: Mapped[JamModel | None] = relationship(
-        foreign_keys='JamModel._home_team_jam_id'
+        foreign_keys='JamModel._home_team_jam_id', lazy='joined'
     )
     _away: Mapped[JamModel | None] = relationship(
-        foreign_keys='JamModel._away_team_jam_id'
+        foreign_keys='JamModel._away_team_jam_id', lazy='joined'
     )
     team: Mapped[TeamModel | None] = relationship(
         foreign_keys=[_team_id], lazy='selectin'
@@ -91,7 +91,7 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         foreign_keys=[_away_team_jam_id],
         lazy='joined',
     )
-    bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[bout_id])
+    bout: Mapped[GenericBoutModel] = relationship(foreign_keys=[bout_id], lazy='selectin')
     home: Mapped[TeamJamModel] = relationship(
         back_populates='_home',
         foreign_keys=[_home_team_jam_id],
