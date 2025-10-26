@@ -6,9 +6,9 @@ import core
 import models
 from api.api import router as history_router
 from api.bout import router as bout_router
+from api.jam import router as jam_router
 from api.roster import router as roster_router
 from api.series import router as series_router
-from api.jam import router as jam_router
 from core.ws import WebSocketSchema
 from models import CacheableModel, GenericBoutModel, RosterModel
 from models.rulesets.wftda_2025 import BoutModel
