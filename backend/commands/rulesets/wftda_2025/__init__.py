@@ -22,7 +22,7 @@ def get_next_jam_num(
             period_num += 1
         else:
             jam_num = latest.jam + 1
-    return (jam_num, period_num)
+    return period_num, jam_num
 
 
 class BeginPeriod(MultiCommand):
