@@ -26,7 +26,7 @@ class PeriodStartCountdown(Command):
         self.bout.expected_start_timestamp = self.old_value
 
 
-class Periosessionegin(Command):
+class PeriodBegin(Command):
     def __init__(self, bout: GenericBoutModel) -> None:
         self.bout: GenericBoutModel = bout
 
