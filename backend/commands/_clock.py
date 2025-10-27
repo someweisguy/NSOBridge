@@ -9,67 +9,71 @@ from ._commands import Command
 
 class Start(Command):
     def __init__(self, clock: ClockModel, timestamp: datetime) -> None:
-        self.clock: ClockModel = clock
+        self.detached_clock: ClockModel = clock
         self.timestamp: datetime = timestamp
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        if self.clock.is_running():
+        clock: ClockModel = await session.merge(self.detached_clock)
+        if clock.is_running():
             raise RuntimeError('Clock is already running')
-        self.clock.start_timestamp = self.timestamp
+        clock.start_timestamp = self.timestamp
 
     @override
     async def undo(self, session: AsyncSession) -> None:
-        self.clock.start_timestamp = None
+        clock: ClockModel = await session.merge(self.detached_clock)
+        clock.start_timestamp = None
 
 
 class Stop(Command):
     def __init__(self, clock: ClockModel, timestamp: datetime) -> None:
-        self.clock: ClockModel = clock
+        self.detached_clock: ClockModel = clock
         self.timestamp: datetime = timestamp
-        self.old_elapsed: timedelta | None = None
-        self.old_start_timestamp: datetime | None = None
+        self.old_elapsed: timedelta = timedelta(seconds=0)
+        self.old_start_timestamp: datetime = datetime.min
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        if not self.clock.is_running():
+        clock: ClockModel = await session.merge(self.detached_clock)
+
+        if clock.start_timestamp is None:
             raise RuntimeError('Cannot stop a Clock when it is already stopped')
-        assert self.clock.start_timestamp is not None
-        if self.timestamp < self.clock.start_timestamp:
+        if self.timestamp < clock.start_timestamp:
             raise RuntimeError('Cannot stop a Clock before it has been started')
 
-        self.old_elapsed = self.clock.elapsed
-        self.old_start_timestamp = self.clock.start_timestamp
-        self.clock.elapsed += self.timestamp - self.clock.start_timestamp
-        self.clock.start_timestamp = None
+        self.old_elapsed = clock.elapsed
+        self.old_start_timestamp = clock.start_timestamp
+        clock.elapsed += self.timestamp - clock.start_timestamp
+        clock.start_timestamp = None
 
     @override
     async def undo(self, session: AsyncSession) -> None:
-        if self.old_elapsed is None or self.old_start_timestamp is None:
-            raise RuntimeError('This action has not been executed')
+        clock: ClockModel = await session.merge(self.detached_clock)
 
-        self.clock.elapsed = self.old_elapsed
-        self.clock.start_timestamp = self.old_start_timestamp
+        clock.elapsed = self.old_elapsed
+        clock.start_timestamp = self.old_start_timestamp
 
 
 class Set(Command):
     def __init__(self, clock: ClockModel, elapsed: timedelta) -> None:
-        self.clock: ClockModel = clock
+        self.detached_clock: ClockModel = clock
         self.elapsed: timedelta = elapsed
-        self.old_elapsed: timedelta | None = None
+        self.old_elapsed: timedelta = timedelta(seconds=0)
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        if self.clock.is_running():
+        clock: ClockModel = await session.merge(self.detached_clock)
+        if clock.is_running():
             raise RuntimeError('Cannot set a Clock when it is running')
-        self.old_elapsed = self.clock.elapsed
-        self.clock.elapsed = self.elapsed
+
+        self.old_elapsed = clock.elapsed
+        clock.elapsed = self.elapsed
 
     @override
     async def undo(self, session: AsyncSession) -> None:
-        if self.old_elapsed is None:
-            raise RuntimeError('This action has not been executed')
-        self.clock.elapsed = self.old_elapsed
+        clock: ClockModel = await session.merge(self.detached_clock)
+
+        clock.elapsed = self.old_elapsed
 
 
 class Reset(Set):

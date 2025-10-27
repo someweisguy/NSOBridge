@@ -44,12 +44,10 @@ class AddTrip(Command):
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        if inspect(self.trip_event).detached:
-            # Handle redo
-            _ = await session.merge(self.trip_event)
-        else:
-            # Handle initial insertion
+        if inspect(self.trip_event).transient:
             self.detached_parent.events.append(self.trip_event)
+        else:
+            _ = await session.merge(self.trip_event)
 
     @override
     async def undo(self, session: AsyncSession) -> None:

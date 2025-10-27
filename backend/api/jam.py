@@ -1,6 +1,3 @@
-from models.jam import TripEventModel
-
-
 from datetime import datetime
 from typing import Annotated, Final
 
