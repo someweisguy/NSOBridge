@@ -13,13 +13,13 @@ class Start(Command):
         self.timestamp: datetime = timestamp
 
     @override
-    async def execute(self, db: AsyncSession) -> None:
+    async def execute(self, session: AsyncSession) -> None:
         if self.clock.is_running():
             raise RuntimeError('Clock is already running')
         self.clock.start_timestamp = self.timestamp
 
     @override
-    async def undo(self, db: AsyncSession) -> None:
+    async def undo(self, session: AsyncSession) -> None:
         self.clock.start_timestamp = None
 
 
@@ -31,7 +31,7 @@ class Stop(Command):
         self.old_start_timestamp: datetime | None = None
 
     @override
-    async def execute(self, db: AsyncSession) -> None:
+    async def execute(self, session: AsyncSession) -> None:
         if not self.clock.is_running():
             raise RuntimeError('Cannot stop a Clock when it is already stopped')
         assert self.clock.start_timestamp is not None
@@ -44,7 +44,7 @@ class Stop(Command):
         self.clock.start_timestamp = None
 
     @override
-    async def undo(self, db: AsyncSession) -> None:
+    async def undo(self, session: AsyncSession) -> None:
         if self.old_elapsed is None or self.old_start_timestamp is None:
             raise RuntimeError('This action has not been executed')
 
@@ -59,14 +59,14 @@ class Set(Command):
         self.old_elapsed: timedelta | None = None
 
     @override
-    async def execute(self, db: AsyncSession) -> None:
+    async def execute(self, session: AsyncSession) -> None:
         if self.clock.is_running():
             raise RuntimeError('Cannot set a Clock when it is running')
         self.old_elapsed = self.clock.elapsed
         self.clock.elapsed = self.elapsed
 
     @override
-    async def undo(self, db: AsyncSession) -> None:
+    async def undo(self, session: AsyncSession) -> None:
         if self.old_elapsed is None:
             raise RuntimeError('This action has not been executed')
         self.clock.elapsed = self.old_elapsed

@@ -13,11 +13,11 @@ class SetTimeoutsRemaining(Command):
         self.old_value: int = team.timeouts_remaining
 
     @override
-    async def execute(self, db: AsyncSession) -> None:
+    async def execute(self, session: AsyncSession) -> None:
         self.team.timeouts_remaining = self.new_value
 
     @override
-    async def undo(self, db: AsyncSession) -> None:
+    async def undo(self, session: AsyncSession) -> None:
         self.team.timeouts_remaining = self.old_value
 
 
@@ -28,9 +28,9 @@ class SetReviewsRemaining(Command):
         self.old_value: int = team.reviews_remaining
 
     @override
-    async def execute(self, db: AsyncSession) -> None:
+    async def execute(self, session: AsyncSession) -> None:
         self.team.reviews_remaining = self.new_value
 
     @override
-    async def undo(self, db: AsyncSession) -> None:
+    async def undo(self, session: AsyncSession) -> None:
         self.team.reviews_remaining = self.old_value
