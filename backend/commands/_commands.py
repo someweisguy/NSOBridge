@@ -14,11 +14,11 @@ class Command(ABC):
     @abstractmethod
     async def undo(self, session: AsyncSession) -> None: ...
 
-    # TODO: change arg name to 'session'
-    async def merge(self, session: AsyncSession) -> None:
-        for attr_name, attr_value in self.__dict__.items():
-            if isinstance(attr_value, DeclarativeBase):
-                setattr(self, attr_name, await session.merge(attr_value))
+    # # TODO: change arg name to 'session'
+    # async def merge(self, session: AsyncSession) -> None:
+    #     for attr_name, attr_value in self.__dict__.items():
+    #         if isinstance(attr_value, DeclarativeBase):
+    #             setattr(self, attr_name, await session.merge(attr_value))
 
 
 class AggregateCommand(Command):
@@ -36,10 +36,4 @@ class AggregateCommand(Command):
     @override
     async def undo(self, session: AsyncSession) -> None:
         for command in reversed(self._commands):
-            await command.merge(session)
             await command.undo(session)
-
-    @override
-    async def merge(self, session: AsyncSession) -> None:
-        for command in self._commands:
-            await command.merge(session)

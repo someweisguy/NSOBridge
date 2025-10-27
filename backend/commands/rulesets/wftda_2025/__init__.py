@@ -35,7 +35,7 @@ class BeginPeriod(AggregateCommand):
         jam: JamModel = JamModel(period_num, jam_num, home, away)
         self.add(Bout.AddJam(bout, jam))
 
-        self.add(Bout.PeriodBegin(bout))
+        self.add(Bout.SetIsRunning(bout, True))
 
         if bout.get_period() < NUM_PERIODS:
             self.add(Clock.Reset(bout.clock))
@@ -59,7 +59,7 @@ class EndPeriod(AggregateCommand):
         # End the Period
         if bout.clock.is_running():
             self.add(Clock.Stop(bout.clock, timestamp))
-        self.add(Bout.PeriodEnd(bout))
+        self.add(Bout.SetIsRunning(bout, False))
 
 
 class StartJam(AggregateCommand):
@@ -73,7 +73,7 @@ class StartJam(AggregateCommand):
             jam = JamModel(period_num, jam_num, home, away)
             self.add(Bout.AddJam(bout, jam))
 
-            self.add(Bout.PeriodBegin(bout))
+            self.add(Bout.SetIsRunning(bout, True))
 
             if bout.get_period() < NUM_PERIODS:
                 self.add(Clock.Reset(bout.clock))

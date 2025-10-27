@@ -43,10 +43,6 @@ class AddTrip(Command):
         self.trip_event: TripEventModel = trip_event
 
     @override
-    async def merge(self, session: AsyncSession) -> None:
-        return
-
-    @override
     async def execute(self, session: AsyncSession) -> None:
         if inspect(self.trip_event).detached:
             # Handle redo

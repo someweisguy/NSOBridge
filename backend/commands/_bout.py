@@ -1,91 +1,70 @@
 from datetime import datetime
 from typing import override
 
-from sqlalchemy import inspect
-
 from models import GenericBoutModel, JamModel
 from models.time import TimeoutModel
+from sqlalchemy import inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from commands._commands import Command
 
 
-class PeriodStartCountdown(Command):
+class SetPeriodCountdown(Command):
     def __init__(
         self, bout: GenericBoutModel, start_timestamp: datetime | None
     ) -> None:
-        self.bout: GenericBoutModel = bout
+        self.detached_bout: GenericBoutModel = bout
         self.new_value: datetime | None = start_timestamp
-        self.old_value: datetime | None = bout.expected_start_timestamp
+        self.old_value: datetime | None = None
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        self.bout.expected_start_timestamp = self.new_value
+        bout: GenericBoutModel = await session.merge(self.detached_bout)
+        self.old_value = bout.expected_start_timestamp
+        bout.expected_start_timestamp = self.new_value
 
     @override
     async def undo(self, session: AsyncSession) -> None:
-        self.bout.expected_start_timestamp = self.old_value
+        self.detached_bout.expected_start_timestamp = self.old_value
 
 
-class PeriodBegin(Command):
-    def __init__(self, bout: GenericBoutModel) -> None:
-        self.bout: GenericBoutModel = bout
+class SetIsRunning(Command):
+    def __init__(self, bout: GenericBoutModel, is_running: bool) -> None:
+        self.detached_bout: GenericBoutModel = bout
+        self.new_value: bool = is_running
+        self.old_value: bool = False
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        if self.bout.get_state() == 'final':
-            raise RuntimeError('Cannot begin a Period if the Bout has been finalized')
-        self.bout.is_running = True
+        bout: GenericBoutModel = await session.merge(self.detached_bout)
+        self.old_value = bout.is_running
+        bout.is_running = self.new_value
 
     @override
     async def undo(self, session: AsyncSession) -> None:
-        # TODO: Prevent undo if any Jams have been added to this Period
-        if self.bout.get_state() != 'lineup':
-            raise RuntimeError('The Period cannot be ended right now')
-        self.bout.is_running = False
-
-
-class PeriodEnd(Command):
-    def __init__(self, bout: GenericBoutModel) -> None:
-        self.bout: GenericBoutModel = bout
-
-    @override
-    async def execute(self, session: AsyncSession) -> None:
-        if self.bout.get_state() == 'final':
-            raise RuntimeError('Cannot end a Period if the Bout has been finalized')
-        elif self.bout.get_state() != 'lineup':
-            raise RuntimeError('The Period cannot be ended right now')
-        self.bout.is_running = False
-
-    @override
-    async def undo(self, session: AsyncSession) -> None:
-        if self.bout.get_state() != 'stopped':
-            raise RuntimeError('The Period cannot be started right now')
-        self.bout.is_running = True
+        bout: GenericBoutModel = await session.merge(self.detached_bout)
+        bout.is_running = self.old_value
 
 
 class SetIsFinal(Command):
     def __init__(self, bout: GenericBoutModel, is_final: bool) -> None:
-        self.bout: GenericBoutModel = bout
+        self.detached_bout: GenericBoutModel = bout
         self.new_value: bool = is_final
         self.old_value: bool = bout.is_final
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        if self.bout.get_state() != 'lineup' and self.new_value:
-            raise RuntimeError('The Bout cannot be finalized right now')
-        self.bout.is_final = self.new_value
+        bout: GenericBoutModel = await session.merge(self.detached_bout)
+        self.old_value = bout.is_final
+        bout.is_final = self.new_value
 
     @override
     async def undo(self, session: AsyncSession) -> None:
-        if self.bout.get_state() != 'lineup' and self.old_value:
-            raise RuntimeError('The Bout cannot be finalized right now')
-        self.bout.is_final = self.old_value
+        bout: GenericBoutModel = await session.merge(self.detached_bout)
+        bout.is_final = self.old_value
 
 
 # TODO: class SetOrder(Command)
-
-
 
 
 class TimeoutStart(Command):
@@ -153,10 +132,6 @@ class AddJam(Command):
     def __init__(self, bout: GenericBoutModel, jam: JamModel) -> None:
         self.detached_parent: GenericBoutModel = bout
         self.jam: JamModel = jam
-
-    @override
-    async def merge(self, session: AsyncSession) -> None:
-        return
 
     @override
     async def execute(self, session: AsyncSession) -> None:

@@ -82,7 +82,7 @@ async def end_timeout(bout: BoutDepends, history: HistoryDepends) -> None:
 async def set_expected_start(
     bout: BoutDepends, timestamp: Annotated[datetime, Body()], history: HistoryDepends
 ) -> None:
-    await history.execute(Bout.PeriodStartCountdown(bout, timestamp))
+    await history.execute(Bout.SetPeriodCountdown(bout, timestamp))
 
 
 __all__ = ('router',)
