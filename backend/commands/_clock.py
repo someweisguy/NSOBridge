@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import override
 
@@ -7,10 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ._commands import Command
 
 
+@dataclass
 class Start(Command):
-    def __init__(self, clock: ClockModel, timestamp: datetime) -> None:
-        self.detached_clock: ClockModel = clock
-        self.timestamp: datetime = timestamp
+    detached_clock: ClockModel
+    timestamp: datetime
 
     @override
     async def execute(self, session: AsyncSession) -> None:

@@ -15,14 +15,12 @@ class SetTimeoutsRemaining(Command):
     @override
     async def execute(self, session: AsyncSession) -> None:
         team: TeamModel = await session.merge(self.detached_team)
-
         self.old_value = team.timeouts_remaining
         team.timeouts_remaining = self.new_value
 
     @override
     async def undo(self, session: AsyncSession) -> None:
         team: TeamModel = await session.merge(self.detached_team)
-
         team.timeouts_remaining = self.old_value
 
 
@@ -35,12 +33,10 @@ class SetReviewsRemaining(Command):
     @override
     async def execute(self, session: AsyncSession) -> None:
         team: TeamModel = await session.merge(self.detached_team)
-
         self.old_value = team.reviews_remaining
         team.reviews_remaining = self.new_value
 
     @override
     async def undo(self, session: AsyncSession) -> None:
         team: TeamModel = await session.merge(self.detached_team)
-
         team.reviews_remaining = self.old_value

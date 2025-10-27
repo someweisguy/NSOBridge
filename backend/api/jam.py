@@ -4,7 +4,7 @@ from typing import Annotated, Final
 from commands import HistoryDepends
 from commands._jam import AddTrip
 from fastapi import APIRouter, Body, Depends, Query
-from models import DatabaseDepends, JamModel, TeamJamModel
+from models import DatabaseDepends, JamModel, TeamJamModel, TeamName
 from models.jam import TripEventModel
 from schemas import JamSchema
 from sqlalchemy import select
@@ -29,6 +29,12 @@ async def get_jam(
 
 
 JamDepends = Annotated[JamModel, Depends(get_jam)]
+
+
+async def get_team_jam(
+    jam: JamDepends, team: Annotated[TeamName, Query()]
+) -> TeamJamModel:
+    return jam[team]
 
 
 @router.post('/add-trip')

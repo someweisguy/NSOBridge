@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, override
 
-from fastapi import Depends, Query
-from models import DatabaseDepends, JamModel, TeamName
 from models.jam import TeamJamModel, TripEventModel
+from models.time import TimeoutModel
 from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,63 +13,39 @@ if TYPE_CHECKING:
     from sqlalchemy.engine.result import Result
 
 
-async def get_jam(
-    session: DatabaseDepends,
-    bout_id: Annotated[int, Query(alias='boutId')],
-    period_num: Annotated[int, Query(alias='periodNum')],
-    jam_num: Annotated[int, Query(alias='jamNum')],
-) -> JamModel:
-    statement = select(JamModel).where(
-        JamModel.bout_id == bout_id
-        and JamModel.period == period_num
-        and JamModel.jam == jam_num
-    )
-    results: Result[tuple[JamModel]] = await session.execute(statement)
-    return results.scalar_one()
-
-
-JamDepends = Annotated[JamModel, Depends(get_jam)]
-
-
-async def get_team_jam(
-    jam: JamDepends, team: Annotated[TeamName, Query()]
-) -> TeamJamModel:
-    return jam[team]
-
-
-TeamJamDepends = Annotated[JamModel, Depends(get_team_jam)]
+# TODO: get_timeout
 
 
 @dataclass
-class JamStart(Command):
-    detached_jam: JamModel
+class TimeoutStart(Command):
+    detached_timeout: TimeoutModel
     timestamp: datetime
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        jam: JamModel = await session.merge(self.detached_jam)
-        jam.start(self.timestamp)
+        timeout: TimeoutModel = await session.merge(self.detached_timeout)
+        timeout.start(self.timestamp)
 
     @override
     async def undo(self, session: AsyncSession) -> None:
-        jam: JamModel = await session.merge(self.detached_jam)
-        jam.start_timestamp = None
+        timeout: TimeoutModel = await session.merge(self.detached_timeout)
+        timeout.start_timestamp = None
 
 
 @dataclass
-class JamStop(Command):
-    detached_jam: JamModel
+class TimeoutStop(Command):
+    detached_timeout: TimeoutModel
     timestamp: datetime
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        jam: JamModel = await session.merge(self.detached_jam)
-        jam.stop(self.timestamp)
+        timeout: TimeoutModel = await session.merge(self.detached_timeout)
+        timeout.stop(self.timestamp)
 
     @override
     async def undo(self, session: AsyncSession) -> None:
-        jam: JamModel = await session.merge(self.detached_jam)
-        jam.stop_timestamp = None
+        timeout: TimeoutModel = await session.merge(self.detached_timeout)
+        timeout.stop_timestamp = None
 
 
 @dataclass

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from typing import override
 
@@ -25,7 +26,8 @@ class SetPeriodCountdown(Command):
 
     @override
     async def undo(self, session: AsyncSession) -> None:
-        self.detached_bout.expected_start_timestamp = self.old_value
+        bout: GenericBoutModel = await session.merge(self.detached_bout)
+        bout.expected_start_timestamp = self.old_value
 
 
 class SetIsRunning(Command):
@@ -50,7 +52,7 @@ class SetIsFinal(Command):
     def __init__(self, bout: GenericBoutModel, is_final: bool) -> None:
         self.detached_bout: GenericBoutModel = bout
         self.new_value: bool = is_final
-        self.old_value: bool = bout.is_final
+        self.old_value: bool = False
 
     @override
     async def execute(self, session: AsyncSession) -> None:
@@ -128,22 +130,39 @@ class TimeoutStop(Command):
         self.timeout.stop_timestamp = None
 
 
+@dataclass
 class AddJam(Command):
-    def __init__(self, bout: GenericBoutModel, jam: JamModel) -> None:
-        self.detached_parent: GenericBoutModel = bout
-        self.jam: JamModel = jam
+    detached_parent: GenericBoutModel
+    jam: JamModel
 
     @override
     async def execute(self, session: AsyncSession) -> None:
-        if inspect(self.jam).detached:
-            # Handle redo
-            _ = await session.merge(self.jam)
+        if inspect(self.jam).transient:
+            self.detached_parent.jams.append(self.jam)  # Initial insert
         else:
-            # Handle initial insertion
-            self.detached_parent.jams.append(self.jam)
+            _ = await session.merge(self.jam)  # Handle redo
 
     @override
     async def undo(self, session: AsyncSession) -> None:
         jam: JamModel = await session.merge(self.jam)
         await session.delete(jam)
         self.jam = jam
+
+
+@dataclass
+class AddTimeout(Command):
+    detached_parent: GenericBoutModel
+    timeout: TimeoutModel
+
+    @override
+    async def execute(self, session: AsyncSession) -> None:
+        if inspect(self.timeout).transient:
+            self.detached_parent.timeouts.append(self.timeout)  # Initial insert
+        else:
+            _ = await session.merge(self.timeout)  # Handle redo
+
+    @override
+    async def undo(self, session: AsyncSession) -> None:
+        timeout: TimeoutModel = await session.merge(self.timeout)
+        await session.delete(timeout)
+        self.timeout = timeout
