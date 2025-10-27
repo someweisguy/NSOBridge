@@ -25,6 +25,7 @@ def get_next_jam_num(
     return period_num, jam_num
 
 
+@dataclass
 class BeginPeriod(MultiCommand):
     bout: GenericBoutModel
 
@@ -128,23 +129,3 @@ class StopJam(MultiCommand):
         commands.append(Bout.AddJam(self.bout, jam))
 
         return tuple(commands)
-
-
-# TODO: Convert to MultiCommands
-# class StartTimeout(AggregateCommand):
-#     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
-#         super().__init__()
-
-#         self.add(Bout.TimeoutStart(bout, timestamp))
-
-#         if bout.clock.is_running():
-#             self.add(Clock.Stop(bout.clock, timestamp))
-
-
-# class StopTimeout(AggregateCommand):
-#     def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
-#         super().__init__()
-
-#         self.add(Bout.TimeoutStop(bout, timestamp))
-
-#         # TODO: reduce team timeout count
