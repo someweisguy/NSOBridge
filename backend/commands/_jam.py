@@ -1,37 +1,12 @@
 from datetime import datetime
 from typing import override
 
-from models import GenericBoutModel, JamModel
+from models import JamModel
 from models.jam import TeamJamModel, TripEventModel
 from sqlalchemy import inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from commands._commands import Command
-
-
-class JamAdd(Command):
-    def __init__(self, bout: GenericBoutModel, jam: JamModel) -> None:
-        self.detached_parent: GenericBoutModel = bout
-        self.jam: JamModel = jam
-
-    @override
-    async def merge(self, session: AsyncSession) -> None:
-        return
-
-    @override
-    async def execute(self, session: AsyncSession) -> None:
-        if inspect(self.jam).detached:
-            # Handle redo
-            _ = await session.merge(self.jam)
-        else:
-            # Handle initial insertion
-            self.detached_parent.jams.append(self.jam)
-
-    @override
-    async def undo(self, session: AsyncSession) -> None:
-        jam: JamModel = await session.merge(self.jam)
-        await session.delete(jam)
-        self.jam = jam
 
 
 class JamStart(Command):

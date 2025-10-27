@@ -33,7 +33,7 @@ class BeginPeriod(AggregateCommand):
         home, away = bout.teams[:2]
         period_num, jam_num = get_next_jam_num(bout, True)
         jam: JamModel = JamModel(period_num, jam_num, home, away)
-        self.add(Jam.JamAdd(bout, jam))
+        self.add(Bout.AddJam(bout, jam))
 
         self.add(Bout.PeriodBegin(bout))
 
@@ -71,7 +71,7 @@ class StartJam(AggregateCommand):
             home, away = bout.teams[:2]
             period_num, jam_num = get_next_jam_num(bout, True)
             jam = JamModel(period_num, jam_num, home, away)
-            self.add(Jam.JamAdd(bout, jam))
+            self.add(Bout.AddJam(bout, jam))
 
             self.add(Bout.PeriodBegin(bout))
 
@@ -99,7 +99,7 @@ class StopJam(AggregateCommand):
         home, away = bout.teams[:2]
         period_num, jam_num = get_next_jam_num(bout)
         jam: JamModel = JamModel(period_num, jam_num, home, away)
-        self.add(Jam.JamAdd(bout, jam))
+        self.add(Bout.AddJam(bout, jam))
 
 
 class StartTimeout(AggregateCommand):

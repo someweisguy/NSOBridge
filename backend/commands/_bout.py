@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import override
 
+from sqlalchemy import inspect
+
 from models import GenericBoutModel, JamModel
 from models.time import TimeoutModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -145,3 +147,28 @@ class TimeoutStop(Command):
         if self.timeout != self.bout.timeouts[-1]:
             raise RuntimeError('Bout state is invalid')
         self.timeout.stop_timestamp = None
+
+
+class AddJam(Command):
+    def __init__(self, bout: GenericBoutModel, jam: JamModel) -> None:
+        self.detached_parent: GenericBoutModel = bout
+        self.jam: JamModel = jam
+
+    @override
+    async def merge(self, session: AsyncSession) -> None:
+        return
+
+    @override
+    async def execute(self, session: AsyncSession) -> None:
+        if inspect(self.jam).detached:
+            # Handle redo
+            _ = await session.merge(self.jam)
+        else:
+            # Handle initial insertion
+            self.detached_parent.jams.append(self.jam)
+
+    @override
+    async def undo(self, session: AsyncSession) -> None:
+        jam: JamModel = await session.merge(self.jam)
+        await session.delete(jam)
+        self.jam = jam
