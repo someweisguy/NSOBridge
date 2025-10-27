@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 from fastapi import Cookie, Depends, Response
 from models import DatabaseDepends
 
-from . import _bout as Bout, _clock as Clock, _team as Team
+from . import _bout as Bout, _clock as Clock, _jam as Jam, _team as Team
 from ._commands import Command
 
 if TYPE_CHECKING:
@@ -69,4 +69,12 @@ async def get_command_history(
 HistoryDepends = Annotated[CommandHistory, Depends(get_command_history)]
 
 
-__all__ = ('Bout', 'Clock', 'Command', 'CommandHistory', 'HistoryDepends', 'Team')
+__all__ = (
+    'Bout',
+    'Clock',
+    'Command',
+    'CommandHistory',
+    'HistoryDepends',
+    'Jam',
+    'Team',
+)

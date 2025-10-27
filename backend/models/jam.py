@@ -100,6 +100,16 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         lazy='joined',
     )
 
+    def __init__(
+        self, period_num: int, jam_num: int, home: TeamModel, away: TeamModel
+    ) -> None:
+        super().__init__(
+            period=period_num,
+            jam=jam_num,
+            home=TeamJamModel(home),
+            away=TeamJamModel(away),
+        )
+
     @declared_attr
     @classmethod
     def __table_args__(cls) -> Any:
