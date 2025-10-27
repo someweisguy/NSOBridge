@@ -57,6 +57,3 @@ class AddTrip(Command):
 
 
 # TODO: DeleteTrip
-
-
-# TODO: EditTrip
