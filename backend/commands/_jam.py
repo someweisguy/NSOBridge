@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, override
 
-from fastapi import Depends, Query
+from fastapi import Body, Depends, Query
 from models import DatabaseDepends, JamModel, TeamName
 from models.jam import TeamJamModel, TripEventModel
 from sqlalchemy import inspect, select
@@ -38,13 +38,13 @@ async def get_team_jam(
     return jam[team]
 
 
-TeamJamDepends = Annotated[JamModel, Depends(get_team_jam)]
+TeamJamDepends = Annotated[TeamJamModel, Depends(get_team_jam)]
 
 
 @dataclass
 class JamStart(Command):
-    detached_jam: JamModel
-    timestamp: datetime
+    detached_jam: JamDepends
+    timestamp: Annotated[datetime, Body()]
 
     @override
     async def execute(self, session: AsyncSession) -> None:
@@ -59,8 +59,8 @@ class JamStart(Command):
 
 @dataclass
 class JamStop(Command):
-    detached_jam: JamModel
-    timestamp: datetime
+    detached_jam: JamDepends
+    timestamp: Annotated[datetime, Body()]
 
     @override
     async def execute(self, session: AsyncSession) -> None:
@@ -75,13 +75,13 @@ class JamStop(Command):
 
 @dataclass
 class AddTrip(Command):
-    detached_parent: TeamJamModel
+    detached_team_jam: TeamJamDepends
     trip_event: TripEventModel
 
     @override
     async def execute(self, session: AsyncSession) -> None:
         if inspect(self.trip_event).transient:
-            self.detached_parent.events.append(self.trip_event)
+            self.detached_team_jam.events.append(self.trip_event)
         else:
             _ = await session.merge(self.trip_event)
 
