@@ -1,18 +1,33 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import override
+from typing import Annotated, override
 
-from models import GenericBoutModel, JamModel
+from fastapi import Body, Depends, Query
+from models import DatabaseDepends, GenericBoutModel, JamModel
 from models.time import TimeoutModel
-from sqlalchemy import inspect
+from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from commands._commands import Command
 
 
+async def get_bout(
+    session: DatabaseDepends, bout_id: Annotated[int, Query(alias='boutId')]
+) -> GenericBoutModel:
+    statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
+    results = await session.execute(statement)
+    return results.scalar_one()
+
+
+BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
+
+
+@dataclass
 class SetPeriodCountdown(Command):
     def __init__(
-        self, bout: GenericBoutModel, start_timestamp: datetime | None
+        self,
+        bout: BoutDepends,
+        start_timestamp: Annotated[datetime | None, Body(alias='countdown')],
     ) -> None:
         self.detached_bout: GenericBoutModel = bout
         self.new_value: datetime | None = start_timestamp
@@ -30,8 +45,11 @@ class SetPeriodCountdown(Command):
         bout.expected_start_timestamp = self.old_value
 
 
+@dataclass
 class SetIsRunning(Command):
-    def __init__(self, bout: GenericBoutModel, is_running: bool) -> None:
+    def __init__(
+        self, bout: BoutDepends, is_running: Annotated[bool, Body(alias='isRunning')]
+    ) -> None:
         self.detached_bout: GenericBoutModel = bout
         self.new_value: bool = is_running
         self.old_value: bool = False
@@ -48,8 +66,11 @@ class SetIsRunning(Command):
         bout.is_running = self.old_value
 
 
+@dataclass
 class SetIsFinal(Command):
-    def __init__(self, bout: GenericBoutModel, is_final: bool) -> None:
+    def __init__(
+        self, bout: BoutDepends, is_final: Annotated[bool, Body(alias='isFinal')]
+    ) -> None:
         self.detached_bout: GenericBoutModel = bout
         self.new_value: bool = is_final
         self.old_value: bool = False
@@ -69,70 +90,9 @@ class SetIsFinal(Command):
 # TODO: class SetOrder(Command)
 
 
-class TimeoutStart(Command):
-    def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
-        self.bout: GenericBoutModel = bout
-        self.timestamp: datetime = timestamp
-        self.timeout: TimeoutModel | None = None
-
-    @override
-    async def execute(self, session: AsyncSession) -> None:
-        latest_jam: JamModel | None = self.bout.get_latest_played_jam()
-        if latest_jam is None:
-            raise RuntimeError('A Timeout cannot be called until the Bout has started')
-        if self.timeout is None:
-            self.timeout = TimeoutModel(
-                jam=latest_jam,
-                start_timestamp=self.timestamp,
-                clock_elapsed=self.bout.clock.get_duration(self.timestamp),
-            )
-
-        # Protect against redoing this command if the bout state is invalid
-        if self.timeout.jam != latest_jam:
-            raise RuntimeError('Bout state is invalid')
-
-        self.bout.timeouts.append(self.timeout)
-
-    @override
-    async def undo(self, session: AsyncSession) -> None:
-        assert self.timeout is not None
-        if self.timeout not in self.bout.timeouts:
-            raise RuntimeError('Timeout does not exist')
-        await session.delete(self.timeout)
-
-
-class TimeoutStop(Command):
-    def __init__(self, bout: GenericBoutModel, timestamp: datetime) -> None:
-        self.bout: GenericBoutModel = bout
-        self.timestamp: datetime = timestamp
-        self.timeout: TimeoutModel | None = None
-
-    @override
-    async def execute(self, session: AsyncSession) -> None:
-        if self.bout.get_state() != 'timeout':
-            raise RuntimeError('There is no active Timeout to stop')
-        if self.timeout is None:
-            if len(self.bout.timeouts) == 0:
-                raise RuntimeError('There is no Timeout to stop')
-            self.timeout = self.bout.timeouts[-1]
-
-        # Protect against redoing this command if the bout state is invalid
-        if self.timeout.jam != self.bout.timeouts[-1].jam:
-            raise RuntimeError('Bout state is invalid')
-
-        self.timeout.stop(self.timestamp)
-
-    @override
-    async def undo(self, session: AsyncSession) -> None:
-        assert self.timeout is not None
-        if self.timeout != self.bout.timeouts[-1]:
-            raise RuntimeError('Bout state is invalid')
-        self.timeout.stop_timestamp = None
-
-
 @dataclass
 class AddJam(Command):
-    detached_parent: GenericBoutModel
+    detached_parent: BoutDepends
     jam: JamModel
 
     @override
@@ -151,7 +111,7 @@ class AddJam(Command):
 
 @dataclass
 class AddTimeout(Command):
-    detached_parent: GenericBoutModel
+    detached_parent: BoutDepends
     timeout: TimeoutModel
 
     @override
