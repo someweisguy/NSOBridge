@@ -17,6 +17,7 @@ from .series import SeriesDepends
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
 
+# TODO: Remove this
 @router.get('', response_model=BoutSchema)
 async def get_bout(
     db: DatabaseDepends, bout_id: Annotated[int, Query(alias='boutId')]
@@ -25,7 +26,7 @@ async def get_bout(
     results = await db.execute(statement)
     return results.scalar_one()
 
-
+# TODO: remove this
 BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
 
