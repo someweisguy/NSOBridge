@@ -6,6 +6,7 @@ from fastapi import Body, Depends, Query
 from models import AsyncSessionDepends, JamModel, TeamName
 from models.jam import TeamJamModel, TripEventModel
 from sqlalchemy import inspect, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from commands._commands import Command
 
@@ -46,13 +47,13 @@ class JamStart(Command):
     timestamp: Annotated[datetime, Body()]
 
     @override
-    async def execute(self) -> None:
-        jam: JamModel = await self.session.merge(self.detached_jam)
+    async def execute(self, session: AsyncSession) -> None:
+        jam: JamModel = await session.merge(self.detached_jam)
         jam.start(self.timestamp)
 
     @override
-    async def undo(self) -> None:
-        jam: JamModel = await self.session.merge(self.detached_jam)
+    async def undo(self, session: AsyncSession) -> None:
+        jam: JamModel = await session.merge(self.detached_jam)
         jam.start_timestamp = None
 
 
@@ -62,13 +63,13 @@ class JamStop(Command):
     timestamp: Annotated[datetime, Body()]
 
     @override
-    async def execute(self) -> None:
-        jam: JamModel = await self.session.merge(self.detached_jam)
+    async def execute(self, session: AsyncSession) -> None:
+        jam: JamModel = await session.merge(self.detached_jam)
         jam.stop(self.timestamp)
 
     @override
-    async def undo(self) -> None:
-        jam: JamModel = await self.session.merge(self.detached_jam)
+    async def undo(self, session: AsyncSession) -> None:
+        jam: JamModel = await session.merge(self.detached_jam)
         jam.stop_timestamp = None
 
 
@@ -78,16 +79,16 @@ class AddTrip(Command):
     trip_event: TripEventModel
 
     @override
-    async def execute(self) -> None:
+    async def execute(self, session: AsyncSession) -> None:
         if inspect(self.trip_event).transient:
             self.detached_team_jam.events.append(self.trip_event)
         else:
-            _ = await self.session.merge(self.trip_event)
+            _ = await session.merge(self.trip_event)
 
     @override
-    async def undo(self) -> None:
-        trip_event: TripEventModel = await self.session.merge(self.trip_event)
-        await self.session.delete(trip_event)
+    async def undo(self, session: AsyncSession) -> None:
+        trip_event: TripEventModel = await session.merge(self.trip_event)
+        await session.delete(trip_event)
         self.trip_event = trip_event
 
 
