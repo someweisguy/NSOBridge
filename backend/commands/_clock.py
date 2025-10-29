@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Annotated, override
 
 from fastapi import Body, Depends
-from models import AsyncSessionDepends, ClockModel
+from models import ClockModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ._commands import Command
