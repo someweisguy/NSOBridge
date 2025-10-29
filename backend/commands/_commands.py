@@ -30,13 +30,3 @@ class MultiCommand(Command):
         for command in reversed(self.commands):
             await command.undo(session)
 
-
-"""
-
-
-def test(history: HistoryDepends, command: CommandDepends):
-    await history.execute(command)
-
-
-
-"""
