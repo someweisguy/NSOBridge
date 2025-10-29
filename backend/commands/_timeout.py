@@ -1,24 +1,31 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, override
+from typing import Annotated, override
 
+from fastapi import Body, Depends, Query
+from models import DatabaseDepends
 from models.time import TimeoutModel
-from sqlalchemy import inspect, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from commands._commands import Command
 
-if TYPE_CHECKING:
-    from sqlalchemy.engine.result import Result
+
+async def get_timeout(
+    session: DatabaseDepends, timeout_id: Annotated[int, Query(alias='timeoutId')]
+) -> TimeoutModel:
+    statement = select(TimeoutModel).where(TimeoutModel.id == timeout_id)
+    results = await session.execute(statement)
+    return results.scalar_one()
 
 
-# TODO: get_timeout
+TimeoutDepends = Annotated[TimeoutModel, Depends(get_timeout)]
 
 
 @dataclass
-class TimeoutStart(Command):
-    detached_timeout: TimeoutModel
-    timestamp: datetime
+class Start(Command):
+    detached_timeout: TimeoutDepends
+    timestamp: Annotated[datetime, Body()]
 
     @override
     async def execute(self, session: AsyncSession) -> None:
@@ -32,9 +39,9 @@ class TimeoutStart(Command):
 
 
 @dataclass
-class TimeoutStop(Command):
-    detached_timeout: TimeoutModel
-    timestamp: datetime
+class Stop(Command):
+    detached_timeout: TimeoutDepends
+    timestamp: Annotated[datetime, Body()]
 
     @override
     async def execute(self, session: AsyncSession) -> None:
