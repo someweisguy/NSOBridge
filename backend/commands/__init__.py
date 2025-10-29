@@ -24,7 +24,7 @@ class CommandHistory:
         self.redo_history: list[Command] = []
         self.session: AsyncSession
 
-    async def execute(self, command: Command) -> None:
+    async def do(self, command: Command) -> None:
         await command.execute(self.session)
         if len(self.redo_history) > 0:
             self.redo_history.clear()
@@ -54,7 +54,7 @@ singleton = CommandHistory()
 
 
 async def get_command_history(
-    db: AsyncSessionDepends,
+    session: AsyncSessionDepends,
     response: Response,
     nso_id: Annotated[UUID | None, Cookie(alias='nsoId')] = None,
 ) -> CommandHistory:
@@ -66,7 +66,7 @@ async def get_command_history(
         history = CommandHistory()
         _histories[nso_id] = history
     history = singleton  # FIXME: remove this
-    history.session = db
+    history.session = session
     return history
 
 
