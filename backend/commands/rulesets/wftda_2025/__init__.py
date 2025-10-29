@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import cached_property
-from typing import Final
+from typing import Annotated, Final
 
 from commands import Bout, Clock, Command, Jam, Team, Timeout
 from commands._bout import BoutDepends
 from commands._commands import MultiCommand
+from fastapi import Depends
 from models import GenericBoutModel, JamModel, TeamModel
 from models.time import TimeoutModel
 
@@ -54,7 +55,7 @@ class BeginPeriod(MultiCommand):
 @dataclass
 class EndPeriod(MultiCommand):
     bout: BoutDepends
-    timestamp: datetime
+    timestamp: Annotated[datetime, Depends(datetime.now)]
 
     @cached_property
     def commands(self) -> tuple[Command, ...]:
@@ -82,7 +83,7 @@ class EndPeriod(MultiCommand):
 @dataclass
 class StartJam(MultiCommand):
     bout: BoutDepends
-    timestamp: datetime
+    timestamp: Annotated[datetime, Depends(datetime.now)]
 
     @cached_property
     def commands(self) -> tuple[Command, ...]:
@@ -115,7 +116,7 @@ class StartJam(MultiCommand):
 @dataclass
 class StopJam(MultiCommand):
     bout: BoutDepends
-    timestamp: datetime
+    timestamp: Annotated[datetime, Depends(datetime.now)]
 
     @cached_property
     def commands(self) -> tuple[Command, ...]:
@@ -137,7 +138,7 @@ class StopJam(MultiCommand):
 class StartTimeout(MultiCommand):
     # TODO: convert these all to dependency injection
     bout: BoutDepends
-    timestamp: datetime
+    timestamp: Annotated[datetime, Depends(datetime.now)]
     is_review: bool = False
     team: TeamModel | None = None
 
@@ -162,7 +163,7 @@ class StartTimeout(MultiCommand):
 class StopTimeout(MultiCommand):
     # TODO: convert these all to dependency injection
     bout: BoutDepends
-    timestamp: datetime
+    timestamp: Annotated[datetime, Depends(datetime.now)]
 
     @cached_property
     def commands(self) -> tuple[Command, ...]:

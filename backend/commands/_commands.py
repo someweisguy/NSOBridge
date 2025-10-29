@@ -1,16 +1,22 @@
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import override
+from typing import TYPE_CHECKING, override
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from models import AsyncSessionDepends
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class Command(ABC):
-    @abstractmethod
-    async def execute(self, session: AsyncSession) -> None: ...
+    def __init__(self, session: AsyncSessionDepends) -> None:
+        self.session: AsyncSession = session
 
     @abstractmethod
-    async def undo(self, session: AsyncSession) -> None: ...
+    async def execute(self) -> None: ...
+
+    @abstractmethod
+    async def undo(self) -> None: ...
 
 
 class MultiCommand(Command):
@@ -18,11 +24,13 @@ class MultiCommand(Command):
     def commands(self) -> tuple[Command, ...]: ...
 
     @override
-    async def execute(self, session: AsyncSession) -> None:
+    async def execute(self) -> None:
         for command in self.commands:
-            await command.execute(session)
+            command.session = self.session
+            await command.execute()
 
     @override
-    async def undo(self, session: AsyncSession) -> None:
+    async def undo(self) -> None:
         for command in reversed(self.commands):
-            await command.undo(session)
+            command.session = self.session
+            await command.undo()

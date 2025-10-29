@@ -6,7 +6,6 @@ from fastapi import Body, Depends, Query
 from models import AsyncSessionDepends
 from models.time import TimeoutModel
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from commands._commands import Command
 
@@ -28,13 +27,13 @@ class Start(Command):
     timestamp: Annotated[datetime, Body()]
 
     @override
-    async def execute(self, session: AsyncSession) -> None:
-        timeout: TimeoutModel = await session.merge(self.detached_timeout)
+    async def execute(self) -> None:
+        timeout: TimeoutModel = await self.session.merge(self.detached_timeout)
         timeout.start(self.timestamp)
 
     @override
-    async def undo(self, session: AsyncSession) -> None:
-        timeout: TimeoutModel = await session.merge(self.detached_timeout)
+    async def undo(self) -> None:
+        timeout: TimeoutModel = await self.session.merge(self.detached_timeout)
         timeout.start_timestamp = None
 
 
@@ -44,11 +43,11 @@ class Stop(Command):
     timestamp: Annotated[datetime, Body()]
 
     @override
-    async def execute(self, session: AsyncSession) -> None:
-        timeout: TimeoutModel = await session.merge(self.detached_timeout)
+    async def execute(self) -> None:
+        timeout: TimeoutModel = await self.session.merge(self.detached_timeout)
         timeout.stop(self.timestamp)
 
     @override
-    async def undo(self, session: AsyncSession) -> None:
-        timeout: TimeoutModel = await session.merge(self.detached_timeout)
+    async def undo(self) -> None:
+        timeout: TimeoutModel = await self.session.merge(self.detached_timeout)
         timeout.stop_timestamp = None
