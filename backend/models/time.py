@@ -64,11 +64,11 @@ class ClockModel(SQLModel):
 
 class TimeoutModel(AbstractOneShotModel):
     __tablename__: str = 'timeouts'
-    
+
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _jam_id: Mapped[int] = mapped_column(ForeignKey('jams.id'))
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
-    
+
     clock_elapsed: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
     details: Mapped[str | None] = mapped_column(default=None)
     is_review: Mapped[bool] = mapped_column(default=False)
@@ -80,6 +80,9 @@ class TimeoutModel(AbstractOneShotModel):
     team: Mapped[TeamModel | None] = relationship(
         back_populates='timeouts', foreign_keys=[_team_id]
     )
+
+    def __init__(self, clock_elapsed: timedelta) -> None:
+        super().__init__(clock_elapsed=clock_elapsed)
 
     @property
     @override
