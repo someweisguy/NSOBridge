@@ -88,6 +88,5 @@ class Reset(Set):
     def __init__(
         self,
         clock: ClockModel,
-        elapsed: Annotated[timedelta, Body()],
     ) -> None:
         super().__init__(clock, timedelta(seconds=0))
