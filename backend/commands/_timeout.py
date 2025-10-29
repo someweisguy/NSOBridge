@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Annotated, override
 
 from fastapi import Body, Depends, Query
-from models import DatabaseDepends
+from models import AsyncSessionDepends
 from models.time import TimeoutModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,7 +12,7 @@ from commands._commands import Command
 
 
 async def get_timeout(
-    session: DatabaseDepends, timeout_id: Annotated[int, Query(alias='timeoutId')]
+    session: AsyncSessionDepends, timeout_id: Annotated[int, Query(alias='timeoutId')]
 ) -> TimeoutModel:
     statement = select(TimeoutModel).where(TimeoutModel.id == timeout_id)
     results = await session.execute(statement)

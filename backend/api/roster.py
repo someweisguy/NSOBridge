@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Depends, Query
-from models import DatabaseDepends
+from models import AsyncSessionDepends
 from models.team import RosterModel
 from schemas.roster import RosterSchema
 from sqlalchemy import Result, select
@@ -12,7 +12,7 @@ router: Final[APIRouter] = APIRouter(prefix='/roster')
 
 @router.get('', response_model=list[RosterSchema])
 async def get_rosters(
-    db: DatabaseDepends, roster_ids: Annotated[list[int], Query(alias='rosterId')]
+    db: AsyncSessionDepends, roster_ids: Annotated[list[int], Query(alias='rosterId')]
 ) -> Sequence[RosterModel]:
     results: Result[tuple[RosterModel]] = await db.execute(
         select(RosterModel).where(RosterModel.id.in_(roster_ids))

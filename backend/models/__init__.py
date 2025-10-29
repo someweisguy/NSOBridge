@@ -35,7 +35,7 @@ async def _inject_db() -> AsyncGenerator[AsyncSession]:
         await session.commit()
 
 
-DatabaseDepends = Annotated[AsyncSession, Depends(_inject_db)]
+AsyncSessionDepends = Annotated[AsyncSession, Depends(_inject_db)]
 
 
 __all__ = (

@@ -4,7 +4,7 @@ from typing import Annotated, Final
 from commands import Bout, HistoryDepends
 from commands.rulesets import wftda_2025
 from fastapi import APIRouter, Body, Depends, Query
-from models import DatabaseDepends, GenericBoutModel
+from models import AsyncSessionDepends, GenericBoutModel
 from models.bout import BoutContext
 from models.rulesets.wftda_2025 import BoutModel
 from schemas import BoutSchema
@@ -20,11 +20,12 @@ router: Final[APIRouter] = APIRouter(prefix='/bout')
 # TODO: Remove this
 @router.get('', response_model=BoutSchema)
 async def get_bout(
-    db: DatabaseDepends, bout_id: Annotated[int, Query(alias='boutId')]
+    db: AsyncSessionDepends, bout_id: Annotated[int, Query(alias='boutId')]
 ) -> GenericBoutModel:
     statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
     results = await db.execute(statement)
     return results.scalar_one()
+
 
 # TODO: remove this
 BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
@@ -32,7 +33,7 @@ BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
 @router.post('/wftda2025')
 async def create_bout(
-    db: DatabaseDepends,
+    db: AsyncSessionDepends,
     series: SeriesDepends,
     rosters: RosterDepends,
     order: Annotated[int, Body()] = 0,

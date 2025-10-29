@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Annotated, override
 
 from fastapi import Body, Depends, Query
-from models import DatabaseDepends, GenericBoutModel, JamModel
+from models import AsyncSessionDepends, GenericBoutModel, JamModel
 from models.time import TimeoutModel
 from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,7 +12,7 @@ from commands._commands import Command
 
 
 async def get_bout(
-    session: DatabaseDepends, bout_id: Annotated[int, Query(alias='boutId')]
+    session: AsyncSessionDepends, bout_id: Annotated[int, Query(alias='boutId')]
 ) -> GenericBoutModel:
     statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
     results = await session.execute(statement)

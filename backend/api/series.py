@@ -1,7 +1,7 @@
 from typing import Annotated, Final
 
 from fastapi import APIRouter, Depends, Query
-from models import DatabaseDepends
+from models import AsyncSessionDepends
 from models.series import SeriesModel
 from schemas.series import SeriesSchema
 from sqlalchemy import select
@@ -11,7 +11,7 @@ router: Final[APIRouter] = APIRouter(prefix='/series')
 
 @router.get('', response_model=SeriesSchema)
 async def get_series(
-    db: DatabaseDepends, index: Annotated[int, Query(alias='seriesIndex')]
+    db: AsyncSessionDepends, index: Annotated[int, Query(alias='seriesIndex')]
 ) -> SeriesModel:
     index += 1  # SQLite database is 1-based but API should be 0-based
     statement = select(SeriesModel).limit(1).offset(index - 1)

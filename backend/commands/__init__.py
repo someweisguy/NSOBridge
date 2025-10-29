@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Annotated
 from uuid import UUID, uuid4
 
 from fastapi import Cookie, Depends, Response
-from models import DatabaseDepends
+from models import AsyncSessionDepends
 
 from . import (
     _bout as Bout,
@@ -54,7 +54,7 @@ singleton = CommandHistory()
 
 
 async def get_command_history(
-    db: DatabaseDepends,
+    db: AsyncSessionDepends,
     response: Response,
     nso_id: Annotated[UUID | None, Cookie(alias='nsoId')] = None,
 ) -> CommandHistory:
