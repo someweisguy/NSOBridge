@@ -1,11 +1,13 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import cached_property
 from typing import Final
 
-from commands import Bout, Clock, Command, Jam
+from commands import Bout, Clock, Command, Jam, Team, Timeout
+from commands._bout import BoutDepends
 from commands._commands import MultiCommand
-from models import GenericBoutModel, JamModel
+from models import GenericBoutModel, JamModel, TeamModel
+from models.time import TimeoutModel
 
 NUM_PERIODS: Final[int] = 2
 
@@ -51,7 +53,7 @@ class BeginPeriod(MultiCommand):
 
 @dataclass
 class EndPeriod(MultiCommand):
-    bout: GenericBoutModel
+    bout: BoutDepends
     timestamp: datetime
 
     @cached_property
@@ -79,7 +81,7 @@ class EndPeriod(MultiCommand):
 
 @dataclass
 class StartJam(MultiCommand):
-    bout: GenericBoutModel
+    bout: BoutDepends
     timestamp: datetime
 
     @cached_property
@@ -112,7 +114,7 @@ class StartJam(MultiCommand):
 
 @dataclass
 class StopJam(MultiCommand):
-    bout: GenericBoutModel
+    bout: BoutDepends
     timestamp: datetime
 
     @cached_property
@@ -127,5 +129,62 @@ class StopJam(MultiCommand):
         period_num, jam_num = get_next_jam_num(self.bout)
         jam: JamModel = JamModel(period_num, jam_num, home, away)
         commands.append(Bout.AddJam(self.bout, jam))
+
+        return tuple(commands)
+
+
+@dataclass
+class StartTimeout(MultiCommand):
+    # TODO: convert these all to dependency injection
+    bout: BoutDepends
+    timestamp: datetime
+    is_review: bool = False
+    team: TeamModel | None = None
+
+    @cached_property
+    def commands(self) -> tuple[Command, ...]:
+        commands: list[Command] = []
+        if self.bout.get_state() != 'lineup':
+            raise RuntimeError('Cannot call a Timeout now')
+
+        # Instantiate the Timeout
+        clock_elapsed: timedelta = self.bout.clock.get_duration(self.timestamp)
+        timeout: TimeoutModel = TimeoutModel(clock_elapsed)
+        commands.append(Bout.AddTimeout(self.bout, timeout))
+
+        # Start the Timeout
+        commands.append(Timeout.Start(timeout, self.timestamp))
+
+        return tuple(commands)
+
+
+@dataclass
+class StopTimeout(MultiCommand):
+    # TODO: convert these all to dependency injection
+    bout: BoutDepends
+    timestamp: datetime
+
+    @cached_property
+    def commands(self) -> tuple[Command, ...]:
+        commands: list[Command] = []
+        if self.bout.get_state() != 'timeout':
+            raise RuntimeError('Cannot stop a Timeout if none is running')
+
+        # Validate the Timeout's state
+        timeout: TimeoutModel = self.bout.timeouts[-1]
+        if timeout.is_review and timeout.team is None:
+            raise ValueError('Officials cannot call an Official Review')
+
+        # Stop the Timeout
+        commands.append(Timeout.Stop(timeout, self.timestamp))
+
+        # Subtract remaining Timeouts as appropriate
+        if timeout.team is not None:
+            if timeout.is_review and not timeout.retained:
+                reviews: int = timeout.team.reviews_remaining - 1
+                commands.append(Team.SetReviewsRemaining(timeout.team, reviews))
+            elif not timeout.is_review:
+                timeouts: int = timeout.team.timeouts_remaining - 1
+                commands.append(Team.SetTimeoutsRemaining(timeout.team, timeouts))
 
         return tuple(commands)
