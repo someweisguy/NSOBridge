@@ -43,7 +43,7 @@ async def add_trip(jam: JamDepends, history: HistoryDepends) -> None:
     # FIXME: remove this test endpoint
     trip: TripEventModel = TripEventModel(timestamp=datetime.now(), passes=4)
     team_jam: TeamJamModel = await jam.awaitable_attrs.home
-    await history.execute(AddTrip(team_jam, trip))
+    await history.do(AddTrip(team_jam, trip))
 
 
 __all__ = ('router',)
