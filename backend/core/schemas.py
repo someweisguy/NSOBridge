@@ -1,5 +1,6 @@
 from datetime import timedelta
 from math import floor
+from typing import ClassVar
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
@@ -10,7 +11,7 @@ def _timedelta_encoder(value: timedelta) -> int:
 
 
 class ServerSchema(BaseModel):
-    model_config = ConfigDict(
+    model_config: ClassVar[ConfigDict] = ConfigDict(
         alias_generator=to_camel,
         from_attributes=True,
         json_encoders={timedelta: _timedelta_encoder},
@@ -20,7 +21,7 @@ class ServerSchema(BaseModel):
 
 
 class ClientSchema(BaseModel):
-    model_config = ConfigDict(
+    model_config: ClassVar[ConfigDict] = ConfigDict(
         alias_generator=to_camel,
         extra='forbid',
         from_attributes=True,
