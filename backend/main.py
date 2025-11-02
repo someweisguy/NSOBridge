@@ -41,20 +41,6 @@ for router in [bout_router, series_router, roster_router, history_router, jam_ro
 
 
 async def main() -> None:
-    # Create a Bout model if one does not already exist
-    async with models.get_db() as session, session.begin():
-        statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel)
-        results: Result[tuple[GenericBoutModel]] = await session.execute(statement)
-        if results.scalar() is None:
-            print('Creating initial Bout model')
-            bout: BoutModel = BoutModel(
-                SeriesModel(),
-                RosterModel('Home'),
-                RosterModel('Away'),
-            )
-            session.add(bout)
-        await session.commit()
-
     HTTP_PORT: Final[int] = 80
     ip: str = core.get_ip_address()
     print(f'Starting server at http://{ip}{f":{PORT}" if PORT != HTTP_PORT else ""}')

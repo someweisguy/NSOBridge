@@ -6,6 +6,7 @@ from math import floor
 from typing import TYPE_CHECKING, Annotated, Any, TypeAlias, override
 
 from fastapi import Depends
+from sqlalchemy import Result, Select, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncEngine,
@@ -70,6 +71,24 @@ class SQLModel(AsyncAttrs, DeclarativeBase):
 async def setup() -> None:
     async with engine.connect() as connection:
         await connection.run_sync(SQLModel.metadata.create_all)
+    # Create a Bout model if one does not already exist
+    from models.bout import GenericBoutModel
+    from models.rulesets.wftda_2025 import BoutModel
+    from models.series import SeriesModel
+    from models.team import RosterModel
+
+    async with SessionLocal() as session, session.begin():
+        statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel)
+        results: Result[tuple[GenericBoutModel]] = await session.execute(statement)
+        if results.scalar() is None:
+            print('Creating initial Bout model')
+            bout: BoutModel = BoutModel(
+                SeriesModel(),
+                RosterModel('Home'),
+                RosterModel('Away'),
+            )
+            session.add(bout)
+        await session.commit()
 
 
 async def _get_async_session() -> AsyncGenerator[AsyncSession, None]:
