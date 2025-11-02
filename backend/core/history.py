@@ -1,9 +1,9 @@
 from abc import ABC
 from inspect import Traceback
 from typing import Annotated, Protocol, TypeAlias, override
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from fastapi import Cookie, Depends
+from fastapi import Cookie, Depends, Response
 
 
 class Command(Protocol):
@@ -72,7 +72,13 @@ class UserContext:
 _contexts: dict[UUID, UserContext] = {}
 
 
-def _get_user_context(nso_id: Annotated[UUID, Cookie()]) -> UserContext:
+def _get_user_context(
+    response: Response,
+    nso_id: Annotated[UUID | None, Cookie(alias='nsoId')] = None,
+) -> UserContext:
+    if nso_id is None:
+        nso_id = uuid4()
+        response.set_cookie('nsoId', str(nso_id))
     context: UserContext | None = _contexts.get(nso_id, None)
     if context is None:
         context = UserContext()
