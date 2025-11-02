@@ -92,7 +92,7 @@ async def setup() -> None:
 
 
 async def _get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with SessionLocal() as session:
+    async with SessionLocal() as session, session.begin():
         yield session
         await session.commit()
 
