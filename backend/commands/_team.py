@@ -2,14 +2,12 @@ from dataclasses import dataclass
 from typing import Annotated, override
 
 from fastapi import Body
-from models import TeamModel
+from models import DatabaseCommand, TeamModel
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from ._commands import Command
 
 
 @dataclass
-class SetTimeoutsRemaining(Command):
+class SetTimeoutsRemaining(DatabaseCommand):
     detached_team: TeamModel
     new_value: Annotated[int, Body()]
     old_value: Annotated[int, Body(include_in_schema=False)] = 0
@@ -27,7 +25,7 @@ class SetTimeoutsRemaining(Command):
 
 
 @dataclass
-class SetReviewsRemaining(Command):
+class SetReviewsRemaining(DatabaseCommand):
     detached_team: TeamModel
     new_value: Annotated[int, Body()]
     old_value: Annotated[int, Body(include_in_schema=False)] = 0

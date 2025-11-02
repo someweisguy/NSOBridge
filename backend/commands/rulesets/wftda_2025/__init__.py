@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import cached_property
-from typing import Annotated, Final
+from typing import Annotated, Final, override
 
 from commands import Bout, Clock, Jam, Team, Timeout
 from commands._bout import BoutDepends
-from commands._commands import MultiCommand
 from core import Command
+from core.history import MultiCommand
 from fastapi import Depends
 from models import GenericBoutModel, JamModel
 from models.time import TimeoutModel
@@ -33,24 +33,20 @@ def get_next_jam_num(
 class BeginPeriod(MultiCommand):
     bout: BoutDepends
 
-    @cached_property
-    def commands(self) -> tuple[Command, ...]:
-        commands: list[Command] = []
-
+    @override
+    async def do(self) -> None:
         if self.bout.get_state() != 'stopped':
             raise RuntimeError('The Bout cannot be started now')
 
         home, away = self.bout.teams[:2]
         period_num, jam_num = get_next_jam_num(self.bout, True)
         jam: JamModel = JamModel(period_num, jam_num, home, away)
-        commands.append(Bout.AddJam(self.bout, jam))
+        await self.push(Bout.AddJam(self.bout, jam))
 
-        commands.append(Bout.SetIsRunning(self.bout, True))
+        await self.push(Bout.SetIsRunning(self.bout, True))
 
         if self.bout.get_period() < NUM_PERIODS:
-            commands.append(Clock.Reset(self.bout.clock))
-
-        return tuple(commands)
+            await self.push(Clock.Reset(self.bout.clock))
 
 
 @dataclass

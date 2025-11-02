@@ -4,12 +4,10 @@ from typing import TYPE_CHECKING, Annotated, override
 
 from core.database import AsyncSessionDepends
 from fastapi import Body, Depends, Query
-from models import JamModel, TeamName
+from models import DatabaseCommand, JamModel, TeamName
 from models.jam import TeamJamModel, TripEventModel
 from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from commands._commands import Command
 
 if TYPE_CHECKING:
     from sqlalchemy.engine.result import Result
@@ -43,7 +41,7 @@ TeamJamDepends = Annotated[TeamJamModel, Depends(get_team_jam)]
 
 
 @dataclass
-class JamStart(Command):
+class JamStart(DatabaseCommand):
     detached_jam: JamDepends
     timestamp: Annotated[datetime, Body()]
 
@@ -59,7 +57,7 @@ class JamStart(Command):
 
 
 @dataclass
-class JamStop(Command):
+class JamStop(DatabaseCommand):
     detached_jam: JamDepends
     timestamp: Annotated[datetime, Body()]
 
@@ -75,21 +73,21 @@ class JamStop(Command):
 
 
 @dataclass
-class AddTrip(Command):
+class AddTrip(DatabaseCommand):
     detached_team_jam: TeamJamDepends
     trip_event: TripEventModel
 
     @override
-    async def execute(self, session: AsyncSession) -> None:
+    async def do(self) -> None:
         if inspect(self.trip_event).transient:
             self.detached_team_jam.events.append(self.trip_event)
         else:
-            _ = await session.merge(self.trip_event)
+            _ = await self.session.merge(self.trip_event)
 
     @override
-    async def undo(self, session: AsyncSession) -> None:
-        trip_event: TripEventModel = await session.merge(self.trip_event)
-        await session.delete(trip_event)
+    async def undo(self) -> None:
+        trip_event: TripEventModel = await self.session.merge(self.trip_event)
+        await self.session.delete(trip_event)
         self.trip_event = trip_event
 
 

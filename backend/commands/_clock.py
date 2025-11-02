@@ -3,32 +3,29 @@ from datetime import datetime, timedelta
 from typing import Annotated, override
 
 from fastapi import Body, Depends
-from models import ClockModel
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from ._commands import Command
+from models import ClockModel, DatabaseCommand
 
 
 @dataclass
-class Start(Command):
+class Start(DatabaseCommand):
     detached_clock: ClockModel
     timestamp: datetime
 
     @override
-    async def execute(self, session: AsyncSession) -> None:
-        clock: ClockModel = await session.merge(self.detached_clock)
+    async def do(self) -> None:
+        clock: ClockModel = await self.session.merge(self.detached_clock)
         if clock.is_running():
             raise RuntimeError('Clock is already running')
         clock.start_timestamp = self.timestamp
 
     @override
-    async def undo(self, session: AsyncSession) -> None:
-        clock: ClockModel = await session.merge(self.detached_clock)
+    async def undo(self) -> None:
+        clock: ClockModel = await self.session.merge(self.detached_clock)
         clock.start_timestamp = None
 
 
 @dataclass
-class Stop(Command):
+class Stop(DatabaseCommand):
     detached_clock: ClockModel
     timestamp: Annotated[datetime, Depends(datetime.now)]
     old_elapsed: Annotated[timedelta, Body(include_in_schema=False)] = timedelta(
@@ -39,8 +36,8 @@ class Stop(Command):
     )
 
     @override
-    async def execute(self, session: AsyncSession) -> None:
-        clock: ClockModel = await session.merge(self.detached_clock)
+    async def do(self) -> None:
+        clock: ClockModel = await self.session.merge(self.detached_clock)
 
         if clock.start_timestamp is None:
             raise RuntimeError('Cannot stop a Clock when it is already stopped')
@@ -53,15 +50,15 @@ class Stop(Command):
         clock.start_timestamp = None
 
     @override
-    async def undo(self, session: AsyncSession) -> None:
-        clock: ClockModel = await session.merge(self.detached_clock)
+    async def undo(self) -> None:
+        clock: ClockModel = await self.session.merge(self.detached_clock)
 
         clock.elapsed = self.old_elapsed
         clock.start_timestamp = self.old_start_timestamp
 
 
 @dataclass
-class Set(Command):
+class Set(DatabaseCommand):
     detached_clock: ClockModel
     elapsed: Annotated[timedelta, Body()]
     old_elapsed: Annotated[timedelta, Body(include_in_schema=False)] = timedelta(
@@ -69,8 +66,8 @@ class Set(Command):
     )
 
     @override
-    async def execute(self, session: AsyncSession) -> None:
-        clock: ClockModel = await session.merge(self.detached_clock)
+    async def do(self) -> None:
+        clock: ClockModel = await self.session.merge(self.detached_clock)
         if clock.is_running():
             raise RuntimeError('Cannot set a Clock when it is running')
 
@@ -78,8 +75,8 @@ class Set(Command):
         clock.elapsed = self.elapsed
 
     @override
-    async def undo(self, session: AsyncSession) -> None:
-        clock: ClockModel = await session.merge(self.detached_clock)
+    async def undo(self) -> None:
+        clock: ClockModel = await self.session.merge(self.detached_clock)
 
         clock.elapsed = self.old_elapsed
 

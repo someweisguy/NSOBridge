@@ -1,5 +1,6 @@
+from abc import ABC
 from inspect import Traceback
-from typing import Annotated, Protocol, TypeAlias
+from typing import Annotated, Protocol, TypeAlias, override
 from uuid import UUID
 
 from fastapi import Cookie, Depends
@@ -20,6 +21,22 @@ class Command(Protocol):
     async def do(self) -> None: ...
 
     async def undo(self) -> None: ...
+
+
+class MultiCommand(Command, ABC):
+    _commands: list[Command] = []
+
+    async def push(self, command: Command) -> None:
+        async with command:
+            await command.do()
+        self._commands.append(command)
+
+    @override
+    async def undo(self) -> None:
+        for command in reversed(self._commands):
+            async with command:
+                await command.undo()
+        self._commands.clear()
 
 
 class UserContext:

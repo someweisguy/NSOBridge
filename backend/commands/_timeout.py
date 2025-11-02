@@ -4,11 +4,10 @@ from typing import Annotated, override
 
 from core.database import AsyncSessionDepends
 from fastapi import Body, Depends, Query
+from models import DatabaseCommand
 from models.time import TimeoutModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from commands._commands import Command
 
 
 async def get_timeout(
@@ -23,7 +22,7 @@ TimeoutDepends = Annotated[TimeoutModel, Depends(get_timeout)]
 
 
 @dataclass
-class Start(Command):
+class Start(DatabaseCommand):
     detached_timeout: TimeoutDepends
     timestamp: Annotated[datetime, Body()]
 
@@ -39,7 +38,7 @@ class Start(Command):
 
 
 @dataclass
-class Stop(Command):
+class Stop(DatabaseCommand):
     detached_timeout: TimeoutDepends
     timestamp: Annotated[datetime, Body()]
 
