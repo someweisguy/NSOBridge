@@ -21,7 +21,7 @@ class DatabaseCommand(Command, ABC):
 
     @override
     async def __aenter__(self) -> None:
-        _ = await self.session.__aenter__()
+        _ = await self.session.begin()
 
     @override
     async def __aexit__(
@@ -30,7 +30,8 @@ class DatabaseCommand(Command, ABC):
         exception_value: BaseException | None,
         traceback: Traceback | None,
     ) -> None:
-        await self.session.__aexit__(exception_type, exception_value, traceback)
+        await self.session.commit()
+        await self.session.close()
 
 
 __all__ = (
