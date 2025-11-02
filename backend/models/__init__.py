@@ -1,6 +1,7 @@
 from abc import ABC
+from dataclasses import dataclass, field
 from inspect import Traceback
-from typing import Any, override
+from typing import Final, override
 
 from core import Command
 from core.database import SessionLocal
@@ -14,18 +15,13 @@ from .team import RosterModel, TeamModel
 from .time import ClockModel
 
 
-def get_db(**kwargs: Any) -> AsyncSession:
-    session: AsyncSession = SessionLocal(**kwargs)
-    return session
-
-
+@dataclass
 class DatabaseCommand(Command, ABC):
-    def __init__(self) -> None:
-        self.session: AsyncSession = get_db()
+    session: Final[AsyncSession] = field(default=SessionLocal(), init=False)
 
     @override
     async def __aenter__(self) -> None:
-        _ = await self.session.begin()
+        _ = await self.session.__aenter__()
 
     @override
     async def __aexit__(
@@ -34,15 +30,13 @@ class DatabaseCommand(Command, ABC):
         exception_value: BaseException | None,
         traceback: Traceback | None,
     ) -> None:
-        await self.session.close()
+        await self.session.__aexit__(exception_type, exception_value, traceback)
 
 
 __all__ = (
-    'AsyncSession',
     'CacheableModel',
     'ClockModel',
     'GenericBoutModel',
-    'get_db',
     'JamModel',
     'RosterModel',
     'SeriesModel',
