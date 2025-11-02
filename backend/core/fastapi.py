@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 
-from . import ws
+from .ws import app as ws_handler_app
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
 
@@ -19,7 +19,7 @@ class RulesError(Exception):
 app: FastAPI = FastAPI(
     routes=[
         Mount('/assets', StaticFiles(directory=FRONTEND / 'assets')),
-        Mount('/ws', ws.app),
+        Mount('/ws', ws_handler_app),
     ],
     debug=True,
 )

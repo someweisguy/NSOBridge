@@ -13,8 +13,12 @@ background_tasks: set[asyncio.Task[None]] = set()
 
 
 class WebSocketSchema(ServerSchema):
-    type: Literal['cache', 'sync']
-    data: Any | None = None
+    def __init__(
+        self, payload_type: Literal['cache', 'sync'], data: Any | None
+    ) -> None:
+        super().__init__()
+        self.type: Literal['cache', 'sync'] = payload_type
+        self.data: Any | None = data
 
     @field_serializer('data')
     def _reject_null_data(self, data: Any | None) -> Any:
@@ -53,7 +57,7 @@ async def handle_socket(websocket: WebSocket) -> None:
             data: SyncSchema = SyncSchema.model_validate_json(text)
 
             # Wrap the data in a websocket schema
-            payload: WebSocketSchema = WebSocketSchema(type='sync', data=data)
+            payload: WebSocketSchema = WebSocketSchema('sync', data)
             await websocket.send_text(payload.model_dump_json())
     except WebSocketDisconnect:
         pass  # TODO: log client disconnection
