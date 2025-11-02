@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, override
 
+from core.database import AsyncSessionDepends
 from fastapi import Body, Depends, Query
-from models import AsyncSessionDepends
 from models.time import TimeoutModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

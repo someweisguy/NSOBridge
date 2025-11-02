@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
+from core.database import SQLModel
 from sqlalchemy import (
     ForeignKey,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from .models import SQLModel
 
 if TYPE_CHECKING:
     from .bout import GenericBoutModel

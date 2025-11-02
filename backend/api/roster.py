@@ -1,8 +1,8 @@
 from collections.abc import Sequence
 from typing import Annotated, Final
 
+from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
-from models import AsyncSessionDepends
 from models.team import RosterModel
 from schemas.roster import RosterSchema
 from sqlalchemy import Result, select

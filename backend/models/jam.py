@@ -3,11 +3,12 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, Literal, override
 
+from core.database import SQLModel
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .models import AbstractOneShotModel, CacheableModel, SQLModel
+from .models import AbstractOneShotModel, CacheableModel
 
 if TYPE_CHECKING:
     from .bout import GenericBoutModel

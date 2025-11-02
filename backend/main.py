@@ -41,8 +41,6 @@ for router in [bout_router, series_router, roster_router, history_router, jam_ro
 
 
 async def main() -> None:
-    await models.setup()
-
     # Create a Bout model if one does not already exist
     async with models.get_db() as session, session.begin():
         statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel)

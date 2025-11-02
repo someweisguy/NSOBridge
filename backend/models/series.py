@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import final, override
 
+from core.database import SQLModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .bout import GenericBoutModel
-from .models import CacheableModel, SQLModel
+from .models import CacheableModel
 
 
 class SeriesModel(CacheableModel):

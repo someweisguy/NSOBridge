@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import Annotated, Final
 
-from commands import Bout, Command, HistoryDepends
+from commands import Bout
 from commands.rulesets import wftda_2025
+from core import Command, UserDepends
+from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Body, Depends, Query
-from models import AsyncSessionDepends, GenericBoutModel
+from models import GenericBoutModel
 from models.bout import BoutContext
 from models.rulesets.wftda_2025 import BoutModel
 from schemas import BoutSchema
@@ -52,7 +54,7 @@ async def get_bout_context(
 
 @router.post('/begin-period')
 async def begin_period(
-    history: HistoryDepends,
+    history: UserDepends,
     command: Annotated[Command, Depends(wftda_2025.BeginPeriod)],
 ) -> None:
     await history.do(command)
@@ -60,7 +62,7 @@ async def begin_period(
 
 @router.post('/end-period')
 async def end_period(
-    history: HistoryDepends,
+    history: UserDepends,
     command: Annotated[Command, Depends(wftda_2025.EndPeriod)],
 ) -> None:
     await history.do(command)
@@ -68,7 +70,7 @@ async def end_period(
 
 @router.post('/start-jam')
 async def start_jam(
-    history: HistoryDepends,
+    history: UserDepends,
     command: Annotated[Command, Depends(wftda_2025.StartJam)],
 ) -> None:
     await history.do(command)
@@ -76,7 +78,7 @@ async def start_jam(
 
 @router.post('/stop-jam')
 async def stop_jam(
-    history: HistoryDepends,
+    history: UserDepends,
     command: Annotated[Command, Depends(wftda_2025.StopJam)],
 ) -> None:
     await history.do(command)
@@ -84,7 +86,7 @@ async def stop_jam(
 
 @router.post('/call-timeout')
 async def call_timeout(
-    history: HistoryDepends,
+    history: UserDepends,
     command: Annotated[Command, Depends(wftda_2025.StartTimeout)],
 ) -> None:
     await history.do(command)
@@ -92,7 +94,7 @@ async def call_timeout(
 
 @router.post(path='/end-timeout')
 async def end_timeout(
-    history: HistoryDepends,
+    history: UserDepends,
     command: Annotated[Command, Depends(wftda_2025.StopTimeout)],
 ) -> None:
     await history.do(command)
@@ -101,7 +103,7 @@ async def end_timeout(
 # TODO: Move this API to a different module
 @router.post('/expected-start')
 async def set_expected_start(
-    bout: BoutDepends, timestamp: Annotated[datetime, Body()], history: HistoryDepends
+    bout: BoutDepends, timestamp: Annotated[datetime, Body()], history: UserDepends
 ) -> None:
     await history.do(Bout.SetPeriodCountdown(bout, timestamp))
 

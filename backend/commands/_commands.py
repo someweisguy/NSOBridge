@@ -1,18 +1,8 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
 from typing import override
 
-from models import AsyncSession
-
-
-@dataclass
-class Command(ABC):
-    @abstractmethod
-    async def execute(self, session: AsyncSession) -> None: ...
-
-    @abstractmethod
-    async def undo(self, session: AsyncSession) -> None: ...
+from core import Command
 
 
 @dataclass
@@ -21,12 +11,13 @@ class MultiCommand(Command):
     def commands(self) -> tuple[Command, ...]: ...
 
     @override
-    async def execute(self, session: AsyncSession) -> None:
+    async def do(self) -> None:
         for command in self.commands:
-            await command.execute(session)
+            async with command:
+                await command.do()
 
     @override
-    async def undo(self, session: AsyncSession) -> None:
-        for command in reversed(self.commands):
-            await command.undo(session)
-
+    async def undo(self) -> None:
+        for command in reversed[Command](self.commands):
+            async with command:
+                await command.undo()

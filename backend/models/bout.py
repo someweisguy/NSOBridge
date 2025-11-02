@@ -9,12 +9,14 @@ from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .jam import JamModel, TeamJamModel
-from .models import CacheableModel, SQLModel
+from .models import CacheableModel
 from .team import TeamModel
 from .time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
     from datetime import timedelta
+
+    from core.database import SQLModel
 
     from .series import SeriesModel
     from .team import RosterModel
@@ -100,7 +102,7 @@ class GenericBoutModel(CacheableModel):
     @final
     @property
     @override
-    def key(self) -> tuple[str, int]:
+    def key(self) -> tuple[str, int | None]:
         return (self.__tablename__, self.id)
 
     @final

@@ -1,23 +1,17 @@
 from abc import ABC
-from collections.abc import AsyncGenerator
 from inspect import Traceback
-from typing import Annotated, Any, Callable, TypeAlias, override
+from typing import Any, Callable, override
 
 from core import Command
-from fastapi import Depends
+from core.database import SessionLocal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .bout import GenericBoutModel
 from .jam import JamModel, TeamJamModel, TeamName
-from .models import CacheableModel, SessionLocal, SQLModel, callbacks, engine
+from .models import CacheableModel, callbacks
 from .series import SeriesModel
 from .team import RosterModel, TeamModel
 from .time import ClockModel
-
-
-async def setup() -> None:
-    async with engine.connect() as connection:
-        await connection.run_sync(SQLModel.metadata.create_all)
 
 
 def get_db(**kwargs: Any) -> AsyncSession:
@@ -30,15 +24,6 @@ def on_update(
 ) -> Callable[[set[CacheableModel]], None]:
     callbacks.append(callback)
     return callback
-
-
-async def _inject_db() -> AsyncGenerator[AsyncSession]:
-    async with get_db() as session:
-        yield session
-        await session.commit()
-
-
-AsyncSessionDepends: TypeAlias = Annotated[AsyncSession, Depends(_inject_db)]
 
 
 class DatabaseCommand(Command, ABC):
@@ -69,7 +54,6 @@ __all__ = (
     'on_update',
     'RosterModel',
     'SeriesModel',
-    'setup',
     'TeamJamModel',
     'TeamModel',
     'TeamName',

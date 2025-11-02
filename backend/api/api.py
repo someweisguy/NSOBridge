@@ -1,15 +1,16 @@
 from typing import Final
 
-from commands import HistoryDepends
+from core import UserDepends
 from fastapi import APIRouter
 
 router: Final[APIRouter] = APIRouter()
 
 
 @router.post('/undo')
-async def undo(history: HistoryDepends) -> None:
+async def undo(history: UserDepends) -> None:
     await history.undo()
 
+
 @router.post('/redo')
-async def redo(history: HistoryDepends) -> None:
+async def redo(history: UserDepends) -> None:
     await history.redo()

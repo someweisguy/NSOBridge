@@ -3,11 +3,12 @@ from datetime import datetime, timedelta
 from functools import cached_property
 from typing import Annotated, Final
 
-from commands import Bout, Clock, Command, Jam, Team, Timeout
+from commands import Bout, Clock, Jam, Team, Timeout
 from commands._bout import BoutDepends
 from commands._commands import MultiCommand
+from core import Command
 from fastapi import Depends
-from models import GenericBoutModel, JamModel, TeamModel
+from models import GenericBoutModel, JamModel
 from models.time import TimeoutModel
 
 NUM_PERIODS: Final[int] = 2

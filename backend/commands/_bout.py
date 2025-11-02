@@ -2,13 +2,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, override
 
+from core import Command
+from core.database import AsyncSessionDepends
 from fastapi import Body, Depends, Query
-from models import AsyncSessionDepends, GenericBoutModel, JamModel
+from models import GenericBoutModel, JamModel
 from models.time import TimeoutModel
 from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from commands._commands import Command
 
 
 async def get_bout(

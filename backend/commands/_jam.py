@@ -2,8 +2,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, override
 
+from core.database import AsyncSessionDepends
 from fastapi import Body, Depends, Query
-from models import AsyncSessionDepends, JamModel, TeamName
+from models import JamModel, TeamName
 from models.jam import TeamJamModel, TripEventModel
 from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession

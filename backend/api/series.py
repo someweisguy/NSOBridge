@@ -1,7 +1,7 @@
 from typing import Annotated, Final
 
+from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
-from models import AsyncSessionDepends
 from models.series import SeriesModel
 from schemas.series import SeriesSchema
 from sqlalchemy import select

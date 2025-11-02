@@ -3,10 +3,11 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, override
 
+from core.database import SQLModel, TimedeltaAsMilliseconds
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .models import AbstractOneShotModel, SQLModel, TimedeltaAsMilliseconds
+from .models import AbstractOneShotModel
 
 if TYPE_CHECKING:
     from .bout import GenericBoutModel
