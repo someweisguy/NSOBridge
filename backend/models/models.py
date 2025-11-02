@@ -13,8 +13,6 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
-callbacks: Final[list[Callable[[set[CacheableModel]], None]]] = []
-
 
 class CacheableModel(SQLModel):
     __abstract__: bool = True
@@ -29,28 +27,6 @@ class CacheableModel(SQLModel):
 
     @property
     def key(self) -> tuple[Any, ...]: ...
-
-
-@event.listens_for(Session, 'after_flush')
-def after_flush_hook(session: Session, _: UOWTransaction) -> None:
-    if len(callbacks) == 0:
-        return
-
-    # Recursively add each dirty, deleted, or new model
-    cacheables: set[CacheableModel] = {
-        parent
-        for model in [
-            record
-            for identity_map in [session.dirty, session.deleted, session.new]
-            for record in identity_map
-            if isinstance(record, SQLModel)
-        ]
-        for parent in model.search_parents() | {model}
-        if isinstance(parent, CacheableModel)
-    }
-
-    for callback in callbacks:
-        callback(cacheables)
 
 
 class AbstractOneShotModel(SQLModel):
@@ -96,3 +72,28 @@ class AbstractOneShotModel(SQLModel):
             if timestamp < self.start_timestamp:
                 raise ValueError('Cannot get a duration for a time that is in the past')
             return timestamp - self.start_timestamp
+
+
+callbacks: Final[list[Callable[[set[CacheableModel]], None]]] = []
+
+
+@event.listens_for(Session, 'after_flush')
+def after_flush_hook(session: Session, _: UOWTransaction) -> None:
+    if len(callbacks) == 0:
+        return
+
+    # Recursively add each dirty, deleted, or new model
+    cacheables: set[CacheableModel] = {
+        parent
+        for model in [
+            record
+            for identity_map in [session.dirty, session.deleted, session.new]
+            for record in identity_map
+            if isinstance(record, SQLModel)
+        ]
+        for parent in model.search_parents() | {model}
+        if isinstance(parent, CacheableModel)
+    }
+
+    for callback in callbacks:
+        callback(cacheables)
