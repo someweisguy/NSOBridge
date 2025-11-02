@@ -1,4 +1,5 @@
 from abc import ABC
+from dataclasses import dataclass, field
 from inspect import Traceback
 from typing import Annotated, Protocol, TypeAlias, override
 from uuid import UUID, uuid4
@@ -23,8 +24,9 @@ class Command(Protocol):
     async def undo(self) -> None: ...
 
 
+@dataclass
 class MultiCommand(Command, ABC):
-    _commands: list[Command] = []
+    _commands: list[Command] = field(default_factory=list, init=False)
 
     async def push(self, command: Command) -> None:
         async with command:
