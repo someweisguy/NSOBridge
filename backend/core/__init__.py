@@ -3,6 +3,7 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from uvicorn import Config, Server
 
 from .fastapi import app
+from .history import Command, UserContext, UserDepends
 from .schemas import ClientSchema, ServerSchema
 from .ws import broadcast
 
@@ -32,7 +33,10 @@ __all__ = (
     'app',
     'broadcast',
     'ClientSchema',
+    'Command',
     'get_ip_address',
     'serve',
     'ServerSchema',
+    'UserContext',
+    'UserDepends',
 )

@@ -1,6 +1,9 @@
+from abc import ABC
 from collections.abc import AsyncGenerator
-from typing import Annotated, Any, Callable
+from inspect import Traceback
+from typing import Annotated, Any, Callable, TypeAlias, override
 
+from core import Command
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,7 +38,25 @@ async def _inject_db() -> AsyncGenerator[AsyncSession]:
         await session.commit()
 
 
-AsyncSessionDepends = Annotated[AsyncSession, Depends(_inject_db)]
+AsyncSessionDepends: TypeAlias = Annotated[AsyncSession, Depends(_inject_db)]
+
+
+class DatabaseCommand(Command, ABC):
+    def __init__(self) -> None:
+        self.session: AsyncSession = get_db()
+
+    @override
+    async def __aenter__(self) -> None:
+        _ = await self.session.begin()
+
+    @override
+    async def __aexit__(
+        self,
+        exception_type: type[BaseException] | None,
+        exception_value: BaseException | None,
+        traceback: Traceback | None,
+    ) -> None:
+        await self.session.close()
 
 
 __all__ = (
