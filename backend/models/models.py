@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any, Callable, Final, override
+from typing import Any, override
 
+import core
 from core.database import SQLModel
+from core.ws import WebSocketSchema
 from sqlalchemy import CheckConstraint, event
 from sqlalchemy.orm import (
     Mapped,
@@ -74,14 +76,8 @@ class AbstractOneShotModel(SQLModel):
             return timestamp - self.start_timestamp
 
 
-callbacks: Final[list[Callable[[set[CacheableModel]], None]]] = []
-
-
 @event.listens_for(Session, 'after_flush')
 def after_flush_hook(session: Session, _: UOWTransaction) -> None:
-    if len(callbacks) == 0:
-        return
-
     # Recursively add each dirty, deleted, or new model
     cacheables: set[CacheableModel] = {
         parent
@@ -95,5 +91,7 @@ def after_flush_hook(session: Session, _: UOWTransaction) -> None:
         if isinstance(parent, CacheableModel)
     }
 
-    for callback in callbacks:
-        callback(cacheables)
+    # Broadcast model keys of all updated cacheable models to clients
+    payload: WebSocketSchema = WebSocketSchema('cache')
+    payload.data = tuple(cacheable.key for cacheable in cacheables)
+    core.broadcast(payload)
