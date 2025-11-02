@@ -28,7 +28,7 @@ logging.basicConfig(
 # Broadcast model updates over WebSocket
 @models.on_update
 def broadcast_model_updates(cacheables: set[CacheableModel]) -> None:
-    payload: WebSocketSchema = WebSocketSchema(type='cache')
+    payload: WebSocketSchema = WebSocketSchema('cache')
     payload.data = tuple(cacheable.key for cacheable in cacheables)
     core.broadcast(payload)
 

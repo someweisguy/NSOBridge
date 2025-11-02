@@ -30,7 +30,7 @@ def get_next_jam_num(
 
 @dataclass
 class BeginPeriod(MultiCommand):
-    bout: GenericBoutModel
+    bout: BoutDepends
 
     @cached_property
     def commands(self) -> tuple[Command, ...]:
@@ -140,7 +140,7 @@ class StartTimeout(MultiCommand):
     bout: BoutDepends
     timestamp: Annotated[datetime, Depends(datetime.now)]
     is_review: bool = False
-    team: TeamModel | None = None
+    # team: TeamModel | None = None  # FIXME: Make this a dependency
 
     @cached_property
     def commands(self) -> tuple[Command, ...]:

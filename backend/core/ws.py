@@ -13,12 +13,13 @@ background_tasks: set[asyncio.Task[None]] = set()
 
 
 class WebSocketSchema(ServerSchema):
+    payload_type: Literal['cache', 'sync']
+    data: Any | None
+
     def __init__(
-        self, payload_type: Literal['cache', 'sync'], data: Any | None
+        self, payload_type: Literal['cache', 'sync'], data: Any | None = None
     ) -> None:
-        super().__init__()
-        self.type: Literal['cache', 'sync'] = payload_type
-        self.data: Any | None = data
+        super().__init__(payload_type=payload_type, data=data)  # pyright: ignore[reportCallIssue]
 
     @field_serializer('data')
     def _reject_null_data(self, data: Any | None) -> Any:
