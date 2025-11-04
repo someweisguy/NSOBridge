@@ -10,6 +10,7 @@ from core.history import MultiCommand
 from fastapi import Depends
 from models import GenericBoutModel, JamModel
 from models.time import TimeoutModel
+from sqlalchemy import inspect
 
 NUM_PERIODS: Final[int] = 2
 
@@ -38,10 +39,7 @@ class BeginPeriod(MultiCommand):
         if self.bout.get_state() != 'stopped':
             raise RuntimeError('The Bout cannot be started now')
 
-        home, away = self.bout.teams[:2]
-        period_num, jam_num = get_next_jam_num(self.bout, True)
-        jam: JamModel = JamModel(period_num, jam_num, home, away)
-        await self.push(Bout.AddJam(self.bout, jam))
+        await self.push(Bout.AddJam(self.bout))
 
         await self.push(Bout.SetIsRunning(self.bout, True))
 

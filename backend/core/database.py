@@ -30,7 +30,9 @@ DATABASE: str = os.environ.get('DB_PATH', ':memory:')
 DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {'true', 'yes'}
 
 engine: AsyncEngine = create_async_engine(f'sqlite+aiosqlite:///{DATABASE}', echo=DEBUG)
-SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(bind=engine)
+SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
+    bind=engine, expire_on_commit=False
+)
 
 
 class TimedeltaAsMilliseconds(TypeDecorator[Integer]):

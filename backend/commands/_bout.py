@@ -4,7 +4,7 @@ from typing import Annotated, override
 
 from core.database import ReadOnlyAsyncSessionDepends
 from fastapi import Body, Depends, Query
-from models import DatabaseCommand, GenericBoutModel, JamModel
+from models import DatabaseCommand, GenericBoutModel
 from models.time import TimeoutModel
 from sqlalchemy import inspect, select
 
@@ -42,19 +42,19 @@ class SetPeriodCountdown(DatabaseCommand):
 
 @dataclass
 class SetIsRunning(DatabaseCommand):
-    detached_bout: BoutDepends
+    bout: BoutDepends
     new_value: Annotated[bool, Body()]
     old_value: Annotated[bool, Body(include_in_schema=False)] = False
 
     @override
     async def do(self) -> None:
-        bout: GenericBoutModel = await self.session.merge(self.detached_bout)
-        self.old_value = bout.is_running
-        bout.is_running = self.new_value
+        self.session.add(self.bout)
+        self.old_value = self.bout.is_running
+        self.bout.is_running = self.new_value
 
     @override
     async def undo(self) -> None:
-        bout: GenericBoutModel = await self.session.merge(self.detached_bout)
+        bout: GenericBoutModel = await self.session.merge(self.bout)
         bout.is_running = self.old_value
 
 
@@ -82,21 +82,17 @@ class SetIsFinal(DatabaseCommand):
 @dataclass
 class AddJam(DatabaseCommand):
     detached_parent: BoutDepends
-    jam: JamModel
 
     @override
     async def do(self) -> None:
-        if inspect(self.jam).transient:
-            # self.jam.bout_id = self.detached_parent.id
-            self.session.add(self.jam)
-        else:
-            _ = await self.session.merge(self.jam)  # Handle redo
-        pass
+        self.session.add(self.detached_parent)
+        bout = self.detached_parent
+        _ = bout.add_jam(bout.teams[0], bout.teams[1])
 
     @override
     async def undo(self) -> None:
-        jam: JamModel = await self.session.merge(self.jam)
-        await self.session.delete(jam)
+        self.session.add(self.jam)
+        await self.session.delete(self.jam)
         pass
 
 

@@ -49,11 +49,14 @@ class TeamJamModel(SQLModel):
     _is_away: Mapped[bool] = mapped_column()
 
     team: Mapped[TeamModel | None] = relationship(
-        foreign_keys=[_team_id], lazy='selectin'
+        cascade='all', foreign_keys=[_team_id], lazy='selectin'
     )
     jam: Mapped[JamModel] = relationship(back_populates='_team_jams', lazy='selectin')
     events: Mapped[list[TripEventModel]] = relationship(
-        back_populates='team_jam', lazy='selectin', order_by=[TripEventModel.timestamp]
+        back_populates='team_jam',
+        cascade='all, delete-orphan',
+        lazy='selectin',
+        order_by=[TripEventModel.timestamp],
     )
 
     __table_args__: tuple[Constraint, ...] = (
@@ -86,7 +89,7 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         order_by='TeamJamModel._is_away',
     )
     bout: Mapped[GenericBoutModel] = relationship(
-        foreign_keys=[bout_id], lazy='selectin'
+        cascade='all', foreign_keys=[bout_id], lazy='selectin'
     )
 
     def __init__(

@@ -5,7 +5,7 @@ from datetime import datetime  # noqa: TC003
 from functools import cached_property
 from typing import TYPE_CHECKING, Final, Literal, final, override
 
-from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
+from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, inspect
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .jam import JamModel, TeamJamModel
@@ -55,12 +55,13 @@ class GenericBoutModel(CacheableModel):
         back_populates='bout',
         cascade='all, delete-orphan',
         lazy='selectin',
-        load_on_pending=True,
         order_by=[JamModel.period, JamModel.jam],
     )
     series: Mapped[SeriesModel] = relationship(foreign_keys=[_series_id], lazy='select')
     teams: Mapped[list[TeamModel]] = relationship(
-        back_populates='bout', cascade='all, delete-orphan', lazy='selectin'
+        back_populates='bout',
+        cascade='all, delete-orphan',
+        lazy='selectin',
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
         cascade='all, delete-orphan', lazy='selectin'
@@ -140,3 +141,22 @@ class GenericBoutModel(CacheableModel):
 
     @cached_property
     def context(self) -> BoutContext: ...
+
+    def add_jam(
+        self, home: TeamModel, away: TeamModel, new_period: bool = False
+    ) -> JamModel:
+        # Get the Period number and Jam number of the next Jam
+        period_num: int = 0
+        jam_num: int = 0
+        if len(self.jams) > 0:
+            latest: JamModel = self.jams[-1]
+            period_num = latest.period
+            if new_period:
+                period_num += 1
+            else:
+                jam_num = latest.jam + 1
+
+        # Instantiate the Jam and add it to this Bout
+        jam: JamModel = JamModel(period_num, jam_num, home, away)
+        self.jams.append(jam)
+        return jam
