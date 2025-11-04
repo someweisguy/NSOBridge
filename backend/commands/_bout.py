@@ -95,9 +95,8 @@ class AddJam(DatabaseCommand):
 
     @override
     async def undo(self) -> None:
-        # jam: JamModel = await self.session.merge(self.jam)
-        await self.session.delete(self.jam)
-        # self.jam = jam
+        jam: JamModel = await self.session.merge(self.jam)
+        await self.session.delete(jam)
         pass
 
 

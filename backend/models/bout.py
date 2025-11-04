@@ -45,18 +45,26 @@ class GenericBoutModel(CacheableModel):
     order: Mapped[int] = mapped_column()
     ruleset: Mapped[str] = mapped_column()
 
-    clock: Mapped[ClockModel] = relationship(foreign_keys=[_clock_id], lazy='joined')
+    clock: Mapped[ClockModel] = relationship(
+        cascade='all, delete-orphan',
+        foreign_keys=[_clock_id],
+        lazy='joined',
+        single_parent=True,
+    )
     jams: Mapped[list[JamModel]] = relationship(
         back_populates='bout',
+        cascade='all, delete-orphan',
         lazy='selectin',
         load_on_pending=True,
         order_by=[JamModel.period, JamModel.jam],
     )
     series: Mapped[SeriesModel] = relationship(foreign_keys=[_series_id], lazy='select')
     teams: Mapped[list[TeamModel]] = relationship(
-        back_populates='bout', lazy='selectin'
+        back_populates='bout', cascade='all, delete-orphan', lazy='selectin'
     )
-    timeouts: Mapped[list[TimeoutModel]] = relationship(lazy='selectin')
+    timeouts: Mapped[list[TimeoutModel]] = relationship(
+        cascade='all, delete-orphan', lazy='selectin'
+    )
 
     __table_args__: tuple[Constraint] = (UniqueConstraint(_series_id, order),)
     __mapper_args__: dict[str, str | bool] = {

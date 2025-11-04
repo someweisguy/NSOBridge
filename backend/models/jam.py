@@ -45,64 +45,48 @@ class TeamJamModel(SQLModel):
     __tablename__: str = 'team_jams'
 
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
+    _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
+    _is_away: Mapped[bool] = mapped_column()
 
-    _home: Mapped[JamModel | None] = relationship(
-        foreign_keys='JamModel._home_team_jam_id', lazy='joined'
-    )
-    _away: Mapped[JamModel | None] = relationship(
-        foreign_keys='JamModel._away_team_jam_id', lazy='joined'
-    )
     team: Mapped[TeamModel | None] = relationship(
         foreign_keys=[_team_id], lazy='selectin'
     )
+    jam: Mapped[JamModel] = relationship(back_populates='_team_jams', lazy='selectin')
     events: Mapped[list[TripEventModel]] = relationship(
         back_populates='team_jam', lazy='selectin', order_by=[TripEventModel.timestamp]
     )
 
-    def __init__(self, team: TeamModel) -> None:
-        super().__init__(team=team)
+    __table_args__: tuple[Constraint, ...] = (
+        UniqueConstraint(_team_id, _is_away),
+        CheckConstraint('0 <= _is_away <= 1'),
+    )
+
+    def __init__(self, team: TeamModel, is_away: bool) -> None:
+        super().__init__(team=team, _is_away=is_away)
 
     @property
     @override
     def parents(self) -> tuple[SQLModel | None, ...]:
-        if self._home is not None:
-            return (self._home,)
-        elif self._away is not None:
-            return (self._away,)
-        else:
-            raise RuntimeError('This TeamJam does not have a parent Jam')
+        return (self.jam,)
 
 
 class JamModel(AbstractOneShotModel, CacheableModel):
     __tablename__: str = 'jams'
 
     bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
-    _away_team_jam_id: Mapped[int] = mapped_column(
-        ForeignKey('team_jams.id', ondelete='SET NULL')
-    )
-    _home_team_jam_id: Mapped[int] = mapped_column(
-        ForeignKey('team_jams.id', ondelete='SET NULL')
-    )
+
     jam: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
-    away: Mapped[TeamJamModel] = relationship(
-        back_populates='_away',
+    _team_jams: Mapped[list[TeamJamModel]] = relationship(
+        back_populates='jam',
         cascade='all, delete-orphan',
-        foreign_keys=[_away_team_jam_id],
-        lazy='joined',
-        single_parent=True
+        lazy='selectin',
+        order_by='TeamJamModel._is_away',
     )
     bout: Mapped[GenericBoutModel] = relationship(
         foreign_keys=[bout_id], lazy='selectin'
-    )
-    home: Mapped[TeamJamModel] = relationship(
-        back_populates='_home',
-        cascade='all, delete-orphan',
-        foreign_keys=[_home_team_jam_id],
-        lazy='joined',
-        single_parent=True
     )
 
     def __init__(
@@ -111,21 +95,10 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         super().__init__(
             period=period_num,
             jam=jam_num,
-            home=TeamJamModel(home),
-            away=TeamJamModel(away),
-        )
-
-    @declared_attr
-    @classmethod
-    def __table_args__(cls) -> Any:
-        return super().__table_args__ + (
-            UniqueConstraint(cls.bout_id, cls.period, cls.jam),
-            UniqueConstraint(cls._home_team_jam_id),
-            UniqueConstraint(cls._away_team_jam_id),
-            CheckConstraint('_home_team_jam_id != _away_team_jam_id'),
-            CheckConstraint("""(_home_team_jam_id IS NOT NULL
-                                AND _away_team_jam_id IS NOT NULL)
-                               OR start_timestamp IS NULL"""),
+            _team_jams=[
+                TeamJamModel(home, False),
+                TeamJamModel(away, True),
+            ],
         )
 
     def __getitem__(self, team_name: TeamName) -> TeamJamModel:
@@ -142,3 +115,11 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     @override
     def key(self) -> tuple[str, int | None, int, int]:
         return (self.__tablename__, self.bout_id, self.period, self.jam)
+
+    @property
+    def home(self) -> TeamJamModel:
+        return self._team_jams[0]
+
+    @property
+    def away(self) -> TeamJamModel:
+        return self._team_jams[1]

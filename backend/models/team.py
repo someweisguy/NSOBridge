@@ -46,13 +46,13 @@ class TeamModel(SQLModel):
 
     bout: Mapped[GenericBoutModel | None] = relationship()
     roster: Mapped[RosterModel | None] = relationship(
-        foreign_keys=[_roster_id], lazy='joined'
+        cascade='all', foreign_keys=[_roster_id], lazy='joined'
     )
     team_jams: Mapped[list[TeamJamModel]] = relationship(
-        back_populates='team', lazy='selectin'
+        back_populates='team', cascade='all', lazy='selectin'
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
-        back_populates='team', lazy='selectin'
+        back_populates='team', cascade='all', lazy='selectin'
     )
 
     def __init__(self, roster: RosterModel):
