@@ -3,7 +3,7 @@ from typing import Annotated, Final
 
 from commands._jam import AddTrip
 from core import UserDepends
-from core.database import AsyncSessionDepends
+from core.database import ReadOnlyAsyncSessionDepends
 from fastapi import APIRouter, Body, Depends, Query
 from models import JamModel, TeamJamModel, TeamName
 from models.jam import TripEventModel
@@ -15,7 +15,7 @@ router: Final[APIRouter] = APIRouter(prefix='/jam')
 
 @router.get('', response_model=JamSchema)
 async def get_jam(
-    db: AsyncSessionDepends,
+    db: ReadOnlyAsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],

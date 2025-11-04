@@ -89,16 +89,20 @@ class JamModel(AbstractOneShotModel, CacheableModel):
 
     away: Mapped[TeamJamModel] = relationship(
         back_populates='_away',
+        cascade='all, delete-orphan',
         foreign_keys=[_away_team_jam_id],
         lazy='joined',
+        single_parent=True
     )
     bout: Mapped[GenericBoutModel] = relationship(
         foreign_keys=[bout_id], lazy='selectin'
     )
     home: Mapped[TeamJamModel] = relationship(
         back_populates='_home',
+        cascade='all, delete-orphan',
         foreign_keys=[_home_team_jam_id],
         lazy='joined',
+        single_parent=True
     )
 
     def __init__(

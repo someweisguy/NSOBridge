@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, override
 
-from core.database import AsyncSessionDepends
+from core.database import ReadOnlyAsyncSessionDepends
 from fastapi import Body, Depends, Query
 from models import DatabaseCommand
 from models.time import TimeoutModel
@@ -11,7 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_timeout(
-    session: AsyncSessionDepends, timeout_id: Annotated[int, Query(alias='timeoutId')]
+    session: ReadOnlyAsyncSessionDepends,
+    timeout_id: Annotated[int, Query(alias='timeoutId')],
 ) -> TimeoutModel:
     statement = select(TimeoutModel).where(TimeoutModel.id == timeout_id)
     results = await session.execute(statement)

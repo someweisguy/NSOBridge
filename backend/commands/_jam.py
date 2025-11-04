@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, override
 
-from core.database import AsyncSessionDepends
+from core.database import ReadOnlyAsyncSessionDepends
 from fastapi import Body, Depends, Query
 from models import DatabaseCommand, JamModel, TeamName
 from models.jam import TeamJamModel, TripEventModel
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 async def get_jam(
-    session: AsyncSessionDepends,
+    session: ReadOnlyAsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],

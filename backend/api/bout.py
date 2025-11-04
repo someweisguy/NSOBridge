@@ -4,7 +4,7 @@ from typing import Annotated, Final
 from commands import Bout
 from commands.rulesets import wftda_2025
 from core import Command, UserDepends
-from core.database import AsyncSessionDepends
+from core.database import ReadOnlyAsyncSessionDepends
 from fastapi import APIRouter, Body, Depends, Query
 from models import GenericBoutModel
 from models.bout import BoutContext
@@ -22,7 +22,7 @@ router: Final[APIRouter] = APIRouter(prefix='/bout')
 # TODO: Remove this
 @router.get('', response_model=BoutSchema)
 async def get_bout(
-    db: AsyncSessionDepends, bout_id: Annotated[int, Query(alias='boutId')]
+    db: ReadOnlyAsyncSessionDepends, bout_id: Annotated[int, Query(alias='boutId')]
 ) -> GenericBoutModel:
     statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
     results = await db.execute(statement)
@@ -35,7 +35,7 @@ BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
 @router.post('/wftda2025')
 async def create_bout(
-    db: AsyncSessionDepends,
+    db: ReadOnlyAsyncSessionDepends,
     series: SeriesDepends,
     rosters: RosterDepends,
     order: Annotated[int, Body()] = 0,
@@ -52,7 +52,7 @@ async def get_bout_context(
     return bout.context
 
 
-@router.post('/begin-period')
+@router.post('/setup-track')
 async def begin_period(
     history: UserDepends,
     command: Annotated[Command, Depends(wftda_2025.BeginPeriod)],

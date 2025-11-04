@@ -17,7 +17,7 @@ from .time import ClockModel
 
 @dataclass
 class DatabaseCommand(Command, ABC):
-    session: Final[AsyncSession] = field(default=SessionLocal(), init=False)
+    session: AsyncSession = field(default=SessionLocal(), init=False)
 
     @override
     async def __aenter__(self) -> None:

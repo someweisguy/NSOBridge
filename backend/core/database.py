@@ -91,10 +91,12 @@ async def setup() -> None:
         await session.commit()
 
 
-async def _get_async_session() -> AsyncGenerator[AsyncSession, None]:
+async def _get_readonly_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with SessionLocal() as session, session.begin():
         yield session
         await session.commit()
 
 
-AsyncSessionDepends: TypeAlias = Annotated[AsyncSession, Depends(_get_async_session)]
+ReadOnlyAsyncSessionDepends: TypeAlias = Annotated[
+    AsyncSession, Depends(_get_readonly_async_session)
+]

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, override
 
-from core.database import AsyncSessionDepends
+from core.database import ReadOnlyAsyncSessionDepends
 from fastapi import Body, Depends, Query
 from models import DatabaseCommand, GenericBoutModel, JamModel
 from models.time import TimeoutModel
@@ -10,11 +10,13 @@ from sqlalchemy import inspect, select
 
 
 async def get_bout(
-    session: AsyncSessionDepends, bout_id: Annotated[int, Query(alias='boutId')]
+    session: ReadOnlyAsyncSessionDepends, bout_id: Annotated[int, Query(alias='boutId')]
 ) -> GenericBoutModel:
     statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
     results = await session.execute(statement)
-    return results.scalar_one()
+    bout: GenericBoutModel = results.scalar_one()
+    session.expunge(bout)
+    return bout
 
 
 BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
@@ -85,15 +87,18 @@ class AddJam(DatabaseCommand):
     @override
     async def do(self) -> None:
         if inspect(self.jam).transient:
-            self.detached_parent.jams.append(self.jam)  # Initial insert
+            # self.jam.bout_id = self.detached_parent.id
+            self.session.add(self.jam)
         else:
             _ = await self.session.merge(self.jam)  # Handle redo
+        pass
 
     @override
     async def undo(self) -> None:
-        jam: JamModel = await self.session.merge(self.jam)
-        await self.session.delete(jam)
-        self.jam = jam
+        # jam: JamModel = await self.session.merge(self.jam)
+        await self.session.delete(self.jam)
+        # self.jam = jam
+        pass
 
 
 @dataclass
