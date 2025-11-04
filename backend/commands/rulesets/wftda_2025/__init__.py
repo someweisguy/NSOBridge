@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from functools import cached_property
 from typing import Annotated, Final, override
@@ -6,9 +6,10 @@ from typing import Annotated, Final, override
 from commands import Bout, Clock, Jam, Team, Timeout
 from commands._bout import BoutDepends
 from core import Command
+from core.database import SessionLocal
 from core.history import MultiCommand
 from fastapi import Depends
-from models import GenericBoutModel, JamModel
+from models import DatabaseCommand, GenericBoutModel, JamModel
 from models.time import TimeoutModel
 from sqlalchemy import inspect
 
@@ -33,11 +34,13 @@ def get_next_jam_num(
 @dataclass
 class BeginPeriod(MultiCommand):
     bout: BoutDepends
+    memento: GenericBoutModel | None = field(default=None, init=False)
 
     @override
     async def do(self) -> None:
         if self.bout.get_state() != 'stopped':
             raise RuntimeError('The Bout cannot be started now')
+        self.memento = self.bout.get_snapshot()
 
         await self.push(Bout.AddJam(self.bout))
 
@@ -45,6 +48,13 @@ class BeginPeriod(MultiCommand):
 
         if self.bout.get_period() < NUM_PERIODS:
             await self.push(Clock.Reset(self.bout.clock))
+            
+    @override
+    async def undo(self) -> None:
+       async with SessionLocal() as session, session.begin():
+            _ = await session.merge(self.memento)
+            await session.commit()
+        
 
 
 @dataclass

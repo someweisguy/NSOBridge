@@ -1,8 +1,9 @@
+from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Annotated, override
 
-from core.database import ReadOnlyAsyncSessionDepends
+from core.database import ReadOnlyAsyncSessionDepends, SQLModel
 from fastapi import Body, Depends, Query
 from models import DatabaseCommand, GenericBoutModel, JamModel
 from models.time import TimeoutModel

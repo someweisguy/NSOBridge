@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import Any, Final, override
+from typing import Any, Final, Self, override
 
 import core
 from core.database import SQLModel
@@ -16,7 +17,8 @@ from sqlalchemy.orm import (
 )
 
 CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
-PARENT_RELATIONSHIP: Final[str] = 'expunge, merge, save-update'
+PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
+
 
 
 class CacheableModel(SQLModel):
@@ -32,6 +34,9 @@ class CacheableModel(SQLModel):
 
     @property
     def key(self) -> tuple[Any, ...]: ...
+    
+    def get_snapshot(self) -> Self:
+        return deepcopy(self)
 
 
 class AbstractOneShotModel(SQLModel):
