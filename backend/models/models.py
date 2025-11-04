@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any, override
+from typing import Any, Final, override
 
 import core
 from core.database import SQLModel
@@ -14,6 +14,9 @@ from sqlalchemy.orm import (
     declared_attr,
     mapped_column,
 )
+
+CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
+PARENT_RELATIONSHIP: Final[str] = 'expunge, merge, save-update'
 
 
 class CacheableModel(SQLModel):

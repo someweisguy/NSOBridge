@@ -9,7 +9,7 @@ from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, inspect
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .jam import JamModel, TeamJamModel
-from .models import CacheableModel
+from .models import CHILD_RELATIONSHIP, CacheableModel
 from .team import TeamModel
 from .time import ClockModel, TimeoutModel
 
@@ -46,25 +46,25 @@ class GenericBoutModel(CacheableModel):
     ruleset: Mapped[str] = mapped_column()
 
     clock: Mapped[ClockModel] = relationship(
-        cascade='all, delete-orphan',
+        cascade=CHILD_RELATIONSHIP,
         foreign_keys=[_clock_id],
         lazy='joined',
         single_parent=True,
     )
     jams: Mapped[list[JamModel]] = relationship(
         back_populates='bout',
-        cascade='all, delete-orphan',
+        cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
         order_by=[JamModel.period, JamModel.jam],
     )
     series: Mapped[SeriesModel] = relationship(foreign_keys=[_series_id], lazy='select')
     teams: Mapped[list[TeamModel]] = relationship(
         back_populates='bout',
-        cascade='all, delete-orphan',
+        cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
-        cascade='all, delete-orphan', lazy='selectin'
+        cascade=CHILD_RELATIONSHIP, lazy='selectin'
     )
 
     __table_args__: tuple[Constraint] = (UniqueConstraint(_series_id, order),)

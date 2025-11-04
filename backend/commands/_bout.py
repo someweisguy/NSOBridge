@@ -1,10 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Annotated, override
 
 from core.database import ReadOnlyAsyncSessionDepends
 from fastapi import Body, Depends, Query
-from models import DatabaseCommand, GenericBoutModel
+from models import DatabaseCommand, GenericBoutModel, JamModel
 from models.time import TimeoutModel
 from sqlalchemy import inspect, select
 
@@ -54,8 +54,8 @@ class SetIsRunning(DatabaseCommand):
 
     @override
     async def undo(self) -> None:
-        bout: GenericBoutModel = await self.session.merge(self.bout)
-        bout.is_running = self.old_value
+        self.session.add(self.bout)
+        self.bout.is_running = self.old_value
 
 
 @dataclass
@@ -81,19 +81,19 @@ class SetIsFinal(DatabaseCommand):
 
 @dataclass
 class AddJam(DatabaseCommand):
-    detached_parent: BoutDepends
+    bout: BoutDepends
+    jam: JamModel | None = field(default=None, init=False)
 
     @override
     async def do(self) -> None:
-        self.session.add(self.detached_parent)
-        bout = self.detached_parent
-        _ = bout.add_jam(bout.teams[0], bout.teams[1])
+        self.session.add(self.bout)
+        self.jam = self.bout.add_jam(self.bout.teams[0], self.bout.teams[1])
 
     @override
     async def undo(self) -> None:
-        self.session.add(self.jam)
-        await self.session.delete(self.jam)
-        pass
+        assert self.jam is not None
+        self.session.add(self.bout)
+        self.bout.jams.remove(self.jam)
 
 
 @dataclass

@@ -8,7 +8,12 @@ from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .models import AbstractOneShotModel, CacheableModel
+from .models import (
+    CHILD_RELATIONSHIP,
+    PARENT_RELATIONSHIP,
+    AbstractOneShotModel,
+    CacheableModel,
+)
 
 if TYPE_CHECKING:
     from .bout import GenericBoutModel
@@ -28,7 +33,9 @@ class TripEventModel(SQLModel):
     star_pass: Mapped[bool] = mapped_column(default=False)
 
     team_jam: Mapped[TeamJamModel | None] = relationship(
-        foreign_keys=[_team_jam_id], lazy='joined'
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[_team_jam_id],
+        lazy='joined',
     )
 
     __table_args__: tuple[Constraint, ...] = (
@@ -49,12 +56,16 @@ class TeamJamModel(SQLModel):
     _is_away: Mapped[bool] = mapped_column()
 
     team: Mapped[TeamModel | None] = relationship(
-        cascade='all', foreign_keys=[_team_id], lazy='selectin'
+        cascade=PARENT_RELATIONSHIP, foreign_keys=[_team_id], lazy='selectin'
     )
-    jam: Mapped[JamModel] = relationship(back_populates='_team_jams', lazy='selectin')
+    jam: Mapped[JamModel] = relationship(
+        back_populates='_team_jams',
+        cascade=PARENT_RELATIONSHIP,
+        lazy='selectin',
+    )
     events: Mapped[list[TripEventModel]] = relationship(
         back_populates='team_jam',
-        cascade='all, delete-orphan',
+        cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
         order_by=[TripEventModel.timestamp],
     )
@@ -84,12 +95,12 @@ class JamModel(AbstractOneShotModel, CacheableModel):
 
     _team_jams: Mapped[list[TeamJamModel]] = relationship(
         back_populates='jam',
-        cascade='all, delete-orphan',
+        cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
         order_by='TeamJamModel._is_away',
     )
     bout: Mapped[GenericBoutModel] = relationship(
-        cascade='all', foreign_keys=[bout_id], lazy='selectin'
+        cascade=PARENT_RELATIONSHIP, foreign_keys=[bout_id], lazy='selectin'
     )
 
     def __init__(
