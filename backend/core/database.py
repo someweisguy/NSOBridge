@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import os
+from copy import deepcopy
 from datetime import timedelta
 from math import floor
 from typing import TYPE_CHECKING, Annotated, Any, TypeAlias, override
 
 from fastapi import Depends
-from sqlalchemy import Result, Select, select
+from sqlalchemy import Result, Select, inspect, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncEngine,
@@ -20,6 +21,8 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
+
+from core.history import Memento
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -79,18 +82,35 @@ async def setup() -> None:
     from models.series import SeriesModel
     from models.team import RosterModel
 
+    bout: GenericBoutModel | None = None
     async with SessionLocal() as session, session.begin():
         statement: Select[tuple[GenericBoutModel]] = select(GenericBoutModel)
         results: Result[tuple[GenericBoutModel]] = await session.execute(statement)
         if results.scalar() is None:
             print('Creating initial Bout model')
-            bout: BoutModel = BoutModel(
+            bout = BoutModel(
                 SeriesModel(),
                 RosterModel('Home'),
                 RosterModel('Away'),
             )
             session.add(bout)
         await session.commit()
+
+    # Start the Period
+    assert bout is not None
+    async with SessionLocal() as session, session.begin():
+        session.add(bout)
+        await session.refresh(bout)
+
+        memento: Memento = DatabaseMemento(bout)
+        _ = bout.add_jam(bout.teams[0], bout.teams[1])
+        bout.is_running = True
+
+        await session.commit()
+
+    memento = await memento.restore()
+    memento = await memento.restore()
+    pass
 
 
 async def _get_readonly_async_session() -> AsyncGenerator[AsyncSession, None]:
@@ -102,3 +122,26 @@ async def _get_readonly_async_session() -> AsyncGenerator[AsyncSession, None]:
 ReadOnlyAsyncSessionDepends: TypeAlias = Annotated[
     AsyncSession, Depends(_get_readonly_async_session)
 ]
+
+
+class DatabaseMemento(Memento):
+    def __init__(self, state: SQLModel) -> None:
+        self._state: SQLModel = state
+
+    @property
+    def state(self) -> SQLModel:
+        return self._state
+
+    @override
+    async def restore(self) -> Memento:
+        async with SessionLocal() as session, session.begin():
+            # Get the current state of the database object
+            redo_memento: SQLModel = deepcopy(self.state)
+            session.add(redo_memento)
+            await session.refresh(redo_memento)
+
+            # Merge the old state with the database
+            _ = await session.merge(self.state)
+            await session.commit()
+
+            return DatabaseMemento(redo_memento)

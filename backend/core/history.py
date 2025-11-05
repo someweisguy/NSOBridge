@@ -1,74 +1,43 @@
-from abc import ABC
-from dataclasses import dataclass, field
-from inspect import Traceback
-from typing import Annotated, Protocol, TypeAlias, override
+from __future__ import annotations
+
+from typing import Annotated, Protocol, TypeAlias
 from uuid import UUID, uuid4
 
 from fastapi import Cookie, Depends, Response
 
 
-class Command(Protocol):
-    async def __aenter__(self) -> None:
-        pass
-
-    async def __aexit__(
-        self,
-        exception_type: type[BaseException] | None,
-        exception_value: BaseException | None,
-        traceback: Traceback | None,
-    ) -> None:
-        pass
-
-    async def do(self) -> None: ...
-
-    async def undo(self) -> None: ...
+class Memento(Protocol):
+    async def restore(self) -> Memento: ...
 
 
-@dataclass
-class MultiCommand(Command, ABC):
-    _commands: list[Command] = field(default_factory=list, init=False)
-
-    async def push(self, command: Command) -> None:
-        async with command:
-            await command.do()
-        self._commands.append(command)
-
-    @override
-    async def undo(self) -> None:
-        for command in reversed(self._commands):
-            async with command:
-                await command.undo()
-        self._commands.clear()
+class Mementoable(Protocol):
+    def get_snapshot(self) -> Memento: ...
 
 
 class UserContext:
-    __slots__: tuple[str, ...] = 'undo_history', 'redo_history'
+    __slots__: tuple[str, ...] = '_undo_history', '_redo_history'
 
     def __init__(self) -> None:
-        self.undo_history: list[Command] = []
-        self.redo_history: list[Command] = []
+        self._undo_history: list[Memento] = []
+        self._redo_history: list[Memento] = []
 
-    async def do(self, command: Command) -> None:
-        async with command:
-            await command.do()
-        self.undo_history.append(command)
-        self.redo_history.clear()
+    def push(self, memento: Memento) -> None:
+        self._undo_history.append(memento)
+        self._redo_history.clear()
 
     async def undo(self) -> None:
-        if len(self.undo_history) == 0:
+        if len(self._undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
-        command: Command = self.undo_history[-1]
-        async with command:
-            await command.undo()
-        self.redo_history.append(self.undo_history.pop())
+        memento: Memento = self._undo_history.pop()
+        memento = await memento.restore()
+        self._redo_history.append(memento)
 
     async def redo(self) -> None:
-        if len(self.redo_history) == 0:
+        if len(self._redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
-        command: Command = self.redo_history[-1]
-        async with command:
-            await command.do()
-        self.undo_history.append(self.redo_history.pop())
+        memento: Memento = self._redo_history.pop()
+        memento = await memento.restore()
+        self._undo_history.append(memento)
 
 
 _contexts: dict[UUID, UserContext] = {}
@@ -91,4 +60,4 @@ def _get_user_context(
 UserDepends: TypeAlias = Annotated[UserContext, Depends(_get_user_context)]
 
 
-__all__: tuple[str, ...] = ('Command', 'UserContext', 'UserDepends')
+__all__: tuple[str, ...] = ('Memento', 'Mementoable', 'UserContext', 'UserDepends')
