@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from functools import cached_property
-from typing import TYPE_CHECKING, Final, Literal, final, override
+from typing import TYPE_CHECKING, Final, Literal, Protocol, final, override
 
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, inspect
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .jam import JamModel, TeamJamModel
-from .models import CHILD_RELATIONSHIP, CacheableModel
+from .models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, CacheableModel
 from .team import TeamModel
 from .time import ClockModel, TimeoutModel
 
@@ -57,7 +58,9 @@ class GenericBoutModel(CacheableModel):
         lazy='selectin',
         order_by=[JamModel.period, JamModel.jam],
     )
-    series: Mapped[SeriesModel] = relationship(foreign_keys=[_series_id], lazy='select')
+    series: Mapped[SeriesModel] = relationship(
+        cascade=PARENT_RELATIONSHIP, foreign_keys=[_series_id], lazy='select'
+    )
     teams: Mapped[list[TeamModel]] = relationship(
         back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
@@ -127,6 +130,24 @@ class GenericBoutModel(CacheableModel):
         else:
             return 'stopped'
 
+    @abstractmethod
+    def begin_period(self, timestamp: datetime) -> None: ...
+
+    @abstractmethod
+    def end_period(self, timestamp: datetime) -> None: ...
+
+    @abstractmethod
+    def start_jam(self, timestamp: datetime) -> None: ...
+
+    @abstractmethod
+    def stop_jam(self, timestamp: datetime) -> None: ...
+
+    @abstractmethod
+    def start_timeout(self, timestamp: datetime) -> None: ...
+
+    @abstractmethod
+    def stop_timeout(self, timestamp: datetime) -> None: ...
+
     @final
     def get_period(self) -> int:
         return 0 if len(self.jams) == 0 else self.jams[-1].period
@@ -157,6 +178,27 @@ class GenericBoutModel(CacheableModel):
                 jam_num = latest.jam + 1
 
         # Instantiate the Jam and add it to this Bout
+        jam: JamModel = JamModel(period_num, jam_num, home, away)
+        self.jams.append(jam)
+        return jam
+
+    def add_timeout(self, home: TeamModel, away: TeamModel) -> TimeoutModel:
+        # Get the Period number and Jam number of the active Jam
+        period_num: int = 0
+        jam_num: int = 0
+        if len(self.jams) > 0:
+            latest: JamModel = self.jams[-1]
+            if len(self.jams) > 1 and not (latest.is_running() or latest.is_finished()):
+                latest = self.jams[-2]
+            period_num = latest.period
+            jam_num = latest.jam
+
+        # Get the amount of time elapsed on the clock
+        clock_elapsed: timedelta = self.clock.get_duration()
+
+        # Instantiate the Timeout and add it to this Bout
+        timeout: TimeoutModel = TimeoutModel()
+
         jam: JamModel = JamModel(period_num, jam_num, home, away)
         self.jams.append(jam)
         return jam

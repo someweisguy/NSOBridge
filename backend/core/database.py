@@ -96,52 +96,31 @@ async def setup() -> None:
             session.add(bout)
         await session.commit()
 
-    # Start the Period
-    assert bout is not None
-    async with SessionLocal() as session, session.begin():
-        session.add(bout)
-        await session.refresh(bout)
 
-        memento: Memento = DatabaseMemento(bout)
-        _ = bout.add_jam(bout.teams[0], bout.teams[1])
-        bout.is_running = True
-
-        await session.commit()
-
-    memento = await memento.restore()
-    memento = await memento.restore()
-    pass
-
-
-async def _get_readonly_async_session() -> AsyncGenerator[AsyncSession, None]:
+async def _get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with SessionLocal() as session, session.begin():
         yield session
         await session.commit()
 
 
-ReadOnlyAsyncSessionDepends: TypeAlias = Annotated[
-    AsyncSession, Depends(_get_readonly_async_session)
-]
+AsyncSessionDepends: TypeAlias = Annotated[AsyncSession, Depends(_get_async_session)]
 
 
 class DatabaseMemento(Memento):
     def __init__(self, state: SQLModel) -> None:
-        self._state: SQLModel = state
-
-    @property
-    def state(self) -> SQLModel:
-        return self._state
+        self._detached_state_to_restore: SQLModel = state
 
     @override
     async def restore(self) -> Memento:
         async with SessionLocal() as session, session.begin():
-            # Get the current state of the database object
-            redo_memento: SQLModel = deepcopy(self.state)
-            session.add(redo_memento)
-            await session.refresh(redo_memento)
+            # Get and detach the current state of the database object
+            current_state: SQLModel = deepcopy(self._detached_state_to_restore)
+            session.add(current_state)
+            await session.refresh(current_state)
+            session.expunge(current_state)
 
-            # Merge the old state with the database
-            _ = await session.merge(self.state)
+            # Merge the desired state with the database
+            _ = await session.merge(self._detached_state_to_restore)
             await session.commit()
 
-            return DatabaseMemento(redo_memento)
+            return DatabaseMemento(current_state)

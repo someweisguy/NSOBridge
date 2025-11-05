@@ -1,10 +1,9 @@
 from datetime import datetime
 from typing import Annotated, Final
 
-from commands import Bout
-from commands.rulesets import wftda_2025
-from core import Command, UserDepends
-from core.database import ReadOnlyAsyncSessionDepends
+from core import UserDepends
+from core.database import AsyncSessionDepends
+from core.history import Memento
 from fastapi import APIRouter, Body, Depends, Query
 from models import GenericBoutModel
 from models.bout import BoutContext
@@ -19,30 +18,30 @@ from .series import SeriesDepends
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
 
-# TODO: Remove this
 @router.get('', response_model=BoutSchema)
 async def get_bout(
-    db: ReadOnlyAsyncSessionDepends, bout_id: Annotated[int, Query(alias='boutId')]
+    session: AsyncSessionDepends,
+    bout_id: Annotated[int, Query(alias='boutId')],
 ) -> GenericBoutModel:
     statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
-    results = await db.execute(statement)
-    return results.scalar_one()
+    results = await session.execute(statement)
+    bout: GenericBoutModel = results.scalar_one()
+    return bout
 
 
-# TODO: remove this
 BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
 
-@router.post('/wftda2025')
-async def create_bout(
-    db: ReadOnlyAsyncSessionDepends,
-    series: SeriesDepends,
-    rosters: RosterDepends,
-    order: Annotated[int, Body()] = 0,
-) -> None:
-    home, away = rosters
-    bout = BoutModel(series, home, away)
-    db.add(bout)
+# @router.post('/wftda2025')
+# async def create_bout(
+#     db: ReadOnlyAsyncSessionDepends,
+#     series: SeriesDepends,
+#     rosters: RosterDepends,
+#     order: Annotated[int, Body()] = 0,
+# ) -> None:
+#     home, away = rosters
+#     bout = BoutModel(series, home, away)
+#     db.add(bout)
 
 
 @router.get('/context', response_model=BoutContextSchema)
@@ -52,60 +51,64 @@ async def get_bout_context(
     return bout.context
 
 
-@router.post('/setup-track')
+@router.post('/setup-track')  # TODO: rename endpoint to begin-period
 async def begin_period(
     history: UserDepends,
-    command: Annotated[Command, Depends(wftda_2025.BeginPeriod)],
+    bout: BoutDepends,
 ) -> None:
-    await history.do(command)
+    memento: Memento = bout.get_snapshot()
+    bout.begin_period(datetime.now())
+    history.push(memento)
 
 
-@router.post('/end-period')
+@router.post('/clear-track')  # TODO: rename endpoint to end-period
 async def end_period(
     history: UserDepends,
-    command: Annotated[Command, Depends(wftda_2025.EndPeriod)],
+    bout: BoutDepends,
 ) -> None:
-    await history.do(command)
+    memento: Memento = bout.get_snapshot()
+    bout.end_period(datetime.now())
+    history.push(memento)
 
 
 @router.post('/start-jam')
 async def start_jam(
     history: UserDepends,
-    command: Annotated[Command, Depends(wftda_2025.StartJam)],
+    bout: BoutDepends,
 ) -> None:
-    await history.do(command)
+    memento: Memento = bout.get_snapshot()
+    bout.start_jam(datetime.now())
+    history.push(memento)
 
 
 @router.post('/stop-jam')
 async def stop_jam(
     history: UserDepends,
-    command: Annotated[Command, Depends(wftda_2025.StopJam)],
+    bout: BoutDepends,
 ) -> None:
-    await history.do(command)
+    memento: Memento = bout.get_snapshot()
+    bout.stop_jam(datetime.now())
+    history.push(memento)
 
 
-@router.post('/call-timeout')
+@router.post('/call-timeout')  # TODO: rename endpoint to start-timeout
 async def call_timeout(
     history: UserDepends,
-    command: Annotated[Command, Depends(wftda_2025.StartTimeout)],
+    bout: BoutDepends,
 ) -> None:
-    await history.do(command)
+    memento: Memento = bout.get_snapshot()
+    bout.start_timeout(datetime.now())
+    history.push(memento)
 
 
-@router.post(path='/end-timeout')
+@router.post(path='/end-timeout')  # TODO: rename endpoint to stop-timeout
 async def end_timeout(
     history: UserDepends,
-    command: Annotated[Command, Depends(wftda_2025.StopTimeout)],
+    bout: BoutDepends,
 ) -> None:
-    await history.do(command)
-
-
-# TODO: Move this API to a different module
-@router.post('/expected-start')
-async def set_expected_start(
-    bout: BoutDepends, timestamp: Annotated[datetime, Body()], history: UserDepends
-) -> None:
-    await history.do(Bout.SetPeriodCountdown(bout, timestamp))
+    memento: Memento = bout.get_snapshot()
+    bout.stop_timeout(datetime.now())
+    history.push(memento)
 
 
 __all__ = ('router',)

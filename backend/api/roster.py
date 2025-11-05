@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Annotated, Final
 
-from core.database import ReadOnlyAsyncSessionDepends
+from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
 from models.team import RosterModel
 from schemas.roster import RosterSchema
@@ -12,7 +12,7 @@ router: Final[APIRouter] = APIRouter(prefix='/roster')
 
 @router.get('', response_model=list[RosterSchema])
 async def get_rosters(
-    db: ReadOnlyAsyncSessionDepends,
+    db: AsyncSessionDepends,
     roster_ids: Annotated[list[int], Query(alias='rosterId')],
 ) -> Sequence[RosterModel]:
     results: Result[tuple[RosterModel]] = await db.execute(

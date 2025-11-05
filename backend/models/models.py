@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import Any, Final, Self, override
+from typing import Any, Final, Literal, Self, override
 
 import core
-from core.database import SQLModel
+from core.database import DatabaseMemento, SQLModel
+from core.history import Memento
 from core.ws import WebSocketSchema
 from sqlalchemy import CheckConstraint, event
 from sqlalchemy.orm import (
@@ -16,9 +17,8 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
-CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
-PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
-
+CHILD_RELATIONSHIP = 'all, delete-orphan'
+PARENT_RELATIONSHIP = 'expunge, save-update'
 
 
 class CacheableModel(SQLModel):
@@ -34,9 +34,9 @@ class CacheableModel(SQLModel):
 
     @property
     def key(self) -> tuple[Any, ...]: ...
-    
-    def get_snapshot(self) -> Self:
-        return deepcopy(self)
+
+    def get_snapshot(self) -> Memento:
+        return DatabaseMemento(deepcopy(self))
 
 
 class AbstractOneShotModel(SQLModel):

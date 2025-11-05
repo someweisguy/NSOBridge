@@ -28,16 +28,14 @@ class UserContext:
     async def undo(self) -> None:
         if len(self._undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
-        memento: Memento = self._undo_history.pop()
-        memento = await memento.restore()
-        self._redo_history.append(memento)
+        redo_memento: Memento = await self._undo_history.pop().restore()
+        self._redo_history.append(redo_memento)
 
     async def redo(self) -> None:
         if len(self._redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
-        memento: Memento = self._redo_history.pop()
-        memento = await memento.restore()
-        self._undo_history.append(memento)
+        undo_memento: Memento = await self._redo_history.pop().restore()
+        self._undo_history.append(undo_memento)
 
 
 _contexts: dict[UUID, UserContext] = {}

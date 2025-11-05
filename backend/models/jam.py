@@ -71,7 +71,7 @@ class TeamJamModel(SQLModel):
     )
 
     __table_args__: tuple[Constraint, ...] = (
-        UniqueConstraint(_team_id, _is_away),
+        UniqueConstraint(_jam_id, _is_away),
         CheckConstraint('0 <= _is_away <= 1'),
     )
 
