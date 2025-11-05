@@ -117,7 +117,7 @@ class BoutModel(GenericBoutModel):
 
         # Push a new Jam to the queue to allow users to immediately fill out the Lineup
         period_num: int = self.jams[-1].period
-        jam_num: int = self.jams[-1].jam + 1
+        jam_num: int = self.jams[-1].num + 1
         home, away = self.teams[:2]
         self.jams.append(JamModel(period_num, jam_num, home, away))
 

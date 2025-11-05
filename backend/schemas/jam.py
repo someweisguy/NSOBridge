@@ -58,7 +58,7 @@ class JamSchema(ServerSchema):
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
     period: int
-    jam: int
+    num: int
     home: TeamJamSchema
     away: TeamJamSchema
 

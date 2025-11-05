@@ -19,7 +19,7 @@ async def get_jam(
     statement = select(JamModel).where(
         JamModel.bout_id == bout_id
         and JamModel.period == period_num
-        and JamModel.jam == jam_num
+        and JamModel.num == jam_num
     )
     results = await db.execute(statement)
     return results.scalar_one()

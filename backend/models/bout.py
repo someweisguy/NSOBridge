@@ -55,7 +55,7 @@ class GenericBoutModel(CacheableModel):
         back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        order_by=[JamModel.period, JamModel.jam],
+        order_by=[JamModel.period, JamModel.num],
     )
     series: Mapped[SeriesModel] = relationship(
         cascade=PARENT_RELATIONSHIP, foreign_keys=[_series_id], lazy='select'

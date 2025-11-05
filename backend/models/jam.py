@@ -88,7 +88,7 @@ class JamModel(AbstractOneShotModel, CacheableModel):
 
     bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
 
-    jam: Mapped[int] = mapped_column(index=True)
+    num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
@@ -127,7 +127,7 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     @property
     @override
     def key(self) -> tuple[str, int | None, int, int]:
-        return (self.__tablename__, self.bout_id, self.period, self.jam)
+        return (self.__tablename__, self.bout_id, self.period, self.num)
 
     @property
     def home(self) -> TeamJamModel:

@@ -11,12 +11,12 @@ export class Jam {
   public readonly startTimestamp: Date | null;
   public readonly stopTimestamp: Date | null;
   public readonly period: number;
-  public readonly jam: number;
+  public readonly num: number;
   public readonly home: TeamJam;
   public readonly away: TeamJam;
-  
-  static generateKey(id: number, period: number, jam: number) {
-    return ["jams", id, period, jam];
+
+  static generateKey(id: number, period: number, num: number) {
+    return ["jams", id, period, num];
   }
 
   constructor(init?: Partial<Jam>) {
@@ -32,13 +32,13 @@ export class Jam {
 
 export async function getJam(
   boutId: number,
-  period: number,
-  jam: number
+  periodNum: number,
+  jamNum: number,
 ): Promise<Jam> {
   const response: Partial<Jam> = await genericRequest("jam", "GET", {
     boutId,
-    period,
-    jam,
+    periodNum,
+    jamNum,
   });
   return new Jam(response);
 }
