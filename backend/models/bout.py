@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from functools import cached_property
-from typing import TYPE_CHECKING, Final, Literal, Protocol, final, override
+from typing import TYPE_CHECKING, Final, Literal, final, override
 
-from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, inspect
+from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .jam import JamModel, TeamJamModel
@@ -162,43 +162,3 @@ class GenericBoutModel(CacheableModel):
 
     @cached_property
     def context(self) -> BoutContext: ...
-
-    def add_jam(
-        self, home: TeamModel, away: TeamModel, new_period: bool = False
-    ) -> JamModel:
-        # Get the Period number and Jam number of the next Jam
-        period_num: int = 0
-        jam_num: int = 0
-        if len(self.jams) > 0:
-            latest: JamModel = self.jams[-1]
-            period_num = latest.period
-            if new_period:
-                period_num += 1
-            else:
-                jam_num = latest.jam + 1
-
-        # Instantiate the Jam and add it to this Bout
-        jam: JamModel = JamModel(period_num, jam_num, home, away)
-        self.jams.append(jam)
-        return jam
-
-    def add_timeout(self, home: TeamModel, away: TeamModel) -> TimeoutModel:
-        # Get the Period number and Jam number of the active Jam
-        period_num: int = 0
-        jam_num: int = 0
-        if len(self.jams) > 0:
-            latest: JamModel = self.jams[-1]
-            if len(self.jams) > 1 and not (latest.is_running() or latest.is_finished()):
-                latest = self.jams[-2]
-            period_num = latest.period
-            jam_num = latest.jam
-
-        # Get the amount of time elapsed on the clock
-        clock_elapsed: timedelta = self.clock.get_duration()
-
-        # Instantiate the Timeout and add it to this Bout
-        timeout: TimeoutModel = TimeoutModel()
-
-        jam: JamModel = JamModel(period_num, jam_num, home, away)
-        self.jams.append(jam)
-        return jam
