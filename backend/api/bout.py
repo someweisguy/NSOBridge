@@ -31,18 +31,6 @@ async def get_bout(
 BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
 
 
-# @router.post('/wftda2025')
-# async def create_bout(
-#     db: ReadOnlyAsyncSessionDepends,
-#     series: SeriesDepends,
-#     rosters: RosterDepends,
-#     order: Annotated[int, Body()] = 0,
-# ) -> None:
-#     home, away = rosters
-#     bout = BoutModel(series, home, away)
-#     db.add(bout)
-
-
 @router.get('/context', response_model=BoutContextSchema)
 async def get_bout_context(
     bout: Annotated[BoutModel, Depends(get_bout)],
