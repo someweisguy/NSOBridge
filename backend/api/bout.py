@@ -1,6 +1,5 @@
-from collections.abc import AsyncGenerator
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Final, TypeAlias
+from typing import Annotated, Final, TypeAlias
 
 from core import UserDepends
 from core.database import AsyncSessionDepends
@@ -9,9 +8,6 @@ from models.bout import BoutContext, GenericBoutModel
 from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
 from sqlalchemy import select
-
-if TYPE_CHECKING:
-    from core.history import Memento
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
@@ -22,26 +18,24 @@ async def get_bout(
     history: UserDepends,
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
-) -> AsyncGenerator[GenericBoutModel, None]:
+) -> GenericBoutModel:
     # Query the database for the desired Bout
     statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
     results = await session.execute(statement)
     bout: GenericBoutModel = results.scalar_one()
 
-    # Optionally take a snapshot of the Bout state and yield the Bout
-    memento: Memento | None = bout.get_snapshot() if request.method != 'GET' else None
-    yield bout
-    if memento is not None:
-        history.push(memento)
+    # FIXME: stage mementos before committing to the history
+    # Optionally take a snapshot of the Bout state and return the Bout
+    if request.method != 'GET':
+        history.push(bout.get_snapshot())
+    return bout
 
 
 BoutDepends: TypeAlias = Annotated[GenericBoutModel, Depends(get_bout)]
 
 
 @router.get('/context', response_model=BoutContextSchema)
-async def get_bout_context(
-    bout: Annotated[GenericBoutModel, Depends(get_bout)],
-) -> BoutContext:
+async def get_bout_context(bout: BoutDepends) -> BoutContext:
     return bout.context
 
 
