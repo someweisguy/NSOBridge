@@ -3,11 +3,7 @@ import logging
 from typing import Final, LiteralString
 
 import core
-from api.api import router as history_router
-from api.bout import router as bout_router
-from api.jam import router as jam_router
-from api.roster import router as roster_router
-from api.series import router as series_router
+from api import ROUTERS
 
 PORT: int = 8000
 
@@ -21,8 +17,7 @@ logging.basicConfig(
 
 # Attach the API to the server
 API_PREFIX: LiteralString = '/api'
-# TODO: generate a list of routers in the API module and import it here
-for router in [bout_router, series_router, roster_router, history_router, jam_router]:
+for router in ROUTERS:
     core.app.include_router(router, prefix=API_PREFIX)
 
 
