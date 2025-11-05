@@ -7,7 +7,7 @@ from math import floor
 from typing import TYPE_CHECKING, Annotated, Any, TypeAlias, override
 
 from fastapi import Depends
-from sqlalchemy import Result, Select, inspect, select
+from sqlalchemy import Result, Select, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncEngine,
