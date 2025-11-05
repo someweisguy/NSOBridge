@@ -5,7 +5,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Final, override
 
 from models.jam import JamModel
-from sqlalchemy import inspect
 
 from ..bout import BoutContext, GenericBoutModel
 
@@ -123,7 +122,7 @@ class BoutModel(GenericBoutModel):
 
     @override
     def start_timeout(self, timestamp: datetime) -> None:
-        pass  # FIXME
+        pass  # TODO
         # if self.bout.get_state() != 'lineup':
         #     raise RuntimeError('Cannot call a Timeout now')
 
@@ -139,7 +138,7 @@ class BoutModel(GenericBoutModel):
 
     @override
     def stop_timeout(self, timestamp: datetime) -> None:
-        pass  # FIXME
+        pass  # TODO
         # if self.bout.get_state() != 'timeout':
         #     raise RuntimeError('Cannot stop a Timeout if none is running')
 
