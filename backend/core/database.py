@@ -77,10 +77,8 @@ async def setup() -> None:
     async with engine.connect() as connection:
         await connection.run_sync(SQLModel.metadata.create_all)
     # Create a Bout model if one does not already exist
-    from models.bout import GenericBoutModel
+    from models import GenericBoutModel, RosterModel, SeriesModel
     from models.rulesets.wftda_2025 import BoutModel
-    from models.series import SeriesModel
-    from models.team import RosterModel
 
     bout: GenericBoutModel | None = None
     async with SessionLocal() as session, session.begin():
