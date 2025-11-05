@@ -24,10 +24,9 @@ async def get_bout(
     results = await session.execute(statement)
     bout: GenericBoutModel = results.scalar_one()
 
-    # FIXME: stage mementos before committing to the history
     # Optionally take a snapshot of the Bout state and return the Bout
     if request.method != 'GET':
-        history.push(bout.get_snapshot())
+        history.stage(bout.get_snapshot())
     return bout
 
 
