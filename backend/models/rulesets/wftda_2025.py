@@ -5,6 +5,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Final, override
 
 from models.jam import JamModel
+from models.time import TimeoutModel
 
 from ..bout import BoutContext, GenericBoutModel
 
@@ -122,41 +123,34 @@ class BoutModel(GenericBoutModel):
 
     @override
     def start_timeout(self, timestamp: datetime) -> None:
-        pass  # TODO
-        # if self.bout.get_state() != 'lineup':
-        #     raise RuntimeError('Cannot call a Timeout now')
+        if self.get_state() != 'lineup':
+            raise RuntimeError('Cannot call a Timeout now')
 
-        # # Instantiate the Timeout
-        # clock_elapsed: timedelta = self.bout.clock.get_duration(self.timestamp)
-        # timeout: TimeoutModel = TimeoutModel(clock_elapsed)
-        # commands.append(Bout.AddTimeout(self.bout, timeout))
+        # Instantiate and start the Timeout
+        clock_elapsed: timedelta = self.clock.get_duration(timestamp)
+        timeout: TimeoutModel = TimeoutModel(clock_elapsed)
+        self.timeouts.append(timeout)
+        timeout.start(timestamp)
 
-        # # Start the Timeout
-        # commands.append(Timeout.Start(timeout, self.timestamp))
-
-        # return tuple(commands)
+        if self.clock.is_running():
+            self.clock.stop(timestamp)
 
     @override
     def stop_timeout(self, timestamp: datetime) -> None:
-        pass  # TODO
-        # if self.bout.get_state() != 'timeout':
-        #     raise RuntimeError('Cannot stop a Timeout if none is running')
+        if self.get_state() != 'timeout':
+            raise RuntimeError('cannot stop a timeout if none is running')
 
-        # # Validate the Timeout's state
-        # timeout: TimeoutModel = self.bout.timeouts[-1]
-        # if timeout.is_review and timeout.team is None:
-        #     raise ValueError('Officials cannot call an Official Review')
+        # Validate the Timeout's state
+        timeout: TimeoutModel = self.timeouts[-1]
+        if timeout.is_review and timeout.team is None:
+            raise ValueError('officials cannot call an official review')
 
-        # # Stop the Timeout
-        # commands.append(Timeout.Stop(timeout, self.timestamp))
+        # Stop the Timeout
+        timeout.stop(timestamp)
 
-        # # Subtract remaining Timeouts as appropriate
-        # if timeout.team is not None:
-        #     if timeout.is_review and not timeout.retained:
-        #         reviews: int = timeout.team.reviews_remaining - 1
-        #         commands.append(Team.SetReviewsRemaining(timeout.team, reviews))
-        #     elif not timeout.is_review:
-        #         timeouts: int = timeout.team.timeouts_remaining - 1
-        #         commands.append(Team.SetTimeoutsRemaining(timeout.team, timeouts))
-
-        # return tuple(commands)
+        # Subtract remaining Timeouts or Official Reviews as appropriate
+        if timeout.team is not None:
+            if timeout.is_review and not timeout.retained:
+                timeout.team.reviews_remaining -= 1
+            elif not timeout.is_review:
+                timeout.team.reviews_remaining -= 1
