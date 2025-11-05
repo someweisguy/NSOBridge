@@ -5,6 +5,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Final, override
 
 from models.jam import JamModel
+from models.rulesets.exceptions import RulesError
 from models.time import TimeoutModel
 
 from ..bout import BoutContext, GenericBoutModel
@@ -46,9 +47,9 @@ class BoutModel(GenericBoutModel):
     @override
     def begin_period(self, timestamp: datetime) -> None:
         if self.get_state() != 'stopped':
-            raise RuntimeError('The Bout cannot be started now')
+            raise RulesError('this bout cannot be started now')
         if len(self.jams) > 0 and self.jams[-1].period == NUM_PERIODS:
-            raise RuntimeError('')  # TODO
+            raise RulesError(f'this bout can only have {NUM_PERIODS} periods')
 
         # Get the Period number and Jam number of the next Jam
         period_num: int = 0
@@ -71,9 +72,9 @@ class BoutModel(GenericBoutModel):
     @override
     def end_period(self, timestamp: datetime) -> None:
         if self.is_running and self.get_state() != 'lineup':
-            raise RuntimeError('the period can only be ended during lineup')
+            raise RulesError('the period can only be ended during lineup')
         if not self.is_running and self.jams[-1].period < NUM_PERIODS:
-            raise RuntimeError('there is no running period to end')
+            raise RulesError('there is no running period to end')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
         if not self.is_running:
@@ -97,10 +98,10 @@ class BoutModel(GenericBoutModel):
             self.begin_period(timestamp)
         if self.get_state == 'timeout':
             # Allow the user to end a Timeout and immediately start the next Jam
-            pass  # TODO: Stop the timeout to put the Bout into Lineup
+            self.stop_timeout(timestamp)
 
         if self.get_state() != 'lineup':
-            raise RuntimeError('a jam may only be started from lineup')
+            raise RulesError('a jam may only be started from lineup')
 
         # Start the Clock if not in overtime
         if self.jams[-1].period < NUM_PERIODS and not self.clock.is_running():
@@ -111,7 +112,7 @@ class BoutModel(GenericBoutModel):
     @override
     def stop_jam(self, timestamp: datetime) -> None:
         if self.get_state() != 'jam':
-            raise RuntimeError('there is no running jam to stop')
+            raise RulesError('there is no running jam to stop')
 
         self.jams[-1].stop(timestamp)
 
@@ -123,8 +124,12 @@ class BoutModel(GenericBoutModel):
 
     @override
     def start_timeout(self, timestamp: datetime) -> None:
+        if self.get_state() == 'jam':
+            # Allow the user to end the Jam and immediately start a Timeout
+            self.stop_jam(timestamp)
+
         if self.get_state() != 'lineup':
-            raise RuntimeError('Cannot call a Timeout now')
+            raise RulesError('a timeout cannot be called now')
 
         # Instantiate and start the Timeout
         clock_elapsed: timedelta = self.clock.get_duration(timestamp)
@@ -138,12 +143,12 @@ class BoutModel(GenericBoutModel):
     @override
     def stop_timeout(self, timestamp: datetime) -> None:
         if self.get_state() != 'timeout':
-            raise RuntimeError('cannot stop a timeout if none is running')
+            raise RulesError('there is no active timeout to stop')
 
         # Validate the Timeout's state
         timeout: TimeoutModel = self.timeouts[-1]
         if timeout.is_review and timeout.team is None:
-            raise ValueError('officials cannot call an official review')
+            raise RulesError('officials cannot call an official review')
 
         # Stop the Timeout
         timeout.stop(timestamp)
