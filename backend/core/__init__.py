@@ -20,12 +20,7 @@ async def serve(ip: str = '0.0.0.0', port: int = 8000) -> None:
     )
     host: Server = Server(config)
 
-    # Log the server's address and serve the application
-    # TODO
-    # addresses: list[str] = get_ip_addresses()
-    # server.controller.log.info(f'Hosting Scoreboard on '
-    #                            f'http://{addresses[0]}'
-    #                            f'{f':{port}' if port != 80 else ''}')
+    # TODO: Log the server's address and serve the application
     await host.serve()
 
 
