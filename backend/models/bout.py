@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from functools import cached_property
@@ -130,22 +129,16 @@ class GenericBoutModel(CacheableModel):
         else:
             return 'stopped'
 
-    @abstractmethod
     def begin_period(self, timestamp: datetime) -> None: ...
 
-    @abstractmethod
     def end_period(self, timestamp: datetime) -> None: ...
 
-    @abstractmethod
     def start_jam(self, timestamp: datetime) -> None: ...
 
-    @abstractmethod
     def stop_jam(self, timestamp: datetime) -> None: ...
 
-    @abstractmethod
     def start_timeout(self, timestamp: datetime) -> None: ...
 
-    @abstractmethod
     def stop_timeout(self, timestamp: datetime) -> None: ...
 
     @final
