@@ -1,18 +1,17 @@
-from __future__ import annotations
-
 from datetime import datetime, timedelta
 from functools import cached_property
-from typing import TYPE_CHECKING, Final, override
+from typing import Final, override
 
-from models.jam import JamModel
-from models.rulesets.exceptions import RulesError
-from models.time import TimeoutModel
+from models import (
+    BoutContext,
+    GenericBoutModel,
+    JamModel,
+    RosterModel,
+    SeriesModel,
+    TimeoutModel,
+)
 
-from ..bout import BoutContext, GenericBoutModel
-
-if TYPE_CHECKING:
-    from ..series import SeriesModel
-    from ..team import RosterModel
+from .exceptions import RulesError
 
 RULESET: Final[str] = 'WFTDA 2025'
 NUM_PERIODS: Final[int] = 2
