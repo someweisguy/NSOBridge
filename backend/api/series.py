@@ -13,7 +13,6 @@ router: Final[APIRouter] = APIRouter(prefix='/series')
 async def get_series(
     db: AsyncSessionDepends, index: Annotated[int, Query(alias='seriesIndex')]
 ) -> SeriesModel:
-    index += 1  # SQLite database is 1-based but API should be 0-based
     statement = select(SeriesModel).limit(1).offset(index - 1)
     results = await db.execute(statement)
     series: SeriesModel | None = (

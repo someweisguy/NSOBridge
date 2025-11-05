@@ -41,7 +41,7 @@ function Test() {
   const [boutIndex, setBoutIndex] = useState(0);
   const goToNextBout = useRef(false);
 
-  const series: Series = useSeries(0);
+  const series: Series = useSeries(1);
   if (series.bouts.length == 0) {
     // TODO: Go to Bout creation page
     throw new Error("This Series does not have any Bouts");
