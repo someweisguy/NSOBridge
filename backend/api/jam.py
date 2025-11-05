@@ -1,4 +1,4 @@
-from typing import Annotated, Final
+from typing import Annotated, Final, TypeAlias
 
 from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
@@ -25,7 +25,7 @@ async def get_jam(
     return results.scalar_one()
 
 
-JamDepends = Annotated[JamModel, Depends(get_jam)]
+JamDepends: TypeAlias = Annotated[JamModel, Depends(get_jam)]
 
 
 async def get_team_jam(

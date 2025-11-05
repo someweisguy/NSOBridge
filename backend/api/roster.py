@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Final
+from typing import Annotated, Final, TypeAlias
 
 from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
@@ -22,4 +22,4 @@ async def get_rosters(
     return rosters
 
 
-RosterDepends = Annotated[Sequence[RosterModel], Depends(get_rosters)]
+RosterDepends: TypeAlias = Annotated[Sequence[RosterModel], Depends(get_rosters)]

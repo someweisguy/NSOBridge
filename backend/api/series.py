@@ -1,4 +1,4 @@
-from typing import Annotated, Final
+from typing import Annotated, Final, TypeAlias
 
 from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
@@ -27,6 +27,6 @@ async def get_series(
     return series
 
 
-SeriesDepends = Annotated[SeriesModel, Depends(get_series)]
+SeriesDepends: TypeAlias = Annotated[SeriesModel, Depends(get_series)]
 
 __all__ = ('router',)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Final
+from typing import TYPE_CHECKING, Annotated, Final, TypeAlias
 
 from core import UserDepends
 from core.database import AsyncSessionDepends
@@ -28,7 +28,7 @@ async def get_bout(
     return bout
 
 
-BoutDepends = Annotated[GenericBoutModel, Depends(get_bout)]
+BoutDepends: TypeAlias = Annotated[GenericBoutModel, Depends(get_bout)]
 
 
 @router.get('/context', response_model=BoutContextSchema)
