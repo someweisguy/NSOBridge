@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import final, override
+from typing import TYPE_CHECKING, final, override
 
-from core.database import SQLModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .bout import GenericBoutModel
 from .models import CacheableModel
+
+if TYPE_CHECKING:
+    from core.database import SQLModel
 
 
 class SeriesModel(CacheableModel):

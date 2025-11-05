@@ -70,9 +70,7 @@ class TimeoutModel(AbstractOneShotModel):
     _jam_id: Mapped[int] = mapped_column(ForeignKey('jams.id'))
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
-    clock_elapsed: Mapped[timedelta] = mapped_column(
-        TimedeltaAsMilliseconds
-    )
+    clock_elapsed: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)  # FIXME: make optional
     details: Mapped[str | None] = mapped_column(default=None)
     is_review: Mapped[bool] = mapped_column(default=False)
     result: Mapped[str | None] = mapped_column(default=None)

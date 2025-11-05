@@ -1,10 +1,9 @@
 from datetime import datetime
-from typing import Annotated, Final
+from typing import TYPE_CHECKING, Annotated, Final
 
 from core import UserDepends
 from core.database import AsyncSessionDepends
-from core.history import Memento
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Depends, Query
 from models import GenericBoutModel
 from models.bout import BoutContext
 from models.rulesets.wftda_2025 import BoutModel
@@ -12,8 +11,8 @@ from schemas import BoutSchema
 from schemas.bout import BoutContextSchema
 from sqlalchemy import select
 
-from .roster import RosterDepends
-from .series import SeriesDepends
+if TYPE_CHECKING:
+    from core.history import Memento
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 

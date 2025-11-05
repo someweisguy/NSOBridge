@@ -1,11 +1,8 @@
-from datetime import datetime
 from typing import Annotated, Final
 
-from core import UserDepends
 from core.database import AsyncSessionDepends
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Depends, Query
 from models import JamModel, TeamJamModel, TeamName
-from models.jam import TripEventModel
 from schemas import JamSchema
 from sqlalchemy import select
 

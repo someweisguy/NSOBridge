@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import Any, Final, Literal, Self, override
+from typing import TYPE_CHECKING, Any, override
 
 import core
 from core.database import DatabaseMemento, SQLModel
-from core.history import Memento
 from core.ws import WebSocketSchema
 from sqlalchemy import CheckConstraint, event
 from sqlalchemy.orm import (
@@ -16,6 +15,9 @@ from sqlalchemy.orm import (
     declared_attr,
     mapped_column,
 )
+
+if TYPE_CHECKING:
+    from core.history import Memento
 
 CHILD_RELATIONSHIP = 'all, delete-orphan'
 PARENT_RELATIONSHIP = 'expunge, save-update'
