@@ -4,7 +4,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, override
 
-import core
+import core.ws
 from core.database import DatabaseMemento, SQLModel
 from core.ws import WebSocketSchema
 from sqlalchemy import CheckConstraint, event
@@ -104,4 +104,4 @@ def after_flush_hook(session: Session, _: UOWTransaction) -> None:
     # Broadcast model keys of all updated cacheable models to clients
     payload: WebSocketSchema = WebSocketSchema('cache')
     payload.data = tuple(cacheable.key for cacheable in cacheables)
-    core.broadcast(payload)
+    core.ws.broadcast(payload)
