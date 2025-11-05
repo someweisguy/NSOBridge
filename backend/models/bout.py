@@ -141,17 +141,5 @@ class GenericBoutModel(CacheableModel):
 
     def stop_timeout(self, timestamp: datetime) -> None: ...
 
-    @final
-    def get_period(self) -> int:
-        return 0 if len(self.jams) == 0 else self.jams[-1].period
-
-    def get_latest_played_jam(self) -> JamModel | None:
-        if len(self.jams) == 0:
-            return None
-        jam: JamModel | None = self.jams[-1]
-        if jam.start_timestamp is None:
-            jam = self.jams[-2] if len(self.jams) > 1 else None
-        return jam
-
     @cached_property
     def context(self) -> BoutContext: ...
