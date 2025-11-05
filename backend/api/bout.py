@@ -15,7 +15,7 @@ router: Final[APIRouter] = APIRouter(prefix='/bout')
 @router.get('', response_model=BoutSchema)
 async def get_bout(
     request: Request,
-    history: UserDepends,
+    user: UserDepends,
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
 ) -> GenericBoutModel:
@@ -26,7 +26,7 @@ async def get_bout(
 
     # Optionally take a snapshot of the Bout state and return the Bout
     if request.method != 'GET':
-        history.stage(bout.get_snapshot())
+        user.stage(bout.get_snapshot())
     return bout
 
 
