@@ -20,7 +20,6 @@ from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     Session,
-    UOWTransaction,
     mapped_column,
 )
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
