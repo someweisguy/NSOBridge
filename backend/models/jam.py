@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Literal
 from core import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
-    BaseModel,
-    CacheableModel,
+    BaseSQLModel,
+    CacheableSQLModel,
 )
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 type TeamName = Literal['home', 'away']
 
 
-class TripEventModel(BaseModel):
+class TripEventModel(BaseSQLModel):
     __tablename__: str = 'trip_events'
 
     _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
@@ -43,7 +43,7 @@ class TripEventModel(BaseModel):
     )
 
 
-class TeamJamModel(BaseModel):
+class TeamJamModel(BaseSQLModel):
     __tablename__: str = 'team_jams'
 
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
@@ -74,7 +74,7 @@ class TeamJamModel(BaseModel):
         super().__init__(team=team, _is_away=is_away)
 
 
-class JamModel(AbstractOneShotModel, CacheableModel):
+class JamModel(AbstractOneShotModel, CacheableSQLModel):
     __tablename__: str = 'jams'
 
     bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))

@@ -10,7 +10,7 @@ from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 
 from ._database import engine
-from ._models import BaseModel, RulesError
+from ._models import BaseSQLModel, RulesError
 from ._ws import ws_app
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
@@ -22,7 +22,7 @@ SHUTDOWN_CALLBACKS: list[Callable[[], Awaitable[Any]]] = []
 async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     # First initialize the connection to the database
     async with engine.connect() as database:
-        await database.run_sync(BaseModel.metadata.create_all)
+        await database.run_sync(BaseSQLModel.metadata.create_all)
 
     for callback in STARTUP_CALLBACKS:
         await callback()

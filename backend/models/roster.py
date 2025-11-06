@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from core import BaseModel
+from core import BaseSQLModel
 from sqlalchemy.orm import Mapped, mapped_column
 
 
-class RosterModel(BaseModel):
+class RosterModel(BaseSQLModel):
     __tablename__: str = 'rosters'
 
     name: Mapped[str] = mapped_column()

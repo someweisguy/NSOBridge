@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from core import CacheableModel
+from core import CacheableSQLModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .bout import GenericBoutModel
 
 
-class SeriesModel(CacheableModel):
+class SeriesModel(CacheableSQLModel):
     __tablename__: str = 'series'
 
     name: Mapped[str] = mapped_column(default='')

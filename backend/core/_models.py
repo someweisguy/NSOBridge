@@ -32,36 +32,36 @@ class RulesError(Exception):
     pass
 
 
-class BaseModel(AsyncAttrs, DeclarativeBase):
+class BaseSQLModel(AsyncAttrs, DeclarativeBase):
     __abstract__: bool = True
 
     id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
     @final
-    def get_parents(self) -> list[BaseModel]:
-        parents: list[BaseModel] = []
+    def get_parents(self) -> list[BaseSQLModel]:
+        parents: list[BaseSQLModel] = []
         for name, mapper in inspect(self).mapper.relationships.items():
             if mapper.cascade == CascadeOptions(PARENT_RELATIONSHIP):
-                parent: BaseModel | None = getattr(self, name)
+                parent: BaseSQLModel | None = getattr(self, name)
                 if parent is not None:
                     parents.append(parent)
         return parents
 
     @final
-    def search_parents(self) -> set[BaseModel]:
-        cacheables: set[BaseModel] = set()
+    def search_parents(self) -> set[BaseSQLModel]:
+        cacheables: set[BaseSQLModel] = set()
         for parent in self.get_parents():
             cacheables.add(parent)
             cacheables |= parent.search_parents()
         return cacheables
 
 
-class CacheableModel(BaseModel):
+class CacheableSQLModel(BaseSQLModel):
     __abstract__: bool = True
 
     @override
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, CacheableModel) and other.key == self.key
+        return isinstance(other, CacheableSQLModel) and other.key == self.key
 
     @override
     def __hash__(self) -> int:
@@ -77,14 +77,14 @@ class CacheableModel(BaseModel):
 
 
 class DatabaseMemento(Memento):
-    def __init__(self, state: BaseModel) -> None:
-        self._detached_state_to_restore: BaseModel = state
+    def __init__(self, state: BaseSQLModel) -> None:
+        self._detached_state_to_restore: BaseSQLModel = state
 
     @override
     async def restore(self) -> Memento:
         async with SessionFactory() as session, session.begin():
             # Get and detach the current state of the database object
-            current_state: BaseModel = deepcopy(self._detached_state_to_restore)
+            current_state: BaseSQLModel = deepcopy(self._detached_state_to_restore)
             session.add(current_state)
             await session.refresh(current_state)
             session.expunge(current_state)

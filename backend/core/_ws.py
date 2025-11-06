@@ -7,7 +7,7 @@ from pydantic import Field, ValidationError, field_serializer, field_validator
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 
-from ._models import BaseModel, CacheableModel
+from ._models import BaseSQLModel, CacheableSQLModel
 from ._schemas import ClientSchema, ServerSchema
 
 ws_app: Final[FastAPI] = FastAPI()
@@ -83,16 +83,16 @@ def broadcast(payload: WebSocketSchema) -> None:
 @event.listens_for(Session, 'before_commit')
 def broadcast_updates(session: Session) -> None:
     # Recursively add each dirty, deleted, or new model
-    cacheables: set[CacheableModel] = {
+    cacheables: set[CacheableSQLModel] = {
         parent
         for model in [
             record
             for identity_map in [session.dirty, session.deleted, session.new]
             for record in identity_map
-            if isinstance(record, BaseModel)
+            if isinstance(record, BaseSQLModel)
         ]
         for parent in model.search_parents() | {model}
-        if isinstance(parent, CacheableModel)
+        if isinstance(parent, CacheableSQLModel)
     }
 
     # Broadcast model keys of all updated cacheable models to clients

@@ -7,8 +7,8 @@ from ._fastapi import app, shutdown, startup
 from ._models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
-    BaseModel,
-    CacheableModel,
+    BaseSQLModel,
+    CacheableSQLModel,
     RulesError,
     TimedeltaAsMilliseconds,
 )
@@ -34,8 +34,8 @@ async def serve(ip: str = '0.0.0.0', port: int = 8000) -> None:
 
 __all__ = (
     'app',
-    'BaseModel',
-    'CacheableModel',
+    'BaseSQLModel',
+    'CacheableSQLModel',
     'CHILD_RELATIONSHIP',
     'ClientSchema',
     'get_ip_address',

@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Final, Literal, final
 from core import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
-    BaseModel,
-    CacheableModel,
+    BaseSQLModel,
+    CacheableSQLModel,
 )
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
@@ -41,7 +41,7 @@ class BoutContext:
     num_reviews: int
 
 
-class GenericBoutModel(CacheableModel):
+class GenericBoutModel(CacheableSQLModel):
     __tablename__: str = 'bouts'
 
     _series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
@@ -140,7 +140,7 @@ class GenericBoutModel(CacheableModel):
     def context(self) -> BoutContext: ...
 
 
-class GenericTeamModel(BaseModel):
+class GenericTeamModel(BaseSQLModel):
     __tablename__: str = 'teams'
 
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
