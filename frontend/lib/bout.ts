@@ -38,14 +38,10 @@ class Clock {
 class Timer {
   public readonly startTimestamp: Date | null;
   public readonly stopTimestamp: Date | null;
-  public readonly period: number;
-  public readonly jam: number;
 
   constructor(init: DateToString<Timer>) {
     this.startTimestamp = nullOrDate(init.startTimestamp);
     this.stopTimestamp = nullOrDate(init.stopTimestamp);
-    this.period = init.period;
-    this.jam = init.jam;
   }
 
   hasStarted(): boolean {
@@ -71,6 +67,8 @@ class TeamJam {
 }
 
 class Jam extends Timer {
+  public readonly period: number;
+  public readonly num: number;
   public readonly home: TeamJam;
   public readonly away: TeamJam;
 
@@ -78,6 +76,8 @@ class Jam extends Timer {
     super(init);
     this.home = Object.assign(new TeamJam(), init.home);
     this.away = Object.assign(new TeamJam(), init.away);
+    this.period = init.period;
+    this.num = init.num;
   }
 }
 

@@ -35,7 +35,7 @@ class TimeoutSchema(TimerSchema):
     @computed_field(alias='jam')
     @property
     def jam_num(self) -> int:
-        return self.jam.jam
+        return self.jam.num
 
 
 class TeamJamSchema(ServerSchema):
@@ -54,7 +54,7 @@ class TeamJamSchema(ServerSchema):
 
 class JamSchema(TimerSchema):
     period: int
-    jam: int
+    num: int
     home: TeamJamSchema
     away: TeamJamSchema
 
@@ -136,7 +136,7 @@ class BoutSchema(ServerSchema):
             return None  # This condition should never occur
 
         timeout: TimeoutSchema = self.timeouts[-1]
-        if timeout.period != active_jam.period and timeout.jam.jam != active_jam.jam:
+        if timeout.period != active_jam.period and timeout.jam.num != active_jam.num:
             return None
 
         return timeout

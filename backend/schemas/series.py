@@ -9,7 +9,7 @@ from pydantic import Field, computed_field
 class JamSchema(ServerSchema):
     start_timestamp: datetime | None
     period: int
-    jam: int
+    num: int
 
 
 class RosterSchema(ServerSchema):
@@ -60,7 +60,7 @@ class BoutSchema(ServerSchema):
     @property
     def jam(self) -> int:
         jam: JamSchema | None = self._active_jam()
-        return jam.jam if jam is not None else 0
+        return jam.num if jam is not None else 0
 
 
 class SeriesSchema(ServerSchema):

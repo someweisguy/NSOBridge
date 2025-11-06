@@ -107,7 +107,7 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     ) -> None:
         super().__init__(
             period=period_num,
-            jam=jam_num,
+            num=jam_num,
             _team_jams=[
                 TeamJamModel(home, False),
                 TeamJamModel(away, True),

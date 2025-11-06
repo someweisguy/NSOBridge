@@ -91,7 +91,7 @@ function BoutTimeInformation({
   }
 
   let displayPeriod = bout.activeJam.period;
-  let displayJam = bout.activeJam.jam;
+  let displayJam = bout.activeJam.num;
 
   // Overtime Jams should be considered a continuation of the second half
   if (displayPeriod >= 2) {
