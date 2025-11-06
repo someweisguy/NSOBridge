@@ -20,9 +20,9 @@ class WebSocketSchema(ServerSchema):
     data: Any | None
 
     def __init__(
-        self, payload_type: Literal['cache', 'sync'], data: Any | None = None
+        self, data_type: Literal['cache', 'sync'], data: Any | None = None
     ) -> None:
-        super().__init__(type=payload_type, data=data)  # pyright: ignore[reportCallIssue]
+        super().__init__(type=data_type, data=data)  # pyright: ignore[reportCallIssue]
 
     @field_serializer('data')
     def _reject_null_data(self, data: Any | None) -> Any:

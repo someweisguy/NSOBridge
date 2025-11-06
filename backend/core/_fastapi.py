@@ -13,26 +13,15 @@ from ._database import engine
 from ._models import BaseModel
 from ._ws import ws_app
 
-FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
-
 
 # TODO: use or move this to a different file
 class RulesError(Exception):
     pass
 
 
-_startup_callbacks: list[Callable[[], Awaitable[Any]]] = []
-_shutdown_callbacks: list[Callable[[], Awaitable[Any]]] = []
-
-
-def startup(callback: Callable[[], Awaitable[Any]]) -> Callable[[], Awaitable[Any]]:
-    _startup_callbacks.append(callback)
-    return callback
-
-
-def shutdown(callback: Callable[[], Awaitable[Any]]) -> Callable[[], Awaitable[Any]]:
-    _shutdown_callbacks.append(callback)
-    return callback
+FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
+STARTUP_CALLBACKS: list[Callable[[], Awaitable[Any]]] = []
+SHUTDOWN_CALLBACKS: list[Callable[[], Awaitable[Any]]] = []
 
 
 @asynccontextmanager
@@ -41,10 +30,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     async with engine.connect() as database:
         await database.run_sync(BaseModel.metadata.create_all)
 
-    for callback in _startup_callbacks:
+    for callback in STARTUP_CALLBACKS:
         await callback()
     yield  # Yield control to the FastAPI application
-    for callback in _shutdown_callbacks:
+    for callback in SHUTDOWN_CALLBACKS:
         await callback()
 
 
@@ -74,3 +63,13 @@ async def rules_error_handler(request: Request, e: RulesError) -> JSONResponse:
         status_code=409,
         content={'message': str(e)},
     )
+
+
+def startup(callback: Callable[[], Awaitable[Any]]) -> Callable[[], Awaitable[Any]]:
+    STARTUP_CALLBACKS.append(callback)
+    return callback
+
+
+def shutdown(callback: Callable[[], Awaitable[Any]]) -> Callable[[], Awaitable[Any]]:
+    SHUTDOWN_CALLBACKS.append(callback)
+    return callback

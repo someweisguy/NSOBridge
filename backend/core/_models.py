@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from datetime import timedelta
 from math import floor
-from typing import TYPE_CHECKING, Any, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
 from sqlalchemy import inspect
 from sqlalchemy.ext.asyncio import (
@@ -24,8 +24,8 @@ if TYPE_CHECKING:
     from sqlalchemy import Dialect
 
 
-CHILD_RELATIONSHIP = 'all, delete-orphan'
-PARENT_RELATIONSHIP = 'expunge, save-update'
+CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
+PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
 
 class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
