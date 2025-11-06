@@ -92,20 +92,18 @@ class BaseModel(AsyncAttrs, DeclarativeBase):
     id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
     @final
-    def get_parents(self) -> tuple[BaseModel | None, ...]:
+    def get_parents(self) -> list[BaseModel]:
         relationships = inspect(self).mapper.relationships
-        parents: list[BaseModel | None] = []
+        parents: list[BaseModel] = []
         for name, mapper in relationships.items():
             if mapper.cascade == CascadeOptions(PARENT_RELATIONSHIP):
                 parents.append(getattr(self, name))
-        return tuple(parents)
+        return parents
 
     @final
     def search_parents(self) -> set[BaseModel]:
         cacheables: set[BaseModel] = set()
         for parent in self.get_parents():
-            if parent is None:
-                continue  # TODO: log a warning of improper use of this function
             cacheables.add(parent)
             cacheables |= parent.search_parents()
         return cacheables
