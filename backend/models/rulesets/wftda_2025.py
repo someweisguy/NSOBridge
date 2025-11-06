@@ -5,9 +5,11 @@ from typing import Final, override
 from models import (
     BoutContext,
     GenericBoutModel,
+    GenericTeamModel,
     JamModel,
     RosterModel,
     SeriesModel,
+    TeamJamModel,
     TimeoutModel,
 )
 
@@ -17,13 +19,16 @@ RULESET: Final[str] = 'WFTDA 2025'
 NUM_PERIODS: Final[int] = 2
 
 
-class BoutModel(GenericBoutModel):
+class WFTDAModel:
     __mapper_args__: dict[str, str | bool] = {
         'polymorphic_identity': RULESET,
     }
 
-    # TODO: Figure out a method to forfeit a Bout
 
+# TODO: Figure out a method to forfeit a Bout
+
+
+class BoutModel(WFTDAModel, GenericBoutModel):
     def __init__(
         self, series: SeriesModel, home: RosterModel, away: RosterModel
     ) -> None:
@@ -132,7 +137,7 @@ class BoutModel(GenericBoutModel):
 
         # Instantiate and start the Timeout
         clock_elapsed: timedelta = self.clock.get_duration(timestamp)
-        timeout: TimeoutModel = TimeoutModel(clock_elapsed)
+        timeout: TimeoutModel = TimeoutModel(clock_elapsed, self.jams[-2])
         self.timeouts.append(timeout)
         timeout.start(timestamp)
 
@@ -158,3 +163,18 @@ class BoutModel(GenericBoutModel):
                 timeout.team.reviews_remaining -= 1
             elif not timeout.is_review:
                 timeout.team.reviews_remaining -= 1
+
+
+class TeamModel(WFTDAModel, GenericTeamModel):
+    @classmethod
+    @override
+    def get_team_jam_score(cls, team_jam: TeamJamModel) -> int:
+        jam_score: int = 0
+        seen_initial_pass: bool = False
+        for event in team_jam.events:
+            if event.passes is not None:
+                if not seen_initial_pass:
+                    seen_initial_pass = True
+                    continue
+                jam_score += event.passes
+        return jam_score

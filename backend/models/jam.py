@@ -15,8 +15,7 @@ from .models import (
 )
 
 if TYPE_CHECKING:
-    from .bout import GenericBoutModel
-    from .team import TeamModel
+    from .bout import GenericBoutModel, GenericTeamModel
 
 type TeamName = Literal['home', 'away']
 
@@ -54,7 +53,7 @@ class TeamJamModel(SQLModel):
     _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     _is_away: Mapped[bool] = mapped_column()
 
-    team: Mapped[TeamModel | None] = relationship(
+    team: Mapped[GenericTeamModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP, foreign_keys=[_team_id], lazy='selectin'
     )
     jam: Mapped[JamModel] = relationship(
@@ -74,7 +73,7 @@ class TeamJamModel(SQLModel):
         CheckConstraint('0 <= _is_away <= 1'),
     )
 
-    def __init__(self, team: TeamModel, is_away: bool) -> None:
+    def __init__(self, team: GenericTeamModel, is_away: bool) -> None:
         super().__init__(team=team, _is_away=is_away)
 
     @property
@@ -103,7 +102,11 @@ class JamModel(AbstractOneShotModel, CacheableModel):
     )
 
     def __init__(
-        self, period_num: int, jam_num: int, home: TeamModel, away: TeamModel
+        self,
+        period_num: int,
+        jam_num: int,
+        home: GenericTeamModel,
+        away: GenericTeamModel,
     ) -> None:
         super().__init__(
             period=period_num,

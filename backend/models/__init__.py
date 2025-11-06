@@ -1,8 +1,8 @@
-from .bout import BoutContext, GenericBoutModel
+from .bout import BoutContext, GenericBoutModel, GenericTeamModel
 from .jam import JamModel, TeamJamModel, TeamName
 from .models import CacheableModel
 from .series import SeriesModel
-from .team import RosterModel, TeamModel
+from .team import RosterModel
 from .time import ClockModel, TimeoutModel
 
 __all__ = (
@@ -14,7 +14,7 @@ __all__ = (
     'RosterModel',
     'SeriesModel',
     'TeamJamModel',
-    'TeamModel',
+    'GenericTeamModel',
     'TeamName',
     'TimeoutModel',
 )

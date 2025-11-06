@@ -5,18 +5,16 @@ from datetime import datetime  # noqa: TC003
 from functools import cached_property
 from typing import TYPE_CHECKING, Final, Literal, final, override
 
-from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from core.database import SQLModel
+from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from .jam import JamModel, TeamJamModel
 from .models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, CacheableModel
-from .team import TeamModel
 from .time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
     from datetime import timedelta
-
-    from core.database import SQLModel
 
     from .series import SeriesModel
     from .team import RosterModel
@@ -60,7 +58,7 @@ class GenericBoutModel(CacheableModel):
     series: Mapped[SeriesModel] = relationship(
         cascade=PARENT_RELATIONSHIP, foreign_keys=[_series_id], lazy='select'
     )
-    teams: Mapped[list[TeamModel]] = relationship(
+    teams: Mapped[list[GenericTeamModel]] = relationship(
         back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
@@ -81,11 +79,11 @@ class GenericBoutModel(CacheableModel):
         return sum(trip.passes for trip in team_jam.events if trip.passes is not None)
 
     @classmethod
-    def fetch_team_bout_score(cls, team: TeamModel) -> int:
+    def fetch_team_bout_score(cls, team: GenericTeamModel) -> int:
         return sum(cls.calculate_score(team_jam) for team_jam in team.team_jams)
 
     @classmethod
-    def fetch_team_jam_score(cls, team: TeamModel) -> int:
+    def fetch_team_jam_score(cls, team: GenericTeamModel) -> int:
         if len(team.team_jams) == 0:
             return 0
         return cls.calculate_score(team.team_jams[-1])
@@ -101,7 +99,7 @@ class GenericBoutModel(CacheableModel):
             order=order,
             clock=ClockModel(),
             ruleset=ruleset,
-            teams=[TeamModel(roster) for roster in rosters],
+            teams=[GenericTeamModel(roster) for roster in rosters],
         )
 
     @final
@@ -143,3 +141,62 @@ class GenericBoutModel(CacheableModel):
 
     @cached_property
     def context(self) -> BoutContext: ...
+
+
+class GenericTeamModel(SQLModel):
+    __tablename__: str = 'teams'
+
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
+    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
+    reviews_remaining: Mapped[int] = mapped_column()
+    score_offset: Mapped[int] = mapped_column(default=0)
+    timeouts_remaining: Mapped[int] = mapped_column()
+
+    ruleset = column_property(
+        select(GenericBoutModel.ruleset)
+        .where(GenericBoutModel.id == _bout_id)
+        .scalar_subquery()
+    )
+
+    bout: Mapped[GenericBoutModel | None] = relationship()
+    roster: Mapped[RosterModel | None] = relationship(
+        cascade='all', foreign_keys=[_roster_id], lazy='joined'
+    )
+    team_jams: Mapped[list[TeamJamModel]] = relationship(
+        back_populates='team',
+        cascade='all',
+        lazy='selectin',
+        # order_by='[TeamJamModel.jam.period, TeamJamModel.jam.num]',
+    )
+    timeouts: Mapped[list[TimeoutModel]] = relationship(
+        back_populates='team', cascade='all', lazy='selectin'
+    )
+
+    __mapper_args__: dict[str, str | bool] = {
+        'polymorphic_on': 'ruleset',
+    }
+
+    @classmethod
+    def get_team_jam_score(cls, team_jam: TeamJamModel) -> int: ...
+
+    def __init__(self, roster: RosterModel):
+        super().__init__(roster=roster)
+
+    @property
+    @override
+    def parents(self) -> tuple[SQLModel | None, ...]:
+        return (self.bout,)
+
+    @property
+    def bout_score(self) -> int:
+        bout_score: int = 0
+        for team_jam in self.team_jams:
+            bout_score += self.get_team_jam_score(team_jam)
+        return bout_score
+
+    @property
+    def jam_score(self) -> int:
+        if len(self.team_jams) == 0:
+            return 0
+        jam_score: int = self.get_team_jam_score(self.team_jams[-1])
+        return jam_score

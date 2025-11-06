@@ -10,9 +10,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .models import AbstractOneShotModel
 
 if TYPE_CHECKING:
-    from .bout import GenericBoutModel
+    from .bout import GenericBoutModel, GenericTeamModel
     from .jam import JamModel
-    from .team import TeamModel
 
 
 class ClockModel(SQLModel):
@@ -67,7 +66,7 @@ class TimeoutModel(AbstractOneShotModel):
     __tablename__: str = 'timeouts'
 
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
-    _jam_id: Mapped[int] = mapped_column(ForeignKey('jams.id'))
+    _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
     clock_elapsed: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
@@ -78,12 +77,13 @@ class TimeoutModel(AbstractOneShotModel):
 
     bout: Mapped[GenericBoutModel | None] = relationship(back_populates='timeouts')
     jam: Mapped[JamModel] = relationship(foreign_keys=[_jam_id])
-    team: Mapped[TeamModel | None] = relationship(
+    team: Mapped[GenericTeamModel | None] = relationship(
         back_populates='timeouts', foreign_keys=[_team_id]
     )
 
-    def __init__(self, clock_elapsed: timedelta) -> None:
-        super().__init__(clock_elapsed=clock_elapsed)
+    def __init__(self, clock_elapsed: timedelta, jam: JamModel) -> None:
+        # FIXME: don't require a Jam to call a Timeout
+        super().__init__(clock_elapsed=clock_elapsed, jam=jam)
 
     @property
     @override
