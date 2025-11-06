@@ -130,11 +130,6 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         return (self.bout,)
 
     @property
-    @override
-    def key(self) -> tuple[str, int | None, int, int]:
-        return (self.__tablename__, self.bout_id, self.period, self.num)
-
-    @property
     def home(self) -> TeamJamModel:
         return self._team_jams[0]
 

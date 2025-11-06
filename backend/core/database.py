@@ -4,7 +4,7 @@ import os
 from copy import deepcopy
 from datetime import timedelta
 from math import floor
-from typing import TYPE_CHECKING, Annotated, Any, TypeAlias, override
+from typing import TYPE_CHECKING, Annotated, Any, TypeAlias, final, override
 
 from fastapi import Depends
 from sqlalchemy import Result, Select, event, select
@@ -114,8 +114,10 @@ class CacheableModel(SQLModel):
     def __hash__(self) -> int:
         return hash(self.key)
 
+    @final
     @property
-    def key(self) -> tuple[Any, ...]: ...
+    def key(self) -> tuple[str, int | None]:
+        return (self.__tablename__, self.id)
 
     def get_snapshot(self) -> Memento:
         return DatabaseMemento(deepcopy(self))

@@ -113,12 +113,6 @@ class GenericBoutModel(CacheableModel):
         return (self.series,)
 
     @final
-    @property
-    @override
-    def key(self) -> tuple[str, int | None]:
-        return (self.__tablename__, self.id)
-
-    @final
     def get_state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
         if self.is_final:
             return 'final'

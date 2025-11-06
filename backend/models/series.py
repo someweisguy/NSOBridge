@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, override
 
 from core.database import CacheableModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,11 +20,6 @@ class SeriesModel(CacheableModel):
     bouts: Mapped[list[GenericBoutModel]] = relationship(
         back_populates='series', lazy='selectin', order_by=GenericBoutModel.order
     )
-
-    @property
-    @override
-    def key(self) -> tuple[str, int]:
-        return (self.__tablename__, self.rowid)
 
     @property
     @override
