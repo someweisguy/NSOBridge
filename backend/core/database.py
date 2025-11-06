@@ -48,26 +48,6 @@ SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
 )
 
 
-class DatabaseMemento(Memento):
-    def __init__(self, state: BaseModel) -> None:
-        self._detached_state_to_restore: BaseModel = state
-
-    @override
-    async def restore(self) -> Memento:
-        async with SessionLocal() as session, session.begin():
-            # Get and detach the current state of the database object
-            current_state: BaseModel = deepcopy(self._detached_state_to_restore)
-            session.add(current_state)
-            await session.refresh(current_state)
-            session.expunge(current_state)
-
-            # Merge the desired state with the database
-            _ = await session.merge(self._detached_state_to_restore)
-            await session.commit()
-
-            return DatabaseMemento(current_state)
-
-
 class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
     impl: TypeEngine[Any] | type[TypeEngine[Any]] = Integer
     cache_ok: bool | None = True
@@ -147,6 +127,26 @@ def broadcast_updates(session: Session) -> None:
     payload: WebSocketSchema = WebSocketSchema('cache')
     payload.data = tuple(cacheable.key for cacheable in cacheables)
     core.ws.broadcast(payload)
+
+
+class DatabaseMemento(Memento):
+    def __init__(self, state: BaseModel) -> None:
+        self._detached_state_to_restore: BaseModel = state
+
+    @override
+    async def restore(self) -> Memento:
+        async with SessionLocal() as session, session.begin():
+            # Get and detach the current state of the database object
+            current_state: BaseModel = deepcopy(self._detached_state_to_restore)
+            session.add(current_state)
+            await session.refresh(current_state)
+            session.expunge(current_state)
+
+            # Merge the desired state with the database
+            _ = await session.merge(self._detached_state_to_restore)
+            await session.commit()
+
+            return DatabaseMemento(current_state)
 
 
 async def _get_async_session() -> AsyncGenerator[AsyncSession, None]:
