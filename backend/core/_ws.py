@@ -4,7 +4,10 @@ from typing import Any, Final, Literal
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import Field, ValidationError, field_serializer, field_validator
+from sqlalchemy import event
+from sqlalchemy.orm import Session
 
+from ._models import BaseModel, CacheableModel
 from ._schemas import ClientSchema, ServerSchema
 
 ws_app: Final[FastAPI] = FastAPI()
@@ -75,3 +78,24 @@ def broadcast(payload: WebSocketSchema) -> None:
         task = asyncio.create_task(client.send_text(payload.model_dump_json()))
         task.add_done_callback(background_tasks.discard)
         background_tasks.add(task)
+
+
+@event.listens_for(Session, 'before_commit')
+def broadcast_updates(session: Session) -> None:
+    # Recursively add each dirty, deleted, or new model
+    cacheables: set[CacheableModel] = {
+        parent
+        for model in [
+            record
+            for identity_map in [session.dirty, session.deleted, session.new]
+            for record in identity_map
+            if isinstance(record, BaseModel)
+        ]
+        for parent in model.search_parents() | {model}
+        if isinstance(parent, CacheableModel)
+    }
+
+    # Broadcast model keys of all updated cacheable models to clients
+    payload: WebSocketSchema = WebSocketSchema('cache')
+    payload.data = tuple(cacheable.key for cacheable in cacheables)
+    broadcast(payload)

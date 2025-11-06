@@ -2,15 +2,15 @@ from socket import AF_INET, SOCK_DGRAM, socket
 
 from uvicorn import Config, Server
 
-from ._database import (
+from ._database import SessionFactory
+from ._fastapi import app, shutdown, startup
+from ._models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     BaseModel,
     CacheableModel,
-    SessionFactory,
     TimedeltaAsMilliseconds,
 )
-from ._fastapi import app, shutdown, startup
 from ._schemas import ClientSchema, ServerSchema
 from ._users import UserContext, UserDepends
 
