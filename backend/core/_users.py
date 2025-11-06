@@ -34,7 +34,7 @@ class UserContext:
             self._redo_history.clear()
             self._staged = None
 
-    def unstage(self) -> None:
+    def reset(self) -> None:
         self._staged = None
 
     async def undo(self) -> None:
@@ -68,7 +68,7 @@ def _get_user_context(
         context = UserContext()
         _contexts[nso_id] = context
 
-    context.unstage()  # Clear uncommitted mementos
+    context.reset()  # Clear uncommitted mementos
     yield context
     context.commit()
 
