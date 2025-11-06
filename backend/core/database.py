@@ -72,9 +72,8 @@ class BaseModel(AsyncAttrs, DeclarativeBase):
 
     @final
     def get_parents(self) -> list[BaseModel]:
-        relationships = inspect(self).mapper.relationships
         parents: list[BaseModel] = []
-        for name, mapper in relationships.items():
+        for name, mapper in inspect(self).mapper.relationships.items():
             if mapper.cascade == CascadeOptions(PARENT_RELATIONSHIP):
                 parents.append(getattr(self, name))
         return parents
