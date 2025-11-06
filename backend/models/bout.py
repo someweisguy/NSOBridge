@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from functools import cached_property
-from typing import TYPE_CHECKING, Final, Literal, final, override
+from typing import TYPE_CHECKING, Final, Literal, final
 
 from core.database import (
     CHILD_RELATIONSHIP,
@@ -12,7 +12,12 @@ from core.database import (
     SQLModel,
 )
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
-from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
+from sqlalchemy.orm import (
+    Mapped,
+    column_property,
+    mapped_column,
+    relationship,
+)
 
 from .jam import JamModel, TeamJamModel
 from .time import ClockModel, TimeoutModel
@@ -106,10 +111,6 @@ class GenericBoutModel(CacheableModel):
             teams=[GenericTeamModel(roster) for roster in rosters],
         )
 
-    @override
-    def get_parents(self) -> tuple[SQLModel, ...]:
-        return (self.series,)
-
     @final
     def get_state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
         if self.is_final:
@@ -177,10 +178,6 @@ class GenericTeamModel(SQLModel):
 
     def __init__(self, roster: RosterModel):
         super().__init__(roster=roster)
-
-    @override
-    def get_parents(self) -> tuple[SQLModel | None, ...]:
-        return (self.bout,)
 
     @property
     def bout_score(self) -> int:

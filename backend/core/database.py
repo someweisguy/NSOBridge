@@ -7,7 +7,7 @@ from math import floor
 from typing import TYPE_CHECKING, Annotated, Any, TypeAlias, final, override
 
 from fastapi import Depends
-from sqlalchemy import Result, Select, event, select
+from sqlalchemy import Result, Select, event, inspect, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncEngine,
@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import (
+    CascadeOptions,
     DeclarativeBase,
     Mapped,
     Session,
@@ -90,8 +91,16 @@ class SQLModel(AsyncAttrs, DeclarativeBase):
 
     id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
-    def get_parents(self) -> tuple[SQLModel | None, ...]: ...
+    @final
+    def get_parents(self) -> tuple[SQLModel | None, ...]:
+        relationships = inspect(self).mapper.relationships
+        parents: list[SQLModel | None] = []
+        for name, mapper in relationships.items():
+            if mapper.cascade == CascadeOptions(PARENT_RELATIONSHIP):
+                parents.append(getattr(self, name))
+        return tuple(parents)
 
+    @final
     def search_parents(self) -> set[SQLModel]:
         cacheables: set[SQLModel] = set()
         for parent in self.get_parents():

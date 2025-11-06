@@ -1,14 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
-
 from core.database import CacheableModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .bout import GenericBoutModel
-
-if TYPE_CHECKING:
-    from core.database import SQLModel
 
 
 class SeriesModel(CacheableModel):
@@ -20,7 +15,3 @@ class SeriesModel(CacheableModel):
     bouts: Mapped[list[GenericBoutModel]] = relationship(
         back_populates='series', lazy='selectin', order_by=GenericBoutModel.order
     )
-
-    @override
-    def get_parents(self) -> tuple[SQLModel, ...]:
-        return ()

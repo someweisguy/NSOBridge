@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING
 
 from core.database import SQLModel, TimedeltaAsMilliseconds
 from sqlalchemy import ForeignKey
@@ -26,10 +26,6 @@ class ClockModel(SQLModel):
     bout: Mapped[GenericBoutModel | None] = relationship(
         back_populates='clock', lazy='joined'
     )
-
-    @override
-    def get_parents(self) -> tuple[SQLModel | None, ...]:
-        return (self.bout,)
 
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
@@ -83,7 +79,3 @@ class TimeoutModel(AbstractOneShotModel):
     def __init__(self, clock_elapsed: timedelta, jam: JamModel) -> None:
         # FIXME: don't require a Jam to call a Timeout
         super().__init__(clock_elapsed=clock_elapsed, jam=jam)
-
-    @override
-    def get_parents(self) -> tuple[SQLModel | None, ...]:
-        return (self.bout,)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import TYPE_CHECKING, Literal, override
+from typing import TYPE_CHECKING, Literal
 
 from core.database import (
     CHILD_RELATIONSHIP,
@@ -42,10 +42,6 @@ class TripEventModel(SQLModel):
         CheckConstraint('passes IS NULL OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
     )
 
-    @override
-    def get_parents(self) -> tuple[SQLModel | None, ...]:
-        return (self.team_jam,)
-
 
 class TeamJamModel(SQLModel):
     __tablename__: str = 'team_jams'
@@ -76,10 +72,6 @@ class TeamJamModel(SQLModel):
 
     def __init__(self, team: GenericTeamModel, is_away: bool) -> None:
         super().__init__(team=team, _is_away=is_away)
-
-    @override
-    def get_parents(self) -> tuple[SQLModel | None, ...]:
-        return (self.jam,)
 
 
 class JamModel(AbstractOneShotModel, CacheableModel):
@@ -121,10 +113,6 @@ class JamModel(AbstractOneShotModel, CacheableModel):
         if team_name not in {'home', 'away'}:
             raise KeyError(f'Unknown team name ({team_name=})')
         return self.home if team_name == 'home' else self.away
-
-    @override
-    def get_parents(self) -> tuple[SQLModel | None, ...]:
-        return (self.bout,)
 
     @property
     def home(self) -> TeamJamModel:
