@@ -9,6 +9,7 @@ from ._models import (
     PARENT_RELATIONSHIP,
     BaseModel,
     CacheableModel,
+    RulesError,
     TimedeltaAsMilliseconds,
 )
 from ._schemas import ClientSchema, ServerSchema
@@ -39,6 +40,7 @@ __all__ = (
     'ClientSchema',
     'get_ip_address',
     'PARENT_RELATIONSHIP',
+    'RulesError',
     'serve',
     'ServerSchema',
     'SessionFactory',

@@ -10,14 +10,8 @@ from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 
 from ._database import engine
-from ._models import BaseModel
+from ._models import BaseModel, RulesError
 from ._ws import ws_app
-
-
-# TODO: use or move this to a different file
-class RulesError(Exception):
-    pass
-
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
 STARTUP_CALLBACKS: list[Callable[[], Awaitable[Any]]] = []

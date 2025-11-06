@@ -1,2 +1,0 @@
-class RulesError(Exception):
-    pass

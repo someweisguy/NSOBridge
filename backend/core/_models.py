@@ -28,21 +28,8 @@ CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
 PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
 
-class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
-    impl: TypeEngine[Any] | type[TypeEngine[Any]] = Integer
-    cache_ok: bool | None = True
-
-    @override
-    def process_bind_param(self, value: Any | None, dialect: Dialect) -> Any:
-        if value is not None:
-            assert isinstance(value, timedelta)
-            return floor(value.total_seconds() * 1000)
-        return value
-
-    @override
-    def process_result_value(self, value: Any | None, dialect: Dialect) -> Any | None:
-        assert isinstance(value, (float, int))
-        return timedelta(milliseconds=value)
+class RulesError(Exception):
+    pass
 
 
 class BaseModel(AsyncAttrs, DeclarativeBase):
@@ -107,3 +94,20 @@ class DatabaseMemento(Memento):
             await session.commit()
 
             return DatabaseMemento(current_state)
+
+
+class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
+    impl: TypeEngine[Any] | type[TypeEngine[Any]] = Integer
+    cache_ok: bool | None = True
+
+    @override
+    def process_bind_param(self, value: Any | None, dialect: Dialect) -> Any:
+        if value is not None:
+            assert isinstance(value, timedelta)
+            return floor(value.total_seconds() * 1000)
+        return value
+
+    @override
+    def process_result_value(self, value: Any | None, dialect: Dialect) -> Any | None:
+        assert isinstance(value, (float, int))
+        return timedelta(milliseconds=value)
