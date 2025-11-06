@@ -90,12 +90,11 @@ class SQLModel(AsyncAttrs, DeclarativeBase):
 
     id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
-    @property
-    def parents(self) -> tuple[SQLModel | None, ...]: ...
+    def get_parents(self) -> tuple[SQLModel | None, ...]: ...
 
     def search_parents(self) -> set[SQLModel]:
         cacheables: set[SQLModel] = set()
-        for parent in self.parents:
+        for parent in self.get_parents():
             if parent is None:
                 continue  # TODO: log a warning of improper use of this function
             cacheables.add(parent)
@@ -126,7 +125,7 @@ class CacheableModel(SQLModel):
 async def setup() -> None:
     async with engine.connect() as connection:
         await connection.run_sync(SQLModel.metadata.create_all)
-        
+
     # TODO: decouple this module from importing from modules other than 'core'
     # Create a Bout model if one does not already exist
     from models import RosterModel, SeriesModel

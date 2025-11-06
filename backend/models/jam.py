@@ -42,9 +42,8 @@ class TripEventModel(SQLModel):
         CheckConstraint('passes IS NULL OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
     )
 
-    @property
     @override
-    def parents(self) -> tuple[SQLModel | None, ...]:
+    def get_parents(self) -> tuple[SQLModel | None, ...]:
         return (self.team_jam,)
 
 
@@ -78,9 +77,8 @@ class TeamJamModel(SQLModel):
     def __init__(self, team: GenericTeamModel, is_away: bool) -> None:
         super().__init__(team=team, _is_away=is_away)
 
-    @property
     @override
-    def parents(self) -> tuple[SQLModel | None, ...]:
+    def get_parents(self) -> tuple[SQLModel | None, ...]:
         return (self.jam,)
 
 
@@ -124,9 +122,8 @@ class JamModel(AbstractOneShotModel, CacheableModel):
             raise KeyError(f'Unknown team name ({team_name=})')
         return self.home if team_name == 'home' else self.away
 
-    @property
     @override
-    def parents(self) -> tuple[SQLModel | None, ...]:
+    def get_parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
 
     @property

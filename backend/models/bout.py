@@ -106,10 +106,8 @@ class GenericBoutModel(CacheableModel):
             teams=[GenericTeamModel(roster) for roster in rosters],
         )
 
-    @final
-    @property
     @override
-    def parents(self) -> tuple[SQLModel, ...]:
+    def get_parents(self) -> tuple[SQLModel, ...]:
         return (self.series,)
 
     @final
@@ -180,9 +178,8 @@ class GenericTeamModel(SQLModel):
     def __init__(self, roster: RosterModel):
         super().__init__(roster=roster)
 
-    @property
     @override
-    def parents(self) -> tuple[SQLModel | None, ...]:
+    def get_parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
 
     @property

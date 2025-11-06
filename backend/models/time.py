@@ -27,9 +27,8 @@ class ClockModel(SQLModel):
         back_populates='clock', lazy='joined'
     )
 
-    @property
     @override
-    def parents(self) -> tuple[SQLModel | None, ...]:
+    def get_parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)
 
     def start(self, timestamp: datetime) -> None:
@@ -85,7 +84,6 @@ class TimeoutModel(AbstractOneShotModel):
         # FIXME: don't require a Jam to call a Timeout
         super().__init__(clock_elapsed=clock_elapsed, jam=jam)
 
-    @property
     @override
-    def parents(self) -> tuple[SQLModel | None, ...]:
+    def get_parents(self) -> tuple[SQLModel | None, ...]:
         return (self.bout,)

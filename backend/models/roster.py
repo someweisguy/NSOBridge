@@ -21,7 +21,6 @@ class RosterModel(SQLModel):
             raise ValueError('Team name cannot be blank')
         super().__init__(name=name)
 
-    @property
     @override
-    def parents(self) -> tuple[SQLModel, ...]:  # TODO: does this need to be None?
+    def get_parents(self) -> tuple[SQLModel, ...]:  # TODO: does this need to be None?
         return ()  # TODO

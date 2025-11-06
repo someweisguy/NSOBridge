@@ -21,7 +21,6 @@ class SeriesModel(CacheableModel):
         back_populates='series', lazy='selectin', order_by=GenericBoutModel.order
     )
 
-    @property
     @override
-    def parents(self) -> tuple[SQLModel, ...]:
+    def get_parents(self) -> tuple[SQLModel, ...]:
         return ()
