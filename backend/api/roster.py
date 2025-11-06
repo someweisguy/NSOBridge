@@ -3,7 +3,7 @@ from typing import Annotated, Final, TypeAlias
 
 from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
-from models.team import RosterModel
+from models.roster import RosterModel
 from schemas.roster import RosterSchema
 from sqlalchemy import Result, select
 

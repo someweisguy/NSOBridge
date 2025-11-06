@@ -16,8 +16,8 @@ from .time import ClockModel, TimeoutModel
 if TYPE_CHECKING:
     from datetime import timedelta
 
+    from .roster import RosterModel
     from .series import SeriesModel
-    from .team import RosterModel
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
