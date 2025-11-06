@@ -129,8 +129,8 @@ class CacheableModel(BaseModel):
         return DatabaseMemento(deepcopy(self))
 
 
-@event.listens_for(Session, 'after_flush')
-def after_flush_hook(session: Session, _: UOWTransaction) -> None:
+@event.listens_for(Session, 'before_commit')
+def broadcast_updates(session: Session) -> None:
     # Recursively add each dirty, deleted, or new model
     cacheables: set[CacheableModel] = {
         parent
