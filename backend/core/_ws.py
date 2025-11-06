@@ -7,7 +7,7 @@ from pydantic import Field, ValidationError, field_serializer, field_validator
 
 from ._schemas import ClientSchema, ServerSchema
 
-app: Final[FastAPI] = FastAPI()
+ws_app: Final[FastAPI] = FastAPI()
 clients: set[WebSocket] = set()
 background_tasks: set[asyncio.Task[None]] = set()
 
@@ -46,7 +46,7 @@ class SyncSchema(ClientSchema):
         return value.isoformat()
 
 
-@app.websocket('/')
+@ws_app.websocket('/')
 async def handle_socket(websocket: WebSocket) -> None:
     await websocket.accept()
     clients.add(websocket)

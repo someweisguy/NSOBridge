@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 from core._database import BaseModel, engine
 
-from ._ws import app as ws_handler_app
+from ._ws import ws_app
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
 
@@ -40,7 +40,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     # First initialize the connection to the database
     async with engine.connect() as database:
         await database.run_sync(BaseModel.metadata.create_all)
-        
+
     for callback in _startup_callbacks:
         await callback()
     yield  # Yield control to the FastAPI application
@@ -53,7 +53,7 @@ app: FastAPI = FastAPI(
     lifespan=lifespan,
     routes=[
         Mount('/assets', StaticFiles(directory=FRONTEND / 'assets')),
-        Mount('/ws', ws_handler_app),
+        Mount('/ws', ws_app),
     ],
 )
 
