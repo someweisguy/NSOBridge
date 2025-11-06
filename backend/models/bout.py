@@ -5,12 +5,16 @@ from datetime import datetime  # noqa: TC003
 from functools import cached_property
 from typing import TYPE_CHECKING, Final, Literal, final, override
 
-from core.database import SQLModel
+from core.database import (
+    CHILD_RELATIONSHIP,
+    PARENT_RELATIONSHIP,
+    CacheableModel,
+    SQLModel,
+)
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from .jam import JamModel, TeamJamModel
-from .models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, CacheableModel
 from .time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:

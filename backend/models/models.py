@@ -1,44 +1,15 @@
 from __future__ import annotations
 
-from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any, override
+from typing import Any
 
-import core.ws
-from core.database import DatabaseMemento, SQLModel
-from core.ws import WebSocketSchema
-from sqlalchemy import CheckConstraint, event
+from core.database import SQLModel
+from sqlalchemy import CheckConstraint
 from sqlalchemy.orm import (
     Mapped,
-    Session,
-    UOWTransaction,
     declared_attr,
     mapped_column,
 )
-
-if TYPE_CHECKING:
-    from core.history import Memento
-
-CHILD_RELATIONSHIP = 'all, delete-orphan'
-PARENT_RELATIONSHIP = 'expunge, save-update'
-
-
-class CacheableModel(SQLModel):
-    __abstract__: bool = True
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, CacheableModel) and other.key == self.key
-
-    @override
-    def __hash__(self) -> int:
-        return hash(self.key)
-
-    @property
-    def key(self) -> tuple[Any, ...]: ...
-
-    def get_snapshot(self) -> Memento:
-        return DatabaseMemento(deepcopy(self))
 
 
 class AbstractOneShotModel(SQLModel):
@@ -84,24 +55,3 @@ class AbstractOneShotModel(SQLModel):
             if timestamp < self.start_timestamp:
                 raise ValueError('Cannot get a duration for a time that is in the past')
             return timestamp - self.start_timestamp
-
-
-@event.listens_for(Session, 'after_flush')
-def after_flush_hook(session: Session, _: UOWTransaction) -> None:
-    # Recursively add each dirty, deleted, or new model
-    cacheables: set[CacheableModel] = {
-        parent
-        for model in [
-            record
-            for identity_map in [session.dirty, session.deleted, session.new]
-            for record in identity_map
-            if isinstance(record, SQLModel)
-        ]
-        for parent in model.search_parents() | {model}
-        if isinstance(parent, CacheableModel)
-    }
-
-    # Broadcast model keys of all updated cacheable models to clients
-    payload: WebSocketSchema = WebSocketSchema('cache')
-    payload.data = tuple(cacheable.key for cacheable in cacheables)
-    core.ws.broadcast(payload)
