@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Annotated, Final, TypeAlias
 
-from core.database import AsyncSessionDepends
+from core._database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
 from models.roster import RosterModel
 from schemas.roster import RosterSchema

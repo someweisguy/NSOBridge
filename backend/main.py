@@ -4,7 +4,7 @@ from typing import Final, LiteralString
 
 import core
 from api import ROUTERS
-from core.database import SessionLocal
+from core import SessionFactory
 from models import RosterModel, SeriesModel
 from models.rulesets.wftda_2025 import BoutModel
 from sqlalchemy import Result, Select, select
@@ -29,7 +29,7 @@ for router in ROUTERS:
 async def create_initial_model() -> None:
     # Create a Bout model if one does not already exist
     bout: BoutModel | None = None
-    async with SessionLocal() as session, session.begin():
+    async with SessionFactory() as session, session.begin():
         statement: Select[tuple[BoutModel]] = select(BoutModel)
         results: Result[tuple[BoutModel]] = await session.execute(statement)
         if results.scalar() is None:

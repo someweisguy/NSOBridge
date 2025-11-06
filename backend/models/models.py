@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-from core.database import BaseModel
+from core import BaseModel
 from sqlalchemy import CheckConstraint
 from sqlalchemy.orm import (
     Mapped,

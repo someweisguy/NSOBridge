@@ -5,7 +5,7 @@ from datetime import datetime  # noqa: TC003
 from functools import cached_property
 from typing import TYPE_CHECKING, Final, Literal, final
 
-from core.database import (
+from core import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     BaseModel,

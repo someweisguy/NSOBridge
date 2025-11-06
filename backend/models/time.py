@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
-from core.database import BaseModel, TimedeltaAsMilliseconds
+from core import BaseModel, TimedeltaAsMilliseconds
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

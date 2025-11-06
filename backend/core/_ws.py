@@ -5,7 +5,7 @@ from typing import Any, Final, Literal
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import Field, ValidationError, field_serializer, field_validator
 
-from .schemas import ClientSchema, ServerSchema
+from ._schemas import ClientSchema, ServerSchema
 
 app: Final[FastAPI] = FastAPI()
 clients: set[WebSocket] = set()

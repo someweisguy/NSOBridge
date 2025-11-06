@@ -9,9 +9,9 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 
-from core.database import BaseModel, engine
+from core._database import BaseModel, engine
 
-from .ws import app as ws_handler_app
+from ._ws import app as ws_handler_app
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
 

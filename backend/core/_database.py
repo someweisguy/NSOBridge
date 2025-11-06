@@ -24,9 +24,9 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
-import core.ws
-from core.history import Memento
-from core.ws import WebSocketSchema
+import core._ws
+from core._users import Memento
+from core._ws import WebSocketSchema
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -43,7 +43,7 @@ PARENT_RELATIONSHIP = 'expunge, save-update'
 engine: AsyncEngine = create_async_engine(
     f'sqlite+aiosqlite:///{_DATABASE}', echo=_DEBUG
 )
-SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
+SessionFactory: async_sessionmaker[AsyncSession] = async_sessionmaker(
     bind=engine, expire_on_commit=False
 )
 
@@ -125,7 +125,7 @@ def broadcast_updates(session: Session) -> None:
     # Broadcast model keys of all updated cacheable models to clients
     payload: WebSocketSchema = WebSocketSchema('cache')
     payload.data = tuple(cacheable.key for cacheable in cacheables)
-    core.ws.broadcast(payload)
+    core._ws.broadcast(payload)
 
 
 class DatabaseMemento(Memento):
@@ -134,7 +134,7 @@ class DatabaseMemento(Memento):
 
     @override
     async def restore(self) -> Memento:
-        async with SessionLocal() as session, session.begin():
+        async with SessionFactory() as session, session.begin():
             # Get and detach the current state of the database object
             current_state: BaseModel = deepcopy(self._detached_state_to_restore)
             session.add(current_state)
@@ -149,7 +149,7 @@ class DatabaseMemento(Memento):
 
 
 async def _get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with SessionLocal() as session, session.begin():
+    async with SessionFactory() as session, session.begin():
         yield session
         await session.commit()
 
