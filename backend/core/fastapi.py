@@ -1,33 +1,51 @@
 import os
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Awaitable
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Final
+from typing import Any, Callable, Final
 
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 
-from .database import setup as database_setup
+from core.database import BaseModel, engine
+
 from .ws import app as ws_handler_app
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
 
 
+# TODO: use or move this to a different file
 class RulesError(Exception):
     pass
 
 
+_startup_callbacks: list[Callable[[], Awaitable[Any]]] = []
+_shutdown_callbacks: list[Callable[[], Awaitable[Any]]] = []
+
+
+def startup(callback: Callable[[], Awaitable[Any]]) -> Callable[[], Awaitable[Any]]:
+    _startup_callbacks.append(callback)
+    return callback
+
+
+def shutdown(callback: Callable[[], Awaitable[Any]]) -> Callable[[], Awaitable[Any]]:
+    _shutdown_callbacks.append(callback)
+    return callback
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
-    # Handle application startup tasks
-    await database_setup()
-
+    # First initialize the connection to the database
+    async with engine.connect() as database:
+        await database.run_sync(BaseModel.metadata.create_all)
+        
+    for callback in _startup_callbacks:
+        await callback()
     yield  # Yield control to the FastAPI application
-
-    # Handle application cleanup tasks
-    pass
+    for callback in _shutdown_callbacks:
+        await callback()
 
 
 app: FastAPI = FastAPI(

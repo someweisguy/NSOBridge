@@ -7,7 +7,7 @@ from math import floor
 from typing import TYPE_CHECKING, Annotated, Any, TypeAlias, final, override
 
 from fastapi import Depends
-from sqlalchemy import Result, Select, event, inspect, select
+from sqlalchemy import event, inspect
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncEngine,
@@ -129,30 +129,6 @@ class CacheableModel(BaseModel):
 
     def get_snapshot(self) -> Memento:
         return DatabaseMemento(deepcopy(self))
-
-
-async def setup() -> None:
-    async with engine.connect() as connection:
-        await connection.run_sync(BaseModel.metadata.create_all)
-
-    # TODO: decouple this module from importing from modules other than 'core'
-    # Create a Bout model if one does not already exist
-    from models import RosterModel, SeriesModel
-    from models.rulesets.wftda_2025 import BoutModel
-
-    bout: BoutModel | None = None
-    async with SessionLocal() as session, session.begin():
-        statement: Select[tuple[BoutModel]] = select(BoutModel)
-        results: Result[tuple[BoutModel]] = await session.execute(statement)
-        if results.scalar() is None:
-            print('Creating initial Bout model')
-            bout = BoutModel(
-                SeriesModel(),
-                RosterModel('Home'),
-                RosterModel('Away'),
-            )
-            session.add(bout)
-        await session.commit()
 
 
 @event.listens_for(Session, 'after_flush')
