@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-from core.database import SQLModel
+from core.database import BaseModel
 from sqlalchemy import CheckConstraint
 from sqlalchemy.orm import (
     Mapped,
@@ -12,7 +12,7 @@ from sqlalchemy.orm import (
 )
 
 
-class AbstractOneShotModel(SQLModel):
+class AbstractOneShotModel(BaseModel):
     __abstract__: bool = True
 
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)

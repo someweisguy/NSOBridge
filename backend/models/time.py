@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
-from core.database import SQLModel, TimedeltaAsMilliseconds
+from core.database import BaseModel, TimedeltaAsMilliseconds
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .jam import JamModel
 
 
-class ClockModel(SQLModel):
+class ClockModel(BaseModel):
     __tablename__: str = 'clocks'
 
     alarm: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)

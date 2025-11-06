@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Final, Literal, final
 from core.database import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
+    BaseModel,
     CacheableModel,
-    SQLModel,
 )
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
@@ -140,7 +140,7 @@ class GenericBoutModel(CacheableModel):
     def context(self) -> BoutContext: ...
 
 
-class GenericTeamModel(SQLModel):
+class GenericTeamModel(BaseModel):
     __tablename__: str = 'teams'
 
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))

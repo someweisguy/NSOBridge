@@ -50,14 +50,14 @@ SessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
 
 
 class DatabaseMemento(Memento):
-    def __init__(self, state: SQLModel) -> None:
-        self._detached_state_to_restore: SQLModel = state
+    def __init__(self, state: BaseModel) -> None:
+        self._detached_state_to_restore: BaseModel = state
 
     @override
     async def restore(self) -> Memento:
         async with SessionLocal() as session, session.begin():
             # Get and detach the current state of the database object
-            current_state: SQLModel = deepcopy(self._detached_state_to_restore)
+            current_state: BaseModel = deepcopy(self._detached_state_to_restore)
             session.add(current_state)
             await session.refresh(current_state)
             session.expunge(current_state)
@@ -86,23 +86,23 @@ class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
         return timedelta(milliseconds=value)
 
 
-class SQLModel(AsyncAttrs, DeclarativeBase):
+class BaseModel(AsyncAttrs, DeclarativeBase):
     __abstract__: bool = True
 
     id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
     @final
-    def get_parents(self) -> tuple[SQLModel | None, ...]:
+    def get_parents(self) -> tuple[BaseModel | None, ...]:
         relationships = inspect(self).mapper.relationships
-        parents: list[SQLModel | None] = []
+        parents: list[BaseModel | None] = []
         for name, mapper in relationships.items():
             if mapper.cascade == CascadeOptions(PARENT_RELATIONSHIP):
                 parents.append(getattr(self, name))
         return tuple(parents)
 
     @final
-    def search_parents(self) -> set[SQLModel]:
-        cacheables: set[SQLModel] = set()
+    def search_parents(self) -> set[BaseModel]:
+        cacheables: set[BaseModel] = set()
         for parent in self.get_parents():
             if parent is None:
                 continue  # TODO: log a warning of improper use of this function
@@ -111,7 +111,7 @@ class SQLModel(AsyncAttrs, DeclarativeBase):
         return cacheables
 
 
-class CacheableModel(SQLModel):
+class CacheableModel(BaseModel):
     __abstract__: bool = True
 
     @override
@@ -133,7 +133,7 @@ class CacheableModel(SQLModel):
 
 async def setup() -> None:
     async with engine.connect() as connection:
-        await connection.run_sync(SQLModel.metadata.create_all)
+        await connection.run_sync(BaseModel.metadata.create_all)
 
     # TODO: decouple this module from importing from modules other than 'core'
     # Create a Bout model if one does not already exist
@@ -164,7 +164,7 @@ def after_flush_hook(session: Session, _: UOWTransaction) -> None:
             record
             for identity_map in [session.dirty, session.deleted, session.new]
             for record in identity_map
-            if isinstance(record, SQLModel)
+            if isinstance(record, BaseModel)
         ]
         for parent in model.search_parents() | {model}
         if isinstance(parent, CacheableModel)
