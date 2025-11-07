@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from functools import cached_property
-from typing import TYPE_CHECKING, Final, Literal, final
+from typing import TYPE_CHECKING, Any, Final, Literal, final
 
 from core import (
     CHILD_RELATIONSHIP,
@@ -24,6 +24,8 @@ from .time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
     from datetime import timedelta
+
+    from sqlalchemy.orm.properties import MappedSQLExpression
 
     from .roster import RosterModel
     from .series import SeriesModel
@@ -77,9 +79,9 @@ class GenericBoutModel(CacheableSQLModel):
     )
 
     __table_args__: tuple[Constraint] = (UniqueConstraint(_series_id, order),)
-    __mapper_args__: dict[str, str | bool] = {
+    __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,
-        'polymorphic_on': 'ruleset',
+        'polymorphic_on': ruleset,
     }
 
     def __init__(
@@ -134,7 +136,7 @@ class GenericTeamModel(BaseSQLModel):
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
 
-    ruleset = column_property(
+    ruleset: MappedSQLExpression[str] = column_property(
         select(GenericBoutModel.ruleset)
         .where(GenericBoutModel.id == _bout_id)
         .scalar_subquery()
@@ -156,8 +158,8 @@ class GenericTeamModel(BaseSQLModel):
         back_populates='team', cascade=CHILD_RELATIONSHIP, lazy='selectin'
     )
 
-    __mapper_args__: dict[str, str | bool] = {
-        'polymorphic_on': 'ruleset',
+    __mapper_args__: dict[str, Any] = {
+        'polymorphic_on': ruleset,
     }
 
     @classmethod
