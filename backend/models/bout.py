@@ -155,18 +155,20 @@ class GenericTeamModel(BaseSQLModel):
         .scalar_subquery()
     )
 
-    bout: Mapped[GenericBoutModel | None] = relationship()
+    bout: Mapped[GenericBoutModel | None] = relationship(
+        back_populates='team', cascade=PARENT_RELATIONSHIP, lazy='selectin'
+    )
     roster: Mapped[RosterModel | None] = relationship(
-        cascade='all', foreign_keys=[_roster_id], lazy='joined'
+        cascade=PARENT_RELATIONSHIP, foreign_keys=[_roster_id], lazy='joined'
     )
     team_jams: Mapped[list[TeamJamModel]] = relationship(
         back_populates='team',
-        cascade='all',
+        cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
         # order_by='[TeamJamModel.jam.period, TeamJamModel.jam.num]',
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
-        back_populates='team', cascade='all', lazy='selectin'
+        back_populates='team', cascade=CHILD_RELATIONSHIP, lazy='selectin'
     )
 
     __mapper_args__: dict[str, str | bool] = {
