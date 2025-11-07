@@ -82,21 +82,6 @@ class GenericBoutModel(CacheableSQLModel):
         'polymorphic_on': 'ruleset',
     }
 
-    @classmethod
-    def calculate_score(cls, team_jam: TeamJamModel) -> int:
-        # Sum the Trip passes, ignoring the first Trip
-        return sum(trip.passes for trip in team_jam.events if trip.passes is not None)
-
-    @classmethod
-    def fetch_team_bout_score(cls, team: GenericTeamModel) -> int:
-        return sum(cls.calculate_score(team_jam) for team_jam in team.team_jams)
-
-    @classmethod
-    def fetch_team_jam_score(cls, team: GenericTeamModel) -> int:
-        if len(team.team_jams) == 0:
-            return 0
-        return cls.calculate_score(team.team_jams[-1])
-
     def __init__(
         self, series: SeriesModel, ruleset: str, *rosters: RosterModel
     ) -> None:
