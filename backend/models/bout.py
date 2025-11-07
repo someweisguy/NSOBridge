@@ -141,7 +141,7 @@ class GenericTeamModel(BaseSQLModel):
     )
 
     bout: Mapped[GenericBoutModel | None] = relationship(
-        back_populates='team', cascade=PARENT_RELATIONSHIP, lazy='selectin'
+        cascade=PARENT_RELATIONSHIP, lazy='selectin'
     )
     roster: Mapped[RosterModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP, foreign_keys=[_roster_id], lazy='joined'
@@ -150,7 +150,7 @@ class GenericTeamModel(BaseSQLModel):
         back_populates='team',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        # order_by='[TeamJamModel.jam.period, TeamJamModel.jam.num]',
+        # order_by=[TeamJamModel.jam.period, TeamJamModel.jam.num], # FIXME
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
         back_populates='team', cascade=CHILD_RELATIONSHIP, lazy='selectin'
