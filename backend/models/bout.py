@@ -18,14 +18,13 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+from sqlalchemy.orm.properties import MappedSQLExpression  # noqa: TC002
 
 from .jam import JamModel, TeamJamModel
 from .time import ClockModel, TimeoutModel
 
 if TYPE_CHECKING:
     from datetime import timedelta
-
-    from sqlalchemy.orm.properties import MappedSQLExpression
 
     from .roster import RosterModel
     from .series import SeriesModel
