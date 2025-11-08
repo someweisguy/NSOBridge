@@ -3,12 +3,11 @@ from typing import Annotated, Final, TypeAlias
 
 from database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query, Request
-from schemas_old import BoutSchema
-from schemas_old.bout import BoutContextSchema
 from sqlalchemy import select
 from users.dependencies import UserDepends
 
 from .models import BoutContext, GenericBoutModel
+from .schemas import BoutContextSchema, BoutSchema
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 

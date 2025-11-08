@@ -2,10 +2,10 @@ from typing import Annotated, Final, TypeAlias
 
 from database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
-from schemas_old.series import SeriesSchema
 from sqlalchemy import select
 
 from .models import SeriesModel
+from .schemas import SeriesSchema
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
 
