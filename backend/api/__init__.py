@@ -1,28 +1,13 @@
 from typing import Final
 
 from fastapi import APIRouter
-from users import UserContextDepends
 
 from .bout import router as bout_router
 from .jam import router as jam_router
 from .roster import router as roster_router
 from .series import router as series_router
 
-router: Final[APIRouter] = APIRouter()
-
-
-@router.post('/undo')
-async def undo(user: UserContextDepends) -> None:
-    await user.undo()
-
-
-@router.post('/redo')
-async def redo(user: UserContextDepends) -> None:
-    await user.redo()
-
-
 ROUTERS: Final[tuple[APIRouter, ...]] = (
-    router,
     bout_router,
     jam_router,
     roster_router,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Annotated, Final, TypeAlias
+from typing import TYPE_CHECKING, Annotated, Final, Protocol, TypeAlias
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import (
@@ -29,6 +29,10 @@ session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
     bind=engine,
     expire_on_commit=False,
 )
+
+
+class Memento(Protocol):
+    async def restore(self) -> Memento: ...
 
 
 async def _get_async_session() -> AsyncGenerator[AsyncSession, None]:
