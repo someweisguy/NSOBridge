@@ -23,8 +23,6 @@ type TeamName = Literal['home', 'away']
 
 
 class TripEventModel(BaseSQLModel):
-    __tablename__: str = 'trip_events'
-
     _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
     timestamp: Mapped[datetime] = mapped_column()
     lead: Mapped[bool] = mapped_column(default=False)
@@ -38,23 +36,24 @@ class TripEventModel(BaseSQLModel):
         lazy='joined',
     )
 
+    __tablename__: str = 'trip_events'
     __table_args__: tuple[Constraint, ...] = (
         CheckConstraint('passes IS NULL OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
     )
 
 
 class TeamJamModel(BaseSQLModel):
-    __tablename__: str = 'team_jams'
-
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
     _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
-    team: Mapped[GenericTeamModel | None] = relationship(
-        cascade=PARENT_RELATIONSHIP, foreign_keys=[_team_id], lazy='selectin'
-    )
     jam: Mapped[JamModel] = relationship(
         back_populates='team_jams',
         cascade=PARENT_RELATIONSHIP,
+        lazy='selectin',
+    )
+    team: Mapped[GenericTeamModel | None] = relationship(
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[_team_id],
         lazy='selectin',
     )
     events: Mapped[list[TripEventModel]] = relationship(
@@ -64,27 +63,31 @@ class TeamJamModel(BaseSQLModel):
         order_by=[TripEventModel.timestamp],
     )
 
+    __tablename__: str = 'team_jams'
+
     def __init__(self, team: GenericTeamModel) -> None:
         super().__init__(team=team)
 
 
 class JamModel(AbstractOneShotModel, CacheableSQLModel):
-    __tablename__: str = 'jams'
-
     bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
 
     num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
+    bout: Mapped[GenericBoutModel] = relationship(
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[bout_id],
+        lazy='selectin',
+    )
     team_jams: Mapped[list[TeamJamModel]] = relationship(
         back_populates='jam',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
     )
-    bout: Mapped[GenericBoutModel] = relationship(
-        cascade=PARENT_RELATIONSHIP, foreign_keys=[bout_id], lazy='selectin'
-    )
+
+    __tablename__: str = 'jams'
 
     def __init__(
         self,

@@ -15,17 +15,17 @@ if TYPE_CHECKING:
 
 
 class ClockModel(BaseSQLModel):
-    __tablename__: str = 'clocks'
-
-    alarm: Mapped[timedelta] = mapped_column()
-    elapsed: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
+    elapsed: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
+    alarm: Mapped[timedelta] = mapped_column()
 
     bout: Mapped[GenericBoutModel | None] = relationship(
         back_populates='clock',
         cascade=PARENT_RELATIONSHIP,
         lazy='joined',
     )
+
+    __tablename__: str = 'clocks'
 
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
@@ -58,8 +58,6 @@ class ClockModel(BaseSQLModel):
 
 
 class TimeoutModel(AbstractOneShotModel):
-    __tablename__: str = 'timeouts'
-
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
@@ -71,14 +69,20 @@ class TimeoutModel(AbstractOneShotModel):
     retained: Mapped[bool] = mapped_column(default=False)
 
     bout: Mapped[GenericBoutModel | None] = relationship(
-        back_populates='timeouts', cascade=PARENT_RELATIONSHIP
+        back_populates='timeouts',
+        cascade=PARENT_RELATIONSHIP,
     )
     jam: Mapped[JamModel] = relationship(
-        cascade=PARENT_RELATIONSHIP, foreign_keys=[_jam_id]
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[_jam_id],
     )
     team: Mapped[GenericTeamModel | None] = relationship(
-        back_populates='timeouts', cascade=PARENT_RELATIONSHIP, foreign_keys=[_team_id]
+        back_populates='timeouts',
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[_team_id],
     )
+
+    __tablename__: str = 'timeouts'
 
     def __init__(self, clock_elapsed: timedelta, jam: JamModel) -> None:
         # FIXME: don't require a Jam to call a Timeout

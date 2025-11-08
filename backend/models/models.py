@@ -13,10 +13,10 @@ from sqlalchemy.orm import (
 
 
 class AbstractOneShotModel(BaseSQLModel):
-    __abstract__: bool = True
-
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     stop_timestamp: Mapped[datetime | None] = mapped_column(default=None)
+
+    __abstract__: bool = True
 
     @declared_attr
     def __table_args__(cls) -> Any:

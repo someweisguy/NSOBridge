@@ -43,8 +43,6 @@ class BoutContext:
 
 
 class GenericBoutModel(CacheableSQLModel):
-    __tablename__: str = 'bouts'
-
     _series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     _clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
     expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
@@ -66,7 +64,8 @@ class GenericBoutModel(CacheableSQLModel):
         order_by=[JamModel.period, JamModel.num],
     )
     series: Mapped[SeriesModel] = relationship(
-        cascade=PARENT_RELATIONSHIP, foreign_keys=[_series_id], lazy='select'
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[_series_id],
     )
     teams: Mapped[list[GenericTeamModel]] = relationship(
         back_populates='bout',
@@ -74,9 +73,11 @@ class GenericBoutModel(CacheableSQLModel):
         lazy='selectin',
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
-        cascade=CHILD_RELATIONSHIP, lazy='selectin'
+        cascade=CHILD_RELATIONSHIP,
+        lazy='selectin',
     )
 
+    __tablename__: str = 'bouts'
     __table_args__: tuple[Constraint] = (UniqueConstraint(_series_id, order),)
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,
@@ -127,13 +128,11 @@ class GenericBoutModel(CacheableSQLModel):
 
 
 class GenericTeamModel(BaseSQLModel):
-    __tablename__: str = 'teams'
-
     _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
-    reviews_remaining: Mapped[int] = mapped_column()
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
+    reviews_remaining: Mapped[int] = mapped_column()
 
     ruleset: MappedSQLExpression[str] = column_property(
         select(GenericBoutModel.ruleset)
@@ -142,10 +141,13 @@ class GenericTeamModel(BaseSQLModel):
     )
 
     bout: Mapped[GenericBoutModel | None] = relationship(
-        cascade=PARENT_RELATIONSHIP, lazy='selectin'
+        cascade=PARENT_RELATIONSHIP,
+        lazy='selectin',
     )
     roster: Mapped[RosterModel | None] = relationship(
-        cascade=PARENT_RELATIONSHIP, foreign_keys=[_roster_id], lazy='joined'
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[_roster_id],
+        lazy='joined',
     )
     team_jams: Mapped[list[TeamJamModel]] = relationship(
         back_populates='team',
@@ -154,9 +156,12 @@ class GenericTeamModel(BaseSQLModel):
         # order_by=[TeamJamModel.jam.period, TeamJamModel.jam.num], # FIXME
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
-        back_populates='team', cascade=CHILD_RELATIONSHIP, lazy='selectin'
+        back_populates='team',
+        cascade=CHILD_RELATIONSHIP,
+        lazy='selectin',
     )
 
+    __tablename__: str = 'teams'
     __mapper_args__: dict[str, Any] = {
         'polymorphic_on': ruleset,
     }
@@ -164,7 +169,7 @@ class GenericTeamModel(BaseSQLModel):
     @classmethod
     def get_team_jam_score(cls, team_jam: TeamJamModel) -> int: ...
 
-    def __init__(self, roster: RosterModel):
+    def __init__(self, roster: RosterModel) -> None:
         super().__init__(roster=roster)
 
     @property
