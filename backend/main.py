@@ -8,15 +8,15 @@ from typing import Final, LiteralString
 import models
 import ws
 from database import session_factory
-from derby import ROUTERS
-from derby.rosters.models import RosterModel
-from derby.series.models import SeriesModel
 from exceptions import RulesError
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
-from game.rulesets.wftda_2025 import BoutModel
+from game import ROUTERS as GAME_ROUTERS
+from game.rosters.models import RosterModel
+from game.series.models import SeriesModel
+from rulesets.wftda_2025 import BoutModel
 from sqlalchemy import Result, Select, select
 from uvicorn import Config, Server
 
@@ -39,7 +39,7 @@ app: FastAPI = FastAPI(
     ],
 )
 API_PREFIX: LiteralString = '/api'
-for router in ROUTERS:
+for router in GAME_ROUTERS:
     app.include_router(router, prefix=API_PREFIX)
 
 
