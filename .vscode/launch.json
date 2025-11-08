@@ -10,7 +10,8 @@
       "env": {
         "DB_PATH": "",
         "SQLALCHEMY_DEBUG": "false",
-        "FRONTEND": "${workspaceFolder}/dist",
+        "VITE_BUILD_DIR": "${workspaceFolder}/dist",
+        "UVICORN_PORT": "8000",
       }
     },
   ]

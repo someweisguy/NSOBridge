@@ -19,8 +19,6 @@ from game.rulesets.wftda_2025 import BoutModel
 from sqlalchemy import Result, Select, select
 from uvicorn import Config, Server
 
-PORT: int = 8000
-
 logging.basicConfig(
     format='{levelname}: {message}',
     datefmt='%m/%d/%Y %H:%M:%S',
@@ -30,7 +28,8 @@ logging.basicConfig(
 
 
 # Initialize the application and set the appropriate routes
-FRONTEND: Final[Path] = Path(os.environ['FRONTEND'])
+PORT: Final[int] = int(os.environ.get('UVICORN_PORT', str(8000)))
+FRONTEND: Final[Path] = Path(os.environ['VITE_BUILD_DIR'])
 app: FastAPI = FastAPI(
     debug=True,
     routes=[
