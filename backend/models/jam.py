@@ -77,6 +77,7 @@ class JamModel(AbstractOneShotModel, CacheableSQLModel):
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
     bout: Mapped[GenericBoutModel] = relationship(
+        back_populates='jams',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[bout_id],
         lazy='selectin',
