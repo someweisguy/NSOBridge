@@ -6,19 +6,23 @@ from schemas import ServerSchema
 
 
 class ClockSchema(ServerSchema):
+    id: int
     start_timestamp: datetime | None
     elapsed: timedelta
     alarm: timedelta
 
 
 class TimeoutSchema(ServerSchema):
+    id: int
+    team_id: int
+    jam_id: int | None
+    
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
-    # team: TeamSchema | None = Field(exclude=True)
-    is_review: bool
-    # jam: JamSchema = Field(exclude=True)
     clock_elapsed: timedelta
+    
+    is_review: bool
     details: str
-    result: str | None
+    result: str
     retained: bool
 
