@@ -73,7 +73,4 @@ def _get_user_context(
     context.commit()
 
 
-UserDepends: TypeAlias = Annotated[UserContext, Depends(_get_user_context)]
-
-
-__all__: tuple[str, ...] = ('Memento', 'Mementoable', 'UserContext', 'UserDepends')
+UserContextDepends: TypeAlias = Annotated[UserContext, Depends(_get_user_context)]

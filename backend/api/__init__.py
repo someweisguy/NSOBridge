@@ -1,7 +1,7 @@
 from typing import Final
 
 from fastapi import APIRouter
-from users.users import UserDepends
+from users import UserContextDepends
 
 from .bout import router as bout_router
 from .jam import router as jam_router
@@ -12,12 +12,12 @@ router: Final[APIRouter] = APIRouter()
 
 
 @router.post('/undo')
-async def undo(user: UserDepends) -> None:
+async def undo(user: UserContextDepends) -> None:
     await user.undo()
 
 
 @router.post('/redo')
-async def redo(user: UserDepends) -> None:
+async def redo(user: UserContextDepends) -> None:
     await user.redo()
 
 

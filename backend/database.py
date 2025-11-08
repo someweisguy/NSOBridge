@@ -31,10 +31,10 @@ session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
 )
 
 
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+async def _get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session, session.begin():
         yield session
         await session.commit()
 
 
-AsyncSessionDepends: TypeAlias = Annotated[AsyncSession, Depends(get_async_session)]
+AsyncSessionDepends: TypeAlias = Annotated[AsyncSession, Depends(_get_async_session)]

@@ -7,7 +7,7 @@ from game.bout import BoutContext, GenericBoutModel
 from schemas_old import BoutSchema
 from schemas_old.bout import BoutContextSchema
 from sqlalchemy import select
-from users.users import UserDepends
+from users import UserContextDepends
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
@@ -15,7 +15,7 @@ router: Final[APIRouter] = APIRouter(prefix='/bout')
 @router.get('', response_model=BoutSchema)
 async def get_bout(
     request: Request,
-    user: UserDepends,
+    user: UserContextDepends,
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
 ) -> GenericBoutModel:

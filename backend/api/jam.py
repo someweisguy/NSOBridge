@@ -2,7 +2,7 @@ from typing import Annotated, Final, TypeAlias
 
 from database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
-from game import JamModel, TeamJamModel, TeamName
+from game import JamModel
 from schemas_old import JamSchema
 from sqlalchemy import select
 
@@ -26,12 +26,6 @@ async def get_jam(
 
 
 JamDepends: TypeAlias = Annotated[JamModel, Depends(get_jam)]
-
-
-async def get_team_jam(
-    jam: JamDepends, team: Annotated[TeamName, Query()]
-) -> TeamJamModel:
-    return jam[team]
 
 
 __all__ = ('router',)

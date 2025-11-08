@@ -5,7 +5,7 @@ from datetime import timedelta
 from math import floor
 from typing import TYPE_CHECKING, Any, Final, final, override
 
-from database import session_factory, engine
+from database import engine, session_factory
 from sqlalchemy import Result, Select, inspect, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
@@ -17,7 +17,7 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
-from users.users import Memento
+from users import Memento
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
@@ -27,7 +27,7 @@ CHILD_RELATIONSHIP: Final[str] = 'save-update, merge, expunge, delete, delete-or
 PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
 
-class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
+class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
     impl: TypeEngine[Any] | type[TypeEngine[Any]] = Integer
     cache_ok: bool | None = True
 
@@ -45,10 +45,10 @@ class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
 
 
 class BaseSQLModel(AsyncAttrs, DeclarativeBase):
-    __abstract__: bool = True
-    __type_annotation_map__ = {timedelta: TimedeltaAsMilliseconds}
-
     id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
+
+    __abstract__: bool = True
+    __type_annotation_map__ = {timedelta: _TimedeltaAsMilliseconds}
 
     @final
     def get_parents(self) -> list[BaseSQLModel]:
