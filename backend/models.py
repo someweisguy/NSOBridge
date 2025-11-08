@@ -73,17 +73,18 @@ class CacheableSQLModel(BaseSQLModel):
     # TODO: are these needed?
     @override
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, CacheableSQLModel) and other.key == self.key
+        return (
+            isinstance(other, CacheableSQLModel)
+            and other.cache_key() == self.cache_key()
+        )
 
     # TODO: are these needed?
     @override
     def __hash__(self) -> int:
-        return hash(self.key)
+        return hash(self.cache_key())
 
-    # TODO: can this be a method instead of a property?
     @final
-    @property
-    def key(self) -> tuple[str, int | None]:
+    def cache_key(self) -> tuple[str, int | None]:
         return (self.__tablename__, self.id)
 
     def get_snapshot(self) -> DatabaseMemento:

@@ -35,5 +35,8 @@ def broadcast_updates(session: Session) -> None:
 
     # Broadcast model keys of all updated cacheable models to clients
     payload: WebSocketSchema = WebSocketSchema('cache')
-    payload.data = tuple(cacheable.key for cacheable in cacheables)
-    broadcast(payload)
+    payload.data = tuple[tuple[str, int | None], ...](
+        cacheable.cache_key() for cacheable in cacheables if cacheable.id is not None
+    )
+    if payload.data:
+        broadcast(payload)
