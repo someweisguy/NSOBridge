@@ -70,19 +70,6 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
 class CacheableSQLModel(BaseSQLModel):
     __abstract__: bool = True
 
-    # TODO: are these needed?
-    @override
-    def __eq__(self, other: Any) -> bool:
-        return (
-            isinstance(other, CacheableSQLModel)
-            and other.cache_key() == self.cache_key()
-        )
-
-    # TODO: are these needed?
-    @override
-    def __hash__(self) -> int:
-        return hash(self.cache_key())
-
     @final
     def cache_key(self) -> tuple[str, int | None]:
         return (self.__tablename__, self.id)
