@@ -18,6 +18,7 @@ from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
 from rulesets.wftda_2025 import BoutModel
 from sqlalchemy import Result, Select, select
+from users.router import router as user_router
 from uvicorn import Config, Server
 
 logging.basicConfig(
@@ -39,7 +40,7 @@ app: FastAPI = FastAPI(
     ],
 )
 API_PREFIX: LiteralString = '/api'
-for router in GAME_ROUTERS:
+for router in [*GAME_ROUTERS, user_router]:
     app.include_router(router, prefix=API_PREFIX)
 
 
