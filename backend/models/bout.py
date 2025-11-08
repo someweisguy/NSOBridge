@@ -11,7 +11,7 @@ from core import (
     BaseSQLModel,
     CacheableSQLModel,
 )
-from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
+from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import (
     Mapped,
     column_property,
@@ -48,7 +48,6 @@ class GenericBoutModel(CacheableSQLModel):
     expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
     is_running: Mapped[bool] = mapped_column(default=False)
-    order: Mapped[int] = mapped_column()
     ruleset: Mapped[str] = mapped_column()
 
     clock: Mapped[ClockModel] = relationship(
@@ -79,7 +78,6 @@ class GenericBoutModel(CacheableSQLModel):
     )
 
     __tablename__: str = 'bouts'
-    __table_args__: tuple[Constraint] = (UniqueConstraint(_series_id, order),)
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,
         'polymorphic_on': ruleset,
@@ -90,10 +88,8 @@ class GenericBoutModel(CacheableSQLModel):
     ) -> None:
         if len(rosters) < REQUIRED_NUM_TEAMS:
             raise ValueError(f'A Bout must have at least {REQUIRED_NUM_TEAMS} Teams')
-        order: int = 0 if len(series.bouts) == 0 else series.bouts[-1].order + 1
         super().__init__(
             series=series,
-            order=order,
             clock=ClockModel(),
             ruleset=ruleset,
             teams=[GenericTeamModel(roster) for roster in rosters],

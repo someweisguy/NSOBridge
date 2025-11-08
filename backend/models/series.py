@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from core import CHILD_RELATIONSHIP, CacheableSQLModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .bout import GenericBoutModel
+if TYPE_CHECKING:
+    from .bout import GenericBoutModel
 
 
 class SeriesModel(CacheableSQLModel):
@@ -14,7 +17,6 @@ class SeriesModel(CacheableSQLModel):
         back_populates='series',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        order_by=GenericBoutModel.order,
     )
 
     __tablename__: str = 'series'
