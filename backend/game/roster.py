@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from core import BaseSQLModel
+from models import BaseSQLModel
 from sqlalchemy.orm import Mapped, mapped_column
 
 

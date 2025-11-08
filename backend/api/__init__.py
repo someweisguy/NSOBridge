@@ -1,7 +1,7 @@
 from typing import Final
 
-from core import UserDepends
 from fastapi import APIRouter
+from users.users import UserDepends
 
 from .bout import router as bout_router
 from .jam import router as jam_router

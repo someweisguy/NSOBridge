@@ -1,4 +1,4 @@
-from core import ServerSchema
+from schemas import ServerSchema
 
 
 class RosterSchema(ServerSchema):

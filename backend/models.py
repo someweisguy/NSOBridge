@@ -3,16 +3,12 @@ from __future__ import annotations
 from copy import deepcopy
 from datetime import timedelta
 from math import floor
-from typing import TYPE_CHECKING, Annotated, Any, TypeAlias, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 
-from fastapi import Depends
+from database import SessionFactory, engine
 from sqlalchemy import Result, Select, inspect, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
-    AsyncEngine,
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
 )
 from sqlalchemy.orm import (
     CascadeOptions,
@@ -21,25 +17,14 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
-
-from core.users import Memento
-
-from .constants import DATABASE, DEBUG, PARENT_RELATIONSHIP
+from users.users import Memento
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator
-
     from sqlalchemy import Dialect
 
 
-engine: AsyncEngine = create_async_engine(
-    f'sqlite+aiosqlite:///{DATABASE}',
-    echo=DEBUG,
-)
-SessionFactory: async_sessionmaker[AsyncSession] = async_sessionmaker(
-    bind=engine,
-    expire_on_commit=False,
-)
+CHILD_RELATIONSHIP: Final[str] = 'save-update, merge, expunge, delete, delete-orphan'
+PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
 
 class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
@@ -136,12 +121,3 @@ class DatabaseMemento(Memento):
 async def create_all() -> None:
     async with engine.connect() as database:
         await database.run_sync(BaseSQLModel.metadata.create_all)
-
-
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with SessionFactory() as session, session.begin():
-        yield session
-        await session.commit()
-
-
-AsyncSessionDepends: TypeAlias = Annotated[AsyncSession, Depends(get_async_session)]

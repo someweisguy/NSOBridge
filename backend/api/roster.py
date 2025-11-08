@@ -1,10 +1,10 @@
 from collections.abc import Sequence
 from typing import Annotated, Final, TypeAlias
 
-from core.database import AsyncSessionDepends
+from database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
-from models.roster import RosterModel
-from schemas.roster import RosterSchema
+from game.roster import RosterModel
+from schemas_old.roster import RosterSchema
 from sqlalchemy import Result, select
 
 router: Final[APIRouter] = APIRouter(prefix='/roster')

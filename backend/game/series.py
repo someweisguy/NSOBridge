@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from core import CHILD_RELATIONSHIP, CacheableSQLModel
+from models import CHILD_RELATIONSHIP, CacheableSQLModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta  # noqa: TC003
 
-from core import ServerSchema
+from schemas import ServerSchema
 from pydantic import Field, computed_field
 
 

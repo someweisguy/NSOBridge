@@ -1,9 +1,9 @@
 from typing import Annotated, Final, TypeAlias
 
-from core.database import AsyncSessionDepends
+from database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
-from models import JamModel, TeamJamModel, TeamName
-from schemas import JamSchema
+from game import JamModel, TeamJamModel, TeamName
+from schemas_old import JamSchema
 from sqlalchemy import select
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')

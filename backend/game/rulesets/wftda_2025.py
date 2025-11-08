@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from functools import cached_property
 from typing import Final, override
 
-from models import (
+from game import (
     BoutContext,
     GenericBoutModel,
     GenericTeamModel,
@@ -12,7 +12,7 @@ from models import (
     TeamJamModel,
     TimeoutModel,
 )
-from models.exceptions import RulesError
+from game.exceptions import RulesError
 
 RULESET: Final[str] = 'WFTDA 2025'
 NUM_PERIODS: Final[int] = 2

@@ -1,20 +1,21 @@
 import asyncio
 import logging
+import os
+from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import Final, LiteralString
 
-import core
+import models
 import ws
 from api import ROUTERS
-from core import SessionFactory
-from core.constants import FRONTEND
+from database import SessionFactory
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
-from models import RosterModel, SeriesModel
-from models.exceptions import RulesError
-from models.rulesets.wftda_2025 import BoutModel
+from game import RosterModel, SeriesModel
+from game.exceptions import RulesError
+from game.rulesets.wftda_2025 import BoutModel
 from sqlalchemy import Result, Select, select
 from uvicorn import Config, Server
 
@@ -29,6 +30,7 @@ logging.basicConfig(
 
 
 # Initialize the application and set the appropriate routes
+FRONTEND: Final[Path] = Path(os.environ['FRONTEND'])
 app: FastAPI = FastAPI(
     debug=True,
     routes=[
@@ -60,7 +62,7 @@ async def rules_error_handler(request: Request, e: RulesError) -> JSONResponse:
 
 
 async def main(net: str = '0.0.0.0', port: int = 8000) -> None:
-    await core.database.create_all()
+    await models.create_all()
 
     # Create a Bout model if one does not already exist
     bout: BoutModel | None = None

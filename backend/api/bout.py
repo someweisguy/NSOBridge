@@ -1,13 +1,13 @@
 from datetime import datetime
 from typing import Annotated, Final, TypeAlias
 
-from core import UserDepends
-from core.database import AsyncSessionDepends
+from database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query, Request
-from models.bout import BoutContext, GenericBoutModel
-from schemas import BoutSchema
-from schemas.bout import BoutContextSchema
+from game.bout import BoutContext, GenericBoutModel
+from schemas_old import BoutSchema
+from schemas_old.bout import BoutContextSchema
 from sqlalchemy import select
+from users.users import UserDepends
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 

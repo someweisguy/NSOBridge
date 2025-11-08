@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Literal
 
-from core import (
+from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     BaseSQLModel,

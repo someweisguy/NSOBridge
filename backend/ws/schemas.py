@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Any, Literal
 
-from core import ClientSchema, ServerSchema
 from pydantic import Field, field_serializer, field_validator
+from schemas import ClientSchema, ServerSchema
 
 
 class WebSocketSchema(ServerSchema):

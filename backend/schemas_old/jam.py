@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from core import ServerSchema
+from schemas import ServerSchema
 from pydantic import Field, computed_field
 
 
