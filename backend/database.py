@@ -21,11 +21,11 @@ DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {
     'yes',
 }
 
-engine: AsyncEngine = create_async_engine(
+engine: Final[AsyncEngine] = create_async_engine(
     f'sqlite+aiosqlite:///{DATABASE}',
     echo=DEBUG,
 )
-session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
+session_factory: Final[async_sessionmaker[AsyncSession]] = async_sessionmaker(
     bind=engine,
     expire_on_commit=False,
 )
