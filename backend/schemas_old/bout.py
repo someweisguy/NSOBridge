@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta  # noqa: TC003
 
-from schemas import ServerSchema
 from pydantic import Field, computed_field
+from schemas import ServerSchema
 
 
 class ClockSchema(ServerSchema):
