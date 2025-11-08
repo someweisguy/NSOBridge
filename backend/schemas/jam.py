@@ -59,8 +59,7 @@ class JamSchema(ServerSchema):
     stop_timestamp: datetime | None
     period: int
     num: int
-    home: TeamJamSchema
-    away: TeamJamSchema
+    team_jams: list[TeamJamSchema]
 
     @computed_field
     @property

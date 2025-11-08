@@ -55,8 +55,7 @@ class TeamJamSchema(ServerSchema):
 class JamSchema(TimerSchema):
     period: int
     num: int
-    home: TeamJamSchema
-    away: TeamJamSchema
+    team_jams: list[TeamJamSchema]
 
 
 class RosterSchema(ServerSchema):

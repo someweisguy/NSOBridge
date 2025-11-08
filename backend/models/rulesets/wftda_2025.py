@@ -63,7 +63,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
 
         # Instantiate the Jam and add it to this Bout
         home, away = self.teams[:2]
-        jam: JamModel = JamModel(period_num, jam_num, home, away)
+        jam: JamModel = JamModel(period_num, jam_num, [home, away])
         self.jams.append(jam)
 
         # If this Period is not in overtime reset the Clock
@@ -123,7 +123,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
         period_num: int = self.jams[-1].period
         jam_num: int = self.jams[-1].num + 1
         home, away = self.teams[:2]
-        self.jams.append(JamModel(period_num, jam_num, home, away))
+        self.jams.append(JamModel(period_num, jam_num, [home, away]))
 
     @override
     def start_timeout(self, timestamp: datetime) -> None:
