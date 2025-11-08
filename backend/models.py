@@ -49,8 +49,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
     __abstract__: bool = True
     __type_annotation_map__ = {timedelta: _TimedeltaAsMilliseconds}
 
-    @final
-    def get_parents(self) -> list[BaseSQLModel]:
+    def _get_parents(self) -> list[BaseSQLModel]:
         parents: list[BaseSQLModel] = []
         for name, mapper in inspect(self).mapper.relationships.items():
             if mapper.cascade == CascadeOptions(PARENT_RELATIONSHIP):
@@ -62,7 +61,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
     @final
     def search_parents(self) -> set[BaseSQLModel]:
         cacheables: set[BaseSQLModel] = set()
-        for parent in self.get_parents():
+        for parent in self._get_parents():
             cacheables.add(parent)
             cacheables |= parent.search_parents()
         return cacheables
