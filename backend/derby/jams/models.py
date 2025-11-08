@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Literal
 
+from clocks.models import AbstractOneShotModel
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
@@ -12,12 +13,8 @@ from models import (
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .models import (
-    AbstractOneShotModel,
-)
-
 if TYPE_CHECKING:
-    from .bout import GenericBoutModel, GenericTeamModel
+    from bouts.models import GenericBoutModel, GenericTeamModel
 
 type TeamName = Literal['home', 'away']
 

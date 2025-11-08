@@ -2,17 +2,12 @@ from datetime import datetime, timedelta
 from functools import cached_property
 from typing import Final, override
 
-from game import (
-    BoutContext,
-    GenericBoutModel,
-    GenericTeamModel,
-    JamModel,
-    RosterModel,
-    SeriesModel,
-    TeamJamModel,
-    TimeoutModel,
-)
-from game.exceptions import RulesError
+from derby.bouts.models import BoutContext, GenericBoutModel, GenericTeamModel
+from derby.clocks.models import TimeoutModel
+from derby.jams.models import JamModel, TeamJamModel
+from derby.rosters.models import RosterModel
+from derby.series.models import SeriesModel
+from exceptions import RulesError
 
 RULESET: Final[str] = 'WFTDA 2025'
 NUM_PERIODS: Final[int] = 2

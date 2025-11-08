@@ -5,6 +5,8 @@ from datetime import datetime  # noqa: TC003
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Final, Literal, final
 
+from clocks.models import ClockModel, TimeoutModel
+from jams.models import JamModel, TeamJamModel
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
@@ -20,14 +22,11 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.orm.properties import MappedSQLExpression  # noqa: TC002
 
-from .jam import JamModel, TeamJamModel
-from .time import ClockModel, TimeoutModel
-
 if TYPE_CHECKING:
     from datetime import timedelta
 
-    from .roster import RosterModel
-    from .series import SeriesModel
+    from rosters.models import RosterModel
+    from series.models import SeriesModel
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2

@@ -6,7 +6,7 @@ from models import CHILD_RELATIONSHIP, CacheableSQLModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from .bout import GenericBoutModel
+    from bouts.models import GenericBoutModel
 
 
 class SeriesModel(CacheableSQLModel):
