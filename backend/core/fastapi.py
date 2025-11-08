@@ -11,9 +11,8 @@ from fastapi.staticfiles import StaticFiles
 
 from .database import engine
 from .models import BaseSQLModel, RulesError
-from .ws import ws_app
 
-FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
+FRONTEND: Final[Path] = Path(os.environ['FRONTEND'])
 STARTUP_CALLBACKS: list[Callable[[], Awaitable[Any]]] = []
 SHUTDOWN_CALLBACKS: list[Callable[[], Awaitable[Any]]] = []
 
@@ -36,7 +35,6 @@ app: FastAPI = FastAPI(
     lifespan=lifespan,
     routes=[
         Mount('/assets', StaticFiles(directory=FRONTEND / 'assets')),
-        Mount('/ws', ws_app),
     ],
 )
 

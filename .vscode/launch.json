@@ -9,7 +9,8 @@
       "console": "integratedTerminal",
       "env": {
         "DB_PATH": "",
-        "SQLALCHEMY_DEBUG": "false"
+        "SQLALCHEMY_DEBUG": "false",
+        "FRONTEND": "${workspaceFolder}/dist",
       }
     },
   ]
