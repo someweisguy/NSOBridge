@@ -64,6 +64,7 @@ class GenericBoutModel(CacheableSQLModel):
         order_by=[JamModel.period, JamModel.num],
     )
     series: Mapped[SeriesModel] = relationship(
+        back_populates='bouts',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[_series_id],
     )
