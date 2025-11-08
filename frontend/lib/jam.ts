@@ -12,8 +12,7 @@ export class Jam {
   public readonly stopTimestamp: Date | null;
   public readonly period: number;
   public readonly num: number;
-  public readonly home: TeamJam;
-  public readonly away: TeamJam;
+  public readonly teamJams: TeamJam[];
 
   static generateKey(id: number, period: number, num: number) {
     return ["jams", id, period, num];
@@ -21,12 +20,13 @@ export class Jam {
 
   constructor(init?: Partial<Jam>) {
     Object.assign(this, init);
-    this.home = Object.assign(new TeamJam(), init?.home);
-    this.away = Object.assign(new TeamJam(), init?.away);
+    this.teamJams = init!.teamJams!.map((teamJam) =>
+      Object.assign(new TeamJam(), teamJam),
+    );
   }
 
   leadIsDeclared(): boolean {
-    return this.home.lead !== null || this.away.lead !== null;
+    return this.teamJams[0].lead !== null || this.teamJams[1].lead !== null;
   }
 }
 
