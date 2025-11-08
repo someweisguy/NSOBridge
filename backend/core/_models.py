@@ -5,7 +5,7 @@ from datetime import timedelta
 from math import floor
 from typing import TYPE_CHECKING, Any, Final, final, override
 
-from sqlalchemy import inspect
+from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
 )
@@ -22,9 +22,11 @@ from core._users import Memento
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
+    from sqlalchemy.engine.result import Result
+    from sqlalchemy.sql.selectable import Select
 
 
-CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
+CHILD_RELATIONSHIP: Final[str] = 'save-update, merge, expunge, delete, delete-orphan'
 PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
 
@@ -102,12 +104,15 @@ class DatabaseMemento(Memento):
     @override
     async def restore(self) -> Memento:
         async with SessionFactory() as session, session.begin():
-            # Get and detach the current state of the database object
-            current_state: BaseSQLModel = await session.merge(
-                self._detached_state_to_restore
+            # Query and detach the current state of the database object
+            Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
+            statement: Select[tuple[CacheableSQLModel]] = (
+                select(Table)
+                .where(Table.id == self._detached_state_to_restore.id)
+                .limit(1)
             )
-            session.add(current_state)
-            await session.refresh(current_state)
+            results: Result[tuple[CacheableSQLModel]] = await session.execute(statement)
+            current_state: CacheableSQLModel = results.scalar_one()
             session.expunge(current_state)
 
             # Merge the desired state with the database
