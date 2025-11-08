@@ -7,14 +7,15 @@ from typing import Final, LiteralString
 
 import models
 import ws
-from api import ROUTERS
 from database import session_factory
+from derby import ROUTERS
+from derby.rosters.models import RosterModel
+from derby.series.models import SeriesModel
+from exceptions import RulesError
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
-from game import RosterModel, SeriesModel
-from game.exceptions import RulesError
 from game.rulesets.wftda_2025 import BoutModel
 from sqlalchemy import Result, Select, select
 from uvicorn import Config, Server

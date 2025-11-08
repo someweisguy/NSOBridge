@@ -2,9 +2,10 @@ from typing import Annotated, Final, TypeAlias
 
 from database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
-from game import JamModel
 from schemas_old import JamSchema
 from sqlalchemy import select
+
+from .models import JamModel
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')
 

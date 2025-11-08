@@ -3,9 +3,10 @@ from typing import Annotated, Final, TypeAlias
 
 from database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
-from game.roster import RosterModel
 from schemas_old.roster import RosterSchema
 from sqlalchemy import Result, select
+
+from .models import RosterModel
 
 router: Final[APIRouter] = APIRouter(prefix='/roster')
 
