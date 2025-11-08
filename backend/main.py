@@ -61,7 +61,7 @@ async def rules_error_handler(request: Request, e: RulesError) -> JSONResponse:
     )
 
 
-async def main(net: str = '0.0.0.0', port: int = 8000) -> None:
+async def main(host: str = '0.0.0.0', port: int = 8000) -> None:
     await models.create_all()
 
     # Create a Bout model if one does not already exist
@@ -80,10 +80,10 @@ async def main(net: str = '0.0.0.0', port: int = 8000) -> None:
         await session.commit()
 
     # Configure the server
-    host: Server = Server(
+    server: Server = Server(
         Config(
             app,
-            host=net,
+            host=host,
             port=port,
             log_config=None,
             access_log=False,
@@ -97,7 +97,7 @@ async def main(net: str = '0.0.0.0', port: int = 8000) -> None:
         ip: str = sock.getsockname()[0]
     HTTP_PORT: Final[int] = 80
     print(f'Starting server at http://{ip}{f":{PORT}" if PORT != HTTP_PORT else ""}')
-    await host.serve()
+    await server.serve()
 
 
 if __name__ == '__main__':
