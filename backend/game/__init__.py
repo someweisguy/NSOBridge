@@ -1,10 +1,11 @@
 from typing import Final
 
-from bouts.router import router as bout_router
 from fastapi import APIRouter
-from jams.router import router as jam_router
-from rosters.router import router as roster_router
-from series.router import router as series_router
+
+from .bouts.router import router as bout_router
+from .jams.router import router as jam_router
+from .rosters.router import router as roster_router
+from .series.router import router as series_router
 
 ROUTERS: Final[tuple[APIRouter, ...]] = (
     bout_router,
