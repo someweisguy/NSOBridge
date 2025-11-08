@@ -42,8 +42,9 @@ class BoutContext:
 
 
 class GenericBoutModel(CacheableSQLModel):
-    _series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
-    _clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
+    series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
+    clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
+    
     expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
     is_running: Mapped[bool] = mapped_column(default=False)
@@ -51,7 +52,7 @@ class GenericBoutModel(CacheableSQLModel):
 
     clock: Mapped[ClockModel] = relationship(
         cascade=CHILD_RELATIONSHIP,
-        foreign_keys=[_clock_id],
+        foreign_keys=[clock_id],
         lazy='joined',
         single_parent=True,
     )
@@ -64,7 +65,7 @@ class GenericBoutModel(CacheableSQLModel):
     series: Mapped[SeriesModel] = relationship(
         back_populates='bouts',
         cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[_series_id],
+        foreign_keys=[series_id],
     )
     teams: Mapped[list[GenericTeamModel]] = relationship(
         back_populates='bout',
@@ -124,15 +125,16 @@ class GenericBoutModel(CacheableSQLModel):
 
 
 class GenericTeamModel(BaseSQLModel):
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
-    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
+    bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
+    roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
+    
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
     ruleset: MappedSQLExpression[str] = column_property(
         select(GenericBoutModel.ruleset)
-        .where(GenericBoutModel.id == _bout_id)
+        .where(GenericBoutModel.id == bout_id)
         .scalar_subquery()
     )
 
@@ -142,7 +144,7 @@ class GenericTeamModel(BaseSQLModel):
     )
     roster: Mapped[RosterModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[_roster_id],
+        foreign_keys=[roster_id],
         lazy='joined',
     )
     team_jams: Mapped[list[TeamJamModel]] = relationship(

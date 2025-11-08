@@ -20,7 +20,7 @@ type TeamName = Literal['home', 'away']
 
 
 class TripEventModel(BaseSQLModel):
-    _team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
+    team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
     timestamp: Mapped[datetime] = mapped_column()
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
@@ -29,7 +29,7 @@ class TripEventModel(BaseSQLModel):
 
     team_jam: Mapped[TeamJamModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[_team_jam_id],
+        foreign_keys=[team_jam_id],
         lazy='joined',
     )
 
@@ -40,8 +40,8 @@ class TripEventModel(BaseSQLModel):
 
 
 class TeamJamModel(BaseSQLModel):
-    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
-    _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
+    team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
+    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
     jam: Mapped[JamModel] = relationship(
         back_populates='team_jams',
@@ -50,7 +50,7 @@ class TeamJamModel(BaseSQLModel):
     )
     team: Mapped[GenericTeamModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[_team_id],
+        foreign_keys=[team_id],
         lazy='selectin',
     )
     events: Mapped[list[TripEventModel]] = relationship(

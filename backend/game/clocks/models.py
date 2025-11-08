@@ -106,9 +106,9 @@ class ClockModel(BaseSQLModel):
 
 
 class TimeoutModel(AbstractOneShotModel):
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
-    _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
-    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
+    bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
+    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
+    team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
     clock_elapsed: Mapped[timedelta] = mapped_column()
     details: Mapped[str | None] = mapped_column(default=None)
@@ -122,12 +122,12 @@ class TimeoutModel(AbstractOneShotModel):
     )
     jam: Mapped[JamModel] = relationship(
         cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[_jam_id],
+        foreign_keys=[jam_id],
     )
     team: Mapped[GenericTeamModel | None] = relationship(
         back_populates='timeouts',
         cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[_team_id],
+        foreign_keys=[team_id],
     )
 
     __tablename__: str = 'timeouts'
