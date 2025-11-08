@@ -1,36 +1,14 @@
 from datetime import datetime
-from typing import Annotated, Final, TypeAlias
+from typing import Final
 
-from database import AsyncSessionDepends
-from fastapi import APIRouter, Depends, Query, Request
-from sqlalchemy import select
-from users.dependencies import UserDepends
+from fastapi import APIRouter
+from game.bouts.dependencies import BoutDepends, get_bout
 
-from .models import BoutContext, GenericBoutModel
+from .models import BoutContext
 from .schemas import BoutContextSchema, BoutSchema
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
-
-
-@router.get('', response_model=BoutSchema)
-async def get_bout(
-    request: Request,
-    user: UserDepends,
-    session: AsyncSessionDepends,
-    bout_id: Annotated[int, Query(alias='boutId')],
-) -> GenericBoutModel:
-    # Query the database for the desired Bout
-    statement = select(GenericBoutModel).where(GenericBoutModel.id == bout_id)
-    results = await session.execute(statement)
-    bout: GenericBoutModel = results.scalar_one()
-
-    # Optionally take a snapshot of the Bout state and return the Bout
-    if request.method != 'GET':
-        user.stage(bout.get_snapshot())
-    return bout
-
-
-BoutDepends: TypeAlias = Annotated[GenericBoutModel, Depends(get_bout)]
+router.add_api_route('', get_bout, response_model=BoutSchema)
 
 
 @router.get('/context', response_model=BoutContextSchema)
