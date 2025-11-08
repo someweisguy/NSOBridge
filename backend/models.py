@@ -5,7 +5,7 @@ from datetime import timedelta
 from math import floor
 from typing import TYPE_CHECKING, Any, Final, final, override
 
-from database import SessionFactory, engine
+from database import session_factory, engine
 from sqlalchemy import Result, Select, inspect, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
@@ -99,7 +99,7 @@ class DatabaseMemento(Memento):
 
     @override
     async def restore(self) -> Memento:
-        async with SessionFactory() as session, session.begin():
+        async with session_factory() as session, session.begin():
             # Query and detach the current state of the database object
             Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
             statement: Select[tuple[CacheableSQLModel]] = (

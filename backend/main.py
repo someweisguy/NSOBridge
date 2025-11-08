@@ -8,7 +8,7 @@ from typing import Final, LiteralString
 import models
 import ws
 from api import ROUTERS
-from database import SessionFactory
+from database import session_factory
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
@@ -66,7 +66,7 @@ async def main(net: str = '0.0.0.0', port: int = 8000) -> None:
 
     # Create a Bout model if one does not already exist
     bout: BoutModel | None = None
-    async with SessionFactory() as session, session.begin():
+    async with session_factory() as session, session.begin():
         statement: Select[tuple[BoutModel]] = select(BoutModel)
         results: Result[tuple[BoutModel]] = await session.execute(statement)
         if results.scalar() is None:

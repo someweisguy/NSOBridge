@@ -25,14 +25,14 @@ engine: AsyncEngine = create_async_engine(
     f'sqlite+aiosqlite:///{DATABASE}',
     echo=DEBUG,
 )
-SessionFactory: async_sessionmaker[AsyncSession] = async_sessionmaker(
+session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
     bind=engine,
     expire_on_commit=False,
 )
 
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with SessionFactory() as session, session.begin():
+    async with session_factory() as session, session.begin():
         yield session
         await session.commit()
 
