@@ -9,9 +9,9 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 
-from ._database import engine
-from ._models import BaseSQLModel, RulesError
-from ._ws import ws_app
+from .database import engine
+from .models import BaseSQLModel, RulesError
+from .ws import ws_app
 
 FRONTEND: Final[Path] = Path(os.getcwd()) / 'dist'
 STARTUP_CALLBACKS: list[Callable[[], Awaitable[Any]]] = []

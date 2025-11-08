@@ -17,8 +17,8 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
-from core._database import SessionFactory
-from core._users import Memento
+from core.database import SessionFactory
+from core.users import Memento
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect

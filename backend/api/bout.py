@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated, Final, TypeAlias
 
 from core import UserDepends
-from core._database import AsyncSessionDepends
+from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query, Request
 from models.bout import BoutContext, GenericBoutModel
 from schemas import BoutSchema

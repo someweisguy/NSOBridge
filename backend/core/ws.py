@@ -7,8 +7,8 @@ from pydantic import Field, ValidationError, field_serializer, field_validator
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 
-from ._models import BaseSQLModel, CacheableSQLModel
-from ._schemas import ClientSchema, ServerSchema
+from .models import BaseSQLModel, CacheableSQLModel
+from .schemas import ClientSchema, ServerSchema
 
 ws_app: Final[FastAPI] = FastAPI()
 clients: set[WebSocket] = set()

@@ -1,6 +1,6 @@
 from typing import Annotated, Final, TypeAlias
 
-from core._database import AsyncSessionDepends
+from core.database import AsyncSessionDepends
 from fastapi import APIRouter, Depends, Query
 from models import JamModel, TeamJamModel, TeamName
 from schemas import JamSchema
