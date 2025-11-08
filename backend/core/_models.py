@@ -102,7 +102,9 @@ class DatabaseMemento(Memento):
     async def restore(self) -> Memento:
         async with SessionFactory() as session, session.begin():
             # Get and detach the current state of the database object
-            current_state: BaseSQLModel = deepcopy(self._detached_state_to_restore)
+            current_state: BaseSQLModel = await session.merge(
+                self._detached_state_to_restore
+            )
             session.add(current_state)
             await session.refresh(current_state)
             session.expunge(current_state)
