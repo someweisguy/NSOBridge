@@ -32,8 +32,26 @@ class RulesError(Exception):
     pass
 
 
+class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
+    impl: TypeEngine[Any] | type[TypeEngine[Any]] = Integer
+    cache_ok: bool | None = True
+
+    @override
+    def process_bind_param(self, value: Any | None, dialect: Dialect) -> Any:
+        if value is not None:
+            assert isinstance(value, timedelta)
+            return floor(value.total_seconds() * 1000)
+        return value
+
+    @override
+    def process_result_value(self, value: Any | None, dialect: Dialect) -> Any | None:
+        assert isinstance(value, (float, int))
+        return timedelta(milliseconds=value)
+
+
 class BaseSQLModel(AsyncAttrs, DeclarativeBase):
     __abstract__: bool = True
+    __type_annotation_map__ = {timedelta: TimedeltaAsMilliseconds}
 
     id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
@@ -94,20 +112,3 @@ class DatabaseMemento(Memento):
             await session.commit()
 
             return DatabaseMemento(current_state)
-
-
-class TimedeltaAsMilliseconds(TypeDecorator[Integer]):
-    impl: TypeEngine[Any] | type[TypeEngine[Any]] = Integer
-    cache_ok: bool | None = True
-
-    @override
-    def process_bind_param(self, value: Any | None, dialect: Dialect) -> Any:
-        if value is not None:
-            assert isinstance(value, timedelta)
-            return floor(value.total_seconds() * 1000)
-        return value
-
-    @override
-    def process_result_value(self, value: Any | None, dialect: Dialect) -> Any | None:
-        assert isinstance(value, (float, int))
-        return timedelta(milliseconds=value)

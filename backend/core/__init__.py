@@ -10,7 +10,6 @@ from ._models import (
     BaseSQLModel,
     CacheableSQLModel,
     RulesError,
-    TimedeltaAsMilliseconds,
 )
 from ._schemas import ClientSchema, ServerSchema
 from ._users import UserContext, UserDepends
@@ -46,7 +45,6 @@ __all__ = (
     'SessionFactory',
     'shutdown',
     'startup',
-    'TimedeltaAsMilliseconds',
     'UserContext',
     'UserDepends',
 )

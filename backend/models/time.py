@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
-from core import BaseSQLModel, TimedeltaAsMilliseconds
+from core import PARENT_RELATIONSHIP, BaseSQLModel
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -17,14 +17,14 @@ if TYPE_CHECKING:
 class ClockModel(BaseSQLModel):
     __tablename__: str = 'clocks'
 
-    alarm: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
-    elapsed: Mapped[timedelta] = mapped_column(
-        TimedeltaAsMilliseconds, default=timedelta(seconds=0)
-    )
+    alarm: Mapped[timedelta] = mapped_column()
+    elapsed: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
 
     bout: Mapped[GenericBoutModel | None] = relationship(
-        back_populates='clock', lazy='joined'
+        back_populates='clock',
+        cascade=PARENT_RELATIONSHIP,
+        lazy='joined',
     )
 
     def start(self, timestamp: datetime) -> None:
@@ -64,16 +64,20 @@ class TimeoutModel(AbstractOneShotModel):
     _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
-    clock_elapsed: Mapped[timedelta] = mapped_column(TimedeltaAsMilliseconds)
+    clock_elapsed: Mapped[timedelta] = mapped_column()
     details: Mapped[str | None] = mapped_column(default=None)
     is_review: Mapped[bool] = mapped_column(default=False)
     result: Mapped[str | None] = mapped_column(default=None)
     retained: Mapped[bool] = mapped_column(default=False)
 
-    bout: Mapped[GenericBoutModel | None] = relationship(back_populates='timeouts')
-    jam: Mapped[JamModel] = relationship(foreign_keys=[_jam_id])
+    bout: Mapped[GenericBoutModel | None] = relationship(
+        back_populates='timeouts', cascade=PARENT_RELATIONSHIP
+    )
+    jam: Mapped[JamModel] = relationship(
+        cascade=PARENT_RELATIONSHIP, foreign_keys=[_jam_id]
+    )
     team: Mapped[GenericTeamModel | None] = relationship(
-        back_populates='timeouts', foreign_keys=[_team_id]
+        back_populates='timeouts', cascade=PARENT_RELATIONSHIP, foreign_keys=[_team_id]
     )
 
     def __init__(self, clock_elapsed: timedelta, jam: JamModel) -> None:
