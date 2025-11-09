@@ -13,10 +13,11 @@ async def get_jam(
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],
 ) -> JamModel:
-    statement = select(JamModel).where(
-        JamModel.bout_id == bout_id
-        and JamModel.period == period_num
-        and JamModel.num == jam_num
+    statement = (
+        select(JamModel)
+        .where(JamModel.bout_id == bout_id)
+        .where(JamModel.period == period_num)
+        .where(JamModel.num == jam_num)
     )
     results = await db.execute(statement)
     return results.scalar_one()

@@ -30,6 +30,10 @@ export class Jam {
 
   constructor(init?: Partial<Jam>) {
     Object.assign(this, init);
+    this.startTimestamp =
+      init?.startTimestamp == null ? null : new Date(init.startTimestamp);
+    this.stopTimestamp =
+      init?.stopTimestamp == null ? null : new Date(init.stopTimestamp);
     this.teamJams = init!.teamJams!.map((teamJam) =>
       Object.assign(new TeamJam(), teamJam),
     );

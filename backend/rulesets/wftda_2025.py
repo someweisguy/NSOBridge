@@ -8,6 +8,7 @@ from game.clocks.models import TimeoutModel
 from game.jams.models import JamModel, TeamJamModel
 from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
+from sqlalchemy.orm.attributes import flag_dirty, flag_modified
 
 RULESET: Final[str] = 'WFTDA 2025'
 NUM_PERIODS: Final[int] = 2

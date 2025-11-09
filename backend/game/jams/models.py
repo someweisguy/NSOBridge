@@ -10,11 +10,11 @@ from models import (
     BaseSQLModel,
     CacheableSQLModel,
 )
-from sqlalchemy import CheckConstraint, Constraint, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from bouts.models import GenericBoutModel, GenericTeamModel
+    from game.bouts.models import GenericBoutModel, GenericTeamModel
 
 type TeamName = Literal['home', 'away']
 
@@ -86,6 +86,12 @@ class JamModel(AbstractOneShotModel, CacheableSQLModel):
     )
 
     __tablename__: str = 'jams'
+
+    @declared_attr
+    def __table_args__(cls) -> Any:
+        return super().__table_args__ + (
+            UniqueConstraint('bout_id', 'num', 'period'),
+        )
 
     def __init__(
         self,

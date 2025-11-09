@@ -8,8 +8,8 @@ function getActiveJamCacheKey(bout: Bout): ReturnType<typeof Jam.generateKey> {
   if (periodNum < 0) {
     periodNum = 0;
   }
-  let jamNum = bout.jamCounts[periodNum];
-  if (bout.state !== "jam" && jamNum > 0) {
+  let jamNum = bout.jamCounts[periodNum] - 1;
+  if (bout.state != "jam" && jamNum > 0) {
     jamNum--;
   }
 

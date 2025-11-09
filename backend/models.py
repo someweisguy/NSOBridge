@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from sqlalchemy import Dialect
 
 
-CHILD_RELATIONSHIP: Final[str] = 'save-update, merge, expunge, delete, delete-orphan'
+CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
 PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
 

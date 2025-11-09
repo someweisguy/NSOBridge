@@ -13,7 +13,7 @@ export default class Clock {
 
   constructor(init: DateToString<Clock>) {
     this.startTimestamp =
-      init.startTimestamp === null ? null : new Date(init.startTimestamp);
+      init.startTimestamp == null ? null : new Date(init.startTimestamp);
     this.elapsed = init.elapsed;
     this.alarm = init.alarm;
   }
