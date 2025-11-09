@@ -21,7 +21,7 @@ export class Bout {
   public readonly id: number;
   public readonly ruleset: string;
 
-  public readonly expectedStartTimestamp: Date | null;
+  public readonly startCountdown: Date | null;
   public readonly clock: Clock;
 
   public readonly state: "final" | "jam" | "lineup" | "stopped" | "timeout";
@@ -38,10 +38,8 @@ export class Bout {
   constructor(init: DateToString<Bout>) {
     Object.assign(this, init);
     this.clock = new Clock(init.clock);
-    this.expectedStartTimestamp =
-      init.expectedStartTimestamp == null
-        ? null
-        : new Date(init.expectedStartTimestamp);
+    this.startCountdown =
+      init.startCountdown == null ? null : new Date(init.startCountdown);
     this.teams = init.teams.map<Team>((t) => Object.assign(new Team(), t));
   }
 

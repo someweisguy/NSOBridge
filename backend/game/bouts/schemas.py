@@ -25,7 +25,7 @@ class BoutSchema(ServerSchema):
     ruleset: str
     clock: ClockSchema
     is_running: bool
-    expected_start_timestamp: datetime | None
+    start_countdown: datetime | None
     is_final: bool
     state: Literal['final', 'jam', 'lineup', 'stopped', 'timeout']
     teams: list[TeamSchema]

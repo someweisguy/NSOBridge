@@ -67,9 +67,7 @@ function IntermissionStatus({ bout }: { bout: Bout }) {
   return (
     <div className="items-center grid m-2 h-full text-8xl text-center">
       {copy}{" "}
-      {bout.expectedStartTimestamp && (
-        <Clock startTimestamp={bout.expectedStartTimestamp} />
-      )}
+      {bout.startCountdown && <Clock startTimestamp={bout.startCountdown} />}
     </div>
   );
 }

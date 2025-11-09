@@ -46,7 +46,7 @@ class GenericBoutModel(CacheableSQLModel):
     series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
 
-    expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
+    start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
     is_running: Mapped[bool] = mapped_column(default=False)
     ruleset: Mapped[str] = mapped_column()
