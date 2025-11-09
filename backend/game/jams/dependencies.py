@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 async def get_jam(
-    db: AsyncSessionDepends,
+    session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],
@@ -23,7 +23,7 @@ async def get_jam(
         .where(JamModel.period == period_num)
         .where(JamModel.num == jam_num)
     )
-    results: Result[tuple[JamModel]] = await db.execute(statement)
+    results: Result[tuple[JamModel]] = await session.execute(statement)
     return results.scalar_one()
 
 

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 async def get_timeout(
-    db: AsyncSessionDepends,
+    session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     index: Annotated[int, Query(alias='index')],
 ) -> TimeoutModel:
@@ -22,7 +22,7 @@ async def get_timeout(
         .offset(index - 1)
         .limit(1)
     )
-    results: Result[tuple[TimeoutModel]] = await db.execute(statement)
+    results: Result[tuple[TimeoutModel]] = await session.execute(statement)
     return results.scalar_one()
 
 
