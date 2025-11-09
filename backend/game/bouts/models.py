@@ -26,8 +26,8 @@ from sqlalchemy.orm.properties import MappedSQLExpression  # noqa: TC002
 if TYPE_CHECKING:
     from datetime import timedelta
 
-    from rosters.models import RosterModel
-    from series.models import SeriesModel
+    from game.rosters.models import RosterModel
+    from game.series.models import SeriesModel
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
@@ -123,7 +123,8 @@ class GenericBoutModel(CacheableSQLModel):
     def stop_timeout(self, timestamp: datetime) -> None: ...
 
     @cached_property
-    def context(self) -> BoutContext: ...
+    def context(self) -> BoutContext:
+        raise NotImplementedError()
 
 
 class GenericTeamModel(BaseSQLModel):
@@ -168,7 +169,8 @@ class GenericTeamModel(BaseSQLModel):
     }
 
     @classmethod
-    def get_team_jam_score(cls, team_jam: TeamJamModel) -> int: ...
+    def get_team_jam_score(cls, team_jam: TeamJamModel) -> int:
+        raise NotImplementedError()
 
     def __init__(self, roster: RosterModel) -> None:
         super().__init__(roster=roster)

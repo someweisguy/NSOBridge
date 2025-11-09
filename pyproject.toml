@@ -7,6 +7,7 @@ dependencies = [
   "requests~=2.31.0",
   "ruff~=0.12.2",
   "SQLAlchemy~=2.0.41",
+  "ty~=0.0.1-alpha.25",
   "uvicorn~=0.34.2",
   "websockets~=15.0.1",
 ]
@@ -49,3 +50,6 @@ unfixable = []
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
+
+[tool.ty.environment]
+root = ["./backend"]

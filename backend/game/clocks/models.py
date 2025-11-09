@@ -11,7 +11,7 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from bouts.models import GenericBoutModel
+    from game.bouts.models import GenericBoutModel
 
 
 class ClockModel(BaseSQLModel):
