@@ -2,9 +2,10 @@ from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from database import AsyncSessionDepends
 from fastapi import Depends, Query, Request
-from game.bouts.models import GenericBoutModel
 from sqlalchemy import select
 from users.dependencies import UserDepends
+
+from .models import GenericBoutModel
 
 if TYPE_CHECKING:
     from sqlalchemy.engine.result import Result
