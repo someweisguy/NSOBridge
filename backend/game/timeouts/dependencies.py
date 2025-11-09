@@ -33,9 +33,7 @@ async def get_timeout_or_none(
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     index: Annotated[int, Query(alias='index')],
-    allow_none: Annotated[
-        bool, Query(alias='allowNone', include_in_schema=False)
-    ] = True,
+    allow_none: Annotated[bool, Query(include_in_schema=False)] = True,
 ) -> TimeoutModel | None:
     statement: Select[tuple[TimeoutModel]] = (
         select(TimeoutModel)
