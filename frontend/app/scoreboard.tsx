@@ -53,26 +53,21 @@ function Test() {
 }
 
 function IntermissionStatus({ bout }: { bout: Bout }) {
-  const numPeriods = bout.jamCounts.length;
-  let content = "";
-  if (numPeriods === 0) {
-    if (bout.expectedStartTimestamp == null) {
-      content = "Starting Soon";
-    } else {
-      content = "Starting in ";
-    }
-  } else if (numPeriods === 1) {
-    content = "Halftime";
-  } else if (!bout.isFinal) {
-    content = "Unofficial Score";
-  } else {
-    content = "Final Score";
+  const activeJam = useActiveJam(bout);
+
+  let copy = "Starting Soon";
+  if (bout.isFinal) {
+    copy = "Final Score";
+  } else if (activeJam.period > 1) {
+    copy = "Unofficial Score";
+  } else if (activeJam.period == 1) {
+    copy = "Halftime";
   }
 
   // FIXME
   return (
     <div className="items-center grid m-2 h-full text-8xl text-center">
-      {content}{" "}
+      {copy}{" "}
       {bout.expectedStartTimestamp && (
         <Clock startTimestamp={bout.expectedStartTimestamp} />
       )}
@@ -89,7 +84,7 @@ function BoutTimeInformation({
 }) {
   const activeJam = useActiveJam(bout);
 
-  if (activeJam === null) {
+  if (!bout.isRunning) {
     return <IntermissionStatus bout={bout} />;
   }
 
@@ -105,7 +100,7 @@ function BoutTimeInformation({
   return (
     <div className="flex justify-evenly items-center text-9xl text-center align-middle">
       <div className="bg-red w-full text-7xl text-center">
-        {bout.jamCounts.length > 2 ? "OT" : <Clock {...bout.clock} />}
+        {activeJam.period == 2 ? "OT" : <Clock {...bout.clock} />}
       </div>
       <div className="flex justify-between items-baseline gap-20 w-full">
         <h1 className="text-center">P{displayPeriod + 1}</h1>
