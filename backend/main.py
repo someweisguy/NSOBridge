@@ -89,6 +89,7 @@ async def main(host: str = '0.0.0.0', port: int = 8000) -> None:
             log_config=None,
             access_log=False,
             log_level='warning',
+            server_header=False,
         )
     )
 
