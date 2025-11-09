@@ -1,6 +1,6 @@
+import useServerOffset from "@/hooks/use-server-offset";
 import { getServerTime } from "@/lib/sync";
 import { useCallback, useEffect, useState } from "react";
-import useServerOffset from "./use-server-offset";
 
 interface ClockObject {
   startTimestamp: Date | null;
