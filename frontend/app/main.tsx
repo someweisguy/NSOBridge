@@ -1,9 +1,9 @@
 import Button from "@/components/button";
 import Clock from "@/components/clock";
 import { TeamComponent } from "@/components/team-component";
-import useActiveJam from "@/hooks/use-active-jam";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
+import useCurrentOrUpcomingJam from "@/hooks/use-current-or-upcoming-jam";
 import useSeries from "@/hooks/use-series";
 import useServerOffset from "@/hooks/use-server-offset";
 import queryClient from "@/lib/cache";
@@ -21,7 +21,6 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import useLatestJam from "@/hooks/use-latest-jam";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -96,10 +95,8 @@ function Test() {
 function BoutTimeInformation() {
   const bout = useBout(1);
   const context = useBoutContext(1);
-  const activeJam = useActiveJam(bout);
-  const latestJam = useLatestJam(bout);
 
-  const jam = activeJam ?? latestJam;
+  const jam = useCurrentOrUpcomingJam(bout);
 
   if (!bout.isRunning) {
     let copy = "Starting Soon";

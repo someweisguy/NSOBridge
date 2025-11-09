@@ -3,29 +3,33 @@ import { getJam, Jam } from "@/lib/game/jams";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-function getLatestJamCacheKey(bout: Bout): ReturnType<typeof Jam.generateKey> {
+function getCurrentJamCacheKey(bout: Bout): ReturnType<typeof Jam.generateKey> {
   let periodNum = bout.jamCounts.findIndex((elem) => elem === 0) - 1;
   if (periodNum < 0) {
     periodNum = 0;
   }
-  const jamNum = bout.jamCounts[periodNum] - 1;
+  let jamNum = bout.jamCounts[periodNum] - 1;
+  if (bout.state != "jam" && jamNum > 0) {
+    jamNum--;
+  }
 
   return Jam.generateKey(bout.id, periodNum, jamNum);
 }
 
-export default function useLatestJam(bout: Bout): Jam {
+export default function useCurrentJam(bout: Bout): Jam | null {
   const [jamCacheKey, setJamCacheKey] = useState<
     ReturnType<typeof Jam.generateKey>
-  >(getLatestJamCacheKey(bout));
+  >(getCurrentJamCacheKey(bout));
 
   useEffect(() => {
-    setJamCacheKey(getLatestJamCacheKey(bout));
+    setJamCacheKey(getCurrentJamCacheKey(bout));
   }, [bout]);
 
   const { data } = useSuspenseQuery<Jam | null>({
     queryKey: jamCacheKey,
     queryFn: () => getJam(jamCacheKey),
+    select: (jam) => (jam?.hasStarted() ? jam : null),
   });
 
-  return data!;
+  return data;
 }
