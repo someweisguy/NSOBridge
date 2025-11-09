@@ -44,7 +44,7 @@ export class Jam {
   }
 
   isRunning(): boolean {
-    return this.hasStarted() && this.stopTimestamp != null;
+    return this.hasStarted() && this.stopTimestamp == null;
   }
 }
 
