@@ -1,8 +1,8 @@
-import { BoutContext, Team } from "@/lib/game/bouts";
+import { BoutContext, Team } from "@/features/game/bouts/types";
 import { PropsWithChildren } from "react";
 import ScoreView from "./score-view";
 import TimeoutBar from "./timeout-bar";
-import { Roster } from "@/lib/game/rosters";
+import { Roster } from "@/features/game/rosters/types";
 import useRoster from "@/features/game/rosters/hooks/use-roster";
 
 interface TeamsViewProps {

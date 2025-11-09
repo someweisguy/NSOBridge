@@ -1,5 +1,5 @@
-import genericRequest from "../requests";
-import Clock from "./clocks";
+import genericRequest from "@/lib/requests";
+import Clock from "../clocks/types";
 
 type DateToString<T> = T extends Date
   ? string

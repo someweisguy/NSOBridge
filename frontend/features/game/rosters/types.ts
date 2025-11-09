@@ -1,4 +1,4 @@
-import genericRequest from "../requests";
+import genericRequest from "@/lib/requests";
 
 export class Roster {
   readonly id: number;

@@ -1,5 +1,5 @@
-import { Bout } from "@/lib/game/bouts";
-import { getTimeout, Timeout } from "@/lib/game/timeouts";
+import { Bout } from "@/features/game/bouts/types";
+import { getTimeout, Timeout } from "@/features/game/timeouts/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function useTimeout(bout: Bout, index: number): Timeout | null {

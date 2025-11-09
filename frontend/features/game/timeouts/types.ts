@@ -1,4 +1,4 @@
-import genericRequest from "../requests";
+import genericRequest from "@/lib/requests";
 
 type DateToString<T> = T extends Date
   ? string

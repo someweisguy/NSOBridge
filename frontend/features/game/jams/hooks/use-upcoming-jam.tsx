@@ -1,5 +1,5 @@
-import { Bout } from "@/lib/game/bouts";
-import { getJam, Jam } from "@/lib/game/jams";
+import { Bout } from "@/features/game/bouts/types";
+import { getJam, Jam } from "@/features/game/jams/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 

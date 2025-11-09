@@ -1,4 +1,4 @@
-import { getSeries, Series } from "@/lib/game/series";
+import { getSeries, Series } from "@/features/game/series/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function useSeries(key: number): Series {

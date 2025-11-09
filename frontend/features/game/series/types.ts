@@ -1,5 +1,5 @@
-import genericRequest from "../requests";
-import { Bout } from "./bouts";
+import genericRequest from "@/lib/requests";
+import { Bout } from "../bouts/types";
 
 export interface Series {
   readonly id: number;

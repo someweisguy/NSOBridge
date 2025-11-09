@@ -1,4 +1,4 @@
-import genericRequest from "../requests";
+import genericRequest from "@/lib/requests";
 
 class TeamJam {
   public readonly id: number;

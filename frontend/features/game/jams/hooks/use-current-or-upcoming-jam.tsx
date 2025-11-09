@@ -1,5 +1,5 @@
-import { Bout } from "@/lib/game/bouts";
-import { Jam } from "@/lib/game/jams";
+import { Bout } from "@/features/game/bouts/types";
+import { Jam } from "@/features/game/jams/types";
 import useCurrentJam from "./use-current-jam";
 import useUpcomingJam from "./use-upcoming-jam";
 
