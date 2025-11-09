@@ -64,7 +64,6 @@ function IntermissionStatus({ bout }: { bout: Bout }) {
     copy = "Halftime";
   }
 
-  // FIXME
   return (
     <div className="items-center grid m-2 h-full text-8xl text-center">
       {copy}{" "}
