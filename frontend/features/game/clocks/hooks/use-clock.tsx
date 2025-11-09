@@ -12,7 +12,7 @@ interface ClockObject {
 export default function useClock(
   { startTimestamp, stopTimestamp, elapsed = 0, alarm }: ClockObject,
   run = true,
-  refreshPeriod = 50
+  refreshPeriod = 50,
 ): [number, () => void] {
   const { offset } = useServerOffset();
   const [serverTime, setServerTime] = useState<Date>(getServerTime(offset));
@@ -20,7 +20,7 @@ export default function useClock(
   // Define a callback that can be used to refresh the clock value
   const refreshClock = useCallback(
     () => setServerTime(getServerTime(offset)),
-    [offset]
+    [offset],
   );
 
   useEffect(() => {

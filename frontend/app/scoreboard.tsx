@@ -1,8 +1,8 @@
 import Clock from "@/components/clock";
 import { TeamComponent } from "@/components/team-component";
-import useBout from "@/hooks/use-bout";
-import useBoutContext from "@/hooks/use-bout-context";
-import useCurrentOrUpcomingJam from "@/hooks/use-current-or-upcoming-jam";
+import useBout from "@/features/game/bouts/hooks/use-bout";
+import useBoutContext from "@/features/game/bouts/hooks/use-bout-context";
+import useCurrentOrUpcomingJam from "@/features/game/jams/hooks/use-current-or-upcoming-jam";
 import useServerOffset from "@/hooks/use-server-offset";
 import queryClient from "@/lib/cache";
 import { Bout, BoutContext } from "@/lib/game/bouts";

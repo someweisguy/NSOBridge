@@ -3,7 +3,7 @@ import { PropsWithChildren } from "react";
 import ScoreView from "./score-view";
 import TimeoutBar from "./timeout-bar";
 import { Roster } from "@/lib/game/rosters";
-import useRoster from "@/hooks/use-roster";
+import useRoster from "@/features/game/rosters/hooks/use-roster";
 
 interface TeamsViewProps {
   team: Team;

@@ -1,10 +1,10 @@
 import Button from "@/components/button";
 import Clock from "@/components/clock";
 import { TeamComponent } from "@/components/team-component";
-import useBout from "@/hooks/use-bout";
-import useBoutContext from "@/hooks/use-bout-context";
-import useCurrentOrUpcomingJam from "@/hooks/use-current-or-upcoming-jam";
-import useSeries from "@/hooks/use-series";
+import useBout from "@/features/game/bouts/hooks/use-bout";
+import useBoutContext from "@/features/game/bouts/hooks/use-bout-context";
+import useCurrentOrUpcomingJam from "@/features/game/jams/hooks/use-current-or-upcoming-jam";
+import useSeries from "@/features/game/series/hooks/use-series";
 import useServerOffset from "@/hooks/use-server-offset";
 import queryClient from "@/lib/cache";
 import { Bout, createBout } from "@/lib/game/bouts";
