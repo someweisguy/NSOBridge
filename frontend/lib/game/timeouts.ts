@@ -35,9 +35,9 @@ export class Timeout {
 
 export async function getTimeout(
   cacheKey: ReturnType<typeof Timeout.generateKey>,
-): Promise<Timeout> {
+): Promise<Timeout | null> {
   const [, boutId, index] = cacheKey;
-  const response: DateToString<Timeout> = await genericRequest(
+  const response: DateToString<Timeout> | null = await genericRequest(
     "timeout",
     "GET",
     {
@@ -45,5 +45,5 @@ export async function getTimeout(
       index,
     },
   );
-  return new Timeout(response);
+  return response ? new Timeout(response) : response;
 }

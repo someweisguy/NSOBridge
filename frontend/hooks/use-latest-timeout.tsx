@@ -1,33 +1,20 @@
 import { Bout } from "@/lib/game/bouts";
-import { getJam, Jam } from "@/lib/game/jams";
+import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-function getActiveJamCacheKey(bout: Bout): ReturnType<typeof Jam.generateKey> {
-  let periodNum = bout.jamCounts.findIndex((elem) => elem === 0) - 1;
-  if (periodNum < 0) {
-    periodNum = 0;
-  }
-  let jamNum = bout.jamCounts[periodNum] - 1;
-  if (bout.state != "jam" && jamNum > 0) {
-    jamNum--;
-  }
-
-  return Jam.generateKey(bout.id, periodNum, jamNum);
-}
-
-export default function useActiveJam(bout: Bout): Jam {
-  const [jamCacheKey, setJamCacheKey] = useState<
-    ReturnType<typeof Jam.generateKey>
-  >(getActiveJamCacheKey(bout));
+export default function useTimeout(bout: Bout, index: number): Timeout | null {
+  const [queryKey, setQueryKey] = useState<
+    ReturnType<typeof Timeout.generateKey>
+  >(Timeout.generateKey(bout.id, index));
 
   useEffect(() => {
-    setJamCacheKey(getActiveJamCacheKey(bout));
-  }, [bout]);
+    setQueryKey(Timeout.generateKey(bout.id, index));
+  }, [bout, index]);
 
-  const { data } = useSuspenseQuery<Jam>({
-    queryKey: jamCacheKey,
-    queryFn: () => getJam(jamCacheKey),
+  const { data } = useSuspenseQuery<Timeout | null>({
+    queryKey,
+    queryFn: () => getTimeout(queryKey),
   });
 
   return data;

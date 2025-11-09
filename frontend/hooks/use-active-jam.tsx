@@ -16,7 +16,7 @@ function getActiveJamCacheKey(bout: Bout): ReturnType<typeof Jam.generateKey> {
   return Jam.generateKey(bout.id, periodNum, jamNum);
 }
 
-export default function useActiveJam(bout: Bout): Jam {
+export default function useActiveJam(bout: Bout): Jam | null {
   const [jamCacheKey, setJamCacheKey] = useState<
     ReturnType<typeof Jam.generateKey>
   >(getActiveJamCacheKey(bout));
@@ -25,7 +25,7 @@ export default function useActiveJam(bout: Bout): Jam {
     setJamCacheKey(getActiveJamCacheKey(bout));
   }, [bout]);
 
-  const { data } = useSuspenseQuery<Jam>({
+  const { data } = useSuspenseQuery<Jam | null>({
     queryKey: jamCacheKey,
     queryFn: () => getJam(jamCacheKey),
   });

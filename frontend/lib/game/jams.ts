@@ -50,12 +50,12 @@ export class Jam {
 
 export async function getJam(
   cacheKey: ReturnType<typeof Jam.generateKey>,
-): Promise<Jam> {
+): Promise<Jam | null> {
   const [, boutId, periodNum, jamNum] = cacheKey;
-  const response: Partial<Jam> = await genericRequest("jam", "GET", {
+  const response: Partial<Jam> | null = await genericRequest("jam", "GET", {
     boutId,
     periodNum,
     jamNum,
   });
-  return new Jam(response);
+  return response ? new Jam(response) : response;
 }
