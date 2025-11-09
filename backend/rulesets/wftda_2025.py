@@ -51,20 +51,8 @@ class BoutModel(WFTDAModel, GenericBoutModel):
         if len(self.jams) > 0 and self.jams[-1].period == NUM_PERIODS:
             raise RulesError(f'this bout can only have {NUM_PERIODS} periods')
 
-        # Get the Period number and Jam number of the next Jam
-        period_num: int = 0
-        jam_num: int = 0
-        if len(self.jams) > 0:
-            latest: JamModel = self.jams[-1]
-            period_num = latest.period + 1
-
-        # Instantiate the Jam and add it to this Bout
-        home, away = self.teams[:2]
-        jam: JamModel = JamModel(period_num, jam_num, [home, away])
-        self.jams.append(jam)
-
         # If this Period is not in overtime reset the Clock
-        if period_num < NUM_PERIODS:
+        if self.jams[-1].period < NUM_PERIODS:
             self.clock.reset()
 
         self.is_running = True
