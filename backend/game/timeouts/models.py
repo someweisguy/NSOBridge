@@ -23,9 +23,9 @@ class TimeoutModel(AbstractOneShotModel, CacheableSQLModel):
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
     clock_elapsed: Mapped[timedelta] = mapped_column()
-    details: Mapped[str | None] = mapped_column(default=None)
     is_review: Mapped[bool] = mapped_column(default=False)
-    result: Mapped[str | None] = mapped_column(default=None)
+    details: Mapped[str] = mapped_column(default='')
+    result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
     bout: Mapped[GenericBoutModel] = relationship(
