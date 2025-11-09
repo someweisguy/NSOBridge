@@ -10,13 +10,61 @@ from models import (
     BaseSQLModel,
     CacheableSQLModel,
 )
-from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
+from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint, select
+from sqlalchemy.orm import (
+    Mapped,
+    column_property,
+    declared_attr,
+    mapped_column,
+    relationship,
+)
 
 if TYPE_CHECKING:
     from game.bouts.models import GenericBoutModel, GenericTeamModel
 
 type TeamName = Literal['home', 'away']
+
+
+class JamModel(AbstractOneShotModel, CacheableSQLModel):
+    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
+
+    num: Mapped[int] = mapped_column(index=True)
+    period: Mapped[int] = mapped_column(index=True)
+    stop_reason: Mapped[str | None] = mapped_column(default=None)
+
+    bout: Mapped[GenericBoutModel] = relationship(
+        back_populates='jams',
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[bout_id],
+        lazy='selectin',
+    )
+    team_jams: Mapped[list[TeamJamModel]] = relationship(
+        back_populates='jam',
+        cascade=CHILD_RELATIONSHIP,
+        lazy='selectin',
+    )
+
+    __tablename__: str = 'jams'
+
+    @declared_attr
+    def __table_args__(cls) -> Any:
+        return super().__table_args__ + (UniqueConstraint('bout_id', 'num', 'period'),)
+
+    def __init__(
+        self,
+        period_num: int,
+        jam_num: int,
+        teams: list[GenericTeamModel],
+    ) -> None:
+        super().__init__(
+            period=period_num,
+            num=jam_num,
+            team_jams=[TeamJamModel(team) for team in teams],
+        )
+
+    @override
+    def cache_key(self) -> tuple[Any, ...]:
+        return (self.__tablename__, self.bout_id, self.period, self.num)
 
 
 class TripEventModel(BaseSQLModel):
@@ -60,51 +108,14 @@ class TeamJamModel(BaseSQLModel):
         order_by=[TripEventModel.timestamp],
     )
 
+    jam_num: Mapped[int] = column_property(
+        select(JamModel.num).where(JamModel.id == jam_id).limit(1).scalar_subquery()
+    )
+    period_num: Mapped[int] = column_property(
+        select(JamModel.period).where(JamModel.id == jam_id).limit(1).scalar_subquery()
+    )
+
     __tablename__: str = 'team_jams'
 
     def __init__(self, team: GenericTeamModel) -> None:
         super().__init__(team=team)
-
-
-class JamModel(AbstractOneShotModel, CacheableSQLModel):
-    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
-
-    num: Mapped[int] = mapped_column(index=True)
-    period: Mapped[int] = mapped_column(index=True)
-    stop_reason: Mapped[str | None] = mapped_column(default=None)
-
-    bout: Mapped[GenericBoutModel] = relationship(
-        back_populates='jams',
-        cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[bout_id],
-        lazy='selectin',
-    )
-    team_jams: Mapped[list[TeamJamModel]] = relationship(
-        back_populates='jam',
-        cascade=CHILD_RELATIONSHIP,
-        lazy='selectin',
-    )
-
-    __tablename__: str = 'jams'
-
-    @declared_attr
-    def __table_args__(cls) -> Any:
-        return super().__table_args__ + (
-            UniqueConstraint('bout_id', 'num', 'period'),
-        )
-
-    def __init__(
-        self,
-        period_num: int,
-        jam_num: int,
-        teams: list[GenericTeamModel],
-    ) -> None:
-        super().__init__(
-            period=period_num,
-            num=jam_num,
-            team_jams=[TeamJamModel(team) for team in teams],
-        )
-
-    @override
-    def cache_key(self) -> tuple[Any, ...]:
-        return (self.__tablename__, self.bout_id, self.period, self.num)

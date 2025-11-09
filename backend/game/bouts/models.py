@@ -152,12 +152,13 @@ class GenericTeamModel(BaseSQLModel):
         back_populates='team',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        # order_by=[TeamJamModel.jam.period, TeamJamModel.jam.num], # FIXME
+        order_by=[TeamJamModel.period_num, TeamJamModel.jam_num],
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
         back_populates='team',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
+        order_by=TimeoutModel.id,
     )
 
     __tablename__: str = 'teams'
