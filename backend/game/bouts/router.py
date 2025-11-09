@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import Final
 
 from fastapi import APIRouter
-from game.bouts.dependencies import BoutDepends, get_bout
 
+from .dependencies import BoutDepends, get_bout
 from .models import BoutContext
 from .schemas import BoutContextSchema, BoutSchema
 

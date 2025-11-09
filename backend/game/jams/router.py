@@ -1,8 +1,8 @@
 from typing import Final
 
 from fastapi import APIRouter
-from game.jams.dependencies import get_jam
 
+from .dependencies import get_jam
 from .schemas import JamSchema
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')

@@ -1,8 +1,8 @@
 from typing import Final
 
 from fastapi import APIRouter
-from game.series.dependencies import get_series
 
+from .dependencies import get_series
 from .schemas import SeriesSchema
 
 router: Final[APIRouter] = APIRouter(prefix='/series')
