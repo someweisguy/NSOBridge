@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, Literal, override
 
-from game.clocks.models import AbstractOneShotModel
+from game.abstract import AbstractOneShotModel
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,

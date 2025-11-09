@@ -10,19 +10,3 @@ class ClockSchema(ServerSchema):
     start_timestamp: datetime | None
     elapsed: timedelta
     alarm: timedelta
-
-
-class TimeoutSchema(ServerSchema):
-    id: int
-    team_id: int
-    jam_id: int | None
-    
-    start_timestamp: datetime | None
-    stop_timestamp: datetime | None
-    clock_elapsed: timedelta
-    
-    is_review: bool
-    details: str
-    result: str
-    retained: bool
-

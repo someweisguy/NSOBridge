@@ -5,8 +5,9 @@ from datetime import datetime  # noqa: TC003
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Final, Literal, final
 
-from game.clocks.models import ClockModel, TimeoutModel
+from game.clocks.models import ClockModel
 from game.jams.models import JamModel, TeamJamModel
+from game.timeouts.models import TimeoutModel
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
