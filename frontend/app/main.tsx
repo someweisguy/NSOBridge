@@ -5,9 +5,9 @@ import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
 import useSeries from "@/hooks/use-series";
 import useServerOffset from "@/hooks/use-server-offset";
-import { Bout, createBout } from "@/lib/bout";
+import { Bout, createBout } from "@/lib/game/bouts";
 import queryClient from "@/lib/cache";
-import { Series } from "@/lib/series";
+import { Series } from "@/lib/game/series";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   StrictMode,
@@ -20,6 +20,7 @@ import {
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import { redo, undo } from "@/lib/history";
+import useActiveJam from "@/hooks/use-active-jam";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -94,8 +95,9 @@ function Test() {
 function BoutTimeInformation() {
   const bout = useBout(1);
   const context = useBoutContext(1);
+  const activeJam = useActiveJam(bout);
 
-  if (bout.activeJam === null) {
+  if (activeJam === null) {
     const numPeriods = bout.jamCounts.length;
     let copy = "";
     if (numPeriods === 0) {
@@ -115,8 +117,8 @@ function BoutTimeInformation() {
     );
   }
 
-  let displayPeriod = bout.activeJam.period;
-  let displayJam = bout.activeJam.num;
+  let displayPeriod = activeJam.period;
+  let displayJam = activeJam.num;
 
   // Overtime Jams should be considered a continuation of the second half
   if (displayPeriod >= 2) {
@@ -134,11 +136,11 @@ function BoutTimeInformation() {
         <h1 className="text-center">J{displayJam + 1}</h1>
       </div>
       <div className="text-7xl text-center">
-        {!bout.activeJam.hasStarted() || bout.activeJam.isRunning() ? (
-          <Clock {...bout.activeJam} alarm={context.jamDuration} />
+        {!activeJam.hasStarted() || activeJam.isRunning() ? (
+          <Clock {...activeJam} alarm={context.jamDuration} />
         ) : (
           <Clock
-            startTimestamp={bout.activeJam.stopTimestamp}
+            startTimestamp={activeJam.stopTimestamp}
             alarm={context.lineupDuration}
           />
         )}

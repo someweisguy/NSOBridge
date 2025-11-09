@@ -1,10 +1,11 @@
 import Clock from "@/components/clock";
 import { TeamComponent } from "@/components/team-component";
+import useActiveJam from "@/hooks/use-active-jam";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
 import useServerOffset from "@/hooks/use-server-offset";
-import { Bout, BoutContext } from "@/lib/bout";
 import queryClient from "@/lib/cache";
+import { Bout, BoutContext } from "@/lib/game/bouts";
 import FitScreen from "@fit-screen/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -86,12 +87,14 @@ function BoutTimeInformation({
   bout: Bout;
   context: BoutContext;
 }) {
-  if (bout.activeJam === null) {
+  const activeJam = useActiveJam(bout);
+
+  if (activeJam === null) {
     return <IntermissionStatus bout={bout} />;
   }
 
-  let displayPeriod = bout.activeJam.period;
-  let displayJam = bout.activeJam.num;
+  let displayPeriod = activeJam.period;
+  let displayJam = activeJam.num;
 
   // Overtime Jams should be considered a continuation of the second half
   if (displayPeriod >= 2) {
@@ -109,11 +112,11 @@ function BoutTimeInformation({
         <h1 className="text-center">J{displayJam + 1}</h1>
       </div>
       <div className="w-full text-7xl text-center">
-        {!bout.activeJam.hasStarted() || bout.activeJam.isRunning() ? (
-          <Clock {...bout.activeJam} alarm={context.jamDuration} />
+        {!activeJam.hasStarted() || activeJam.isRunning() ? (
+          <Clock {...activeJam} alarm={context.jamDuration} />
         ) : (
           <Clock
-            startTimestamp={bout.activeJam.stopTimestamp}
+            startTimestamp={activeJam.stopTimestamp}
             alarm={context.lineupDuration}
           />
         )}
@@ -123,13 +126,12 @@ function BoutTimeInformation({
 }
 
 function BoutTertiaryInformation({ bout }: { bout: Bout }) {
-  const boutState = bout.getState();
-  if (["timeout", "lineup"].includes(boutState)) {
+  if (["timeout", "lineup"].includes(bout.state)) {
     let content = "";
-    if (boutState == "timeout") {
+    if (bout.state == "timeout") {
       // TODO: Implement Team Timeout and Official Review
       content = "Timeout";
-    } else if (boutState == "lineup") {
+    } else if (bout.state == "lineup") {
       content = "Lineup";
     }
 

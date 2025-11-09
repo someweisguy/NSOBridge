@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta  # noqa: TC003
+from typing import Literal  # noqa: TC003
 
 from game.clocks.schemas import ClockSchema, TimeoutSchema  # noqa: TC002
 from game.jams.schemas import JamSchema  # noqa: TC002
@@ -25,6 +26,7 @@ class BoutSchema(ServerSchema):
     is_running: bool
     expected_start_timestamp: datetime | None
     is_final: bool
+    state: Literal['final', 'jam', 'lineup', 'stopped', 'timeout']
     teams: list[TeamSchema]
     jams: list[JamSchema] = Field(exclude=True)
     timeouts: list[TimeoutSchema] = Field(exclude=True)

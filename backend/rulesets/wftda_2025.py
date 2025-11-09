@@ -31,6 +31,8 @@ class BoutModel(WFTDAModel, GenericBoutModel):
         for team in self.teams:
             team.timeouts_remaining = self.context.num_timeouts
             team.reviews_remaining = self.context.num_reviews
+        initial_jam: JamModel = JamModel(0, 0, [self.teams[0], self.teams[1]])
+        self.jams.append(initial_jam)
 
     @cached_property
     def context(self) -> BoutContext:
@@ -44,7 +46,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
 
     @override
     def begin_period(self, timestamp: datetime) -> None:
-        if self.get_state() != 'stopped':
+        if self.state != 'stopped':
             raise RulesError('this bout cannot be started now')
         if len(self.jams) > 0 and self.jams[-1].period == NUM_PERIODS:
             raise RulesError(f'this bout can only have {NUM_PERIODS} periods')
@@ -69,7 +71,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
 
     @override
     def end_period(self, timestamp: datetime) -> None:
-        if self.is_running and self.get_state() != 'lineup':
+        if self.is_running and self.state != 'lineup':
             raise RulesError('the period can only be ended during lineup')
         if not self.is_running and self.jams[-1].period < NUM_PERIODS:
             raise RulesError('there is no running period to end')
@@ -81,11 +83,16 @@ class BoutModel(WFTDAModel, GenericBoutModel):
         if self.clock.is_running():
             self.clock.stop(timestamp)
 
-        # Cull the unused Jam that is at the end of the Jam queue
+        # Update the final Jam
         if len(self.jams) > 0:
             final_jam: JamModel = self.jams[-1]
-            if final_jam.start_timestamp is None:
+            if self.is_final:
+                # Cull the final Jam
                 self.jams.remove(final_jam)
+            elif final_jam.start_timestamp is None:
+                # Set the final Jam to be the first Jam in the next Period
+                final_jam.period += 1
+                final_jam.num = 0
 
         self.is_running = False
 
@@ -94,11 +101,11 @@ class BoutModel(WFTDAModel, GenericBoutModel):
         if not self.is_running:
             # Allow user to skip the initial call to begin_period()
             self.begin_period(timestamp)
-        if self.get_state == 'timeout':
+        if self.state == 'timeout':
             # Allow the user to end a Timeout and immediately start the next Jam
             self.stop_timeout(timestamp)
 
-        if self.get_state() != 'lineup':
+        if self.state != 'lineup':
             raise RulesError('a jam may only be started from lineup')
 
         # Start the Clock if not in overtime
@@ -109,7 +116,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
 
     @override
     def stop_jam(self, timestamp: datetime) -> None:
-        if self.get_state() != 'jam':
+        if self.state != 'jam':
             raise RulesError('there is no running jam to stop')
 
         self.jams[-1].stop(timestamp)
@@ -122,11 +129,11 @@ class BoutModel(WFTDAModel, GenericBoutModel):
 
     @override
     def start_timeout(self, timestamp: datetime) -> None:
-        if self.get_state() == 'jam':
+        if self.state == 'jam':
             # Allow the user to end the Jam and immediately start a Timeout
             self.stop_jam(timestamp)
 
-        if self.get_state() != 'lineup':
+        if self.state != 'lineup':
             raise RulesError('a timeout cannot be called now')
 
         # Instantiate and start the Timeout
@@ -140,7 +147,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
 
     @override
     def stop_timeout(self, timestamp: datetime) -> None:
-        if self.get_state() != 'timeout':
+        if self.state != 'timeout':
             raise RulesError('there is no active timeout to stop')
 
         # Validate the Timeout's state

@@ -44,7 +44,7 @@ class BoutContext:
 class GenericBoutModel(CacheableSQLModel):
     series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
-    
+
     expected_start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
     is_running: Mapped[bool] = mapped_column(default=False)
@@ -96,7 +96,8 @@ class GenericBoutModel(CacheableSQLModel):
         )
 
     @final
-    def get_state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
+    @property
+    def state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
         if self.is_final:
             return 'final'
         if len(self.jams) > 0 and self.jams[-1].is_running():
@@ -127,7 +128,7 @@ class GenericBoutModel(CacheableSQLModel):
 class GenericTeamModel(BaseSQLModel):
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
-    
+
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()

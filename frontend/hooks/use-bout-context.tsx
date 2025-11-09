@@ -1,4 +1,4 @@
-import { Bout, BoutContext, getBoutContext } from "@/lib/bout";
+import { Bout, BoutContext, getBoutContext } from "@/lib/game/bouts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function useBoutContext(key: number): BoutContext {

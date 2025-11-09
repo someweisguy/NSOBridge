@@ -1,4 +1,4 @@
-import { Bout, BoutContext, Team } from "@/lib/bout";
+import { Bout, BoutContext, Team } from "@/lib/game/bouts";
 import TeamView from "./team-view";
 import React from "react";
 

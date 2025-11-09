@@ -1,85 +1,11 @@
-import genericRequest from "./requests";
-
-export const HOME = 0;
-export const AWAY = 1;
+import genericRequest from "../requests";
+import Clock from "./clocks";
 
 type DateToString<T> = T extends Date
   ? string
   : T extends object
     ? { [K in keyof T]: DateToString<T[K]> }
     : T;
-
-function nullOrDate(dateString: string | null): Date | null {
-  if (dateString === null) {
-    return null;
-  }
-  if (!Date.parse(dateString)) {
-    throw new Error("Invalid datetime string");
-  }
-  return new Date(dateString);
-}
-
-class Clock {
-  public readonly startTimestamp: Date | null;
-  public readonly elapsed: number;
-  public readonly alarm: number;
-
-  constructor(init: DateToString<Clock>) {
-    this.startTimestamp = nullOrDate(init.startTimestamp);
-    this.elapsed = init.elapsed;
-    this.alarm = init.alarm;
-  }
-
-  isRunning(): boolean {
-    return this.startTimestamp !== null;
-  }
-}
-
-class Timer {
-  public readonly startTimestamp: Date | null;
-  public readonly stopTimestamp: Date | null;
-
-  constructor(init: DateToString<Timer>) {
-    this.startTimestamp = nullOrDate(init.startTimestamp);
-    this.stopTimestamp = nullOrDate(init.stopTimestamp);
-  }
-
-  hasStarted(): boolean {
-    return this.startTimestamp !== null;
-  }
-
-  isRunning(): boolean {
-    return this.hasStarted() && this.stopTimestamp === null;
-  }
-}
-
-class Timeout extends Timer {
-  constructor(init: DateToString<Timeout>) {
-    super(init);
-  }
-}
-
-class TeamJam {
-  public readonly teamId: number;
-  public readonly lead: Date | null;
-  public readonly lost: boolean;
-  public readonly starPass: boolean;
-}
-
-class Jam extends Timer {
-  public readonly period: number;
-  public readonly num: number;
-  public readonly home: TeamJam;
-  public readonly away: TeamJam;
-
-  constructor(init: DateToString<Jam>) {
-    super(init);
-    this.home = Object.assign(new TeamJam(), init.home);
-    this.away = Object.assign(new TeamJam(), init.away);
-    this.period = init.period;
-    this.num = init.num;
-  }
-}
 
 export class Team {
   public readonly id: number;
@@ -94,14 +20,15 @@ export class Team {
 export class Bout {
   public readonly id: number;
   public readonly ruleset: string;
+
   public readonly expectedStartTimestamp: Date | null;
+  public readonly clock: Clock;
+
+  public readonly state: "final" | "jam" | "lineup" | "stopped" | "timeout";
   public readonly isFinal: boolean;
   public readonly jamCounts: number[];
-  public readonly timeoutCounts: number[];
-  public readonly clock: Clock;
+  public readonly numTimeouts: number[];
   public readonly teams: Team[];
-  public readonly activeJam: Jam | null;
-  public readonly activeTimeout: Timeout | null;
 
   static generateKey(id: number) {
     return ["bouts", id];
@@ -110,28 +37,11 @@ export class Bout {
   constructor(init: DateToString<Bout>) {
     Object.assign(this, init);
     this.clock = new Clock(init.clock);
-    this.expectedStartTimestamp = nullOrDate(init.expectedStartTimestamp);
-    if (init.activeJam !== null) {
-      this.activeJam = new Jam(init.activeJam);
-    }
-    if (init.activeTimeout !== null) {
-      this.activeTimeout = new Timeout(init.activeTimeout);
-    }
+    this.expectedStartTimestamp =
+      init.expectedStartTimestamp == null
+        ? null
+        : new Date(init.expectedStartTimestamp);
     this.teams = init.teams.map<Team>((t) => Object.assign(new Team(), t));
-  }
-
-  getState(): "final" | "jam" | "lineup" | "stopped" | "timeout" {
-    if (this.isFinal) {
-      return "final";
-    } else if (this.activeJam?.isRunning()) {
-      return "jam";
-    } else if (this.activeTimeout?.isRunning()) {
-      return "timeout";
-    } else if (this.activeJam !== null) {
-      return "lineup";
-    } else {
-      return "stopped";
-    }
   }
 
   async setupTrack(): Promise<void> {
@@ -189,10 +99,10 @@ export interface BoutContext {
 }
 
 export async function getBout(boutId: number): Promise<Bout> {
-  const response: DateToString<Bout> = await genericRequest("bout", "GET", {
+  const response: Bout = await genericRequest("bout", "GET", {
     boutId,
   });
-  return new Bout(response);
+  return response;
 }
 
 export async function getBoutContext(boutId: number): Promise<BoutContext> {

@@ -100,5 +100,5 @@ class JamModel(AbstractOneShotModel, CacheableSQLModel):
         )
 
     @override
-    def cache_key(self) -> tuple[str, Any]:
-        return (self.__tablename__, (self.period, self.num))
+    def cache_key(self) -> tuple[Any, ...]:
+        return (self.__tablename__, self.period, self.num)
