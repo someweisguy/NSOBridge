@@ -46,13 +46,13 @@ export class Bout {
   }
 
   async setupTrack(): Promise<void> {
-    await genericRequest("bout/setup-track", "POST", { boutId: this.id }).catch(
-      (e) => console.error(e),
-    );
+    await genericRequest("bout/begin-period", "POST", {
+      boutId: this.id,
+    }).catch((e) => console.error(e));
   }
 
   async clearTrack(): Promise<void> {
-    await genericRequest("bout/clear-track", "POST", { boutId: this.id }).catch(
+    await genericRequest("bout/end-period", "POST", { boutId: this.id }).catch(
       (e: Error) => console.error(e.message),
     );
   }
@@ -70,15 +70,15 @@ export class Bout {
   }
 
   async callTimeout(): Promise<void> {
-    await genericRequest("bout/call-timeout", "POST", {
+    await genericRequest("bout/start-timeout", "POST", {
       boutId: this.id,
     }).catch((e: Error) => console.error(e.message));
   }
 
   async endTimeout(): Promise<void> {
-    await genericRequest("bout/end-timeout", "POST", { boutId: this.id }).catch(
-      (e: Error) => console.error(e.message),
-    );
+    await genericRequest("bout/stop-timeout", "POST", {
+      boutId: this.id,
+    }).catch((e: Error) => console.error(e.message));
   }
 
   async setExpectedStart(timestamp: Date): Promise<void> {
