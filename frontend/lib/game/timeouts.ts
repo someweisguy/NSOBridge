@@ -9,8 +9,8 @@ type DateToString<T> = T extends Date
 export class Timeout {
   public readonly id: number;
 
-  public readonly teamId: number;
-  public readonly jamId: number;
+  public readonly teamId: number | null;
+  public readonly jamId: number | null;
   public readonly startTimestamp: Date | null;
   public readonly stopTimestamp: Date | null;
   public readonly clockElapsed: number;

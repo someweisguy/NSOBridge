@@ -126,7 +126,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
 
         # Instantiate and start the Timeout
         clock_elapsed: timedelta = self.clock.get_duration(timestamp)
-        timeout: TimeoutModel = TimeoutModel(clock_elapsed, self.jams[-2])
+        timeout: TimeoutModel = TimeoutModel(clock_elapsed)
         self.timeouts.append(timeout)
         timeout.start(timestamp)
 

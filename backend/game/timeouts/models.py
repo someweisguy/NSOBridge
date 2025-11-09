@@ -32,7 +32,7 @@ class TimeoutModel(AbstractOneShotModel, CacheableSQLModel):
         back_populates='timeouts',
         cascade=PARENT_RELATIONSHIP,
     )
-    jam: Mapped[JamModel] = relationship(
+    jam: Mapped[JamModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[jam_id],
     )
@@ -44,9 +44,8 @@ class TimeoutModel(AbstractOneShotModel, CacheableSQLModel):
 
     __tablename__: str = 'timeouts'
 
-    def __init__(self, clock_elapsed: timedelta, jam: JamModel) -> None:
-        # FIXME: don't require a Jam to call a Timeout
-        super().__init__(clock_elapsed=clock_elapsed, jam=jam)
+    def __init__(self, clock_elapsed: timedelta) -> None:
+        super().__init__(clock_elapsed=clock_elapsed)
 
     @override
     def cache_key(self) -> tuple[Any, ...]:
