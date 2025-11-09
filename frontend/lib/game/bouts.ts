@@ -25,6 +25,7 @@ export class Bout {
   public readonly clock: Clock;
 
   public readonly state: "final" | "jam" | "lineup" | "stopped" | "timeout";
+  public readonly isRunning: boolean;
   public readonly isFinal: boolean;
   public readonly jamCounts: number[];
   public readonly numTimeouts: number[];
@@ -99,10 +100,10 @@ export interface BoutContext {
 }
 
 export async function getBout(boutId: number): Promise<Bout> {
-  const response: Bout = await genericRequest("bout", "GET", {
+  const response: DateToString<Bout> = await genericRequest("bout", "GET", {
     boutId,
   });
-  return response;
+  return new Bout(response);
 }
 
 export async function getBoutContext(boutId: number): Promise<BoutContext> {

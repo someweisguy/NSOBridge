@@ -1,13 +1,15 @@
 import Button from "@/components/button";
 import Clock from "@/components/clock";
 import { TeamComponent } from "@/components/team-component";
+import useActiveJam from "@/hooks/use-active-jam";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
 import useSeries from "@/hooks/use-series";
 import useServerOffset from "@/hooks/use-server-offset";
-import { Bout, createBout } from "@/lib/game/bouts";
 import queryClient from "@/lib/cache";
+import { Bout, createBout } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
+import { redo, undo } from "@/lib/history";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   StrictMode,
@@ -19,8 +21,6 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import { redo, undo } from "@/lib/history";
-import useActiveJam from "@/hooks/use-active-jam";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -97,17 +97,14 @@ function BoutTimeInformation() {
   const context = useBoutContext(1);
   const activeJam = useActiveJam(bout);
 
-  if (activeJam === null) {
-    const numPeriods = bout.jamCounts.length;
-    let copy = "";
-    if (numPeriods === 0) {
-      copy = "Starting Soon";
-    } else if (numPeriods === 1) {
-      copy = "Halftime";
-    } else if (!bout.isFinal) {
-      copy = "Unofficial Score";
-    } else {
+  if (!bout.isRunning) {
+    let copy = "Starting Soon";
+    if (bout.isFinal) {
       copy = "Final Score";
+    } else if (activeJam.period > 1) {
+      copy = "Unofficial Score";
+    } else if (activeJam.period == 1) {
+      copy = "Halftime";
     }
 
     return (
@@ -129,7 +126,7 @@ function BoutTimeInformation() {
   return (
     <div className="flex justify-around items-center text-9xl text-center align-middle">
       <div className="bg-red text-7xl text-center">
-        {bout.jamCounts.length > 2 ? "OT" : <Clock {...bout.clock} />}
+        {activeJam.period == 2 ? "OT" : <Clock {...bout.clock} />}
       </div>
       <div className="flex justify-between items-baseline gap-20 grow">
         <h1 className="text-center">P{displayPeriod + 1}</h1>
