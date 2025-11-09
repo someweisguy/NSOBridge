@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from database import AsyncSessionDepends
 from fastapi import Depends, Query
-from h11._events import Request
+from fastapi.requests import Request
 from sqlalchemy import select
 from users.dependencies import UserDepends
 
