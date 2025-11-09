@@ -44,9 +44,6 @@ ignore = [
 ]
 unfixable = []
 
-[tool.ruff.lint.per-file-ignores]
-"backend/api/*.py" = ["B008"] # Ignore use of Query() and Body() in API method arguments
-
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
