@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal, override
 
 from game.clocks.models import AbstractOneShotModel
 from models import (
@@ -98,3 +98,7 @@ class JamModel(AbstractOneShotModel, CacheableSQLModel):
             num=jam_num,
             team_jams=[TeamJamModel(team) for team in teams],
         )
+
+    @override
+    def cache_key(self) -> tuple[str, Any]:
+        return (self.__tablename__, (self.period, self.num))
