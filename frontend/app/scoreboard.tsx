@@ -3,6 +3,7 @@ import { TeamComponent } from "@/components/team-component";
 import useActiveJam from "@/hooks/use-active-jam";
 import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
+import useLatestJam from "@/hooks/use-latest-jam";
 import useServerOffset from "@/hooks/use-server-offset";
 import queryClient from "@/lib/cache";
 import { Bout, BoutContext } from "@/lib/game/bouts";
@@ -54,13 +55,15 @@ function Test() {
 
 function IntermissionStatus({ bout }: { bout: Bout }) {
   const activeJam = useActiveJam(bout);
+  const latestJam = useLatestJam(bout);
+  const jam = activeJam ?? latestJam;
 
   let copy = "Starting Soon";
   if (bout.isFinal) {
     copy = "Final Score";
-  } else if (activeJam.period > 1) {
+  } else if (jam.period > 1) {
     copy = "Unofficial Score";
-  } else if (activeJam.period == 1) {
+  } else if (jam.period == 1) {
     copy = "Halftime";
   }
 
@@ -79,7 +82,7 @@ function BoutTimeInformation({
   bout: Bout;
   context: BoutContext;
 }) {
-  const activeJam = useActiveJam(bout);
+  const activeJam = useActiveJam(bout)!; // TODO: allow active Jam to return null
 
   if (!bout.isRunning) {
     return <IntermissionStatus bout={bout} />;

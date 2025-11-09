@@ -21,6 +21,7 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import useLatestJam from "@/hooks/use-latest-jam";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -96,14 +97,17 @@ function BoutTimeInformation() {
   const bout = useBout(1);
   const context = useBoutContext(1);
   const activeJam = useActiveJam(bout);
+  const latestJam = useLatestJam(bout);
+
+  const jam = activeJam ?? latestJam;
 
   if (!bout.isRunning) {
     let copy = "Starting Soon";
     if (bout.isFinal) {
       copy = "Final Score";
-    } else if (activeJam.period > 1) {
+    } else if (jam.period > 1) {
       copy = "Unofficial Score";
-    } else if (activeJam.period == 1) {
+    } else if (jam.period == 1) {
       copy = "Halftime";
     }
 
@@ -114,8 +118,8 @@ function BoutTimeInformation() {
     );
   }
 
-  let displayPeriod = activeJam.period;
-  let displayJam = activeJam.num;
+  let displayPeriod = jam.period;
+  let displayJam = jam.num;
 
   // Overtime Jams should be considered a continuation of the second half
   if (displayPeriod >= 2) {
@@ -126,18 +130,18 @@ function BoutTimeInformation() {
   return (
     <div className="flex justify-evenly items-center text-9xl text-center align-middle">
       <div className="bg-red w-full text-7xl text-center">
-        {activeJam.period == 2 ? "OT" : <Clock {...bout.clock} />}
+        {jam.period == 2 ? "OT" : <Clock {...bout.clock} />}
       </div>
       <div className="flex justify-between items-baseline gap-20 w-full">
         <h1 className="text-center">P{displayPeriod + 1}</h1>
         <h1 className="text-center">J{displayJam + 1}</h1>
       </div>
       <div className="w-full text-7xl text-center">
-        {!activeJam.hasStarted() || activeJam.isRunning() ? (
-          <Clock {...activeJam} alarm={context.jamDuration} />
+        {!jam.hasStarted() || jam.isRunning() ? (
+          <Clock {...jam} alarm={context.jamDuration} />
         ) : (
           <Clock
-            startTimestamp={activeJam.stopTimestamp}
+            startTimestamp={jam.stopTimestamp}
             alarm={context.lineupDuration}
           />
         )}
