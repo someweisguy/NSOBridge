@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
 
 from game.abstract import AbstractOneShotModel
