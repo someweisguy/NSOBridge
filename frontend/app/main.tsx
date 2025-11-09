@@ -68,23 +68,14 @@ function Test() {
       <TeamComponent bout={bout} context={context} />
       <BoutTimeInformation />
       <div className="place-content-around grid grid-flow-col">
-        <Button onClick={() => void bout.setupTrack()}>Start Period</Button>
+        <Button onClick={() => void bout.beginPeriod()}>Start Period</Button>
         <Button onClick={() => void bout.startJam()}>Start Jam</Button>
         <Button onClick={() => void bout.stopJam()}>Stop Jam</Button>
-        <Button onClick={() => void bout.callTimeout()}>Call Timeout</Button>
-        <Button onClick={() => void bout.endTimeout()}>End Timeout</Button>
-        <Button onClick={() => void bout.clearTrack()}>End Period</Button>
+        <Button onClick={() => void bout.stopTimeout()}>Call Timeout</Button>
+        <Button onClick={() => void bout.stopTimeout()}>End Timeout</Button>
+        <Button onClick={() => void bout.endPeriod()}>End Period</Button>
         <Button onClick={createBoutCallback}>New Bout</Button>
-        <Button
-          onClick={() => {
-            const now = new Date();
-            void bout.setExpectedStart(
-              new Date(now.setMinutes(now.getMinutes() + 30)),
-            );
-          }}
-        >
-          Set Timer
-        </Button>
+
         <Button onClick={() => void undo()}>Undo</Button>
         <Button onClick={() => void redo()}>Redo</Button>
       </div>

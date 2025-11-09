@@ -43,13 +43,13 @@ export class Bout {
     this.teams = init.teams.map<Team>((t) => Object.assign(new Team(), t));
   }
 
-  async setupTrack(): Promise<void> {
+  async beginPeriod(): Promise<void> {
     await genericRequest("bout/begin-period", "POST", {
       boutId: this.id,
     }).catch((e) => console.error(e));
   }
 
-  async clearTrack(): Promise<void> {
+  async endPeriod(): Promise<void> {
     await genericRequest("bout/end-period", "POST", { boutId: this.id }).catch(
       (e: Error) => console.error(e.message),
     );
@@ -67,25 +67,16 @@ export class Bout {
     );
   }
 
-  async callTimeout(): Promise<void> {
+  async startTimeout(): Promise<void> {
     await genericRequest("bout/start-timeout", "POST", {
       boutId: this.id,
     }).catch((e: Error) => console.error(e.message));
   }
 
-  async endTimeout(): Promise<void> {
+  async stopTimeout(): Promise<void> {
     await genericRequest("bout/stop-timeout", "POST", {
       boutId: this.id,
     }).catch((e: Error) => console.error(e.message));
-  }
-
-  async setExpectedStart(timestamp: Date): Promise<void> {
-    await genericRequest(
-      "bout/expected-start",
-      "POST",
-      { boutId: this.id },
-      timestamp,
-    ).catch((e: Error) => console.error(e.message));
   }
 }
 
