@@ -6,14 +6,14 @@ from models import CHILD_RELATIONSHIP, CacheableSQLModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from game.bouts.models import GenericBoutModel
+    from game.bouts.models import BaseBoutModel
 
 
 class SeriesModel(CacheableSQLModel):
     rowid: Mapped[int] = mapped_column(system=True)
     name: Mapped[str] = mapped_column(default='')
 
-    bouts: Mapped[list[GenericBoutModel]] = relationship(
+    bouts: Mapped[list[BaseBoutModel]] = relationship(
         back_populates='series',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',

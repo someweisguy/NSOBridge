@@ -4,7 +4,7 @@ from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, Literal, override
 
 from game.abstract import AbstractOneShotModel
-from game.bouts.models import GenericBoutModel
+from game.bouts.models import BaseBoutModel
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
@@ -33,7 +33,7 @@ class BaseJamModel(AbstractOneShotModel, CacheableSQLModel):
     period: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
-    bout: Mapped[GenericBoutModel] = relationship(
+    bout: Mapped[BaseBoutModel] = relationship(
         back_populates='jams',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[bout_id],
@@ -47,8 +47,8 @@ class BaseJamModel(AbstractOneShotModel, CacheableSQLModel):
 
     # Define a column_property that fetches the type name
     ruleset = column_property(
-        select(GenericBoutModel.ruleset)
-        .where(GenericBoutModel.id == bout_id)
+        select(BaseBoutModel.ruleset)
+        .where(BaseBoutModel.id == bout_id)
         .scalar_subquery()
     )
 

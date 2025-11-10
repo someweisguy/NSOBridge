@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final
 
-from game.bouts.models import GenericBoutModel
+from game.bouts.models import BaseBoutModel
 from game.jams.models import TeamJamModel
 from game.timeouts.models import TimeoutModel
 from models import (
@@ -33,7 +33,7 @@ class BaseTeamModel(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
-    bout: Mapped[GenericBoutModel | None] = relationship(
+    bout: Mapped[BaseBoutModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
         lazy='selectin',
     )
@@ -56,8 +56,8 @@ class BaseTeamModel(BaseSQLModel):
     )
 
     ruleset = column_property(
-        select(GenericBoutModel.ruleset)
-        .where(GenericBoutModel.id == bout_id)
+        select(BaseBoutModel.ruleset)
+        .where(BaseBoutModel.id == bout_id)
         .scalar_subquery()
     )
 

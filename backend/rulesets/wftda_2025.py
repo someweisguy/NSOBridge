@@ -3,7 +3,7 @@ from functools import cached_property
 from typing import Final, override
 
 from exceptions import RulesError
-from game.bouts.models import BoutContext, GenericBoutModel
+from game.bouts.models import BoutContext, BaseBoutModel
 from game.jams.models import BaseJamModel, TeamJamModel
 from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
@@ -23,7 +23,7 @@ class WFTDAModel:
 # TODO: Figure out a method to forfeit a Bout
 
 
-class BoutModel(WFTDAModel, GenericBoutModel):
+class BoutModel(WFTDAModel, BaseBoutModel):
     # FIXME: make these BaseTeamModels the WFTDA variant
     def __init__(
         self, series: SeriesModel, home: RosterModel, away: RosterModel
@@ -40,7 +40,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
             [self.teams[0], self.teams[1]],
         )
         self.jams.append(initial_jam)
-        
+
     def __post_init__(self) -> None:
         print('hello world')
 

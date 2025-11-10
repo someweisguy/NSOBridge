@@ -13,7 +13,7 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from game.bouts.models import GenericBoutModel
+    from game.bouts.models import BaseBoutModel
     from game.jams.models import BaseJamModel
     from game.teams.models import BaseTeamModel
 
@@ -29,7 +29,7 @@ class TimeoutModel(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    bout: Mapped[GenericBoutModel] = relationship(
+    bout: Mapped[BaseBoutModel] = relationship(
         back_populates='timeouts',
         cascade=PARENT_RELATIONSHIP,
     )

@@ -39,7 +39,7 @@ class BoutContext:
     num_reviews: int
 
 
-class GenericBoutModel(CacheableSQLModel):
+class BaseBoutModel(CacheableSQLModel):
     series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
 
