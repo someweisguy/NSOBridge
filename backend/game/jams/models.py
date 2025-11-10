@@ -14,6 +14,7 @@ from models import (
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
+    MappedSQLExpression,
     column_property,
     declared_attr,
     mapped_column,
@@ -45,8 +46,7 @@ class BaseJamModel(AbstractOneShotModel, CacheableSQLModel):
         lazy='selectin',
     )
 
-    # Define a column_property that fetches the type name
-    ruleset = column_property(
+    ruleset: MappedSQLExpression[str] = column_property(
         select(BaseBoutModel.ruleset)
         .where(BaseBoutModel.id == bout_id)
         .scalar_subquery()
@@ -65,10 +65,19 @@ class BaseJamModel(AbstractOneShotModel, CacheableSQLModel):
     @override
     def cache_key(self) -> tuple[Any, ...]:
         return (self.__tablename__, self.bout_id, self.period, self.num)
+    
+    def lead_is_declared(self) -> bool:
+        for team_jam in self.team_jams:
+            if any(event.lead for event in team_jam.events):
+                return True
+        return False
+                
+
+    async def add_trip_event(self, event: TripEventModel) -> None: ...
 
 
 class TripEventModel(BaseSQLModel):
-    team_jam_id: Mapped[int] = mapped_column(ForeignKey('team_jams.id'))
+    team_jam_id: Mapped[int | None] = mapped_column(ForeignKey('team_jams.id'))
     timestamp: Mapped[datetime] = mapped_column()
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
@@ -85,6 +94,27 @@ class TripEventModel(BaseSQLModel):
     __table_args__: tuple[Constraint, ...] = (
         CheckConstraint('passes IS NULL OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
     )
+
+    def __init__(
+        self,
+        timestamp: datetime,
+        *,
+        lead: bool = False,
+        lost: bool = False,
+        passes: int = 0,
+        star_pass: bool = False,
+    ) -> None:
+        super().__init__(
+            team_jam=None,
+            timestamp=timestamp,
+            lead=lead,
+            lost=lost,
+            passes=passes,
+            star_pass=star_pass,
+        )
+
+    def is_empty(self) -> bool:
+        return not any((self.lead, self.lost, self.passes, self.star_pass))
 
 
 class TeamJamModel(BaseSQLModel):
