@@ -19,6 +19,8 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from game.teams.models import BaseTeam
 
 
@@ -61,5 +63,11 @@ class BaseTeamJam(BaseSQLModel):
 
     def __init__(self, team: BaseTeam) -> None:
         super().__init__(team=team)
-    
-    async def add_trip(self, event: TripEvent) -> None: ...
+
+    async def add_trip(self, timestamp: datetime, passes: int) -> None: ...
+
+    async def set_lead(self, timestamp: datetime, lead: bool) -> None: ...
+
+    async def set_lost(self, timestamp: datetime, lost: bool) -> None: ...
+
+    async def set_star_pass(self, timestamp: datetime, star_pass: bool) -> None: ...

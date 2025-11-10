@@ -196,21 +196,70 @@ class JamModel(WFTDAModel, BaseJam):
 
 
 class TeamJamModel(WFTDAModel, BaseTeamJam):
-    async def add_trip(self, event: TripEvent) -> None:
-        if event.is_empty():
-            raise ValueError('cannot add an empty trip')
+    async def add_trip(self, timestamp: datetime, passes: int) -> None:
+        event: TripEvent = TripEvent(timestamp, passes=passes)
 
-        # Validate that the event is legal
-        if event.lead and self.jam.lead_is_declared():
-            raise ValueError('cannot declare lead Jammer; lead is already declared')
-        if event.star_pass and any(event.star_pass for event in self.events):
-            raise ValueError('only 1 Star Pass is allowed per Team per Jam')
-        if event.lost and any(event.lost for event in self.events):
-            raise ValueError('this Team has already lost lead jammer eligibility')
+        # TODO: handle overtime conditions
 
-        # TODO: Ensure that `event.passes >= 0` - can that be done in model validation?
-        
-        # TODO: if this is the first 4-point trip and lead is not declared, set lead
-        # TODO: if this is the first trip and 0 < event.passes < 4, set lost
+        # Automatically set lead on the first 4-point trip
+        if not self.jam.lead_is_declared() and passes == 4:  # TODO: remove magic number
+            event.lead = True
+
+        # Lose eligibility on initial no-pass/no-penalty
+        if len(self.events) == 0 and passes < 4:  # TODO: remove magic number
+            event.lost = True
+
+        # Jammer cannot earn points on the initial pass
+        if len(self.events) == 0:
+            event.passes = 0
 
         self.events.append(event)
+
+    async def set_lead(self, timestamp: datetime, lead: bool) -> None:
+        if lead:
+            # Add a new Trip Event in which lead is declared
+            if self.jam.lead_is_declared():
+                raise RulesError('a lead jammer has already been declared')
+            event: TripEvent = TripEvent(timestamp, lead=lead)
+            self.events.append(event)
+        else:
+            for event in self.events:
+                if event.lead:
+                    break
+            event.lead = lead
+            if event.is_empty():
+                # Empty events are not allowed
+                self.events.remove(event)
+
+    async def set_lost(self, timestamp: datetime, lost: bool) -> None:
+        if lost:
+            # Add a new Trip Event in which the Jammer has lost eligibility for lead
+            if any(event.lost for event in self.events):
+                raise RulesError('this team has already lost lead eligibility')
+            event: TripEvent = TripEvent(timestamp, lost=lost)
+            self.events.append(event)
+        else:
+            for event in self.events:
+                if event.lead:
+                    break
+            event.lost = lost
+            if event.is_empty():
+                # Empty events are not allowed
+                self.events.remove(event)
+
+    async def set_star_pass(self, timestamp: datetime, star_pass: bool) -> None:
+        if star_pass:
+            if any(event.star_pass for event in self.events):
+                raise RulesError(
+                    'this team has already completed a star pass in this Jam'
+                )
+            event: TripEvent = TripEvent(timestamp, star_pass=star_pass)
+            self.events.append(event)
+        else:
+            for event in self.events:
+                if event.star_pass:
+                    break
+            event.star_pass = star_pass
+            if event.is_empty():
+                # Empty events are not allowed
+                self.events.remove(event)
