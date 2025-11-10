@@ -4,9 +4,10 @@ from typing import Final, override
 
 from exceptions import RulesError
 from game.bouts.models import BaseBoutModel, BoutContext
-from game.jams.models import BaseJamModel, BaseTeamJamModel, TripEventModel
+from game.jams.models import BaseJamModel, TripEventModel
 from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
+from game.team_jams.models import BaseTeamJamModel
 from game.teams.models import BaseTeamModel
 from game.timeouts.models import TimeoutModel
 

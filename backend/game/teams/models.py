@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Final
 
 from game.bouts.models import BaseBoutModel
-from game.jams.models import BaseTeamJamModel
+from game.team_jams.models import BaseTeamJamModel
 from game.timeouts.models import TimeoutModel
 from models import (
     CHILD_RELATIONSHIP,
