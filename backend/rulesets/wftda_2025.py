@@ -40,9 +40,6 @@ class BoutModel(WFTDAModel, BaseBoutModel):
         )
         self.jams.append(initial_jam)
 
-    def __post_init__(self) -> None:
-        print('hello world')
-
     @cached_property
     def context(self) -> BoutContext:
         return BoutContext(
