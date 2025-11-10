@@ -11,7 +11,7 @@ from models import (
     PARENT_RELATIONSHIP,
     CacheableSQLModel,
 )
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -58,7 +58,7 @@ class BaseBoutModel(CacheableSQLModel):
         back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        # order_by=[JamModel.period, JamModel.num],  # TODO: uncomment
+        order_by=[column('period'), column('num')],
     )
     series: Mapped[SeriesModel] = relationship(
         back_populates='bouts',
