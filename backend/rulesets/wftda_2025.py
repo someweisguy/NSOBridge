@@ -14,6 +14,7 @@ from game.trip_events.models import TripEvent
 
 RULESET: Final[str] = 'WFTDA 2025'
 NUM_PERIODS: Final[int] = 2
+MAX_PASSES_PER_TRIP: Final[int] = 4
 
 
 class WFTDAModel:
@@ -202,11 +203,11 @@ class TeamJamModel(WFTDAModel, BaseTeamJam):
         # TODO: handle overtime conditions
 
         # Automatically set lead on the first 4-point trip
-        if not self.jam.lead_is_declared() and passes == 4:  # TODO: remove magic number
+        if not self.jam.lead_is_declared() and passes == MAX_PASSES_PER_TRIP:
             event.lead = True
 
         # Lose eligibility on initial no-pass/no-penalty
-        if len(self.events) == 0 and passes < 4:  # TODO: remove magic number
+        if len(self.events) == 0 and passes < MAX_PASSES_PER_TRIP:
             event.lost = True
 
         # Jammer cannot earn points on the initial pass
