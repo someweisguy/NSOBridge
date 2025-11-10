@@ -4,12 +4,13 @@ from typing import Final, override
 
 from exceptions import RulesError
 from game.bouts.models import BaseBoutModel, BoutContext
-from game.jams.models import BaseJamModel, TripEventModel
+from game.jams.models import BaseJamModel
 from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
 from game.team_jams.models import BaseTeamJamModel
 from game.teams.models import BaseTeamModel
 from game.timeouts.models import TimeoutModel
+from game.trip_events.models import TripEventModel
 
 RULESET: Final[str] = 'WFTDA 2025'
 NUM_PERIODS: Final[int] = 2

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from game.jams.models import BaseJamModel, TripEventModel
+from game.jams.models import BaseJamModel
+from game.trip_events.models import TripEventModel
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,

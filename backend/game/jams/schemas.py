@@ -1,21 +1,7 @@
 from datetime import datetime
 
+from game.team_jams.schemas import TeamJamSchema
 from schemas import ServerSchema
-
-
-class TripEventSchema(ServerSchema):
-    id: int
-    timestamp: datetime
-    lead: bool
-    lost: bool
-    passes: int | None
-    star_pass: bool
-
-
-class TeamJamSchema(ServerSchema):
-    id: int
-    team_id: int
-    events: list[TripEventSchema]
 
 
 class JamSchema(ServerSchema):
