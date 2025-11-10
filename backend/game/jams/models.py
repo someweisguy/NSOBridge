@@ -18,9 +18,11 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+from sqlalchemy.sql._elements_constructors import column, text
 
 if TYPE_CHECKING:
     from game.bouts.models import GenericBoutModel, GenericTeamModel
+    from sqlalchemy.orm.properties import MappedSQLExpression
 
 type TeamName = Literal['home', 'away']
 
@@ -44,7 +46,16 @@ class JamModel(AbstractOneShotModel, CacheableSQLModel):
         lazy='selectin',
     )
 
+    ruleset: MappedSQLExpression[str] = column_property(
+        select(column('bouts.ruleset'))
+        .where(text('bouts.id == bout_id'))
+        .scalar_subquery()
+    )
+
     __tablename__: str = 'jams'
+    __mapper_args__: dict[str, Any] = {
+        'polymorphic_on': ruleset,
+    }
 
     @declared_attr
     def __table_args__(cls) -> Any:
