@@ -36,7 +36,7 @@ class BoutModel(WFTDAModel, BaseBoutModel):
         initial_jam: JamModel = JamModel(
             0,
             0,
-            [self.teams[0], self.teams[1]],
+            [self.teams[0], self.teams[1]],  # ty: ignore[invalid-argument-type]
         )
         self.jams.append(initial_jam)
 
@@ -126,7 +126,7 @@ class BoutModel(WFTDAModel, BaseBoutModel):
             JamModel(
                 period_num,
                 jam_num,
-                [home, away],
+                [home, away],  # ty: ignore[invalid-argument-type]
             )
         )
 
