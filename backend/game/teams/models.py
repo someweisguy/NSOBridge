@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final
 
+from game.bouts.models import GenericBoutModel
 from game.jams.models import TeamJamModel
 from game.timeouts.models import TimeoutModel
 from models import (
@@ -16,11 +17,8 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
-from sqlalchemy.orm.properties import MappedSQLExpression  # noqa: TC002
-from sqlalchemy.sql._elements_constructors import column, text
 
 if TYPE_CHECKING:
-    from game.bouts.models import GenericBoutModel
     from game.rosters.models import RosterModel
 
 
@@ -34,10 +32,6 @@ class BaseTeamModel(BaseSQLModel):
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
-
-    ruleset: MappedSQLExpression[str] = column_property(
-        select(column('bouts.id')).where(text('bouts.id == bout_id')).scalar_subquery()
-    )
 
     bout: Mapped[GenericBoutModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
@@ -59,6 +53,12 @@ class BaseTeamModel(BaseSQLModel):
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
         order_by=TimeoutModel.id,
+    )
+
+    ruleset = column_property(
+        select(GenericBoutModel.ruleset)
+        .where(GenericBoutModel.id == bout_id)
+        .scalar_subquery()
     )
 
     __tablename__: str = 'teams'

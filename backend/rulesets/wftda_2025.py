@@ -5,9 +5,8 @@ from typing import Final, override
 from exceptions import RulesError
 from game.bouts.models import BoutContext, GenericBoutModel
 from game.jams.models import JamModel, TeamJamModel
-from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
-from game.teams.models import BaseTeamModel as BaseTeamModel
+from game.teams.models import BaseTeamModel
 from game.timeouts.models import TimeoutModel
 
 RULESET: Final[str] = 'WFTDA 2025'
@@ -24,8 +23,9 @@ class WFTDAModel:
 
 
 class BoutModel(WFTDAModel, GenericBoutModel):
+    # FIXME: make these BaseTeamModels the WFTDA variant
     def __init__(
-        self, series: SeriesModel, home: RosterModel, away: RosterModel
+        self, series: SeriesModel, home: BaseTeamModel, away: BaseTeamModel
     ) -> None:
         super().__init__(series, RULESET, *(home, away))
         self.clock.alarm = timedelta(minutes=30)

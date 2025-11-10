@@ -4,6 +4,7 @@ from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, Literal, override
 
 from game.abstract import AbstractOneShotModel
+from game.bouts.models import GenericBoutModel
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
@@ -13,16 +14,13 @@ from models import (
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
-    MappedSQLExpression,
     column_property,
     declared_attr,
     mapped_column,
     relationship,
 )
-from sqlalchemy.sql import column, text
 
 if TYPE_CHECKING:
-    from game.bouts.models import GenericBoutModel
     from game.teams.models import BaseTeamModel
 
 type TeamName = Literal['home', 'away']
@@ -47,16 +45,15 @@ class JamModel(AbstractOneShotModel, CacheableSQLModel):
         lazy='selectin',
     )
 
-    ruleset: MappedSQLExpression[str] = column_property(
-        select(column('bouts.ruleset'))
-        .where(text('bouts.id == bout_id'))
+    # Define a column_property that fetches the type name
+    ruleset = column_property(
+        select(GenericBoutModel.ruleset)
+        .where(GenericBoutModel.id == bout_id)
         .scalar_subquery()
     )
 
     __tablename__: str = 'jams'
-    __mapper_args__: dict[str, Any] = {
-        'polymorphic_on': ruleset,
-    }
+    __mapper_args__: dict[str, Any] = {'polymorphic_on': ruleset}
 
     @declared_attr
     def __table_args__(cls) -> Any:
