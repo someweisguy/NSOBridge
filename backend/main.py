@@ -94,9 +94,12 @@ async def main(host: str = '0.0.0.0', port: int = 8000) -> None:
     )
 
     # Log the server's address and serve the application
-    with socket(AF_INET, SOCK_DGRAM) as sock:
-        sock.connect(('1.1.1.1', 80))
-        ip: str = sock.getsockname()[0]
+    try:
+        with socket(AF_INET, SOCK_DGRAM) as sock:
+            sock.connect(('1.1.1.1', 80))
+            ip: str = sock.getsockname()[0]
+    except OSError:
+        ip = '127.0.0.1'
     HTTP_PORT: Final[int] = 80
     print(f'Starting server at http://{ip}{f":{PORT}" if PORT != HTTP_PORT else ""}')
     await server.serve()
