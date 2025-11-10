@@ -3,7 +3,7 @@ from functools import cached_property
 from typing import Final, override
 
 from exceptions import RulesError
-from game.bouts.models import BoutContext, BaseBoutModel
+from game.bouts.models import BaseBoutModel, BoutContext
 from game.jams.models import BaseJamModel, TeamJamModel
 from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
@@ -24,7 +24,6 @@ class WFTDAModel:
 
 
 class BoutModel(WFTDAModel, BaseBoutModel):
-    # FIXME: make these BaseTeamModels the WFTDA variant
     def __init__(
         self, series: SeriesModel, home: RosterModel, away: RosterModel
     ) -> None:
