@@ -3,10 +3,11 @@ from functools import cached_property
 from typing import Final, override
 
 from exceptions import RulesError
-from game.bouts.models import BoutContext, GenericBoutModel, GenericTeamModel
+from game.bouts.models import BoutContext, GenericBoutModel
 from game.jams.models import JamModel, TeamJamModel
 from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
+from game.teams.models import BaseTeamModel as BaseTeamModel
 from game.timeouts.models import TimeoutModel
 
 RULESET: Final[str] = 'WFTDA 2025'
@@ -154,7 +155,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
                 timeout.team.reviews_remaining -= 1
 
 
-class TeamModel(WFTDAModel, GenericTeamModel):
+class TeamModel(WFTDAModel, BaseTeamModel):
     @classmethod
     @override
     def get_team_jam_score(cls, team_jam: TeamJamModel) -> int:

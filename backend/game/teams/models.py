@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
-class GenericTeamModel(BaseSQLModel):
+class BaseTeamModel(BaseSQLModel):
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
 

@@ -13,16 +13,17 @@ from models import (
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
+    MappedSQLExpression,
     column_property,
     declared_attr,
     mapped_column,
     relationship,
 )
-from sqlalchemy.sql._elements_constructors import column, text
+from sqlalchemy.sql import column, text
 
 if TYPE_CHECKING:
-    from game.bouts.models import GenericBoutModel, GenericTeamModel
-    from sqlalchemy.orm.properties import MappedSQLExpression
+    from game.bouts.models import GenericBoutModel
+    from game.teams.models import BaseTeamModel
 
 type TeamName = Literal['home', 'away']
 
@@ -65,7 +66,7 @@ class JamModel(AbstractOneShotModel, CacheableSQLModel):
         self,
         period_num: int,
         jam_num: int,
-        teams: list[GenericTeamModel],
+        teams: list[BaseTeamModel],
     ) -> None:
         super().__init__(
             period=period_num,
@@ -107,7 +108,7 @@ class TeamJamModel(BaseSQLModel):
         cascade=PARENT_RELATIONSHIP,
         lazy='selectin',
     )
-    team: Mapped[GenericTeamModel | None] = relationship(
+    team: Mapped[BaseTeamModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[team_id],
         lazy='selectin',
@@ -128,5 +129,5 @@ class TeamJamModel(BaseSQLModel):
 
     __tablename__: str = 'team_jams'
 
-    def __init__(self, team: GenericTeamModel) -> None:
+    def __init__(self, team: BaseTeamModel) -> None:
         super().__init__(team=team)
