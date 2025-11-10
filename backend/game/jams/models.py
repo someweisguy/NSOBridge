@@ -40,7 +40,7 @@ class BaseJamModel(AbstractOneShotModel, CacheableSQLModel):
         foreign_keys=[bout_id],
         lazy='selectin',
     )
-    team_jams: Mapped[list[TeamJamModel]] = relationship(
+    team_jams: Mapped[list[BaseTeamJamModel]] = relationship(
         back_populates='jam',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
@@ -65,13 +65,12 @@ class BaseJamModel(AbstractOneShotModel, CacheableSQLModel):
     @override
     def cache_key(self) -> tuple[Any, ...]:
         return (self.__tablename__, self.bout_id, self.period, self.num)
-    
+
     def lead_is_declared(self) -> bool:
         for team_jam in self.team_jams:
             if any(event.lead for event in team_jam.events):
                 return True
         return False
-                
 
     async def add_trip_event(self, event: TripEventModel) -> None: ...
 
@@ -84,7 +83,7 @@ class TripEventModel(BaseSQLModel):
     passes: Mapped[int | None] = mapped_column(default=None)
     star_pass: Mapped[bool] = mapped_column(default=False)
 
-    team_jam: Mapped[TeamJamModel | None] = relationship(
+    team_jam: Mapped[BaseTeamJamModel | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[team_jam_id],
         lazy='joined',
@@ -117,7 +116,7 @@ class TripEventModel(BaseSQLModel):
         return not any((self.lead, self.lost, self.passes, self.star_pass))
 
 
-class TeamJamModel(BaseSQLModel):
+class BaseTeamJamModel(BaseSQLModel):
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
@@ -138,13 +137,19 @@ class TeamJamModel(BaseSQLModel):
         order_by=[TripEventModel.timestamp],
     )
 
-    jam_num: Mapped[int] = column_property(
+    ruleset: MappedSQLExpression[str] = column_property(
+        select(BaseJamModel.ruleset)
+        .where(BaseJamModel.id == jam_id)
+        .limit(1)
+        .scalar_subquery()
+    )
+    jam_num: MappedSQLExpression[int] = column_property(
         select(BaseJamModel.num)
         .where(BaseJamModel.id == jam_id)
         .limit(1)
         .scalar_subquery()
     )
-    period_num: Mapped[int] = column_property(
+    period_num: MappedSQLExpression[int] = column_property(
         select(BaseJamModel.period)
         .where(BaseJamModel.id == jam_id)
         .limit(1)
@@ -152,6 +157,10 @@ class TeamJamModel(BaseSQLModel):
     )
 
     __tablename__: str = 'team_jams'
+    __mapper_args__: dict[str, Any] = {
+        'polymorphic_abstract': True,
+        'polymorphic_on': ruleset,
+    }
 
     def __init__(self, team: BaseTeamModel) -> None:
         super().__init__(team=team)

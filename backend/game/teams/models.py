@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Final
 
 from game.bouts.models import BaseBoutModel
-from game.jams.models import TeamJamModel
+from game.jams.models import BaseTeamJamModel
 from game.timeouts.models import TimeoutModel
 from models import (
     CHILD_RELATIONSHIP,
@@ -43,11 +43,11 @@ class BaseTeamModel(BaseSQLModel):
         foreign_keys=[roster_id],
         lazy='joined',
     )
-    team_jams: Mapped[list[TeamJamModel]] = relationship(
+    team_jams: Mapped[list[BaseTeamJamModel]] = relationship(
         back_populates='team',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        order_by=[TeamJamModel.period_num, TeamJamModel.jam_num],
+        order_by=[BaseTeamJamModel.period_num, BaseTeamJamModel.jam_num],
     )
     timeouts: Mapped[list[TimeoutModel]] = relationship(
         back_populates='team',
@@ -68,7 +68,7 @@ class BaseTeamModel(BaseSQLModel):
     }
 
     @classmethod
-    def get_team_jam_score(cls, team_jam: TeamJamModel) -> int:
+    def get_team_jam_score(cls, team_jam: BaseTeamJamModel) -> int:
         raise NotImplementedError()
 
     def __init__(self, roster: RosterModel) -> None:
