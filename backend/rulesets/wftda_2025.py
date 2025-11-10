@@ -4,7 +4,7 @@ from typing import Final, override
 
 from exceptions import RulesError
 from game.bouts.models import BaseBoutModel, BoutContext
-from game.jams.models import BaseJamModel, TeamJamModel
+from game.jams.models import BaseJamModel, TeamJamModel, TripEventModel
 from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
 from game.teams.models import BaseTeamModel
@@ -193,3 +193,26 @@ class JamModel(WFTDAModel, BaseJamModel):
             num=jam_num,
             team_jams=[TeamJamModel(team) for team in teams],
         )
+
+    @override
+    async def add_trip_event(
+        self,
+        team_jam: TeamJamModel,
+        event: TripEventModel,
+    ) -> None:
+        if team_jam not in self.team_jams:
+            raise ValueError('trip Team is invalid')
+        if event.is_empty():
+            raise ValueError('cannot add an empty trip')
+
+        # Validate that the event is legal
+        if event.lead and self.lead_is_declared():
+            raise ValueError('cannot declare lead Jammer; lead is already declared')
+        if event.star_pass and any(event.star_pass for event in team_jam.events):
+            raise ValueError('only 1 Star Pass is allowed per Team per Jam')
+        if event.lost and any(event.lost for event in team_jam.events):
+            raise ValueError('this Team has already lost lead jammer eligibility')
+
+        # TODO: Ensure that `event.passes >= 0` - can that be done in model validation?
+        
+        team_jam.events.append(event)
