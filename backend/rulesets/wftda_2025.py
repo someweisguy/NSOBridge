@@ -172,12 +172,8 @@ class TeamModel(WFTDAModel, BaseTeam):
     @override
     def get_team_jam_score(cls, team_jam: BaseTeamJam) -> int:
         jam_score: int = 0
-        seen_initial_pass: bool = False
         for event in team_jam.events:
-            if event.passes is not None:
-                if not seen_initial_pass:
-                    seen_initial_pass = True
-                    continue
+            if event.passes is not None:  # TODO: can event.passes be non-nullable?
                 jam_score += event.passes
         return jam_score
 
