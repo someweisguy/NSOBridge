@@ -8,16 +8,10 @@ from game.jams.schemas import JamSchema  # noqa: TC002
 from game.timeouts.schemas import TimeoutSchema  # noqa: TC002
 from pydantic import Field, computed_field
 from schemas import ServerSchema
+from urllib3._version import TYPE_CHECKING
 
-
-class TeamSchema(ServerSchema):
-    id: int
-    roster_id: int
-    bout_score: int
-    jam_score: int
-    timeouts_remaining: int
-    reviews_remaining: int
-    score_offset: int
+if TYPE_CHECKING:
+    from game.teams.schemas import TeamSchema
 
 
 class BoutSchema(ServerSchema):
