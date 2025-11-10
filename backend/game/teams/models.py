@@ -13,6 +13,7 @@ from models import (
 from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import (
     Mapped,
+    MappedSQLExpression,
     column_property,
     mapped_column,
     relationship,
@@ -55,7 +56,7 @@ class BaseTeamModel(BaseSQLModel):
         order_by=TimeoutModel.id,
     )
 
-    ruleset = column_property(
+    ruleset: MappedSQLExpression[str] = column_property(
         select(BaseBoutModel.ruleset)
         .where(BaseBoutModel.id == bout_id)
         .scalar_subquery()
