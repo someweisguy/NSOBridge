@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, override
 
 from game.abstract import AbstractOneShotModel
-from game.bouts.models import BaseBoutModel
+from game.bouts.models import BaseBout
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
@@ -21,33 +21,31 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from game.team_jams.models import BaseTeamJamModel
-    from game.trip_events.models import TripEventModel
+    from game.team_jams.models import BaseTeamJam
+    from game.trip_events.models import TripEvent
 
 
-class BaseJamModel(AbstractOneShotModel, CacheableSQLModel):
+class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
 
     num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[str | None] = mapped_column(default=None)
 
-    bout: Mapped[BaseBoutModel] = relationship(
+    bout: Mapped[BaseBout] = relationship(
         back_populates='jams',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[bout_id],
         lazy='selectin',
     )
-    team_jams: Mapped[list[BaseTeamJamModel]] = relationship(
+    team_jams: Mapped[list[BaseTeamJam]] = relationship(
         back_populates='jam',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBoutModel.ruleset)
-        .where(BaseBoutModel.id == bout_id)
-        .scalar_subquery()
+        select(BaseBout.ruleset).where(BaseBout.id == bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'jams'
@@ -70,4 +68,4 @@ class BaseJamModel(AbstractOneShotModel, CacheableSQLModel):
                 return True
         return False
 
-    async def add_trip_event(self, event: TripEventModel) -> None: ...
+    async def add_trip_event(self, event: TripEvent) -> None: ...

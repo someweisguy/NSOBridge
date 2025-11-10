@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from game.jams.models import BaseJamModel
-from game.trip_events.models import TripEventModel
+from game.jams.models import BaseJam
+from game.trip_events.models import TripEvent
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
@@ -19,47 +19,38 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from game.teams.models import BaseTeamModel
+    from game.teams.models import BaseTeam
 
 
-class BaseTeamJamModel(BaseSQLModel):
+class BaseTeamJam(BaseSQLModel):
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
-    jam: Mapped[BaseJamModel] = relationship(
+    jam: Mapped[BaseJam] = relationship(
         back_populates='team_jams',
         cascade=PARENT_RELATIONSHIP,
         lazy='selectin',
     )
-    team: Mapped[BaseTeamModel | None] = relationship(
+    team: Mapped[BaseTeam | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[team_id],
         lazy='selectin',
     )
-    events: Mapped[list[TripEventModel]] = relationship(
+    events: Mapped[list[TripEvent]] = relationship(
         back_populates='team_jam',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        order_by=[TripEventModel.timestamp],
+        order_by=[TripEvent.timestamp],
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseJamModel.ruleset)
-        .where(BaseJamModel.id == jam_id)
-        .limit(1)
-        .scalar_subquery()
+        select(BaseJam.ruleset).where(BaseJam.id == jam_id).limit(1).scalar_subquery()
     )
     jam_num: MappedSQLExpression[int] = column_property(
-        select(BaseJamModel.num)
-        .where(BaseJamModel.id == jam_id)
-        .limit(1)
-        .scalar_subquery()
+        select(BaseJam.num).where(BaseJam.id == jam_id).limit(1).scalar_subquery()
     )
     period_num: MappedSQLExpression[int] = column_property(
-        select(BaseJamModel.period)
-        .where(BaseJamModel.id == jam_id)
-        .limit(1)
-        .scalar_subquery()
+        select(BaseJam.period).where(BaseJam.id == jam_id).limit(1).scalar_subquery()
     )
 
     __tablename__: str = 'team_jams'
@@ -68,5 +59,5 @@ class BaseTeamJamModel(BaseSQLModel):
         'polymorphic_on': ruleset,
     }
 
-    def __init__(self, team: BaseTeamModel) -> None:
+    def __init__(self, team: BaseTeam) -> None:
         super().__init__(team=team)

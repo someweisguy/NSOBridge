@@ -5,7 +5,7 @@ from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from users.dependencies import UserDepends
 
-from .models import BaseBoutModel
+from .models import BaseBout
 
 if TYPE_CHECKING:
     from sqlalchemy.engine.result import Result
@@ -17,13 +17,11 @@ async def get_bout(
     user: UserDepends,
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
-) -> BaseBoutModel:
+) -> BaseBout:
     # Query the database for the desired Bout
-    statement: Select[tuple[BaseBoutModel]] = select(BaseBoutModel).where(
-        BaseBoutModel.id == bout_id
-    )
-    results: Result[tuple[BaseBoutModel]] = await session.execute(statement)
-    bout: BaseBoutModel = results.scalar_one()
+    statement: Select[tuple[BaseBout]] = select(BaseBout).where(BaseBout.id == bout_id)
+    results: Result[tuple[BaseBout]] = await session.execute(statement)
+    bout: BaseBout = results.scalar_one()
 
     # Optionally take a snapshot of the Bout state and return the Bout
     if request.method != 'GET':
@@ -31,4 +29,4 @@ async def get_bout(
     return bout
 
 
-BoutDepends: TypeAlias = Annotated[BaseBoutModel, Depends(get_bout)]
+BoutDepends: TypeAlias = Annotated[BaseBout, Depends(get_bout)]

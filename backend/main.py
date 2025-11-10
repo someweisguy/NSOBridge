@@ -14,8 +14,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 from game import ROUTERS as GAME_ROUTERS
-from game.rosters.models import RosterModel
-from game.series.models import SeriesModel
+from game.rosters.models import Roster
+from game.series.models import Series
 from rulesets.wftda_2025 import BoutModel
 from sqlalchemy import Result, Select, select
 from users.router import router as user_router
@@ -73,9 +73,9 @@ async def main(host: str = '0.0.0.0', port: int = 8000) -> None:
         if results.scalar() is None:
             print('Creating initial Bout model')
             bout = BoutModel(
-                SeriesModel(),
-                RosterModel('Home'),
-                RosterModel('Away'),
+                Series(),
+                Roster('Home'),
+                Roster('Away'),
             )
             session.add(bout)
         await session.commit()

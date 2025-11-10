@@ -7,15 +7,15 @@ from models import PARENT_RELATIONSHIP, BaseSQLModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from game.bouts.models import BaseBoutModel
+    from game.bouts.models import BaseBout
 
 
-class ClockModel(BaseSQLModel):
+class Clock(BaseSQLModel):
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     elapsed: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
     alarm: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
 
-    bout: Mapped[BaseBoutModel | None] = relationship(
+    bout: Mapped[BaseBout | None] = relationship(
         back_populates='clock',
         cascade=PARENT_RELATIONSHIP,
         lazy='joined',

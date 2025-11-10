@@ -3,14 +3,14 @@ from functools import cached_property
 from typing import Final, override
 
 from exceptions import RulesError
-from game.bouts.models import BaseBoutModel, BoutContext
-from game.jams.models import BaseJamModel
-from game.rosters.models import RosterModel
-from game.series.models import SeriesModel
-from game.team_jams.models import BaseTeamJamModel
-from game.teams.models import BaseTeamModel
-from game.timeouts.models import TimeoutModel
-from game.trip_events.models import TripEventModel
+from game.bouts.models import BaseBout, BoutContext
+from game.jams.models import BaseJam
+from game.rosters.models import Roster
+from game.series.models import Series
+from game.team_jams.models import BaseTeamJam
+from game.teams.models import BaseTeam
+from game.timeouts.models import Timeout
+from game.trip_events.models import TripEvent
 
 RULESET: Final[str] = 'WFTDA 2025'
 NUM_PERIODS: Final[int] = 2
@@ -25,10 +25,8 @@ class WFTDAModel:
 # TODO: Figure out a method to forfeit a Bout
 
 
-class BoutModel(WFTDAModel, BaseBoutModel):
-    def __init__(
-        self, series: SeriesModel, home: RosterModel, away: RosterModel
-    ) -> None:
+class BoutModel(WFTDAModel, BaseBout):
+    def __init__(self, series: Series, home: Roster, away: Roster) -> None:
         super().__init__(series=series, ruleset=RULESET)
         self.clock.alarm = timedelta(minutes=30)
         self.teams.extend((TeamModel(home), TeamModel(away)))
@@ -81,7 +79,7 @@ class BoutModel(WFTDAModel, BaseBoutModel):
 
         # Update the final Jam
         if len(self.jams) > 0:
-            final_jam: BaseJamModel = self.jams[-1]
+            final_jam: BaseJam = self.jams[-1]
             if self.is_final:
                 # Cull the final Jam
                 self.jams.remove(final_jam)
@@ -140,7 +138,7 @@ class BoutModel(WFTDAModel, BaseBoutModel):
 
         # Instantiate and start the Timeout
         clock_elapsed: timedelta = self.clock.get_duration(timestamp)
-        timeout: TimeoutModel = TimeoutModel(clock_elapsed)
+        timeout: Timeout = Timeout(clock_elapsed)
         self.timeouts.append(timeout)
         timeout.start(timestamp)
 
@@ -153,7 +151,7 @@ class BoutModel(WFTDAModel, BaseBoutModel):
             raise RulesError('there is no active timeout to stop')
 
         # Validate the Timeout's state
-        timeout: TimeoutModel = self.timeouts[-1]
+        timeout: Timeout = self.timeouts[-1]
         if timeout.is_review and timeout.team is None:
             raise RulesError('officials cannot call an official review')
 
@@ -168,10 +166,10 @@ class BoutModel(WFTDAModel, BaseBoutModel):
                 timeout.team.reviews_remaining -= 1
 
 
-class TeamModel(WFTDAModel, BaseTeamModel):
+class TeamModel(WFTDAModel, BaseTeam):
     @classmethod
     @override
-    def get_team_jam_score(cls, team_jam: BaseTeamJamModel) -> int:
+    def get_team_jam_score(cls, team_jam: BaseTeamJam) -> int:
         jam_score: int = 0
         seen_initial_pass: bool = False
         for event in team_jam.events:
@@ -183,7 +181,7 @@ class TeamModel(WFTDAModel, BaseTeamModel):
         return jam_score
 
 
-class JamModel(WFTDAModel, BaseJamModel):
+class JamModel(WFTDAModel, BaseJam):
     def __init__(
         self,
         period_num: int,
@@ -197,8 +195,8 @@ class JamModel(WFTDAModel, BaseJamModel):
         )
 
 
-class TeamJamModel(WFTDAModel, BaseTeamJamModel):
-    async def add_trip(self, event: TripEventModel) -> None:
+class TeamJamModel(WFTDAModel, BaseTeamJam):
+    async def add_trip(self, event: TripEvent) -> None:
         if event.is_empty():
             raise ValueError('cannot add an empty trip')
 

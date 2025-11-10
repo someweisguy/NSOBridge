@@ -4,7 +4,7 @@ from database import AsyncSessionDepends
 from fastapi import Depends, Query
 from sqlalchemy import select
 
-from .models import TimeoutModel
+from .models import Timeout
 
 if TYPE_CHECKING:
     from sqlalchemy.engine.result import Result
@@ -17,7 +17,7 @@ async def get_timeout_or_none(
     bout_id: int,
     index: int,
     allow_none: Literal[True],
-) -> TimeoutModel | None: ...
+) -> Timeout | None: ...
 
 
 @overload
@@ -26,7 +26,7 @@ async def get_timeout_or_none(
     bout_id: int,
     index: int,
     allow_none: Literal[False],
-) -> TimeoutModel: ...
+) -> Timeout: ...
 
 
 async def get_timeout_or_none(
@@ -34,14 +34,11 @@ async def get_timeout_or_none(
     bout_id: Annotated[int, Query(alias='boutId')],
     index: Annotated[int, Query(alias='index')],
     allow_none: Annotated[bool, Query(include_in_schema=False)] = True,
-) -> TimeoutModel | None:
-    statement: Select[tuple[TimeoutModel]] = (
-        select(TimeoutModel)
-        .where(TimeoutModel.bout_id == bout_id)
-        .offset(index - 1)
-        .limit(1)
+) -> Timeout | None:
+    statement: Select[tuple[Timeout]] = (
+        select(Timeout).where(Timeout.bout_id == bout_id).offset(index - 1).limit(1)
     )
-    results: Result[tuple[TimeoutModel]] = await session.execute(statement)
+    results: Result[tuple[Timeout]] = await session.execute(statement)
     return results.scalar_one_or_none() if allow_none else results.scalar_one()
 
 
@@ -49,7 +46,7 @@ async def get_timeout(
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     index: Annotated[int, Query(alias='index')],
-) -> TimeoutModel:
+) -> Timeout:
     allow_none: bool = False
     return await get_timeout_or_none(
         session,
@@ -59,4 +56,4 @@ async def get_timeout(
     )
 
 
-TimeoutDepends: TypeAlias = Annotated[TimeoutModel, Depends(get_timeout)]
+TimeoutDepends: TypeAlias = Annotated[Timeout, Depends(get_timeout)]

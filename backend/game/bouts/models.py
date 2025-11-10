@@ -5,7 +5,7 @@ from datetime import datetime  # noqa: TC003
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Final, Literal, final
 
-from game.clocks.models import ClockModel
+from game.clocks.models import Clock
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
@@ -21,10 +21,10 @@ from sqlalchemy.orm import (
 if TYPE_CHECKING:
     from datetime import timedelta
 
-    from game.jams.models import BaseJamModel
-    from game.series.models import SeriesModel
-    from game.teams.models import BaseTeamModel
-    from game.timeouts.models import TimeoutModel
+    from game.jams.models import BaseJam
+    from game.series.models import Series
+    from game.teams.models import BaseTeam
+    from game.timeouts.models import Timeout
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
@@ -39,7 +39,7 @@ class BoutContext:
     num_reviews: int
 
 
-class BaseBoutModel(CacheableSQLModel):
+class BaseBout(CacheableSQLModel):
     series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
 
@@ -48,29 +48,29 @@ class BaseBoutModel(CacheableSQLModel):
     is_running: Mapped[bool] = mapped_column(default=False)
     ruleset: Mapped[str] = mapped_column()
 
-    clock: Mapped[ClockModel] = relationship(
+    clock: Mapped[Clock] = relationship(
         cascade=CHILD_RELATIONSHIP,
         foreign_keys=[clock_id],
         lazy='joined',
         single_parent=True,
     )
-    jams: Mapped[list[BaseJamModel]] = relationship(
+    jams: Mapped[list[BaseJam]] = relationship(
         back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
         order_by=[column('period'), column('num')],
     )
-    series: Mapped[SeriesModel] = relationship(
+    series: Mapped[Series] = relationship(
         back_populates='bouts',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[series_id],
     )
-    teams: Mapped[list[BaseTeamModel]] = relationship(
+    teams: Mapped[list[BaseTeam]] = relationship(
         back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
     )
-    timeouts: Mapped[list[TimeoutModel]] = relationship(
+    timeouts: Mapped[list[Timeout]] = relationship(
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
     )
@@ -81,8 +81,8 @@ class BaseBoutModel(CacheableSQLModel):
         'polymorphic_on': ruleset,
     }
 
-    def __init__(self, series: SeriesModel, ruleset: str) -> None:
-        super().__init__(series=series, clock=ClockModel(bout=self), ruleset=ruleset)
+    def __init__(self, series: Series, ruleset: str) -> None:
+        super().__init__(series=series, clock=Clock(bout=self), ruleset=ruleset)
 
     @final
     @property

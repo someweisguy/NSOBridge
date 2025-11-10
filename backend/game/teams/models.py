@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final
 
-from game.bouts.models import BaseBoutModel
-from game.team_jams.models import BaseTeamJamModel
-from game.timeouts.models import TimeoutModel
+from game.bouts.models import BaseBout
+from game.team_jams.models import BaseTeamJam
+from game.timeouts.models import Timeout
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
@@ -20,13 +20,13 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from game.rosters.models import RosterModel
+    from game.rosters.models import Roster
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
-class BaseTeamModel(BaseSQLModel):
+class BaseTeam(BaseSQLModel):
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
 
@@ -34,32 +34,30 @@ class BaseTeamModel(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
-    bout: Mapped[BaseBoutModel | None] = relationship(
+    bout: Mapped[BaseBout | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
         lazy='selectin',
     )
-    roster: Mapped[RosterModel | None] = relationship(
+    roster: Mapped[Roster | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[roster_id],
         lazy='joined',
     )
-    team_jams: Mapped[list[BaseTeamJamModel]] = relationship(
+    team_jams: Mapped[list[BaseTeamJam]] = relationship(
         back_populates='team',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        order_by=[BaseTeamJamModel.period_num, BaseTeamJamModel.jam_num],
+        order_by=[BaseTeamJam.period_num, BaseTeamJam.jam_num],
     )
-    timeouts: Mapped[list[TimeoutModel]] = relationship(
+    timeouts: Mapped[list[Timeout]] = relationship(
         back_populates='team',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        order_by=TimeoutModel.id,
+        order_by=Timeout.id,
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBoutModel.ruleset)
-        .where(BaseBoutModel.id == bout_id)
-        .scalar_subquery()
+        select(BaseBout.ruleset).where(BaseBout.id == bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'teams'
@@ -68,10 +66,10 @@ class BaseTeamModel(BaseSQLModel):
     }
 
     @classmethod
-    def get_team_jam_score(cls, team_jam: BaseTeamJamModel) -> int:
+    def get_team_jam_score(cls, team_jam: BaseTeamJam) -> int:
         raise NotImplementedError()
 
-    def __init__(self, roster: RosterModel) -> None:
+    def __init__(self, roster: Roster) -> None:
         super().__init__(roster=roster)
 
     @property

@@ -13,12 +13,12 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from game.bouts.models import BaseBoutModel
-    from game.jams.models import BaseJamModel
-    from game.teams.models import BaseTeamModel
+    from game.bouts.models import BaseBout
+    from game.jams.models import BaseJam
+    from game.teams.models import BaseTeam
 
 
-class TimeoutModel(AbstractOneShotModel, CacheableSQLModel):
+class Timeout(AbstractOneShotModel, CacheableSQLModel):
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
@@ -29,15 +29,15 @@ class TimeoutModel(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    bout: Mapped[BaseBoutModel] = relationship(
+    bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
         cascade=PARENT_RELATIONSHIP,
     )
-    jam: Mapped[BaseJamModel | None] = relationship(
+    jam: Mapped[BaseJam | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[jam_id],
     )
-    team: Mapped[BaseTeamModel | None] = relationship(
+    team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[team_id],
