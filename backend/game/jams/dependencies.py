@@ -6,7 +6,7 @@ from fastapi.requests import Request
 from sqlalchemy import select
 from users.dependencies import UserDepends
 
-from .models import JamModel
+from .models import BaseJamModel
 
 if TYPE_CHECKING:
     from sqlalchemy.engine.result import Result
@@ -20,7 +20,7 @@ async def get_jam_or_none(
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],
     allow_none: Literal[True],
-) -> JamModel | None: ...
+) -> BaseJamModel | None: ...
 
 
 @overload
@@ -30,7 +30,7 @@ async def get_jam_or_none(
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],
     allow_none: Literal[False],
-) -> JamModel: ...
+) -> BaseJamModel: ...
 
 
 async def get_jam_or_none(
@@ -39,14 +39,14 @@ async def get_jam_or_none(
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],
     allow_none: Annotated[bool, Query(include_in_schema=False)] = True,
-) -> JamModel | None:
-    statement: Select[tuple[JamModel]] = (
-        select(JamModel)
-        .where(JamModel.bout_id == bout_id)
-        .where(JamModel.period == period_num)
-        .where(JamModel.num == jam_num)
+) -> BaseJamModel | None:
+    statement: Select[tuple[BaseJamModel]] = (
+        select(BaseJamModel)
+        .where(BaseJamModel.bout_id == bout_id)
+        .where(BaseJamModel.period == period_num)
+        .where(BaseJamModel.num == jam_num)
     )
-    results: Result[tuple[JamModel]] = await session.execute(statement)
+    results: Result[tuple[BaseJamModel]] = await session.execute(statement)
     return results.scalar_one_or_none() if allow_none else results.scalar_one()
 
 
@@ -57,9 +57,9 @@ async def get_jam(
     bout_id: Annotated[int, Query(alias='boutId')],
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],
-) -> JamModel:
+) -> BaseJamModel:
     allow_none: bool = False
-    jam: JamModel = await get_jam_or_none(
+    jam: BaseJamModel = await get_jam_or_none(
         session,
         bout_id,
         period_num,
@@ -74,4 +74,4 @@ async def get_jam(
     return jam
 
 
-JamDepends: TypeAlias = Annotated[JamModel, Depends(get_jam)]
+JamDepends: TypeAlias = Annotated[BaseJamModel, Depends(get_jam)]

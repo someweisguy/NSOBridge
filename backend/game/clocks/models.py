@@ -4,11 +4,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from models import PARENT_RELATIONSHIP, BaseSQLModel
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     from game.bouts.models import GenericBoutModel
@@ -17,7 +13,7 @@ if TYPE_CHECKING:
 class ClockModel(BaseSQLModel):
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     elapsed: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
-    alarm: Mapped[timedelta] = mapped_column()
+    alarm: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
 
     bout: Mapped[GenericBoutModel | None] = relationship(
         back_populates='clock',

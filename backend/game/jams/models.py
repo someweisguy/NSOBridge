@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 type TeamName = Literal['home', 'away']
 
 
-class JamModel(AbstractOneShotModel, CacheableSQLModel):
+class BaseJamModel(AbstractOneShotModel, CacheableSQLModel):
     bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
 
     num: Mapped[int] = mapped_column(index=True)
@@ -53,23 +53,14 @@ class JamModel(AbstractOneShotModel, CacheableSQLModel):
     )
 
     __tablename__: str = 'jams'
-    __mapper_args__: dict[str, Any] = {'polymorphic_on': ruleset}
+    __mapper_args__: dict[str, Any] = {
+        'polymorphic_abstract': True,
+        'polymorphic_on': ruleset,
+    }
 
     @declared_attr
     def __table_args__(cls) -> Any:
         return super().__table_args__ + (UniqueConstraint('bout_id', 'num', 'period'),)
-
-    def __init__(
-        self,
-        period_num: int,
-        jam_num: int,
-        teams: list[BaseTeamModel],
-    ) -> None:
-        super().__init__(
-            period=period_num,
-            num=jam_num,
-            team_jams=[TeamJamModel(team) for team in teams],
-        )
 
     @override
     def cache_key(self) -> tuple[Any, ...]:
@@ -100,7 +91,7 @@ class TeamJamModel(BaseSQLModel):
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
-    jam: Mapped[JamModel] = relationship(
+    jam: Mapped[BaseJamModel] = relationship(
         back_populates='team_jams',
         cascade=PARENT_RELATIONSHIP,
         lazy='selectin',
@@ -118,10 +109,16 @@ class TeamJamModel(BaseSQLModel):
     )
 
     jam_num: Mapped[int] = column_property(
-        select(JamModel.num).where(JamModel.id == jam_id).limit(1).scalar_subquery()
+        select(BaseJamModel.num)
+        .where(BaseJamModel.id == jam_id)
+        .limit(1)
+        .scalar_subquery()
     )
     period_num: Mapped[int] = column_property(
-        select(JamModel.period).where(JamModel.id == jam_id).limit(1).scalar_subquery()
+        select(BaseJamModel.period)
+        .where(BaseJamModel.id == jam_id)
+        .limit(1)
+        .scalar_subquery()
     )
 
     __tablename__: str = 'team_jams'

@@ -21,7 +21,7 @@ from sqlalchemy.orm import (
 if TYPE_CHECKING:
     from datetime import timedelta
 
-    from game.jams.models import JamModel
+    from game.jams.models import BaseJamModel
     from game.series.models import SeriesModel
     from game.teams.models import BaseTeamModel
     from game.timeouts.models import TimeoutModel
@@ -54,7 +54,7 @@ class GenericBoutModel(CacheableSQLModel):
         lazy='joined',
         single_parent=True,
     )
-    jams: Mapped[list['JamModel']] = relationship(
+    jams: Mapped[list[BaseJamModel]] = relationship(
         back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
@@ -65,7 +65,7 @@ class GenericBoutModel(CacheableSQLModel):
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[series_id],
     )
-    teams: Mapped[list['BaseTeamModel']] = relationship(
+    teams: Mapped[list[BaseTeamModel]] = relationship(
         back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
@@ -81,17 +81,8 @@ class GenericBoutModel(CacheableSQLModel):
         'polymorphic_on': ruleset,
     }
 
-    def __init__(
-        self, series: SeriesModel, ruleset: str, *teams: BaseTeamModel
-    ) -> None:
-        if len(teams) < REQUIRED_NUM_TEAMS:
-            raise ValueError(f'A Bout must have at least {REQUIRED_NUM_TEAMS} Teams')
-        super().__init__(
-            series=series,
-            clock=ClockModel(),
-            ruleset=ruleset,
-            teams=list(teams)
-        )
+    def __init__(self, series: SeriesModel, ruleset: str) -> None:
+        super().__init__(series=series, clock=ClockModel(bout=self), ruleset=ruleset)
 
     @final
     @property

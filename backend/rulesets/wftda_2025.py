@@ -4,7 +4,8 @@ from typing import Final, override
 
 from exceptions import RulesError
 from game.bouts.models import BoutContext, GenericBoutModel
-from game.jams.models import JamModel, TeamJamModel
+from game.jams.models import BaseJamModel, TeamJamModel
+from game.rosters.models import RosterModel
 from game.series.models import SeriesModel
 from game.teams.models import BaseTeamModel
 from game.timeouts.models import TimeoutModel
@@ -25,15 +26,23 @@ class WFTDAModel:
 class BoutModel(WFTDAModel, GenericBoutModel):
     # FIXME: make these BaseTeamModels the WFTDA variant
     def __init__(
-        self, series: SeriesModel, home: BaseTeamModel, away: BaseTeamModel
+        self, series: SeriesModel, home: RosterModel, away: RosterModel
     ) -> None:
-        super().__init__(series, RULESET, *(home, away))
+        super().__init__(series=series, ruleset=RULESET)
         self.clock.alarm = timedelta(minutes=30)
+        self.teams.extend((TeamModel(home), TeamModel(away)))
         for team in self.teams:
             team.timeouts_remaining = self.context.num_timeouts
             team.reviews_remaining = self.context.num_reviews
-        initial_jam: JamModel = JamModel(0, 0, [self.teams[0], self.teams[1]])
+        initial_jam: JamModel = JamModel(
+            0,
+            0,
+            [self.teams[0], self.teams[1]],
+        )
         self.jams.append(initial_jam)
+        
+    def __post_init__(self) -> None:
+        print('hello world')
 
     @cached_property
     def context(self) -> BoutContext:
@@ -74,7 +83,7 @@ class BoutModel(WFTDAModel, GenericBoutModel):
 
         # Update the final Jam
         if len(self.jams) > 0:
-            final_jam: JamModel = self.jams[-1]
+            final_jam: BaseJamModel = self.jams[-1]
             if self.is_final:
                 # Cull the final Jam
                 self.jams.remove(final_jam)
@@ -114,7 +123,13 @@ class BoutModel(WFTDAModel, GenericBoutModel):
         period_num: int = self.jams[-1].period
         jam_num: int = self.jams[-1].num + 1
         home, away = self.teams[:2]
-        self.jams.append(JamModel(period_num, jam_num, [home, away]))
+        self.jams.append(
+            JamModel(
+                period_num,
+                jam_num,
+                [home, away],
+            )
+        )
 
     @override
     def start_timeout(self, timestamp: datetime) -> None:
@@ -168,3 +183,17 @@ class TeamModel(WFTDAModel, BaseTeamModel):
                     continue
                 jam_score += event.passes
         return jam_score
+
+
+class JamModel(WFTDAModel, BaseJamModel):
+    def __init__(
+        self,
+        period_num: int,
+        jam_num: int,
+        teams: list[TeamModel],
+    ) -> None:
+        super().__init__(
+            period=period_num,
+            num=jam_num,
+            team_jams=[TeamJamModel(team) for team in teams],
+        )
