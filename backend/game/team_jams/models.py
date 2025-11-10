@@ -61,3 +61,5 @@ class BaseTeamJam(BaseSQLModel):
 
     def __init__(self, team: BaseTeam) -> None:
         super().__init__(team=team)
+    
+    async def add_trip(self, event: TripEvent) -> None: ...

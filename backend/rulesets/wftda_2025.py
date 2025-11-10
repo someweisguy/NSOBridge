@@ -209,5 +209,8 @@ class TeamJamModel(WFTDAModel, BaseTeamJam):
             raise ValueError('this Team has already lost lead jammer eligibility')
 
         # TODO: Ensure that `event.passes >= 0` - can that be done in model validation?
+        
+        # TODO: if this is the first 4-point trip and lead is not declared, set lead
+        # TODO: if this is the first trip and 0 < event.passes < 4, set lost
 
         self.events.append(event)
