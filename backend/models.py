@@ -47,7 +47,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
     id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
     __abstract__: bool = True
-    __type_annotation_map__ = {timedelta: _TimedeltaAsMilliseconds}
+    __type_annotation_map__: dict = {timedelta: _TimedeltaAsMilliseconds}
 
     def _get_parents(self) -> list[BaseSQLModel]:
         parents: list[BaseSQLModel] = []
