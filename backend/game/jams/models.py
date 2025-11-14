@@ -10,7 +10,7 @@ from models import (
     CacheableSQLModel,
 )
 from pip._vendor.platformdirs.version import TYPE_CHECKING
-from sqlalchemy import ForeignKey, UniqueConstraint, select
+from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
     MappedSQLExpression,
@@ -55,7 +55,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     }
 
     @declared_attr
-    def __table_args__(cls) -> Any:
+    def __table_args__(cls):
         return super().__table_args__ + (UniqueConstraint('bout_id', 'num', 'period'),)
 
     @override

@@ -59,13 +59,15 @@ async def get_jam(
     jam_num: Annotated[int, Query(alias='jamNum')],
 ) -> BaseJam:
     allow_none: bool = False
-    jam: BaseJam = await get_jam_or_none(
+    jam: BaseJam | None = await get_jam_or_none(
         session,
         bout_id,
         period_num,
         jam_num,
         allow_none,
     )
+    if jam is None:
+        raise IndexError('jam not found')
 
     # Optionally take a snapshot of the state
     if request.method != 'GET':

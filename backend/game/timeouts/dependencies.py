@@ -48,12 +48,15 @@ async def get_timeout(
     index: Annotated[int, Query(alias='index')],
 ) -> Timeout:
     allow_none: bool = False
-    return await get_timeout_or_none(
+    timeout: Timeout | None = await get_timeout_or_none(
         session,
         bout_id,
         index,
         allow_none,
     )
+    if timeout is None:
+        raise IndexError('timeout not found')
+    return timeout
 
 
 TimeoutDepends: TypeAlias = Annotated[Timeout, Depends(get_timeout)]
