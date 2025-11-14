@@ -7,7 +7,6 @@ dependencies = [
   "requests~=2.31.0",
   "ruff~=0.12.2",
   "SQLAlchemy~=2.0.41",
-  "ty~=0.0.1-alpha.25",
   "uvicorn~=0.34.2",
   "websockets~=15.0.1",
 ]
@@ -23,6 +22,15 @@ line-length = 88
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "single"
+
+[tool.pyrefly]
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]
+search_path = [
+  "backend/",
+]
 
 [tool.ruff.lint]
 extend-select = [
