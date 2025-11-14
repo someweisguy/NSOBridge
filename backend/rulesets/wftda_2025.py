@@ -183,7 +183,7 @@ class JamModel(WFTDAModel, BaseJam):
         self,
         period_num: int,
         jam_num: int,
-        teams: list[TeamModel],
+        teams: list[BaseTeam],
     ) -> None:
         super().__init__(
             period=period_num,
