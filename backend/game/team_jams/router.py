@@ -11,23 +11,23 @@ router: Final[APIRouter] = APIRouter(prefix='/team-jam')
 router.add_api_route('', get_team_jam, response_model=TeamJamSchema)
 
 
-@router.post('/add-pass')
+@router.post('/add-trip')
 async def add_trip(team_jam: TeamJamDepends, passes: Annotated[int, Body()]) -> None:
-    team_jam.add_trip(datetime.now(), passes)
+    await team_jam.add_trip(datetime.now(), passes)
 
 
 @router.post('/set-lead')
-async def set_lead(team_jam: TeamJamDepends, lead: Annotated[int, Body()]) -> None:
-    team_jam.set_lead(datetime.now(), lead)
+async def set_lead(team_jam: TeamJamDepends, lead: Annotated[bool, Body()]) -> None:
+    await team_jam.set_lead(datetime.now(), lead)
 
 
 @router.post('/set-lost')
-async def set_lost(team_jam: TeamJamDepends, lost: Annotated[int, Body()]) -> None:
-    team_jam.set_lost(datetime.now(), lost)
+async def set_lost(team_jam: TeamJamDepends, lost: Annotated[bool, Body()]) -> None:
+    await team_jam.set_lost(datetime.now(), lost)
 
 
 @router.post('/set-star-pass')
 async def set_star_pass(
-    team_jam: TeamJamDepends, star_pass: Annotated[int, Body()]
+    team_jam: TeamJamDepends, star_pass: Annotated[bool, Body()]
 ) -> None:
-    team_jam.set_star_pass(datetime.now(), star_pass)
+    await team_jam.set_star_pass(datetime.now(), star_pass)
