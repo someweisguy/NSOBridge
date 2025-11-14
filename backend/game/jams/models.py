@@ -15,7 +15,6 @@ from sqlalchemy.orm import (
     Mapped,
     MappedSQLExpression,
     column_property,
-    declared_attr,
     mapped_column,
     relationship,
 )
@@ -53,10 +52,9 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         'polymorphic_abstract': True,
         'polymorphic_on': ruleset,
     }
-
-    @declared_attr
-    def __table_args__(cls):
-        return super().__table_args__ + (UniqueConstraint('bout_id', 'num', 'period'),)
+    __table_args__: tuple[Constraint, ...] = AbstractOneShotModel.__table_args__ + (
+        UniqueConstraint('bout_id', 'num', 'period'),
+    )
 
     @override
     def cache_key(self) -> tuple[Any, ...]:

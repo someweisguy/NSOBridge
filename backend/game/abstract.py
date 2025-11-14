@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any
 
 from models import BaseSQLModel
-from sqlalchemy import CheckConstraint
+from sqlalchemy import CheckConstraint, Constraint
 from sqlalchemy.orm import (
     Mapped,
-    declared_attr,
     mapped_column,
 )
 
@@ -18,12 +16,10 @@ class AbstractOneShotModel(BaseSQLModel):
 
     __abstract__: bool = True
 
-    @declared_attr
-    def __table_args__(cls) -> Any:
-        return (
-            CheckConstraint('start_timestamp < stop_timestamp'),
-            CheckConstraint('start_timestamp IS NOT NULL OR stop_timestamp IS NULL'),
-        )
+    __table_args__: tuple[Constraint, ...] = (
+        CheckConstraint('start_timestamp < stop_timestamp'),
+        CheckConstraint('start_timestamp IS NOT NULL OR stop_timestamp IS NULL'),
+    )
 
     def start(self, timestamp: datetime) -> None:
         if self.is_running():
