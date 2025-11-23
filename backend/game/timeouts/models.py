@@ -4,16 +4,19 @@ from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
 
 from game.abstract import AbstractOneShotModel
+from game.bouts.models import BaseBout
 from models import PARENT_RELATIONSHIP, CacheableSQLModel
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import (
     Mapped,
+    MappedSQLExpression,
+    column_property,
     mapped_column,
     relationship,
 )
+from sqlalchemy.sql._selectable_constructors import select
 
 if TYPE_CHECKING:
-    from game.bouts.models import BaseBout
     from game.jams.models import BaseJam
     from game.teams.models import BaseTeam
 
@@ -43,7 +46,15 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         foreign_keys=[team_id],
     )
 
+    ruleset: MappedSQLExpression[str] = column_property(
+        select(BaseBout.ruleset).where(BaseBout.id == bout_id).scalar_subquery()
+    )
+
     __tablename__: str = 'timeouts'
+    __mapper_args__: dict[str, Any] = {
+        'polymorphic_abstract': True,
+        'polymorphic_on': ruleset,
+    }
 
     def __init__(self, clock_elapsed: timedelta, is_review: bool = False) -> None:
         super().__init__(clock_elapsed=clock_elapsed, is_review=is_review)
@@ -55,4 +66,3 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     def set_type(self, team: BaseTeam | None, is_review: bool) -> None: ...
 
     def set_retained(self, retained: bool) -> None: ...
-

@@ -144,7 +144,7 @@ class Bout(WFTDAModel, BaseBout):
 
         # Instantiate and start the Timeout
         clock_elapsed: timedelta = self.clock.get_duration(timestamp)
-        timeout: BaseTimeout = BaseTimeout(clock_elapsed)
+        timeout: Timeout = Timeout(clock_elapsed)
         self.timeouts.append(timeout)
         timeout.start(timestamp)
 
@@ -266,7 +266,7 @@ class TeamJam(WFTDAModel, BaseTeamJam):
             event.star_pass = star_pass
 
 
-class Timeout(BaseTimeout):
+class Timeout(WFTDAModel, BaseTimeout):
     def set_type(self, team: BaseTeam | None, is_review: bool) -> None:
         if team is None and is_review:
             raise RulesError('official reviews can only be called by teams')
