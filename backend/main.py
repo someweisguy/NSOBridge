@@ -74,8 +74,8 @@ async def main(host: str = '0.0.0.0', port: int = 8000) -> None:
             print('Creating initial Bout model')
             bout = Bout(
                 Series(),
-                Roster('Home'),
-                Roster('Away'),
+                Roster('Home', 'Default League'),
+                Roster('Away', 'Default League'),
             )
             session.add(bout)
         await session.commit()
