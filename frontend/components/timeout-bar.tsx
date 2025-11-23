@@ -13,6 +13,7 @@ interface TimeoutBarProps {
   reviewsRemaining: number;
   numTimeouts: number;
   numReviews: number;
+  activeTimeout: "timeout" | "review" | null;
   size?: keyof typeof sizeStyles;
 }
 
@@ -21,6 +22,7 @@ export default function TimeoutBar({
   reviewsRemaining,
   numTimeouts,
   numReviews,
+  activeTimeout,
   size = "medium",
 }: TimeoutBarProps) {
   return (
@@ -33,14 +35,26 @@ export default function TimeoutBar({
       {Array.from({ length: numTimeouts }, (_, k) => (
         <div
           key={`t${k}`}
-          className={twMerge(dotStyle, k >= timeoutsRemaining && "invisible")}
+          className={twMerge(
+            dotStyle,
+            k >= timeoutsRemaining && "invisible",
+            k == timeoutsRemaining - 1 &&
+              activeTimeout == "timeout" &&
+              "animate-ping", // TODO: make a custom Tailwind animation for timeouts
+          )}
         ></div>
       ))}
       <hr className="mx-1 border-gray-400"></hr>
       {Array.from({ length: numReviews }, (_, k) => (
         <div
           key={`r${k}`}
-          className={twMerge(dotStyle, k >= reviewsRemaining && "invisible")}
+          className={twMerge(
+            dotStyle,
+            k >= reviewsRemaining && "invisible",
+            k == reviewsRemaining - 1 &&
+              activeTimeout == "review" &&
+              "animate-ping", // TODO: make a custom Tailwind animation for timeouts
+          )}
         ></div>
       ))}
     </div>

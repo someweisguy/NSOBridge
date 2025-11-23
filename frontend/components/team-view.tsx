@@ -1,9 +1,10 @@
 import { BoutContext, Team } from "@/features/game/bouts/types";
+import useRoster from "@/features/game/rosters/hooks/use-roster";
+import { Roster } from "@/features/game/rosters/types";
 import { PropsWithChildren } from "react";
 import ScoreView from "./score-view";
 import TimeoutBar from "./timeout-bar";
-import { Roster } from "@/features/game/rosters/types";
-import useRoster from "@/features/game/rosters/hooks/use-roster";
+// import useTimeout from "@/features/game/timeouts/hooks/use-timeout";
 
 interface TeamsViewProps {
   team: Team;
@@ -22,7 +23,8 @@ export default function TeamView({
         {roster.name}
       </div>
       <div className="justify-center items-center grid">
-        <TimeoutBar {...team} {...context} />
+        {/* FIXME: get the activeTimeout type by querying the latest Timeout */}
+        <TimeoutBar {...team} {...context} activeTimeout={null} />
       </div>
       <div className="justify-stretch items-center grid">
         <ScoreView {...team} />
