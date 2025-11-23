@@ -6,6 +6,7 @@ from pydantic import Field, computed_field
 from schemas import ServerSchema
 
 
+# FIXME: This JamSchema should be deleted
 class JamSchema(ServerSchema):
     start_timestamp: datetime | None
     period: int
@@ -16,6 +17,7 @@ class RosterSchema(ServerSchema):
     name: str
 
 
+# FIXME: This TeamSchema should be deleted
 class TeamSchema(ServerSchema):
     id: int
     roster: RosterSchema = Field(exclude=True)
