@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from game import ROUTERS as GAME_ROUTERS
 from game.rosters.models import Roster
 from game.series.models import Series
-from rulesets.wftda_2025 import BoutModel
+from rulesets.wftda_2025 import Bout
 from sqlalchemy import Result, Select, select
 from users.router import router as user_router
 from uvicorn import Config, Server
@@ -66,13 +66,13 @@ async def main(host: str = '0.0.0.0', port: int = 8000) -> None:
     await models.create_all()
 
     # Create a Bout model if one does not already exist
-    bout: BoutModel | None = None
+    bout: Bout | None = None
     async with session_factory() as session, session.begin():
-        statement: Select[tuple[BoutModel]] = select(BoutModel)
-        results: Result[tuple[BoutModel]] = await session.execute(statement)
+        statement: Select[tuple[Bout]] = select(Bout)
+        results: Result[tuple[Bout]] = await session.execute(statement)
         if results.scalar() is None:
             print('Creating initial Bout model')
-            bout = BoutModel(
+            bout = Bout(
                 Series(),
                 Roster('Home'),
                 Roster('Away'),

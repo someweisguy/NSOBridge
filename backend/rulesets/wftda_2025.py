@@ -26,15 +26,15 @@ class WFTDAModel:
 # TODO: Figure out a method to forfeit a Bout
 
 
-class BoutModel(WFTDAModel, BaseBout):
+class Bout(WFTDAModel, BaseBout):
     def __init__(self, series: Series, home: Roster, away: Roster) -> None:
         super().__init__(series=series, ruleset=RULESET)
         self.clock.alarm = timedelta(minutes=30)
-        self.teams.extend((TeamModel(home), TeamModel(away)))
+        self.teams.extend((Team(home), Team(away)))
         for team in self.teams:
             team.timeouts_remaining = self.context.num_timeouts
             team.reviews_remaining = self.context.num_reviews
-        initial_jam: JamModel = JamModel(
+        initial_jam: Jam = Jam(
             0,
             0,
             [self.teams[0], self.teams[1]],
@@ -124,7 +124,7 @@ class BoutModel(WFTDAModel, BaseBout):
         jam_num: int = self.jams[-1].num + 1
         home, away = self.teams[:2]
         self.jams.append(
-            JamModel(
+            Jam(
                 period_num,
                 jam_num,
                 [home, away],
@@ -180,7 +180,7 @@ class BoutModel(WFTDAModel, BaseBout):
         return timeout
 
 
-class TeamModel(WFTDAModel, BaseTeam):
+class Team(WFTDAModel, BaseTeam):
     @classmethod
     @override
     def get_team_jam_score(cls, team_jam: BaseTeamJam) -> int:
@@ -191,7 +191,7 @@ class TeamModel(WFTDAModel, BaseTeam):
         return jam_score
 
 
-class JamModel(WFTDAModel, BaseJam):
+class Jam(WFTDAModel, BaseJam):
     def __init__(
         self,
         period_num: int,
@@ -201,11 +201,11 @@ class JamModel(WFTDAModel, BaseJam):
         super().__init__(
             period=period_num,
             num=jam_num,
-            team_jams=[TeamJamModel(team) for team in teams],
+            team_jams=[TeamJam(team) for team in teams],
         )
 
 
-class TeamJamModel(WFTDAModel, BaseTeamJam):
+class TeamJam(WFTDAModel, BaseTeamJam):
     @override
     async def add_trip(self, timestamp: datetime, passes: int) -> None:
         event: TripEvent = TripEvent(timestamp, passes=passes)
