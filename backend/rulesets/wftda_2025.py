@@ -268,3 +268,15 @@ class TeamJam(WFTDAModel, BaseTeamJam):
                 if event.star_pass:
                     break
             event.star_pass = star_pass
+
+
+class Timeout(BaseTimeout):
+    def set_type(self, team: BaseTeam | None, is_review: bool) -> None:
+        if team is None and is_review:
+            raise RulesError('official reviews can only be called by teams')
+
+        self.team = team
+        self.is_review = is_review
+
+    def set_retained(self, retained: bool) -> None:
+        self.retained = retained

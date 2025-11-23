@@ -51,3 +51,8 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     @override
     def cache_key(self) -> tuple[Any, ...]:
         return (self.__tablename__, self.bout.id, self.bout.timeouts.index(self))
+
+    def set_type(self, team: BaseTeam | None, is_review: bool) -> None: ...
+
+    def set_retained(self, retained: bool) -> None: ...
+
