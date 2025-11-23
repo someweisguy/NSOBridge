@@ -14,7 +14,7 @@ router.add_api_route('', get_timeout, response_model=TimeoutSchema | None)
 async def set_type(
     timeout: TimeoutDepends,
     team_or_none: OptionalTeamDepends,  # TODO: this should be a Body parameter
-    is_review: bool,
+    is_review: Annotated[bool, Body()],
 ) -> None:
     timeout.set_type(team_or_none, is_review)
 
