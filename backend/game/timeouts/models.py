@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from game.teams.models import BaseTeam
 
 
-class Timeout(AbstractOneShotModel, CacheableSQLModel):
+class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))

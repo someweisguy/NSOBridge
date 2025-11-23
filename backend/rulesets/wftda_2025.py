@@ -9,7 +9,7 @@ from game.rosters.models import Roster
 from game.series.models import Series
 from game.team_jams.models import BaseTeamJam
 from game.teams.models import BaseTeam
-from game.timeouts.models import Timeout
+from game.timeouts.models import BaseTimeout
 from game.trip_events.models import TripEvent
 
 RULESET: Final[str] = 'WFTDA 2025'
@@ -131,7 +131,7 @@ class BoutModel(WFTDAModel, BaseBout):
     @override
     def start_timeout(
         self, timestamp: datetime, team: BaseTeam | None = None, is_review: bool = False
-    ) -> Timeout:
+    ) -> BaseTimeout:
         if self.state == 'jam':
             # Allow the user to end the Jam and immediately start a Timeout
             self.stop_jam(timestamp)
@@ -141,7 +141,7 @@ class BoutModel(WFTDAModel, BaseBout):
 
         # Instantiate and start the Timeout
         clock_elapsed: timedelta = self.clock.get_duration(timestamp)
-        timeout: Timeout = Timeout(clock_elapsed, is_review)
+        timeout: BaseTimeout = BaseTimeout(clock_elapsed, is_review)
         if team is not None:
             timeout.team = team
         self.timeouts.append(timeout)
@@ -158,7 +158,7 @@ class BoutModel(WFTDAModel, BaseBout):
             raise RulesError('there is no active timeout to stop')
 
         # Validate the Timeout's state
-        timeout: Timeout = self.timeouts[-1]
+        timeout: BaseTimeout = self.timeouts[-1]
         if timeout.is_review and timeout.team is None:
             raise RulesError('officials cannot call an official review')
 

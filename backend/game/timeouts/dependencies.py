@@ -4,7 +4,7 @@ from database import AsyncSessionDepends
 from fastapi import Depends, Query
 from sqlalchemy import select
 
-from .models import Timeout
+from .models import BaseTimeout
 
 if TYPE_CHECKING:
     from sqlalchemy.engine.result import Result
@@ -17,7 +17,7 @@ async def get_timeout_or_none(
     bout_id: int,
     index: int,
     allow_none: Literal[True],
-) -> Timeout | None: ...
+) -> BaseTimeout | None: ...
 
 
 @overload
@@ -26,7 +26,7 @@ async def get_timeout_or_none(
     bout_id: int,
     index: int,
     allow_none: Literal[False],
-) -> Timeout: ...
+) -> BaseTimeout: ...
 
 
 async def get_timeout_or_none(
@@ -34,11 +34,14 @@ async def get_timeout_or_none(
     bout_id: Annotated[int, Query(alias='boutId')],
     index: Annotated[int, Query(alias='index')],
     allow_none: Annotated[bool, Query(include_in_schema=False)] = True,
-) -> Timeout | None:
-    statement: Select[tuple[Timeout]] = (
-        select(Timeout).where(Timeout.bout_id == bout_id).offset(index - 1).limit(1)
+) -> BaseTimeout | None:
+    statement: Select[tuple[BaseTimeout]] = (
+        select(BaseTimeout)
+        .where(BaseTimeout.bout_id == bout_id)
+        .offset(index - 1)
+        .limit(1)
     )
-    results: Result[tuple[Timeout]] = await session.execute(statement)
+    results: Result[tuple[BaseTimeout]] = await session.execute(statement)
     return results.scalar_one_or_none() if allow_none else results.scalar_one()
 
 
@@ -46,9 +49,9 @@ async def get_timeout(
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     index: Annotated[int, Query(alias='index')],
-) -> Timeout:
+) -> BaseTimeout:
     allow_none: bool = False
-    timeout: Timeout | None = await get_timeout_or_none(
+    timeout: BaseTimeout | None = await get_timeout_or_none(
         session,
         bout_id,
         index,
@@ -59,4 +62,4 @@ async def get_timeout(
     return timeout
 
 
-TimeoutDepends: TypeAlias = Annotated[Timeout, Depends(get_timeout)]
+TimeoutDepends: TypeAlias = Annotated[BaseTimeout, Depends(get_timeout)]

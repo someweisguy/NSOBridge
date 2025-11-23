@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Final
 
 from game.bouts.models import BaseBout
 from game.team_jams.models import BaseTeamJam
-from game.timeouts.models import Timeout
+from game.timeouts.models import BaseTimeout
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
@@ -49,11 +49,11 @@ class BaseTeam(BaseSQLModel):
         lazy='selectin',
         order_by=[BaseTeamJam.period_num, BaseTeamJam.jam_num],
     )
-    timeouts: Mapped[list[Timeout]] = relationship(
+    timeouts: Mapped[list[BaseTimeout]] = relationship(
         back_populates='team',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        order_by=Timeout.id,
+        order_by=BaseTimeout.id,
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
