@@ -18,7 +18,7 @@ class Skater(BaseSQLModel):
         lazy='selectin',
     )
 
-    __table_name__: str = 'skaters'
+    __tablename__: str = 'skaters'
 
     def __init__(self, name: str, number: str) -> None:
         super().__init__(name=name, number=number)
