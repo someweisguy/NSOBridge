@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING, Annotated, Literal, TypeAlias, overload
 
 from database import AsyncSessionDepends
-from fastapi import Depends, Query
+from fastapi import Depends, Query, Request
 from sqlalchemy import select
+from users.dependencies import UserDepends
 
 from .models import BaseTimeout
 
@@ -46,6 +47,8 @@ async def get_timeout_or_none(
 
 
 async def get_timeout(
+    request: Request,
+    user: UserDepends,
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     index: Annotated[int, Query(alias='index')],
@@ -59,6 +62,10 @@ async def get_timeout(
     )
     if timeout is None:
         raise IndexError('timeout not found')
+
+    # Optionally take a snapshot of the Timeout state
+    if request.method != 'GET':
+        user.stage(timeout.get_snapshot())
     return timeout
 
 
