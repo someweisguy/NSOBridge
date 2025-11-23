@@ -112,11 +112,12 @@ class BoutModel(WFTDAModel, BaseBout):
         return jam
 
     @override
-    def stop_jam(self, timestamp: datetime) -> None:
+    def stop_jam(self, timestamp: datetime) -> BaseJam:
         if self.state != 'jam':
             raise RulesError('there is no running jam to stop')
 
-        self.jams[-1].stop(timestamp)
+        jam: BaseJam = self.jams[-1]
+        jam.stop(timestamp)
 
         # Push a new Jam to the queue to allow users to immediately fill out the Lineup
         period_num: int = self.jams[-1].period
@@ -129,6 +130,8 @@ class BoutModel(WFTDAModel, BaseBout):
                 [home, away],
             )
         )
+
+        return jam
 
     @override
     def start_timeout(
@@ -155,7 +158,7 @@ class BoutModel(WFTDAModel, BaseBout):
         return timeout
 
     @override
-    def stop_timeout(self, timestamp: datetime) -> None:
+    def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
         if self.state != 'timeout':
             raise RulesError('there is no active timeout to stop')
 
@@ -173,6 +176,8 @@ class BoutModel(WFTDAModel, BaseBout):
                 timeout.team.reviews_remaining -= 1
             elif not timeout.is_review:
                 timeout.team.reviews_remaining -= 1
+
+        return timeout
 
 
 class TeamModel(WFTDAModel, BaseTeam):
