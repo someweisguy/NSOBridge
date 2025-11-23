@@ -29,6 +29,7 @@ class TeamSchema(ServerSchema):
         return self.roster.name
 
 
+# FIXME: This BoutSchema should be deleted
 class BoutSchema(ServerSchema):
     id: int
     ruleset: str
