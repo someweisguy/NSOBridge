@@ -30,6 +30,7 @@ class BaseTeam(BaseSQLModel):
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
 
+    # TODO: Implement Team colors
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
