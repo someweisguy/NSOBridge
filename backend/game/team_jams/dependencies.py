@@ -23,6 +23,9 @@ async def get_team_jam(
     results: Result[tuple[BaseTeamJam]] = await session.execute(statement)
     team_jam: BaseTeamJam = results.scalar_one()
 
+    # Eagerly query the opposing Team Jams to simplify rules logic
+    await team_jam.jam.awaitable_attrs.team_jams
+
     if request.method != 'GET':
         user.stage(team_jam.jam.get_snapshot())
     return team_jam

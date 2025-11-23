@@ -25,7 +25,7 @@ class TripEvent(BaseSQLModel):
 
     __tablename__: str = 'trip_events'
     __table_args__: tuple[Constraint, ...] = (
-        CheckConstraint('passes IS NULL OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
+        CheckConstraint('passes = 0 OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
     )
 
     def __init__(
