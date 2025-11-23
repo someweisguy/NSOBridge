@@ -7,7 +7,7 @@ from schemas import ServerSchema
 
 class TimeoutSchema(ServerSchema):
     id: int
-    team_id: int
+    team_id: int | None
     jam_id: int | None
 
     start_timestamp: datetime | None
