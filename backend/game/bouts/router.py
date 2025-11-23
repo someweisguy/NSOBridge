@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Final
+from typing import TYPE_CHECKING, Annotated, Final
 
 from fastapi import APIRouter, Body
 from game.teams.dependencies import OptionalTeamDepends
@@ -7,6 +7,9 @@ from game.teams.dependencies import OptionalTeamDepends
 from .dependencies import BoutDepends, get_bout
 from .models import BoutContext
 from .schemas import BoutContextSchema, BoutSchema
+
+if TYPE_CHECKING:
+    from game.timeouts.models import BaseTimeout
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 router.add_api_route('', get_bout, response_model=BoutSchema)
@@ -43,7 +46,8 @@ async def start_timeout(
     team: OptionalTeamDepends = None,  # TODO: dependency should be in Body
     is_review: Annotated[bool, Body(alias='isReview')] = False,
 ) -> None:
-    bout.start_timeout(datetime.now(), team, is_review)
+    timeout: BaseTimeout = bout.start_timeout(datetime.now())
+    timeout.set_type(team, is_review)
 
 
 @router.post(path='/stop-timeout')
