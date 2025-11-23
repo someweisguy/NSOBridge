@@ -1,8 +1,8 @@
 import { Bout, BoutContext, Team } from "@/features/game/bouts/types";
-import TeamView from "./team-view";
 import React from "react";
+import TeamView from "./team-view";
 
-export function withTeam(
+export default function withTeam(
   FooterComponent?: ({ team }: { team: Team }) => React.ReactNode,
 ) {
   const GenericTeamComponent = ({
@@ -25,5 +25,3 @@ export function withTeam(
   };
   return React.memo(GenericTeamComponent);
 }
-
-export const TeamComponent = withTeam();

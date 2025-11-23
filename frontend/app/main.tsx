@@ -1,6 +1,6 @@
 import Button from "@/components/button";
 import Clock from "@/components/clock";
-import { TeamComponent } from "@/components/team-component";
+import withTeam from "@/components/team-component";
 import useBout from "@/features/game/bouts/hooks/use-bout";
 import useBoutContext from "@/features/game/bouts/hooks/use-bout-context";
 import { Bout, createBout } from "@/features/game/bouts/types";
@@ -36,6 +36,8 @@ export default function App() {
     </StrictMode>
   );
 }
+
+const TeamComponent = withTeam();
 
 function Test() {
   void useServerOffset(); // Prefetch
@@ -106,13 +108,13 @@ function BoutTimeInformation() {
     );
   }
 
-  let displayPeriod = jam.period;
-  let displayJam = jam.num;
+  let currentPeriodNum = jam.period;
+  let currentJamNum = jam.num;
 
   // Overtime Jams should be considered a continuation of the second half
-  if (displayPeriod >= 2) {
-    displayPeriod = 1;
-    displayJam += bout.jamCounts[1];
+  if (currentPeriodNum >= 2) {
+    currentPeriodNum = 1;
+    currentJamNum += bout.jamCounts[1];
   }
 
   return (
@@ -121,8 +123,8 @@ function BoutTimeInformation() {
         {jam.period == 2 ? "OT" : <Clock {...bout.clock} />}
       </div>
       <div className="flex justify-between items-baseline gap-20 w-full">
-        <h1 className="text-center">P{displayPeriod + 1}</h1>
-        <h1 className="text-center">J{displayJam + 1}</h1>
+        <h1 className="text-center">P{currentPeriodNum + 1}</h1>
+        <h1 className="text-center">J{currentJamNum + 1}</h1>
       </div>
       <div className="w-full text-7xl text-center">
         {!jam.hasStarted() || jam.isRunning() ? (

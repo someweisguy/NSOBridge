@@ -1,5 +1,5 @@
 import Clock from "@/components/clock";
-import { TeamComponent } from "@/components/team-component";
+import withTeam from "@/components/team-component";
 import useBout from "@/features/game/bouts/hooks/use-bout";
 import useBoutContext from "@/features/game/bouts/hooks/use-bout-context";
 import { Bout, BoutContext } from "@/features/game/bouts/types";
@@ -28,6 +28,8 @@ export default function App() {
     </StrictMode>
   );
 }
+
+const TeamComponent = withTeam();
 
 function Test() {
   void useServerOffset(); // Prefetch
