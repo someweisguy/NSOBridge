@@ -27,10 +27,10 @@ async def set_retained(
 
 
 @router.put('/details')
-async def set_details(timeout: TimeoutDepends) -> None:
-    pass  # TODO: set timeout.details
+async def set_details(timeout: TimeoutDepends, details: Annotated[str, Body()]) -> None:
+    timeout.details = details
 
 
 @router.put('/result')
-async def set_result(timeout: TimeoutDepends) -> None:
-    pass  # TODO: set timeout.result
+async def set_result(timeout: TimeoutDepends, result: Annotated[str, Body()]) -> None:
+    timeout.result = result
