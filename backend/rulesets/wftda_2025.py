@@ -92,7 +92,7 @@ class BoutModel(WFTDAModel, BaseBout):
         self.is_running = False
 
     @override
-    def start_jam(self, timestamp: datetime) -> None:
+    def start_jam(self, timestamp: datetime) -> BaseJam:
         if not self.is_running:
             # Allow user to skip the initial call to begin_period()
             self.begin_period(timestamp)
@@ -104,10 +104,12 @@ class BoutModel(WFTDAModel, BaseBout):
             raise RulesError('a jam may only be started from lineup')
 
         # Start the Clock if not in overtime
-        if self.jams[-1].period < NUM_PERIODS and not self.clock.is_running():
+        jam: BaseJam = self.jams[-1]
+        if jam.period < NUM_PERIODS and not self.clock.is_running():
             self.clock.start(timestamp)
 
-        self.jams[-1].start(timestamp)
+        jam.start(timestamp)
+        return jam
 
     @override
     def stop_jam(self, timestamp: datetime) -> None:
