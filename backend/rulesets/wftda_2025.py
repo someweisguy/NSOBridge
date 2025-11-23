@@ -130,7 +130,7 @@ class BoutModel(WFTDAModel, BaseBout):
 
     @override
     def start_timeout(
-        self, timestamp: datetime, team: BaseTeam | None = None
+        self, timestamp: datetime, team: BaseTeam | None = None, is_review: bool = False
     ) -> Timeout:
         if self.state == 'jam':
             # Allow the user to end the Jam and immediately start a Timeout
@@ -141,13 +141,11 @@ class BoutModel(WFTDAModel, BaseBout):
 
         # Instantiate and start the Timeout
         clock_elapsed: timedelta = self.clock.get_duration(timestamp)
-        timeout: Timeout = Timeout(clock_elapsed)
-        self.timeouts.append(timeout)
-        timeout.start(timestamp)
-
-        # Assign the optional Team that is calling this the Timeout
+        timeout: Timeout = Timeout(clock_elapsed, is_review)
         if team is not None:
             timeout.team = team
+        self.timeouts.append(timeout)
+        timeout.start(timestamp)
 
         if self.clock.is_running():
             self.clock.stop(timestamp)

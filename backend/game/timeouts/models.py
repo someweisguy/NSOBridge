@@ -45,8 +45,8 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
     __tablename__: str = 'timeouts'
 
-    def __init__(self, clock_elapsed: timedelta) -> None:
-        super().__init__(clock_elapsed=clock_elapsed)
+    def __init__(self, clock_elapsed: timedelta, is_review: bool = False) -> None:
+        super().__init__(clock_elapsed=clock_elapsed, is_review=is_review)
 
     @override
     def cache_key(self) -> tuple[Any, ...]:
