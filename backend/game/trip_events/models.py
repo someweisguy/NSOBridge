@@ -45,6 +45,3 @@ class TripEvent(BaseSQLModel):
             passes=passes,
             star_pass=star_pass,
         )
-
-    def is_empty(self) -> bool:
-        return not any((self.lead, self.lost, self.passes, self.star_pass))

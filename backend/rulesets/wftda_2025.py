@@ -232,9 +232,6 @@ class TeamJamModel(WFTDAModel, BaseTeamJam):
                 if event.lead:
                     break
             event.lead = lead
-            if event.is_empty():
-                # Empty events are not allowed
-                self.events.remove(event)
 
     @override
     async def set_lost(self, timestamp: datetime, lost: bool) -> None:
@@ -249,9 +246,6 @@ class TeamJamModel(WFTDAModel, BaseTeamJam):
                 if event.lead:
                     break
             event.lost = lost
-            if event.is_empty():
-                # Empty events are not allowed
-                self.events.remove(event)
 
     @override
     async def set_star_pass(self, timestamp: datetime, star_pass: bool) -> None:
@@ -267,6 +261,3 @@ class TeamJamModel(WFTDAModel, BaseTeamJam):
                 if event.star_pass:
                     break
             event.star_pass = star_pass
-            if event.is_empty():
-                # Empty events are not allowed
-                self.events.remove(event)
