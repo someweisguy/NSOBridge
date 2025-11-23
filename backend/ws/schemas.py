@@ -12,7 +12,7 @@ class WebSocketSchema(ServerSchema):
     def __init__(
         self, data_type: Literal['cache', 'sync'], data: Any | None = None
     ) -> None:
-        super().__init__(type=data_type, data=data)  # ty: ignore[unknown-argument]
+        super().__init__(type=data_type, data=data)
 
     @field_serializer('data')
     def _reject_null_data(self, data: Any | None) -> Any:
