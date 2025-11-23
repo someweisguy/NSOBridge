@@ -71,7 +71,7 @@ function Test() {
         <Button onClick={() => void bout.beginPeriod()}>Start Period</Button>
         <Button onClick={() => void bout.startJam()}>Start Jam</Button>
         <Button onClick={() => void bout.stopJam()}>Stop Jam</Button>
-        <Button onClick={() => void bout.stopTimeout()}>Call Timeout</Button>
+        <Button onClick={() => void bout.startTimeout()}>Call Timeout</Button>
         <Button onClick={() => void bout.stopTimeout()}>End Timeout</Button>
         <Button onClick={() => void bout.endPeriod()}>End Period</Button>
         <Button onClick={createBoutCallback}>New Bout</Button>
