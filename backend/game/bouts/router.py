@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Final
 
 from fastapi import APIRouter
+from game.teams.dependencies import OptionalTeamDepends
 
 from .dependencies import BoutDepends, get_bout
 from .models import BoutContext
@@ -37,8 +38,8 @@ async def stop_jam(bout: BoutDepends) -> None:
 
 
 @router.post('/start-timeout')
-async def start_timeout(bout: BoutDepends) -> None:
-    bout.start_timeout(datetime.now())
+async def start_timeout(bout: BoutDepends, team: OptionalTeamDepends = None) -> None:
+    bout.start_timeout(datetime.now(), team)
 
 
 @router.post(path='/stop-timeout')
