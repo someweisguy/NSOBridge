@@ -1,4 +1,4 @@
-import useClock from "@/shared/lib/game/clocks/hooks/use-clock";
+import useClock from "@/shared/hooks/use-clock";
 import { useEffect, useState } from "react";
 
 function formatMilliseconds(

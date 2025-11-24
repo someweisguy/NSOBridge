@@ -1,4 +1,4 @@
-import { Bout, getBout } from "@/shared/lib/game/bouts/types";
+import { Bout, getBout } from "@/shared/types/bouts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function useBout(key: number): Bout {

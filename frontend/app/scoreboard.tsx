@@ -1,9 +1,9 @@
 import Clock from "@/shared/components/clock";
 import withTeam from "@/shared/components/team-component";
-import useBout from "@/shared/lib/game/bouts/hooks/use-bout";
-import useBoutContext from "@/shared/lib/game/bouts/hooks/use-bout-context";
-import { Bout, BoutContext } from "@/shared/lib/game/bouts/types";
-import useCurrentOrUpcomingJam from "@/shared/lib/game/jams/hooks/use-current-or-upcoming-jam";
+import useBout from "@/shared/hooks/use-bout";
+import useBoutContext from "@/shared/hooks/use-bout-context";
+import { Bout, BoutContext } from "@/shared/types/bouts";
+import useCurrentOrUpcomingJam from "@/shared/hooks/use-current-or-upcoming-jam";
 import useServerOffset from "@/shared/hooks/use-server-offset";
 import queryClient from "@/shared/lib/cache";
 import FitScreen from "@fit-screen/react";
