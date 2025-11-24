@@ -1,6 +1,6 @@
-import { BoutContext, Team } from "@/shared/features/game/bouts/types";
-import useRoster from "@/shared/features/game/rosters/hooks/use-roster";
-import { Roster } from "@/shared/features/game/rosters/types";
+import { BoutContext, Team } from "@/shared/lib/game/bouts/types";
+import useRoster from "@/shared/lib/game/rosters/hooks/use-roster";
+import { Roster } from "@/shared/lib/game/rosters/types";
 import { PropsWithChildren } from "react";
 import ScoreView from "./score-view";
 import TimeoutBar from "./timeout-bar";

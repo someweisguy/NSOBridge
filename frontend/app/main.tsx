@@ -1,12 +1,12 @@
 import Button from "@/shared/components/button";
 import Clock from "@/shared/components/clock";
 import withTeam from "@/shared/components/team-component";
-import useBout from "@/shared/features/game/bouts/hooks/use-bout";
-import useBoutContext from "@/shared/features/game/bouts/hooks/use-bout-context";
-import { Bout, createBout } from "@/shared/features/game/bouts/types";
-import useCurrentOrUpcomingJam from "@/shared/features/game/jams/hooks/use-current-or-upcoming-jam";
-import useSeries from "@/shared/features/game/series/hooks/use-series";
-import { Series } from "@/shared/features/game/series/types";
+import useBout from "@/shared/lib/game/bouts/hooks/use-bout";
+import useBoutContext from "@/shared/lib/game/bouts/hooks/use-bout-context";
+import { Bout, createBout } from "@/shared/lib/game/bouts/types";
+import useCurrentOrUpcomingJam from "@/shared/lib/game/jams/hooks/use-current-or-upcoming-jam";
+import useSeries from "@/shared/lib/game/series/hooks/use-series";
+import { Series } from "@/shared/lib/game/series/types";
 import useServerOffset from "@/shared/hooks/use-server-offset";
 import queryClient from "@/shared/lib/cache";
 import { redo, undo } from "@/shared/lib/history";

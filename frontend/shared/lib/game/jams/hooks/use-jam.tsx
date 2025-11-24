@@ -1,5 +1,5 @@
-import { Bout } from "@/shared/features/game/bouts/types";
-import { getJam, Jam } from "@/shared/features/game/jams/types";
+import { Bout } from "@/shared/lib/game/bouts/types";
+import { getJam, Jam } from "@/shared/lib/game/jams/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function useJam(

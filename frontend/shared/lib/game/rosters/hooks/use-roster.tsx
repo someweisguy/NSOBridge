@@ -1,4 +1,4 @@
-import { getRosters, Roster } from "@/shared/features/game/rosters/types";
+import { getRosters, Roster } from "@/shared/lib/game/rosters/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function useRoster(rosterId: number): Roster {

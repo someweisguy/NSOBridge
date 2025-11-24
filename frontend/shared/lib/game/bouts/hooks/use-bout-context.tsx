@@ -2,7 +2,7 @@ import {
   Bout,
   BoutContext,
   getBoutContext,
-} from "@/shared/features/game/bouts/types";
+} from "@/shared/lib/game/bouts/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function useBoutContext(key: number): BoutContext {
