@@ -14,23 +14,22 @@ name = "nso-bridge"
 requires-python = ">=3.13"
 version = "0.1.0"
 
+[tool.pyrefly]
+project-includes = [
+  "**/*.py*",
+  "**/*.ipynb",
+]
+search_path = [
+  "backend",
+]
+
 [tool.ruff]
-fix = true
 indent-width = 4
 line-length = 88
 
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "single"
-
-[tool.pyrefly]
-project-includes = [
-    "**/*.py*",
-    "**/*.ipynb",
-]
-search_path = [
-  "backend/",
-]
 
 [tool.ruff.lint]
 extend-select = [
@@ -46,15 +45,15 @@ extend-select = [
   "EXE",
   "TC", # Put imports in TYPE_CHECKING blocks when possible
 ]
-fixable = ["ALL"]
 ignore = [
   "D", # TODO: Remove me when ready to begin documentation
 ]
-unfixable = []
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
 
-[tool.ty.environment]
-root = ["./backend"]
+[tool.setuptools.packages.find]
+include = [
+  "backend",
+]
