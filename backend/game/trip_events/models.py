@@ -1,12 +1,14 @@
-from datetime import datetime
+from __future__ import annotations
+
+from datetime import datetime  # noqa: TC003
+from typing import TYPE_CHECKING
 
 from models import PARENT_RELATIONSHIP, BaseSQLModel
-from pip._vendor.platformdirs.version import TYPE_CHECKING
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from game.team_jams.models import BaseTeamJam  # noqa: TC004
+    from game.team_jams.models import BaseTeamJam
 
 
 class TripEvent(BaseSQLModel):

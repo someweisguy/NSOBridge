@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, override
+from typing import TYPE_CHECKING, Any, override
 
 from game.abstract import AbstractOneShotModel
 from game.bouts.models import BaseBout
@@ -9,7 +9,6 @@ from models import (
     PARENT_RELATIONSHIP,
     CacheableSQLModel,
 )
-from pip._vendor.platformdirs.version import TYPE_CHECKING
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
