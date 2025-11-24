@@ -1,15 +1,15 @@
-import Button from "@/components/button";
-import Clock from "@/components/clock";
-import withTeam from "@/components/team-component";
-import useBout from "@/features/game/bouts/hooks/use-bout";
-import useBoutContext from "@/features/game/bouts/hooks/use-bout-context";
-import { Bout, createBout } from "@/features/game/bouts/types";
-import useCurrentOrUpcomingJam from "@/features/game/jams/hooks/use-current-or-upcoming-jam";
-import useSeries from "@/features/game/series/hooks/use-series";
-import { Series } from "@/features/game/series/types";
-import useServerOffset from "@/hooks/use-server-offset";
-import queryClient from "@/lib/cache";
-import { redo, undo } from "@/lib/history";
+import Button from "@/shared/components/button";
+import Clock from "@/shared/components/clock";
+import withTeam from "@/shared/components/team-component";
+import useBout from "@/shared/features/game/bouts/hooks/use-bout";
+import useBoutContext from "@/shared/features/game/bouts/hooks/use-bout-context";
+import { Bout, createBout } from "@/shared/features/game/bouts/types";
+import useCurrentOrUpcomingJam from "@/shared/features/game/jams/hooks/use-current-or-upcoming-jam";
+import useSeries from "@/shared/features/game/series/hooks/use-series";
+import { Series } from "@/shared/features/game/series/types";
+import useServerOffset from "@/shared/hooks/use-server-offset";
+import queryClient from "@/shared/lib/cache";
+import { redo, undo } from "@/shared/lib/history";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   StrictMode,
