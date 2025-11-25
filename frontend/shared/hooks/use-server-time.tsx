@@ -1,6 +1,6 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { getServerTime, getSyncData } from "../lib/sync";
-import { useSuspenseQuery } from "@tanstack/react-query";
 const REFETCH_INTERVAL = 1000 * 60 * 5;
 
 export default function useServerTime(): [Date, () => void] {
