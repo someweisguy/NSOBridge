@@ -57,10 +57,7 @@ export default class Socket {
     };
   }
 
-  registerCallback<T extends keyof API>(
-    type: T,
-    cb: CallbackType<API[T]>,
-  ): void {
+  addCallback<T extends keyof API>(type: T, cb: CallbackType<API[T]>): void {
     let callbacks: CallbackType[] | undefined = this.allCallbacks.get(type);
     callbacks ??= [];
     callbacks.push(cb as unknown as CallbackType);

@@ -10,7 +10,7 @@ const queryClient = new QueryClient({
   },
 });
 
-localSocket.registerCallback("connect", (connected: boolean) => {
+localSocket.addCallback("connect", (connected: boolean) => {
   onlineManager.setOnline(connected);
 
   // Invalidate all queries on disconnection
@@ -19,7 +19,7 @@ localSocket.registerCallback("connect", (connected: boolean) => {
   }
 });
 
-localSocket.registerCallback("cache", (keys: object[][]) => {
+localSocket.addCallback("cache", (keys: object[][]) => {
   for (const key of keys) {
     void queryClient.invalidateQueries(
       {
