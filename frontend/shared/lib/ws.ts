@@ -34,11 +34,7 @@ export default class Socket {
     });
   }
 
-  constructor(url: string) {
-    this.connect(url);
-  }
-
-  connect(url: string) {
+  private connect(url: string) {
     this.ws = new WebSocket(url);
     this.ws.onopen = () => this.handleEvent("connect", true);
     this.ws.onclose = () => {
@@ -53,6 +49,10 @@ export default class Socket {
       };
       this.handleEvent(type, data);
     };
+  }
+
+  constructor(url: string) {
+    this.connect(url);
   }
 
   addCallback<T extends keyof API>(type: T, cb: CallbackType<API[T]>): void {
