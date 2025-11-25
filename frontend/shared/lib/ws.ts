@@ -21,7 +21,7 @@ export default class Socket {
     }
   }
 
-  private receiveMessage<K extends keyof API>(
+  private receiveData<K extends keyof API>(
     type: K,
     timeout = 5000,
   ): Promise<API[K]> {
@@ -68,14 +68,14 @@ export default class Socket {
   async getServerInfo(): Promise<ServerInfoType> {
     // Wait until the WebSocket is connected
     if (this.ws.readyState !== WebSocket.OPEN) {
-      const connected = await this.receiveMessage("connect").catch(() => false);
+      const connected = await this.receiveData("connect").catch(() => false);
       if (!connected) {
         throw new Error("Could not get server info (not connected)");
       }
     }
 
     this.ws.send(JSON.stringify({ process: new Date() }));
-    return this.receiveMessage("sync");
+    return this.receiveData("sync");
   }
 }
 
