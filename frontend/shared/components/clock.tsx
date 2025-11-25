@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
-import defaultTimeStringFormatter from "../utils/DefaultTimeStringFormatter";
+import { useEffect } from "react";
 import useServerTime from "../hooks/use-server-time";
+import defaultTimeStringFormatter from "../utils/DefaultTimeStringFormatter";
 
 interface ClockProps {
   startTimestamp: Date | null;
@@ -21,36 +21,31 @@ export default function Clock({
 }: ClockProps) {
   const [serverTime, refreshServerTime] = useServerTime();
 
+  useEffect(() => {
+    if (freeze) {
+      // Do not update component if manually frozen
+      return;
+    }
+
+    // Refresh the component every 16ms (60Hz)
+    const intervalId = setInterval(refreshServerTime, 16);
+    return () => clearInterval(intervalId);
+  }, [freeze, alarm, refreshServerTime]);
+
   // Calculate the number of milliseconds that have elapsed
-  const milliseconds = useRef<number>(elapsed);
+  let milliseconds = elapsed;
   if (startTimestamp !== null) {
     if (stopTimestamp != null) {
-      milliseconds.current +=
-        stopTimestamp.getTime() - startTimestamp.getTime();
+      milliseconds += stopTimestamp.getTime() - startTimestamp.getTime();
     } else {
-      milliseconds.current += startTimestamp.getTime() - serverTime.getTime();
+      milliseconds += serverTime.getTime() - startTimestamp.getTime();
     }
   }
 
   // If an alarm is defined display the component as a count-down
   if (alarm !== undefined) {
-    milliseconds.current = alarm - milliseconds.current;
+    milliseconds = alarm - milliseconds;
   }
 
-  useEffect(() => {
-    if (freeze || (alarm !== undefined && milliseconds.current < -2500)) {
-      // Do not update component
-      return;
-    }
-
-    const intervalId = setInterval(() => {
-      refreshServerTime();
-    }, 16);
-
-    return () => clearInterval(intervalId);
-  }, [freeze, alarm, refreshServerTime]);
-
-  return (
-    <label className="tabular-nums">{formatter(milliseconds.current)}</label>
-  );
+  return <label className="tabular-nums">{formatter(milliseconds)}</label>;
 }
