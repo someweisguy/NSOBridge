@@ -1,11 +1,5 @@
 import Clock from "./clocks";
 
-// type DateToString<T> = T extends Date
-//   ? string
-//   : T extends object
-//   ? { [K in keyof T]: DateToString<T[K]> }
-//   : T;
-
 export class Team {
   id: number;
   rosterId: number;
