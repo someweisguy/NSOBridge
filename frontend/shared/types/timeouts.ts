@@ -12,7 +12,7 @@ export class Timeout {
   result: string;
   retained: boolean;
 
-  static generateKey(bout_id: number, index: number) {
-    return ["timeouts", bout_id, index];
+  static generateKey(boutId: number, index: number) {
+    return ["timeouts", boutId, index];
   }
 }
