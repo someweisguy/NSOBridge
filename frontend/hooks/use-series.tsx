@@ -1,4 +1,4 @@
-import { Series } from "@/types/series";
+import { Series } from "@/types/game";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getSeries } from "../lib/game/series";
 

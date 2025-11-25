@@ -4,7 +4,7 @@ import useBout from "@/hooks/use-bout";
 import useBoutContext from "@/hooks/use-bout-context";
 import useJam from "@/hooks/use-jam";
 import queryClient from "@/lib/cache";
-import { Bout, BoutContext } from "@/types/bouts";
+import { Bout, BoutContext } from "@/types/game";
 import FitScreen from "@fit-screen/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";

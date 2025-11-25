@@ -1,4 +1,4 @@
-import { Series } from "@/types/series";
+import { Series } from "@/types/game";
 import { localAPI } from "../requests";
 
 export async function getSeries(seriesIndex: number): Promise<Series> {

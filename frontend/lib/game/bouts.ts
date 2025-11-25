@@ -1,5 +1,5 @@
 import { localAPI } from "@/lib/requests";
-import { Bout } from "@/types/bouts";
+import { Bout } from "@/types/game";
 
 export interface BoutContext {
   jamDuration: number;

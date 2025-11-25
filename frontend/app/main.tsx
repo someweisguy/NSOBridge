@@ -16,8 +16,7 @@ import {
   stopTimeout,
 } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
-import { Bout } from "@/types/bouts";
-import { Series } from "@/types/series";
+import { Bout, Series } from "@/types/game";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   StrictMode,

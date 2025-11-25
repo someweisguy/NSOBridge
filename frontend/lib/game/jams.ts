@@ -1,4 +1,4 @@
-import { Jam } from "@/types/jams";
+import { Jam } from "@/types/game";
 import { localAPI } from "../requests";
 
 export async function getJam(
