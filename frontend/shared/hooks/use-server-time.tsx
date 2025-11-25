@@ -1,9 +1,16 @@
 import { useCallback, useState } from "react";
-import { getServerTime } from "../lib/sync";
-import useServerOffset from "./use-server-offset";
+import { getServerTime, getSyncData } from "../lib/sync";
+import { useSuspenseQuery } from "@tanstack/react-query";
+const REFETCH_INTERVAL = 1000 * 60 * 5;
 
 export default function useServerTime(): [Date, () => void] {
-  const { offset } = useServerOffset();
+  const {
+    data: { offset },
+  } = useSuspenseQuery<{ offset: number; error: number }>({
+    queryKey: ["useServerTimeReactHook"],
+    queryFn: () => getSyncData(),
+    refetchInterval: REFETCH_INTERVAL,
+  });
   const [serverTime, setServerTime] = useState<Date>(getServerTime(offset));
 
   // Define a callback that can be used to refresh the clock value
