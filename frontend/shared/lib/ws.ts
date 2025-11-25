@@ -26,9 +26,7 @@ export default class Socket {
     timeout = 5000,
   ): Promise<API[K]> {
     return new Promise((resolve, reject) => {
-      let resolutions: CallbackType[] | undefined =
-        this.allResolutions.get(type);
-      resolutions ??= [];
+      const resolutions: CallbackType[] = this.allResolutions.get(type) ?? [];
 
       resolutions.push(resolve as CallbackType);
       this.allResolutions.set(type, resolutions);
@@ -58,8 +56,7 @@ export default class Socket {
   }
 
   addCallback<T extends keyof API>(type: T, cb: CallbackType<API[T]>): void {
-    let callbacks: CallbackType[] | undefined = this.allCallbacks.get(type);
-    callbacks ??= [];
+    const callbacks: CallbackType[] = this.allCallbacks.get(type) ?? [];
     callbacks.push(cb as unknown as CallbackType);
 
     this.allCallbacks.set(type, callbacks);
