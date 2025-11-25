@@ -1,4 +1,4 @@
-import { Timeout } from "@/shared/types/timeouts";
+import { Timeout } from "@/types/timeouts";
 import { localAPI } from "../requests";
 
 export async function getTimeout(

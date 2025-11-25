@@ -1,10 +1,10 @@
-import Clock from "@/shared/components/clock";
-import withTeam from "@/shared/components/team-component";
-import useBout from "@/shared/hooks/use-bout";
-import useBoutContext from "@/shared/hooks/use-bout-context";
-import useJam from "@/shared/hooks/use-jam";
-import queryClient from "@/shared/lib/cache";
-import { Bout, BoutContext } from "@/shared/types/bouts";
+import Clock from "@/components/clock";
+import withTeam from "@/components/team-component";
+import useBout from "@/hooks/use-bout";
+import useBoutContext from "@/hooks/use-bout-context";
+import useJam from "@/hooks/use-jam";
+import queryClient from "@/lib/cache";
+import { Bout, BoutContext } from "@/types/bouts";
 import FitScreen from "@fit-screen/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";

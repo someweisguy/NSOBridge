@@ -1,4 +1,4 @@
-import { dateReviver } from "@/shared/utils/revivers";
+import { dateReviver } from "@/utils/revivers";
 
 interface URLParameters {
   query?: URLSearchParams | Record<string, unknown>;

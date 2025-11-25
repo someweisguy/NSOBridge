@@ -1,4 +1,4 @@
-import { Bout, BoutContext, Team } from "@/shared/types/bouts";
+import { Bout, BoutContext, Team } from "@/types/bouts";
 import React from "react";
 import TeamView from "./team-view";
 

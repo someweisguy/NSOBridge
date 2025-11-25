@@ -1,4 +1,4 @@
-import { Series } from "@/shared/types/series";
+import { Series } from "@/types/series";
 import { localAPI } from "../requests";
 
 export async function getSeries(seriesIndex: number): Promise<Series> {

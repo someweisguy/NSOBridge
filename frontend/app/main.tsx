@@ -1,11 +1,11 @@
-import Button from "@/shared/components/button";
-import Clock from "@/shared/components/clock";
-import withTeam from "@/shared/components/team-component";
-import useBout from "@/shared/hooks/use-bout";
-import useBoutContext from "@/shared/hooks/use-bout-context";
-import useJam from "@/shared/hooks/use-jam";
-import useSeries from "@/shared/hooks/use-series";
-import queryClient from "@/shared/lib/cache";
+import Button from "@/components/button";
+import Clock from "@/components/clock";
+import withTeam from "@/components/team-component";
+import useBout from "@/hooks/use-bout";
+import useBoutContext from "@/hooks/use-bout-context";
+import useJam from "@/hooks/use-jam";
+import useSeries from "@/hooks/use-series";
+import queryClient from "@/lib/cache";
 import {
   beginPeriod,
   createBout,
@@ -14,10 +14,10 @@ import {
   startTimeout,
   stopJam,
   stopTimeout,
-} from "@/shared/lib/game/bouts";
-import { redo, undo } from "@/shared/lib/history";
-import { Bout } from "@/shared/types/bouts";
-import { Series } from "@/shared/types/series";
+} from "@/lib/game/bouts";
+import { redo, undo } from "@/lib/history";
+import { Bout } from "@/types/bouts";
+import { Series } from "@/types/series";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   StrictMode,

@@ -1,5 +1,5 @@
-import { localAPI } from "@/shared/lib/requests";
-import { Bout } from "@/shared/types/bouts";
+import { localAPI } from "@/lib/requests";
+import { Bout } from "@/types/bouts";
 
 export interface BoutContext {
   jamDuration: number;

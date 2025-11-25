@@ -1,4 +1,4 @@
-import { Roster } from "@/shared/types/rosters";
+import { Roster } from "@/types/rosters";
 import { localAPI } from "../requests";
 
 export async function getRosters(rosterIds: number[]): Promise<Roster[]> {

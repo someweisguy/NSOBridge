@@ -1,4 +1,4 @@
-import { Jam } from "@/shared/types/jams";
+import { Jam } from "@/types/jams";
 import { localAPI } from "../requests";
 
 export async function getJam(

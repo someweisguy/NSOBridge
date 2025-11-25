@@ -1,5 +1,5 @@
-import { Bout } from "@/shared/types/bouts";
-import { Timeout } from "@/shared/types/timeouts";
+import { Bout } from "@/types/bouts";
+import { Timeout } from "@/types/timeouts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getTimeout } from "../lib/game/timeouts";
 
