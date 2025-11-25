@@ -5,7 +5,6 @@ import useBout from "@/shared/hooks/use-bout";
 import useBoutContext from "@/shared/hooks/use-bout-context";
 import useJam from "@/shared/hooks/use-jam";
 import useSeries from "@/shared/hooks/use-series";
-import useServerOffset from "@/shared/hooks/use-server-offset";
 import queryClient from "@/shared/lib/cache";
 import {
   beginPeriod,
@@ -49,7 +48,6 @@ export default function App() {
 const TeamComponent = withTeam();
 
 function Test() {
-  void useServerOffset(); // Prefetch
   const [boutIndex, setBoutIndex] = useState(0);
   const goToNextBout = useRef(false);
 

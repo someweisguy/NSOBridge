@@ -3,7 +3,6 @@ import withTeam from "@/shared/components/team-component";
 import useBout from "@/shared/hooks/use-bout";
 import useBoutContext from "@/shared/hooks/use-bout-context";
 import useJam from "@/shared/hooks/use-jam";
-import useServerOffset from "@/shared/hooks/use-server-offset";
 import queryClient from "@/shared/lib/cache";
 import { Bout, BoutContext } from "@/shared/types/bouts";
 import FitScreen from "@fit-screen/react";
@@ -32,7 +31,6 @@ export default function App() {
 const TeamComponent = withTeam();
 
 function Test() {
-  void useServerOffset(); // Prefetch
   const bout = useBout(1);
   const context = useBoutContext(1);
 
