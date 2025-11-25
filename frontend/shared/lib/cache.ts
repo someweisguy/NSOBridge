@@ -1,5 +1,5 @@
 import { onlineManager, QueryClient } from "@tanstack/react-query";
-import { registerWebSocketCallback } from "./ws";
+import { localSocket } from "./ws";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -10,7 +10,7 @@ const queryClient = new QueryClient({
   },
 });
 
-registerWebSocketCallback("connect", (connected: boolean) => {
+localSocket.registerCallback("connect", (connected: boolean) => {
   onlineManager.setOnline(connected);
 
   // Invalidate all queries on disconnection
@@ -19,7 +19,7 @@ registerWebSocketCallback("connect", (connected: boolean) => {
   }
 });
 
-registerWebSocketCallback("cache", (keys: object[][]) => {
+localSocket.registerCallback("cache", (keys: object[][]) => {
   for (const key of keys) {
     void queryClient.invalidateQueries(
       {

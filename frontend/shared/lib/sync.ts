@@ -1,4 +1,5 @@
-import { getServerInfo, ServerInfoType } from "./ws";
+import { ServerInfoType } from "../types/ws";
+import Socket, { localSocket } from "./ws";
 
 interface SyncDataType {
   offset: number;
@@ -7,13 +8,15 @@ interface SyncDataType {
 
 const NUM_SYNC_SAMPLES = 5;
 
-export async function getSyncData(): Promise<SyncDataType> {
+export async function getSyncData(
+  socket: Socket = localSocket,
+): Promise<SyncDataType> {
   // Collect a number of round-trip time samples
   let clientNow: Date;
   let lastSyncPacket: ServerInfoType;
   const syncSamples: number[] = [];
   do {
-    const serverInfo: ServerInfoType = await getServerInfo();
+    const serverInfo: ServerInfoType = await socket.getServerInfo();
     clientNow = new Date();
     syncSamples.push(clientNow.getTime() - serverInfo.process.getTime());
     lastSyncPacket = serverInfo;

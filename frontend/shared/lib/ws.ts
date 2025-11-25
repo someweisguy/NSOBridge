@@ -1,4 +1,7 @@
-type CallbackType<T = unknown> = (d: T) => void;
+import { ServerInfoType } from "../types/ws";
+import { dateReviver } from "../utils/revivers";
+
+type CallbackType<T = unknown> = (data: T) => void;
 
 interface API {
   cache: object[][];
@@ -6,76 +9,77 @@ interface API {
   sync: ServerInfoType;
 }
 
-export interface ServerInfoType {
-  process: Date;
-  server: Date;
-}
+export default class Socket {
+  private ws: WebSocket;
+  private allCallbacks = new Map<string, CallbackType[]>();
+  private allResolutions = new Map<string, CallbackType[]>();
 
-const allCallbacks = new Map<string, CallbackType[]>();
-const allResolutions = new Map<string, CallbackType[]>();
-let socket = connectSocket(`ws://${window.location.host}/ws/`);
-
-function handleSocketEvent<K extends keyof API>(type: K, data: API[K]) {
-  for (const callbackMap of [allCallbacks, allResolutions]) {
-    const callbacks = callbackMap.get(type);
-    callbacks?.forEach((callback) => callback(data));
-  }
-}
-
-function connectSocket(url: string) {
-  const ws = new WebSocket(url);
-  ws.onopen = () => handleSocketEvent("connect", true);
-  ws.onclose = () => {
-    handleSocketEvent("connect", false);
-    setTimeout(() => (socket = connectSocket(url)), 1000);
-  };
-  ws.onerror = () => ws.close();
-  ws.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
-    const { type, data } = JSON.parse(event.data) as { type: K; data: API[K] };
-    handleSocketEvent(type, data);
-  };
-  return ws;
-}
-
-export function registerWebSocketCallback<T extends keyof API>(
-  type: T,
-  cb: CallbackType<API[T]>,
-): void {
-  let callbacks: CallbackType[] | undefined = allCallbacks.get(type);
-  callbacks ??= [];
-  callbacks.push(cb as unknown as CallbackType);
-
-  allCallbacks.set(type, callbacks);
-}
-
-export function receiveWebSocketMessage<K extends keyof API>(
-  type: K,
-  timeout = 5000,
-): Promise<API[K]> {
-  return new Promise((resolve, reject) => {
-    let resolutions: CallbackType[] | undefined = allResolutions.get(type);
-    resolutions ??= [];
-
-    resolutions.push(resolve as CallbackType);
-    allResolutions.set(type, resolutions);
-    setTimeout(() => reject(new Error("WebSocket timed out")), timeout);
-  });
-}
-
-export async function getServerInfo(): Promise<ServerInfoType> {
-  // Wait until the WebSocket is connected
-  if (socket.readyState !== WebSocket.OPEN) {
-    const connected = await receiveWebSocketMessage("connect").catch(
-      () => false,
-    );
-    if (!connected) {
-      throw new Error("Could not get server info (not connected)");
+  private handleEvent<K extends keyof API>(type: K, data: API[K]) {
+    for (const callbackMap of [this.allCallbacks, this.allResolutions]) {
+      const callbacks = callbackMap.get(type);
+      callbacks?.forEach((callback) => callback(data));
     }
   }
 
-  socket.send(JSON.stringify({ process: new Date() }));
-  const payload: ServerInfoType = await receiveWebSocketMessage("sync");
-  payload.process = new Date(payload.process);
-  payload.server = new Date(payload.server);
-  return payload;
+  private receiveMessage<K extends keyof API>(
+    type: K,
+    timeout = 5000,
+  ): Promise<API[K]> {
+    return new Promise((resolve, reject) => {
+      let resolutions: CallbackType[] | undefined =
+        this.allResolutions.get(type);
+      resolutions ??= [];
+
+      resolutions.push(resolve as CallbackType);
+      this.allResolutions.set(type, resolutions);
+      setTimeout(() => reject(new Error("WebSocket timed out")), timeout);
+    });
+  }
+
+  constructor(url: string) {
+    this.connect(url);
+  }
+
+  connect(url: string) {
+    this.ws = new WebSocket(url);
+    this.ws.onopen = () => this.handleEvent("connect", true);
+    this.ws.onclose = () => {
+      this.handleEvent("connect", false);
+      setTimeout(() => this.connect(url), 1000);
+    };
+    this.ws.onerror = () => this.ws.close();
+    this.ws.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
+      const { type, data } = JSON.parse(event.data, dateReviver) as {
+        type: K;
+        data: API[K];
+      };
+      this.handleEvent(type, data);
+    };
+  }
+
+  registerCallback<T extends keyof API>(
+    type: T,
+    cb: CallbackType<API[T]>,
+  ): void {
+    let callbacks: CallbackType[] | undefined = this.allCallbacks.get(type);
+    callbacks ??= [];
+    callbacks.push(cb as unknown as CallbackType);
+
+    this.allCallbacks.set(type, callbacks);
+  }
+
+  async getServerInfo(): Promise<ServerInfoType> {
+    // Wait until the WebSocket is connected
+    if (this.ws.readyState !== WebSocket.OPEN) {
+      const connected = await this.receiveMessage("connect").catch(() => false);
+      if (!connected) {
+        throw new Error("Could not get server info (not connected)");
+      }
+    }
+
+    this.ws.send(JSON.stringify({ process: new Date() }));
+    return this.receiveMessage("sync");
+  }
 }
+
+export const localSocket = new Socket(`ws://${window.location.host}/ws/`);
