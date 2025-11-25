@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import useServerTime from "../hooks/use-server-time";
-import defaultTimeStringFormatter from "../utils/DefaultTimeStringFormatter";
+import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
 interface ClockProps {
   startTimestamp: Date | null;
