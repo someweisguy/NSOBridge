@@ -29,10 +29,10 @@ export class Bout {
   }
 }
 
-export type BoutContext = Readonly<{
+export class BoutContext {
   jamDuration: number;
   lineupDuration: number;
   pointsPerTrip: number;
   numTimeouts: number;
   numReviews: number;
-}>;
+}
