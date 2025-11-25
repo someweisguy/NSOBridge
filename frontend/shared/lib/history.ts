@@ -1,9 +1,9 @@
-import genericRequest from "./requests";
+import { localAPI } from "./requests";
 
 export async function undo(): Promise<void> {
-  await genericRequest("undo", "POST");
+  await localAPI.post("undo");
 }
 
 export async function redo(): Promise<void> {
-  await genericRequest("redo", "POST");
+  await localAPI.post("redo");
 }

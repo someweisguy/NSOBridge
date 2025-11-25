@@ -3,13 +3,22 @@ import Clock from "@/shared/components/clock";
 import withTeam from "@/shared/components/team-component";
 import useBout from "@/shared/hooks/use-bout";
 import useBoutContext from "@/shared/hooks/use-bout-context";
-import { Bout, createBout } from "@/shared/types/bouts";
-import useCurrentOrUpcomingJam from "@/shared/hooks/use-current-or-upcoming-jam";
+import useJam from "@/shared/hooks/use-jam";
 import useSeries from "@/shared/hooks/use-series";
-import { Series } from "@/shared/types/series";
 import useServerOffset from "@/shared/hooks/use-server-offset";
 import queryClient from "@/shared/lib/cache";
+import {
+  beginPeriod,
+  createBout,
+  endPeriod,
+  startJam,
+  startTimeout,
+  stopJam,
+  stopTimeout,
+} from "@/shared/lib/game/bouts";
 import { redo, undo } from "@/shared/lib/history";
+import { Bout } from "@/shared/types/bouts";
+import { Series } from "@/shared/types/series";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   StrictMode,
@@ -70,12 +79,12 @@ function Test() {
       <TeamComponent bout={bout} context={context} />
       <BoutTimeInformation />
       <div className="place-content-around grid grid-flow-col">
-        <Button onClick={() => void bout.beginPeriod()}>Start Period</Button>
-        <Button onClick={() => void bout.startJam()}>Start Jam</Button>
-        <Button onClick={() => void bout.stopJam()}>Stop Jam</Button>
-        <Button onClick={() => void bout.startTimeout()}>Call Timeout</Button>
-        <Button onClick={() => void bout.stopTimeout()}>End Timeout</Button>
-        <Button onClick={() => void bout.endPeriod()}>End Period</Button>
+        <Button onClick={() => void beginPeriod(bout.id)}>Start Period</Button>
+        <Button onClick={() => void startJam(bout.id)}>Start Jam</Button>
+        <Button onClick={() => void stopJam(bout.id)}>Stop Jam</Button>
+        <Button onClick={() => void startTimeout(bout.id)}>Call Timeout</Button>
+        <Button onClick={() => void stopTimeout(bout.id)}>End Timeout</Button>
+        <Button onClick={() => void endPeriod(bout.id)}>End Period</Button>
         <Button onClick={createBoutCallback}>New Bout</Button>
 
         <Button onClick={() => void undo()}>Undo</Button>
@@ -89,7 +98,17 @@ function BoutTimeInformation() {
   const bout = useBout(1);
   const context = useBoutContext(1);
 
-  const jam = useCurrentOrUpcomingJam(bout);
+  let periodNum = 0;
+  let jamNum = 0;
+  for (const i of bout.jamCounts) {
+    if (i > 0) {
+      jamNum = i - 1;
+      break;
+    }
+    periodNum++;
+  }
+
+  const jam = useJam(bout, periodNum, jamNum);
 
   if (!bout.isRunning) {
     let copy = "Starting Soon";

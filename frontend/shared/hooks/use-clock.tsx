@@ -9,6 +9,7 @@ interface ClockObject {
   alarm?: number;
 }
 
+// FIXME: this should not use the ClockObject interface
 export default function useClock(
   { startTimestamp, stopTimestamp, elapsed = 0, alarm }: ClockObject,
   run = true,

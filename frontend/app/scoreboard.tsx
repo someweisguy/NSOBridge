@@ -2,10 +2,10 @@ import Clock from "@/shared/components/clock";
 import withTeam from "@/shared/components/team-component";
 import useBout from "@/shared/hooks/use-bout";
 import useBoutContext from "@/shared/hooks/use-bout-context";
-import { Bout, BoutContext } from "@/shared/types/bouts";
-import useCurrentOrUpcomingJam from "@/shared/hooks/use-current-or-upcoming-jam";
+import useJam from "@/shared/hooks/use-jam";
 import useServerOffset from "@/shared/hooks/use-server-offset";
 import queryClient from "@/shared/lib/cache";
+import { Bout, BoutContext } from "@/shared/types/bouts";
 import FitScreen from "@fit-screen/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -55,7 +55,17 @@ function Test() {
 }
 
 function IntermissionStatus({ bout }: { bout: Bout }) {
-  const jam = useCurrentOrUpcomingJam(bout);
+  let periodNum = 0;
+  let jamNum = 0;
+  for (const i of bout.jamCounts) {
+    if (i > 0) {
+      jamNum = i - 1;
+      break;
+    }
+    periodNum++;
+  }
+
+  const jam = useJam(bout, periodNum, jamNum);
 
   let copy = "Starting Soon";
   if (bout.isFinal) {
@@ -81,7 +91,17 @@ function BoutTimeInformation({
   bout: Bout;
   context: BoutContext;
 }) {
-  const activeJam = useCurrentOrUpcomingJam(bout);
+  let periodNum = 0;
+  let jamNum = 0;
+  for (const i of bout.jamCounts) {
+    if (i > 0) {
+      jamNum = i - 1;
+      break;
+    }
+    periodNum++;
+  }
+
+  const activeJam = useJam(bout, periodNum, jamNum);
 
   if (!bout.isRunning) {
     return <IntermissionStatus bout={bout} />;
