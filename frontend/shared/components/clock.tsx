@@ -7,7 +7,7 @@ interface ClockProps {
   stopTimestamp?: Date | null;
   elapsed?: number;
   alarm?: number;
-  formatter: (milliseconds: number) => string;
+  formatter?: (milliseconds: number) => string;
 }
 
 export default function Clock({
