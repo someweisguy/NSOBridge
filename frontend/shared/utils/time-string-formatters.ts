@@ -18,13 +18,13 @@ export default function defaultTimeStringFormatter(millis: number): string {
   }
 
   // Render tenths of a seconds
-  if (millis < 10000 && millis >= 0) {
+  if (millis < 10000 && !isNegative) {
     const ds = String(Math.floor((millis % 1000) / 100)).padStart(1, "0");
     output += `.${ds}`;
   }
 
-  // Render a negative sign if the format string is not zero
-  if (isNegative && (millis >= 100 || millis >= 1000)) {
+  // Render a negative sign
+  if (isNegative) {
     output = "+" + output;
   }
 
