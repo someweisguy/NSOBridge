@@ -1,3 +1,10 @@
+import { dateReviver } from "@/shared/utils/revivers";
+
+interface URLParameters {
+  query?: URLSearchParams | Record<string, unknown>;
+  body?: string | number | boolean | object | null;
+}
+
 export default class API {
   readonly host: string;
 
@@ -5,17 +12,16 @@ export default class API {
     this.host = host;
   }
 
-  private async genericRequest<T = unknown>(
+  private async sendRequest<T = unknown>(
     endpoint: string,
     method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
-    query?: URLSearchParams | Record<string, unknown>,
-    body?: string | number | boolean | object | null,
+    params?: URLParameters,
   ): Promise<T> {
     // Generate the request URL
     const url = new URL(`/api/${endpoint}`, this.host);
-    if (query !== undefined) {
+    if (params?.query !== undefined) {
       url.search = new URLSearchParams(
-        query as Record<string, string>,
+        params.query as Record<string, string>,
       ).toString();
     }
 
@@ -25,53 +31,53 @@ export default class API {
       headers: {
         "Content-Type": "application/json",
       },
-      body: body instanceof Object ? JSON.stringify(body) : body?.toString(),
+      body:
+        params?.body instanceof Object
+          ? JSON.stringify(params.body)
+          : params?.body?.toString(),
     });
 
-    // Parse the response
+    // Check for (and raise) errors in the response
     if (!response.ok) {
       const error = (await response.json()) as { message: string };
       throw new Error(error.message);
     }
-    return (await response.json()) as T;
+
+    // Get the response and revive any Date values
+    const text: string = await response.text();
+    return JSON.parse(text, dateReviver) as T;
   }
 
   async get<T = unknown>(
     endpoint: string,
-    query?: URLSearchParams | Record<string, unknown>,
+    params?: Omit<URLParameters, "body">,
   ): Promise<T> {
-    return this.genericRequest(endpoint, "GET", query);
+    return this.sendRequest(endpoint, "GET", params);
   }
 
   async head<T = unknown>(
     endpoint: string,
-    query?: URLSearchParams | Record<string, unknown>,
+    params?: Omit<URLParameters, "body">,
   ): Promise<T> {
-    return this.genericRequest(endpoint, "HEAD", query);
+    return this.sendRequest(endpoint, "HEAD", params);
   }
 
   async post<T = unknown>(
     endpoint: string,
-    query?: URLSearchParams | Record<string, unknown>,
-    body?: string | number | boolean | object | null,
+    params?: URLParameters,
   ): Promise<T> {
-    return this.genericRequest(endpoint, "POST", query, body);
+    return this.sendRequest(endpoint, "POST", params);
   }
 
-  async put<T = unknown>(
-    endpoint: string,
-    query?: URLSearchParams | Record<string, unknown>,
-    body?: string | number | boolean | object | null,
-  ): Promise<T> {
-    return this.genericRequest(endpoint, "PUT", query, body);
+  async put<T = unknown>(endpoint: string, params?: URLParameters): Promise<T> {
+    return this.sendRequest(endpoint, "PUT", params);
   }
 
   async delete<T = unknown>(
     endpoint: string,
-    query?: URLSearchParams | Record<string, unknown>,
-    body?: string | number | boolean | object | null,
+    params?: URLParameters,
   ): Promise<T> {
-    return this.genericRequest(endpoint, "DELETE", query, body);
+    return this.sendRequest(endpoint, "DELETE", params);
   }
 }
 
