@@ -1,11 +1,11 @@
 import { Bout, BoutContext } from "@/types/game";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getBoutContext } from "../lib/game/bouts";
+import { getRulesetContext } from "../lib/game/bouts";
 
-export default function useBoutContext(key: number): BoutContext {
+export default function useRulesetContext(key: number): BoutContext {
   const { data } = useSuspenseQuery<BoutContext>({
     queryKey: Bout.generateKey(key).concat("context"),
-    queryFn: () => getBoutContext(key),
+    queryFn: () => getRulesetContext(key),
   });
 
   return data;

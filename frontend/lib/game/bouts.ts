@@ -1,7 +1,7 @@
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/game";
 
-export interface BoutContext {
+export interface RulesetContext {
   jamDuration: number;
   lineupDuration: number;
   pointsPerTrip: number;
@@ -14,8 +14,12 @@ export async function getBout(boutId: number): Promise<Bout> {
   return Object.assign(new Bout(), data);
 }
 
-export async function getBoutContext(boutId: number): Promise<BoutContext> {
-  return localAPI.get<BoutContext>("bout/context", { query: { boutId } });
+export async function getRulesetContext(
+  boutId: number,
+): Promise<RulesetContext> {
+  return localAPI.get<RulesetContext>("bout/ruleset-context", {
+    query: { boutId },
+  });
 }
 
 export async function createBout(

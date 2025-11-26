@@ -1,7 +1,7 @@
 import Clock from "@/components/clock";
 import withTeam from "@/components/team-component";
 import useBout from "@/hooks/use-bout";
-import useBoutContext from "@/hooks/use-bout-context";
+import useRulesetContext from "@/hooks/use-bout-context";
 import useJam from "@/hooks/use-jam";
 import queryClient from "@/lib/cache";
 import { Bout, BoutContext } from "@/types/game";
@@ -32,7 +32,7 @@ const TeamComponent = withTeam();
 
 function Test() {
   const bout = useBout(1);
-  const context = useBoutContext(1);
+  const context = useRulesetContext(1);
 
   return (
     <div className="flex flex-col flex-nowrap grid-flow-row h-screen size-screen">
