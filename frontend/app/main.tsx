@@ -51,15 +51,15 @@ function Test() {
   const goToNextBout = useRef(false);
 
   const series: Series = useSeries(1);
-  if (series.bouts.length == 0) {
+  if (series.boutIds.length == 0) {
     // TODO: Go to Bout creation page
     throw new Error("This Series does not have any Bouts");
   }
-  const bout: Bout = useBout(series.bouts[boutIndex].id);
-  const context = useRulesetContext(series.bouts[boutIndex].id);
+  const bout: Bout = useBout(series.boutIds[boutIndex]);
+  const context = useRulesetContext(series.boutIds[boutIndex]);
 
   useEffect(() => {
-    if (goToNextBout.current && series.bouts.length > boutIndex + 1) {
+    if (goToNextBout.current && series.boutIds.length > boutIndex + 1) {
       goToNextBout.current = false;
       setBoutIndex((i) => i + 1);
     }

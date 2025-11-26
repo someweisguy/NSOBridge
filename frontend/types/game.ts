@@ -1,7 +1,7 @@
 export class Series {
   id: number;
   name: string;
-  bouts: Bout[];
+  boutIds: number[];
 }
 
 export class Bout {
