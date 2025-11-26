@@ -278,6 +278,7 @@ class Timeout(WFTDAModel, BaseTimeout):
 
         self.team = team
         self.is_review = is_review
+        self.team_is_officials = team is None
 
     def set_retained(self, retained: bool) -> None:
         self.retained = retained

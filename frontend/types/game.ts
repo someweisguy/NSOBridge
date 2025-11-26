@@ -91,6 +91,7 @@ export class Timeout {
   stopTimestamp: Date | null;
   clockElapsed: number;
 
+  teamIsOfficials: boolean;
   isReview: boolean;
   details: string;
   result: string;
