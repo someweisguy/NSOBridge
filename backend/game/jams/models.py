@@ -19,8 +19,10 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from game.team_jams.models import BaseTeamJam
-    from game.trip_events.models import TripEvent
+    from datetime import datetime
+
+    from game.team_jams.models import TeamJam
+    from game.teams.models import BaseTeam
 
 
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
@@ -36,7 +38,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         foreign_keys=[bout_id],
         lazy='selectin',
     )
-    team_jams: Mapped[list[BaseTeamJam]] = relationship(
+    team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='jam',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
@@ -55,9 +57,28 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         UniqueConstraint('bout_id', 'num', 'period'),
     )
 
+    def __getitem__(self, key: BaseTeam | int) -> TeamJam:
+        return self.get_team_jam_by_team(key)
+
     @override
     def cache_key(self) -> tuple[Any, ...]:
         return (self.__tablename__, self.bout_id, self.period, self.num)
+
+    def get_team_jam_by_team(self, team: BaseTeam | int) -> TeamJam:
+        if not isinstance(team, int):
+            if team.id is None:
+                raise KeyError('this team does not exist')
+            team = team.id
+
+        # Get the first TeamJam that has the specified Team ID
+        team_jam: TeamJam | None = next(
+            (tj for tj in self.team_jams if tj.id == team), None
+        )
+
+        if team_jam is None:
+            raise KeyError('the specified team is not in this Jam')
+
+        return team_jam
 
     def lead_is_declared(self) -> bool:
         for team_jam in self.team_jams:
@@ -65,4 +86,14 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
                 return True
         return False
 
-    async def add_trip_event(self, event: TripEvent) -> None: ...
+    async def add_trip(
+        self, team_id: int, timestamp: datetime, passes: int
+    ) -> None: ...
+
+    async def set_lead(self, team_id: int, timestamp: datetime, lead: bool) -> None: ...
+
+    async def set_lost(self, team_id: int, timestamp: datetime, lost: bool) -> None: ...
+
+    async def set_star_pass(
+        self, team_id: int, timestamp: datetime, star_pass: bool
+    ) -> None: ...

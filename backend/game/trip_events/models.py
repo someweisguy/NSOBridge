@@ -8,7 +8,7 @@ from sqlalchemy import CheckConstraint, Constraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from game.team_jams.models import BaseTeamJam
+    from game.team_jams.models import TeamJam
 
 
 class TripEvent(BaseSQLModel):
@@ -19,7 +19,7 @@ class TripEvent(BaseSQLModel):
     passes: Mapped[int | None] = mapped_column(default=None)
     star_pass: Mapped[bool] = mapped_column(default=False)
 
-    team_jam: Mapped[BaseTeamJam | None] = relationship(
+    team_jam: Mapped[TeamJam | None] = relationship(
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[team_jam_id],
         lazy='joined',

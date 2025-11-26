@@ -7,7 +7,7 @@ from game.bouts.models import BaseBout, BoutContext
 from game.jams.models import BaseJam
 from game.rosters.models import Roster
 from game.series.models import Series
-from game.team_jams.models import BaseTeamJam
+from game.team_jams.models import TeamJam
 from game.teams.models import BaseTeam
 from game.timeouts.models import BaseTimeout
 from game.trip_events.models import TripEvent
@@ -179,7 +179,7 @@ class Bout(WFTDAModel, BaseBout):
 class Team(WFTDAModel, BaseTeam):
     @classmethod
     @override
-    def get_team_jam_score(cls, team_jam: BaseTeamJam) -> int:
+    def get_team_jam_score(cls, team_jam: TeamJam) -> int:
         jam_score: int = 0
         for event in team_jam.events:
             if event.passes is not None:  # TODO: can event.passes be non-nullable?
@@ -200,67 +200,71 @@ class Jam(WFTDAModel, BaseJam):
             team_jams=[TeamJam(team) for team in teams],
         )
 
+    async def add_trip(self, team_id: int, timestamp: datetime, passes: int) -> None:
+        team_jam: TeamJam = self.get_team_jam_by_team(team_id)
 
-class TeamJam(WFTDAModel, BaseTeamJam):
-    @override
-    async def add_trip(self, timestamp: datetime, passes: int) -> None:
         event: TripEvent = TripEvent(timestamp, passes=passes)
 
         # TODO: handle overtime conditions
 
         # Automatically set lead on the first 4-point trip
-        if not self.jam.lead_is_declared() and passes == MAX_PASSES_PER_TRIP:
+        if not self.lead_is_declared() and passes == MAX_PASSES_PER_TRIP:
             event.lead = True
 
         # Lose eligibility on initial no-pass/no-penalty
-        if len(self.events) == 0 and passes < MAX_PASSES_PER_TRIP:
+        if len(team_jam.events) == 0 and passes < MAX_PASSES_PER_TRIP:
             event.lost = True
 
         # Jammer cannot earn points on the initial pass
-        if len(self.events) == 0:
+        if len(team_jam.events) == 0:
             event.passes = 0
 
-        self.events.append(event)
+        team_jam.events.append(event)
 
-    @override
-    async def set_lead(self, timestamp: datetime, lead: bool) -> None:
+    async def set_lead(self, team_id: int, timestamp: datetime, lead: bool) -> None:
+        team_jam: TeamJam = self.get_team_jam_by_team(team_id)
+
         if lead:
             # Add a new Trip Event in which lead is declared
-            if self.jam.lead_is_declared():
+            if self.lead_is_declared():
                 raise RulesError('a lead jammer has already been declared')
             event: TripEvent = TripEvent(timestamp, lead=lead)
-            self.events.append(event)
+            team_jam.events.append(event)
         else:
-            for event in self.events:
+            for event in team_jam.events:
                 if event.lead:
                     break
             event.lead = lead
 
-    @override
-    async def set_lost(self, timestamp: datetime, lost: bool) -> None:
+    async def set_lost(self, team_id: int, timestamp: datetime, lost: bool) -> None:
+        team_jam: TeamJam = self.get_team_jam_by_team(team_id)
+
         if lost:
             # Add a new Trip Event in which the Jammer has lost eligibility for lead
-            if any(event.lost for event in self.events):
+            if any(event.lost for event in team_jam.events):
                 raise RulesError('this team has already lost lead eligibility')
             event: TripEvent = TripEvent(timestamp, lost=lost)
-            self.events.append(event)
+            team_jam.events.append(event)
         else:
-            for event in self.events:
+            for event in team_jam.events:
                 if event.lead:
                     break
             event.lost = lost
 
-    @override
-    async def set_star_pass(self, timestamp: datetime, star_pass: bool) -> None:
+    async def set_star_pass(
+        self, team_id: int, timestamp: datetime, star_pass: bool
+    ) -> None:
+        team_jam: TeamJam = self.get_team_jam_by_team(team_id)
+
         if star_pass:
-            if any(event.star_pass for event in self.events):
+            if any(event.star_pass for event in team_jam.events):
                 raise RulesError(
                     'this team has already completed a star pass in this Jam'
                 )
             event: TripEvent = TripEvent(timestamp, star_pass=star_pass)
-            self.events.append(event)
+            team_jam.events.append(event)
         else:
-            for event in self.events:
+            for event in team_jam.events:
                 if event.star_pass:
                     break
             event.star_pass = star_pass

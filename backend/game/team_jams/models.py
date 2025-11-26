@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from game.jams.models import BaseJam
 from game.trip_events.models import TripEvent
@@ -19,12 +19,10 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from datetime import datetime
-
     from game.teams.models import BaseTeam
 
 
-class BaseTeamJam(BaseSQLModel):
+class TeamJam(BaseSQLModel):
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
@@ -45,9 +43,6 @@ class BaseTeamJam(BaseSQLModel):
         order_by=[TripEvent.timestamp],
     )
 
-    ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseJam.ruleset).where(BaseJam.id == jam_id).limit(1).scalar_subquery()
-    )
     jam_num: MappedSQLExpression[int] = column_property(
         select(BaseJam.num).where(BaseJam.id == jam_id).limit(1).scalar_subquery()
     )
@@ -56,18 +51,6 @@ class BaseTeamJam(BaseSQLModel):
     )
 
     __tablename__: str = 'team_jams'
-    __mapper_args__: dict[str, Any] = {
-        'polymorphic_abstract': True,
-        'polymorphic_on': ruleset,
-    }
 
     def __init__(self, team: BaseTeam) -> None:
         super().__init__(team=team)
-
-    async def add_trip(self, timestamp: datetime, passes: int) -> None: ...
-
-    async def set_lead(self, timestamp: datetime, lead: bool) -> None: ...
-
-    async def set_lost(self, timestamp: datetime, lost: bool) -> None: ...
-
-    async def set_star_pass(self, timestamp: datetime, star_pass: bool) -> None: ...
