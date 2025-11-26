@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
-from functools import cached_property
-from typing import Final, override
+from typing import ClassVar, override
 
 from exceptions import RulesError
-from game.bouts.models import BaseBout, BoutContext
+from game.bouts.models import BaseBout
 from game.jams.models import BaseJam
 from game.rosters.models import Roster
 from game.series.models import Series
@@ -12,14 +11,14 @@ from game.teams.models import BaseTeam
 from game.timeouts.models import BaseTimeout
 from game.trip_events.models import TripEvent
 
-RULESET: Final[str] = 'WFTDA 2025'
-NUM_PERIODS: Final[int] = 2
-MAX_PASSES_PER_TRIP: Final[int] = 4
+from .schemas import RulesetContext
+
+RULESET_NAME = 'WFTDA 2025'
 
 
 class WFTDAModel:
     __mapper_args__: dict[str, str | bool] = {
-        'polymorphic_identity': RULESET,
+        'polymorphic_identity': RULESET_NAME,
     }
 
 
@@ -27,13 +26,23 @@ class WFTDAModel:
 
 
 class Bout(WFTDAModel, BaseBout):
+    rules: ClassVar[RulesetContext] = RulesetContext(
+        name=RULESET_NAME,
+        num_periods=2,
+        jam_duration=timedelta(minutes=2),
+        lineup_duration=timedelta(seconds=30),
+        points_per_trip=4,
+        num_timeouts=3,
+        num_reviews=1,
+    )
+
     def __init__(self, series: Series, home: Roster, away: Roster) -> None:
-        super().__init__(series=series, ruleset=RULESET)
+        super().__init__(series=series, ruleset=self.rules.name)
         self.clock.alarm = timedelta(minutes=30)
         self.teams.extend((Team(home), Team(away)))
         for team in self.teams:
-            team.timeouts_remaining = self.context.num_timeouts
-            team.reviews_remaining = self.context.num_reviews
+            team.timeouts_remaining = self.rules.num_timeouts
+            team.reviews_remaining = self.rules.num_reviews
         initial_jam: Jam = Jam(
             0,
             0,
@@ -41,25 +50,17 @@ class Bout(WFTDAModel, BaseBout):
         )
         self.jams.append(initial_jam)
 
-    @cached_property
-    def context(self) -> BoutContext:
-        return BoutContext(
-            jam_duration=timedelta(minutes=2),
-            lineup_duration=timedelta(seconds=30),
-            points_per_trip=4,
-            num_timeouts=3,
-            num_reviews=1,
-        )
-
     @override
     def begin_period(self, timestamp: datetime) -> None:
         if self.state != 'stopped':
             raise RulesError('this bout cannot be started now')
-        if len(self.jams) > 0 and self.jams[-1].period == NUM_PERIODS:
-            raise RulesError(f'this bout can only have {NUM_PERIODS} periods')
+        if len(self.jams) > 0 and self.jams[-1].period == self.rules.num_periods:
+            raise RulesError(
+                f'this bout can only have {self.rules.num_periods} periods'
+            )
 
         # If this Period is not in overtime reset the Clock
-        if self.jams[-1].period < NUM_PERIODS:
+        if self.jams[-1].period < self.rules.num_periods:
             self.clock.reset()
 
         self.is_running = True
@@ -68,7 +69,7 @@ class Bout(WFTDAModel, BaseBout):
     def end_period(self, timestamp: datetime) -> None:
         if self.is_running and self.state != 'lineup':
             raise RulesError('the period can only be ended during lineup')
-        if not self.is_running and self.jams[-1].period < NUM_PERIODS:
+        if not self.is_running and self.jams[-1].period < self.rules.num_periods:
             raise RulesError('there is no running period to end')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
@@ -105,7 +106,7 @@ class Bout(WFTDAModel, BaseBout):
 
         # Start the Clock if not in overtime
         jam: BaseJam = self.jams[-1]
-        if jam.period < NUM_PERIODS and not self.clock.is_running():
+        if jam.period < self.rules.num_periods and not self.clock.is_running():
             self.clock.start(timestamp)
 
         jam.start(timestamp)
@@ -208,11 +209,11 @@ class Jam(WFTDAModel, BaseJam):
         # TODO: handle overtime conditions
 
         # Automatically set lead on the first 4-point trip
-        if not self.lead_is_declared() and passes == MAX_PASSES_PER_TRIP:
+        if not self.lead_is_declared() and passes == self.bout.rules.points_per_trip:
             event.lead = True
 
         # Lose eligibility on initial no-pass/no-penalty
-        if len(team_jam.events) == 0 and passes < MAX_PASSES_PER_TRIP:
+        if len(team_jam.events) == 0 and passes < self.bout.rules.points_per_trip:
             event.lost = True
 
         # Jammer cannot earn points on the initial pass

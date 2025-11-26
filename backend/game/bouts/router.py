@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING, Annotated, Final
 
 from fastapi import APIRouter, Body
 from game.teams.dependencies import OptionalTeamDepends
+from rulesets.schemas import RulesetContext
 
 from .dependencies import BoutDepends, get_bout
-from .models import BoutContext
 from .schemas import BoutContextSchema, BoutSchema
 
 if TYPE_CHECKING:
@@ -15,9 +15,9 @@ router: Final[APIRouter] = APIRouter(prefix='/bout')
 router.add_api_route('', get_bout, response_model=BoutSchema)
 
 
-@router.get('/context', response_model=BoutContextSchema)
-async def get_bout_context(bout: BoutDepends) -> BoutContext:
-    return bout.context
+@router.get('/ruleset-context', response_model=BoutContextSchema)
+async def get_ruleset_context(bout: BoutDepends) -> RulesetContext:
+    return bout.rules
 
 
 @router.post('/begin-period')

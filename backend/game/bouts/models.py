@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
-from functools import cached_property
-from typing import TYPE_CHECKING, Any, Final, Literal, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final
 
 from game.clocks.models import Clock
 from models import (
@@ -19,27 +17,19 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from datetime import timedelta
-
     from game.jams.models import BaseJam
     from game.series.models import Series
     from game.teams.models import BaseTeam
     from game.timeouts.models import BaseTimeout
+    from rulesets.schemas import RulesetContext
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
-@dataclass(frozen=True)
-class BoutContext:
-    jam_duration: timedelta
-    lineup_duration: timedelta
-    points_per_trip: int
-    num_timeouts: int
-    num_reviews: int
-
-
 class BaseBout(CacheableSQLModel):
+    rules: ClassVar[RulesetContext]
+
     series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
 
@@ -109,7 +99,3 @@ class BaseBout(CacheableSQLModel):
     def start_timeout(self, timestamp: datetime) -> BaseTimeout: ...
 
     def stop_timeout(self, timestamp: datetime) -> BaseTimeout: ...
-
-    @cached_property
-    def context(self) -> BoutContext:
-        raise NotImplementedError()
