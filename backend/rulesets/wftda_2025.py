@@ -17,7 +17,7 @@ RULESET_NAME = 'WFTDA 2025'
 
 
 class WFTDAModel:
-    __mapper_args__: dict[str, str | bool] = {
+    __mapper_args__: dict[str, str] = {
         'polymorphic_identity': RULESET_NAME,
     }
 
