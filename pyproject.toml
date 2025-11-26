@@ -49,6 +49,11 @@ ignore = [
   "D", # TODO: Remove me when ready to begin documentation
 ]
 
+[tool.ruff.lint.extend-per-file-ignores]
+"dependencies.py" = [
+  "PLR0913", # Dependency methods may have more arguments than typical
+]
+
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
