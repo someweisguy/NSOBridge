@@ -1,22 +1,36 @@
-import { BoutContext, Team } from "@/types/game";
 import useRoster from "@/hooks/use-roster";
-import { Roster } from "@/types/people";
-import { PropsWithChildren } from "react";
-import ScoreView from "./score-view";
+import useRuleset from "@/hooks/use-ruleset";
+import useTimeout from "@/hooks/use-timeout";
+import { Team } from "@/types/game";
 import TimeoutBar from "./timeout-bar";
-// import useTimeout from "@/features/game/timeouts/hooks/use-timeout";
+
+interface ScoreViewProps {
+  boutScore: number;
+  jamScore: number;
+}
+
+function ScoreView({ boutScore, jamScore }: ScoreViewProps) {
+  return (
+    <div className="flex flex-row flex-nowrap justify-end gap-2 w-full size-full">
+      <h1 className="content-center min-w-fit max-w-1/2 font-bold text-9xl text-right grow">
+        {boutScore}
+      </h1>
+      <h2 className="content-center ps-4 text-7xl text-left shrink-0 basis-1/3">
+        {jamScore}
+      </h2>
+    </div>
+  );
+}
 
 interface TeamsViewProps {
   team: Team;
-  context: BoutContext;
 }
 
-export default function TeamView({
-  team,
-  context,
-  children,
-}: PropsWithChildren<TeamsViewProps>) {
-  const roster: Roster = useRoster(team.rosterId);
+export default function TeamView({ team }: TeamsViewProps) {
+  const roster = useRoster(team.rosterId);
+  const activeTimeout = useTimeout(team.boutId, -1);
+  const ruleset = useRuleset(team.boutId);
+
   return (
     <div className="place-content-stretch gap-7 grid grid-cols-3 p-4">
       <div className="place-content-center col-span-full font-bold text-7xl text-center">
@@ -24,15 +38,21 @@ export default function TeamView({
       </div>
       <div className="justify-center items-center grid">
         {/* FIXME: get the activeTimeout type by querying the latest Timeout */}
-        <TimeoutBar {...team} {...context} activeTimeout={null} />
+        <TimeoutBar
+          team={team}
+          activeTimeout={activeTimeout}
+          ruleset={ruleset}
+        />
       </div>
       <div className="justify-stretch items-center grid">
-        <ScoreView {...team} />
+        <ScoreView
+          boutScore={team.boutScore + team.scoreOffset}
+          jamScore={team.jamScore}
+        />
       </div>
       <div className="justify-center items-center grid">
         {/* TODO: Jammer Status Icon */}
       </div>
-      {children && <div className="col-span-full row-start-3">{children}</div>}
     </div>
   );
 }

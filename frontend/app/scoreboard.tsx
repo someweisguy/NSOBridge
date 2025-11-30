@@ -1,10 +1,10 @@
 import Clock from "@/components/clock";
-import withTeam from "@/components/team-component";
+import TeamView from "@/components/team-view";
 import useBout from "@/hooks/use-bout";
-import useRuleset from "@/hooks/use-ruleset";
 import useJam from "@/hooks/use-jam";
+import useRuleset from "@/hooks/use-ruleset";
 import queryClient from "@/lib/cache";
-import { Bout, Ruleset } from "@/types/game";
+import { Bout, Ruleset, Team } from "@/types/game";
 import FitScreen from "@fit-screen/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -28,8 +28,6 @@ export default function App() {
   );
 }
 
-const TeamComponent = withTeam();
-
 function Test() {
   const bout = useBout(1);
   const context = useRuleset(1);
@@ -38,7 +36,9 @@ function Test() {
     <div className="flex flex-col flex-nowrap grid-flow-row h-screen size-screen">
       <div className="justify-stretch items-stretch grid just basis-1/2 shrink-0 grow-0">
         {/* Primary Information (Team Info) */}
-        <TeamComponent bout={bout} context={context} />
+        {bout.teams.map((team: Team, i: number) => (
+          <TeamView key={i} team={team} />
+        ))}
       </div>
       <div className="place-content-center text-center basis-1/8 shrink-0 grow-0">
         {/* Tertiary Information (Game State) */}

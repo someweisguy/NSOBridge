@@ -1,6 +1,5 @@
 import Button from "@/components/button";
 import Clock from "@/components/clock";
-import withTeam from "@/components/team-component";
 import useBout from "@/hooks/use-bout";
 import useJam from "@/hooks/use-jam";
 import useRuleset from "@/hooks/use-ruleset";
@@ -16,7 +15,7 @@ import {
   stopTimeout,
 } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
-import { Bout, Series } from "@/types/game";
+import { Bout, Series, Team } from "@/types/game";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   StrictMode,
@@ -28,6 +27,7 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import TeamView from "@/components/team-view";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -44,8 +44,6 @@ export default function App() {
   );
 }
 
-const TeamComponent = withTeam();
-
 function Test() {
   const [boutIndex, setBoutIndex] = useState(0);
   const goToNextBout = useRef(false);
@@ -56,7 +54,6 @@ function Test() {
     throw new Error("This Series does not have any Bouts");
   }
   const bout: Bout = useBout(series.boutIds[boutIndex]);
-  const ruleset = useRuleset(series.boutIds[boutIndex]);
 
   useEffect(() => {
     if (goToNextBout.current && series.boutIds.length > boutIndex + 1) {
@@ -73,7 +70,9 @@ function Test() {
 
   return (
     <div className="">
-      <TeamComponent bout={bout} ruleset={ruleset} />
+      {bout.teams.map((team: Team, i: number) => (
+        <TeamView key={i} team={team} />
+      ))}
       <BoutTimeInformation />
       <div className="place-content-around grid grid-flow-col">
         <Button onClick={() => void beginPeriod(bout.id)}>Start Period</Button>
