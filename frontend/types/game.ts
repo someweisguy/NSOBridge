@@ -110,7 +110,7 @@ export class Timeout {
   }
 }
 
-export class BoutContext {
+export class Ruleset {
   jamDuration: number;
   lineupDuration: number;
   pointsPerTrip: number;

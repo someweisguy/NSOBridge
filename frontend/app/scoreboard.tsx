@@ -1,10 +1,10 @@
 import Clock from "@/components/clock";
 import withTeam from "@/components/team-component";
 import useBout from "@/hooks/use-bout";
-import useRulesetContext from "@/hooks/use-bout-context";
+import useRuleset from "@/hooks/use-ruleset";
 import useJam from "@/hooks/use-jam";
 import queryClient from "@/lib/cache";
-import { Bout, BoutContext } from "@/types/game";
+import { Bout, Ruleset } from "@/types/game";
 import FitScreen from "@fit-screen/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -32,7 +32,7 @@ const TeamComponent = withTeam();
 
 function Test() {
   const bout = useBout(1);
-  const context = useRulesetContext(1);
+  const context = useRuleset(1);
 
   return (
     <div className="flex flex-col flex-nowrap grid-flow-row h-screen size-screen">
@@ -87,7 +87,7 @@ function BoutTimeInformation({
   context,
 }: {
   bout: Bout;
-  context: BoutContext;
+  context: Ruleset;
 }) {
   let periodNum = 0;
   let jamNum = 0;

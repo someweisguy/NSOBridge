@@ -2,7 +2,7 @@ import Button from "@/components/button";
 import Clock from "@/components/clock";
 import withTeam from "@/components/team-component";
 import useBout from "@/hooks/use-bout";
-import useRulesetContext from "@/hooks/use-bout-context";
+import useRuleset from "@/hooks/use-ruleset";
 import useJam from "@/hooks/use-jam";
 import useSeries from "@/hooks/use-series";
 import queryClient from "@/lib/cache";
@@ -56,7 +56,7 @@ function Test() {
     throw new Error("This Series does not have any Bouts");
   }
   const bout: Bout = useBout(series.boutIds[boutIndex]);
-  const context = useRulesetContext(series.boutIds[boutIndex]);
+  const context = useRuleset(series.boutIds[boutIndex]);
 
   useEffect(() => {
     if (goToNextBout.current && series.boutIds.length > boutIndex + 1) {
@@ -93,7 +93,7 @@ function Test() {
 
 function BoutTimeInformation() {
   const bout = useBout(1);
-  const context = useRulesetContext(1);
+  const context = useRuleset(1);
 
   let periodNum = 0;
   let jamNum = 0;
