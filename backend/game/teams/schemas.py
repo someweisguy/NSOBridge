@@ -6,6 +6,7 @@ from schemas import ServerSchema
 class TeamSchema(ServerSchema):
     id: int
     roster_id: int
+    bout_id: int
     bout_score: int
     jam_score: int
     timeouts_remaining: int

@@ -38,6 +38,7 @@ export default class Clock {
 export class Team {
   id: number;
   rosterId: number;
+  boutId: number;
   boutScore: number;
   jamScore: number;
   timeoutsRemaining: number;
