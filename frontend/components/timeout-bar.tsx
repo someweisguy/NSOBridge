@@ -40,7 +40,7 @@ export default function TimeoutBar({
             k >= timeoutsRemaining && "invisible",
             k == timeoutsRemaining - 1 &&
               activeTimeout == "timeout" &&
-              "animate-ping", // TODO: make a custom Tailwind animation for timeouts
+              "animate-blink",
           )}
         ></div>
       ))}
@@ -53,7 +53,7 @@ export default function TimeoutBar({
             k >= reviewsRemaining && "invisible",
             k == reviewsRemaining - 1 &&
               activeTimeout == "review" &&
-              "animate-ping", // TODO: make a custom Tailwind animation for timeouts
+              "animate-blink",
           )}
         ></div>
       ))}
