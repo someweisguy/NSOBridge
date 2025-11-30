@@ -15,7 +15,7 @@ export class Bout {
   isRunning: boolean;
   isFinal: boolean;
   jamCounts: number[];
-  numTimeouts: number[];
+  numTimeouts: number;
   teams: Team[];
 
   static generateKey(id: number) {
