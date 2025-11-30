@@ -2,8 +2,8 @@ import Button from "@/components/button";
 import Clock from "@/components/clock";
 import withTeam from "@/components/team-component";
 import useBout from "@/hooks/use-bout";
-import useRuleset from "@/hooks/use-ruleset";
 import useJam from "@/hooks/use-jam";
+import useRuleset from "@/hooks/use-ruleset";
 import useSeries from "@/hooks/use-series";
 import queryClient from "@/lib/cache";
 import {
@@ -56,7 +56,7 @@ function Test() {
     throw new Error("This Series does not have any Bouts");
   }
   const bout: Bout = useBout(series.boutIds[boutIndex]);
-  const context = useRuleset(series.boutIds[boutIndex]);
+  const ruleset = useRuleset(series.boutIds[boutIndex]);
 
   useEffect(() => {
     if (goToNextBout.current && series.boutIds.length > boutIndex + 1) {
@@ -73,7 +73,7 @@ function Test() {
 
   return (
     <div className="">
-      <TeamComponent bout={bout} context={context} />
+      <TeamComponent bout={bout} ruleset={ruleset} />
       <BoutTimeInformation />
       <div className="place-content-around grid grid-flow-col">
         <Button onClick={() => void beginPeriod(bout.id)}>Start Period</Button>
