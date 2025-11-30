@@ -100,6 +100,14 @@ export class Timeout {
   static generateKey(boutId: number, index: number) {
     return ["timeouts", boutId, index];
   }
+
+  hasStarted(): boolean {
+    return this.startTimestamp != null;
+  }
+
+  isRunning(): boolean {
+    return this.hasStarted() && this.stopTimestamp == null;
+  }
 }
 
 export class BoutContext {
