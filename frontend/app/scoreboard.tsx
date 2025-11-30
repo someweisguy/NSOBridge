@@ -34,7 +34,7 @@ function Test() {
 
   return (
     <div className="flex flex-col flex-nowrap grid-flow-row h-screen size-screen">
-      <div className="justify-stretch items-stretch grid just basis-1/2 shrink-0 grow-0">
+      <div className="justify-stretch items-stretch grid grid-flow-col basis-1/2 shrink-0 grow-0">
         {/* Primary Information (Team Info) */}
         {bout.teams.map((team: Team, i: number) => (
           <TeamView key={i} team={team} />

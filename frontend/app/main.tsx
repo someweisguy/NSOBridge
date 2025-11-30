@@ -70,9 +70,11 @@ function Test() {
 
   return (
     <div className="">
-      {bout.teams.map((team: Team, i: number) => (
-        <TeamView key={i} team={team} />
-      ))}
+      <div className="justify-around grid grid-flow-col">
+        {bout.teams.map((team: Team, i: number) => (
+          <TeamView key={i} team={team} />
+        ))}
+      </div>
       <BoutTimeInformation />
       <div className="place-content-around grid grid-flow-col">
         <Button onClick={() => void beginPeriod(bout.id)}>Start Period</Button>

@@ -3,6 +3,7 @@ import useRuleset from "@/hooks/use-ruleset";
 import useTimeout from "@/hooks/use-timeout";
 import { Team } from "@/types/game";
 import TimeoutBar from "./timeout-bar";
+import useBout from "@/hooks/use-bout";
 
 interface ScoreViewProps {
   boutScore: number;
@@ -27,8 +28,9 @@ interface TeamsViewProps {
 }
 
 export default function TeamView({ team }: TeamsViewProps) {
+  const bout = useBout(team.boutId);
   const roster = useRoster(team.rosterId);
-  const activeTimeout = useTimeout(team.boutId, -1);
+  const activeTimeout = useTimeout(team.boutId, bout.numTimeouts - 1);
   const ruleset = useRuleset(team.boutId);
 
   return (
@@ -37,7 +39,6 @@ export default function TeamView({ team }: TeamsViewProps) {
         {roster.name}
       </div>
       <div className="justify-center items-center grid">
-        {/* FIXME: get the activeTimeout type by querying the latest Timeout */}
         <TimeoutBar
           team={team}
           activeTimeout={activeTimeout}
