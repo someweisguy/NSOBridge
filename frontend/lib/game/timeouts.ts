@@ -4,7 +4,7 @@ import { localAPI } from "../requests";
 export async function getTimeout(
   boutId: number,
   index: number,
-): Promise<Timeout> {
+): Promise<Timeout | null> {
   const data = await localAPI.get("timeout", { query: { boutId, index } });
-  return Object.assign(new Timeout(), data);
+  return data !== null ? Object.assign(new Timeout(), data) : null;
 }
