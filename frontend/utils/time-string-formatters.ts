@@ -1,4 +1,12 @@
-export default function defaultTimeStringFormatter(millis: number): string {
+export default function defaultTimeStringFormatter(
+  millis: number,
+  alarm?: number,
+): string {
+  if (alarm) {
+    // Automatically convert to a count-down
+    millis = alarm - millis;
+  }
+
   const isNegative = millis < 0;
   millis = Math.abs(millis);
   let m = String(Math.floor((millis % 3600000) / 60000));
@@ -31,18 +39,27 @@ export default function defaultTimeStringFormatter(millis: number): string {
   return output;
 }
 
-export function periodTimeStringFormatter(millis: number): string {
-  return defaultTimeStringFormatter(millis); // TODO: Implement time string formatter
+export function periodTimeStringFormatter(
+  millis: number,
+  alarm?: number,
+): string {
+  return defaultTimeStringFormatter(millis, alarm); // TODO: Implement time string formatter
 }
 
-export function lineupTimeStringFormatter(millis: number): string {
-  return defaultTimeStringFormatter(millis); // TODO: Implement time string formatter
+export function lineupTimeStringFormatter(
+  millis: number,
+  alarm?: number,
+): string {
+  return defaultTimeStringFormatter(millis, alarm); // TODO: Implement time string formatter
 }
 
-export function jamTimeStringFormatter(millis: number): string {
-  return defaultTimeStringFormatter(millis); // TODO: Implement time string formatter
+export function jamTimeStringFormatter(millis: number, alarm?: number): string {
+  return defaultTimeStringFormatter(millis, alarm); // TODO: Implement time string formatter
 }
 
-export function timeoutTimeStringFormatter(millis: number): string {
-  return defaultTimeStringFormatter(millis); // TODO: Implement time string formatter
+export function timeoutTimeStringFormatter(
+  millis: number,
+  alarm?: number,
+): string {
+  return defaultTimeStringFormatter(millis, alarm); // TODO: Implement time string formatter
 }

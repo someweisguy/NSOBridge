@@ -8,7 +8,7 @@ interface ClockProps {
   elapsed?: number;
   alarm?: number;
   freeze?: boolean;
-  formatter?: (milliseconds: number) => string;
+  formatter?: (milliseconds: number, alarm?: number) => string;
 }
 
 export default function Clock({
@@ -42,10 +42,7 @@ export default function Clock({
     }
   }
 
-  // If an alarm is defined display the component as a count-down
-  if (alarm !== undefined) {
-    milliseconds = alarm - milliseconds;
-  }
-
-  return <label className="tabular-nums">{formatter(milliseconds)}</label>;
+  return (
+    <label className="tabular-nums">{formatter(milliseconds, alarm)}</label>
+  );
 }
