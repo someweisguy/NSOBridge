@@ -1,10 +1,8 @@
-import Clock from "@/components/clock";
+import BoutStateView from "@/features/bout-state-view/components/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import useBout from "@/hooks/use-bout";
-import useJam from "@/hooks/use-jam";
-import useRuleset from "@/hooks/use-ruleset";
 import queryClient from "@/lib/cache";
-import { Bout, Ruleset, Team } from "@/types/game";
+import { Bout, Team } from "@/types/game";
 import FitScreen from "@fit-screen/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -30,7 +28,6 @@ export default function App() {
 
 function Test() {
   const bout = useBout(1);
-  const context = useRuleset(1);
 
   return (
     <div className="flex flex-col flex-nowrap grid-flow-row h-screen size-screen">
@@ -46,92 +43,7 @@ function Test() {
       </div>
       <div className="justify-stretch items-stretch grid basis-3/8 shrink-0">
         {/* Secondary Information (Clocks, etc.) */}
-        <BoutTimeInformation bout={bout} context={context} />
-      </div>
-    </div>
-  );
-}
-
-function IntermissionStatus({ bout }: { bout: Bout }) {
-  let periodNum = 0;
-  let jamNum = 0;
-  for (const i of bout.jamCounts) {
-    if (i > 0) {
-      jamNum = i - 1;
-      break;
-    }
-    periodNum++;
-  }
-
-  const jam = useJam(bout, periodNum, jamNum);
-
-  let copy = "Starting Soon";
-  if (bout.isFinal) {
-    copy = "Final Score";
-  } else if (jam.period > 1) {
-    copy = "Unofficial Score";
-  } else if (jam.period == 1) {
-    copy = "Halftime";
-  }
-
-  return (
-    <div className="items-center grid m-2 h-full text-8xl text-center">
-      {copy}{" "}
-      {bout.startCountdown && <Clock startTimestamp={bout.startCountdown} />}
-    </div>
-  );
-}
-
-function BoutTimeInformation({
-  bout,
-  context,
-}: {
-  bout: Bout;
-  context: Ruleset;
-}) {
-  let periodNum = 0;
-  let jamNum = 0;
-  for (const i of bout.jamCounts) {
-    if (i > 0) {
-      jamNum = i - 1;
-      break;
-    }
-    periodNum++;
-  }
-
-  const activeJam = useJam(bout, periodNum, jamNum);
-
-  if (!bout.isRunning) {
-    return <IntermissionStatus bout={bout} />;
-  }
-
-  let displayPeriod = activeJam.period;
-  let displayJam = activeJam.num;
-
-  // Overtime Jams should be considered a continuation of the second half
-  if (displayPeriod >= 2) {
-    displayPeriod = 1;
-    displayJam += bout.jamCounts[1];
-  }
-
-  return (
-    <div className="flex justify-evenly items-center text-9xl text-center align-middle">
-      <div className="bg-red w-full text-7xl text-center">
-        {activeJam.period == 2 ? "OT" : <Clock {...bout.clock} />}
-      </div>
-      <div className="flex justify-between items-baseline gap-20 w-full">
-        <h1 className="text-center">P{displayPeriod + 1}</h1>
-        <h1 className="text-center">J{displayJam + 1}</h1>
-      </div>
-      <div className="w-full text-7xl text-center">
-        {!activeJam.hasStarted() || activeJam.isRunning() ? (
-          <Clock {...activeJam} alarm={context.jamDuration} />
-        ) : (
-          <Clock
-            startTimestamp={activeJam.stopTimestamp}
-            alarm={context.lineupDuration}
-          />
-        )}
+        <BoutStateView bout={bout} />
       </div>
     </div>
   );
