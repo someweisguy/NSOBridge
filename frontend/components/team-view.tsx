@@ -4,6 +4,7 @@ import useTimeout from "@/hooks/use-timeout";
 import { Team } from "@/types/game";
 import TimeoutBar from "./timeout-bar";
 import useBout from "@/hooks/use-bout";
+import JammerStatus from "./jammer-status";
 
 interface ScoreViewProps {
   boutScore: number;
@@ -52,7 +53,8 @@ export default function TeamView({ team }: TeamsViewProps) {
         />
       </div>
       <div className="justify-center items-center grid">
-        {/* TODO: Jammer Status Icon */}
+        {/* TODO: Get Jammer status */}
+        <JammerStatus lead={false} lost={false} starPass={false} />
       </div>
     </div>
   );
