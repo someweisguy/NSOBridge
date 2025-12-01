@@ -1,20 +1,10 @@
 import Clock from "@/components/clock";
-import useJam from "@/hooks/use-jam";
 import useRuleset from "@/hooks/use-ruleset";
 import { Bout } from "@/types/game";
+import useActiveJam from "../hooks/use-active-jam";
 
 function IntermissionStatus({ bout }: { bout: Bout }) {
-  let periodNum = 0;
-  let jamNum = 0;
-  for (const i of bout.jamCounts) {
-    if (i > 0) {
-      jamNum = i - 1;
-      break;
-    }
-    periodNum++;
-  }
-
-  const jam = useJam(bout, periodNum, jamNum);
+  const jam = useActiveJam(bout.id);
 
   let copy = "Starting Soon";
   if (bout.isFinal) {
@@ -35,18 +25,7 @@ function IntermissionStatus({ bout }: { bout: Bout }) {
 
 export default function BoutStateView({ bout }: { bout: Bout }) {
   const ruleset = useRuleset(bout.id);
-
-  let periodNum = 0;
-  let jamNum = 0;
-  for (const i of bout.jamCounts) {
-    if (i > 0) {
-      jamNum = i - 1;
-      break;
-    }
-    periodNum++;
-  }
-
-  const activeJam = useJam(bout, periodNum, jamNum);
+  const activeJam = useActiveJam(bout.id);
 
   if (!bout.isRunning) {
     return <IntermissionStatus bout={bout} />;
@@ -61,6 +40,8 @@ export default function BoutStateView({ bout }: { bout: Bout }) {
     displayJam += bout.jamCounts[1];
   }
 
+  // TODO: Period Clock, Period/Jam number, Jam/Lineup/Timeout/Post-Timeout Clock
+  // TODO: Display Bout states: Jam, Timeout, Lineup, OT, Unofficial, Final
   return (
     <div className="flex justify-evenly items-center text-9xl text-center align-middle">
       <div className="bg-red w-full text-7xl text-center">
