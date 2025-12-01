@@ -30,3 +30,19 @@ export default function defaultTimeStringFormatter(millis: number): string {
 
   return output;
 }
+
+export function periodTimeStringFormatter(millis: number): string {
+  return defaultTimeStringFormatter(millis); // TODO: Implement time string formatter
+}
+
+export function lineupTimeStringFormatter(millis: number): string {
+  return defaultTimeStringFormatter(millis); // TODO: Implement time string formatter
+}
+
+export function jamTimeStringFormatter(millis: number): string {
+  return defaultTimeStringFormatter(millis); // TODO: Implement time string formatter
+}
+
+export function timeoutTimeStringFormatter(millis: number): string {
+  return defaultTimeStringFormatter(millis); // TODO: Implement time string formatter
+}
