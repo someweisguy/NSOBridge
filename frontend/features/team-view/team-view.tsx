@@ -2,9 +2,9 @@ import useRoster from "@/hooks/use-roster";
 import useRuleset from "@/hooks/use-ruleset";
 import useTimeout from "@/hooks/use-timeout";
 import { Team } from "@/types/game";
-import TimeoutBar from "./timeout-bar";
+import TimeoutBar from "../../components/timeout-bar";
 import useBout from "@/hooks/use-bout";
-import JammerStatus from "./jammer-status";
+import JammerStatus from "../../components/jammer-status";
 
 interface ScoreViewProps {
   boutScore: number;

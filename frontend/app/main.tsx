@@ -27,7 +27,7 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import TeamView from "@/components/team-view";
+import TeamView from "@/features/team-view/team-view";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);

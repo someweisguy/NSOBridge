@@ -1,5 +1,5 @@
 import Clock from "@/components/clock";
-import TeamView from "@/components/team-view";
+import TeamView from "@/features/team-view/team-view";
 import useBout from "@/hooks/use-bout";
 import useJam from "@/hooks/use-jam";
 import useRuleset from "@/hooks/use-ruleset";
