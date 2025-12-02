@@ -1,6 +1,6 @@
 import Clock from "@/components/clock";
 import { Bout } from "@/types/game";
-import useActiveJam from "../hooks/use-active-jam";
+import useActiveJam from "@/hooks/use-active-jam";
 
 export default function IntermissionStateView({ bout }: { bout: Bout }) {
   const jam = useActiveJam(bout.id);

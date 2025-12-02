@@ -1,7 +1,7 @@
 import Clock from "@/components/clock";
 import useRuleset from "@/hooks/use-ruleset";
 import { Bout } from "@/types/game";
-import useActiveJam from "../hooks/use-active-jam";
+import useActiveJam from "@/hooks/use-active-jam";
 import IntermissionStateView from "./intermission-state-view";
 import useTimeout from "@/hooks/use-timeout";
 import {
