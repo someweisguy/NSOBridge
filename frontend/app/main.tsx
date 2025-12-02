@@ -26,6 +26,8 @@ import { createRoot } from "react-dom/client";
 import "./global.css";
 import TeamView from "@/features/team-view/team-view";
 import BoutStateView from "@/features/bout-state-view/components/bout-state-view";
+import TeamJamView from "@/features/team-jam-view/team-jam-view";
+import useActiveJam from "@/hooks/use-active-jam";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -77,11 +79,16 @@ function Test() {
     void createBout(rosterIds);
   }, [bout]);
 
+  const activeJam = useActiveJam(bout.id);
+
   return (
     <div className="">
       <div className="justify-around grid grid-flow-col">
         {bout.teams.map((team: Team, i: number) => (
-          <TeamView key={i} team={team} />
+          <div key={i} className="grid grid-flow-row">
+            <TeamView team={team} />
+            <TeamJamView jam={activeJam} team={team} />
+          </div>
         ))}
       </div>
       <BoutStateView bout={bout} />
