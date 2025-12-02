@@ -27,6 +27,17 @@ import "./global.css";
 import TeamView from "@/features/team-view/team-view";
 import BoutStateView from "@/features/bout-state-view/components/bout-state-view";
 
+document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey) {
+    if (event.key === "z") {
+      void undo();
+    }
+    if (event.key === "y") {
+      void redo();
+    }
+  }
+});
+
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
 
