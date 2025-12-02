@@ -13,5 +13,14 @@ export default function TeamJamView({ jam, team }: TeamJamViewProps) {
     throw new Error("team jam not found");
   }
 
-  return <>TeamJam ID: {teamJam.id}</>;
+  const lead = teamJam.events.some((tripEvent) => tripEvent.lead);
+  const lost = teamJam.events.some((tripEvent) => tripEvent.lost);
+  const starPass = teamJam.events.some((tripEvent) => tripEvent.starPass);
+
+  return (
+    <>
+      TeamJam ID: {teamJam.id}, Lead = {String(lead)}, Lost = {String(lost)},
+      Star Pass = {String(starPass)}
+    </>
+  );
 }
