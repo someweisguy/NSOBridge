@@ -36,6 +36,18 @@ export default function BoutStateView({ bout }: { bout: Bout }) {
     gameState = "Timeout";
     gameStopTimestamp = latestTimeout!.startTimestamp;
   }
+  // TODO: render additional non-Jam Bout states
+
+  // Render Jam stop reason when Jam has ended
+  let jamStopReason = "-";
+  if (activeJam.stopReason != null) {
+    switch (activeJam.stopReason) {
+      case "called":
+        jamStopReason = "Called";
+        break;
+      // TODO: render additional Jam stop reasons
+    }
+  }
 
   return (
     <div className="justify-evenly grid grid-cols-3 p-4 text-7xl text-center">
@@ -58,7 +70,7 @@ export default function BoutStateView({ bout }: { bout: Bout }) {
             formatter={jamTimeStringFormatter}
           />
         ) : (
-          "-"
+          jamStopReason
         )}
       </div>
 
