@@ -62,7 +62,6 @@ export default function BoutStateView({ bout }: { bout: Bout }) {
         P{periodNum + 1} J{jamNum + 1}
       </div>
       <div>
-        {/* TODO: This section should show the call reason when a Jam ends */}
         {!activeJam.hasStarted() || activeJam.isRunning() ? (
           <Clock
             {...activeJam}
