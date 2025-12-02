@@ -4,6 +4,10 @@ import { Bout } from "@/types/game";
 import useActiveJam from "../hooks/use-active-jam";
 import IntermissionStateView from "./intermission-state-view";
 import useTimeout from "@/hooks/use-timeout";
+import {
+  jamTimeStringFormatter,
+  periodTimeStringFormatter,
+} from "@/utils/time-string-formatters";
 
 export default function BoutStateView({ bout }: { bout: Bout }) {
   const ruleset = useRuleset(bout.id);
@@ -35,14 +39,24 @@ export default function BoutStateView({ bout }: { bout: Bout }) {
 
   return (
     <div className="justify-evenly grid grid-cols-3 p-4 text-7xl text-center">
-      <div>{activeJam.period >= 2 ? "OT" : <Clock {...bout.clock} />}</div>
+      <div>
+        {activeJam.period >= 2 ? (
+          "OT"
+        ) : (
+          <Clock {...bout.clock} formatter={periodTimeStringFormatter} />
+        )}
+      </div>
       <div>
         P{periodNum + 1} J{jamNum + 1}
       </div>
       <div>
         {/* TODO: This section should show the call reason when a Jam ends */}
         {!activeJam.hasStarted() || activeJam.isRunning() ? (
-          <Clock {...activeJam} alarm={ruleset.jamDuration} />
+          <Clock
+            {...activeJam}
+            alarm={ruleset.jamDuration}
+            formatter={jamTimeStringFormatter}
+          />
         ) : (
           "-"
         )}
