@@ -15,3 +15,16 @@ export async function getJam(
   });
   return Object.assign(new Jam(), data);
 }
+
+export async function jamAddTrip(
+  boutId: number,
+  periodNum: number,
+  jamNum: number,
+  teamId: number,
+  passes: number,
+) {
+  await localAPI.post("jam/add-trip", {
+    query: { boutId, periodNum, jamNum, teamId },
+    body: passes,
+  });
+}
