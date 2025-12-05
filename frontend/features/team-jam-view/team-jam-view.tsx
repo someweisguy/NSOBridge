@@ -1,6 +1,7 @@
+import TripEvent from "@/components/trip-event";
 import { jamAddTrip } from "@/lib/game/jams";
 import { Jam, Team, TeamJam } from "@/types/game";
-import { Button, SimpleGrid } from "@mantine/core";
+import { Button, Flex, SimpleGrid } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 
 interface TeamJamViewProps {
@@ -24,6 +25,13 @@ export default function TeamJamView({ jam, team }: TeamJamViewProps) {
     <>
       <AddTripButtons jam={jam} team={team} />
       Lead: {String(lead)}, Lost: {String(lost)}, Star Pass: {String(starPass)}
+      <Flex>
+        {teamJam.events
+          .filter((event) => event.passes != null)
+          .map((teamJam, i) => (
+            <TripEvent key={i} tripNum={i} {...teamJam} />
+          ))}
+      </Flex>
     </>
   );
 }
