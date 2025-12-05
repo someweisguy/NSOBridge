@@ -12,7 +12,9 @@ router.add_api_route('', get_jam_or_none, response_model=JamSchema | None)
 
 @router.post('/add-trip')
 async def add_trip(
-    jam: JamDepends, team_id: Annotated[int, Query()], passes: Annotated[int, Body()]
+    jam: JamDepends,
+    team_id: Annotated[int, Query(alias='teamId')],
+    passes: Annotated[int, Body()],
 ) -> None:
     await jam.add_trip(team_id, datetime.now(), passes)
 
