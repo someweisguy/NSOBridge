@@ -72,7 +72,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
         # Get the first TeamJam that has the specified Team ID
         team_jam: TeamJam | None = next(
-            (tj for tj in self.team_jams if tj.id == team), None
+            (tj for tj in self.team_jams if tj.team_id == team), None
         )
 
         if team_jam is None:
