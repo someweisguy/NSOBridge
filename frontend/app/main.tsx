@@ -18,6 +18,7 @@ import {
 import { redo, undo } from "@/lib/history";
 import { Bout, Series, Team } from "@/types/game";
 import { MantineProvider } from "@mantine/core";
+import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   StrictMode,
