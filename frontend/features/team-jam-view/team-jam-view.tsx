@@ -44,7 +44,7 @@ function AddTripButtons({ jam, team }: TeamJamViewProps) {
   if (teamJam.events.length == 0) {
     return (
       <SimpleGrid cols={2} spacing="md">
-        <Button variant="filled" onClick={() => addTrip.mutate(0)}>
+        <Button variant="light" onClick={() => addTrip.mutate(0)}>
           No Pass
         </Button>
         <Button variant="filled" onClick={() => addTrip.mutate(4)}>
@@ -57,7 +57,7 @@ function AddTripButtons({ jam, team }: TeamJamViewProps) {
     <SimpleGrid cols={5} spacing="md">
       {[0, 1, 2, 3, 4].map((passes: number) => (
         <Button
-          variant="filled"
+          variant={passes == 4 ? "filled" : "light"}
           key={passes}
           onClick={() => addTrip.mutate(passes)}
         >
