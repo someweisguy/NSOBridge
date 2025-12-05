@@ -1,4 +1,8 @@
 import Button from "@/components/button";
+import BoutStateView from "@/features/bout-state-view/components/bout-state-view";
+import TeamJamView from "@/features/team-jam-view/team-jam-view";
+import TeamView from "@/features/team-view/team-view";
+import useActiveJam from "@/hooks/use-active-jam";
 import useBout from "@/hooks/use-bout";
 import useSeries from "@/hooks/use-series";
 import queryClient from "@/lib/cache";
@@ -13,6 +17,7 @@ import {
 } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { Bout, Series, Team } from "@/types/game";
+import { MantineProvider } from "@mantine/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   StrictMode,
@@ -24,10 +29,6 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import TeamView from "@/features/team-view/team-view";
-import BoutStateView from "@/features/bout-state-view/components/bout-state-view";
-import TeamJamView from "@/features/team-jam-view/team-jam-view";
-import useActiveJam from "@/hooks/use-active-jam";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -47,9 +48,11 @@ export default function App() {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <Suspense fallback={"Loading..."}>
-          <Test />
-        </Suspense>
+        <MantineProvider>
+          <Suspense fallback={"Loading..."}>
+            <Test />
+          </Suspense>
+        </MantineProvider>
       </QueryClientProvider>
     </StrictMode>
   );
