@@ -1,4 +1,4 @@
-import { Card, CardSection } from "@mantine/core";
+import { Card, Center, Text } from "@mantine/core";
 
 interface TeamJamProps {
   tripNum: number;
@@ -8,6 +8,8 @@ interface TeamJamProps {
   passes: number | null;
   starPass: boolean;
 }
+
+const w = 75;
 
 export default function TripEvent({
   tripNum,
@@ -19,9 +21,18 @@ export default function TripEvent({
 }: TeamJamProps) {
   // TODO: Polish this component
   return (
-    <Card>
-      <CardSection>Trip {tripNum + 1}</CardSection>
-      <CardSection>{passes}</CardSection>
+    <Card shadow="sm" radius="md" withBorder w={w} h={w}>
+      <Card.Section>
+        <Center>
+          <Text size="sm">Trip {tripNum + 1}</Text>
+        </Center>
+      </Card.Section>
+
+      <Card.Section>
+        <Center>
+          <Text size="sm">{passes}</Text>
+        </Center>
+      </Card.Section>
     </Card>
   );
 }
