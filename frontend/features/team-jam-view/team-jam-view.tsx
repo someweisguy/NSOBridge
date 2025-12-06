@@ -1,7 +1,7 @@
 import TripEvent from "@/components/trip-event";
 import { jamAddTrip } from "@/lib/game/jams";
 import { Jam, Team, TeamJam } from "@/types/game";
-import { Button, Flex, ScrollArea, SimpleGrid } from "@mantine/core";
+import { Button, Group, ScrollArea, SimpleGrid } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 
@@ -37,15 +37,20 @@ export default function TeamJamView({ jam, team }: TeamJamViewProps) {
     <>
       <AddTripButtons jam={jam} team={team} />
       Lead: {String(lead)}, Lost: {String(lost)}, Star Pass: {String(starPass)}
-      <ScrollArea h={100} w={300} viewportRef={viewport} scrollbars="x">
-        <Flex>
+      <ScrollArea.Autosize
+        h={100}
+        w={400}
+        viewportRef={viewport}
+        scrollbars="x"
+      >
+        <Group preventGrowOverflow={false} wrap="nowrap">
           {teamJam.events
             .filter((event) => event.passes != null)
             .map((teamJam, i) => (
               <TripEvent key={i} tripNum={i} {...teamJam} />
             ))}
-        </Flex>
-      </ScrollArea>
+        </Group>
+      </ScrollArea.Autosize>
     </>
   );
 }
