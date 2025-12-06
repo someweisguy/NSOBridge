@@ -1,8 +1,9 @@
 import TripEvent from "@/components/trip-event";
 import { jamAddTrip } from "@/lib/game/jams";
 import { Jam, Team, TeamJam } from "@/types/game";
-import { Button, Flex, SimpleGrid } from "@mantine/core";
+import { Button, Flex, ScrollArea, SimpleGrid } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 
 interface TeamJamViewProps {
   jam: Jam;
@@ -16,6 +17,17 @@ export default function TeamJamView({ jam, team }: TeamJamViewProps) {
   if (teamJam == undefined) {
     throw new Error("team jam not found");
   }
+  const viewport = useRef<HTMLDivElement>(null);
+  const isHydrated = useRef<boolean>(false);
+
+  useEffect(() => {
+    const behavior = isHydrated.current ? "smooth" : "instant";
+    viewport.current!.scrollTo({
+      left: viewport.current!.scrollWidth,
+      behavior,
+    });
+    isHydrated.current = true;
+  }, [teamJam.events.length]);
 
   const lead = teamJam.events.some((tripEvent) => tripEvent.lead);
   const lost = teamJam.events.some((tripEvent) => tripEvent.lost);
@@ -25,13 +37,15 @@ export default function TeamJamView({ jam, team }: TeamJamViewProps) {
     <>
       <AddTripButtons jam={jam} team={team} />
       Lead: {String(lead)}, Lost: {String(lost)}, Star Pass: {String(starPass)}
-      <Flex>
-        {teamJam.events
-          .filter((event) => event.passes != null)
-          .map((teamJam, i) => (
-            <TripEvent key={i} tripNum={i} {...teamJam} />
-          ))}
-      </Flex>
+      <ScrollArea h={100} w={300} viewportRef={viewport} scrollbars="x">
+        <Flex>
+          {teamJam.events
+            .filter((event) => event.passes != null)
+            .map((teamJam, i) => (
+              <TripEvent key={i} tripNum={i} {...teamJam} />
+            ))}
+        </Flex>
+      </ScrollArea>
     </>
   );
 }
