@@ -62,6 +62,7 @@ export default function TimeoutBar({
     </Card>
   );
 
+  // TODO: remove these comments
   // return (
   //   <div
   //     className={twMerge(
