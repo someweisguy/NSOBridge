@@ -21,7 +21,7 @@ export default function TimeoutPip({
       className={twMerge(
         "icon icon-tabler icons-tabler-filled icon-tabler-circle",
         invisible && "invisible",
-        active && "animate-blink",
+        active && !invisible && "animate-blink",
       )}
     >
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
