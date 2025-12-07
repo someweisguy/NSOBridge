@@ -17,7 +17,7 @@ export default function TeamView({ team }: TeamsViewProps) {
   const ruleset = useRuleset(team.boutId);
 
   return (
-    <Stack w="full">
+    <Stack>
       <Center>
         <Title order={1} size={56}>
           <b>{roster.name}</b>
