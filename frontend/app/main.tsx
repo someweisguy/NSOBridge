@@ -88,11 +88,13 @@ function Test() {
   return (
     <Container>
       <Stack>
-        <Grid columns={bout.teams.length}>
+        <Grid columns={bout.teams.length} align="center">
           {bout.teams.map((team: Team, i: number) => (
             <Grid.Col key={i} span={1}>
-              <TeamView team={team} />
-              <TeamJamView jam={activeJam} team={team} />
+              <Stack>
+                <TeamView team={team} />
+                <TeamJamView jam={activeJam} team={team} />
+              </Stack>
             </Grid.Col>
           ))}
         </Grid>
