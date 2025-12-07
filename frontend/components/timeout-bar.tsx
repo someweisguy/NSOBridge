@@ -50,7 +50,7 @@ export default function TimeoutBar({
         </Card.Section>
       ))}
       <Card.Section>
-        <Divider mx={4} />
+        <Divider mx={4} my={2} />
       </Card.Section>
       {Array.from({ length: ruleset.numReviews }, (_, i) => (
         <Card.Section key={i}>
