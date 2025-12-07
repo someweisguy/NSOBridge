@@ -1,0 +1,55 @@
+import useRuleset from "@/hooks/use-ruleset";
+import { jamAddTrip } from "@/lib/game/jams";
+import { Jam, Team, TeamJam } from "@/types/game";
+import { Button, Group } from "@mantine/core";
+import { useMutation } from "@tanstack/react-query";
+
+interface AddTripButtonsProps {
+  jam: Jam;
+  team: Team;
+}
+
+export default function AddTripButtons({ jam, team }: AddTripButtonsProps) {
+  const teamJam: TeamJam | undefined = jam.teamJams.find(
+    (teamJam: TeamJam) => teamJam.teamId === team.id,
+  );
+  if (teamJam == undefined) {
+    throw new Error("team jam not found");
+  }
+  const ruleset = useRuleset(jam.boutId);
+
+  const addTrip = useMutation({
+    mutationFn: (passes: number) =>
+      jamAddTrip(team.boutId, jam.period, jam.num, team.id, passes),
+  });
+
+  const buttons =
+    teamJam.events.length == 0 ? (
+      <>
+        <Button variant="light" onClick={() => addTrip.mutate(0)}>
+          No Pass
+        </Button>
+        <Button variant="filled" onClick={() => addTrip.mutate(4)}>
+          Initial
+        </Button>
+      </>
+    ) : (
+      <>
+        {Array.from({ length: ruleset.pointsPerTrip + 1 }, (_, i) => (
+          <Button
+            key={i}
+            variant={i == ruleset.pointsPerTrip ? "filled" : "light"}
+            onClick={() => addTrip.mutate(i)}
+          >
+            {i}
+          </Button>
+        ))}
+      </>
+    );
+
+  return (
+    <Group justify="center" gap="md">
+      {buttons}
+    </Group>
+  );
+}
