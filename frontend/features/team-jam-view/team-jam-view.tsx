@@ -28,14 +28,9 @@ export default function TeamJamView({ jam, team }: TeamJamViewProps) {
     isHydrated.current = true;
   }, [teamJam.events.length]);
 
-  const lead = teamJam.events.some((tripEvent) => tripEvent.lead);
-  const lost = teamJam.events.some((tripEvent) => tripEvent.lost);
-  const starPass = teamJam.events.some((tripEvent) => tripEvent.starPass);
-
   return (
     <>
       <AddTripButtons jam={jam} team={team} />
-      Lead: {String(lead)}, Lost: {String(lost)}, Star Pass: {String(starPass)}
       <ScrollArea.Autosize
         h={100}
         w={400}
