@@ -1,28 +1,11 @@
+import useBout from "@/hooks/use-bout";
 import useRoster from "@/hooks/use-roster";
 import useRuleset from "@/hooks/use-ruleset";
 import useTimeout from "@/hooks/use-timeout";
 import { Team } from "@/types/game";
-import TimeoutBar from "../../components/timeout-bar";
-import useBout from "@/hooks/use-bout";
+import { Center, Grid, Stack, Title } from "@mantine/core";
 import JammerStatus from "../../components/jammer-status";
-
-interface ScoreViewProps {
-  boutScore: number;
-  jamScore: number;
-}
-
-function ScoreView({ boutScore, jamScore }: ScoreViewProps) {
-  return (
-    <div className="flex flex-row flex-nowrap justify-end gap-2 w-full size-full">
-      <h1 className="content-center min-w-fit max-w-1/2 font-bold text-9xl text-right grow">
-        {boutScore}
-      </h1>
-      <h2 className="content-center ps-4 text-7xl text-left shrink-0 basis-1/3">
-        {jamScore}
-      </h2>
-    </div>
-  );
-}
+import TimeoutBar from "../../components/timeout-bar";
 
 interface TeamsViewProps {
   team: Team;
@@ -35,27 +18,38 @@ export default function TeamView({ team }: TeamsViewProps) {
   const ruleset = useRuleset(team.boutId);
 
   return (
-    <div className="place-content-stretch gap-7 grid grid-cols-3 p-4">
-      <div className="place-content-center col-span-full font-bold text-7xl text-center">
-        {roster.name}
-      </div>
-      <div className="justify-center items-center grid">
-        <TimeoutBar
-          team={team}
-          activeTimeout={activeTimeout}
-          ruleset={ruleset}
-        />
-      </div>
-      <div className="justify-stretch items-center grid">
-        <ScoreView
-          boutScore={team.boutScore + team.scoreOffset}
-          jamScore={team.jamScore}
-        />
-      </div>
-      <div className="justify-center items-center grid">
-        {/* TODO: Get Jammer status */}
-        <JammerStatus lead={false} lost={false} starPass={false} />
-      </div>
-    </div>
+    <Stack>
+      <Center>
+        <Title order={2} size={48}>
+          <b>{roster.name}</b>
+        </Title>
+      </Center>
+      <Grid columns={3} justify="center" align="center">
+        <Grid.Col span="auto">
+          <TimeoutBar
+            team={team}
+            activeTimeout={activeTimeout}
+            ruleset={ruleset}
+          />
+        </Grid.Col>
+        <Grid.Col span="auto">
+          <Grid columns={2} justify="center" align="center">
+            <Grid.Col span={1}>
+              <Title order={1} size={64}>
+                <b>{team.boutScore + team.scoreOffset}</b>
+              </Title>
+            </Grid.Col>
+            <Grid.Col span={1}>
+              <Title order={1} size={30}>
+                {team.jamScore}
+              </Title>
+            </Grid.Col>
+          </Grid>
+        </Grid.Col>
+        <Grid.Col span="auto">
+          <JammerStatus lead={false} lost={false} starPass={false} />
+        </Grid.Col>
+      </Grid>
+    </Stack>
   );
 }

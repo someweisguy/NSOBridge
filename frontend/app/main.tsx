@@ -17,7 +17,7 @@ import {
 } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { Bout, Series, Team } from "@/types/game";
-import { MantineProvider } from "@mantine/core";
+import { Container, Grid, Group, MantineProvider, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -86,28 +86,33 @@ function Test() {
   const activeJam = useActiveJam(bout.id);
 
   return (
-    <div className="">
-      <div className="justify-around grid grid-flow-col">
-        {bout.teams.map((team: Team, i: number) => (
-          <div key={i} className="grid grid-flow-row">
-            <TeamView team={team} />
-            <TeamJamView jam={activeJam} team={team} />
-          </div>
-        ))}
-      </div>
-      <BoutStateView bout={bout} />
-      <div className="place-content-around grid grid-flow-col">
-        <Button onClick={() => void beginPeriod(bout.id)}>Start Period</Button>
-        <Button onClick={() => void startJam(bout.id)}>Start Jam</Button>
-        <Button onClick={() => void stopJam(bout.id)}>Stop Jam</Button>
-        <Button onClick={() => void startTimeout(bout.id)}>Call Timeout</Button>
-        <Button onClick={() => void stopTimeout(bout.id)}>End Timeout</Button>
-        <Button onClick={() => void endPeriod(bout.id)}>End Period</Button>
-        <Button onClick={createBoutCallback}>New Bout</Button>
-
-        <Button onClick={() => void undo()}>Undo</Button>
-        <Button onClick={() => void redo()}>Redo</Button>
-      </div>
-    </div>
+    <Container>
+      <Stack>
+        <Grid columns={bout.teams.length}>
+          {bout.teams.map((team: Team, i: number) => (
+            <Grid.Col key={i} span={1}>
+              <TeamView team={team} />
+              <TeamJamView jam={activeJam} team={team} />
+            </Grid.Col>
+          ))}
+        </Grid>
+        <BoutStateView bout={bout} />
+        <Group>
+          <Button onClick={() => void beginPeriod(bout.id)}>
+            Start Period
+          </Button>
+          <Button onClick={() => void startJam(bout.id)}>Start Jam</Button>
+          <Button onClick={() => void stopJam(bout.id)}>Stop Jam</Button>
+          <Button onClick={() => void startTimeout(bout.id)}>
+            Call Timeout
+          </Button>
+          <Button onClick={() => void stopTimeout(bout.id)}>End Timeout</Button>
+          <Button onClick={() => void endPeriod(bout.id)}>End Period</Button>
+          <Button onClick={createBoutCallback}>New Bout</Button>
+          <Button onClick={() => void undo()}>Undo</Button>
+          <Button onClick={() => void redo()}>Redo</Button>
+        </Group>
+      </Stack>
+    </Container>
   );
 }

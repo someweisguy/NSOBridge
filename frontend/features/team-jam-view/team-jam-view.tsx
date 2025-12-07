@@ -1,7 +1,7 @@
 import TripEvent from "@/components/trip-event";
 import { jamAddTrip } from "@/lib/game/jams";
 import { Jam, Team, TeamJam } from "@/types/game";
-import { Button, Group, ScrollArea, SimpleGrid } from "@mantine/core";
+import { Button, Grid, Group, ScrollArea } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 
@@ -55,7 +55,7 @@ export default function TeamJamView({ jam, team }: TeamJamViewProps) {
   );
 }
 
-function AddTripButtons({ jam, team }: TeamJamViewProps) {
+export function AddTripButtons({ jam, team }: TeamJamViewProps) {
   const teamJam: TeamJam | undefined = jam.teamJams.find(
     (teamJam: TeamJam) => teamJam.teamId === team.id,
   );
@@ -70,18 +70,18 @@ function AddTripButtons({ jam, team }: TeamJamViewProps) {
 
   if (teamJam.events.length == 0) {
     return (
-      <SimpleGrid cols={2} spacing="md">
+      <Grid columns={2}>
         <Button variant="light" onClick={() => addTrip.mutate(0)}>
           No Pass
         </Button>
         <Button variant="filled" onClick={() => addTrip.mutate(4)}>
           Initial
         </Button>
-      </SimpleGrid>
+      </Grid>
     );
   }
   return (
-    <SimpleGrid cols={5} spacing="md">
+    <Grid columns={5}>
       {[0, 1, 2, 3, 4].map((passes: number) => (
         <Button
           variant={passes == 4 ? "filled" : "light"}
@@ -91,6 +91,6 @@ function AddTripButtons({ jam, team }: TeamJamViewProps) {
           {passes}
         </Button>
       ))}
-    </SimpleGrid>
+    </Grid>
   );
 }
