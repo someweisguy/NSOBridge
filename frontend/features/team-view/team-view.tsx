@@ -3,8 +3,7 @@ import useRoster from "@/hooks/use-roster";
 import useRuleset from "@/hooks/use-ruleset";
 import useTimeout from "@/hooks/use-timeout";
 import { Team } from "@/types/game";
-import { Center, SimpleGrid, Stack, Title } from "@mantine/core";
-import JammerStatus from "../../components/jammer-status";
+import { Center, Grid, Group, Stack, Text, Title } from "@mantine/core";
 import TimeoutBar from "../../components/timeout-bar";
 
 interface TeamsViewProps {
@@ -20,29 +19,29 @@ export default function TeamView({ team }: TeamsViewProps) {
   return (
     <Stack w="full">
       <Center>
-        <Title order={2} size={56}>
+        <Title order={1} size={56}>
           <b>{roster.name}</b>
         </Title>
       </Center>
-      <SimpleGrid cols={3}>
+      <Group justify="center">
         <TimeoutBar
           team={team}
           activeTimeout={activeTimeout}
           ruleset={ruleset}
           size={30}
         />
-        <SimpleGrid cols={2} spacing="sm">
-          <Center>
-            <Title size={72}>
+
+        <Grid>
+          <Center w={200}>
+            <Text size="72pt">
               <b>{team.boutScore + team.scoreOffset}</b>
-            </Title>
+            </Text>
           </Center>
           <Center>
-            <Title size={30}>{team.jamScore}</Title>
+            <Text size="30pt">{team.jamScore}</Text>
           </Center>
-        </SimpleGrid>
-        <JammerStatus lead={false} lost={false} starPass={false} />
-      </SimpleGrid>
+        </Grid>
+      </Group>
     </Stack>
   );
 }
