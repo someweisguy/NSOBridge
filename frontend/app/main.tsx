@@ -1,4 +1,3 @@
-import Button from "@/components/button";
 import BoutStateView from "@/features/bout-state-view/components/bout-state-view";
 import TeamJamView from "@/features/team-jam-view/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
@@ -17,7 +16,14 @@ import {
 } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { Bout, Series, Team } from "@/types/game";
-import { Container, Grid, Group, MantineProvider, Stack } from "@mantine/core";
+import {
+  Button,
+  Container,
+  Grid,
+  Group,
+  MantineProvider,
+  Stack,
+} from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
