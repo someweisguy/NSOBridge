@@ -29,7 +29,7 @@ export default function TripEventView({ jam, team }: TripEventViewProps) {
 
   return (
     <Group gap={0} justify="center" wrap="nowrap">
-      <Button p={0} pr={1} variant="subtle" h={60} w={30}>
+      <Button p={0} pr={1} variant="subtle" c="gray" h={60} w={30}>
         <ChevronLeft />
       </Button>
       <ScrollArea.Autosize
@@ -46,7 +46,7 @@ export default function TripEventView({ jam, team }: TripEventViewProps) {
             ))}
         </Group>
       </ScrollArea.Autosize>
-      <Button p={0} pl={1} variant="subtle" h={60} w={30}>
+      <Button p={0} pl={1} variant="subtle" c="gray" h={60} w={30}>
         <ChevronRight />
       </Button>
     </Group>

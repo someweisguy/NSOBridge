@@ -21,7 +21,7 @@ export default function TripEvent({
   const theme = useMantineTheme();
 
   return (
-    <Button px={0} variant="subtle" w={50} h={60}>
+    <Button px={0} variant="subtle" c="gray" w={50} h={60}>
       <Stack gap={3}>
         <Text c="dimmed" size="9pt">
           <i>Trip {tripNum + 1}</i>
