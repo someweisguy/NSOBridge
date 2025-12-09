@@ -250,7 +250,7 @@ class Jam(WFTDAModel, BaseJam):
             team_jam.events.append(event)
         else:
             for event in team_jam.events:
-                if event.lead:
+                if event.lost:
                     break
             event.lost = lost
             if event.is_empty():
