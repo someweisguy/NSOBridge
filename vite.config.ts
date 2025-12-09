@@ -7,6 +7,7 @@ import { createMpaPlugin } from "vite-plugin-virtual-mpa";
 // https://vite.dev/config/
 export default defineConfig({
   build: {
+    cssMinify: true,
     minify: false,
   },
   plugins: [
