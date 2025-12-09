@@ -8,6 +8,14 @@ interface TripEventViewProps {
   team: Team;
 }
 
+function scrollLeft(scrollArea: HTMLDivElement) {
+  scrollArea.scrollBy({ left: -50, behavior: "smooth" });
+}
+
+function scrollRight(scrollArea: HTMLDivElement) {
+  scrollArea.scrollBy({ left: 50, behavior: "smooth" });
+}
+
 export default function TripEventView({ jam, team }: TripEventViewProps) {
   const teamJam: TeamJam | undefined = jam.teamJams.find(
     (teamJam: TeamJam) => teamJam.teamId === team.id,
@@ -29,15 +37,18 @@ export default function TripEventView({ jam, team }: TripEventViewProps) {
 
   return (
     <Group gap={0} justify="center" wrap="nowrap">
-      <Button p={0} pr={1} variant="subtle" c="gray" h={60} w={30}>
+      <Button
+        onClick={() => scrollLeft(viewport.current!)}
+        p={0}
+        pr={1}
+        variant="subtle"
+        c="gray"
+        h={60}
+        w={30}
+      >
         <ChevronLeft />
       </Button>
-      <ScrollArea.Autosize
-        h={60}
-        w={200}
-        viewportRef={viewport}
-        scrollbars={false}
-      >
+      <ScrollArea.Autosize h={60} w={200} viewportRef={viewport} type="never">
         <Group gap={0} preventGrowOverflow={false} wrap="nowrap">
           {teamJam.events
             .filter((event) => event.passes != null)
@@ -46,7 +57,15 @@ export default function TripEventView({ jam, team }: TripEventViewProps) {
             ))}
         </Group>
       </ScrollArea.Autosize>
-      <Button p={0} pl={1} variant="subtle" c="gray" h={60} w={30}>
+      <Button
+        onClick={() => scrollRight(viewport.current!)}
+        p={0}
+        pl={1}
+        variant="subtle"
+        c="gray"
+        h={60}
+        w={30}
+      >
         <ChevronRight />
       </Button>
     </Group>
