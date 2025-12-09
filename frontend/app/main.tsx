@@ -36,6 +36,7 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import { BoutContext, JamContext } from "@/utils/contexts";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -92,35 +93,41 @@ function Test() {
   const activeJam = useActiveJam(bout.id);
 
   return (
-    <Container>
-      <Stack>
-        <Grid columns={bout.teams.length} align="center">
-          {bout.teams.map((team: Team, i: number) => (
-            <Grid.Col key={i} span={1}>
-              <Stack>
-                <TeamView team={team} />
-                <TeamJamView jam={activeJam} team={team} />
-              </Stack>
-            </Grid.Col>
-          ))}
-        </Grid>
-        <BoutStateView bout={bout} />
-        <Group>
-          <Button onClick={() => void beginPeriod(bout.id)}>
-            Start Period
-          </Button>
-          <Button onClick={() => void startJam(bout.id)}>Start Jam</Button>
-          <Button onClick={() => void stopJam(bout.id)}>Stop Jam</Button>
-          <Button onClick={() => void startTimeout(bout.id)}>
-            Call Timeout
-          </Button>
-          <Button onClick={() => void stopTimeout(bout.id)}>End Timeout</Button>
-          <Button onClick={() => void endPeriod(bout.id)}>End Period</Button>
-          <Button onClick={createBoutCallback}>New Bout</Button>
-          <Button onClick={() => void undo()}>Undo</Button>
-          <Button onClick={() => void redo()}>Redo</Button>
-        </Group>
-      </Stack>
-    </Container>
+    <BoutContext value={bout}>
+      <Container>
+        <Stack>
+          <Grid columns={bout.teams.length} align="center">
+            <JamContext value={activeJam}>
+              {bout.teams.map((team: Team, i: number) => (
+                <Grid.Col key={i} span={1}>
+                  <Stack>
+                    <TeamView team={team} />
+                    <TeamJamView jam={activeJam} team={team} />
+                  </Stack>
+                </Grid.Col>
+              ))}
+            </JamContext>
+          </Grid>
+          <BoutStateView bout={bout} />
+          <Group>
+            <Button onClick={() => void beginPeriod(bout.id)}>
+              Start Period
+            </Button>
+            <Button onClick={() => void startJam(bout.id)}>Start Jam</Button>
+            <Button onClick={() => void stopJam(bout.id)}>Stop Jam</Button>
+            <Button onClick={() => void startTimeout(bout.id)}>
+              Call Timeout
+            </Button>
+            <Button onClick={() => void stopTimeout(bout.id)}>
+              End Timeout
+            </Button>
+            <Button onClick={() => void endPeriod(bout.id)}>End Period</Button>
+            <Button onClick={createBoutCallback}>New Bout</Button>
+            <Button onClick={() => void undo()}>Undo</Button>
+            <Button onClick={() => void redo()}>Redo</Button>
+          </Group>
+        </Stack>
+      </Container>
+    </BoutContext>
   );
 }
