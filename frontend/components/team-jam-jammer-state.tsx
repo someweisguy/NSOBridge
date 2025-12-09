@@ -8,6 +8,7 @@ import {
   Group,
   MantineProvider,
 } from "@mantine/core";
+import { IconStarFilled } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 
@@ -52,6 +53,7 @@ export default function TeamJamJammerState({
           checked={lead}
           onClick={() => setLead.mutate(!lead)}
           variant="outline"
+          icon={({ ...others }) => <IconStarFilled {...others} />}
         />
         <Divider orientation="vertical" />
         <Checkbox
