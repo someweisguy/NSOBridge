@@ -267,7 +267,8 @@ class Jam(WFTDAModel, BaseJam):
                     'this team has already completed a star pass in this Jam'
                 )
             event: TripEvent = TripEvent(timestamp, star_pass=star_pass)
-            event.lost = True  # Removing the star makes Jammers ineligible for Lead
+            if not any(event.lost for event in team_jam.events):
+                event.lost = True  # Removing the star makes one ineligible for Lead
             team_jam.events.append(event)
         else:
             for event in team_jam.events:
