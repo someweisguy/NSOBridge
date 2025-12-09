@@ -236,6 +236,8 @@ class Jam(WFTDAModel, BaseJam):
                 if event.lead:
                     break
             event.lead = lead
+            if event.is_empty():
+                team_jam.events.remove(event)
 
     async def set_lost(self, team_id: int, timestamp: datetime, lost: bool) -> None:
         team_jam: TeamJam = self.get_team_jam_by_team(team_id)
@@ -251,6 +253,8 @@ class Jam(WFTDAModel, BaseJam):
                 if event.lead:
                     break
             event.lost = lost
+            if event.is_empty():
+                team_jam.events.remove(event)
 
     async def set_star_pass(
         self, team_id: int, timestamp: datetime, star_pass: bool
@@ -269,6 +273,8 @@ class Jam(WFTDAModel, BaseJam):
                 if event.star_pass:
                     break
             event.star_pass = star_pass
+            if event.is_empty():
+                team_jam.events.remove(event)
 
 
 class Timeout(WFTDAModel, BaseTimeout):
