@@ -1,7 +1,7 @@
 import TripEvent from "@/components/trip-event";
 import { Jam, Team, TeamJam } from "@/types/game";
 import { Button, Group, ScrollArea } from "@mantine/core";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface TripEventViewProps {
   jam: Jam;
@@ -25,6 +25,8 @@ export default function TripEventView({ jam, team }: TripEventViewProps) {
   }
   const viewport = useRef<HTMLDivElement>(null);
   const isHydrated = useRef<boolean>(false);
+  const [scrollPosition, onScrollPositionChange] = useState({ x: 0, y: 0 });
+  // TODO: disable scroll buttons when scroll area cannot scroll
 
   useEffect(() => {
     const behavior = isHydrated.current ? "smooth" : "instant";
@@ -38,6 +40,7 @@ export default function TripEventView({ jam, team }: TripEventViewProps) {
   return (
     <Group gap={0} justify="center" wrap="nowrap">
       <Button
+        disabled={scrollPosition.x == 0}
         onClick={() => scrollLeft(viewport.current!)}
         p={0}
         pr={1}
@@ -48,7 +51,13 @@ export default function TripEventView({ jam, team }: TripEventViewProps) {
       >
         <ChevronLeft />
       </Button>
-      <ScrollArea.Autosize h={60} w={200} viewportRef={viewport} type="never">
+      <ScrollArea.Autosize
+        type="never"
+        onScrollPositionChange={onScrollPositionChange}
+        viewportRef={viewport}
+        h={60}
+        w={200}
+      >
         <Group gap={0} preventGrowOverflow={false} wrap="nowrap">
           {teamJam.events
             .filter((event) => event.passes != null)
@@ -58,6 +67,7 @@ export default function TripEventView({ jam, team }: TripEventViewProps) {
         </Group>
       </ScrollArea.Autosize>
       <Button
+        disabled={scrollPosition.x == viewport.current?.scrollWidth}
         onClick={() => scrollRight(viewport.current!)}
         p={0}
         pl={1}
