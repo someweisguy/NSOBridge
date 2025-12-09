@@ -22,7 +22,7 @@ async def add_trip(
 @router.post('/set-lead')
 async def set_lead(
     jam: JamDepends,
-    team_id: Annotated[int, Query()],
+    team_id: Annotated[int, Query(alias='teamId')],
     lead: Annotated[bool, Body()],
 ) -> None:
     await jam.set_lead(team_id, datetime.now(), lead)
@@ -31,7 +31,7 @@ async def set_lead(
 @router.post('/set-lost')
 async def set_lost(
     jam: JamDepends,
-    team_id: Annotated[int, Query()],
+    team_id: Annotated[int, Query(alias='teamId')],
     lost: Annotated[bool, Body()],
 ) -> None:
     await jam.set_lost(team_id, datetime.now(), lost)
@@ -40,7 +40,7 @@ async def set_lost(
 @router.post('/set-star-pass')
 async def set_star_pass(
     jam: JamDepends,
-    team_id: Annotated[int, Query()],
+    team_id: Annotated[int, Query(alias='teamId')],
     star_pass: Annotated[bool, Body()],
 ) -> None:
     await jam.set_star_pass(team_id, datetime.now(), star_pass)
