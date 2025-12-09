@@ -2,6 +2,7 @@ import { Jam, Team, TeamJam } from "@/types/game";
 import { Stack } from "@mantine/core";
 import AddTripButtons from "./add-trip-buttons";
 import TripEventView from "./trip-event-view";
+import JammerStatusButtons from "./jammer-status-buttons";
 
 interface TeamJamViewProps {
   jam: Jam;
@@ -18,6 +19,7 @@ export default function TeamJamView({ jam, team }: TeamJamViewProps) {
 
   return (
     <Stack>
+      <JammerStatusButtons teamJam={teamJam} />
       <AddTripButtons jam={jam} team={team} />
       <TripEventView events={teamJam.events} scrollWidth={200} />
     </Stack>
