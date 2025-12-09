@@ -35,11 +35,11 @@ class BaseTeam(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
-    bout: Mapped[BaseBout | None] = relationship(
+    bout: Mapped[BaseBout] = relationship(
         cascade=PARENT_RELATIONSHIP,
         lazy='selectin',
     )
-    roster: Mapped[Roster | None] = relationship(
+    roster: Mapped[Roster] = relationship(
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[roster_id],
         lazy='joined',
@@ -84,5 +84,10 @@ class BaseTeam(BaseSQLModel):
     def jam_score(self) -> int:
         if len(self.team_jams) == 0:
             return 0
-        jam_score: int = self.get_team_jam_score(self.team_jams[-1])
+        active_team_jam: TeamJam = (
+            self.team_jams[-1]
+            if self.bout.state in ['stopped', 'jam'] or len(self.team_jams) == 1
+            else self.team_jams[-2]
+        )
+        jam_score: int = self.get_team_jam_score(active_team_jam)
         return jam_score
