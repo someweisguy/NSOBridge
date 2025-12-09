@@ -1,6 +1,12 @@
-import TripEvent from "@/components/trip-event";
 import { TeamJam } from "@/types/game";
-import { Button, Group, ScrollArea } from "@mantine/core";
+import {
+  Button,
+  Group,
+  ScrollArea,
+  Stack,
+  Text,
+  useMantineTheme,
+} from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 
 interface TripEventViewProps {
@@ -16,7 +22,7 @@ function scrollRight(scrollArea: HTMLDivElement) {
   scrollArea.scrollBy({ left: 50.5, behavior: "smooth" });
 }
 
-export default function TripEventView({
+export default function TeamJamTrips({
   teamJam,
   scrollWidth = 200,
 }: TripEventViewProps) {
@@ -119,5 +125,39 @@ function ChevronRight() {
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M9 6l6 6l-6 6" />
     </svg>
+  );
+}
+
+interface TripEventProps {
+  tripNum: number;
+  timestamp: Date;
+  lead: boolean;
+  lost: boolean;
+  passes: number | null;
+  starPass: boolean;
+}
+
+function TripEvent({
+  tripNum,
+  // timestamp,
+  // lead,
+  // lost,
+  passes,
+  // starPass,
+}: TripEventProps) {
+  // TODO: Polish this component
+  const theme = useMantineTheme();
+
+  return (
+    <Button px={0} variant="subtle" c="gray" w={50} h={60}>
+      <Stack gap={3}>
+        <Text c="dimmed" size="9pt">
+          <i>Trip {tripNum + 1}</i>
+        </Text>
+        <Text c={theme.colors.dark[9]} size="md">
+          <b>{passes}</b>
+        </Text>
+      </Stack>
+    </Button>
   );
 }

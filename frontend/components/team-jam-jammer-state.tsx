@@ -15,7 +15,7 @@ const checkBoxTheme = createTheme({
   cursorType: "pointer",
 });
 
-export default function JammerStatusButtons({
+export default function TeamJamJammerState({
   teamJam,
 }: JammerStatusButtonsProps) {
   const lead = teamJam.events.some((tripEvent) => tripEvent.lead);
