@@ -1,5 +1,5 @@
 import BoutStateView from "@/features/bout-state-view/components/bout-state-view";
-import TeamJamView from "@/features/team-jam-view/team-jam-view";
+import TeamJamView from "@/components/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
 import useActiveJam from "@/hooks/use-active-jam";
 import useBout from "@/hooks/use-bout";

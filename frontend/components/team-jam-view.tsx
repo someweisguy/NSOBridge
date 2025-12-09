@@ -1,7 +1,7 @@
 import TeamJamTrips from "@/components/team-jam-trips";
 import { Jam, Team, TeamJam } from "@/types/game";
 import { Stack } from "@mantine/core";
-import TeamJamJammerState from "../../components/team-jam-jammer-state";
+import TeamJamJammerState from "./team-jam-jammer-state";
 import AddTripButtons from "./add-trip-buttons";
 
 interface TeamJamViewProps {
