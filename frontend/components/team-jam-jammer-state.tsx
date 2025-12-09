@@ -51,6 +51,7 @@ export default function TeamJamJammerState({
         <Checkbox
           label="Lead"
           checked={lead}
+          disabled={lost}
           onClick={() => setLead.mutate(!lead)}
           variant="outline"
           icon={({ ...others }) => <IconStarFilled {...others} />}
