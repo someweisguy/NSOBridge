@@ -28,3 +28,42 @@ export async function jamAddTrip(
     body: passes,
   });
 }
+
+export async function jamSetLead(
+  boutId: number,
+  periodNum: number,
+  jamNum: number,
+  teamId: number,
+  lead: boolean,
+) {
+  await localAPI.post("jam/set-lead", {
+    query: { boutId, periodNum, jamNum, teamId },
+    body: lead,
+  });
+}
+
+export async function jamSetLost(
+  boutId: number,
+  periodNum: number,
+  jamNum: number,
+  teamId: number,
+  lost: boolean,
+) {
+  await localAPI.post("jam/set-lost", {
+    query: { boutId, periodNum, jamNum, teamId },
+    body: lost,
+  });
+}
+
+export async function jamSetStarPass(
+  boutId: number,
+  periodNum: number,
+  jamNum: number,
+  teamId: number,
+  starPass: boolean,
+) {
+  await localAPI.post("jam/set-star-pass", {
+    query: { boutId, periodNum, jamNum, teamId },
+    body: starPass,
+  });
+}
