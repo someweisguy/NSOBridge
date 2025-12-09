@@ -36,7 +36,7 @@ class TripEvent(BaseSQLModel):
         *,
         lead: bool = False,
         lost: bool = False,
-        passes: int = 0,
+        passes: int | None = None,
         star_pass: bool = False,
     ) -> None:
         super().__init__(
