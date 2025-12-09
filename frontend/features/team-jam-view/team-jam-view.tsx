@@ -21,7 +21,7 @@ export default function TeamJamView({ jam, team }: TeamJamViewProps) {
     <Stack>
       <JammerStatusButtons teamJam={teamJam} />
       <AddTripButtons jam={jam} team={team} />
-      <TripEventView events={teamJam.events} scrollWidth={200} />
+      <TripEventView teamJam={teamJam} scrollWidth={200} />
     </Stack>
   );
 }

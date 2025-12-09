@@ -4,7 +4,7 @@ import { Button, Group, ScrollArea } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 
 interface TripEventViewProps {
-  events: TeamJam["events"];
+  teamJam: TeamJam;
   scrollWidth?: number;
 }
 
@@ -17,7 +17,7 @@ function scrollRight(scrollArea: HTMLDivElement) {
 }
 
 export default function TripEventView({
-  events,
+  teamJam,
   scrollWidth = 200,
 }: TripEventViewProps) {
   const viewport = useRef<HTMLDivElement>(null);
@@ -31,7 +31,7 @@ export default function TripEventView({
       behavior,
     });
     isHydrated.current = true;
-  }, [events.length]);
+  }, [teamJam.events.length]);
 
   return (
     <Group gap={0} justify="center" wrap="nowrap">
@@ -55,7 +55,7 @@ export default function TripEventView({
         w={scrollWidth}
       >
         <Group mx={0} gap={0} preventGrowOverflow={false} wrap="nowrap">
-          {events
+          {teamJam.events
             .filter((event) => event.passes != null)
             .map((teamJam, i) => (
               <TripEvent key={i} tripNum={i} {...teamJam} />
