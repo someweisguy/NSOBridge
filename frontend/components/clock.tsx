@@ -42,7 +42,5 @@ export default function Clock({
     }
   }
 
-  return (
-    <label className="tabular-nums">{formatter(milliseconds, alarm)}</label>
-  );
+  return <span className="tabular-nums">{formatter(milliseconds, alarm)}</span>;
 }
