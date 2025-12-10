@@ -7,7 +7,17 @@ import {
   Text,
   useMantineTheme,
 } from "@mantine/core";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
+
+interface TripEventProps {
+  tripNum: number;
+  timestamp: Date;
+  lead: boolean;
+  lost: boolean;
+  passes: number | null;
+  starPass: boolean;
+}
 
 interface TripEventViewProps {
   teamJam: TeamJam;
@@ -20,6 +30,31 @@ function scrollLeft(scrollArea: HTMLDivElement) {
 
 function scrollRight(scrollArea: HTMLDivElement) {
   scrollArea.scrollBy({ left: 50.5, behavior: "smooth" });
+}
+
+function TripEvent({
+  tripNum,
+  // timestamp,
+  // lead,
+  // lost,
+  passes,
+  // starPass,
+}: TripEventProps) {
+  // TODO: Polish this component
+  const theme = useMantineTheme();
+
+  return (
+    <Button px={0} variant="subtle" c="gray" w={50} h={60}>
+      <Stack gap={3}>
+        <Text c="dimmed" size="9pt">
+          <i>Trip {tripNum + 1}</i>
+        </Text>
+        <Text c={theme.colors.dark[9]} size="md">
+          <b>{passes}</b>
+        </Text>
+      </Stack>
+    </Button>
+  );
 }
 
 export default function TeamJamTrips({
@@ -51,7 +86,7 @@ export default function TeamJamTrips({
         h={60}
         w={30}
       >
-        <ChevronLeft />
+        <IconChevronLeft size="24" />
       </Button>
       <ScrollArea.Autosize
         type="never"
@@ -82,82 +117,8 @@ export default function TeamJamTrips({
         h={60}
         w={30}
       >
-        <ChevronRight />
+        <IconChevronRight size="24" />
       </Button>
     </Group>
-  );
-}
-
-function ChevronLeft() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="icon-tabler-chevron-left icons-tabler-outline icon icon-tabler"
-    >
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M15 6l-6 6l6 6" />
-    </svg>
-  );
-}
-
-function ChevronRight() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="icon-tabler-chevron-right icons-tabler-outline icon icon-tabler"
-    >
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M9 6l6 6l-6 6" />
-    </svg>
-  );
-}
-
-interface TripEventProps {
-  tripNum: number;
-  timestamp: Date;
-  lead: boolean;
-  lost: boolean;
-  passes: number | null;
-  starPass: boolean;
-}
-
-function TripEvent({
-  tripNum,
-  // timestamp,
-  // lead,
-  // lost,
-  passes,
-  // starPass,
-}: TripEventProps) {
-  // TODO: Polish this component
-  const theme = useMantineTheme();
-
-  return (
-    <Button px={0} variant="subtle" c="gray" w={50} h={60}>
-      <Stack gap={3}>
-        <Text c="dimmed" size="9pt">
-          <i>Trip {tripNum + 1}</i>
-        </Text>
-        <Text c={theme.colors.dark[9]} size="md">
-          <b>{passes}</b>
-        </Text>
-      </Stack>
-    </Button>
   );
 }
