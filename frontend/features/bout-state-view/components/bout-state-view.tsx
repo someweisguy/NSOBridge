@@ -1,13 +1,12 @@
 import Clock from "@/components/clock";
-import useRuleset from "@/hooks/use-ruleset";
-import { Bout } from "@/types/game";
 import useActiveJam from "@/hooks/use-active-jam";
-import IntermissionStateView from "./intermission-state-view";
+import useRuleset from "@/hooks/use-ruleset";
 import useTimeout from "@/hooks/use-timeout";
-import {
-  jamTimeStringFormatter,
-  periodTimeStringFormatter,
-} from "@/utils/time-string-formatters";
+import { Bout } from "@/types/game";
+import IntermissionStateView from "./intermission-state-view";
+import JamClock from "./jam-clock";
+import PeriodClock from "./period-clock";
+import { Text } from "@mantine/core";
 
 export default function BoutStateView({ bout }: { bout: Bout }) {
   const ruleset = useRuleset(bout.id);
@@ -38,40 +37,13 @@ export default function BoutStateView({ bout }: { bout: Bout }) {
   }
   // TODO: render additional non-Jam Bout states
 
-  // Render Jam stop reason when Jam has ended
-  let jamStopReason = "-";
-  if (activeJam.stopReason != null) {
-    switch (activeJam.stopReason) {
-      case "called":
-        jamStopReason = "Called";
-        break;
-      // TODO: render additional Jam stop reasons
-    }
-  }
-
   return (
     <div className="justify-evenly grid grid-cols-3 p-4 text-7xl text-center">
-      <div>
-        {activeJam.period >= 2 ? (
-          "OT"
-        ) : (
-          <Clock {...bout.clock} formatter={periodTimeStringFormatter} />
-        )}
-      </div>
-      <div>
+      <PeriodClock size="36pt" bout={bout} />
+      <Text size="36pt">
         P{periodNum + 1} J{jamNum + 1}
-      </div>
-      <div>
-        {!activeJam.hasStarted() || activeJam.isRunning() ? (
-          <Clock
-            {...activeJam}
-            alarm={ruleset.jamDuration}
-            formatter={jamTimeStringFormatter}
-          />
-        ) : (
-          jamStopReason
-        )}
-      </div>
+      </Text>
+      <JamClock size="36pt" jam={activeJam} jamDuration={ruleset.jamDuration} />
 
       {/* TODO: This div is for Lineup, Timeout, Unofficial, and Final*/}
       <div className="col-start-2 text-5xl">
