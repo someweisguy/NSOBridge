@@ -4,8 +4,8 @@ import useRuleset from "@/hooks/use-ruleset";
 import useTimeout from "@/hooks/use-timeout";
 import { Bout } from "@/types/game";
 import IntermissionStateView from "./intermission-state-view";
-import JamClock from "./jam-clock";
-import PeriodClock from "./period-clock";
+import JamClock from "../../../components/jam-clock";
+import PeriodClock from "../../../components/period-clock";
 import { Text } from "@mantine/core";
 
 export default function BoutStateView({ bout }: { bout: Bout }) {
