@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from game.jams.models import StopReasonStr
 from game.team_jams.schemas import TeamJamSchema
 from schemas import ServerSchema
 
@@ -12,6 +13,6 @@ class JamSchema(ServerSchema):
 
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
-    stop_reason: str | None
+    stop_reason: StopReasonStr | None
 
     team_jams: list[TeamJamSchema]

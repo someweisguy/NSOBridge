@@ -46,6 +46,8 @@ export class Team {
   scoreOffset: number;
 }
 
+export type StopReasonString = "called" | "elapsed" | "injury" | "other";
+
 export class Jam {
   boutId: number;
   period: number;
@@ -53,7 +55,7 @@ export class Jam {
 
   startTimestamp: Date | null;
   stopTimestamp: Date | null;
-  stopReason: string | null;
+  stopReason: StopReasonString | null;
 
   teamJams: TeamJam[];
 

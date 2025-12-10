@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, Literal, override
 
 from game.abstract import AbstractOneShotModel
 from game.bouts.models import BaseBout
@@ -25,12 +25,15 @@ if TYPE_CHECKING:
     from game.teams.models import BaseTeam
 
 
+type StopReasonStr = Literal['called', 'elapsed', 'injury', 'other']
+
+
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
 
     num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
-    stop_reason: Mapped[str | None] = mapped_column(default=None)
+    stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
     bout: Mapped[BaseBout] = relationship(
         back_populates='jams',
