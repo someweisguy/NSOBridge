@@ -3,10 +3,10 @@ import useActiveJam from "@/hooks/use-active-jam";
 import useRuleset from "@/hooks/use-ruleset";
 import useTimeout from "@/hooks/use-timeout";
 import { Bout } from "@/types/game";
-import IntermissionStateView from "./intermission-state-view";
+import { Center, Grid, Text } from "@mantine/core";
 import JamClock from "../../../components/jam-clock";
 import PeriodClock from "../../../components/period-clock";
-import { Text } from "@mantine/core";
+import IntermissionStateView from "./intermission-state-view";
 
 export default function BoutStateView({ bout }: { bout: Bout }) {
   const ruleset = useRuleset(bout.id);
@@ -35,21 +35,40 @@ export default function BoutStateView({ bout }: { bout: Bout }) {
     gameState = "Timeout";
     gameStopTimestamp = latestTimeout!.startTimestamp;
   }
-  // TODO: render additional non-Jam Bout states
+  // TODO: render additional non-Jam Bout states in extracted component
 
   return (
-    <div className="justify-evenly grid grid-cols-3 p-4 text-7xl text-center">
-      <PeriodClock size="36pt" bout={bout} />
-      <Text size="36pt">
-        P{periodNum + 1} J{jamNum + 1}
-      </Text>
-      <JamClock size="36pt" jam={activeJam} jamDuration={ruleset.jamDuration} />
+    <Grid columns={3}>
+      <Grid.Col span={1}>
+        <Center>
+          <PeriodClock size="36pt" bout={bout} />
+        </Center>
+      </Grid.Col>
+      <Grid.Col span={1}>
+        <Center>
+          <Text size="36pt">
+            P{periodNum + 1} J{jamNum + 1}
+          </Text>
+        </Center>
+      </Grid.Col>
+      <Grid.Col span={1}>
+        <Center>
+          <JamClock
+            size="36pt"
+            jam={activeJam}
+            jamDuration={ruleset.jamDuration}
+          />
+        </Center>
+      </Grid.Col>
 
-      {/* TODO: This div is for Lineup, Timeout, Unofficial, and Final*/}
-      <div className="col-start-2 text-5xl">
-        {gameState}&nbsp;
-        {gameStopTimestamp && <Clock startTimestamp={gameStopTimestamp} />}
-      </div>
-    </div>
+      <Grid.Col span={1} offset={1}>
+        <Center>
+          <Text size="24pt">
+            {gameState}&nbsp;
+            {gameStopTimestamp && <Clock startTimestamp={gameStopTimestamp} />}
+          </Text>
+        </Center>
+      </Grid.Col>
+    </Grid>
   );
 }
