@@ -4,7 +4,7 @@ import { Bout } from "@/types/game";
 import { Center, Grid, Text } from "@mantine/core";
 import JamClock from "../../../components/jam-clock";
 import PeriodClock from "../../../components/period-clock";
-import ExtraordinaryStateClock from "./extraordinary-state-clock";
+import ExtraordinaryStateClock from "../../../components/extraordinary-state-clock";
 import IntermissionStateView from "./intermission-state-view";
 
 export default function BoutStateView({ bout }: { bout: Bout }) {
