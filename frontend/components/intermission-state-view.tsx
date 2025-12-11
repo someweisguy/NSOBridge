@@ -1,8 +1,17 @@
 import Clock from "@/components/clock";
-import { Bout } from "@/types/game";
 import useActiveJam from "@/hooks/use-active-jam";
+import { Bout } from "@/types/game";
+import { Text, TextProps } from "@mantine/core";
 
-export default function IntermissionStateView({ bout }: { bout: Bout }) {
+interface IntermissionStateViewProps extends TextProps {
+  bout: Bout;
+}
+
+export default function IntermissionState({
+  bout,
+  ...props
+}: IntermissionStateViewProps) {
+  // TODO: remove this hook
   const jam = useActiveJam(bout.id);
 
   let copy = "Starting Soon";
@@ -15,9 +24,9 @@ export default function IntermissionStateView({ bout }: { bout: Bout }) {
   }
 
   return (
-    <div className="items-center grid m-2 h-full text-8xl text-center">
-      {copy}{" "}
+    <Text {...props}>
+      {copy}&nbsp;
       {bout.startCountdown && <Clock startTimestamp={bout.startCountdown} />}
-    </div>
+    </Text>
   );
 }

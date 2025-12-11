@@ -2,17 +2,17 @@ import useActiveJam from "@/hooks/use-active-jam";
 import useRuleset from "@/hooks/use-ruleset";
 import { Bout } from "@/types/game";
 import { Center, Grid, Text } from "@mantine/core";
+import ExtraordinaryStateClock from "../../../components/extraordinary-state-clock";
+import IntermissionState from "../../../components/intermission-state-view";
 import JamClock from "../../../components/jam-clock";
 import PeriodClock from "../../../components/period-clock";
-import ExtraordinaryStateClock from "../../../components/extraordinary-state-clock";
-import IntermissionStateView from "./intermission-state-view";
 
 export default function BoutStateView({ bout }: { bout: Bout }) {
   const ruleset = useRuleset(bout.id);
   const activeJam = useActiveJam(bout.id);
 
   if (!bout.isRunning) {
-    return <IntermissionStateView bout={bout} />;
+    return <IntermissionState bout={bout} />;
   }
 
   let periodNum = activeJam.period;
