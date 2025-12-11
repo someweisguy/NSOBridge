@@ -1,4 +1,4 @@
-import BoutStateView from "@/features/bout-state-view/components/bout-state-view";
+import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import useBout from "@/hooks/use-bout";
 import queryClient from "@/lib/cache";
