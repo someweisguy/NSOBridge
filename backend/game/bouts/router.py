@@ -47,7 +47,9 @@ async def start_timeout(
     is_review: Annotated[bool, Body(alias='isReview')] = False,
 ) -> None:
     timeout: BaseTimeout = bout.start_timeout(datetime.now())
-    timeout.set_type(team, is_review)
+    timeout.is_review = is_review
+    if team is not None:
+        timeout.team = team
 
 
 @router.post(path='/stop-timeout')
