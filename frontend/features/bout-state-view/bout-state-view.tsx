@@ -12,7 +12,11 @@ export default function BoutStateView({ bout }: { bout: Bout }) {
   const activeJam = useActiveJam(bout.id);
 
   if (!bout.isRunning) {
-    return <IntermissionState bout={bout} />;
+    return (
+      <Center>
+        <IntermissionState size="36pt" bout={bout} />
+      </Center>
+    );
   }
 
   let periodNum = activeJam.period;
