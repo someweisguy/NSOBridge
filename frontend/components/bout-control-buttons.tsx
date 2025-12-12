@@ -72,22 +72,32 @@ function StoppedButtons({ bout }: MainControlProps) {
     mutationFn: () => startJam(bout.id),
   });
 
+  const useEndPeriod = useMutation({
+    mutationFn: () => endPeriod(bout.id),
+  });
+
+  const startJamButtonDisabled = false;
+  let startJamText = "Start Jam";
+
+  let endPeriodButtonDisabled = false;
+  let endPeriodButtonText = "End Period";
+
   let beginPeriodButtonDisabled = false;
   let beginPeriodText = "Begin Period";
   if (bout.jamCounts[2] > 1) {
     beginPeriodButtonDisabled = true;
+    endPeriodButtonText = "End Bout";
   } else if (bout.jamCounts[2] == 1) {
     beginPeriodText = "Begin OT";
+    endPeriodButtonText = "End Bout";
+    startJamText = "Start OT Jam";
   } else if (bout.jamCounts[1] == 1) {
+    endPeriodButtonDisabled = true;
     beginPeriodText = "Begin P2";
   } else if (bout.jamCounts[0] == 1) {
+    endPeriodButtonDisabled = true;
     beginPeriodText = "Begin P1";
   }
-
-  const startJamButtonDisabled = false;
-  const startJamText = "Start Jam";
-
-  // TODO: add endPeriod button in the second half and overtime
 
   return (
     <>
@@ -102,6 +112,12 @@ function StoppedButtons({ bout }: MainControlProps) {
         onClick={() => useStartJam.mutate()}
       >
         {startJamText}
+      </Button>
+      <Button
+        disabled={endPeriodButtonDisabled}
+        onClick={() => useEndPeriod.mutate()}
+      >
+        {endPeriodButtonText}
       </Button>
     </>
   );
