@@ -46,7 +46,7 @@ async def get_timeout_or_none(
     return results.scalar_one_or_none() if allow_none else results.scalar_one()
 
 
-async def get_timeout(
+async def get_timeout_by_index(
     request: Request,
     user: UserDepends,
     session: AsyncSessionDepends,
@@ -69,4 +69,23 @@ async def get_timeout(
     return timeout
 
 
-TimeoutDepends: TypeAlias = Annotated[BaseTimeout, Depends(get_timeout)]
+async def get_timeout_by_id(
+    request: Request,
+    user: UserDepends,
+    session: AsyncSessionDepends,
+    timeout_id: Annotated[int, Query(alias='id')],
+) -> BaseTimeout:
+    statement: Select[tuple[BaseTimeout]] = (
+        select(BaseTimeout).where(BaseTimeout.id == timeout_id).limit(1)
+    )
+    results: Result[tuple[BaseTimeout]] = await session.execute(statement)
+    timeout: BaseTimeout = results.scalar_one()
+
+    # Optionally take a snapshot of the Timeout state
+    if request.method != 'GET':
+        user.stage(timeout.get_snapshot())
+    return timeout
+
+
+GetTimeoutByIndex: TypeAlias = Annotated[BaseTimeout, Depends(get_timeout_by_index)]
+GetTimeoutByID: TypeAlias = Annotated[BaseTimeout, Depends(get_timeout_by_id)]

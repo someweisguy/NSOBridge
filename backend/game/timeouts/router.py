@@ -3,7 +3,7 @@ from typing import Annotated, Final
 from fastapi import APIRouter, Body
 from game.teams.dependencies import OptionalTeamDepends
 
-from .dependencies import TimeoutDepends, get_timeout_or_none
+from .dependencies import GetTimeoutByID, get_timeout_or_none
 from .schemas import TimeoutSchema
 
 router: Final[APIRouter] = APIRouter(prefix='/timeout')
@@ -12,7 +12,7 @@ router.add_api_route('', get_timeout_or_none, response_model=TimeoutSchema | Non
 
 @router.post('/type')
 async def set_type(
-    timeout: TimeoutDepends,
+    timeout: GetTimeoutByID,
     team_or_none: OptionalTeamDepends,  # TODO: this should be a Body parameter
     is_review: Annotated[bool, Body()],
 ) -> None:
@@ -21,16 +21,16 @@ async def set_type(
 
 @router.post('/retained')
 async def set_retained(
-    timeout: TimeoutDepends, retained: Annotated[bool, Body()]
+    timeout: GetTimeoutByID, retained: Annotated[bool, Body()]
 ) -> None:
     timeout.set_retained(retained)
 
 
 @router.put('/details')
-async def set_details(timeout: TimeoutDepends, details: Annotated[str, Body()]) -> None:
+async def set_details(timeout: GetTimeoutByID, details: Annotated[str, Body()]) -> None:
     timeout.details = details
 
 
 @router.put('/result')
-async def set_result(timeout: TimeoutDepends, result: Annotated[str, Body()]) -> None:
+async def set_result(timeout: GetTimeoutByID, result: Annotated[str, Body()]) -> None:
     timeout.result = result
