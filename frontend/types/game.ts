@@ -74,7 +74,6 @@ export class Jam {
 }
 
 export class TeamJam {
-  id: number;
   teamId: number;
   events: {
     id: number;
