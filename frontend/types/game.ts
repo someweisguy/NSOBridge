@@ -49,6 +49,7 @@ export class Team {
 export type StopReasonString = "called" | "elapsed" | "injury" | "other";
 
 export class Jam {
+  id: number;
   boutId: number;
   period: number;
   num: number;

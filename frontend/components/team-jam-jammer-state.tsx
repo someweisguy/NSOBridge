@@ -1,6 +1,6 @@
 import { jamSetLead, jamSetLost, jamSetStarPass } from "@/lib/game/jams";
 import { TeamJam } from "@/types/game";
-import { BoutContext, JamContext } from "@/utils/contexts";
+import { JamContext } from "@/utils/contexts";
 import {
   Checkbox,
   createTheme,
@@ -23,22 +23,19 @@ const checkBoxTheme = createTheme({
 export default function TeamJamJammerState({
   teamJam,
 }: JammerStatusButtonsProps) {
-  const bout = useContext(BoutContext);
   const jam = useContext(JamContext);
 
   const setLead = useMutation({
-    mutationFn: (lead: boolean) =>
-      jamSetLead(bout!.id, jam!.period, jam!.num, teamJam.teamId, lead),
+    mutationFn: (lead: boolean) => jamSetLead(jam!.id, teamJam.teamId, lead),
   });
 
   const setLost = useMutation({
-    mutationFn: (lost: boolean) =>
-      jamSetLost(bout!.id, jam!.period, jam!.num, teamJam.teamId, lost),
+    mutationFn: (lost: boolean) => jamSetLost(jam!.id, teamJam.teamId, lost),
   });
 
   const setStarPass = useMutation({
     mutationFn: (starPass: boolean) =>
-      jamSetStarPass(bout!.id, jam!.period, jam!.num, teamJam.teamId, starPass),
+      jamSetStarPass(jam!.id, teamJam.teamId, starPass),
   });
 
   const lead = teamJam.events.some((tripEvent) => tripEvent.lead);

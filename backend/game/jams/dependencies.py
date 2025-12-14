@@ -49,7 +49,7 @@ async def get_jam_or_none(
     return results.scalar_one_or_none() if allow_none else results.scalar_one()
 
 
-async def get_jam(
+async def get_jam_by_index(
     request: Request,
     user: UserDepends,
     session: AsyncSessionDepends,
@@ -75,4 +75,22 @@ async def get_jam(
     return jam
 
 
-JamDepends: TypeAlias = Annotated[BaseJam, Depends(get_jam)]
+async def get_jam_by_id(
+    request: Request,
+    user: UserDepends,
+    session: AsyncSessionDepends,
+    jam_id: Annotated[int, Query(alias='jamId')],
+) -> BaseJam:
+    statement: Select[tuple[BaseJam]] = select(BaseJam).where(BaseJam.id == jam_id)
+    results: Result[tuple[BaseJam]] = await session.execute(statement)
+    jam: BaseJam = results.scalar_one()
+
+    # Optionally take a snapshot of the state
+    if request.method != 'GET':
+        user.stage(jam.get_snapshot())
+
+    return jam
+
+
+GetJamByIndex: TypeAlias = Annotated[BaseJam, Depends(get_jam_by_index)]
+GetJamByID: TypeAlias = Annotated[BaseJam, Depends(get_jam_by_id)]

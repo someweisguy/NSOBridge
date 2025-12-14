@@ -3,7 +3,7 @@ from typing import Annotated, Final
 
 from fastapi import APIRouter, Body, Query
 
-from .dependencies import JamDepends, get_jam_or_none
+from .dependencies import GetJamByID, get_jam_or_none
 from .schemas import JamSchema
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')
@@ -12,7 +12,7 @@ router.add_api_route('', get_jam_or_none, response_model=JamSchema | None)
 
 @router.post('/add-trip')
 async def add_trip(
-    jam: JamDepends,
+    jam: GetJamByID,
     team_id: Annotated[int, Query(alias='teamId')],
     passes: Annotated[int, Body()],
 ) -> None:
@@ -21,7 +21,7 @@ async def add_trip(
 
 @router.post('/set-lead')
 async def set_lead(
-    jam: JamDepends,
+    jam: GetJamByID,
     team_id: Annotated[int, Query(alias='teamId')],
     lead: Annotated[bool, Body()],
 ) -> None:
@@ -30,7 +30,7 @@ async def set_lead(
 
 @router.post('/set-lost')
 async def set_lost(
-    jam: JamDepends,
+    jam: GetJamByID,
     team_id: Annotated[int, Query(alias='teamId')],
     lost: Annotated[bool, Body()],
 ) -> None:
@@ -39,7 +39,7 @@ async def set_lost(
 
 @router.post('/set-star-pass')
 async def set_star_pass(
-    jam: JamDepends,
+    jam: GetJamByID,
     team_id: Annotated[int, Query(alias='teamId')],
     star_pass: Annotated[bool, Body()],
 ) -> None:

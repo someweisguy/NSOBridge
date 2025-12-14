@@ -17,53 +17,37 @@ export async function getJam(
 }
 
 export async function jamAddTrip(
-  boutId: number,
-  periodNum: number,
-  jamNum: number,
+  jamId: number,
   teamId: number,
   passes: number,
 ) {
   await localAPI.post("jam/add-trip", {
-    query: { boutId, periodNum, jamNum, teamId },
+    query: { jamId, teamId },
     body: passes,
   });
 }
 
-export async function jamSetLead(
-  boutId: number,
-  periodNum: number,
-  jamNum: number,
-  teamId: number,
-  lead: boolean,
-) {
+export async function jamSetLead(jamId: number, teamId: number, lead: boolean) {
   await localAPI.post("jam/set-lead", {
-    query: { boutId, periodNum, jamNum, teamId },
+    query: { jamId, teamId },
     body: lead,
   });
 }
 
-export async function jamSetLost(
-  boutId: number,
-  periodNum: number,
-  jamNum: number,
-  teamId: number,
-  lost: boolean,
-) {
+export async function jamSetLost(jamId: number, teamId: number, lost: boolean) {
   await localAPI.post("jam/set-lost", {
-    query: { boutId, periodNum, jamNum, teamId },
+    query: { jamId, teamId },
     body: lost,
   });
 }
 
 export async function jamSetStarPass(
-  boutId: number,
-  periodNum: number,
-  jamNum: number,
+  jamId: number,
   teamId: number,
   starPass: boolean,
 ) {
   await localAPI.post("jam/set-star-pass", {
-    query: { boutId, periodNum, jamNum, teamId },
+    query: { jamId, teamId },
     body: starPass,
   });
 }
