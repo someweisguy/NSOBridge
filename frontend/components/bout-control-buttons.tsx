@@ -1,3 +1,4 @@
+import useTimeout from "@/hooks/use-timeout";
 import {
   beginPeriod,
   createBout,
@@ -9,8 +10,9 @@ import {
 } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { Bout, Team } from "@/types/game";
-import { Button, Grid, Group } from "@mantine/core";
+import { Button, Divider, Grid, Group } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
+import TimeoutButtons from "./timeout-buttons";
 
 interface MainControlProps {
   bout: Bout;
@@ -30,13 +32,13 @@ export default function BoutControlButtons({ bout }: BoutControlButtonsProps) {
       mainControls = <JamButtons bout={bout} />;
       break;
     case "lineup":
-      mainControls = <LineupButtons bout={bout} />;
+      mainControls = <LineupControlButtons bout={bout} />;
       break;
     case "timeout":
-      mainControls = <TimeoutButtons bout={bout} />;
+      mainControls = <TimeoutControlButtons bout={bout} />;
       break;
     case "final":
-      mainControls = <FinalButtons bout={bout} />;
+      mainControls = <FinalControlButtons bout={bout} />;
       break;
   }
 
@@ -135,7 +137,7 @@ function JamButtons({ bout }: MainControlProps) {
   );
 }
 
-function LineupButtons({ bout }: MainControlProps) {
+function LineupControlButtons({ bout }: MainControlProps) {
   const useStartJam = useMutation({
     mutationFn: () => startJam(bout.id),
   });
@@ -157,7 +159,7 @@ function LineupButtons({ bout }: MainControlProps) {
   );
 }
 
-function TimeoutButtons({ bout }: MainControlProps) {
+function TimeoutControlButtons({ bout }: MainControlProps) {
   const useStopTimeout = useMutation({
     mutationFn: () => stopTimeout(bout.id),
   });
@@ -166,15 +168,19 @@ function TimeoutButtons({ bout }: MainControlProps) {
     mutationFn: () => startJam(bout.id),
   });
 
+  const timeout = useTimeout(bout.id, bout.numTimeouts - 1)!;
+
   return (
     <>
       <Button onClick={() => useStopTimeout.mutate()}>End Timeout</Button>
       <Button onClick={() => useStartJam.mutate()}>Start Jam</Button>
+      <Divider orientation="vertical" />
+      <TimeoutButtons timeout={timeout} teams={bout.teams} />
     </>
   );
 }
 
-function FinalButtons({ bout }: MainControlProps) {
+function FinalControlButtons({ bout }: MainControlProps) {
   const useCreateNewBout = useMutation({
     mutationFn: () => createBout(bout.teams.map((team: Team) => team.rosterId)),
   });
