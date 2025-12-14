@@ -73,7 +73,7 @@ async def get_timeout_by_id(
     request: Request,
     user: UserDepends,
     session: AsyncSessionDepends,
-    timeout_id: Annotated[int, Query(alias='id')],
+    timeout_id: Annotated[int, Query(alias='timeoutId')],
 ) -> BaseTimeout:
     statement: Select[tuple[BaseTimeout]] = (
         select(BaseTimeout).where(BaseTimeout.id == timeout_id).limit(1)
