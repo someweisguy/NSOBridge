@@ -13,6 +13,7 @@ import { Bout, Team } from "@/types/game";
 import { Button, Divider, Grid, Group } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 import TimeoutButtons from "./timeout-buttons";
+import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
 
 interface MainControlProps {
   bout: Bout;
@@ -51,14 +52,18 @@ export default function BoutControlButtons({ bout }: BoutControlButtonsProps) {
   });
 
   return (
-    <Grid columns={5}>
+    <Grid columns={5} align="center">
       <Grid.Col span={4}>
         <Group>{mainControls}</Group>
       </Grid.Col>
       <Grid.Col span={1}>
-        <Group>
-          <Button onClick={() => useUndo.mutate()}>Undo</Button>
-          <Button onClick={() => useRedo.mutate()}>Redo</Button>
+        <Group justify="center">
+          <Button onClick={() => useUndo.mutate()}>
+            <IconArrowBackUp />
+          </Button>
+          <Button onClick={() => useRedo.mutate()}>
+            <IconArrowForwardUp />
+          </Button>
         </Group>
       </Grid.Col>
     </Grid>
