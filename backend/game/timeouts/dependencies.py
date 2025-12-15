@@ -39,7 +39,8 @@ async def get_timeout_or_none(
     statement: Select[tuple[BaseTimeout]] = (
         select(BaseTimeout)
         .where(BaseTimeout.bout_id == bout_id)
-        .offset(index - 1)
+        .order_by(BaseTimeout.start_timestamp)
+        .offset(index)
         .limit(1)
     )
     results: Result[tuple[BaseTimeout]] = await session.execute(statement)

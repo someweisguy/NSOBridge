@@ -63,6 +63,7 @@ class BaseBout(CacheableSQLModel):
     timeouts: Mapped[list[BaseTimeout]] = relationship(
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
+        order_by=[column('start_timestamp')],
     )
 
     __tablename__: str = 'bouts'
