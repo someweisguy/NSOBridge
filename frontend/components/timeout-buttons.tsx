@@ -68,6 +68,7 @@ export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
         />
       </div>
       <Switch
+        disabled={!timeout.isReview}
         checked={timeout.retained}
         withThumbIndicator={false}
         onClick={() => useSetRetained.mutate(!timeout.retained)}
