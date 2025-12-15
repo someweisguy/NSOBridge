@@ -25,3 +25,13 @@ export async function timeoutSetTeam(
 ): Promise<void> {
   await localAPI.post("timeout/team", { query: { timeoutId }, body: team });
 }
+
+export async function timeoutSetRetained(
+  timeoutId: number,
+  isRetained: boolean,
+): Promise<void> {
+  await localAPI.post("timeout/retained", {
+    query: { timeoutId },
+    body: isRetained,
+  });
+}

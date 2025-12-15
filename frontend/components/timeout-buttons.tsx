@@ -1,5 +1,9 @@
 import useBout from "@/hooks/use-bout";
-import { timeoutSetTeam, timeoutSetType } from "@/lib/game/timeouts";
+import {
+  timeoutSetRetained,
+  timeoutSetTeam,
+  timeoutSetType,
+} from "@/lib/game/timeouts";
 import { Team, Timeout } from "@/types/game";
 import { SegmentedControl, Switch, Text } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
@@ -17,6 +21,11 @@ export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
 
   const useSetTeam = useMutation({
     mutationFn: (teamId: number | null) => timeoutSetTeam(timeout.id, teamId),
+  });
+
+  const useSetRetained = useMutation({
+    mutationFn: (isRetained: boolean) =>
+      timeoutSetRetained(timeout.id, isRetained),
   });
 
   const bout = useBout(timeout.boutId);
@@ -58,7 +67,12 @@ export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
           }
         />
       </div>
-      <Switch withThumbIndicator={false} label="Retained" />
+      <Switch
+        checked={timeout.retained}
+        withThumbIndicator={false}
+        onClick={() => useSetRetained.mutate(!timeout.retained)}
+        label="Retained"
+      />
     </>
   );
 }
