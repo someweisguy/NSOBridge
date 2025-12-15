@@ -79,7 +79,8 @@ class Bout(WFTDAModel, BaseBout):
             raise RulesError('there is no running period to end')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
-        if not self.is_running:
+        # Or calling end_period() after OT ends the Bout
+        if not self.is_running or self.jams[-1].period == self.rules.num_periods:
             self.is_final = True
 
         if self.clock.is_running():
