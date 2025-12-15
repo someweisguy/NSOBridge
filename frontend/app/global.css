@@ -26,14 +26,14 @@
 }
 
 @theme {
-  --animate-blink: blink 2.5s linear infinite;
+  --animate-blink: blink 1s linear infinite;
 
   @keyframes blink {
     0%,
-    49% {
+    64% {
       opacity: 1;
     }
-    50%,
+    65%,
     100% {
       opacity: 0;
     }
