@@ -54,14 +54,20 @@ class Bout(WFTDAModel, BaseBout):
     def begin_period(self, timestamp: datetime) -> None:
         if self.state != 'stopped':
             raise RulesError('this bout cannot be started now')
-        if len(self.jams) > 0 and self.jams[-1].period == self.rules.num_periods:
+        if (
+            len(self.jams) > 0
+            and self.jams[-1].period == self.rules.num_periods
+            and self.jams[-1].start_timestamp is not None
+        ):
             raise RulesError(
                 f'this bout can only have {self.rules.num_periods} periods'
             )
 
-        # If this Period is not in overtime reset the Clock
+        # If this Period is not in overtime reset the Clock and Official Reviews
         if self.jams[-1].period < self.rules.num_periods:
             self.clock.reset()
+            for team in self.teams:
+                team.reviews_remaining = 1
 
         self.is_running = True
 
@@ -290,9 +296,9 @@ class Timeout(WFTDAModel, BaseTimeout):
             raise ValueError('team and timeout are not part of the same Bout')
         if team is None and self.is_review:
             raise RulesError('official reviews can only be called by teams')
-        
+
         self.team = team
         self.team_is_officials = team is None
-    
+
     def set_retained(self, retained: bool) -> None:
         self.retained = retained
