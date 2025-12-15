@@ -61,7 +61,7 @@ export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
               disabled: timeout.isReview,
             },
           ]}
-          value={timeout.teamId == null ? String(NaN) : String(timeout.teamId)}
+          value={timeout.teamId == null ? "" : String(timeout.teamId)}
           onChange={(teamId) =>
             useSetTeam.mutate(teamId == String(NaN) ? null : Number(teamId))
           }
