@@ -88,6 +88,7 @@ export class TeamJam {
 export class Timeout {
   id: number;
 
+  boutId: number;
   teamId: number | null;
   jamId: number | null;
   startTimestamp: Date | null;

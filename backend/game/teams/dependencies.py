@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from database import AsyncSessionDepends
-from fastapi import Depends, Query, Request
+from fastapi import Body, Depends, Query, Request
 from sqlalchemy import select
 from users.dependencies import UserDepends
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.selectable import Select
 
 
-async def get_team_or_none(
+async def query_team_or_none(
     request: Request,
     user: UserDepends,
     session: AsyncSessionDepends,
@@ -29,4 +29,20 @@ async def get_team_or_none(
     return team
 
 
-OptionalTeamDepends: TypeAlias = Annotated[BaseTeam | None, Depends(get_team_or_none)]
+async def get_team_or_none(
+    session: AsyncSessionDepends,
+    team_id: Annotated[int | None, Body(alias='teamId')] = None,
+) -> BaseTeam | None:
+    if team_id is None:
+        return None
+
+    # Query the database for the desired Bout
+    statement: Select[tuple[BaseTeam]] = select(BaseTeam).where(BaseTeam.id == team_id)
+    results: Result[tuple[BaseTeam]] = await session.execute(statement)
+    team: BaseTeam = results.scalar_one()
+
+    return team
+
+
+OptionalTeamDepends: TypeAlias = Annotated[BaseTeam | None, Depends(query_team_or_none)]
+GetTeamOrNoneByID: TypeAlias = Annotated[BaseTeam | None, Depends(get_team_or_none)]

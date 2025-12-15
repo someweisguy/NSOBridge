@@ -282,13 +282,17 @@ class Jam(WFTDAModel, BaseJam):
 
 
 class Timeout(WFTDAModel, BaseTimeout):
-    def set_type(self, team: BaseTeam | None, is_review: bool) -> None:
-        if team is None and is_review:
-            raise RulesError('official reviews can only be called by teams')
-
-        self.team = team
+    def set_type(self, is_review: bool) -> None:
         self.is_review = is_review
-        self.team_is_officials = team is None
 
+    def set_team(self, team: BaseTeam | None) -> None:
+        if team is not None and team.bout_id != self.bout_id:
+            raise ValueError('team and timeout are not part of the same Bout')
+        if team is None and self.is_review:
+            raise RulesError('official reviews can only be called by teams')
+        
+        self.team = team
+        self.team_is_officials = team is None
+    
     def set_retained(self, retained: bool) -> None:
         self.retained = retained

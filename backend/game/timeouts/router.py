@@ -1,7 +1,7 @@
-from typing import Annotated, Final
+from typing import Annotated, Final, Literal
 
 from fastapi import APIRouter, Body
-from game.teams.dependencies import OptionalTeamDepends
+from game.teams.dependencies import GetTeamOrNoneByID
 
 from .dependencies import GetTimeoutByID, get_timeout_or_none
 from .schemas import TimeoutSchema
@@ -13,10 +13,15 @@ router.add_api_route('', get_timeout_or_none, response_model=TimeoutSchema | Non
 @router.post('/type')
 async def set_type(
     timeout: GetTimeoutByID,
-    team_or_none: OptionalTeamDepends,  # TODO: this should be a Body parameter
-    is_review: Annotated[bool, Body()],
+    is_review: Annotated[Literal['timeout', 'review'], Body()],
 ) -> None:
-    timeout.set_type(team_or_none, is_review)
+    timeout.set_type(is_review == 'review')
+
+
+@router.post('/team')
+async def set_team(timeout: GetTimeoutByID, team: GetTeamOrNoneByID) -> None:
+    timeout.set_team(team)
+    pass
 
 
 @router.post('/retained')
