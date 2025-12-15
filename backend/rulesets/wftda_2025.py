@@ -172,7 +172,7 @@ class Bout(WFTDAModel, BaseBout):
             if timeout.is_review and not timeout.retained:
                 timeout.team.reviews_remaining -= 1
             elif not timeout.is_review:
-                timeout.team.reviews_remaining -= 1
+                timeout.team.timeouts_remaining -= 1
 
         return timeout
 
