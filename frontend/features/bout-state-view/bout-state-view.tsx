@@ -34,7 +34,7 @@ export default function BoutStateView({
   if (activeJam.period >= 2) {
     // Overtime Jams should be considered a continuation of the second half
     periodNum = 1;
-    jamNum += bout.jamCounts[1];
+    jamNum += bout.jamIds[1].length;
   }
 
   return (

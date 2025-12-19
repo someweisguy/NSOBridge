@@ -2,10 +2,9 @@ import BoutControlButtons from "@/components/bout-control-buttons";
 import TeamJamView from "@/components/team-jam-view";
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
-import useBout, { useActiveJam } from "@/hooks/use-bout";
+import useBout, { useActiveJam, useLatestTimeout } from "@/hooks/use-bout";
 import { useRuleset } from "@/hooks/use-ruleset";
 import { useSeries } from "@/hooks/use-series";
-import { useTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
 import { Bout, Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
@@ -64,7 +63,7 @@ function Test() {
   }, [series, boutIndex]);
 
   const { data: activeJam } = useActiveJam(bout);
-  const { data: latestTimeout } = useTimeout(bout.id, bout.numTimeouts - 1);
+  const { data: latestTimeout } = useLatestTimeout(bout);
   const { data: ruleset } = useRuleset(bout.id);
 
   return (

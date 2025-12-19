@@ -1,6 +1,7 @@
 import { Bout, createBout, getBout } from "@/lib/game/bouts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useJam } from "./use-jam";
+import { useTimeout } from "./use-timeout";
 
 export default function useBout(key: number): Bout {
   const { data } = useSuspenseQuery<Bout>({
@@ -48,15 +49,26 @@ export const useStopTimeout = (bout: Bout) =>
   });
 
 export const useActiveJam = (bout: Bout) => {
-  let currentPeriodNum = bout.jamCounts.indexOf(0);
-  if (currentPeriodNum < 0) {
-    currentPeriodNum = bout.jamCounts.length;
+  let periodNum =
+    bout.jamIds
+      .reverse()
+      .findIndex((periodJamIds: number[]) => periodJamIds.length == 0) - 1;
+  if (periodNum < 0) {
+    periodNum = 0;
   }
-  currentPeriodNum--;
-  let currentJamNum = bout.jamCounts[currentPeriodNum] - 1;
-  if (["lineup", "timeout"].includes(bout.state) && currentJamNum > 0) {
-    currentJamNum--;
+  let jamNum = bout.jamIds[periodNum].length - 1;
+  if (jamNum < 0) {
+    jamNum = 0;
   }
 
-  return useJam(bout, currentPeriodNum, currentJamNum);
+  return useJam(bout, periodNum, jamNum);
+};
+
+export const useLatestTimeout = (bout: Bout) => {
+  let timeoutIndex = bout.timeoutIds.length - 1;
+  if (timeoutIndex < 0) {
+    timeoutIndex = 0;
+  }
+
+  return useTimeout(bout.id, timeoutIndex);
 };

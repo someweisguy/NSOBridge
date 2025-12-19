@@ -25,16 +25,17 @@ class BoutSchema(ServerSchema):
 
     @computed_field
     @property
-    def jam_counts(self) -> tuple[int, int, int]:
-        jam_counts: list[int] = [0, 0, 0]
+    def jam_ids(self) -> list[list[int]]:
+        jam_ids: list[list[int]] = [[], [], []]
         for jam in self.jams:
-            jam_counts[jam.period] += 1
-        return jam_counts[0], jam_counts[1], jam_counts[2]
+            assert jam.num == len(jam_ids[jam.period])
+            jam_ids[jam.period].append(jam.id)
+        return jam_ids
 
     @computed_field
     @property
-    def num_timeouts(self) -> int:
-        return len(self.timeouts)
+    def timeout_ids(self) -> list[int]:
+        return [timeout.id for timeout in self.timeouts]
 
 
 class BoutContextSchema(ServerSchema):

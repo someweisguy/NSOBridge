@@ -1,6 +1,7 @@
 import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
+// TODO: pass a Bout object instead of boutId
 export const useTimeout = (boutId: number, index: number) =>
   useSuspenseQuery<Timeout | null>({
     queryKey: Timeout.generateKey(boutId, index),

@@ -41,9 +41,9 @@ export class Bout {
   state: "final" | "jam" | "lineup" | "stopped" | "timeout";
   isRunning: boolean;
   isFinal: boolean;
-  jamCounts: number[];
-  numTimeouts: number;
   teams: Team[];
+  jamIds: number[][];
+  timeoutIds: number[];
 
   static generateKey(id: number) {
     return ["bouts", id];

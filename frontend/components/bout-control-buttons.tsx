@@ -2,13 +2,13 @@ import {
   useBeginPeriod,
   useCreateBout,
   useEndPeriod,
+  useLatestTimeout,
   useStartJam,
   useStartTimeout,
   useStopJam,
   useStopTimeout,
 } from "@/hooks/use-bout";
 import { useRedo, useUndo } from "@/hooks/use-history";
-import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
@@ -77,17 +77,17 @@ function StoppedButtons({ bout }: MainControlProps) {
 
   let beginPeriodButtonDisabled = false;
   let beginPeriodText = "Begin Period";
-  if (bout.jamCounts[2] > 1) {
+  if (bout.jamIds[2].length > 1) {
     beginPeriodButtonDisabled = true;
     endPeriodButtonText = "End Bout";
-  } else if (bout.jamCounts[2] == 1) {
+  } else if (bout.jamIds[2].length == 1) {
     beginPeriodText = "Begin OT";
     endPeriodButtonText = "End Bout";
     startJamText = "Start OT Jam";
-  } else if (bout.jamCounts[1] == 1) {
+  } else if (bout.jamIds[1].length == 1) {
     endPeriodButtonDisabled = true;
     beginPeriodText = "Begin P2";
-  } else if (bout.jamCounts[0] == 1) {
+  } else if (bout.jamIds[0].length == 1) {
     endPeriodButtonDisabled = true;
     beginPeriodText = "Begin P1";
   }
@@ -145,7 +145,7 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
   const startJam = useStartJam(bout);
 
   // FIXME: Remove this hook?
-  const { data } = useTimeout(bout.id, bout.numTimeouts - 1);
+  const { data } = useLatestTimeout(bout);
 
   return (
     <>
