@@ -2,18 +2,11 @@ import { Bout } from "@/lib/game/bouts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { getJam, Jam, TeamJam } from "../lib/game/jams";
 
-export default function useJam(
-  bout: Bout,
-  periodNum: number,
-  jamNum: number,
-): Jam {
-  const { data } = useSuspenseQuery<Jam>({
+export const useJam = (bout: Bout, periodNum: number, jamNum: number) =>
+  useSuspenseQuery<Jam>({
     queryKey: Jam.generateKey(bout.id, periodNum, jamNum),
     queryFn: () => getJam(bout.id, periodNum, jamNum),
   });
-
-  return data;
-}
 
 export const useAddTrip = (teamJam: TeamJam) =>
   useMutation({

@@ -12,7 +12,7 @@ export default function IntermissionState({
   ...props
 }: IntermissionStateViewProps) {
   // TODO: remove this hook
-  const jam = useActiveJam(bout);
+  const { data: jam } = useActiveJam(bout);
 
   let copy = "Starting Soon";
   if (bout.isFinal) {

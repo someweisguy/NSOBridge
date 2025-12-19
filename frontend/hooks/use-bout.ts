@@ -1,7 +1,6 @@
 import { Bout, createBout, getBout } from "@/lib/game/bouts";
-import { Jam } from "@/lib/game/jams";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import useJam from "./use-jam";
+import { useJam } from "./use-jam";
 
 export default function useBout(key: number): Bout {
   const { data } = useSuspenseQuery<Bout>({
@@ -48,7 +47,7 @@ export const useStopTimeout = (bout: Bout) =>
     mutationFn: () => bout.stopTimeout(),
   });
 
-export const useActiveJam = (bout: Bout): Jam => {
+export const useActiveJam = (bout: Bout) => {
   let currentPeriodNum = bout.jamCounts.indexOf(0);
   if (currentPeriodNum < 0) {
     currentPeriodNum = bout.jamCounts.length;

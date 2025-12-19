@@ -8,7 +8,7 @@ import {
   useStopTimeout,
 } from "@/hooks/use-bout";
 import { useRedo, useUndo } from "@/hooks/use-history";
-import useTimeout from "@/hooks/use-timeout";
+import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
@@ -144,14 +144,14 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
   const stopTimeout = useStopTimeout(bout);
   const startJam = useStartJam(bout);
 
-  const timeout = useTimeout(bout.id, bout.numTimeouts - 1)!;
+  const { data } = useTimeout(bout.id, bout.numTimeouts - 1);
 
   return (
     <>
       <Button onClick={() => stopTimeout.mutate()}>End Timeout</Button>
       <Button onClick={() => startJam.mutate()}>Start Jam</Button>
       <Divider orientation="vertical" />
-      <TimeoutButtons timeout={timeout} teams={bout.teams} />
+      <TimeoutButtons timeout={data!} teams={bout.teams} />
     </>
   );
 }

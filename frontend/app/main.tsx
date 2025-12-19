@@ -3,10 +3,9 @@ import TeamJamView from "@/components/team-jam-view";
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import useBout, { useActiveJam } from "@/hooks/use-bout";
-import useSeries from "@/hooks/use-series";
+import { useSeries } from "@/hooks/use-series";
 import queryClient from "@/lib/cache";
 import { Bout, Team } from "@/lib/game/bouts";
-import { Series } from "@/lib/game/series";
 import { redo, undo } from "@/lib/history";
 import { BoutContext, JamContext } from "@/utils/contexts";
 import { Container, Grid, MantineProvider, Stack } from "@mantine/core";
@@ -48,7 +47,7 @@ function Test() {
   const [boutIndex, setBoutIndex] = useState(0);
   const goToNextBout = useRef(false);
 
-  const series: Series = useSeries(1);
+  const { data: series } = useSeries(1);
   if (series.boutIds.length == 0) {
     // TODO: Go to Bout creation page
     throw new Error("This Series does not have any Bouts");
@@ -62,7 +61,7 @@ function Test() {
     }
   }, [series, boutIndex]);
 
-  const activeJam = useActiveJam(bout);
+  const { data: activeJam } = useActiveJam(bout);
 
   return (
     <BoutContext value={bout}>

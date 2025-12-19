@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { getServerTime, getSyncData } from "../lib/sync";
 const REFETCH_INTERVAL = 1000 * 60 * 5;
 
-export default function useServerTime(): [Date, () => void] {
+export const useServerTime = (): [Date, () => void] => {
   const {
     data: { offset },
   } = useSuspenseQuery<{ offset: number; error: number }>({
@@ -20,4 +20,4 @@ export default function useServerTime(): [Date, () => void] {
   );
 
   return [serverTime, refreshServerTime];
-}
+};
