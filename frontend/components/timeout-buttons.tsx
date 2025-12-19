@@ -39,6 +39,7 @@ export default function TimeoutButtons({
         </Text>
         <SegmentedControl
           data={[
+            // TODO: labels should display Roster name/mnemonic
             { value: String(teams[0].id), label: "Home" },
             { value: String(teams[1].id), label: "Away" },
             {
