@@ -1,4 +1,3 @@
-import useBout from "@/hooks/use-bout";
 import { useSetRetained, useSetTeam, useSetType } from "@/hooks/use-timeout";
 import { Team } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
@@ -9,14 +8,13 @@ interface TimeoutButtonsProps {
   teams: Team[];
 }
 
-export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
+export default function TimeoutButtons({
+  timeout,
+  teams,
+}: TimeoutButtonsProps) {
   const setType = useSetType(timeout);
   const setTeam = useSetTeam(timeout);
   const setRetained = useSetRetained(timeout);
-
-  const bout = useBout(timeout.boutId);
-
-  // TODO: cleanup segmented control for team selection
 
   return (
     <>
@@ -41,8 +39,8 @@ export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
         </Text>
         <SegmentedControl
           data={[
-            { value: String(bout.teams[0].id), label: "Home" },
-            { value: String(bout.teams[1].id), label: "Away" },
+            { value: String(teams[0].id), label: "Home" },
+            { value: String(teams[1].id), label: "Away" },
             {
               value: String(NaN),
               label: "Official",
