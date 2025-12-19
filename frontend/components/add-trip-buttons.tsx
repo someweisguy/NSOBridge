@@ -1,22 +1,26 @@
 import { useAddTrip } from "@/hooks/use-jam";
-import { useRuleset } from "@/hooks/use-ruleset";
 import { Team } from "@/lib/game/bouts";
 import { Jam, TeamJam } from "@/lib/game/jams";
+import { Ruleset } from "@/types/game";
 import { Button, Group, Stack } from "@mantine/core";
 
 interface AddTripButtonsProps {
   jam: Jam;
   team: Team;
+  ruleset: Ruleset;
 }
 
-export default function AddTripButtons({ jam, team }: AddTripButtonsProps) {
+export default function AddTripButtons({
+  jam,
+  team,
+  ruleset,
+}: AddTripButtonsProps) {
   const teamJam: TeamJam | undefined = jam.teamJams.find(
     (teamJam: TeamJam) => teamJam.teamId === team.id,
   );
   if (teamJam == undefined) {
     throw new Error("team jam not found");
   }
-  const { data: ruleset } = useRuleset(jam.boutId);
   const addTrip = useAddTrip(teamJam);
 
   const addTripButtons =

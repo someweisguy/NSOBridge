@@ -7,13 +7,14 @@ import { useSeries } from "@/hooks/use-series";
 import queryClient from "@/lib/cache";
 import { Bout, Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
-import { BoutContext, JamContext } from "@/utils/contexts";
+import { BoutContext, JamContext, RulesetContext } from "@/utils/contexts";
 import { Container, Grid, MantineProvider, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import { useRuleset } from "@/hooks/use-ruleset";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -62,27 +63,30 @@ function Test() {
   }, [series, boutIndex]);
 
   const { data: activeJam } = useActiveJam(bout);
+  const { data: ruleset } = useRuleset(bout.id);
 
   return (
     <BoutContext value={bout}>
-      <Container>
-        <Stack>
-          <BoutControlButtons bout={bout} />
-          <Grid columns={bout.teams.length} align="center">
-            <JamContext value={activeJam}>
-              {bout.teams.map((team: Team, i: number) => (
-                <Grid.Col key={i} span={1}>
-                  <Stack>
-                    <TeamView bout={bout} team={team} />
-                    <TeamJamView jam={activeJam} team={team} />
-                  </Stack>
-                </Grid.Col>
-              ))}
-            </JamContext>
-          </Grid>
-          <BoutStateView bout={bout} activeJam={activeJam} />
-        </Stack>
-      </Container>
+      <RulesetContext value={ruleset}>
+        <Container>
+          <Stack>
+            <BoutControlButtons bout={bout} />
+            <Grid columns={bout.teams.length} align="center">
+              <JamContext value={activeJam}>
+                {bout.teams.map((team: Team, i: number) => (
+                  <Grid.Col key={i} span={1}>
+                    <Stack>
+                      <TeamView bout={bout} team={team} />
+                      <TeamJamView jam={activeJam} team={team} />
+                    </Stack>
+                  </Grid.Col>
+                ))}
+              </JamContext>
+            </Grid>
+            <BoutStateView bout={bout} activeJam={activeJam} />
+          </Stack>
+        </Container>
+      </RulesetContext>
     </BoutContext>
   );
 }

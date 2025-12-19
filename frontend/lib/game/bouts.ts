@@ -1,7 +1,7 @@
 import { localAPI } from "@/lib/requests";
 import Clock from "./timeouts";
 
-export interface RulesetContext {
+export interface Ruleset {
   jamDuration: number;
   lineupDuration: number;
   pointsPerTrip: number;
@@ -14,10 +14,8 @@ export async function getBout(boutId: number): Promise<Bout> {
   return Object.assign(new Bout(), data);
 }
 
-export async function getRulesetContext(
-  boutId: number,
-): Promise<RulesetContext> {
-  return localAPI.get<RulesetContext>("bout/ruleset-context", {
+export async function getRuleset(boutId: number): Promise<Ruleset> {
+  return localAPI.get<Ruleset>("bout/ruleset-context", {
     query: { boutId },
   });
 }

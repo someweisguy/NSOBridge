@@ -1,4 +1,4 @@
-import { RulesetContext, Team } from "@/lib/game/bouts";
+import { Ruleset, Team } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
 import { Card, Center, Divider } from "@mantine/core";
 import { IconCircleFilled } from "@tabler/icons-react";
@@ -7,7 +7,7 @@ import { twMerge } from "tailwind-merge";
 interface TimeoutBarProps {
   team: Team;
   activeTimeout?: Timeout | null;
-  ruleset: RulesetContext;
+  ruleset: Ruleset;
   size: number;
 }
 
