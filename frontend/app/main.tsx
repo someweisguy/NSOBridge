@@ -73,14 +73,14 @@ function Test() {
               {bout.teams.map((team: Team, i: number) => (
                 <Grid.Col key={i} span={1}>
                   <Stack>
-                    <TeamView team={team} />
+                    <TeamView bout={bout} team={team} />
                     <TeamJamView jam={activeJam} team={team} />
                   </Stack>
                 </Grid.Col>
               ))}
             </JamContext>
           </Grid>
-          <BoutStateView bout={bout} />
+          <BoutStateView bout={bout} activeJam={activeJam} />
         </Stack>
       </Container>
     </BoutContext>
