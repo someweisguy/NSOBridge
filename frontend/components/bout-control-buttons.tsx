@@ -1,5 +1,14 @@
+import {
+  useBeginPeriod,
+  useCreateBout,
+  useEndPeriod,
+  useStartJam,
+  useStartTimeout,
+  useStopJam,
+  useStopTimeout,
+} from "@/hooks/use-bout";
 import useTimeout from "@/hooks/use-timeout";
-import { Bout, createBout, Team } from "@/lib/game/bouts";
+import { Bout, Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
@@ -62,17 +71,9 @@ export default function BoutControlButtons({ bout }: BoutControlButtonsProps) {
 }
 
 function StoppedButtons({ bout }: MainControlProps) {
-  const useBeginPeriod = useMutation({
-    mutationFn: () => bout.beginPeriod(),
-  });
-
-  const useStartJam = useMutation({
-    mutationFn: () => bout.startJam(),
-  });
-
-  const useEndPeriod = useMutation({
-    mutationFn: () => bout.endPeriod(),
-  });
+  const beginPeriod = useBeginPeriod(bout);
+  const startJam = useStartJam(bout);
+  const endPeriod = useStartJam(bout);
 
   const startJamButtonDisabled = false;
   let startJamText = "Start Jam";
@@ -101,19 +102,19 @@ function StoppedButtons({ bout }: MainControlProps) {
     <>
       <Button
         disabled={beginPeriodButtonDisabled}
-        onClick={() => useBeginPeriod.mutate()}
+        onClick={() => beginPeriod.mutate()}
       >
         {beginPeriodText}
       </Button>
       <Button
         disabled={startJamButtonDisabled}
-        onClick={() => useStartJam.mutate()}
+        onClick={() => startJam.mutate()}
       >
         {startJamText}
       </Button>
       <Button
         disabled={endPeriodButtonDisabled}
-        onClick={() => useEndPeriod.mutate()}
+        onClick={() => endPeriod.mutate()}
       >
         {endPeriodButtonText}
       </Button>
@@ -122,54 +123,39 @@ function StoppedButtons({ bout }: MainControlProps) {
 }
 
 function JamButtons({ bout }: MainControlProps) {
-  const useStopJam = useMutation({
-    mutationFn: () => bout.stopJam(),
-  });
+  const stopJam = useStopJam(bout);
 
   return (
     <>
-      <Button onClick={() => useStopJam.mutate()}>Stop Jam</Button>
+      <Button onClick={() => stopJam.mutate()}>Stop Jam</Button>
     </>
   );
 }
 
 function LineupControlButtons({ bout }: MainControlProps) {
-  const useStartJam = useMutation({
-    mutationFn: () => bout.startJam(),
-  });
-
-  const useStartTimeout = useMutation({
-    mutationFn: () => bout.startTimeout(),
-  });
-
-  const useEndPeriod = useMutation({
-    mutationFn: () => bout.endPeriod(),
-  });
+  const startJam = useStartJam(bout);
+  const startTimeout = useStartTimeout(bout);
+  const endPeriod = useEndPeriod(bout);
 
   return (
     <>
-      <Button onClick={() => useStartJam.mutate()}>Start Jam</Button>
-      <Button onClick={() => useStartTimeout.mutate()}>Call Timeout</Button>
-      <Button onClick={() => useEndPeriod.mutate()}>End Period</Button>
+      <Button onClick={() => startJam.mutate()}>Start Jam</Button>
+      <Button onClick={() => startTimeout.mutate()}>Call Timeout</Button>
+      <Button onClick={() => endPeriod.mutate()}>End Period</Button>
     </>
   );
 }
 
 function TimeoutControlButtons({ bout }: MainControlProps) {
-  const useStopTimeout = useMutation({
-    mutationFn: () => bout.stopTimeout(),
-  });
-
-  const useStartJam = useMutation({
-    mutationFn: () => bout.startJam(),
-  });
+  const stopTimeout = useStopTimeout(bout);
+  const startJam = useStartJam(bout);
 
   const timeout = useTimeout(bout.id, bout.numTimeouts - 1)!;
 
   return (
     <>
-      <Button onClick={() => useStopTimeout.mutate()}>End Timeout</Button>
-      <Button onClick={() => useStartJam.mutate()}>Start Jam</Button>
+      <Button onClick={() => stopTimeout.mutate()}>End Timeout</Button>
+      <Button onClick={() => startJam.mutate()}>Start Jam</Button>
       <Divider orientation="vertical" />
       <TimeoutButtons timeout={timeout} teams={bout.teams} />
     </>
@@ -177,13 +163,13 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
 }
 
 function FinalControlButtons({ bout }: MainControlProps) {
-  const useCreateNewBout = useMutation({
-    mutationFn: () => createBout(bout.teams.map((team: Team) => team.rosterId)),
-  });
+  const createBout = useCreateBout();
+
+  const rosterIds = bout.teams.map((team: Team) => team.rosterId);
 
   return (
     <>
-      <Button onClick={() => useCreateNewBout.mutate()}>New Bout</Button>
+      <Button onClick={() => createBout.mutate(rosterIds)}>New Bout</Button>
     </>
   );
 }

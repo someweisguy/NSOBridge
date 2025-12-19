@@ -1,7 +1,7 @@
-import { Bout, getBout } from "@/lib/game/bouts";
+import { Bout, createBout, getBout } from "@/lib/game/bouts";
+import { Jam } from "@/lib/game/jams";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import useJam from "./use-jam";
-import { Jam } from "@/lib/game/jams";
 
 export default function useBout(key: number): Bout {
   const { data } = useSuspenseQuery<Bout>({
@@ -10,6 +10,13 @@ export default function useBout(key: number): Bout {
   });
 
   return data;
+}
+
+export function useCreateBout() {
+  // TODO: add ruleset parameter to this hook
+  return useMutation({
+    mutationFn: (rosterIds: number[]) => createBout(rosterIds),
+  });
 }
 
 export function useBeginPeriod(bout: Bout) {
