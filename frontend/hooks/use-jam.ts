@@ -1,6 +1,6 @@
 import { Bout } from "@/lib/game/bouts";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getJam, Jam } from "../lib/game/jams";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { getJam, Jam, TeamJam } from "../lib/game/jams";
 
 export default function useJam(
   bout: Bout,
@@ -13,4 +13,28 @@ export default function useJam(
   });
 
   return data;
+}
+
+export function useAddTrip(teamJam: TeamJam) {
+  return useMutation({
+    mutationFn: (passes: number) => teamJam.addTrip(passes),
+  });
+}
+
+export function useSetLead(teamJam: TeamJam) {
+  return useMutation({
+    mutationFn: (lead: boolean) => teamJam.setLead(lead),
+  });
+}
+
+export function useSetLost(teamJam: TeamJam) {
+  return useMutation({
+    mutationFn: (lost: boolean) => teamJam.setLost(lost),
+  });
+}
+
+export function useSetStarPass(teamJam: TeamJam) {
+  return useMutation({
+    mutationFn: (starPass: boolean) => teamJam.setLost(starPass),
+  });
 }
