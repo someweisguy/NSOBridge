@@ -7,12 +7,11 @@ import {
   useStopJam,
   useStopTimeout,
 } from "@/hooks/use-bout";
+import { useRedo, useUndo } from "@/hooks/use-history";
 import useTimeout from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
-import { redo, undo } from "@/lib/history";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
-import { useMutation } from "@tanstack/react-query";
 import TimeoutButtons from "./timeout-buttons";
 
 interface MainControlProps {
@@ -43,13 +42,8 @@ export default function BoutControlButtons({ bout }: BoutControlButtonsProps) {
       break;
   }
 
-  const useUndo = useMutation({
-    mutationFn: () => undo(),
-  });
-
-  const useRedo = useMutation({
-    mutationFn: () => redo(),
-  });
+  const undo = useUndo();
+  const redo = useRedo();
 
   return (
     <Grid columns={5} align="center">
@@ -58,10 +52,10 @@ export default function BoutControlButtons({ bout }: BoutControlButtonsProps) {
       </Grid.Col>
       <Grid.Col span={1}>
         <Group justify="center">
-          <ActionIcon onClick={() => useUndo.mutate()}>
+          <ActionIcon onClick={() => undo.mutate()}>
             <IconArrowBackUp />
           </ActionIcon>
-          <ActionIcon onClick={() => useRedo.mutate()}>
+          <ActionIcon onClick={() => redo.mutate()}>
             <IconArrowForwardUp />
           </ActionIcon>
         </Group>
