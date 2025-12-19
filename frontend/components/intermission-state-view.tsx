@@ -13,8 +13,6 @@ export default function IntermissionState({
   activeJam,
   ...props
 }: IntermissionStateViewProps) {
-  // TODO: remove this hook
-
   let copy = "Starting Soon";
   if (bout.isFinal) {
     copy = "Final Score";
