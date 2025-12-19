@@ -12,50 +12,43 @@ export default function useBout(key: number): Bout {
   return data;
 }
 
-export function useCreateBout() {
-  // TODO: add ruleset parameter to this hook
-  return useMutation({
+// TODO: add ruleset parameter to this hook
+export const useCreateBout = () =>
+  useMutation({
     mutationFn: (rosterIds: number[]) => createBout(rosterIds),
   });
-}
 
-export function useBeginPeriod(bout: Bout) {
-  return useMutation({
+export const useBeginPeriod = (bout: Bout) =>
+  useMutation({
     mutationFn: () => bout.beginPeriod(),
   });
-}
 
-export function useEndPeriod(bout: Bout) {
-  return useMutation({
+export const useEndPeriod = (bout: Bout) =>
+  useMutation({
     mutationFn: () => bout.endPeriod(),
   });
-}
 
-export function useStartJam(bout: Bout) {
-  return useMutation({
+export const useStartJam = (bout: Bout) =>
+  useMutation({
     mutationFn: () => bout.startJam(),
   });
-}
 
-export function useStopJam(bout: Bout) {
-  return useMutation({
+export const useStopJam = (bout: Bout) =>
+  useMutation({
     mutationFn: () => bout.stopJam(),
   });
-}
 
-export function useStartTimeout(bout: Bout) {
-  return useMutation({
+export const useStartTimeout = (bout: Bout) =>
+  useMutation({
     mutationFn: () => bout.startTimeout(),
   });
-}
 
-export function useStopTimeout(bout: Bout) {
-  return useMutation({
+export const useStopTimeout = (bout: Bout) =>
+  useMutation({
     mutationFn: () => bout.stopTimeout(),
   });
-}
 
-export function useActiveJam(bout: Bout): Jam {
+export const useActiveJam = (bout: Bout): Jam => {
   let currentPeriodNum = bout.jamCounts.indexOf(0);
   if (currentPeriodNum < 0) {
     currentPeriodNum = bout.jamCounts.length;
@@ -67,4 +60,4 @@ export function useActiveJam(bout: Bout): Jam {
   }
 
   return useJam(bout, currentPeriodNum, currentJamNum);
-}
+};

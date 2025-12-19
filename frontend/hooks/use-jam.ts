@@ -15,26 +15,22 @@ export default function useJam(
   return data;
 }
 
-export function useAddTrip(teamJam: TeamJam) {
-  return useMutation({
+export const useAddTrip = (teamJam: TeamJam) =>
+  useMutation({
     mutationFn: (passes: number) => teamJam.addTrip(passes),
   });
-}
 
-export function useSetLead(teamJam: TeamJam) {
-  return useMutation({
+export const useSetLead = (teamJam: TeamJam) =>
+  useMutation({
     mutationFn: (lead: boolean) => teamJam.setLead(lead),
   });
-}
 
-export function useSetLost(teamJam: TeamJam) {
-  return useMutation({
+export const useSetLost = (teamJam: TeamJam) =>
+  useMutation({
     mutationFn: (lost: boolean) => teamJam.setLost(lost),
   });
-}
 
-export function useSetStarPass(teamJam: TeamJam) {
-  return useMutation({
+export const useSetStarPass = (teamJam: TeamJam) =>
+  useMutation({
     mutationFn: (starPass: boolean) => teamJam.setLost(starPass),
   });
-}
