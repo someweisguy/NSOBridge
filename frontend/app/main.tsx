@@ -3,7 +3,9 @@ import TeamJamView from "@/components/team-jam-view";
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import useBout, { useActiveJam } from "@/hooks/use-bout";
+import { useRuleset } from "@/hooks/use-ruleset";
 import { useSeries } from "@/hooks/use-series";
+import { useTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
 import { Bout, Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
@@ -14,7 +16,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import { useRuleset } from "@/hooks/use-ruleset";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -63,6 +64,7 @@ function Test() {
   }, [series, boutIndex]);
 
   const { data: activeJam } = useActiveJam(bout);
+  const { data: latestTimeout } = useTimeout(bout.id, bout.numTimeouts - 1);
   const { data: ruleset } = useRuleset(bout.id);
 
   return (
@@ -83,7 +85,11 @@ function Test() {
                 ))}
               </JamContext>
             </Grid>
-            <BoutStateView bout={bout} activeJam={activeJam} />
+            <BoutStateView
+              bout={bout}
+              activeJam={activeJam}
+              latestTimeout={latestTimeout}
+            />
           </Stack>
         </Container>
       </RulesetContext>

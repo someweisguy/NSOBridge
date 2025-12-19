@@ -1,6 +1,7 @@
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import useBout, { useActiveJam } from "@/hooks/use-bout";
+import { useTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import FitScreen from "@fit-screen/react";
@@ -30,6 +31,7 @@ export default function App() {
 function Test() {
   const bout = useBout(1);
   const { data: activeJam } = useActiveJam(bout);
+  const { data: latestTimeout } = useTimeout(bout.id, bout.numTimeouts - 1);
 
   return (
     <div className="flex flex-col flex-nowrap grid-flow-row h-screen size-screen">
@@ -41,7 +43,11 @@ function Test() {
       </div>
       <div className="justify-stretch items-stretch grid basis-1/2 shrink-0">
         {/* Secondary Information (Clocks, etc.) */}
-        <BoutStateView bout={bout} activeJam={activeJam} />
+        <BoutStateView
+          bout={bout}
+          activeJam={activeJam}
+          latestTimeout={latestTimeout}
+        />
       </div>
     </div>
   );

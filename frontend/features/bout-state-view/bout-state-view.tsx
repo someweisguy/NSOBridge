@@ -1,19 +1,25 @@
+import ExtraordinaryStateClock from "@/components/extraordinary-state-clock";
+import IntermissionState from "@/components/intermission-state-view";
+import JamClock from "@/components/jam-clock";
+import PeriodClock from "@/components/period-clock";
 import { useRuleset } from "@/hooks/use-ruleset";
 import { Bout } from "@/lib/game/bouts";
 import { Jam } from "@/lib/game/jams";
+import { Timeout } from "@/lib/game/timeouts";
 import { Center, Grid, Text } from "@mantine/core";
-import ExtraordinaryStateClock from "../../components/extraordinary-state-clock";
-import IntermissionState from "../../components/intermission-state-view";
-import JamClock from "../../components/jam-clock";
-import PeriodClock from "../../components/period-clock";
 
 interface BoutStateViewProps {
   bout: Bout;
   activeJam: Jam;
+  latestTimeout: Timeout | null;
 }
 
-export default function BoutStateView({ bout, activeJam }: BoutStateViewProps) {
-  const { data: ruleset } = useRuleset(bout.id);
+export default function BoutStateView({
+  bout,
+  activeJam,
+  latestTimeout,
+}: BoutStateViewProps) {
+  const { data: ruleset } = useRuleset(bout.id); // FIXME: use context
 
   if (!bout.isRunning) {
     return (
@@ -57,7 +63,12 @@ export default function BoutStateView({ bout, activeJam }: BoutStateViewProps) {
 
       <Grid.Col span={1} offset={1}>
         <Center>
-          <ExtraordinaryStateClock size="24pt" bout={bout} />
+          <ExtraordinaryStateClock
+            size="24pt"
+            bout={bout}
+            activeJam={activeJam}
+            latestTimeout={latestTimeout}
+          />
         </Center>
       </Grid.Col>
     </Grid>

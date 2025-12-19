@@ -1,20 +1,21 @@
 import Clock from "@/components/clock";
-import { useActiveJam } from "@/hooks/use-bout";
-import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
+import { Jam } from "@/lib/game/jams";
+import { Timeout } from "@/lib/game/timeouts";
 import { Text, TextProps } from "@mantine/core";
 
 interface ExtraordinaryStateClockProps extends TextProps {
   bout: Bout;
+  activeJam: Jam;
+  latestTimeout: Timeout | null;
 }
 
 export default function ExtraordinaryStateClock({
   bout,
+  activeJam,
+  latestTimeout,
   ...props
 }: ExtraordinaryStateClockProps) {
-  const { data: activeJam } = useActiveJam(bout);
-  const { data: latestTimeout } = useTimeout(bout.id, bout.numTimeouts - 1);
-
   // Render non-Jam Bout states
   let gameStopTimestamp: Date | null = null;
   let gameState = "";
