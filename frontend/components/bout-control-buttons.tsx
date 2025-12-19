@@ -144,6 +144,7 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
   const stopTimeout = useStopTimeout(bout);
   const startJam = useStartJam(bout);
 
+  // FIXME: Remove this hook?
   const { data } = useTimeout(bout.id, bout.numTimeouts - 1);
 
   return (

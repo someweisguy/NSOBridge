@@ -24,7 +24,7 @@ export default function BoutStateView({
   if (!bout.isRunning) {
     return (
       <Center>
-        <IntermissionState size="36pt" bout={bout} />
+        <IntermissionState size="36pt" bout={bout} activeJam={activeJam} />
       </Center>
     );
   }

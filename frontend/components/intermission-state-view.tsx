@@ -1,25 +1,26 @@
 import Clock from "@/components/clock";
-import { useActiveJam } from "@/hooks/use-bout";
 import { Bout } from "@/lib/game/bouts";
+import { Jam } from "@/lib/game/jams";
 import { Text, TextProps } from "@mantine/core";
 
 interface IntermissionStateViewProps extends TextProps {
   bout: Bout;
+  activeJam: Jam;
 }
 
 export default function IntermissionState({
   bout,
+  activeJam,
   ...props
 }: IntermissionStateViewProps) {
   // TODO: remove this hook
-  const { data: jam } = useActiveJam(bout);
 
   let copy = "Starting Soon";
   if (bout.isFinal) {
     copy = "Final Score";
-  } else if (jam.period > 1) {
+  } else if (activeJam.period > 1) {
     copy = "Unofficial Score";
-  } else if (jam.period == 1) {
+  } else if (activeJam.period == 1) {
     copy = "Halftime";
   }
 
