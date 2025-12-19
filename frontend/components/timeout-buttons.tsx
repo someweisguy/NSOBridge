@@ -1,8 +1,8 @@
 import useBout from "@/hooks/use-bout";
+import { useSetRetained, useSetTeam, useSetType } from "@/hooks/use-timeout";
 import { Team } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
 import { SegmentedControl, Switch, Text } from "@mantine/core";
-import { useMutation } from "@tanstack/react-query";
 
 interface TimeoutButtonsProps {
   timeout: Timeout;
@@ -10,17 +10,9 @@ interface TimeoutButtonsProps {
 }
 
 export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
-  const useSetType = useMutation({
-    mutationFn: (type: string) => timeout.setType(type as "timeout" | "review"),
-  });
-
-  const useSetTeam = useMutation({
-    mutationFn: (teamId: number | null) => timeout.setTeam(teamId),
-  });
-
-  const useSetRetained = useMutation({
-    mutationFn: (isRetained: boolean) => timeout.setRetained(isRetained),
-  });
+  const setType = useSetType(timeout);
+  const setTeam = useSetTeam(timeout);
+  const setRetained = useSetRetained(timeout);
 
   const bout = useBout(timeout.boutId);
 
@@ -38,7 +30,9 @@ export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
             { value: "review", label: "Official Review" },
           ]}
           value={timeout.isReview ? "review" : "timeout"}
-          onChange={(type) => useSetType.mutate(type)}
+          onChange={(type: string) =>
+            setType.mutate(type as "timeout" | "review")
+          }
         />
       </div>
       <div>
@@ -57,7 +51,7 @@ export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
           ]}
           value={timeout.teamId == null ? "" : String(timeout.teamId)}
           onChange={(teamId) =>
-            useSetTeam.mutate(teamId == String(NaN) ? null : Number(teamId))
+            setTeam.mutate(teamId == String(NaN) ? null : Number(teamId))
           }
         />
       </div>
@@ -65,7 +59,7 @@ export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
         disabled={!timeout.isReview}
         checked={timeout.retained}
         withThumbIndicator={false}
-        onClick={() => useSetRetained.mutate(!timeout.retained)}
+        onClick={() => setRetained.mutate(!timeout.retained)}
         label="Retained"
       />
     </>

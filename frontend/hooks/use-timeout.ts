@@ -1,4 +1,3 @@
-import { Team } from "@/lib/game/bouts";
 import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
@@ -21,8 +20,7 @@ export const useSetType = (timeout: Timeout) =>
 
 export const useSetTeam = (timeout: Timeout) =>
   useMutation({
-    mutationFn: (team: Team | null) =>
-      timeout.setTeam(team == null ? null : team.id),
+    mutationFn: (teamId: number | null) => timeout.setTeam(teamId),
   });
 
 export const useSetRetained = (timeout: Timeout) =>
