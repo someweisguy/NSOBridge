@@ -21,15 +21,15 @@ export default function TeamJamJammerState({
   teamJam,
 }: JammerStatusButtonsProps) {
   const setLead = useMutation({
-    mutationFn: (lead: boolean) => teamJam.jamSetLead(lead),
+    mutationFn: (lead: boolean) => teamJam.setLead(lead),
   });
 
   const setLost = useMutation({
-    mutationFn: (lost: boolean) => teamJam.jamSetLost(lost),
+    mutationFn: (lost: boolean) => teamJam.setLost(lost),
   });
 
   const setStarPass = useMutation({
-    mutationFn: (starPass: boolean) => teamJam.jamSetStarPass(starPass),
+    mutationFn: (starPass: boolean) => teamJam.setStarPass(starPass),
   });
 
   const lead = teamJam.events.some((tripEvent) => tripEvent.lead);

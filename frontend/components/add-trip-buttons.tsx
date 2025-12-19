@@ -19,7 +19,7 @@ export default function AddTripButtons({ jam, team }: AddTripButtonsProps) {
   const ruleset = useRuleset(jam.boutId);
 
   const addTrip = useMutation({
-    mutationFn: (passes: number) => teamJam.jamAddTrip(passes),
+    mutationFn: (passes: number) => teamJam.addTrip(passes),
   });
 
   const addTripButtons =

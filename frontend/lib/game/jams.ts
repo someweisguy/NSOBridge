@@ -54,28 +54,28 @@ export class TeamJam {
     starPass: boolean;
   }[];
 
-  async jamAddTrip(passes: number) {
+  async addTrip(passes: number) {
     await localAPI.post("jam/add-trip", {
       query: { jamId: this.jamId, teamId: this.teamId },
       body: passes,
     });
   }
 
-  async jamSetLead(lead: boolean) {
+  async setLead(lead: boolean) {
     await localAPI.post("jam/set-lead", {
       query: { jamId: this.jamId, teamId: this.teamId },
       body: lead,
     });
   }
 
-  async jamSetLost(lost: boolean) {
+  async setLost(lost: boolean) {
     await localAPI.post("jam/set-lost", {
       query: { jamId: this.jamId, teamId: this.teamId },
       body: lost,
     });
   }
 
-  async jamSetStarPass(starPass: boolean) {
+  async setStarPass(starPass: boolean) {
     await localAPI.post("jam/set-star-pass", {
       query: { jamId: this.jamId, teamId: this.teamId },
       body: starPass,
