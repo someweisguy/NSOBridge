@@ -1,15 +1,11 @@
 import { Roster } from "@/types/people";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getRosters } from "../lib/game/rosters";
+import getRoster from "../lib/game/rosters";
 
 export default function useRoster(rosterId: number): Roster {
-  const { data } = useSuspenseQuery<Roster[], unknown, Roster>({
+  const { data } = useSuspenseQuery<Roster, unknown, Roster>({
     queryKey: Roster.generateKey(rosterId),
-    queryFn: () => getRosters([rosterId]),
-    select: (rosters: Roster[]) => {
-      // Only cache one item despite getRosters() returning multiple results
-      return rosters[0];
-    },
+    queryFn: () => getRoster(rosterId),
   });
 
   return data;

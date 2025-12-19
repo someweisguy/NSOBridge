@@ -19,4 +19,17 @@ async def get_rosters(
     return rosters
 
 
+async def get_roster(
+    session: AsyncSessionDepends,
+    roster_id: Annotated[list[int], Query(alias='id')],
+) -> Roster:
+    results: Result[tuple[Roster]] = await session.execute(
+        select(Roster).where(Roster.id == roster_id)
+    )
+    roster: Roster = results.scalar_one()
+    return roster
+
+
 RosterDepends: TypeAlias = Annotated[Sequence[Roster], Depends(get_rosters)]
+
+GetRoster: TypeAlias = Annotated[Roster, Depends(get_roster)]
