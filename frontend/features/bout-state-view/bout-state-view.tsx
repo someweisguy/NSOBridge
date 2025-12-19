@@ -1,4 +1,4 @@
-import useActiveJam from "@/hooks/use-active-jam";
+import { useActiveJam } from "@/hooks/use-bout";
 import useRuleset from "@/hooks/use-ruleset";
 import { Bout } from "@/lib/game/bouts";
 import { Center, Grid, Text } from "@mantine/core";
@@ -9,7 +9,7 @@ import PeriodClock from "../../components/period-clock";
 
 export default function BoutStateView({ bout }: { bout: Bout }) {
   const ruleset = useRuleset(bout.id);
-  const activeJam = useActiveJam(bout.id);
+  const activeJam = useActiveJam(bout);
 
   if (!bout.isRunning) {
     return (

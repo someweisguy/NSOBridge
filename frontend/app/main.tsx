@@ -2,8 +2,7 @@ import BoutControlButtons from "@/components/bout-control-buttons";
 import TeamJamView from "@/components/team-jam-view";
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
-import useActiveJam from "@/hooks/use-active-jam";
-import useBout from "@/hooks/use-bout";
+import useBout, { useActiveJam } from "@/hooks/use-bout";
 import useSeries from "@/hooks/use-series";
 import queryClient from "@/lib/cache";
 import { Bout, Team } from "@/lib/game/bouts";
@@ -63,7 +62,7 @@ function Test() {
     }
   }, [series, boutIndex]);
 
-  const activeJam = useActiveJam(bout.id);
+  const activeJam = useActiveJam(bout);
 
   return (
     <BoutContext value={bout}>
