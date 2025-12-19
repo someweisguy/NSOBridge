@@ -1,5 +1,4 @@
-import { getTimeout } from "@/lib/game/timeouts";
-import { Timeout } from "@/types/game";
+import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function useTimeout(

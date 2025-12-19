@@ -1,5 +1,5 @@
 import { localAPI } from "@/lib/requests";
-import Clock from "@/types/game";
+import Clock from "./timeouts";
 
 export interface RulesetContext {
   jamDuration: number;

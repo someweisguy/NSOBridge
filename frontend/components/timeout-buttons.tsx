@@ -1,11 +1,6 @@
 import useBout from "@/hooks/use-bout";
 import { Team } from "@/lib/game/bouts";
-import {
-  timeoutSetRetained,
-  timeoutSetTeam,
-  timeoutSetType,
-} from "@/lib/game/timeouts";
-import { Timeout } from "@/types/game";
+import { Timeout } from "@/lib/game/timeouts";
 import { SegmentedControl, Switch, Text } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 
@@ -16,17 +11,15 @@ interface TimeoutButtonsProps {
 
 export default function TimeoutButtons({ timeout }: TimeoutButtonsProps) {
   const useSetType = useMutation({
-    mutationFn: (type: string) =>
-      timeoutSetType(timeout.id, type as "timeout" | "review"),
+    mutationFn: (type: string) => timeout.setType(type as "timeout" | "review"),
   });
 
   const useSetTeam = useMutation({
-    mutationFn: (teamId: number | null) => timeoutSetTeam(timeout.id, teamId),
+    mutationFn: (teamId: number | null) => timeout.setTeam(teamId),
   });
 
   const useSetRetained = useMutation({
-    mutationFn: (isRetained: boolean) =>
-      timeoutSetRetained(timeout.id, isRetained),
+    mutationFn: (isRetained: boolean) => timeout.setRetained(isRetained),
   });
 
   const bout = useBout(timeout.boutId);
