@@ -2,13 +2,13 @@ import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import useBout from "@/hooks/use-bout";
 import queryClient from "@/lib/cache";
-import { Team } from "@/types/game";
 import FitScreen from "@fit-screen/react";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import { Team } from "@/lib/game/bouts";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);

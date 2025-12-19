@@ -1,7 +1,7 @@
 import Clock from "@/components/clock";
 import useActiveJam from "@/hooks/use-active-jam";
 import useTimeout from "@/hooks/use-timeout";
-import { Bout } from "@/types/game";
+import { Bout } from "@/lib/game/bouts";
 import { Text, TextProps } from "@mantine/core";
 
 interface ExtraordinaryStateClockProps extends TextProps {

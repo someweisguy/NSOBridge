@@ -1,5 +1,5 @@
 import { localAPI } from "@/lib/requests";
-import { Bout } from "@/types/game";
+import Clock from "@/types/game";
 
 export interface RulesetContext {
   jamDuration: number;
@@ -33,26 +33,56 @@ export async function createBout(
   });
 }
 
-export async function beginPeriod(boutId: number): Promise<void> {
-  await localAPI.post("bout/begin-period", { query: { boutId } });
+export class Bout {
+  id: number;
+  ruleset: string;
+
+  startCountdown: Date | null;
+  clock: Clock;
+
+  state: "final" | "jam" | "lineup" | "stopped" | "timeout";
+  isRunning: boolean;
+  isFinal: boolean;
+  jamCounts: number[];
+  numTimeouts: number;
+  teams: Team[];
+
+  static generateKey(id: number) {
+    return ["bouts", id];
+  }
+
+  async beginPeriod(): Promise<void> {
+    await localAPI.post("bout/begin-period", { query: { boutId: this.id } });
+  }
+
+  async endPeriod(): Promise<void> {
+    await localAPI.post("bout/end-period", { query: { boutId: this.id } });
+  }
+
+  async startJam(): Promise<void> {
+    await localAPI.post("bout/start-jam", { query: { boutId: this.id } });
+  }
+
+  async stopJam(): Promise<void> {
+    await localAPI.post("bout/stop-jam", { query: { boutId: this.id } });
+  }
+
+  async startTimeout(): Promise<void> {
+    await localAPI.post("bout/start-timeout", { query: { boutId: this.id } });
+  }
+
+  async stopTimeout(): Promise<void> {
+    await localAPI.post("bout/stop-timeout", { query: { boutId: this.id } });
+  }
 }
 
-export async function endPeriod(boutId: number): Promise<void> {
-  await localAPI.post("bout/end-period", { query: { boutId } });
-}
-
-export async function startJam(boutId: number): Promise<void> {
-  await localAPI.post("bout/start-jam", { query: { boutId } });
-}
-
-export async function stopJam(boutId: number): Promise<void> {
-  await localAPI.post("bout/stop-jam", { query: { boutId } });
-}
-
-export async function startTimeout(boutId: number): Promise<void> {
-  await localAPI.post("bout/start-timeout", { query: { boutId } });
-}
-
-export async function stopTimeout(boutId: number): Promise<void> {
-  await localAPI.post("bout/stop-timeout", { query: { boutId } });
+export class Team {
+  id: number;
+  rosterId: number;
+  boutId: number;
+  boutScore: number;
+  jamScore: number;
+  timeoutsRemaining: number;
+  reviewsRemaining: number;
+  scoreOffset: number;
 }

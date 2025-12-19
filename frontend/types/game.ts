@@ -1,28 +1,3 @@
-export class Series {
-  id: number;
-  name: string;
-  boutIds: number[];
-}
-
-export class Bout {
-  id: number;
-  ruleset: string;
-
-  startCountdown: Date | null;
-  clock: Clock;
-
-  state: "final" | "jam" | "lineup" | "stopped" | "timeout";
-  isRunning: boolean;
-  isFinal: boolean;
-  jamCounts: number[];
-  numTimeouts: number;
-  teams: Team[];
-
-  static generateKey(id: number) {
-    return ["bouts", id];
-  }
-}
-
 export default class Clock {
   id: number;
 
@@ -33,17 +8,6 @@ export default class Clock {
   isRunning(): boolean {
     return this.startTimestamp !== null;
   }
-}
-
-export class Team {
-  id: number;
-  rosterId: number;
-  boutId: number;
-  boutScore: number;
-  jamScore: number;
-  timeoutsRemaining: number;
-  reviewsRemaining: number;
-  scoreOffset: number;
 }
 
 export type StopReasonString = "called" | "elapsed" | "injury" | "other";

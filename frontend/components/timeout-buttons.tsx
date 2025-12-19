@@ -1,10 +1,11 @@
 import useBout from "@/hooks/use-bout";
+import { Team } from "@/lib/game/bouts";
 import {
   timeoutSetRetained,
   timeoutSetTeam,
   timeoutSetType,
 } from "@/lib/game/timeouts";
-import { Team, Timeout } from "@/types/game";
+import { Timeout } from "@/types/game";
 import { SegmentedControl, Switch, Text } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 

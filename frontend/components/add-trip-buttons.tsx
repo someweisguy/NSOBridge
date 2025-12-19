@@ -1,6 +1,7 @@
 import useRuleset from "@/hooks/use-ruleset";
+import { Team } from "@/lib/game/bouts";
 import { jamAddTrip } from "@/lib/game/jams";
-import { Jam, Team, TeamJam } from "@/types/game";
+import { Jam, TeamJam } from "@/types/game";
 import { Button, Group, Stack } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 

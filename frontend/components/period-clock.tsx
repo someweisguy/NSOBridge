@@ -1,5 +1,5 @@
 import Clock from "@/components/clock";
-import { Bout } from "@/types/game";
+import { Bout } from "@/lib/game/bouts";
 import { periodTimeStringFormatter } from "@/utils/time-string-formatters";
 import { Text, TextProps } from "@mantine/core";
 

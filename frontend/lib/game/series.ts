@@ -1,7 +1,12 @@
-import { Series } from "@/types/game";
 import { localAPI } from "../requests";
 
 export async function getSeries(seriesIndex: number): Promise<Series> {
   const data = await localAPI.get("series", { query: { seriesIndex } });
   return Object.assign(new Series(), data);
+}
+
+export class Series {
+  id: number;
+  name: string;
+  boutIds: number[];
 }

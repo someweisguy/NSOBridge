@@ -1,6 +1,6 @@
 import useActiveJam from "@/hooks/use-active-jam";
 import useRuleset from "@/hooks/use-ruleset";
-import { Bout } from "@/types/game";
+import { Bout } from "@/lib/game/bouts";
 import { Center, Grid, Text } from "@mantine/core";
 import ExtraordinaryStateClock from "../../components/extraordinary-state-clock";
 import IntermissionState from "../../components/intermission-state-view";

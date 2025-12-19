@@ -1,4 +1,5 @@
-import { Bout, Jam } from "@/types/game";
+import { Bout } from "@/lib/game/bouts";
+import { Jam } from "@/types/game";
 import { createContext } from "react";
 
 export const BoutContext = createContext<Bout | null>(null);

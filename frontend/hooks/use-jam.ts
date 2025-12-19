@@ -1,4 +1,5 @@
-import { Bout, Jam } from "@/types/game";
+import { Bout } from "@/lib/game/bouts";
+import { Jam } from "@/types/game";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getJam } from "../lib/game/jams";
 

@@ -1,15 +1,6 @@
 import useTimeout from "@/hooks/use-timeout";
-import {
-  beginPeriod,
-  createBout,
-  endPeriod,
-  startJam,
-  startTimeout,
-  stopJam,
-  stopTimeout,
-} from "@/lib/game/bouts";
+import { Bout, createBout, Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
-import { Bout, Team } from "@/types/game";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
@@ -72,15 +63,15 @@ export default function BoutControlButtons({ bout }: BoutControlButtonsProps) {
 
 function StoppedButtons({ bout }: MainControlProps) {
   const useBeginPeriod = useMutation({
-    mutationFn: () => beginPeriod(bout.id),
+    mutationFn: () => bout.beginPeriod(),
   });
 
   const useStartJam = useMutation({
-    mutationFn: () => startJam(bout.id),
+    mutationFn: () => bout.startJam(),
   });
 
   const useEndPeriod = useMutation({
-    mutationFn: () => endPeriod(bout.id),
+    mutationFn: () => bout.endPeriod(),
   });
 
   const startJamButtonDisabled = false;
@@ -132,7 +123,7 @@ function StoppedButtons({ bout }: MainControlProps) {
 
 function JamButtons({ bout }: MainControlProps) {
   const useStopJam = useMutation({
-    mutationFn: () => stopJam(bout.id),
+    mutationFn: () => bout.stopJam(),
   });
 
   return (
@@ -144,15 +135,15 @@ function JamButtons({ bout }: MainControlProps) {
 
 function LineupControlButtons({ bout }: MainControlProps) {
   const useStartJam = useMutation({
-    mutationFn: () => startJam(bout.id),
+    mutationFn: () => bout.startJam(),
   });
 
   const useStartTimeout = useMutation({
-    mutationFn: () => startTimeout(bout.id),
+    mutationFn: () => bout.startTimeout(),
   });
 
   const useEndPeriod = useMutation({
-    mutationFn: () => endPeriod(bout.id),
+    mutationFn: () => bout.endPeriod(),
   });
 
   return (
@@ -166,11 +157,11 @@ function LineupControlButtons({ bout }: MainControlProps) {
 
 function TimeoutControlButtons({ bout }: MainControlProps) {
   const useStopTimeout = useMutation({
-    mutationFn: () => stopTimeout(bout.id),
+    mutationFn: () => bout.stopTimeout(),
   });
 
   const useStartJam = useMutation({
-    mutationFn: () => startJam(bout.id),
+    mutationFn: () => bout.startJam(),
   });
 
   const timeout = useTimeout(bout.id, bout.numTimeouts - 1)!;

@@ -1,5 +1,5 @@
-import { RulesetContext } from "@/lib/game/bouts";
-import { Team, Timeout } from "@/types/game";
+import { RulesetContext, Team } from "@/lib/game/bouts";
+import { Timeout } from "@/types/game";
 import { Card, Center, Divider } from "@mantine/core";
 import { IconCircleFilled } from "@tabler/icons-react";
 import { twMerge } from "tailwind-merge";
