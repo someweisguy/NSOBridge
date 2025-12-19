@@ -1,4 +1,3 @@
-import { Jam } from "@/types/game";
 import { localAPI } from "../requests";
 
 export async function getJam(
@@ -16,38 +15,70 @@ export async function getJam(
   return Object.assign(new Jam(), data);
 }
 
-export async function jamAddTrip(
-  jamId: number,
-  teamId: number,
-  passes: number,
-) {
-  await localAPI.post("jam/add-trip", {
-    query: { jamId, teamId },
-    body: passes,
-  });
+export type StopReasonString = "called" | "elapsed" | "injury" | "other";
+
+export class Jam {
+  id: number;
+  boutId: number;
+  period: number;
+  num: number;
+
+  startTimestamp: Date | null;
+  stopTimestamp: Date | null;
+  stopReason: StopReasonString | null;
+
+  teamJams: TeamJam[];
+
+  static generateKey(id: number, period: number, num: number) {
+    return ["jams", id, period, num];
+  }
+
+  hasStarted(): boolean {
+    return this.startTimestamp != null;
+  }
+
+  isRunning(): boolean {
+    return this.hasStarted() && this.stopTimestamp == null;
+  }
 }
 
-export async function jamSetLead(jamId: number, teamId: number, lead: boolean) {
-  await localAPI.post("jam/set-lead", {
-    query: { jamId, teamId },
-    body: lead,
-  });
-}
+export class TeamJam {
+  jamId: number;
+  teamId: number;
+  events: {
+    id: number;
+    timestamp: Date;
+    lead: boolean;
+    lost: boolean;
+    passes: number | null;
+    starPass: boolean;
+  }[];
 
-export async function jamSetLost(jamId: number, teamId: number, lost: boolean) {
-  await localAPI.post("jam/set-lost", {
-    query: { jamId, teamId },
-    body: lost,
-  });
-}
+  async jamAddTrip(passes: number) {
+    await localAPI.post("jam/add-trip", {
+      query: { jamId: this.jamId, teamId: this.teamId },
+      body: passes,
+    });
+  }
 
-export async function jamSetStarPass(
-  jamId: number,
-  teamId: number,
-  starPass: boolean,
-) {
-  await localAPI.post("jam/set-star-pass", {
-    query: { jamId, teamId },
-    body: starPass,
-  });
+  async jamSetLead(lead: boolean) {
+    await localAPI.post("jam/set-lead", {
+      query: { jamId: this.jamId, teamId: this.teamId },
+      body: lead,
+    });
+  }
+
+  async jamSetLost(lost: boolean) {
+    await localAPI.post("jam/set-lost", {
+      query: { jamId: this.jamId, teamId: this.teamId },
+      body: lost,
+    });
+  }
+
+  async jamSetStarPass(starPass: boolean) {
+    await localAPI.post("jam/set-star-pass", {
+      query: { jamId: this.jamId, teamId: this.teamId },
+      body: starPass,
+    });
+  }
 }

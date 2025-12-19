@@ -1,4 +1,4 @@
-import { TeamJam } from "@/types/game";
+import { TeamJam } from "@/lib/game/jams";
 import {
   Button,
   Group,

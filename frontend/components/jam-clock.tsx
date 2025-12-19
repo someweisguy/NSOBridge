@@ -1,5 +1,5 @@
 import Clock from "@/components/clock";
-import { Jam } from "@/types/game";
+import { Jam } from "@/lib/game/jams";
 import { jamTimeStringFormatter } from "@/utils/time-string-formatters";
 import { Text, TextProps } from "@mantine/core";
 

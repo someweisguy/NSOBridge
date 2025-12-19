@@ -1,6 +1,4 @@
-import { jamSetLead, jamSetLost, jamSetStarPass } from "@/lib/game/jams";
-import { TeamJam } from "@/types/game";
-import { JamContext } from "@/utils/contexts";
+import { TeamJam } from "@/lib/game/jams";
 import {
   Checkbox,
   createTheme,
@@ -10,7 +8,6 @@ import {
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
-import { useContext } from "react";
 
 interface JammerStatusButtonsProps {
   teamJam: TeamJam;
@@ -23,19 +20,16 @@ const checkBoxTheme = createTheme({
 export default function TeamJamJammerState({
   teamJam,
 }: JammerStatusButtonsProps) {
-  const jam = useContext(JamContext);
-
   const setLead = useMutation({
-    mutationFn: (lead: boolean) => jamSetLead(jam!.id, teamJam.teamId, lead),
+    mutationFn: (lead: boolean) => teamJam.jamSetLead(lead),
   });
 
   const setLost = useMutation({
-    mutationFn: (lost: boolean) => jamSetLost(jam!.id, teamJam.teamId, lost),
+    mutationFn: (lost: boolean) => teamJam.jamSetLost(lost),
   });
 
   const setStarPass = useMutation({
-    mutationFn: (starPass: boolean) =>
-      jamSetStarPass(jam!.id, teamJam.teamId, starPass),
+    mutationFn: (starPass: boolean) => teamJam.jamSetStarPass(starPass),
   });
 
   const lead = teamJam.events.some((tripEvent) => tripEvent.lead);

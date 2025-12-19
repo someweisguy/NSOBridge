@@ -1,7 +1,6 @@
 import useRuleset from "@/hooks/use-ruleset";
 import { Team } from "@/lib/game/bouts";
-import { jamAddTrip } from "@/lib/game/jams";
-import { Jam, TeamJam } from "@/types/game";
+import { Jam, TeamJam } from "@/lib/game/jams";
 import { Button, Group, Stack } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 
@@ -20,7 +19,7 @@ export default function AddTripButtons({ jam, team }: AddTripButtonsProps) {
   const ruleset = useRuleset(jam.boutId);
 
   const addTrip = useMutation({
-    mutationFn: (passes: number) => jamAddTrip(jam.id, team.id, passes),
+    mutationFn: (passes: number) => teamJam.jamAddTrip(passes),
   });
 
   const addTripButtons =

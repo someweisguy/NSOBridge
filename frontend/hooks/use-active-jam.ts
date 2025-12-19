@@ -1,6 +1,6 @@
 import useBout from "@/hooks/use-bout";
 import useJam from "@/hooks/use-jam";
-import { Jam } from "@/types/game";
+import { Jam } from "@/lib/game/jams";
 
 export default function useActiveJam(boutId: number): Jam {
   const bout = useBout(boutId);
