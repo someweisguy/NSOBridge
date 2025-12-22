@@ -29,7 +29,7 @@ export default function App() {
 }
 
 function Test() {
-  const { data: series } = useSeries(1);
+  const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
   const { data: activeJam } = useActiveJam(bout);
   const { data: latestTimeout } = useLatestTimeout(bout);

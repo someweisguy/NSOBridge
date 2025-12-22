@@ -1,8 +1,10 @@
 import { localAPI } from "../requests";
 
-export async function getSeries(seriesIndex: number): Promise<Series> {
-  const data = await localAPI.get("series", { query: { seriesIndex } });
-  return Object.assign(new Series(), data);
+export async function getSeries(): Promise<Series[]> {
+  const data = await localAPI.get<Partial<Series>[]>("series");
+  return data.map((series: Partial<Series>) =>
+    Object.assign(new Series(), series),
+  );
 }
 
 export class Series {

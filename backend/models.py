@@ -70,8 +70,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
 class CacheableSQLModel(BaseSQLModel):
     __abstract__: bool = True
 
-    def cache_key(self) -> tuple[Any, ...]:
-        return (self.__tablename__, self.id)
+    def cache_key(self) -> tuple[Any, ...]: ...
 
     def get_snapshot(self) -> DatabaseMemento:
         copy = deepcopy(self)

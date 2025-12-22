@@ -38,7 +38,7 @@ export default function App() {
 }
 
 function Test() {
-  const { data: series } = useSeries(1);
+  const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
 
   return <>{JSON.stringify(bout)}</>;
