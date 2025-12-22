@@ -79,7 +79,7 @@ async def get_jam_by_id(
     request: Request,
     user: UserDepends,
     session: AsyncSessionDepends,
-    jam_id: Annotated[int, Query(alias='jamId')],
+    jam_id: Annotated[int, Query(alias='id')],
 ) -> BaseJam:
     statement: Select[tuple[BaseJam]] = select(BaseJam).where(BaseJam.id == jam_id)
     results: Result[tuple[BaseJam]] = await session.execute(statement)

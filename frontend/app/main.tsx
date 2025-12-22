@@ -8,6 +8,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import { useJam } from "@/hooks/use-jam";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -41,7 +42,9 @@ function Test() {
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
 
-  return <>{JSON.stringify(bout)}</>;
+  const { data: jam } = useJam(bout, 0, 0);
+
+  return <>{JSON.stringify(jam)}</>;
 
   // const [boutIndex, setBoutIndex] = useState(0);
   // const goToNextBout = useRef(false);
