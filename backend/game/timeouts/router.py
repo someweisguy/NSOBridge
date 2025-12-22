@@ -3,11 +3,11 @@ from typing import Annotated, Final, Literal
 from fastapi import APIRouter, Body
 from game.teams.dependencies import GetTeamOrNoneByID
 
-from .dependencies import GetTimeoutByID, get_timeout_or_none
+from .dependencies import GetTimeoutByID, get_timeout_by_id
 from .schemas import TimeoutSchema
 
 router: Final[APIRouter] = APIRouter(prefix='/timeout')
-router.add_api_route('', get_timeout_or_none, response_model=TimeoutSchema | None)
+router.add_api_route('', get_timeout_by_id, response_model=TimeoutSchema | None)
 
 
 @router.post('/type')
