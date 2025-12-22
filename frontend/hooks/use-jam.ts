@@ -4,7 +4,11 @@ import { getJam, Jam, TeamJam } from "../lib/game/jams";
 
 export const useJam = (bout: Bout, periodNum: number, jamNum: number) =>
   useSuspenseQuery<Jam>({
-    queryKey: Jam.generateKey(bout.id, periodNum, jamNum),
+    queryKey: Jam.generateKey(
+      bout.seriesId,
+      bout.id,
+      bout.jamIds[periodNum][jamNum],
+    ),
     queryFn: () => getJam(bout.jamIds[periodNum][jamNum]),
   });
 
