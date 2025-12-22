@@ -45,6 +45,16 @@ export const useStopTimeout = (bout: Bout) =>
     mutationFn: () => bout.stopTimeout(),
   });
 
+export const useLatestJamIndex = (bout: Bout) => {
+  const [jamIndex, setJamIndex] = useState(bout.getLatestJamIndex());
+
+  useEffect(() => {
+    setJamIndex(bout.getLatestJamIndex());
+  }, [bout]);
+
+  return jamIndex;
+};
+
 export const useActiveJamIndex = (bout: Bout) => {
   const [jamIndex, setJamIndex] = useState(bout.getActiveJamIndex());
 

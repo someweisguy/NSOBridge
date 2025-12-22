@@ -1,13 +1,18 @@
 import BoutControlButtons from "@/components/bout-control-buttons";
-import { useActiveJamIndex, useBout } from "@/hooks/use-bout";
+import {
+  useActiveJamIndex,
+  useBout,
+  useLatestJamIndex,
+} from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { useSeries } from "@/hooks/use-series";
 import queryClient from "@/lib/cache";
+import { getJam, Jam } from "@/lib/game/jams";
 import { redo, undo } from "@/lib/history";
 import { MantineProvider, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode, Suspense } from "react";
+import { StrictMode, Suspense, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 
@@ -42,15 +47,26 @@ export default function App() {
 function Test() {
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
-  const [periodNum, jamNum] = useActiveJamIndex(bout);
+  const latestJamIndex = useLatestJamIndex(bout);
+  const activeJamIndex = useActiveJamIndex(bout);
+  const [periodNum, jamNum] = activeJamIndex ?? latestJamIndex;
   const { data: jam } = useJam(bout, periodNum, jamNum);
+
+  useEffect(() => {
+    const [latestPeriodNum, latestJamNum] = latestJamIndex;
+    const latestJamId = bout.jamIds[latestPeriodNum][latestJamNum];
+    void queryClient.prefetchQuery({
+      queryKey: Jam.generateKey(bout.seriesId, bout.id, latestJamId),
+      queryFn: () => getJam(latestJamId),
+    });
+  }, [bout, latestJamIndex]);
 
   return (
     <Stack>
       <Text>{JSON.stringify(series)}</Text>
       <Text>{JSON.stringify(bout)}</Text>
       <Text>
-        P{periodNum + 1} J{jamNum + 1}{" "}
+        P{periodNum + 1} J{jamNum + 1}
       </Text>
       <Text>{JSON.stringify(jam)}</Text>
       <BoutControlButtons bout={bout} />

@@ -115,8 +115,18 @@ class Bout(WFTDAModel, BaseBout):
         jam: BaseJam = self.jams[-1]
         if jam.period < self.rules.num_periods and not self.clock.is_running():
             self.clock.start(timestamp)
-
         jam.start(timestamp)
+
+        # Push a new Jam to allow users to prefetch it
+        home, away = self.teams[:2]
+        self.jams.append(
+            Jam(
+                jam.period,
+                jam.num + 1,
+                [home, away],
+            )
+        )
+
         return jam
 
     @override
@@ -126,18 +136,6 @@ class Bout(WFTDAModel, BaseBout):
 
         jam: BaseJam = self.jams[-1]
         jam.stop(timestamp)
-
-        # Push a new Jam to the queue to allow users to immediately fill out the Lineup
-        period_num: int = self.jams[-1].period
-        jam_num: int = self.jams[-1].num + 1
-        home, away = self.teams[:2]
-        self.jams.append(
-            Jam(
-                period_num,
-                jam_num,
-                [home, away],
-            )
-        )
 
         return jam
 

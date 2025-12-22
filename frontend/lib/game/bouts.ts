@@ -74,9 +74,7 @@ export class Bout {
     await localAPI.post("bout/stop-timeout", { query: { boutId: this.id } });
   }
 
-  // TODO: getLatestJamIndex()
-
-  getActiveJamIndex(): [number, number] {
+  getLatestJamIndex(): [number, number] {
     // Get the latest Period number that contains Jams
     let periodNum = 0;
     for (let i = this.jamIds.length - 1; i >= 0; --i) {
@@ -86,11 +84,27 @@ export class Bout {
       }
     }
 
-    // Get the latest Jam number in the Active Period
-    let jamNum = this.jamIds[periodNum].length - 1;
-    if (jamNum < 0) {
-      jamNum = 0;
+    // Get the latest Jam number in the active Period
+    const jamNum = this.jamIds[periodNum].length - 1;
+
+    return [periodNum, jamNum];
+  }
+
+  getActiveJamIndex(): [number, number] | null {
+    // Get the latest Period number that contains Jams
+    let periodNum = 0;
+    for (let i = this.jamIds.length - 1; i >= 0; --i) {
+      if (this.jamIds[i].length > 0) {
+        periodNum = i;
+        break;
+      }
     }
+
+    // Get the active Jam number in the active Period
+    if (this.jamIds[periodNum].length < 2) {
+      return null; // There is no active Jam
+    }
+    const jamNum = this.jamIds[periodNum].length - 2;
 
     return [periodNum, jamNum];
   }

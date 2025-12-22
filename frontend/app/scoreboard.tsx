@@ -1,8 +1,8 @@
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import {
-  useActiveJamIndex,
   useBout,
+  useLatestJamIndex,
   useLatestTimeoutIndex,
 } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
@@ -37,7 +37,7 @@ export default function App() {
 function Test() {
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
-  const { data: activeJam } = useJam(bout, ...useActiveJamIndex(bout));
+  const { data: activeJam } = useJam(bout, ...useLatestJamIndex(bout));
   const { data: latestTimeout } = useTimeout(bout, useLatestTimeoutIndex(bout));
 
   return (
