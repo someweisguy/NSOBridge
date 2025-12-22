@@ -13,6 +13,7 @@ from schemas import ServerSchema
 
 class BoutSchema(ServerSchema):
     id: int
+    series_id: int
     ruleset: str
     clock: ClockSchema
     is_running: bool
