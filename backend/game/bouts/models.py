@@ -84,9 +84,9 @@ class BaseBout(CacheableSQLModel):
     def state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
         if self.is_final:
             return 'final'
-        if len(self.jams) > 0 and self.jams[-1].is_running():
+        if any(jam.is_running() for jam in self.jams):
             return 'jam'
-        elif len(self.timeouts) > 0 and self.timeouts[-1].is_running():
+        elif any(timeout.is_running() for timeout in self.timeouts):
             return 'timeout'
         elif self.is_running:
             return 'lineup'
