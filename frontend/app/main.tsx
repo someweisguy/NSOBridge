@@ -1,14 +1,15 @@
-import { useBout } from "@/hooks/use-bout";
+import BoutControlButtons from "@/components/bout-control-buttons";
+import { useActiveJamIndex, useBout } from "@/hooks/use-bout";
+import { useJam } from "@/hooks/use-jam";
 import { useSeries } from "@/hooks/use-series";
 import queryClient from "@/lib/cache";
 import { redo, undo } from "@/lib/history";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import { useJam } from "@/hooks/use-jam";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -41,10 +42,20 @@ export default function App() {
 function Test() {
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
+  const [periodNum, jamNum] = useActiveJamIndex(bout);
+  const { data: jam } = useJam(bout, periodNum, jamNum);
 
-  const { data: jam } = useJam(bout, 0, 0);
-
-  return <>{JSON.stringify(jam)}</>;
+  return (
+    <Stack>
+      <Text>{JSON.stringify(series)}</Text>
+      <Text>{JSON.stringify(bout)}</Text>
+      <Text>
+        P{periodNum + 1} J{jamNum + 1}{" "}
+      </Text>
+      <Text>{JSON.stringify(jam)}</Text>
+      <BoutControlButtons bout={bout} />
+    </Stack>
+  );
 
   // const [boutIndex, setBoutIndex] = useState(0);
   // const goToNextBout = useRef(false);
