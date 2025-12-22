@@ -1,8 +1,7 @@
 import { Bout, createBout, getBout } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { useJam } from "./use-jam";
-import { useTimeout } from "./use-timeout";
+import { useEffect, useState } from "react";
 
 export const useBout = (series: Series, index: number) =>
   useSuspenseQuery<Bout>({
@@ -46,27 +45,24 @@ export const useStopTimeout = (bout: Bout) =>
     mutationFn: () => bout.stopTimeout(),
   });
 
-export const useActiveJam = (bout: Bout) => {
-  let periodNum =
-    bout.jamIds
-      .reverse()
-      .findIndex((periodJamIds: number[]) => periodJamIds.length == 0) - 1;
-  if (periodNum < 0) {
-    periodNum = 0;
-  }
-  let jamNum = bout.jamIds[periodNum].length - 1;
-  if (jamNum < 0) {
-    jamNum = 0;
-  }
+export const useActiveJamIndex = (bout: Bout) => {
+  const [jamIndex, setJamIndex] = useState(bout.getActiveJamIndex());
 
-  return useJam(bout, periodNum, jamNum);
+  useEffect(() => {
+    setJamIndex(bout.getActiveJamIndex());
+  }, [bout]);
+
+  return jamIndex;
 };
 
-export const useLatestTimeout = (bout: Bout) => {
-  let timeoutIndex = bout.timeoutIds.length - 1;
-  if (timeoutIndex < 0) {
-    timeoutIndex = 0;
-  }
+export const useLatestTimeoutIndex = (bout: Bout) => {
+  const [timeoutIndex, setTimeoutIndex] = useState(
+    bout.getLatestTimeoutIndex(),
+  );
 
-  return useTimeout(bout, timeoutIndex);
+  useEffect(() => {
+    setTimeoutIndex(bout.getLatestTimeoutIndex());
+  }, [bout]);
+
+  return timeoutIndex;
 };

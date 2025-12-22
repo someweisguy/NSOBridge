@@ -73,6 +73,34 @@ export class Bout {
   async stopTimeout(): Promise<void> {
     await localAPI.post("bout/stop-timeout", { query: { boutId: this.id } });
   }
+
+  // TODO: getLatestJamIndex()
+
+  getActiveJamIndex(): [number, number] {
+    let periodNum =
+      this.jamIds
+        .reverse()
+        .findIndex((periodJamIds: number[]) => periodJamIds.length == 0) - 1;
+    if (periodNum < 0) {
+      periodNum = 0;
+    }
+    let jamNum = this.jamIds[periodNum].length - 1;
+    if (jamNum < 0) {
+      jamNum = 0;
+    }
+
+    return [periodNum, jamNum];
+  }
+
+  getLatestTimeoutIndex(): number {
+    let timeoutIndex = this.timeoutIds.length - 1;
+    if (timeoutIndex < 0) {
+      timeoutIndex = 0;
+    }
+    return timeoutIndex;
+  }
+
+  // TODO: getActiveTimeoutIndex()
 }
 
 export class Team {

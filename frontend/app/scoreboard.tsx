@@ -1,6 +1,13 @@
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
-import { useActiveJam, useBout, useLatestTimeout } from "@/hooks/use-bout";
+import {
+  useActiveJamIndex,
+  useBout,
+  useLatestTimeoutIndex,
+} from "@/hooks/use-bout";
+import { useJam } from "@/hooks/use-jam";
+import { useSeries } from "@/hooks/use-series";
+import { useTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import FitScreen from "@fit-screen/react";
@@ -9,7 +16,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import { useSeries } from "@/hooks/use-series";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -31,8 +37,8 @@ export default function App() {
 function Test() {
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
-  const { data: activeJam } = useActiveJam(bout);
-  const { data: latestTimeout } = useLatestTimeout(bout);
+  const { data: activeJam } = useJam(bout, ...useActiveJamIndex(bout));
+  const { data: latestTimeout } = useTimeout(bout, useLatestTimeoutIndex(bout));
 
   return (
     <div className="flex flex-col flex-nowrap grid-flow-row h-screen size-screen">

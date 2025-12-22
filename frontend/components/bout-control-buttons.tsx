@@ -2,13 +2,14 @@ import {
   useBeginPeriod,
   useCreateBout,
   useEndPeriod,
-  useLatestTimeout,
+  useLatestTimeoutIndex,
   useStartJam,
   useStartTimeout,
   useStopJam,
   useStopTimeout,
 } from "@/hooks/use-bout";
 import { useRedo, useUndo } from "@/hooks/use-history";
+import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
@@ -145,7 +146,7 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
   const startJam = useStartJam(bout);
 
   // FIXME: Remove this hook?
-  const { data } = useLatestTimeout(bout);
+  const { data } = useTimeout(bout, useLatestTimeoutIndex(bout));
 
   return (
     <>
