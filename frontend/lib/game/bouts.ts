@@ -33,6 +33,7 @@ export async function createBout(
 
 export class Bout {
   id: number;
+  seriesId: number;
   ruleset: string;
 
   startCountdown: Date | null;
@@ -45,8 +46,8 @@ export class Bout {
   jamIds: number[][];
   timeoutIds: number[];
 
-  static generateKey(id: number) {
-    return ["bouts", id];
+  static generateKey(seriesId: number, id: number) {
+    return ["bouts", seriesId, id];
   }
 
   async beginPeriod(): Promise<void> {

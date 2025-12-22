@@ -1,6 +1,6 @@
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
-import useBout, { useActiveJam, useLatestTimeout } from "@/hooks/use-bout";
+import { useActiveJam, useBout, useLatestTimeout } from "@/hooks/use-bout";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import FitScreen from "@fit-screen/react";
@@ -9,6 +9,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import { useSeries } from "@/hooks/use-series";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
@@ -28,7 +29,8 @@ export default function App() {
 }
 
 function Test() {
-  const bout = useBout(1);
+  const { data: series } = useSeries(1);
+  const { data: bout } = useBout(series, 0);
   const { data: activeJam } = useActiveJam(bout);
   const { data: latestTimeout } = useLatestTimeout(bout);
 

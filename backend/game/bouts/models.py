@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
 
 from game.clocks.models import Clock
 from models import (
@@ -74,6 +74,10 @@ class BaseBout(CacheableSQLModel):
 
     def __init__(self, series: Series, ruleset: str) -> None:
         super().__init__(series=series, clock=Clock(bout=self), ruleset=ruleset)
+
+    @override
+    def cache_key(self) -> tuple[Any, ...]:
+        return (self.__tablename__, self.series_id, self.id)
 
     @final
     @property

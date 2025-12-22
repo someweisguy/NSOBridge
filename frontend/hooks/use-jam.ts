@@ -5,7 +5,7 @@ import { getJam, Jam, TeamJam } from "../lib/game/jams";
 export const useJam = (bout: Bout, periodNum: number, jamNum: number) =>
   useSuspenseQuery<Jam>({
     queryKey: Jam.generateKey(bout.id, periodNum, jamNum),
-    queryFn: () => getJam(bout.id, periodNum, jamNum),
+    queryFn: () => getJam(bout.jamIds[periodNum][jamNum]),
   });
 
 export const useAddTrip = (teamJam: TeamJam) =>

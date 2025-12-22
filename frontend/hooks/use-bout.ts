@@ -2,15 +2,13 @@ import { Bout, createBout, getBout } from "@/lib/game/bouts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useJam } from "./use-jam";
 import { useTimeout } from "./use-timeout";
+import { Series } from "@/lib/game/series";
 
-export default function useBout(key: number): Bout {
-  const { data } = useSuspenseQuery<Bout>({
-    queryKey: Bout.generateKey(key),
-    queryFn: () => getBout(key),
+export const useBout = (series: Series, index: number) =>
+  useSuspenseQuery<Bout>({
+    queryKey: Bout.generateKey(series.id, series.boutIds[index]),
+    queryFn: () => getBout(series.boutIds[index]),
   });
-
-  return data;
-}
 
 // TODO: add ruleset parameter to this hook
 export const useCreateBout = () =>

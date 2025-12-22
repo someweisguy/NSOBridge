@@ -19,7 +19,7 @@ export default function BoutStateView({
   activeJam,
   latestTimeout,
 }: BoutStateViewProps) {
-  const { data: ruleset } = useRuleset(bout.id); // FIXME: use context
+  const { data: ruleset } = useRuleset(bout.seriesId, bout.id); // FIXME: use context
 
   if (!bout.isRunning) {
     return (

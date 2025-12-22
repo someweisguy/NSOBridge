@@ -3,11 +3,11 @@ from typing import Annotated, Final
 
 from fastapi import APIRouter, Body, Query
 
-from .dependencies import GetJamByID, get_jam_or_none
+from .dependencies import GetJamByID, get_jam_by_id
 from .schemas import JamSchema
 
 router: Final[APIRouter] = APIRouter(prefix='/jam')
-router.add_api_route('', get_jam_or_none, response_model=JamSchema | None)
+router.add_api_route('', get_jam_by_id, response_model=JamSchema | None)
 
 
 @router.post('/add-trip')
