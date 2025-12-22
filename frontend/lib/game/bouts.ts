@@ -77,13 +77,16 @@ export class Bout {
   // TODO: getLatestJamIndex()
 
   getActiveJamIndex(): [number, number] {
-    let periodNum =
-      this.jamIds
-        .reverse()
-        .findIndex((periodJamIds: number[]) => periodJamIds.length == 0) - 1;
-    if (periodNum < 0) {
-      periodNum = 0;
+    // Get the latest Period number that contains Jams
+    let periodNum = 0;
+    for (let i = this.jamIds.length - 1; i >= 0; --i) {
+      if (this.jamIds[i].length > 0) {
+        periodNum = i;
+        break;
+      }
     }
+
+    // Get the latest Jam number in the Active Period
     let jamNum = this.jamIds[periodNum].length - 1;
     if (jamNum < 0) {
       jamNum = 0;
