@@ -5,6 +5,7 @@ from schemas import ServerSchema
 
 
 class SeriesSchema(ServerSchema):
+    id: int
     name: str
     bouts: list[BoutSchema] = Field(exclude=True)
 
