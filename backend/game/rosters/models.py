@@ -1,6 +1,13 @@
 from __future__ import annotations
 
-from models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from typing import Any, override
+
+from models import (
+    CHILD_RELATIONSHIP,
+    PARENT_RELATIONSHIP,
+    BaseSQLModel,
+    CacheableSQLModel,
+)
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -24,7 +31,7 @@ class Skater(BaseSQLModel):
         super().__init__(name=name, number=number)
 
 
-class Roster(BaseSQLModel):
+class Roster(CacheableSQLModel):
     name: Mapped[str] = mapped_column()
     league: Mapped[str] = mapped_column()
     mnemonic: Mapped[str] = mapped_column()
@@ -46,3 +53,7 @@ class Roster(BaseSQLModel):
         if mnemonic == '':
             pass  # TODO: Implement team name mnemonic algorithm
         super().__init__(name=name, league=league, mnemonic=mnemonic)
+
+    @override
+    def cache_key(self) -> tuple[Any, ...]:
+        return (self.__tablename__, self.id)

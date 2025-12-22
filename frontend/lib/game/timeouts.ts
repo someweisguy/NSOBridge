@@ -36,8 +36,8 @@ export class Timeout {
   result: string;
   retained: boolean;
 
-  static generateKey(boutId: number, index: number) {
-    return ["timeouts", boutId, index];
+  static generateKey(seriesId: number, boutId: number, timeoutId: number) {
+    return ["timeouts", seriesId, boutId, timeoutId];
   }
 
   hasStarted(): boolean {

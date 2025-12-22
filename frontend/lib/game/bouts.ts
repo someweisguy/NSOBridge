@@ -46,8 +46,8 @@ export class Bout {
   jamIds: number[][];
   timeoutIds: number[];
 
-  static generateKey(seriesId: number, id: number) {
-    return ["bouts", seriesId, id];
+  static generateKey(seriesId: number, boutId: number) {
+    return ["bouts", seriesId, boutId];
   }
 
   async beginPeriod(): Promise<void> {

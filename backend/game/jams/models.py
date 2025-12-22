@@ -65,7 +65,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     def cache_key(self) -> tuple[Any, ...]:
-        return (self.__tablename__, self.bout_id, self.period, self.num)
+        return (self.__tablename__, self.bout.series_id, self.bout_id, self.id)
 
     def get_team_jam_by_team(self, team: BaseTeam | int) -> TeamJam:
         if not isinstance(team, int):

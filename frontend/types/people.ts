@@ -2,7 +2,7 @@ export class Roster {
   id: number;
   name: string;
 
-  static generateKey(id: number) {
-    return ["rosters", id];
+  static generateKey(rosterId: number) {
+    return ["rosters", rosterId];
   }
 }

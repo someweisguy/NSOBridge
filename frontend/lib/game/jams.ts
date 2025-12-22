@@ -19,8 +19,8 @@ export class Jam {
 
   teamJams: TeamJam[];
 
-  static generateKey(id: number, period: number, num: number) {
-    return ["jams", id, period, num];
+  static generateKey(seriesId: number, boutId: number, jamId: number) {
+    return ["jams", seriesId, boutId, jamId];
   }
 
   hasStarted(): boolean {

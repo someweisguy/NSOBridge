@@ -1,8 +1,8 @@
 import { Bout, createBout, getBout } from "@/lib/game/bouts";
+import { Series } from "@/lib/game/series";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useJam } from "./use-jam";
 import { useTimeout } from "./use-timeout";
-import { Series } from "@/lib/game/series";
 
 export const useBout = (series: Series, index: number) =>
   useSuspenseQuery<Bout>({
@@ -68,5 +68,5 @@ export const useLatestTimeout = (bout: Bout) => {
     timeoutIndex = 0;
   }
 
-  return useTimeout(bout.id, timeoutIndex);
+  return useTimeout(bout, timeoutIndex);
 };
