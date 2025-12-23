@@ -1,7 +1,7 @@
 import { localAPI } from "../requests";
 
-export async function getJam(id: number): Promise<Jam> {
-  const data = await localAPI.get("jam", { query: { id } });
+export async function getJam(jamId: number): Promise<Jam> {
+  const data = await localAPI.get("jam", { query: { jamId } });
   return Object.assign(new Jam(), data);
 }
 
