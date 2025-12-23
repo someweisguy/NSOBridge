@@ -33,12 +33,15 @@ class AbstractOneShotModel(BaseSQLModel):
         if timestamp < self.start_timestamp:
             raise RuntimeError('Cannot stop a Clock before it has been started')
         self.stop_timestamp = timestamp
+        
+    def is_started(self) -> bool:
+        return self.start_timestamp is not None
 
     def is_running(self) -> bool:
-        return self.start_timestamp is not None and self.stop_timestamp is None
+        return self.is_started() and not self.is_finished()
 
     def is_finished(self) -> bool:
-        return self.start_timestamp is not None and self.stop_timestamp is not None
+        return self.stop_timestamp is not None
 
     def get_duration(self, timestamp: datetime | None = None) -> timedelta:
         if timestamp is None:

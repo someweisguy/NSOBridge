@@ -111,8 +111,11 @@ class Bout(WFTDAModel, BaseBout):
         if self.state != 'lineup':
             raise RulesError('a jam may only be started from lineup')
 
+        # Get the first Jam that has not started
+        jam: BaseJam | None = self.get_upcoming_jam()
+        assert jam is not None  # FIXME: push a new Jam if this is None
+
         # Start the Clock if not in overtime
-        jam: BaseJam = self.jams[-1]
         if jam.period < self.rules.num_periods and not self.clock.is_running():
             self.clock.start(timestamp)
         jam.start(timestamp)
@@ -131,11 +134,13 @@ class Bout(WFTDAModel, BaseBout):
 
     @override
     def stop_jam(self, timestamp: datetime) -> BaseJam:
-        if self.state != 'jam':
+        jam: BaseJam | None = self.get_running_jam()
+        if jam is None:
             raise RulesError('there is no running jam to stop')
 
-        jam: BaseJam = self.jams[-1]
         jam.stop(timestamp)
+
+        # TODO: Attempt to guess the reason that the Jam ended
 
         return jam
 

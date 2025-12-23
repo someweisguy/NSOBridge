@@ -93,6 +93,15 @@ class BaseBout(CacheableSQLModel):
         else:
             return 'stopped'
 
+    def get_running_jam(self) -> BaseJam | None:
+        return next((j for j in self.jams if j.is_running()), None)
+
+    def get_upcoming_jam(self) -> BaseJam | None:
+        return next((j for j in self.jams if not j.is_started()), None)
+
+    def get_running_timeout(self) -> BaseTimeout | None:
+        return next((t for t in self.timeouts if t.is_started()), None)
+
     def begin_period(self, timestamp: datetime) -> None: ...
 
     def end_period(self, timestamp: datetime) -> None: ...
