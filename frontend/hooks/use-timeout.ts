@@ -9,7 +9,7 @@ export const useTimeout = (bout: Bout, index: number) =>
       bout.id,
       bout.timeoutIds[index],
     ),
-    queryFn: () => getTimeout(bout.id, bout.timeoutIds[index]),
+    queryFn: () => getTimeout(bout.timeoutIds[index]),
   });
 
 export const useSetType = (timeout: Timeout) =>
