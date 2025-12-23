@@ -8,7 +8,7 @@ import { createMpaPlugin } from "vite-plugin-virtual-mpa";
 export default defineConfig({
   build: {
     cssMinify: true,
-    minify: false,
+    minify: false, // TODO: Enable minification
     watch: {
       include: ["frontend/**"],
     },
