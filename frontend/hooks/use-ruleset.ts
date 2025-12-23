@@ -2,8 +2,8 @@ import { Ruleset } from "@/types/game";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Bout, getRuleset } from "../lib/game/bouts";
 
-export const useRuleset = (seriesId: number, key: number) =>
+export const useRuleset = (bout: Bout) =>
   useSuspenseQuery<Ruleset>({
-    queryKey: Bout.generateKey(seriesId, key).concat("context"),
-    queryFn: () => getRuleset(key),
+    queryKey: Ruleset.generateKey(bout.ruleset),
+    queryFn: () => getRuleset(bout.id),
   });

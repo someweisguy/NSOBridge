@@ -4,4 +4,8 @@ export class Ruleset {
   pointsPerTrip: number;
   numTimeouts: number;
   numReviews: number;
+
+  static generateKey(rulesetName: string) {
+    return ["ruleset", rulesetName];
+  }
 }

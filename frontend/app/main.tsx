@@ -56,7 +56,7 @@ function Main() {
   usePrefetchServerTime();
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series);
-  const { data: ruleset } = useRuleset(bout.seriesId, bout.id);
+  const { data: ruleset } = useRuleset(bout);
   usePrefetchBoutData(bout);
 
   // Fetch Jam data

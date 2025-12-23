@@ -13,7 +13,7 @@ interface TeamsViewProps {
 
 export default function TeamView({ bout, team, timeout }: TeamsViewProps) {
   const { data: roster } = useRoster(team.rosterId);
-  const { data: ruleset } = useRuleset(bout.seriesId, team.boutId);
+  const { data: ruleset } = useRuleset(bout);
 
   return (
     <Stack>
