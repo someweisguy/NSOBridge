@@ -1,4 +1,7 @@
 import BoutControlButtons from "@/components/bout-control-buttons";
+import TeamJamView from "@/components/team-jam-view";
+import BoutStateView from "@/features/bout-state-view/bout-state-view";
+import TeamView from "@/features/team-view/team-view";
 import {
   useActiveJamIndex,
   useActiveTimeoutIndex,
@@ -8,11 +11,14 @@ import {
   usePrefetchBoutData,
 } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
+import { useRuleset } from "@/hooks/use-ruleset";
 import { useSeries } from "@/hooks/use-series";
 import { useTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
+import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
-import { MantineProvider, Stack, Text } from "@mantine/core";
+import { BoutContext, JamContext, RulesetContext } from "@/utils/contexts";
+import { Container, Grid, MantineProvider, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -50,6 +56,7 @@ export default function App() {
 function Test() {
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
+  const { data: ruleset } = useRuleset(bout.seriesId, bout.id);
   usePrefetchBoutData(bout);
 
   // Fetch Jam data
@@ -67,65 +74,31 @@ function Test() {
   );
 
   return (
-    <Stack>
-      <Text>{JSON.stringify(series)}</Text>
-      <Text>{JSON.stringify(bout)}</Text>
-      <Text>
-        P{periodNum + 1} J{jamNum + 1}
-      </Text>
-      <Text>{JSON.stringify(jam)}</Text>
-      <Text>{JSON.stringify(timeout)}</Text>
-      <BoutControlButtons bout={bout} />
-    </Stack>
+    <BoutContext value={bout}>
+      <RulesetContext value={ruleset}>
+        <Container>
+          <Stack>
+            <BoutControlButtons bout={bout} />
+            <Grid columns={bout.teams.length} align="center">
+              <JamContext value={jam}>
+                {bout.teams.map((team: Team, i: number) => (
+                  <Grid.Col key={i} span={1}>
+                    <Stack>
+                      <TeamView bout={bout} team={team} />
+                      <TeamJamView jam={jam} team={team} />
+                    </Stack>
+                  </Grid.Col>
+                ))}
+              </JamContext>
+            </Grid>
+            <BoutStateView
+              bout={bout}
+              activeJam={jam}
+              latestTimeout={timeout}
+            />
+          </Stack>
+        </Container>
+      </RulesetContext>
+    </BoutContext>
   );
-
-  // const [boutIndex, setBoutIndex] = useState(0);
-  // const goToNextBout = useRef(false);
-
-  // const { data: series } = useSeries(1);
-  // if (series.boutIds.length == 0) {
-  //   // TODO: Go to Bout creation page
-  //   throw new Error("This Series does not have any Bouts");
-  // }
-  // const bout: Bout = useBout(series.boutIds[boutIndex]);
-
-  // useEffect(() => {
-  //   if (goToNextBout.current && series.boutIds.length > boutIndex + 1) {
-  //     goToNextBout.current = false;
-  //     setBoutIndex((i) => i + 1);
-  //   }
-  // }, [series, boutIndex]);
-
-  // const { data: activeJam } = useActiveJam(bout);
-  // const { data: latestTimeout } = useLatestTimeout(bout);
-  // const { data: ruleset } = useRuleset(bout.id);
-
-  // return (
-  //   <BoutContext value={bout}>
-  //     <RulesetContext value={ruleset}>
-  //       <Container>
-  //         <Stack>
-  //           <BoutControlButtons bout={bout} />
-  //           <Grid columns={bout.teams.length} align="center">
-  //             <JamContext value={activeJam}>
-  //               {bout.teams.map((team: Team, i: number) => (
-  //                 <Grid.Col key={i} span={1}>
-  //                   <Stack>
-  //                     <TeamView bout={bout} team={team} />
-  //                     <TeamJamView jam={activeJam} team={team} />
-  //                   </Stack>
-  //                 </Grid.Col>
-  //               ))}
-  //             </JamContext>
-  //           </Grid>
-  //           <BoutStateView
-  //             bout={bout}
-  //             activeJam={activeJam}
-  //             latestTimeout={latestTimeout}
-  //           />
-  //         </Stack>
-  //       </Container>
-  //     </RulesetContext>
-  //   </BoutContext>
-  // );
 }
