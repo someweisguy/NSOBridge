@@ -1,19 +1,18 @@
-import { useLatestTimeoutIndex } from "@/hooks/use-bout";
+import TimeoutBar from "@/components/timeout-bar";
 import { useRoster } from "@/hooks/use-roster";
 import { useRuleset } from "@/hooks/use-ruleset";
-import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
+import { Timeout } from "@/lib/game/timeouts";
 import { Center, Grid, Group, Stack, Text, Title } from "@mantine/core";
-import TimeoutBar from "../../components/timeout-bar";
 
 interface TeamsViewProps {
   bout: Bout;
   team: Team;
+  timeout: Timeout;
 }
 
-export default function TeamView({ bout, team }: TeamsViewProps) {
+export default function TeamView({ bout, team, timeout }: TeamsViewProps) {
   const { data: roster } = useRoster(team.rosterId);
-  const { data: activeTimeout } = useTimeout(bout, useLatestTimeoutIndex(bout));
   const { data: ruleset } = useRuleset(bout.seriesId, team.boutId);
 
   return (
@@ -26,7 +25,7 @@ export default function TeamView({ bout, team }: TeamsViewProps) {
       <Group justify="center">
         <TimeoutBar
           team={team}
-          activeTimeout={activeTimeout}
+          activeTimeout={timeout}
           ruleset={ruleset}
           size={30}
         />

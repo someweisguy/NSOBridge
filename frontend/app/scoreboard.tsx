@@ -45,7 +45,7 @@ function Test() {
       <div className="justify-stretch items-stretch grid grid-flow-col basis-1/2 shrink-0 grow-0">
         {/* Primary Information (Team Info) */}
         {bout.teams.map((team: Team, i: number) => (
-          <TeamView key={i} bout={bout} team={team} />
+          <TeamView key={i} bout={bout} team={team} timeout={latestTimeout} />
         ))}
       </div>
       <div className="justify-stretch items-stretch grid basis-1/2 shrink-0">
