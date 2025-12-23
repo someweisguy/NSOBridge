@@ -9,7 +9,7 @@ from .models import Roster
 
 async def get_roster(
     session: AsyncSessionDepends,
-    roster_id: Annotated[int, Query(alias='id')],
+    roster_id: Annotated[int, Query(alias='rosterId')],
 ) -> Roster:
     results: Result[tuple[Roster]] = await session.execute(
         select(Roster).where(Roster.id == roster_id)

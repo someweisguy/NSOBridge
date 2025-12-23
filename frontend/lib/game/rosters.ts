@@ -1,7 +1,7 @@
-import { localAPI } from "../requests";
+import { localAPI } from "@/lib/requests";
 
-export default async function getRoster(id: number): Promise<Roster> {
-  return await localAPI.get("roster", { query: { id } });
+export default async function getRoster(rosterId: number): Promise<Roster> {
+  return await localAPI.get("roster", { query: { rosterId } });
 }
 
 export class Roster {
