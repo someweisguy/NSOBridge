@@ -17,8 +17,16 @@ import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { BoutContext, JamContext, RulesetContext } from "@/utils/contexts";
-import { Container, Grid, MantineProvider, Stack } from "@mantine/core";
+import {
+  AppShell,
+  Burger,
+  Container,
+  Grid,
+  MantineProvider,
+  Stack,
+} from "@mantine/core";
 import "@mantine/core/styles.css";
+import { useDisclosure } from "@mantine/hooks";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
@@ -39,15 +47,39 @@ const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
 
 export default function App() {
+  const [opened, { toggle }] = useDisclosure();
   return (
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider>
-          <Suspense fallback={"Loading..."}>
-            <Main />
-          </Suspense>
-        </MantineProvider>
-      </QueryClientProvider>
+      <MantineProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppShell
+            padding="md"
+            header={{ height: 60 }}
+            navbar={{
+              width: 300,
+              breakpoint: "sm",
+              collapsed: { mobile: !opened },
+            }}
+          >
+            <AppShell.Header>
+              <Burger
+                opened={opened}
+                onClick={toggle}
+                hiddenFrom="sm"
+                size="sm"
+              />
+            </AppShell.Header>
+
+            <AppShell.Navbar>{/* TODO: Navbar */}</AppShell.Navbar>
+
+            <AppShell.Main>
+              <Suspense fallback={"Loading..."}>
+                <Main />
+              </Suspense>
+            </AppShell.Main>
+          </AppShell>
+        </QueryClientProvider>
+      </MantineProvider>
     </StrictMode>
   );
 }
@@ -93,6 +125,7 @@ function Main() {
                 bout={bout}
                 activeJam={jam}
                 latestTimeout={timeout}
+                ruleset={ruleset}
               />
             </Suspense>
           </Stack>
