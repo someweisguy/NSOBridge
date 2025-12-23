@@ -2,9 +2,9 @@ import ExtraordinaryStateClock from "@/components/extraordinary-state-clock";
 import IntermissionState from "@/components/intermission-state-view";
 import JamClock from "@/components/jam-clock";
 import PeriodClock from "@/components/period-clock";
-import { useRuleset } from "@/hooks/use-ruleset";
 import { Bout } from "@/lib/game/bouts";
 import { Jam } from "@/lib/game/jams";
+import { Ruleset } from "@/lib/game/ruleset";
 import { Timeout } from "@/lib/game/timeouts";
 import { Center, Grid, Text } from "@mantine/core";
 
@@ -12,15 +12,15 @@ interface BoutStateViewProps {
   bout: Bout;
   activeJam: Jam;
   latestTimeout: Timeout | null;
+  ruleset: Ruleset;
 }
 
 export default function BoutStateView({
   bout,
   activeJam,
   latestTimeout,
+  ruleset,
 }: BoutStateViewProps) {
-  const { data: ruleset } = useRuleset(bout); // FIXME: use context?
-
   if (!bout.isRunning) {
     return (
       <Center>
