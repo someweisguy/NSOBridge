@@ -1,13 +1,16 @@
+import queryClient from "@/lib/cache";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { getServerTime, getSyncData } from "../lib/sync";
 const REFETCH_INTERVAL = 1000 * 60 * 5;
 
+const syncQueryKey = ["useServerTimeReactHook"];
+
 export const useServerTime = (): [Date, () => void] => {
   const {
     data: { offset },
   } = useSuspenseQuery<{ offset: number; error: number }>({
-    queryKey: ["useServerTimeReactHook"],
+    queryKey: syncQueryKey,
     queryFn: () => getSyncData(),
     refetchInterval: REFETCH_INTERVAL,
   });
@@ -21,3 +24,9 @@ export const useServerTime = (): [Date, () => void] => {
 
   return [serverTime, refreshServerTime];
 };
+
+export const usePrefetchServerTime = () =>
+  void queryClient.prefetchQuery({
+    queryKey: syncQueryKey,
+    queryFn: () => getSyncData(),
+  });

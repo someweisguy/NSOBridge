@@ -24,6 +24,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import { usePrefetchServerTime } from "@/hooks/use-server-time";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -54,6 +55,7 @@ export default function App() {
 }
 
 function Test() {
+  usePrefetchServerTime();
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
   const { data: ruleset } = useRuleset(bout.seriesId, bout.id);
