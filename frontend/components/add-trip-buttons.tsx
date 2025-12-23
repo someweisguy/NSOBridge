@@ -1,6 +1,6 @@
 import { useAddTrip } from "@/hooks/use-jam";
 import { TeamJam } from "@/lib/game/jams";
-import { Ruleset } from "@/types/game";
+import { Ruleset } from "@/lib/game/ruleset";
 import { Button, Group, Stack } from "@mantine/core";
 
 interface AddTripButtonsProps {

@@ -1,4 +1,4 @@
-import { Roster } from "@/types/people";
+import { Roster } from "@/lib/game/rosters";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import getRoster from "../lib/game/rosters";
 

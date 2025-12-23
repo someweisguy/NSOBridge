@@ -1,4 +1,4 @@
-import { Ruleset } from "@/types/game";
+import { Ruleset } from "@/lib/game/ruleset";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Bout, getRuleset } from "../lib/game/bouts";
 
