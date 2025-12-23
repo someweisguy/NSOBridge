@@ -100,7 +100,10 @@ class BaseBout(CacheableSQLModel):
         return next((j for j in self.jams if not j.is_started()), None)
 
     def get_running_timeout(self) -> BaseTimeout | None:
-        return next((t for t in self.timeouts if t.is_started()), None)
+        return next((t for t in self.timeouts if t.is_running()), None)
+    
+    def get_upcoming_timeout(self) -> BaseTimeout | None:
+        return next((t for t in self.timeouts if not t.is_started()), None)
 
     def begin_period(self, timestamp: datetime) -> None: ...
 

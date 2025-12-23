@@ -26,7 +26,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
-    clock_elapsed: Mapped[timedelta] = mapped_column()
+    clock_elapsed: Mapped[timedelta | None] = mapped_column(default=None)
     team_is_officials: Mapped[bool] = mapped_column(default=False)
     is_review: Mapped[bool] = mapped_column(default=False)
     details: Mapped[str] = mapped_column(default='')
@@ -57,8 +57,8 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         'polymorphic_on': ruleset,
     }
 
-    def __init__(self, clock_elapsed: timedelta) -> None:
-        super().__init__(clock_elapsed=clock_elapsed)
+    def __init__(self) -> None:
+        super().__init__()
 
     @override
     def cache_key(self) -> tuple[Any, ...]:

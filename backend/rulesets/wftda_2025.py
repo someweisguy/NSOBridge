@@ -49,6 +49,7 @@ class Bout(WFTDAModel, BaseBout):
             [self.teams[0], self.teams[1]],
         )
         self.jams.append(initial_jam)
+        self.timeouts.append(Timeout())
 
     @override
     def begin_period(self, timestamp: datetime) -> None:
@@ -154,13 +155,17 @@ class Bout(WFTDAModel, BaseBout):
             raise RulesError('a timeout cannot be called now')
 
         # Instantiate and start the Timeout
-        clock_elapsed: timedelta = self.clock.get_duration(timestamp)
-        timeout: Timeout = Timeout(clock_elapsed)
-        self.timeouts.append(timeout)
+        timeout: BaseTimeout | None = self.get_upcoming_timeout()
+        assert timeout is not None  # FIXME push a new Timeout
+
+        timeout.clock_elapsed = self.clock.get_duration(timestamp)
         timeout.start(timestamp)
 
         if self.clock.is_running():
             self.clock.stop(timestamp)
+            
+        # Push a new Timeout to allow users to prefetch it
+        self.timeouts.append(Timeout())
 
         return timeout
 
