@@ -22,15 +22,15 @@ export default function Clock({
   const [serverTime, refreshServerTime] = useServerTime();
 
   useEffect(() => {
-    if (freeze) {
-      // Do not update component if manually frozen
+    if (freeze || startTimestamp == null) {
+      // Do not update component if manually frozen or stopped
       return;
     }
 
     // Refresh the component every 16ms (60Hz)
     const intervalId = setInterval(refreshServerTime, 16);
     return () => clearInterval(intervalId);
-  }, [freeze, alarm, refreshServerTime]);
+  }, [startTimestamp, alarm, freeze, refreshServerTime]);
 
   // Calculate the number of milliseconds that have elapsed
   let milliseconds = elapsed;
