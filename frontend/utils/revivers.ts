@@ -1,5 +1,5 @@
 const dateTimeExpression = new RegExp(
-  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
+  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3,6}[Z]?/,
 );
 
 export function dateReviver<T>(_: string, value: T): T | Date {
