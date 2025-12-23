@@ -113,7 +113,12 @@ function Main() {
                 {bout.teams.map((team: Team, i: number) => (
                   <Grid.Col key={i} span={1}>
                     <Stack>
-                      <TeamView bout={bout} team={team} timeout={timeout} />
+                      <TeamView
+                        bout={bout}
+                        team={team}
+                        timeout={timeout}
+                        ruleset={ruleset}
+                      />
                       <TeamJamView jam={jam} team={team} />
                     </Stack>
                   </Grid.Col>
