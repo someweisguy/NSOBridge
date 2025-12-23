@@ -9,6 +9,9 @@ export default defineConfig({
   build: {
     cssMinify: true,
     minify: false,
+    watch: {
+      include: ["frontend/**"],
+    },
   },
   plugins: [
     react(),
