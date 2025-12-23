@@ -10,7 +10,7 @@ export default defineConfig({
     cssMinify: true,
     minify: false, // TODO: Enable minification
     watch: {
-      include: ["frontend/**"],
+      include: ["frontend/**", "static/**"],
     },
   },
   plugins: [
