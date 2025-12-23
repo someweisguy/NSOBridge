@@ -7,10 +7,23 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 export const useBout = (series: Series, index?: number) => {
-  index ??= series.activeBoutId ?? series.boutIds[series.boutIds.length - 1];
+  const [boutId, setBoutId] = useState(
+    index == undefined
+      ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
+      : series.boutIds[index],
+  );
+
+  useEffect(() => {
+    setBoutId(
+      index == undefined
+        ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
+        : series.boutIds[index],
+    );
+  }, [series, index]);
+
   return useSuspenseQuery<Bout>({
-    queryKey: Bout.generateKey(series.id, series.boutIds[index]),
-    queryFn: () => getBout(series.boutIds[index]),
+    queryKey: Bout.generateKey(series.id, boutId),
+    queryFn: () => getBout(boutId),
   });
 };
 
