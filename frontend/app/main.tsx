@@ -55,7 +55,7 @@ export default function App() {
 function Main() {
   usePrefetchServerTime();
   const { data: series } = useSeries(0);
-  const { data: bout } = useBout(series, 0);
+  const { data: bout } = useBout(series);
   const { data: ruleset } = useRuleset(bout.seriesId, bout.id);
   usePrefetchBoutData(bout);
 

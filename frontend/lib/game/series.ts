@@ -11,6 +11,7 @@ export class Series {
   id: number;
   name: string;
   boutIds: number[];
+  activeBoutId: number | null;
 
   static generateKey() {
     return ["series", "all"];

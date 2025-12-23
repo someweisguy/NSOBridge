@@ -13,3 +13,8 @@ class SeriesSchema(ServerSchema):
     @property
     def bout_ids(self) -> list[int]:
         return [bout.id for bout in self.bouts]
+
+    @computed_field
+    @property
+    def active_bout_id(self) -> int | None:
+        return next((bout.id for bout in self.bouts if not bout.is_final), None)
