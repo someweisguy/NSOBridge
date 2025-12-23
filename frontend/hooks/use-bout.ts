@@ -68,6 +68,18 @@ export const useActiveJamIndex = (bout: Bout) => {
   return jamIndex;
 };
 
+export const useActiveOrLatestJamIndex = (bout: Bout) => {
+  const [jamIndex, setJamIndex] = useState(
+    bout.getActiveJamIndex() ?? bout.getLatestJamIndex(),
+  );
+
+  useEffect(() => {
+    setJamIndex(bout.getActiveJamIndex() ?? bout.getLatestJamIndex());
+  }, [bout]);
+
+  return jamIndex;
+};
+
 export const useLatestTimeoutIndex = (bout: Bout) => {
   const [timeoutIndex, setTimeoutIndex] = useState(
     bout.getLatestTimeoutIndex(),
@@ -87,6 +99,20 @@ export const useActiveTimeoutIndex = (bout: Bout) => {
 
   useEffect(() => {
     setTimeoutIndex(bout.getActiveTimeoutIndex());
+  }, [bout]);
+
+  return timeoutIndex;
+};
+
+export const useActiveOrLatestTimeoutIndex = (bout: Bout) => {
+  const [timeoutIndex, setTimeoutIndex] = useState(
+    bout.getActiveTimeoutIndex() ?? bout.getLatestTimeoutIndex(),
+  );
+
+  useEffect(() => {
+    setTimeoutIndex(
+      bout.getActiveTimeoutIndex() ?? bout.getLatestTimeoutIndex(),
+    );
   }, [bout]);
 
   return timeoutIndex;

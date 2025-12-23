@@ -26,7 +26,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <Suspense fallback={"Loading..."}>
           <FitScreen waitTime={25} mode="fit">
-            <Test />
+            <Scoreboard />
           </FitScreen>
         </Suspense>
       </QueryClientProvider>
@@ -34,7 +34,7 @@ export default function App() {
   );
 }
 
-function Test() {
+function Scoreboard() {
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
   const { data: activeJam } = useJam(bout, ...useLatestJamIndex(bout));
