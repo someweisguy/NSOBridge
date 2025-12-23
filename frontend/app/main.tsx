@@ -1,8 +1,10 @@
 import BoutControlButtons from "@/components/bout-control-buttons";
 import {
   useActiveJamIndex,
+  useActiveTimeoutIndex,
   useBout,
   useLatestJamIndex,
+  useLatestTimeoutIndex,
 } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { useSeries } from "@/hooks/use-series";
@@ -15,6 +17,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
+import { useTimeout } from "@/hooks/use-timeout";
+import { getTimeout, Timeout } from "@/lib/game/timeouts";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -52,12 +56,12 @@ function Test() {
   const [periodNum, jamNum] = activeJamIndex ?? latestJamIndex;
   const { data: jam } = useJam(bout, periodNum, jamNum);
 
-  // const latestTimeoutIndex = useLatestTimeoutIndex(bout);
-  // const activeTimeoutIndex = useActiveTimeoutIndex(bout);
-  // const { data: timeout } = useTimeout(
-  //   bout,
-  //   activeTimeoutIndex ?? latestTimeoutIndex
-  // );
+  const latestTimeoutIndex = useLatestTimeoutIndex(bout);
+  const activeTimeoutIndex = useActiveTimeoutIndex(bout);
+  const { data: timeout } = useTimeout(
+    bout,
+    activeTimeoutIndex ?? latestTimeoutIndex,
+  );
 
   // console.log(`Showing Timeout ID ${timeout.id}`)
 
@@ -70,14 +74,14 @@ function Test() {
       queryFn: () => getJam(latestJamId),
     });
 
-    // // Prefetch the next Timeout
-    // const latestTimeoutId = bout.timeoutIds[latestTimeoutIndex];
-    // void queryClient.prefetchQuery({
-    //   queryKey: Timeout.generateKey(bout.seriesId, bout.id, latestTimeoutId),
-    //   queryFn: () => getTimeout(latestTimeoutId),
-    // });
-    // console.log(`Prefetching Timeout ID: ${latestTimeoutId}`)
-  }, [bout, latestJamIndex]);
+    // Prefetch the next Timeout
+    const latestTimeoutId = bout.timeoutIds[latestTimeoutIndex];
+    void queryClient.prefetchQuery({
+      queryKey: Timeout.generateKey(bout.seriesId, bout.id, latestTimeoutId),
+      queryFn: () => getTimeout(latestTimeoutId),
+    });
+    console.log(`Prefetching Timeout ID: ${latestTimeoutId}`);
+  }, [bout, latestJamIndex, latestTimeoutIndex]);
 
   return (
     <Stack>
@@ -87,7 +91,7 @@ function Test() {
         P{periodNum + 1} J{jamNum + 1}
       </Text>
       <Text>{JSON.stringify(jam)}</Text>
-      {/* <Text>{JSON.stringify(timeout)}</Text> */}
+      <Text>{JSON.stringify(timeout)}</Text>
       <BoutControlButtons bout={bout} />
     </Stack>
   );
