@@ -163,7 +163,7 @@ class Bout(WFTDAModel, BaseBout):
 
         if self.clock.is_running():
             self.clock.stop(timestamp)
-            
+
         # Push a new Timeout to allow users to prefetch it
         self.timeouts.append(Timeout())
 
@@ -171,11 +171,11 @@ class Bout(WFTDAModel, BaseBout):
 
     @override
     def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
-        if self.state != 'timeout':
+        timeout: BaseTimeout | None = self.get_running_timeout()
+        if timeout is None:
             raise RulesError('there is no active timeout to stop')
 
         # Validate the Timeout's state
-        timeout: BaseTimeout = self.timeouts[-1]
         if timeout.is_review and timeout.team is None:
             raise RulesError('officials cannot call an official review')
 

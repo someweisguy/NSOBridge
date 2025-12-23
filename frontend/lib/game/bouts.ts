@@ -117,7 +117,13 @@ export class Bout {
     return timeoutIndex;
   }
 
-  // TODO: getActiveTimeoutIndex()
+  getActiveTimeoutIndex(): number | null {
+    if (this.timeoutIds.length < 2) {
+      return null; // There is no active Timeout
+    }
+
+    return this.timeoutIds.length - 2;
+  }
 }
 
 export class Team {

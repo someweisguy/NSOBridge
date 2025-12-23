@@ -76,3 +76,15 @@ export const useLatestTimeoutIndex = (bout: Bout) => {
 
   return timeoutIndex;
 };
+
+export const useActiveTimeoutIndex = (bout: Bout) => {
+  const [timeoutIndex, setTimeoutIndex] = useState(
+    bout.getActiveTimeoutIndex(),
+  );
+
+  useEffect(() => {
+    setTimeoutIndex(bout.getActiveTimeoutIndex());
+  }, [bout]);
+
+  return timeoutIndex;
+};

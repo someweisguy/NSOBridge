@@ -1,8 +1,8 @@
 import { localAPI } from "../requests";
 
-export async function getTimeout(timeoutId: number): Promise<Timeout | null> {
+export async function getTimeout(timeoutId: number): Promise<Timeout> {
   const data = await localAPI.get("timeout", { query: { timeoutId } });
-  return data !== null ? Object.assign(new Timeout(), data) : null;
+  return Object.assign(new Timeout(), data);
 }
 
 export default class Clock {

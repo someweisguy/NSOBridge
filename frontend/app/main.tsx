@@ -52,13 +52,31 @@ function Test() {
   const [periodNum, jamNum] = activeJamIndex ?? latestJamIndex;
   const { data: jam } = useJam(bout, periodNum, jamNum);
 
+  // const latestTimeoutIndex = useLatestTimeoutIndex(bout);
+  // const activeTimeoutIndex = useActiveTimeoutIndex(bout);
+  // const { data: timeout } = useTimeout(
+  //   bout,
+  //   activeTimeoutIndex ?? latestTimeoutIndex
+  // );
+
+  // console.log(`Showing Timeout ID ${timeout.id}`)
+
   useEffect(() => {
+    // Prefetch the next Jam
     const [latestPeriodNum, latestJamNum] = latestJamIndex;
     const latestJamId = bout.jamIds[latestPeriodNum][latestJamNum];
     void queryClient.prefetchQuery({
       queryKey: Jam.generateKey(bout.seriesId, bout.id, latestJamId),
       queryFn: () => getJam(latestJamId),
     });
+
+    // // Prefetch the next Timeout
+    // const latestTimeoutId = bout.timeoutIds[latestTimeoutIndex];
+    // void queryClient.prefetchQuery({
+    //   queryKey: Timeout.generateKey(bout.seriesId, bout.id, latestTimeoutId),
+    //   queryFn: () => getTimeout(latestTimeoutId),
+    // });
+    // console.log(`Prefetching Timeout ID: ${latestTimeoutId}`)
   }, [bout, latestJamIndex]);
 
   return (
@@ -69,6 +87,7 @@ function Test() {
         P{periodNum + 1} J{jamNum + 1}
       </Text>
       <Text>{JSON.stringify(jam)}</Text>
+      {/* <Text>{JSON.stringify(timeout)}</Text> */}
       <BoutControlButtons bout={bout} />
     </Stack>
   );

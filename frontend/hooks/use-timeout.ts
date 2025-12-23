@@ -3,7 +3,7 @@ import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useTimeout = (bout: Bout, index: number) =>
-  useSuspenseQuery<Timeout | null>({
+  useSuspenseQuery<Timeout>({
     queryKey: Timeout.generateKey(
       bout.seriesId,
       bout.id,
