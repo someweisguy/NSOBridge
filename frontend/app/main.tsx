@@ -54,10 +54,12 @@ export default function App() {
 
 function Main() {
   usePrefetchServerTime();
+
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series);
-  const { data: ruleset } = useRuleset(bout);
   usePrefetchBoutData(bout);
+
+  const { data: ruleset } = useRuleset(bout);
 
   // Fetch Jam data
   const jamIndex = useActiveOrLatestJamIndex(bout);
