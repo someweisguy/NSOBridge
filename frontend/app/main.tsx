@@ -84,18 +84,20 @@ function Test() {
                 {bout.teams.map((team: Team, i: number) => (
                   <Grid.Col key={i} span={1}>
                     <Stack>
-                      <TeamView bout={bout} team={team} />
+                      <TeamView bout={bout} team={team} timeout={timeout} />
                       <TeamJamView jam={jam} team={team} />
                     </Stack>
                   </Grid.Col>
                 ))}
               </JamContext>
             </Grid>
-            <BoutStateView
-              bout={bout}
-              activeJam={jam}
-              latestTimeout={timeout}
-            />
+            <Suspense fallback={"Loading..."}>
+              <BoutStateView
+                bout={bout}
+                activeJam={jam}
+                latestTimeout={timeout}
+              />
+            </Suspense>
           </Stack>
         </Container>
       </RulesetContext>
