@@ -63,8 +63,6 @@ function Test() {
     activeTimeoutIndex ?? latestTimeoutIndex,
   );
 
-  // console.log(`Showing Timeout ID ${timeout.id}`)
-
   useEffect(() => {
     // Prefetch the next Jam
     const [latestPeriodNum, latestJamNum] = latestJamIndex;
@@ -80,7 +78,6 @@ function Test() {
       queryKey: Timeout.generateKey(bout.seriesId, bout.id, latestTimeoutId),
       queryFn: () => getTimeout(latestTimeoutId),
     });
-    console.log(`Prefetching Timeout ID: ${latestTimeoutId}`);
   }, [bout, latestJamIndex, latestTimeoutIndex]);
 
   return (
