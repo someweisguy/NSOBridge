@@ -1,5 +1,8 @@
+import queryClient from "@/lib/cache";
 import { Bout, createBout, getBout } from "@/lib/game/bouts";
+import { getJam, Jam } from "@/lib/game/jams";
 import { Series } from "@/lib/game/series";
+import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
@@ -87,4 +90,26 @@ export const useActiveTimeoutIndex = (bout: Bout) => {
   }, [bout]);
 
   return timeoutIndex;
+};
+
+export const usePrefetchBoutData = (bout: Bout) => {
+  const latestJamIndex = useLatestJamIndex(bout);
+  const latestTimeoutIndex = useLatestTimeoutIndex(bout);
+
+  useEffect(() => {
+    // Prefetch the next Jam
+    const [latestPeriodNum, latestJamNum] = latestJamIndex;
+    const latestJamId = bout.jamIds[latestPeriodNum][latestJamNum];
+    void queryClient.prefetchQuery({
+      queryKey: Jam.generateKey(bout.seriesId, bout.id, latestJamId),
+      queryFn: () => getJam(latestJamId),
+    });
+
+    // Prefetch the next Timeout
+    const latestTimeoutId = bout.timeoutIds[latestTimeoutIndex];
+    void queryClient.prefetchQuery({
+      queryKey: Timeout.generateKey(bout.seriesId, bout.id, latestTimeoutId),
+      queryFn: () => getTimeout(latestTimeoutId),
+    });
+  }, [bout, latestJamIndex, latestTimeoutIndex]);
 };

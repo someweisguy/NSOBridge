@@ -5,20 +5,19 @@ import {
   useBout,
   useLatestJamIndex,
   useLatestTimeoutIndex,
+  usePrefetchBoutData,
 } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { useSeries } from "@/hooks/use-series";
+import { useTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
-import { getJam, Jam } from "@/lib/game/jams";
 import { redo, undo } from "@/lib/history";
 import { MantineProvider, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode, Suspense, useEffect } from "react";
+import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
-import { useTimeout } from "@/hooks/use-timeout";
-import { getTimeout, Timeout } from "@/lib/game/timeouts";
 
 document.addEventListener("keydown", (event) => {
   if (event.ctrlKey) {
@@ -51,34 +50,21 @@ export default function App() {
 function Test() {
   const { data: series } = useSeries(0);
   const { data: bout } = useBout(series, 0);
+  usePrefetchBoutData(bout);
+
+  // Fetch Jam data
   const latestJamIndex = useLatestJamIndex(bout);
   const activeJamIndex = useActiveJamIndex(bout);
   const [periodNum, jamNum] = activeJamIndex ?? latestJamIndex;
   const { data: jam } = useJam(bout, periodNum, jamNum);
 
+  // Fetch Timeout data
   const latestTimeoutIndex = useLatestTimeoutIndex(bout);
   const activeTimeoutIndex = useActiveTimeoutIndex(bout);
   const { data: timeout } = useTimeout(
     bout,
     activeTimeoutIndex ?? latestTimeoutIndex,
   );
-
-  useEffect(() => {
-    // Prefetch the next Jam
-    const [latestPeriodNum, latestJamNum] = latestJamIndex;
-    const latestJamId = bout.jamIds[latestPeriodNum][latestJamNum];
-    void queryClient.prefetchQuery({
-      queryKey: Jam.generateKey(bout.seriesId, bout.id, latestJamId),
-      queryFn: () => getJam(latestJamId),
-    });
-
-    // Prefetch the next Timeout
-    const latestTimeoutId = bout.timeoutIds[latestTimeoutIndex];
-    void queryClient.prefetchQuery({
-      queryKey: Timeout.generateKey(bout.seriesId, bout.id, latestTimeoutId),
-      queryFn: () => getTimeout(latestTimeoutId),
-    });
-  }, [bout, latestJamIndex, latestTimeoutIndex]);
 
   return (
     <Stack>
