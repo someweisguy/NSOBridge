@@ -11,7 +11,7 @@ class TimeoutSchema(ServerSchema):
 
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
-    clock_elapsed: timedelta
+    clock_elapsed: timedelta | None
 
     team_is_officials: bool
     is_review: bool
