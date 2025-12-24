@@ -1,6 +1,6 @@
 import BoutStateView from "@/components/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
-import { useSuspenseBout, usePrefetchBoutData } from "@/hooks/use-bout";
+import { usePrefetchBoutData, useSuspenseBout } from "@/hooks/use-bout";
 import { useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseSeries } from "@/hooks/use-series";
@@ -9,6 +9,7 @@ import { useSuspenseTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import FitScreen from "@fit-screen/react";
+import { Center, Grid, MantineProvider, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -21,13 +22,15 @@ createRoot(root).render(<App />);
 export default function App() {
   return (
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <Suspense fallback={"Loading..."}>
-          <FitScreen waitTime={25} mode="fit">
-            <Scoreboard />
-          </FitScreen>
-        </Suspense>
-      </QueryClientProvider>
+      <MantineProvider>
+        <QueryClientProvider client={queryClient}>
+          <Suspense fallback={"Loading..."}>
+            <FitScreen waitTime={25} mode="fit">
+              <Scoreboard />
+            </FitScreen>
+          </Suspense>
+        </QueryClientProvider>
+      </MantineProvider>
     </StrictMode>
   );
 }
@@ -51,28 +54,27 @@ function Scoreboard() {
   const { data: timeout } = useSuspenseTimeout(bout, timeoutIndex);
 
   return (
-    <div className="flex flex-col flex-nowrap grid-flow-row h-screen size-screen">
-      <div className="justify-stretch items-stretch grid grid-flow-col basis-1/2 shrink-0 grow-0">
-        {/* Primary Information (Team Info) */}
+    <Stack>
+      <Grid columns={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
-          <TeamView
-            key={i}
-            bout={bout}
-            team={team}
-            timeout={timeout}
-            ruleset={ruleset}
-          />
+          <Grid.Col key={i} span={1}>
+            <TeamView
+              bout={bout}
+              timeout={timeout}
+              ruleset={ruleset}
+              team={team}
+            />
+          </Grid.Col>
         ))}
-      </div>
-      <div className="justify-stretch items-stretch grid basis-1/2 shrink-0">
-        {/* Secondary Information (Clocks, etc.) */}
+      </Grid>
+      <Center>
         <BoutStateView
           bout={bout}
           activeJam={jam}
           latestTimeout={timeout}
           ruleset={ruleset}
         />
-      </div>
-    </div>
+      </Center>
+    </Stack>
   );
 }
