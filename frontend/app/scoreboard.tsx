@@ -71,8 +71,8 @@ function Scoreboard() {
       <Center>
         <BoutStateView
           bout={bout}
-          activeJam={jam}
-          latestTimeout={timeout}
+          activeOrLatestJam={jam}
+          activeTimeout={timeout}
           ruleset={ruleset}
         />
       </Center>

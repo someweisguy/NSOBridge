@@ -3,7 +3,7 @@ import BoutStateView from "@/components/bout-state-view";
 import TeamJamView from "@/components/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseBout, usePrefetchBoutData } from "@/hooks/use-bout";
-import { useSuspenseJam } from "@/hooks/use-jam";
+import { useJam, useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseSeries } from "@/hooks/use-series";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
@@ -84,7 +84,6 @@ function Main() {
 
   const { data: series } = useSuspenseSeries(0);
   const { data: bout } = useSuspenseBout(series);
-  usePrefetchBoutData(bout);
 
   const { data: ruleset } = useSuspenseRuleset(bout);
 
@@ -120,14 +119,12 @@ function Main() {
                 ))}
               </JamContext>
             </Grid>
-            <Suspense fallback={"Loading..."}>
-              <BoutStateView
-                bout={bout}
-                activeJam={jam}
-                latestTimeout={timeout}
-                ruleset={ruleset}
-              />
-            </Suspense>
+            <BoutStateView
+              bout={bout}
+              activeOrLatestJam={jam}
+              activeTimeout={timeout}
+              ruleset={ruleset}
+            />
           </Stack>
         </Container>
       </RulesetContext>

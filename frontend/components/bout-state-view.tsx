@@ -10,28 +10,27 @@ import { Center, Grid, Text } from "@mantine/core";
 
 interface BoutStateViewProps {
   bout: Bout;
-  activeJam: Jam;
-  latestTimeout: Timeout | null;
+  activeOrLatestJam: Jam;
+  activeTimeout: Timeout | null;
   ruleset: Ruleset;
 }
 
 export default function BoutStateView({
   bout,
-  activeJam,
-  latestTimeout,
+  activeOrLatestJam,
+  activeTimeout: latestTimeout,
   ruleset,
 }: BoutStateViewProps) {
   if (!bout.isRunning) {
     return (
       <Center>
-        <IntermissionState size="36pt" bout={bout} activeJam={activeJam} />
+        <IntermissionState size="36pt" bout={bout} />
       </Center>
     );
   }
 
-  let periodNum = activeJam.period;
-  let jamNum = activeJam.num;
-  if (activeJam.period >= 2) {
+  let [periodNum, jamNum] = bout.getActiveOrLatestJamIndex();
+  if (periodNum >= 2) {
     // Overtime Jams should be considered a continuation of the second half
     periodNum = 1;
     jamNum += bout.jamIds[1].length;
@@ -55,7 +54,7 @@ export default function BoutStateView({
         <Center>
           <JamClock
             size="36pt"
-            jam={activeJam}
+            jam={activeOrLatestJam}
             jamDuration={ruleset.jamDuration}
           />
         </Center>
@@ -66,7 +65,7 @@ export default function BoutStateView({
           <ExtraordinaryStateClock
             size="24pt"
             bout={bout}
-            activeJam={activeJam}
+            activeJam={activeOrLatestJam}
             latestTimeout={latestTimeout}
           />
         </Center>
