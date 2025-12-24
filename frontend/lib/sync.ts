@@ -1,10 +1,5 @@
-import { ServerInfoType } from "../types/ws";
+import { ServerInfoType, SyncDataType } from "../types/ws";
 import Socket, { localSocket } from "./ws";
-
-interface SyncDataType {
-  offset: number;
-  error: number;
-}
 
 const NUM_SYNC_SAMPLES = 5;
 
