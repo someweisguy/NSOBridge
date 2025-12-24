@@ -5,7 +5,7 @@ from core.schemas import ServerSchema
 
 
 @dataclass(frozen=True)
-class RulesetContext(ServerSchema):
+class Ruleset(ServerSchema):
     name: str
     num_periods: int
     jam_duration: timedelta

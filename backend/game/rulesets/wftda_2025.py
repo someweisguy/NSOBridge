@@ -11,7 +11,7 @@ from game.teams.models import BaseTeam
 from game.timeouts.models import BaseTimeout
 from game.trip_events.models import TripEvent
 
-from .schemas import RulesetContext
+from .schemas import Ruleset
 
 RULESET_NAME = 'WFTDA 2025'
 
@@ -26,7 +26,7 @@ class WFTDAModel:
 
 
 class Bout(WFTDAModel, BaseBout):
-    rules: ClassVar[RulesetContext] = RulesetContext(
+    rules: ClassVar[Ruleset] = Ruleset(
         name=RULESET_NAME,
         num_periods=2,
         jam_duration=timedelta(minutes=2),

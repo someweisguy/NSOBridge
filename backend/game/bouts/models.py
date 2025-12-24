@@ -19,17 +19,17 @@ from sqlalchemy.orm import (
 
 if TYPE_CHECKING:
     from game.jams.models import BaseJam
+    from game.rulesets.schemas import Ruleset
     from game.series.models import Series
     from game.teams.models import BaseTeam
     from game.timeouts.models import BaseTimeout
-    from rulesets.schemas import RulesetContext
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
 class BaseBout(CacheableSQLModel):
-    rules: ClassVar[RulesetContext]
+    rules: ClassVar[Ruleset]
 
     series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
