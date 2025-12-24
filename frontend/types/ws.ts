@@ -1,9 +1,10 @@
-export interface ServerInfoType {
-  process: Date;
+export interface ServerInfo {
+  process: Date | null;
   server: Date;
+  version: string;
 }
 
-export interface SyncDataType {
+export interface ServerSynchronizationData {
   offset: number;
   error: number;
 }

@@ -1,20 +1,25 @@
-import { ServerInfoType, SyncDataType } from "../types/ws";
+import { ServerInfo, ServerSynchronizationData } from "@/types/ws";
 import Socket, { localSocket } from "./ws";
 
 const NUM_SYNC_SAMPLES = 5;
 
 export async function getSyncData(
   socket: Socket = localSocket,
-): Promise<SyncDataType> {
+): Promise<ServerSynchronizationData> {
   // Collect a number of round-trip time samples
   let clientNow: Date;
-  let lastSyncPacket: ServerInfoType;
+  let lastSyncPacket: ServerInfo;
   const syncSamples: number[] = [];
   do {
-    const serverInfo: ServerInfoType = await socket.getServerInfo();
+    const info: ServerInfo = await socket.getServerInfo();
     clientNow = new Date();
-    syncSamples.push(clientNow.getTime() - serverInfo.process.getTime());
-    lastSyncPacket = serverInfo;
+    lastSyncPacket = info;
+    if (info.process == null) {
+      throw new Error(
+        "something went wrong when trying to synchronize the server time",
+      );
+    }
+    syncSamples.push(clientNow.getTime() - info.process.getTime());
   } while (syncSamples.length < NUM_SYNC_SAMPLES);
 
   // Calculate the average round-trip time
