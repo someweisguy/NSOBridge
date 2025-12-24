@@ -24,23 +24,18 @@ async def handle_socket(websocket: WebSocket) -> None:
 
     try:
         while True:
-            # Get the payload and automatically add the server time in the response
-            text: str = await websocket.receive_text()
-            try:
-                request: WebsocketClientSchema = (
-                    WebsocketClientSchema.model_validate_json(text)
-                )
-            except ValidationError:
-                request = WebsocketClientSchema(process=None)
-
-            # Generate and send a response
+            request: WebsocketClientSchema = WebsocketClientSchema.model_validate_json(
+                await websocket.receive_text()
+            )
             response: WebSocketServerSchema = AboutWebsocketServerSchema(
                 request.process
             )
             await websocket.send_text(response.model_dump_json())
     except WebSocketDisconnect:
         pass  # TODO: log client disconnection
-    except (ValidationError, Exception):
+    except ValidationError:
+        await websocket.close(1007)  # TODO: log error
+    except Exception:
         await websocket.close(1011)  # TODO: log error
     finally:
         CLIENTS.discard(websocket)
