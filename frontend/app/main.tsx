@@ -2,12 +2,12 @@ import BoutControlButtons from "@/components/bout-control-buttons";
 import BoutStateView from "@/components/bout-state-view";
 import TeamJamView from "@/components/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
-import { useBout, usePrefetchBoutData } from "@/hooks/use-bout";
-import { useJam } from "@/hooks/use-jam";
-import { useRuleset } from "@/hooks/use-ruleset";
-import { useSeries } from "@/hooks/use-series";
+import { useSuspenseBout, usePrefetchBoutData } from "@/hooks/use-bout";
+import { useSuspenseJam } from "@/hooks/use-jam";
+import { useSuspenseRuleset } from "@/hooks/use-ruleset";
+import { useSuspenseSeries } from "@/hooks/use-series";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
-import { useTimeout } from "@/hooks/use-timeout";
+import { useSuspenseTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
@@ -82,20 +82,20 @@ export default function App() {
 function Main() {
   usePrefetchServerTime();
 
-  const { data: series } = useSeries(0);
-  const { data: bout } = useBout(series);
+  const { data: series } = useSuspenseSeries(0);
+  const { data: bout } = useSuspenseBout(series);
   usePrefetchBoutData(bout);
 
-  const { data: ruleset } = useRuleset(bout);
+  const { data: ruleset } = useSuspenseRuleset(bout);
 
   // Fetch Jam data
   const jamIndex = bout.getActiveOrLatestJamIndex();
   const [periodNum, jamNum] = jamIndex;
-  const { data: jam } = useJam(bout, periodNum, jamNum);
+  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
 
   // Fetch Timeout data
   const timeoutIndex = bout.getActiveOrLatestTimeoutIndex();
-  const { data: timeout } = useTimeout(bout, timeoutIndex);
+  const { data: timeout } = useSuspenseTimeout(bout, timeoutIndex);
 
   return (
     <BoutContext value={bout}>

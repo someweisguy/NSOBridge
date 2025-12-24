@@ -2,7 +2,7 @@ import { Bout } from "@/lib/game/bouts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { getJam, Jam, TeamJam } from "../lib/game/jams";
 
-export const useJam = (bout: Bout, periodNum: number, jamNum: number) =>
+export const useSuspenseJam = (bout: Bout, periodNum: number, jamNum: number) =>
   useSuspenseQuery<Jam>({
     queryKey: Jam.generateKey(
       bout.seriesId,

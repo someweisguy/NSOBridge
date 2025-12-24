@@ -2,7 +2,7 @@ import { Bout } from "@/lib/game/bouts";
 import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
-export const useTimeout = (bout: Bout, index: number) =>
+export const useSuspenseTimeout = (bout: Bout, index: number) =>
   useSuspenseQuery<Timeout>({
     queryKey: Timeout.generateKey(
       bout.seriesId,

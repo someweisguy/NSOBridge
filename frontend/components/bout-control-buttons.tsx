@@ -8,7 +8,7 @@ import {
   useStopTimeout,
 } from "@/hooks/use-bout";
 import { useRedo, useUndo } from "@/hooks/use-history";
-import { useTimeout } from "@/hooks/use-timeout";
+import { useSuspenseTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
@@ -145,7 +145,7 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
   const startJam = useStartJam(bout);
 
   // FIXME: Remove this hook?
-  const { data } = useTimeout(bout, bout.getActiveTimeoutIndex()!);
+  const { data } = useSuspenseTimeout(bout, bout.getActiveTimeoutIndex()!);
 
   return (
     <>

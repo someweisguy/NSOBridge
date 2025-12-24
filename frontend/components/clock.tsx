@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useServerTime } from "../hooks/use-server-time";
+import { useSuspenseServerTime } from "../hooks/use-server-time";
 import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
 interface ClockProps {
@@ -19,7 +19,7 @@ export default function Clock({
   freeze = false,
   formatter = defaultTimeStringFormatter,
 }: ClockProps) {
-  const [serverTime, refreshServerTime] = useServerTime();
+  const [serverTime, refreshServerTime] = useSuspenseServerTime();
 
   useEffect(() => {
     if (freeze || startTimestamp == null) {

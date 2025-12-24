@@ -5,7 +5,7 @@ import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-export const useBout = (series: Series, index?: number) => {
+export const useSuspenseBout = (series: Series, index?: number) => {
   const [boutId, setBoutId] = useState(
     index == undefined
       ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])

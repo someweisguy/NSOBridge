@@ -6,7 +6,7 @@ const REFETCH_INTERVAL = 1000 * 60 * 5;
 
 const syncQueryKey = ["useServerTimeReactHook"];
 
-export const useServerTime = (): [Date, () => void] => {
+export const useSuspenseServerTime = (): [Date, () => void] => {
   const {
     data: { offset },
   } = useSuspenseQuery<{ offset: number; error: number }>({
