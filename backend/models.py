@@ -22,6 +22,8 @@ if TYPE_CHECKING:
     from sqlalchemy import Dialect
 
 
+type QueryKey = tuple[str, tuple[int, ...], dict[str, Any]]
+
 CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
 PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
@@ -70,7 +72,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
 class CacheableSQLModel(BaseSQLModel):
     __abstract__: bool = True
 
-    def cache_key(self) -> tuple[Any, ...]: ...
+    def cache_key(self) -> QueryKey: ...
 
     def get_snapshot(self) -> DatabaseMemento:
         copy = deepcopy(self)

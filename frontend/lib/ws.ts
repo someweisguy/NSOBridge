@@ -9,6 +9,11 @@ interface API {
   sync: ServerInfoType;
 }
 
+interface WebSocketSchema<K extends keyof API> {
+  type: K;
+  data: API[K];
+}
+
 export default class Socket {
   private ws: WebSocket;
   private allCallbacks = new Map<string, CallbackType[]>();
@@ -43,10 +48,10 @@ export default class Socket {
     };
     this.ws.onerror = () => this.ws.close();
     this.ws.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
-      const { type, data } = JSON.parse(event.data, dateReviver) as {
-        type: K;
-        data: API[K];
-      };
+      const { type, data } = JSON.parse(
+        event.data,
+        dateReviver,
+      ) as WebSocketSchema<K>;
       this.handleEvent(type, data);
     };
   }

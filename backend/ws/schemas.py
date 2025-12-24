@@ -4,21 +4,7 @@ from typing import Any, Literal
 from pydantic import Field, field_serializer, field_validator
 from schemas import ClientSchema, ServerSchema
 
-
-class WebSocketSchema(ServerSchema):
-    type: Literal['cache', 'sync']
-    data: Any | None
-
-    def __init__(
-        self, data_type: Literal['cache', 'sync'], data: Any | None = None
-    ) -> None:
-        super().__init__(type=data_type, data=data)
-
-    @field_serializer('data')
-    def _reject_null_data(self, data: Any | None) -> Any:
-        if data is None:
-            raise ValueError('Cannot send a Websocket packet without data')
-        return data
+from .service import CacheUpdateSchema
 
 
 # TODO: documentation, see https://en.wikipedia.org/wiki/Cristian%27s_algorithm
@@ -37,3 +23,19 @@ class SyncSchema(ClientSchema):
     def _serialize_server(cls, value: datetime) -> str:
         # This method is required to silence Pydantic serialization warnings
         return value.isoformat()
+
+
+class WebSocketSchema(ServerSchema):
+    type: Literal['cache', 'sync']
+    data: CacheUpdateSchema | SyncSchema
+
+    def __init__(
+        self, data_type: Literal['cache', 'sync'], data: Any | None = None
+    ) -> None:
+        super().__init__(type=data_type, data=data)
+
+    @field_serializer('data')
+    def _reject_null_data(self, data: Any | None) -> Any:
+        if data is None:
+            raise ValueError('Cannot send a Websocket packet without data')
+        return data
