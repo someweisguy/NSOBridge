@@ -2,7 +2,10 @@ import { localAPI } from "@/lib/requests";
 import { CacheKey } from "@/types/ws";
 
 export default async function getRoster(rosterId: number): Promise<Roster> {
-  return await localAPI.get("roster", { query: { rosterId } });
+  const data = await localAPI.get<Partial<Roster>>("roster", {
+    query: { rosterId },
+  });
+  return Object.assign(new Roster(), data);
 }
 
 export class Roster {

@@ -2,7 +2,9 @@ import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
 export async function getTimeout(timeoutId: number): Promise<Timeout> {
-  const data = await localAPI.get("timeout", { query: { timeoutId } });
+  const data = await localAPI.get<Partial<Timeout>>("timeout", {
+    query: { timeoutId },
+  });
   return Object.assign(new Timeout(), data);
 }
 

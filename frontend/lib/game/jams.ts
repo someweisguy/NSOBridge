@@ -2,7 +2,8 @@ import { CacheKey } from "@/types/ws";
 import { localAPI } from "@/lib/requests";
 
 export async function getJam(jamId: number): Promise<Jam> {
-  const data = await localAPI.get("jam", { query: { jamId } });
+  const data = await localAPI.get<Partial<Jam>>("jam", { query: { jamId } });
+  data.teamJams = data.teamJams?.map((tj) => Object.assign(new TeamJam(), tj));
   return Object.assign(new Jam(), data);
 }
 

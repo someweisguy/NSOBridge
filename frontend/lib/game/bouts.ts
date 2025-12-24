@@ -11,7 +11,7 @@ export interface Ruleset {
 }
 
 export async function getBout(boutId: number): Promise<Bout> {
-  const data = await localAPI.get("bout", { query: { boutId } });
+  const data = await localAPI.get<Partial<Bout>>("bout", { query: { boutId } });
   return Object.assign(new Bout(), data);
 }
 
