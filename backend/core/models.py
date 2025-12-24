@@ -18,7 +18,7 @@ from sqlalchemy.orm import (
 from sqlalchemy.sql.schema import Sequence
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
-from core.database import Memento, engine, session_factory
+from core.database import Memento, get_db
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
@@ -76,18 +76,18 @@ class CacheableSQLModel(BaseSQLModel):
 
     def cache_key(self) -> CacheKey: ...
 
-    def get_snapshot(self) -> DatabaseMemento:
+    def get_snapshot(self) -> ModelMemento:
         copy = deepcopy(self)
-        return DatabaseMemento(copy)
+        return ModelMemento(copy)
 
 
-class DatabaseMemento(Memento):
+class ModelMemento(Memento):
     def __init__(self, state: CacheableSQLModel) -> None:
         self._detached_state_to_restore: CacheableSQLModel = state
 
     @override
     async def restore(self) -> Memento:
-        async with session_factory() as session, session.begin():
+        async with get_db().session_factory() as session, session.begin():
             # Query and detach the current state of the database object
             Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
             statement: Select[tuple[CacheableSQLModel]] = (
@@ -104,8 +104,3 @@ class DatabaseMemento(Memento):
             await session.commit()
 
             return current_state.get_snapshot()
-
-
-async def create_all() -> None:
-    async with engine.connect() as database:
-        await database.run_sync(BaseSQLModel.metadata.create_all)
