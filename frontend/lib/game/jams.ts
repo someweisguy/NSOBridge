@@ -1,3 +1,4 @@
+import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
 export async function getJam(jamId: number): Promise<Jam> {
@@ -19,8 +20,12 @@ export class Jam {
 
   teamJams: TeamJam[];
 
-  static generateKey(seriesId: number, boutId: number, jamId: number) {
-    return ["jams", seriesId, boutId, jamId];
+  static generateKey(
+    seriesId: number,
+    boutId: number,
+    jamId: number,
+  ): CacheKey {
+    return ["jams", [seriesId, boutId, jamId], {}];
   }
 
   hasStarted(): boolean {

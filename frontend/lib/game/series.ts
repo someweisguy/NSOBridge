@@ -1,3 +1,4 @@
+import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
 export async function getSeries(): Promise<Series[]> {
@@ -13,7 +14,7 @@ export class Series {
   boutIds: number[];
   activeBoutId: number | null;
 
-  static generateKey() {
-    return ["series", "all"];
+  static generateKey(): CacheKey {
+    return ["series", [], {}];
   }
 }

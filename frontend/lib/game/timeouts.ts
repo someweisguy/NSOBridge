@@ -1,3 +1,4 @@
+import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
 export async function getTimeout(timeoutId: number): Promise<Timeout> {
@@ -33,8 +34,12 @@ export class Timeout {
   result: string;
   retained: boolean;
 
-  static generateKey(seriesId: number, boutId: number, timeoutId: number) {
-    return ["timeouts", seriesId, boutId, timeoutId];
+  static generateKey(
+    seriesId: number,
+    boutId: number,
+    timeoutId: number,
+  ): CacheKey {
+    return ["timeouts", [seriesId, boutId, timeoutId], {}];
   }
 
   hasStarted(): boolean {

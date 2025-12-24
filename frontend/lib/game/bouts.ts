@@ -1,4 +1,5 @@
 import { localAPI } from "@/lib/requests";
+import { CacheKey } from "@/types/ws";
 import Clock from "./timeouts";
 
 export interface Ruleset {
@@ -46,8 +47,8 @@ export class Bout {
   jamIds: number[][];
   timeoutIds: number[];
 
-  static generateKey(seriesId: number, boutId: number) {
-    return ["bouts", seriesId, boutId];
+  static generateKey(seriesId: number, boutId: number): CacheKey {
+    return ["bouts", [seriesId, boutId], {}];
   }
 
   async beginPeriod(): Promise<void> {

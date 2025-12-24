@@ -1,3 +1,5 @@
+import { CacheKey } from "@/types/ws";
+
 export class Ruleset {
   jamDuration: number;
   lineupDuration: number;
@@ -5,7 +7,7 @@ export class Ruleset {
   numTimeouts: number;
   numReviews: number;
 
-  static generateKey(rulesetName: string) {
-    return ["ruleset", rulesetName];
+  static generateKey(rulesetName: string): CacheKey {
+    return ["ruleset", [rulesetName], {}];
   }
 }
