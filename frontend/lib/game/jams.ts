@@ -1,5 +1,5 @@
 import { CacheKey } from "@/types/ws";
-import { localAPI } from "../requests";
+import { localAPI } from "@/lib/requests";
 
 export async function getJam(jamId: number): Promise<Jam> {
   const data = await localAPI.get("jam", { query: { jamId } });

@@ -1,6 +1,6 @@
 import { Bout } from "@/lib/game/bouts";
+import { getJam, Jam, TeamJam } from "@/lib/game/jams";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { getJam, Jam, TeamJam } from "../lib/game/jams";
 
 export const useSuspenseJam = (bout: Bout, periodNum: number, jamNum: number) =>
   useSuspenseQuery<Jam>({
