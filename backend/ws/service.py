@@ -1,18 +1,17 @@
 import asyncio
 from asyncio import Task
-from typing import Sequence
 
-from models import BaseSQLModel, CacheableSQLModel, QueryKey
+from models import BaseSQLModel, CacheableSQLModel
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 
+from ws.schemas import CacheWebsocketServerSchema
+
 from .router import BACKGROUND_TASKS, CLIENTS
-from .schemas import WebSocketSchema
-
-type CacheUpdateSchema = Sequence[QueryKey]
+from .schemas import WebSocketServerSchema
 
 
-def broadcast(payload: WebSocketSchema) -> None:
+def broadcast(payload: WebSocketServerSchema) -> None:
     for client in CLIENTS:
         task: Task[None] = asyncio.create_task(
             client.send_text(payload.model_dump_json())
@@ -37,9 +36,8 @@ def broadcast_updates(session: Session) -> None:
     }
 
     # Broadcast model keys of all updated cacheable models to clients
-    payload: WebSocketSchema = WebSocketSchema('cache')
-    payload.data = [
-        cacheable.cache_key() for cacheable in cacheables if cacheable.id is not None
-    ]
+    payload = CacheWebsocketServerSchema(
+        [cacheable.cache_key() for cacheable in cacheables if cacheable.id is not None]
+    )
     if len(payload.data) > 0:
         broadcast(payload)
