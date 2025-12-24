@@ -1,9 +1,9 @@
 import { Bout, createBout, getBout } from "@/lib/game/bouts";
-import { getJam, Jam } from "@/lib/game/jams";
 import { Series } from "@/lib/game/series";
-import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useJam } from "./use-jam";
+import { useTimeout } from "./use-timeout";
 
 export const useSuspenseBout = (series: Series, index?: number) => {
   const [boutId, setBoutId] = useState(
@@ -21,6 +21,27 @@ export const useSuspenseBout = (series: Series, index?: number) => {
   }, [series, index]);
 
   return useSuspenseQuery<Bout>({
+    queryKey: Bout.generateKey(series.id, boutId),
+    queryFn: () => getBout(boutId),
+  });
+};
+
+export const useBout = (series: Series, index?: number) => {
+  const [boutId, setBoutId] = useState(
+    index == undefined
+      ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
+      : series.boutIds[index],
+  );
+
+  useEffect(() => {
+    setBoutId(
+      index == undefined
+        ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
+        : series.boutIds[index],
+    );
+  }, [series, index]);
+
+  return useQuery<Bout>({
     queryKey: Bout.generateKey(series.id, boutId),
     queryFn: () => getBout(boutId),
   });
@@ -67,20 +88,6 @@ export const usePrefetchBoutData = (bout: Bout) => {
   const latestTimeoutIndex = bout.getLatestTimeoutIndex();
 
   // Don't use queryClient.prefetchQuery() as we want to be able to invalidate these
-  useQuery({
-    queryKey: Jam.generateKey(
-      bout.seriesId,
-      bout.id,
-      bout.jamIds[latestPeriodNum][latestJamNum],
-    ),
-    queryFn: () => getJam(bout.jamIds[latestPeriodNum][latestJamNum]),
-  });
-  useQuery({
-    queryKey: Timeout.generateKey(
-      bout.seriesId,
-      bout.id,
-      bout.timeoutIds[latestTimeoutIndex],
-    ),
-    queryFn: () => getTimeout(bout.timeoutIds[latestTimeoutIndex]),
-  });
+  void useJam(bout, latestPeriodNum, latestJamNum);
+  void useTimeout(bout, latestTimeoutIndex);
 };
