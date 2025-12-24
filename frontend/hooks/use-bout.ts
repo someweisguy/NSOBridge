@@ -141,6 +141,7 @@ export const usePrefetchBoutData = (bout: Bout) => {
     // Prefetch the next Jam
     const [latestPeriodNum, latestJamNum] = latestJamIndex;
     const latestJamId = bout.jamIds[latestPeriodNum][latestJamNum];
+    // FIXME: this attempts to fetch Jams with undefined ID
     void queryClient.prefetchQuery({
       queryKey: Jam.generateKey(bout.seriesId, bout.id, latestJamId),
       queryFn: () => getJam(latestJamId),
