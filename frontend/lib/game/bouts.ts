@@ -16,7 +16,7 @@ export async function getBout(boutId: number): Promise<Bout> {
 }
 
 export async function getRuleset(boutId: number): Promise<Ruleset> {
-  return localAPI.get<Ruleset>("bout/ruleset-context", {
+  return localAPI.get<Ruleset>("bout/ruleset", {
     query: { boutId },
   });
 }

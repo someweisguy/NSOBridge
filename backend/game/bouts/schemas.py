@@ -39,7 +39,7 @@ class BoutSchema(ServerSchema):
         return [timeout.id for timeout in self.timeouts]
 
 
-class BoutContextSchema(ServerSchema):
+class RulesetSchema(ServerSchema):
     jam_duration: timedelta
     lineup_duration: timedelta
     points_per_trip: int

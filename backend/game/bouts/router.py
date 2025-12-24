@@ -6,7 +6,7 @@ from game.teams.dependencies import OptionalTeamDepends
 from rulesets.schemas import RulesetContext
 
 from .dependencies import BoutDepends, get_bout
-from .schemas import BoutContextSchema, BoutSchema
+from .schemas import BoutSchema, RulesetSchema
 
 if TYPE_CHECKING:
     from game.timeouts.models import BaseTimeout
@@ -15,7 +15,7 @@ router: Final[APIRouter] = APIRouter(prefix='/bout')
 router.add_api_route('', get_bout, response_model=BoutSchema)
 
 
-@router.get('/ruleset-context', response_model=BoutContextSchema)
+@router.get('/ruleset', response_model=RulesetSchema)
 async def get_ruleset_context(bout: BoutDepends) -> RulesetContext:
     return bout.rules
 
