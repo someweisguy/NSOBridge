@@ -1,17 +1,17 @@
-import { ServerInfo, ServerSynchronizationData } from "@/types/ws";
+import { ServerData, SyncData } from "@/types/ws";
 import Socket, { localSocket } from "./ws";
 
 const NUM_SYNC_SAMPLES = 5;
 
 export async function getSyncData(
   socket: Socket = localSocket,
-): Promise<ServerSynchronizationData> {
+): Promise<SyncData> {
   // Collect a number of round-trip time samples
   let clientNow: Date;
-  let lastSyncPacket: ServerInfo;
+  let lastSyncPacket: ServerData;
   const syncSamples: number[] = [];
   do {
-    const info: ServerInfo = await socket.getServerInfo();
+    const info: ServerData = await socket.getServerInfo();
     clientNow = new Date();
     lastSyncPacket = info;
     if (info.process == null) {

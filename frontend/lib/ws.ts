@@ -1,12 +1,12 @@
-import { ServerInfo } from "../types/ws";
+import { CacheKey, ServerData } from "../types/ws";
 import { dateReviver } from "../utils/revivers";
 
 type CallbackType<T = unknown> = (data: T) => void;
 
 interface API {
-  cache: object[][];
+  cache: CacheKey[];
   connect: boolean;
-  about: ServerInfo;
+  about: ServerData;
 }
 
 interface WebSocketSchema<K extends keyof API> {
@@ -67,7 +67,7 @@ export default class Socket {
     this.allCallbacks.set(type, callbacks);
   }
 
-  async getServerInfo(): Promise<ServerInfo> {
+  async getServerInfo(): Promise<ServerData> {
     // Wait until the WebSocket is connected
     if (this.ws.readyState !== WebSocket.OPEN) {
       const connected = await this.receiveData("connect").catch(() => false);
