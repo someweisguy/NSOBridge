@@ -39,5 +39,5 @@ export const useSetLost = (teamJam: TeamJam) =>
 
 export const useSetStarPass = (teamJam: TeamJam) =>
   useMutation({
-    mutationFn: (starPass: boolean) => teamJam.setLost(starPass),
+    mutationFn: (starPass: boolean) => teamJam.setStarPass(starPass),
   });
