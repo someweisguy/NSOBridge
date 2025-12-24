@@ -67,6 +67,7 @@ function Scoreboard() {
           </Grid.Col>
         ))}
       </Grid>
+      {/* TODO: Lead Jam Status */}
       <Center>
         <BoutStateView
           bout={bout}
