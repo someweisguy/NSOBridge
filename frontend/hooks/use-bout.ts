@@ -1,9 +1,9 @@
 import { Bout, createBout, getBout } from "@/lib/game/bouts";
+import { getJam, Jam } from "@/lib/game/jams";
 import { Series } from "@/lib/game/series";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { getTimeout, Timeout } from "@/lib/game/timeouts";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useJam } from "./use-jam";
-import { useTimeout } from "./use-timeout";
 
 export const useBout = (series: Series, index?: number) => {
   const [boutId, setBoutId] = useState(
@@ -66,8 +66,21 @@ export const usePrefetchBoutData = (bout: Bout) => {
   const [latestPeriodNum, latestJamNum] = bout.getLatestJamIndex();
   const latestTimeoutIndex = bout.getLatestTimeoutIndex();
 
-  // FIXME: don't use suspense queries
   // Don't use queryClient.prefetchQuery() as we want to be able to invalidate these
-  void useJam(bout, latestPeriodNum, latestJamNum);
-  void useTimeout(bout, latestTimeoutIndex);
+  useQuery({
+    queryKey: Jam.generateKey(
+      bout.seriesId,
+      bout.id,
+      bout.jamIds[latestPeriodNum][latestJamNum],
+    ),
+    queryFn: () => getJam(bout.jamIds[latestPeriodNum][latestJamNum]),
+  });
+  useQuery({
+    queryKey: Timeout.generateKey(
+      bout.seriesId,
+      bout.id,
+      bout.timeoutIds[latestTimeoutIndex],
+    ),
+    queryFn: () => getTimeout(bout.timeoutIds[latestTimeoutIndex]),
+  });
 };
