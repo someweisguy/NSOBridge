@@ -109,6 +109,10 @@ export class Bout {
     return [periodNum, jamNum];
   }
 
+  getActiveOrLatestJamIndex(): [number, number] {
+    return this.getActiveJamIndex() ?? this.getLatestJamIndex();
+  }
+
   getLatestTimeoutIndex(): number {
     let timeoutIndex = this.timeoutIds.length - 1;
     if (timeoutIndex < 0) {
@@ -123,6 +127,10 @@ export class Bout {
     }
 
     return this.timeoutIds.length - 2;
+  }
+
+  getActiveOrLatestTimeoutIndex(): number {
+    return this.getActiveTimeoutIndex() ?? this.getLatestTimeoutIndex();
   }
 }
 

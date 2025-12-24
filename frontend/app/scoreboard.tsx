@@ -1,11 +1,6 @@
 import BoutStateView from "@/components/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
-import {
-  useActiveOrLatestJamIndex,
-  useActiveOrLatestTimeoutIndex,
-  useBout,
-  usePrefetchBoutData,
-} from "@/hooks/use-bout";
+import { useBout, usePrefetchBoutData } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { useRuleset } from "@/hooks/use-ruleset";
 import { useSeries } from "@/hooks/use-series";
@@ -47,12 +42,12 @@ function Scoreboard() {
   const { data: ruleset } = useRuleset(bout);
 
   // Fetch Jam data
-  const jamIndex = useActiveOrLatestJamIndex(bout);
+  const jamIndex = bout.getActiveOrLatestJamIndex();
   const [periodNum, jamNum] = jamIndex;
   const { data: jam } = useJam(bout, periodNum, jamNum);
 
   // Fetch Timeout data
-  const timeoutIndex = useActiveOrLatestTimeoutIndex(bout);
+  const timeoutIndex = bout.getActiveOrLatestTimeoutIndex();
   const { data: timeout } = useTimeout(bout, timeoutIndex);
 
   return (

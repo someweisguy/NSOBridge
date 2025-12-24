@@ -1,5 +1,4 @@
 import {
-  useActiveTimeoutIndex,
   useBeginPeriod,
   useCreateBout,
   useEndPeriod,
@@ -146,7 +145,7 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
   const startJam = useStartJam(bout);
 
   // FIXME: Remove this hook?
-  const { data } = useTimeout(bout, useActiveTimeoutIndex(bout)!);
+  const { data } = useTimeout(bout, bout.getActiveTimeoutIndex()!);
 
   return (
     <>
