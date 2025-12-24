@@ -2,7 +2,7 @@ from typing import Final
 
 from fastapi import APIRouter
 
-from users.dependencies import UserDepends
+from .dependencies import UserDepends
 
 router: Final[APIRouter] = APIRouter()
 
