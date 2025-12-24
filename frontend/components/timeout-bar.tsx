@@ -1,4 +1,5 @@
-import { Ruleset, Team } from "@/lib/game/bouts";
+import { Team } from "@/lib/game/bouts";
+import { Ruleset } from "@/lib/game/ruleset";
 import { Timeout } from "@/lib/game/timeouts";
 import { Card, Center, Divider } from "@mantine/core";
 import { IconCircleFilled } from "@tabler/icons-react";
