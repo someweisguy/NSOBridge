@@ -6,7 +6,7 @@ type CallbackType<T = unknown> = (data: T) => void;
 interface API {
   cache: object[][];
   connect: boolean;
-  sync: ServerInfo;
+  about: ServerInfo;
 }
 
 interface WebSocketSchema<K extends keyof API> {
@@ -77,7 +77,7 @@ export default class Socket {
     }
 
     this.ws.send(JSON.stringify({ process: new Date() }));
-    return this.receiveData("sync");
+    return this.receiveData("about");
   }
 }
 
