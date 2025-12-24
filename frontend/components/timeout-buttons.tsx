@@ -48,7 +48,13 @@ export default function TimeoutButtons({
               disabled: timeout.isReview,
             },
           ]}
-          value={timeout.teamId == null ? "" : String(timeout.teamId)}
+          value={
+            timeout.teamId == null
+              ? timeout.teamIsOfficials
+                ? String(NaN)
+                : ""
+              : String(timeout.teamId)
+          }
           onChange={(teamId) =>
             setTeam.mutate(teamId == String(NaN) ? null : Number(teamId))
           }
