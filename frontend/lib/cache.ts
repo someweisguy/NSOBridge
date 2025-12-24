@@ -1,3 +1,4 @@
+import { CacheKey } from "@/types/ws";
 import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { localSocket } from "./ws";
 
@@ -19,7 +20,7 @@ localSocket.addCallback("connect", (connected: boolean) => {
   }
 });
 
-localSocket.addCallback("cache", (keys: object[][]) => {
+localSocket.addCallback("cache", (keys: CacheKey[]) => {
   for (const key of keys) {
     void queryClient.invalidateQueries(
       {
