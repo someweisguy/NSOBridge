@@ -3,9 +3,9 @@ from abc import ABC
 from datetime import datetime
 from typing import Any, Sequence
 
-from models import CacheKey
+from core.models import CacheKey
+from core.schemas import ClientSchema, ServerSchema
 from pydantic import Field, field_serializer
-from schemas import ClientSchema, ServerSchema
 
 type CacheServerSchema = Sequence[CacheKey]
 

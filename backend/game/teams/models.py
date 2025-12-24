@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final
 
-from game.bouts.models import BaseBout
-from game.team_jams.models import TeamJam
-from game.timeouts.models import BaseTimeout
-from models import (
+from core.models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     BaseSQLModel,
 )
+from game.bouts.models import BaseBout
+from game.team_jams.models import TeamJam
+from game.timeouts.models import BaseTimeout
 from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import (
     Mapped,

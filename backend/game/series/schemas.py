@@ -1,7 +1,7 @@
+from core.schemas import ServerSchema
 from game.bouts.schemas import BoutSchema
 from pydantic import Field
 from pydantic.fields import computed_field
-from schemas import ServerSchema
 
 
 class SeriesSchema(ServerSchema):

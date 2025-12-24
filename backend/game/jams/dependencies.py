@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Annotated, Literal, TypeAlias, overload
 
-from database import AsyncSessionDepends
+from core.database import AsyncSessionDepends
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from users.dependencies import UserDepends

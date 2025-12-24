@@ -5,7 +5,6 @@ from datetime import timedelta
 from math import floor
 from typing import TYPE_CHECKING, Any, Final, final, override
 
-from database import Memento, engine, session_factory
 from sqlalchemy import Result, Select, inspect, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
@@ -18,6 +17,8 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.sql.schema import Sequence
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
+
+from core.database import Memento, engine, session_factory
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect

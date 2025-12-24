@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from game.jams.models import BaseJam
-from game.trip_events.models import TripEvent
-from models import (
+from core.models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     BaseSQLModel,
 )
+from game.jams.models import BaseJam
+from game.trip_events.models import TripEvent
 from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import (
     Mapped,

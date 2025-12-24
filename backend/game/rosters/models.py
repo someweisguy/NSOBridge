@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import override
 
-from models import (
+from core.models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     BaseSQLModel,

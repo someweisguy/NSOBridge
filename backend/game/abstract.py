@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from models import BaseSQLModel
+from core.models import BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint
 from sqlalchemy.orm import (
     Mapped,
@@ -33,7 +33,7 @@ class AbstractOneShotModel(BaseSQLModel):
         if timestamp < self.start_timestamp:
             raise RuntimeError('Cannot stop a Clock before it has been started')
         self.stop_timestamp = timestamp
-        
+
     def is_started(self) -> bool:
         return self.start_timestamp is not None
 

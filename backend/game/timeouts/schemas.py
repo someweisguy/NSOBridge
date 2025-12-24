@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta  # noqa: TC003
 
-from schemas import ServerSchema
+from core.schemas import ServerSchema
 
 
 class TimeoutSchema(ServerSchema):

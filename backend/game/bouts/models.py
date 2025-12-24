@@ -3,13 +3,13 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
 
-from game.clocks.models import Clock
-from models import (
+from core.models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     CacheableSQLModel,
     CacheKey,
 )
+from game.clocks.models import Clock
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import (
     Mapped,

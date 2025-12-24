@@ -5,10 +5,10 @@ from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import Final, LiteralString
 
-import models
 import ws
-from database import session_factory
-from exceptions import RulesError
+from core import models
+from core.database import session_factory
+from core.exceptions import RulesError
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Sequence
 
-from database import AsyncSessionDepends
+from core.database import AsyncSessionDepends
 from sqlalchemy import select
 
 from .models import Series

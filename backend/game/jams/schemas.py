@@ -1,8 +1,8 @@
 from datetime import datetime
 
+from core.schemas import ServerSchema
 from game.jams.models import StopReasonStr
 from game.team_jams.schemas import TeamJamSchema
-from schemas import ServerSchema
 
 
 class JamSchema(ServerSchema):

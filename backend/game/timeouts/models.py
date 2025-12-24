@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
 
+from core.models import PARENT_RELATIONSHIP, CacheableSQLModel, CacheKey
 from game.abstract import AbstractOneShotModel
 from game.bouts.models import BaseBout
-from models import PARENT_RELATIONSHIP, CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import (
     Mapped,
