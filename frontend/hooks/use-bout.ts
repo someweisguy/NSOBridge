@@ -2,8 +2,6 @@ import { Bout, createBout, getBout } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useJam } from "./use-jam";
-import { useTimeout } from "./use-timeout";
 
 export const useSuspenseBout = (series: Series, index?: number) => {
   const [boutId, setBoutId] = useState(
@@ -82,12 +80,3 @@ export const useStopTimeout = (bout: Bout) =>
   useMutation({
     mutationFn: () => bout.stopTimeout(),
   });
-
-export const usePrefetchBoutData = (bout: Bout) => {
-  const [latestPeriodNum, latestJamNum] = bout.getLatestJamIndex();
-  const latestTimeoutIndex = bout.getLatestTimeoutIndex();
-
-  // Don't use queryClient.prefetchQuery() as we want to be able to invalidate these
-  void useJam(bout, latestPeriodNum, latestJamNum);
-  void useTimeout(bout, latestTimeoutIndex);
-};

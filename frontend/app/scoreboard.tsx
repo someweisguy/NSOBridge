@@ -1,11 +1,11 @@
 import BoutStateView from "@/components/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
-import { usePrefetchBoutData, useSuspenseBout } from "@/hooks/use-bout";
-import { useSuspenseJam } from "@/hooks/use-jam";
+import { useSuspenseBout } from "@/hooks/use-bout";
+import { useJam, useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseSeries } from "@/hooks/use-series";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
-import { useSuspenseTimeout } from "@/hooks/use-timeout";
+import { useSuspenseTimeout, useTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import FitScreen from "@fit-screen/react";
@@ -40,7 +40,10 @@ function Scoreboard() {
 
   const { data: series } = useSuspenseSeries(0);
   const { data: bout } = useSuspenseBout(series);
-  usePrefetchBoutData(bout);
+
+  // Eagerly query the latest Jam and Timeout to avoid suspending
+  void useJam(bout, ...bout.getLatestJamIndex());
+  void useTimeout(bout, bout.getLatestTimeoutIndex());
 
   const { data: ruleset } = useSuspenseRuleset(bout);
 
