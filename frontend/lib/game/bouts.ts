@@ -121,7 +121,7 @@ export class Bout {
   }
 }
 
-export class Team {
+export interface Team {
   id: number;
   rosterId: number;
   boutId: number;

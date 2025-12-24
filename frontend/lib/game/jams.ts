@@ -1,5 +1,5 @@
-import { CacheKey } from "@/types/ws";
 import { localAPI } from "@/lib/requests";
+import { CacheKey } from "@/types/ws";
 
 export async function getJam(jamId: number): Promise<Jam> {
   const data = await localAPI.get<Partial<Jam>>("jam", { query: { jamId } });
@@ -41,14 +41,7 @@ export class Jam {
 export class TeamJam {
   jamId: number;
   teamId: number;
-  events: {
-    id: number;
-    timestamp: Date;
-    lead: boolean;
-    lost: boolean;
-    passes: number | null;
-    starPass: boolean;
-  }[];
+  events: TripEvent[];
 
   async addTrip(passes: number) {
     await localAPI.post("jam/add-trip", {
@@ -77,4 +70,13 @@ export class TeamJam {
       body: starPass,
     });
   }
+}
+
+export interface TripEvent {
+  id: number;
+  timestamp: Date;
+  lead: boolean;
+  lost: boolean;
+  passes: number | null;
+  starPass: boolean;
 }
