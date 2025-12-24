@@ -1,6 +1,6 @@
-import { Ruleset } from "@/lib/game/ruleset";
+import { Bout } from "@/lib/game/bouts";
+import { getRuleset, Ruleset } from "@/lib/game/ruleset";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { Bout, getRuleset } from "../lib/game/bouts";
 
 export const useSuspenseRuleset = (bout: Bout) =>
   useSuspenseQuery<Ruleset>({

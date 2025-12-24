@@ -2,23 +2,9 @@ import { localAPI } from "@/lib/requests";
 import { CacheKey } from "@/types/ws";
 import Clock from "./timeouts";
 
-export interface Ruleset {
-  jamDuration: number;
-  lineupDuration: number;
-  pointsPerTrip: number;
-  numTimeouts: number;
-  numReviews: number;
-}
-
 export async function getBout(boutId: number): Promise<Bout> {
   const data = await localAPI.get<Partial<Bout>>("bout", { query: { boutId } });
   return Object.assign(new Bout(), data);
-}
-
-export async function getRuleset(boutId: number): Promise<Ruleset> {
-  return localAPI.get<Ruleset>("bout/ruleset", {
-    query: { boutId },
-  });
 }
 
 export async function createBout(
