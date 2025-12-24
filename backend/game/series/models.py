@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, override
 
-from models import CHILD_RELATIONSHIP, CacheableSQLModel
+from models import CHILD_RELATIONSHIP, CacheableSQLModel, CacheKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -22,6 +22,6 @@ class Series(CacheableSQLModel):
     __tablename__: str = 'series'
 
     @override
-    def cache_key(self) -> tuple[Any, ...]:
+    def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
-        return (self.__tablename__, 'all')
+        return (self.__tablename__, [], {})

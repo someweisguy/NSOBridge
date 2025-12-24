@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from game.abstract import AbstractOneShotModel
 from game.bouts.models import BaseBout
-from models import PARENT_RELATIONSHIP, CacheableSQLModel
+from models import PARENT_RELATIONSHIP, CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import (
     Mapped,
@@ -61,8 +61,8 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         super().__init__()
 
     @override
-    def cache_key(self) -> tuple[Any, ...]:
-        return (self.__tablename__, self.bout.series_id, self.bout_id, self.id)
+    def cache_key(self) -> CacheKey:
+        return (self.__tablename__, [self.bout.series_id, self.bout_id, self.id], {})
 
     def set_type(self, is_review: bool) -> None: ...
 

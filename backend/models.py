@@ -16,13 +16,14 @@ from sqlalchemy.orm import (
     Mapped,
     mapped_column,
 )
+from sqlalchemy.sql.schema import Sequence
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
 
 
-type QueryKey = tuple[str, tuple[int, ...], dict[str, Any]]
+type CacheKey = tuple[str, Sequence[int | float | str | bool, ...], dict[str, Any]]
 
 CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
 PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
@@ -72,7 +73,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
 class CacheableSQLModel(BaseSQLModel):
     __abstract__: bool = True
 
-    def cache_key(self) -> QueryKey: ...
+    def cache_key(self) -> CacheKey: ...
 
     def get_snapshot(self) -> DatabaseMemento:
         copy = deepcopy(self)

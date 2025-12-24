@@ -8,6 +8,7 @@ from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     CacheableSQLModel,
+    CacheKey,
 )
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import (
@@ -76,8 +77,8 @@ class BaseBout(CacheableSQLModel):
         super().__init__(series=series, clock=Clock(bout=self), ruleset=ruleset)
 
     @override
-    def cache_key(self) -> tuple[Any, ...]:
-        return (self.__tablename__, self.series_id, self.id)
+    def cache_key(self) -> CacheKey:
+        return (self.__tablename__, [self.series_id, self.id], {})
 
     @final
     @property
@@ -101,7 +102,7 @@ class BaseBout(CacheableSQLModel):
 
     def get_running_timeout(self) -> BaseTimeout | None:
         return next((t for t in self.timeouts if t.is_running()), None)
-    
+
     def get_upcoming_timeout(self) -> BaseTimeout | None:
         return next((t for t in self.timeouts if not t.is_started()), None)
 

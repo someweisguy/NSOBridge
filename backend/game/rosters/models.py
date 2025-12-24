@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, override
+from typing import override
 
 from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     BaseSQLModel,
     CacheableSQLModel,
+    CacheKey,
 )
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -55,5 +56,5 @@ class Roster(CacheableSQLModel):
         super().__init__(name=name, league=league, mnemonic=mnemonic)
 
     @override
-    def cache_key(self) -> tuple[Any, ...]:
-        return (self.__tablename__, self.id)
+    def cache_key(self) -> CacheKey:
+        return (self.__tablename__, [self.id], {})

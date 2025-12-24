@@ -3,11 +3,11 @@ from abc import ABC
 from datetime import datetime
 from typing import Any, Sequence
 
-from models import QueryKey
+from models import CacheKey
 from pydantic import Field, field_serializer
 from schemas import ClientSchema, ServerSchema
 
-type CacheServerSchema = Sequence[QueryKey]
+type CacheServerSchema = Sequence[CacheKey]
 
 
 class WebsocketClientSchema(ClientSchema):
@@ -33,7 +33,7 @@ class WebSocketServerSchema[T: Any](ServerSchema, ABC):
 
 
 class CacheWebsocketServerSchema(WebSocketServerSchema):
-    def __init__(self, data: Sequence[QueryKey]) -> None:
+    def __init__(self, data: Sequence[CacheKey]) -> None:
         super().__init__(type='cache', data=data)
 
 

@@ -8,6 +8,7 @@ from models import (
     CHILD_RELATIONSHIP,
     PARENT_RELATIONSHIP,
     CacheableSQLModel,
+    CacheKey,
 )
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
@@ -64,8 +65,8 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         return self.get_team_jam_by_team(key)
 
     @override
-    def cache_key(self) -> tuple[Any, ...]:
-        return (self.__tablename__, self.bout.series_id, self.bout_id, self.id)
+    def cache_key(self) -> CacheKey:
+        return (self.__tablename__, [self.bout.series_id, self.bout_id, self.id], {})
 
     def get_team_jam_by_team(self, team: BaseTeam | int) -> TeamJam:
         if not isinstance(team, int):
