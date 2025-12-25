@@ -1,44 +1,26 @@
 from __future__ import annotations
 
-import os
-from typing import TYPE_CHECKING, Annotated, Final, Protocol, TypeAlias
+from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
-    create_async_engine,
 )
+
+from .models import get_async_session_factory
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
 
-DATABASE: Final[str] = os.environ.get('DB_PATH', ':memory:')
-DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {
-    'true',
-    'yes',
-}
-
-engine: Final[AsyncEngine] = create_async_engine(
-    f'sqlite+aiosqlite:///{DATABASE}',
-    echo=DEBUG,
-)
-session_factory: Final[async_sessionmaker[AsyncSession]] = async_sessionmaker(
-    bind=engine,
-    expire_on_commit=False,
-)
-
-
-class Memento(Protocol):
-    async def restore(self) -> Memento: ...
-
-
-async def _get_async_session() -> AsyncGenerator[AsyncSession, None]:
+async def _get_async_session(
+    session_factory: Annotated[async_sessionmaker, Depends(get_async_session_factory)],
+) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session, session.begin():
         yield session
-        await session.commit()
+
+        await session.commit()  # Automatically commit after each session
 
 
 AsyncSessionDepends: TypeAlias = Annotated[AsyncSession, Depends(_get_async_session)]

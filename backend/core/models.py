@@ -1,13 +1,27 @@
 from __future__ import annotations
 
+import os
 from copy import deepcopy
 from datetime import timedelta
 from math import floor
-from typing import TYPE_CHECKING, Any, Final, final, override
+from typing import (
+    TYPE_CHECKING,
+    Annotated,
+    Any,
+    Final,
+    Protocol,
+    final,
+    override,
+)
 
+from fastapi import Cookie
 from sqlalchemy import Result, Select, inspect, select
+from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
 )
 from sqlalchemy.orm import (
     CascadeOptions,
@@ -18,16 +32,26 @@ from sqlalchemy.orm import (
 from sqlalchemy.sql.schema import Sequence
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
-from core.database import Memento, engine, session_factory
-
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 
 type CacheKey = tuple[str, Sequence[int | float | str | bool, ...], dict[str, Any]]
 
 CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
 PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
+
+DB_PROTOCOL = 'sqlite+aiosqlite:///'
+DATABASE_DIRECTORY = ''
+DATABASE: Final[str] = os.environ.get('DB_PATH', ':memory:')
+DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {
+    'true',
+    'yes',
+}
+
+_session_factories: dict[str, async_sessionmaker] = {}
 
 
 class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
@@ -76,17 +100,28 @@ class CacheableSQLModel(BaseSQLModel):
 
     def cache_key(self) -> CacheKey: ...
 
-    def get_snapshot(self) -> DatabaseMemento:
-        copy = deepcopy(self)
-        return DatabaseMemento(copy)
+    def get_snapshot(self, session: AsyncSession) -> DatabaseMemento:
+        copy: CacheableSQLModel = deepcopy(self)
+        return DatabaseMemento(copy, session)
+
+
+class Memento(Protocol):
+    async def restore(self) -> Memento: ...
 
 
 class DatabaseMemento(Memento):
-    def __init__(self, state: CacheableSQLModel) -> None:
+    def __init__(self, state: CacheableSQLModel, session: AsyncSession) -> None:
         self._detached_state_to_restore: CacheableSQLModel = state
+        connection: Connection | Engine = session.get_bind()
+        if isinstance(connection, Connection):
+            connection = connection.engine
+        self._factory_name: str = str(connection.url)
 
     @override
     async def restore(self) -> Memento:
+        session_factory: async_sessionmaker = await get_async_session_factory(
+            self._factory_name
+        )
         async with session_factory() as session, session.begin():
             # Query and detach the current state of the database object
             Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
@@ -103,9 +138,27 @@ class DatabaseMemento(Memento):
             _ = await session.merge(self._detached_state_to_restore)
             await session.commit()
 
-            return current_state.get_snapshot()
+            return current_state.get_snapshot(session)
 
 
-async def create_all() -> None:
-    async with engine.connect() as database:
-        await database.run_sync(BaseSQLModel.metadata.create_all)
+async def get_async_session_factory(
+    name: Annotated[str, Cookie()] = '',
+) -> async_sessionmaker:
+    if not name.isprintable():
+        raise ValueError('Invalid file name')
+
+    session_factory: async_sessionmaker | None = _session_factories.get(name, None)
+    if session_factory is None:
+        engine: AsyncEngine = create_async_engine(
+            DB_PROTOCOL + DATABASE_DIRECTORY + (name if name != '' else ':memory:'),
+            echo=DEBUG,
+        )
+        session_factory = async_sessionmaker(
+            bind=engine,
+            expire_on_commit=False,
+        )
+        async with engine.connect() as session:
+            await session.run_sync(BaseSQLModel.metadata.create_all)
+        _session_factories[name] = session_factory
+
+    return session_factory

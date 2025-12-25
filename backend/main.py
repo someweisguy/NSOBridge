@@ -3,11 +3,10 @@ import logging
 import os
 from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
-from typing import Final, LiteralString
+from typing import TYPE_CHECKING, Final, LiteralString
 
 import ws
-from core import models
-from core.database import session_factory
+from core.database import get_async_session_factory
 from core.exceptions import RulesError
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
@@ -20,6 +19,10 @@ from game.series.models import Series
 from sqlalchemy import Result, Select, select
 from users.router import router as user_router
 from uvicorn import Config, Server
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+
 
 logging.basicConfig(
     format='{levelname}: {message}',
@@ -63,10 +66,9 @@ async def rules_error_handler(request: Request, e: RulesError) -> JSONResponse:
 
 
 async def main(host: str = '0.0.0.0', port: int = 8000) -> None:
-    await models.create_all()
-
     # Create a Bout model if one does not already exist
     bout: Bout | None = None
+    session_factory: async_sessionmaker = await get_async_session_factory()
     async with session_factory() as session, session.begin():
         statement: Select[tuple[Bout]] = select(Bout)
         results: Result[tuple[Bout]] = await session.execute(statement)
