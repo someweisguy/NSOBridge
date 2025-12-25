@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
-from core.database import AsyncSessionDepends
+from core.dependencies import AsyncSessionDepends
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from users.dependencies import UserDepends
@@ -25,7 +25,7 @@ async def get_bout(
 
     # Optionally take a snapshot of the Bout state and return the Bout
     if request.method != 'GET':
-        user.stage(bout.get_snapshot())
+        user.stage(bout.get_snapshot(session))
     return bout
 
 

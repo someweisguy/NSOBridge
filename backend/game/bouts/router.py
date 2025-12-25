@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Final
 
 from fastapi import APIRouter, Body
+from game.rulesets.schemas import Ruleset
 from game.teams.dependencies import OptionalTeamDepends
-from rulesets.schemas import RulesetContext
 
 from .dependencies import BoutDepends, get_bout
 from .schemas import BoutSchema, RulesetSchema
@@ -16,7 +16,7 @@ router.add_api_route('', get_bout, response_model=BoutSchema)
 
 
 @router.get('/ruleset', response_model=RulesetSchema)
-async def get_ruleset_context(bout: BoutDepends) -> RulesetContext:
+async def get_ruleset_context(bout: BoutDepends) -> Ruleset:
     return bout.rules
 
 
