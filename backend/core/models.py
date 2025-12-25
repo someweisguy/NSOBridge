@@ -1,13 +1,23 @@
 from __future__ import annotations
 
+import os
 from copy import deepcopy
 from datetime import timedelta
 from math import floor
-from typing import TYPE_CHECKING, Any, Final, final, override
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    LiteralString,
+    Protocol,
+    final,
+    override,
+)
 
 from sqlalchemy import Result, Select, inspect, select
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
+    async_sessionmaker,
+    create_async_engine,
 )
 from sqlalchemy.orm import (
     CascadeOptions,
@@ -18,16 +28,18 @@ from sqlalchemy.orm import (
 from sqlalchemy.sql.schema import Sequence
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
-from core.database import Memento, engine, session_factory
-
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
+    from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 
 type CacheKey = tuple[str, Sequence[int | float | str | bool, ...], dict[str, Any]]
 
-CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
-PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
+_DB_PREFIX: LiteralString = 'sqlite+aiosqlite:///' + ''
+_DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
+
+CHILD_RELATIONSHIP: LiteralString = 'all, delete-orphan'
+PARENT_RELATIONSHIP: LiteralString = 'expunge, save-update'
 
 
 class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
@@ -77,8 +89,12 @@ class CacheableSQLModel(BaseSQLModel):
     def cache_key(self) -> CacheKey: ...
 
     def get_snapshot(self) -> DatabaseMemento:
-        copy = deepcopy(self)
+        copy: CacheableSQLModel = deepcopy(self)
         return DatabaseMemento(copy)
+
+
+class Memento(Protocol):
+    async def restore(self) -> Memento: ...
 
 
 class DatabaseMemento(Memento):
@@ -87,6 +103,7 @@ class DatabaseMemento(Memento):
 
     @override
     async def restore(self) -> Memento:
+        session_factory: async_sessionmaker = await Database.get_async_session_factory()
         async with session_factory() as session, session.begin():
             # Query and detach the current state of the database object
             Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
@@ -106,6 +123,36 @@ class DatabaseMemento(Memento):
             return current_state.get_snapshot()
 
 
-async def create_all() -> None:
-    async with engine.connect() as database:
-        await database.run_sync(BaseSQLModel.metadata.create_all)
+class Database:
+    _name: str = ':memory:'
+    _session_factories: dict[str, async_sessionmaker] = {}
+
+    @classmethod
+    async def get_file_name(cls) -> str:
+        return cls._name
+
+    @classmethod
+    async def set_file_name(cls, name: str) -> None:
+        cls._name = name
+
+    @classmethod
+    async def get_async_session_factory(cls, name: str = '') -> async_sessionmaker:
+        session_factory: async_sessionmaker | None = cls._session_factories.get(
+            name, None
+        )
+        if session_factory is None:
+            if name != '':
+                pass  # TODO: ensure that `name` is a legal filename
+            engine: AsyncEngine = create_async_engine(
+                _DB_PREFIX + (f'{name}' if name != '' else cls._name),
+                echo=_DEBUG,
+            )
+            session_factory = async_sessionmaker(
+                bind=engine,
+                expire_on_commit=False,
+            )
+            async with engine.connect() as session:
+                await session.run_sync(BaseSQLModel.metadata.create_all)
+            cls._session_factories[name] = session_factory
+
+        return session_factory
