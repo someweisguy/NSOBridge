@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta  # noqa: TC003
+from datetime import datetime  # noqa: TC003
 from typing import Literal  # noqa: TC003
 
 from core.schemas import ServerSchema
@@ -37,11 +37,3 @@ class BoutSchema(ServerSchema):
     @property
     def timeout_ids(self) -> list[int]:
         return [timeout.id for timeout in self.timeouts]
-
-
-class RulesetSchema(ServerSchema):
-    jam_duration: timedelta
-    lineup_duration: timedelta
-    points_per_trip: int
-    num_timeouts: int
-    num_reviews: int
