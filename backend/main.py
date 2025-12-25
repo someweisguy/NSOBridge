@@ -26,6 +26,9 @@ logging.basicConfig(
 
 
 async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
+    database_name: str = await Database.get_file_name()
+    print(f'Connecting to Database in: {database_name}')
+
     # Create a Bout model if one does not already exist
     bout: Bout | None = None
     session_factory: async_sessionmaker = await Database.get_async_session_factory()
@@ -54,7 +57,7 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
     except OSError:
         ip = '127.0.0.1'
     HTTP_PORT: Final[int] = 80
-    print(f'Starting server at http://{ip}{f":{PORT}" if PORT != HTTP_PORT else ""}')
+    print(f'Starting server at http://{ip}{f":{port}" if port != HTTP_PORT else ""}')
     await core.run()
 
 
