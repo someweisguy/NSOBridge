@@ -8,14 +8,16 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 
-from .models import get_async_session_factory
+from .models import Database
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
 
 async def _get_async_session(
-    session_factory: Annotated[async_sessionmaker, Depends(get_async_session_factory)],
+    session_factory: Annotated[
+        async_sessionmaker, Depends(Database.get_async_session_factory)
+    ],
 ) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session, session.begin():
         yield session

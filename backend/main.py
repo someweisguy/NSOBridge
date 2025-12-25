@@ -6,8 +6,8 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final, LiteralString
 
 import ws
-from core.dependencies import get_async_session_factory
 from core.exceptions import RulesError
+from core.models import Database
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
@@ -68,7 +68,7 @@ async def rules_error_handler(request: Request, e: RulesError) -> JSONResponse:
 async def main(host: str = '0.0.0.0', port: int = 8000) -> None:
     # Create a Bout model if one does not already exist
     bout: Bout | None = None
-    session_factory: async_sessionmaker = await get_async_session_factory()
+    session_factory: async_sessionmaker = await Database.get_async_session_factory()
     async with session_factory() as session, session.begin():
         statement: Select[tuple[Bout]] = select(Bout)
         results: Result[tuple[Bout]] = await session.execute(statement)

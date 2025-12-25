@@ -6,15 +6,14 @@ from datetime import timedelta
 from math import floor
 from typing import (
     TYPE_CHECKING,
-    Annotated,
     Any,
     Final,
+    LiteralString,
     Protocol,
     final,
     override,
 )
 
-from fastapi import Cookie
 from sqlalchemy import Result, Select, inspect, select
 from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.ext.asyncio import (
@@ -43,15 +42,12 @@ type CacheKey = tuple[str, Sequence[int | float | str | bool, ...], dict[str, An
 CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
 PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
-DB_PROTOCOL = 'sqlite+aiosqlite:///'
-DATABASE_DIRECTORY = ''
+DB_PREFIX: LiteralString = 'sqlite+aiosqlite:///' + ''
 DATABASE: Final[str] = os.environ.get('DB_PATH', ':memory:')
 DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {
     'true',
     'yes',
 }
-
-_session_factories: dict[str, async_sessionmaker] = {}
 
 
 class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
@@ -119,7 +115,7 @@ class DatabaseMemento(Memento):
 
     @override
     async def restore(self) -> Memento:
-        session_factory: async_sessionmaker = await get_async_session_factory(
+        session_factory: async_sessionmaker = await Database.get_async_session_factory(
             self._factory_name
         )
         async with session_factory() as session, session.begin():
@@ -141,24 +137,36 @@ class DatabaseMemento(Memento):
             return current_state.get_snapshot(session)
 
 
-async def get_async_session_factory(
-    name: Annotated[str, Cookie()] = '',
-) -> async_sessionmaker:
-    if not name.isprintable():
-        raise ValueError('Invalid file name')
+class Database:
+    _name: str = ':memory:'
+    _session_factories: dict[str, async_sessionmaker] = {}
 
-    session_factory: async_sessionmaker | None = _session_factories.get(name, None)
-    if session_factory is None:
-        engine: AsyncEngine = create_async_engine(
-            DB_PROTOCOL + DATABASE_DIRECTORY + (name if name != '' else ':memory:'),
-            echo=DEBUG,
-        )
-        session_factory = async_sessionmaker(
-            bind=engine,
-            expire_on_commit=False,
-        )
-        async with engine.connect() as session:
-            await session.run_sync(BaseSQLModel.metadata.create_all)
-        _session_factories[name] = session_factory
+    @classmethod
+    async def get_file_name(cls) -> str:
+        return cls._name
 
-    return session_factory
+    @classmethod
+    async def set_file_name(cls, name: str) -> None:
+        cls._name = name
+
+    @classmethod
+    async def get_async_session_factory(cls, name: str = '') -> async_sessionmaker:
+        session_factory: async_sessionmaker | None = cls._session_factories.get(
+            name, None
+        )
+        if session_factory is None:
+            if name != '':
+                pass  # TODO: ensure that `name` is a legal filename
+            engine: AsyncEngine = create_async_engine(
+                DB_PREFIX + (f'{name}' if name != '' else cls._name),
+                echo=DEBUG,
+            )
+            session_factory = async_sessionmaker(
+                bind=engine,
+                expire_on_commit=False,
+            )
+            async with engine.connect() as session:
+                await session.run_sync(BaseSQLModel.metadata.create_all)
+            cls._session_factories[name] = session_factory
+
+        return session_factory
