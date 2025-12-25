@@ -6,7 +6,7 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final, LiteralString
 
 import ws
-from core.database import get_async_session_factory
+from core.dependencies import get_async_session_factory
 from core.exceptions import RulesError
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
