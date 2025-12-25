@@ -15,8 +15,8 @@ from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 from game import ROUTERS as GAME_ROUTERS
 from game.rosters.models import Roster
+from game.rulesets.wftda_2025 import Bout
 from game.series.models import Series
-from rulesets.wftda_2025 import Bout
 from sqlalchemy import Result, Select, select
 from users.router import router as user_router
 from uvicorn import Config, Server
