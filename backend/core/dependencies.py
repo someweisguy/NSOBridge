@@ -3,10 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from .models import Database
 
