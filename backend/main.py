@@ -47,7 +47,7 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
 
     # Load the server API
     for router in [*game_routers, user_router]:
-        core.app.include_router(router, prefix='/api')
+        core.load_api(router)
 
     # Log the server's address and serve the application
     try:
