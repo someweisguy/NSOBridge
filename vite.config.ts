@@ -9,8 +9,9 @@ export default defineConfig({
   build: {
     cssMinify: true,
     minify: false, // TODO: Enable minification
+    outDir: "dist",
     watch: {
-      include: ["frontend/**", "static/**"],
+      include: ["frontend/**"],
     },
   },
   plugins: [
