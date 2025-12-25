@@ -16,7 +16,7 @@ from .schemas import Ruleset
 RULESET_NAME = 'WFTDA 2025'
 
 
-class WFTDAModel:
+class _WFTDAModel:
     __mapper_args__: dict[str, str] = {
         'polymorphic_identity': RULESET_NAME,
     }
@@ -25,7 +25,7 @@ class WFTDAModel:
 # TODO: Figure out a method to forfeit a Bout
 
 
-class Bout(WFTDAModel, BaseBout):
+class Bout(_WFTDAModel, BaseBout):
     rules: ClassVar[Ruleset] = Ruleset(
         name=RULESET_NAME,
         num_periods=2,
@@ -192,7 +192,7 @@ class Bout(WFTDAModel, BaseBout):
         return timeout
 
 
-class Team(WFTDAModel, BaseTeam):
+class Team(_WFTDAModel, BaseTeam):
     @classmethod
     @override
     def get_team_jam_score(cls, team_jam: TeamJam) -> int:
@@ -203,7 +203,7 @@ class Team(WFTDAModel, BaseTeam):
         return jam_score
 
 
-class Jam(WFTDAModel, BaseJam):
+class Jam(_WFTDAModel, BaseJam):
     def __init__(
         self,
         period_num: int,
@@ -296,7 +296,7 @@ class Jam(WFTDAModel, BaseJam):
                 team_jam.events.remove(event)
 
 
-class Timeout(WFTDAModel, BaseTimeout):
+class Timeout(_WFTDAModel, BaseTimeout):
     def set_type(self, is_review: bool) -> None:
         self.is_review = is_review
 
