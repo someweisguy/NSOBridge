@@ -7,7 +7,6 @@ from math import floor
 from typing import (
     TYPE_CHECKING,
     Any,
-    Final,
     LiteralString,
     Protocol,
     final,
@@ -15,10 +14,8 @@ from typing import (
 )
 
 from sqlalchemy import Result, Select, inspect, select
-from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
-    AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
@@ -33,21 +30,16 @@ from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
-    from sqlalchemy.ext.asyncio import AsyncSession
     from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 
 type CacheKey = tuple[str, Sequence[int | float | str | bool, ...], dict[str, Any]]
 
-CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
-PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
+_DB_PREFIX: LiteralString = 'sqlite+aiosqlite:///' + ''
+_DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
 
-DB_PREFIX: LiteralString = 'sqlite+aiosqlite:///' + ''
-DATABASE: Final[str] = os.environ.get('DB_PATH', ':memory:')
-DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', 'false').lower() in {
-    'true',
-    'yes',
-}
+CHILD_RELATIONSHIP: LiteralString = 'all, delete-orphan'
+PARENT_RELATIONSHIP: LiteralString = 'expunge, save-update'
 
 
 class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
@@ -96,9 +88,9 @@ class CacheableSQLModel(BaseSQLModel):
 
     def cache_key(self) -> CacheKey: ...
 
-    def get_snapshot(self, session: AsyncSession) -> DatabaseMemento:
+    def get_snapshot(self) -> DatabaseMemento:
         copy: CacheableSQLModel = deepcopy(self)
-        return DatabaseMemento(copy, session)
+        return DatabaseMemento(copy)
 
 
 class Memento(Protocol):
@@ -106,18 +98,12 @@ class Memento(Protocol):
 
 
 class DatabaseMemento(Memento):
-    def __init__(self, state: CacheableSQLModel, session: AsyncSession) -> None:
+    def __init__(self, state: CacheableSQLModel) -> None:
         self._detached_state_to_restore: CacheableSQLModel = state
-        connection: Connection | Engine = session.get_bind()
-        if isinstance(connection, Connection):
-            connection = connection.engine
-        self._factory_name: str = str(connection.url)
 
     @override
     async def restore(self) -> Memento:
-        session_factory: async_sessionmaker = await Database.get_async_session_factory(
-            self._factory_name
-        )
+        session_factory: async_sessionmaker = await Database.get_async_session_factory()
         async with session_factory() as session, session.begin():
             # Query and detach the current state of the database object
             Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
@@ -134,7 +120,7 @@ class DatabaseMemento(Memento):
             _ = await session.merge(self._detached_state_to_restore)
             await session.commit()
 
-            return current_state.get_snapshot(session)
+            return current_state.get_snapshot()
 
 
 class Database:
@@ -158,8 +144,8 @@ class Database:
             if name != '':
                 pass  # TODO: ensure that `name` is a legal filename
             engine: AsyncEngine = create_async_engine(
-                DB_PREFIX + (f'{name}' if name != '' else cls._name),
-                echo=DEBUG,
+                _DB_PREFIX + (f'{name}' if name != '' else cls._name),
+                echo=_DEBUG,
             )
             session_factory = async_sessionmaker(
                 bind=engine,
