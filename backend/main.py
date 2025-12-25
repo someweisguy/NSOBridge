@@ -50,6 +50,7 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
         core.load_api(router)
 
     # Log the server's address and serve the application
+    # TODO: Strictly speaking, we should cross-check this against the host
     try:
         with socket(AF_INET, SOCK_DGRAM) as sock:
             sock.connect(('1.1.1.1', 80))
@@ -58,7 +59,8 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
         ip = '127.0.0.1'
     HTTP_PORT: Final[int] = 80
     print(f'Starting server at http://{ip}{f":{port}" if port != HTTP_PORT else ""}')
-    await core.run()
+    
+    await core.run(host, port)
 
 
 if __name__ == '__main__':
