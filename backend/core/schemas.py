@@ -1,15 +1,12 @@
 """Base schemas for use in other modules."""
 
 from datetime import timedelta
-from math import floor
 from typing import ClassVar
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-
-def _timedelta_encoder(value: timedelta) -> int:
-    return floor(value.total_seconds() * 1000)
+from .utils import _timedelta_encoder
 
 
 class ServerSchema(BaseModel):

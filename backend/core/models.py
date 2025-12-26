@@ -1,15 +1,13 @@
 """Base models for use in the other modules."""
+
 from __future__ import annotations
 
 import os
 from datetime import timedelta
-from math import floor
 from typing import (
     TYPE_CHECKING,
-    Any,
     LiteralString,
     final,
-    override,
 )
 
 from sqlalchemy import inspect
@@ -24,12 +22,11 @@ from sqlalchemy.orm import (
     Mapped,
     mapped_column,
 )
-from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
+
+from .utils import _TimedeltaAsMilliseconds
 
 if TYPE_CHECKING:
-    from sqlalchemy import Dialect
     from sqlalchemy.ext.asyncio.engine import AsyncEngine
-
 
 
 _DB_PREFIX: LiteralString = 'sqlite+aiosqlite:///' + ''
@@ -37,23 +34,6 @@ _DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
 
 CHILD_RELATIONSHIP: LiteralString = 'all, delete-orphan'
 PARENT_RELATIONSHIP: LiteralString = 'expunge, save-update'
-
-
-class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
-    impl: TypeEngine[Any] | type[TypeEngine[Any]] = Integer
-    cache_ok: bool | None = True
-
-    @override
-    def process_bind_param(self, value: Any | None, dialect: Dialect) -> Any:
-        if value is not None:
-            assert isinstance(value, timedelta)
-            return floor(value.total_seconds() * 1000)
-        return value
-
-    @override
-    def process_result_value(self, value: Any | None, dialect: Dialect) -> Any | None:
-        assert isinstance(value, (float, int))
-        return timedelta(milliseconds=value)
 
 
 class BaseSQLModel(AsyncAttrs, DeclarativeBase):
@@ -78,6 +58,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
             cacheables.add(parent)
             cacheables |= parent.search_parents()
         return cacheables
+
 
 class Database:
     _name: str = ':memory:'
