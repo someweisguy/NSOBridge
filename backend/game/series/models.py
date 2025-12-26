@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from core.models import CHILD_RELATIONSHIP, CacheableSQLModel, CacheKey
+from core.models import CHILD_RELATIONSHIP
+from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:

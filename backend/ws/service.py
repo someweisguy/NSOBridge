@@ -1,7 +1,8 @@
 import asyncio
 from asyncio import Task
 
-from core.models import BaseSQLModel, CacheableSQLModel
+from core.models import BaseSQLModel
+from game.models import CacheableSQLModel
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 

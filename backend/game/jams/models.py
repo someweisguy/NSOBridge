@@ -2,14 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, override
 
-from core.models import (
-    CHILD_RELATIONSHIP,
-    PARENT_RELATIONSHIP,
-    CacheableSQLModel,
-    CacheKey,
-)
-from game.abstract import AbstractOneShotModel
+from core.models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP
 from game.bouts.models import BaseBout
+from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,

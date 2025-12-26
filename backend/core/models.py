@@ -33,7 +33,6 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 
-type CacheKey = tuple[str, Sequence[int | float | str | bool, ...], dict[str, Any]]
 
 _DB_PREFIX: LiteralString = 'sqlite+aiosqlite:///' + ''
 _DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
@@ -81,47 +80,6 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
             cacheables.add(parent)
             cacheables |= parent.search_parents()
         return cacheables
-
-
-class CacheableSQLModel(BaseSQLModel):
-    __abstract__: bool = True
-
-    def cache_key(self) -> CacheKey: ...
-
-    def get_snapshot(self) -> DatabaseMemento:
-        copy: CacheableSQLModel = deepcopy(self)
-        return DatabaseMemento(copy)
-
-
-class Memento(Protocol):
-    async def restore(self) -> Memento: ...
-
-
-class DatabaseMemento(Memento):
-    def __init__(self, state: CacheableSQLModel) -> None:
-        self._detached_state_to_restore: CacheableSQLModel = state
-
-    @override
-    async def restore(self) -> Memento:
-        session_factory: async_sessionmaker = await Database.get_async_session_factory()
-        async with session_factory() as session, session.begin():
-            # Query and detach the current state of the database object
-            Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
-            statement: Select[tuple[CacheableSQLModel]] = (
-                select(Table)
-                .where(Table.id == self._detached_state_to_restore.id)
-                .limit(1)
-            )
-            results: Result[tuple[CacheableSQLModel]] = await session.execute(statement)
-            current_state: CacheableSQLModel = results.scalar_one()
-            session.expunge(current_state)
-
-            # Merge the desired state with the database
-            _ = await session.merge(self._detached_state_to_restore)
-            await session.commit()
-
-            return current_state.get_snapshot()
-
 
 class Database:
     _name: str = ':memory:'
