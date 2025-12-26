@@ -1,3 +1,4 @@
+"""Session dependencies to allow other modules to interact with the database."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Annotated, TypeAlias

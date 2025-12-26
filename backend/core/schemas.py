@@ -1,3 +1,5 @@
+"""Base schemas for use in other modules."""
+
 from datetime import timedelta
 from math import floor
 from typing import ClassVar

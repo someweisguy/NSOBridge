@@ -1,19 +1,18 @@
+"""Base models for use in the other modules."""
 from __future__ import annotations
 
 import os
-from copy import deepcopy
 from datetime import timedelta
 from math import floor
 from typing import (
     TYPE_CHECKING,
     Any,
     LiteralString,
-    Protocol,
     final,
     override,
 )
 
-from sqlalchemy import Result, Select, inspect, select
+from sqlalchemy import inspect
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     async_sessionmaker,
@@ -25,7 +24,6 @@ from sqlalchemy.orm import (
     Mapped,
     mapped_column,
 )
-from sqlalchemy.sql.schema import Sequence
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
 if TYPE_CHECKING:
