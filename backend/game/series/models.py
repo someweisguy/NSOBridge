@@ -25,4 +25,4 @@ class Series(CacheableSQLModel):
     @override
     def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
-        return (self.__tablename__, [], {})
+        return (self.__tablename__, self.id)

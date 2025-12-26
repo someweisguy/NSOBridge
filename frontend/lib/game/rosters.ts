@@ -13,6 +13,6 @@ export class Roster {
   name: string;
 
   static generateKey(rosterId: number): CacheKey {
-    return ["rosters", [rosterId], {}];
+    return ["rosters", rosterId];
   }
 }

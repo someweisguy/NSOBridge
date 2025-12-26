@@ -19,7 +19,7 @@ export const useSuspenseBout = (series: Series, index?: number) => {
   }, [series, index]);
 
   return useSuspenseQuery<Bout>({
-    queryKey: Bout.generateKey(series.id, boutId),
+    queryKey: Bout.generateKey(boutId),
     queryFn: () => getBout(boutId),
   });
 };
@@ -40,7 +40,7 @@ export const useBout = (series: Series, index?: number) => {
   }, [series, index]);
 
   return useQuery<Bout>({
-    queryKey: Bout.generateKey(series.id, boutId),
+    queryKey: Bout.generateKey(boutId),
     queryFn: () => getBout(boutId),
   });
 };

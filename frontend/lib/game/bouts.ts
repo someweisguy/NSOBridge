@@ -33,8 +33,8 @@ export class Bout {
   jamIds: number[][];
   timeoutIds: number[];
 
-  static generateKey(seriesId: number, boutId: number): CacheKey {
-    return ["bouts", [seriesId, boutId], {}];
+  static generateKey(boutId: number): CacheKey {
+    return ["bouts", boutId];
   }
 
   async beginPeriod(): Promise<void> {

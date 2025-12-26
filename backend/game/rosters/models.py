@@ -52,4 +52,4 @@ class Roster(CacheableSQLModel):
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, [self.id], {})
+        return (self.__tablename__, self.id)

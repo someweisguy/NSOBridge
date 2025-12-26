@@ -15,6 +15,6 @@ export class Ruleset {
   numReviews: number;
 
   static generateKey(rulesetName: string): CacheKey {
-    return ["ruleset", [rulesetName], {}];
+    return ["ruleset", rulesetName];
   }
 }

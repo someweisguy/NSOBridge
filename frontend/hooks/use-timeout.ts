@@ -4,21 +4,13 @@ import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useTimeout = (bout: Bout, index: number) =>
   useQuery<Timeout>({
-    queryKey: Timeout.generateKey(
-      bout.seriesId,
-      bout.id,
-      bout.timeoutIds[index],
-    ),
+    queryKey: Timeout.generateKey(bout.id, index),
     queryFn: () => getTimeout(bout.timeoutIds[index]),
   });
 
 export const useSuspenseTimeout = (bout: Bout, index: number) =>
   useSuspenseQuery<Timeout>({
-    queryKey: Timeout.generateKey(
-      bout.seriesId,
-      bout.id,
-      bout.timeoutIds[index],
-    ),
+    queryKey: Timeout.generateKey(bout.id, index),
     queryFn: () => getTimeout(bout.timeoutIds[index]),
   });
 

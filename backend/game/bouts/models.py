@@ -74,7 +74,7 @@ class BaseBout(CacheableSQLModel):
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, [self.series_id, self.id], {})
+        return (self.__tablename__, self.id)
 
     @final
     @property

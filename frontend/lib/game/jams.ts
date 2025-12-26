@@ -22,11 +22,11 @@ export class Jam {
   teamJams: TeamJam[];
 
   static generateKey(
-    seriesId: number,
     boutId: number,
-    jamId: number,
+    periodNum: number,
+    jamNum: number,
   ): CacheKey {
-    return ["jams", [seriesId, boutId, jamId], {}];
+    return ["jams", boutId, periodNum, jamNum];
   }
 
   hasStarted(): boolean {

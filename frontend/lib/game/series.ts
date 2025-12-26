@@ -15,6 +15,6 @@ export class Series {
   activeBoutId: number | null;
 
   static generateKey(): CacheKey {
-    return ["series", [], {}];
+    return ["series", "all"];
   }
 }
