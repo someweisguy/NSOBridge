@@ -24,14 +24,18 @@ def _get_user_context(
         response.set_cookie('nsoId', str(nso_id))
 
     # Fetch the user context from memory
-    context: UserContext | None = _contexts.get(nso_id, None)
-    if context is None:
-        context = UserContext()
-        _contexts[nso_id] = context
+    user: UserContext | None = _contexts.get(nso_id, None)
+    if user is None:
+        user = UserContext()
+        _contexts[nso_id] = user
 
-    context.reset()  # Clear uncommitted mementos
-    yield context
-    context.commit()
+    try:
+        yield user
+    except Exception as e:
+        user.reset()
+        raise e
+    else:
+        user.commit()
 
 
 UserDepends: TypeAlias = Annotated[UserContext, Depends(_get_user_context)]
