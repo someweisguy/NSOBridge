@@ -46,7 +46,6 @@ extend-select = [
   "TC", # Put imports in TYPE_CHECKING blocks when possible
 ]
 ignore = [
-  'D', # TODO: add docs
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]
