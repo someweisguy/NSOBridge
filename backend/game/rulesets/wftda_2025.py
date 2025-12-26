@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import ClassVar, override
 
-from core.exceptions import RulesError
+from core.exceptions import ClientError
 from game.bouts.models import BaseBout
 from game.jams.models import BaseJam
 from game.rosters.models import Roster
@@ -54,13 +54,13 @@ class Bout(_WFTDAModel, BaseBout):
     @override
     def begin_period(self, timestamp: datetime) -> None:
         if self.state != 'stopped':
-            raise RulesError('this bout cannot be started now')
+            raise ClientError('this bout cannot be started now')
         if (
             len(self.jams) > 0
             and self.jams[-1].period == self.rules.num_periods
             and self.jams[-1].start_timestamp is not None
         ):
-            raise RulesError(
+            raise ClientError(
                 f'this bout can only have {self.rules.num_periods} periods'
             )
 
@@ -75,9 +75,9 @@ class Bout(_WFTDAModel, BaseBout):
     @override
     def end_period(self, timestamp: datetime) -> None:
         if self.is_running and self.state != 'lineup':
-            raise RulesError('the period can only be ended during lineup')
+            raise ClientError('the period can only be ended during lineup')
         if not self.is_running and self.jams[-1].period < self.rules.num_periods:
-            raise RulesError('there is no running period to end')
+            raise ClientError('there is no running period to end')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
         # Or calling end_period() after OT ends the Bout
@@ -110,7 +110,7 @@ class Bout(_WFTDAModel, BaseBout):
             self.stop_timeout(timestamp)
 
         if self.state != 'lineup':
-            raise RulesError('a jam may only be started from lineup')
+            raise ClientError('a jam may only be started from lineup')
 
         # Get the first Jam that has not started
         jam: BaseJam | None = self.get_upcoming_jam()
@@ -137,7 +137,7 @@ class Bout(_WFTDAModel, BaseBout):
     def stop_jam(self, timestamp: datetime) -> BaseJam:
         jam: BaseJam | None = self.get_running_jam()
         if jam is None:
-            raise RulesError('there is no running jam to stop')
+            raise ClientError('there is no running jam to stop')
 
         jam.stop(timestamp)
 
@@ -152,7 +152,7 @@ class Bout(_WFTDAModel, BaseBout):
             self.stop_jam(timestamp)
 
         if self.state != 'lineup':
-            raise RulesError('a timeout cannot be called now')
+            raise ClientError('a timeout cannot be called now')
 
         # Instantiate and start the Timeout
         timeout: BaseTimeout | None = self.get_upcoming_timeout()
@@ -173,11 +173,11 @@ class Bout(_WFTDAModel, BaseBout):
     def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
         timeout: BaseTimeout | None = self.get_running_timeout()
         if timeout is None:
-            raise RulesError('there is no active timeout to stop')
+            raise ClientError('there is no active timeout to stop')
 
         # Validate the Timeout's state
         if timeout.is_review and timeout.team is None:
-            raise RulesError('officials cannot call an official review')
+            raise ClientError('officials cannot call an official review')
 
         # Stop the Timeout
         timeout.stop(timestamp)
@@ -243,7 +243,7 @@ class Jam(_WFTDAModel, BaseJam):
         if lead:
             # Add a new Trip Event in which lead is declared
             if self.lead_is_declared():
-                raise RulesError('a lead jammer has already been declared')
+                raise ClientError('a lead jammer has already been declared')
             event: TripEvent = TripEvent(timestamp, lead=lead)
             team_jam.events.append(event)
         else:
@@ -260,7 +260,7 @@ class Jam(_WFTDAModel, BaseJam):
         if lost:
             # Add a new Trip Event in which the Jammer has lost eligibility for lead
             if any(event.lost for event in team_jam.events):
-                raise RulesError('this team has already lost lead eligibility')
+                raise ClientError('this team has already lost lead eligibility')
             event: TripEvent = TripEvent(timestamp, lost=lost)
             team_jam.events.append(event)
         else:
@@ -278,7 +278,7 @@ class Jam(_WFTDAModel, BaseJam):
 
         if star_pass:
             if any(event.star_pass for event in team_jam.events):
-                raise RulesError(
+                raise ClientError(
                     'this team has already completed a star pass in this Jam'
                 )
             event: TripEvent = TripEvent(timestamp, star_pass=star_pass)
@@ -304,7 +304,7 @@ class Timeout(_WFTDAModel, BaseTimeout):
         if team is not None and team.bout_id != self.bout_id:
             raise ValueError('team and timeout are not part of the same Bout')
         if team is None and self.is_review:
-            raise RulesError('official reviews can only be called by teams')
+            raise ClientError('official reviews can only be called by teams')
 
         self.team = team
         self.team_is_officials = team is None

@@ -14,7 +14,7 @@ from fastapi.routing import APIRouter, Mount
 from fastapi.staticfiles import StaticFiles
 from uvicorn import Config, Server
 
-from core.exceptions import RulesError
+from core.exceptions import ClientError
 
 logging.basicConfig(
     format='{levelname}: {message}',
@@ -47,8 +47,8 @@ async def _render_generic(request: Request) -> FileResponse:
     return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
 
 
-@app.exception_handler(RulesError)
-async def _rules_error_handler(request: Request, e: RulesError) -> JSONResponse:
+@app.exception_handler(ClientError)
+async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
     return JSONResponse(
         status_code=409,
         content={'message': str(e)},

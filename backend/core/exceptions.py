@@ -1,5 +1,5 @@
 """Base exceptions."""
 
 
-class RulesError(Exception):
+class ClientError(Exception):
     pass
