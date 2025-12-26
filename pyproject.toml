@@ -45,7 +45,9 @@ extend-select = [
   "EXE",
   "TC", # Put imports in TYPE_CHECKING blocks when possible
 ]
-ignore = []
+ignore = [
+  'D', # TODO: add docs
+]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "dependencies.py" = [
