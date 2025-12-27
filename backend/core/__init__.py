@@ -44,6 +44,7 @@ async def _render_index() -> FileResponse:
 @app.get('/sb')
 async def _render_generic(request: Request) -> FileResponse:
     # Render generic HTML files found in the frontend directory.
+    # Don't forget to register new files with the FastAPI app!
     return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
 
 
