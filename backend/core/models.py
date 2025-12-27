@@ -24,6 +24,13 @@ PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
 
 class BaseSQLModel(AsyncAttrs, DeclarativeBase):
+    """The base model for all models in the database.
+
+    This model has a standard SQL `id` field. It also includes a type annotation map to
+    convert Python timedelta objects to an integer number of milliseconds.
+
+    """
+
     id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
     __abstract__: bool = True
