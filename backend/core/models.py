@@ -4,10 +4,16 @@ from __future__ import annotations
 
 import os
 from datetime import timedelta
-from typing import TYPE_CHECKING, Final, final
+from typing import TYPE_CHECKING, ClassVar, Final, final
 
 from sqlalchemy import inspect
-from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
+from sqlalchemy.engine import URL
+from sqlalchemy.ext.asyncio import (
+    AsyncAttrs,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import CascadeOptions, DeclarativeBase, Mapped, mapped_column
 
 from .utils import _TimedeltaAsMilliseconds
@@ -64,36 +70,35 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
         return models
 
 
-class Database:
-    _name: str = ':memory:'
-    _session_factories: dict[str, async_sessionmaker] = {}
+class EngineManager:
+    _db_driver: ClassVar[Final[str]] = 'sqlite+aiosqlite:///'
 
-    @classmethod
-    async def get_file_name(cls) -> str:
-        return cls._name
+    def __init__(self, db_schema: type[DeclarativeBase], db_path: str = '') -> None:
+        # TODO: ensure that path is a legal file name
+        if not db_path.isprintable():
+            raise ValueError('db path is invalid')
+        self._db_schema: type[DeclarativeBase] = db_schema
+        self._session_factory: async_sessionmaker | None = None
+        self.path: Final[str] = db_path if db_path != '' else ':memory:'
 
-    @classmethod
-    async def set_file_name(cls, name: str) -> None:
-        cls._name = name
+    async def create_all(self) -> None:
+        if self._session_factory is not None:
+            raise RuntimeError('the database has already been created')
 
-    @classmethod
-    async def get_async_session_factory(cls, name: str = '') -> async_sessionmaker:
-        session_factory: async_sessionmaker | None = cls._session_factories.get(
-            name, None
-        )
-        if session_factory is None:
-            if name != '':
-                pass  # TODO: ensure that `name` is a legal filename
-            engine: AsyncEngine = create_async_engine(
-                _DB_PREFIX + (f'{name}' if name != '' else cls._name),
-                echo=_DEBUG,
-            )
-            session_factory = async_sessionmaker(
-                bind=engine,
-                expire_on_commit=False,
-            )
-            async with engine.connect() as session:
-                await session.run_sync(BaseSQLModel.metadata.create_all)
-            cls._session_factories[name] = session_factory
+        # Initialize the database engine
+        url: URL = URL.create(self._db_driver, database=self.path)
+        engine: AsyncEngine = create_async_engine(url, echo=False)
+        self._session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
 
-        return session_factory
+        # Create the database tables
+        async with engine.connect() as session:
+            await session.run_sync(self._db_schema.metadata.create_all)
+
+    def get_async_session_factory(self) -> async_sessionmaker:
+        if self._session_factory is None:
+            raise RuntimeError('the database has not been created yet')
+        return self._session_factory
+
+    def get_async_session(self) -> AsyncSession:
+        factory: async_sessionmaker = self.get_async_session_factory()
+        return factory()
