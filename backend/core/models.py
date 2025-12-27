@@ -4,24 +4,11 @@ from __future__ import annotations
 
 import os
 from datetime import timedelta
-from typing import (
-    TYPE_CHECKING,
-    LiteralString,
-    final,
-)
+from typing import TYPE_CHECKING, Final, final
 
 from sqlalchemy import inspect
-from sqlalchemy.ext.asyncio import (
-    AsyncAttrs,
-    async_sessionmaker,
-    create_async_engine,
-)
-from sqlalchemy.orm import (
-    CascadeOptions,
-    DeclarativeBase,
-    Mapped,
-    mapped_column,
-)
+from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import CascadeOptions, DeclarativeBase, Mapped, mapped_column
 
 from .utils import _TimedeltaAsMilliseconds
 
@@ -29,11 +16,11 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 
-_DB_PREFIX: LiteralString = 'sqlite+aiosqlite:///' + ''
+_DB_PREFIX: Final[str] = 'sqlite+aiosqlite:///' + ''
 _DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
 
-CHILD_RELATIONSHIP: LiteralString = 'all, delete-orphan'
-PARENT_RELATIONSHIP: LiteralString = 'expunge, save-update'
+CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
+PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
 
 
 class BaseSQLModel(AsyncAttrs, DeclarativeBase):
