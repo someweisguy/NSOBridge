@@ -30,6 +30,8 @@ line-length = 88
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "single"
+docstring-code-format = true
+docstring-code-line-length = 88
 
 [tool.ruff.lint]
 extend-select = [
