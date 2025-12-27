@@ -71,7 +71,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
 
 
 class EngineManager:
-    _db_driver: ClassVar[Final[str]] = 'sqlite+aiosqlite:///'
+    _DRIVER: ClassVar[Final[str]] = 'sqlite+aiosqlite:///'
 
     def __init__(self, db_schema: type[DeclarativeBase], db_path: str = '') -> None:
         # TODO: ensure that path is a legal file name
@@ -86,7 +86,7 @@ class EngineManager:
             raise RuntimeError('the database has already been created')
 
         # Initialize the database engine
-        url: URL = URL.create(self._db_driver, database=self.path)
+        url: URL = URL.create(self._DRIVER, database=self.path)
         engine: AsyncEngine = create_async_engine(url, echo=False)
         self._session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
 
