@@ -47,6 +47,16 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
 
     @final
     def search_parents(self) -> set[BaseSQLModel]:
+        """Recursively get a set of this model's parents.
+
+        This method is used to get the hierarchical branch of models that this model
+        is on. This is useful to ensure that clients can update objects that may have
+        updated.
+
+        Returns:
+            set[BaseSQLModel]: all of the parents of this model, up to the root model.
+
+        """
         models: set[BaseSQLModel] = set()
         for parent in self._get_parents():
             models.add(parent)
