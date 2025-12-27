@@ -47,11 +47,11 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
 
     @final
     def search_parents(self) -> set[BaseSQLModel]:
-        cacheables: set[BaseSQLModel] = set()
+        models: set[BaseSQLModel] = set()
         for parent in self._get_parents():
-            cacheables.add(parent)
-            cacheables |= parent.search_parents()
-        return cacheables
+            models.add(parent)
+            models |= parent.search_parents()
+        return models
 
 
 class Database:
