@@ -4,7 +4,8 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, Protocol, override
 
-from core.models import BaseSQLModel, Database
+from core.dependencies import db
+from core.models import BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint, Result, Select, select
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -81,7 +82,7 @@ class DatabaseMemento(Memento):
 
     @override
     async def restore(self) -> Memento:
-        session_factory: async_sessionmaker = await Database.get_async_session_factory()
+        session_factory: async_sessionmaker = await db.get_async_session_factory()
         async with session_factory() as session, session.begin():
             # Query and detach the current state of the database object
             Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__

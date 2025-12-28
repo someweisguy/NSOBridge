@@ -5,7 +5,8 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
 import core
-from core.models import Database
+from core.models import BaseSQLModel
+from core.service import EngineManager
 from game import ROUTERS as game_routers
 from game.rosters.models import Roster
 from game.rulesets.wftda_2025 import Bout
@@ -26,12 +27,13 @@ logging.basicConfig(
 
 
 async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
-    database_name: str = await Database.get_file_name()
-    print(f'Connecting to Database in: {database_name}')
+    db: EngineManager = EngineManager(BaseSQLModel)
+    print(f'Connecting to Database in: {db.path}')
+    await db.create_all()
 
     # Create a Bout model if one does not already exist
     bout: Bout | None = None
-    session_factory: async_sessionmaker = await Database.get_async_session_factory()
+    session_factory: async_sessionmaker = db.get_async_session_factory()
     async with session_factory() as session, session.begin():
         statement: Select[tuple[Bout]] = select(Bout)
         results: Result[tuple[Bout]] = await session.execute(statement)
@@ -59,7 +61,7 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
         ip = '127.0.0.1'
     HTTP_PORT: Final[int] = 80
     print(f'Starting server at http://{ip}{f":{port}" if port != HTTP_PORT else ""}')
-    
+
     await core.run(host, port)
 
 
