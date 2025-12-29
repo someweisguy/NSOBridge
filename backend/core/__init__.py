@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Final, LiteralString
+from typing import Final
 
 import ws
 from fastapi import FastAPI, Request
@@ -25,12 +25,12 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
-_API_PREFIX: LiteralString = '/api'
+_API_PREFIX: Final[str] = '/api'
 _FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 
 
 # Initialize the application and set the appropriate routes
-app: FastAPI = FastAPI(
+app: Final[FastAPI] = FastAPI(
     debug=True,
     routes=[
         Mount('/assets', StaticFiles(directory=_FRONTEND / 'assets')),
