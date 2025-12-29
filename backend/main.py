@@ -60,6 +60,7 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
     print(f'Starting server at http://{ip}{f":{port}" if port != HTTP_PORT else ""}')
 
     await core.run(host, port)
+    await ws.disconnect_all('The server is shutting down')
 
 
 if __name__ == '__main__':

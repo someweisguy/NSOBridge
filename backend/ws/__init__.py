@@ -18,9 +18,10 @@ order to keep code complexity to a minimum, this module shall be made only to me
 minimum project requirements.
 """
 
-from .service import app, broadcast_updates
+from .service import app, broadcast_updates, disconnect_all
 
 __all__ = (
     'app',
     'broadcast_updates',
+    'disconnect_all',
 )
