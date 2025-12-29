@@ -47,7 +47,7 @@ class User:
             self._redo_history.clear()
             self._staged = None
 
-    def reset(self) -> None:
+    def unstage(self) -> None:
         """Unstage a Memento.
 
         When a transaction is not completed successfully, this method ensure that the

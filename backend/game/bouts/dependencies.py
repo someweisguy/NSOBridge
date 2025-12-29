@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Annotated, TypeAlias
 from core.dependencies import AsyncSessionDepends
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
-from users.dependencies import UserDepends
+from user import GetUser
 
 from .models import BaseBout
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 async def get_bout(
     request: Request,
-    user: UserDepends,
+    user: GetUser,
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
 ) -> BaseBout:

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Annotated, Literal, TypeAlias, overload
 from core.dependencies import AsyncSessionDepends
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
-from users.dependencies import UserDepends
+from user import GetUser
 
 from .models import BaseJam
 
@@ -51,7 +51,7 @@ async def get_jam_or_none(
 
 async def get_jam_by_index(
     request: Request,
-    user: UserDepends,
+    user: GetUser,
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     period_num: Annotated[int, Query(alias='periodNum')],
@@ -77,7 +77,7 @@ async def get_jam_by_index(
 
 async def get_jam_by_id(
     request: Request,
-    user: UserDepends,
+    user: GetUser,
     session: AsyncSessionDepends,
     jam_id: Annotated[int, Query(alias='jamId')],
 ) -> BaseJam:

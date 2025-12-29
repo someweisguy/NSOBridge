@@ -34,7 +34,7 @@ def _get_user(
     try:
         yield user
     except Exception as e:
-        user.reset()
+        user.unstage()
         raise e
     else:
         user.commit()

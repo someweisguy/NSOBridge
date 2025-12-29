@@ -5,11 +5,11 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
 import core
+import user
 import ws
 from core import db
 from game import Roster, Series, game_routers, wftda_2025
 from sqlalchemy import Result, Select, select
-from users.router import router as user_router
 from websockets import CloseCode
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
 
     # Load the server API and the WebSocket application
     core.app.mount('/ws', ws.app)
-    for router in [*game_routers, user_router]:
+    for router in [*game_routers, user.router]:
         core.app.include_router(router, prefix='/api')
 
     # Log the server's address and serve the application

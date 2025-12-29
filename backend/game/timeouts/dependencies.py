@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, Annotated, Literal, TypeAlias, overload
 
-from core.dependencies import AsyncSessionDepends
+from core import AsyncSessionDepends
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
-from users.dependencies import UserDepends
+from user import GetUser
 
 from .models import BaseTimeout
 
@@ -49,7 +49,7 @@ async def get_timeout_or_none(
 
 async def get_timeout_by_index(
     request: Request,
-    user: UserDepends,
+    user: GetUser,
     session: AsyncSessionDepends,
     bout_id: Annotated[int, Query(alias='boutId')],
     index: Annotated[int, Query(alias='index')],
@@ -72,7 +72,7 @@ async def get_timeout_by_index(
 
 async def get_timeout_by_id(
     request: Request,
-    user: UserDepends,
+    user: GetUser,
     session: AsyncSessionDepends,
     timeout_id: Annotated[int, Query(alias='timeoutId')],
 ) -> BaseTimeout:
