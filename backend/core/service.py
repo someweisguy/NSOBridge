@@ -1,25 +1,12 @@
-"""Core NSO Bridge dependencies.
-
-This file contains the core functions needed to run NSO Bridge.
-"""
+"""Core services including database engine management."""
 
 from __future__ import annotations
 
-import logging
-from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Final, LiteralString
+from typing import TYPE_CHECKING, ClassVar, Final
 
-import ws
-from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.routing import APIRouter, Mount
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
-from uvicorn import Config, Server
-
-from core.exceptions import ClientError
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine
