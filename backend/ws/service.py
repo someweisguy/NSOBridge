@@ -44,12 +44,12 @@ async def _handle_socket(websocket: WebSocket) -> None:
             await websocket.send_text(response.model_dump_json())
     except WebSocketDisconnect:
         pass  # TODO: log client disconnection
-    except ValidationError:
+    except ValidationError as e:
         # TODO: remove magic number
-        await websocket.close(1007)  # TODO: log error
-    except Exception:
+        await websocket.close(1007, str(e))  # TODO: log error
+    except Exception as e:
         # TODO: remove magic number
-        await websocket.close(1011)  # TODO: log error
+        await websocket.close(1011, str(e))  # TODO: log error
     finally:
         _clients.discard(websocket)
 
