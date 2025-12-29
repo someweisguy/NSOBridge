@@ -1,6 +1,6 @@
 """Core NSO Bridge dependencies.
 
-This file contains the core functions needed to run NSO Bridge.
+This file exports the core functions needed to run NSO Bridge.
 """
 
 from .dependencies import AsyncSessionDepends, db
