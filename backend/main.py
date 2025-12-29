@@ -5,8 +5,7 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
 import core
-from core.models import BaseSQLModel
-from core.service import EngineManager
+from core.dependencies import db
 from game import ROUTERS as game_routers
 from game.rosters.models import Roster
 from game.rulesets.wftda_2025 import Bout
@@ -27,7 +26,6 @@ logging.basicConfig(
 
 
 async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
-    db: EngineManager = EngineManager(BaseSQLModel)
     print(f'Connecting to Database in: {db.path}')
     await db.create_all()
 
