@@ -23,11 +23,20 @@ app: Final[FastAPI] = FastAPI()
 
 @app.websocket('/')
 async def _handle_socket(websocket: WebSocket) -> None:
+    """Handle all connecting WebSockets.
+
+    Args:
+        websocket (WebSocket): the incoming WebSocket.
+
+    """
+    # Connect to the incoming socket
     await websocket.accept()
     _clients.add(websocket)
 
     try:
+        # Handle incoming socket packet data and send a response
         while True:
+            # There is only one type of packet which should be received
             request: WebsocketClientSchema = WebsocketClientSchema.model_validate_json(
                 await websocket.receive_text()
             )
@@ -38,13 +47,16 @@ async def _handle_socket(websocket: WebSocket) -> None:
     except WebSocketDisconnect:
         pass  # TODO: log client disconnection
     except ValidationError:
+        # TODO: remove magic number
         await websocket.close(1007)  # TODO: log error
     except Exception:
+        # TODO: remove magic number
         await websocket.close(1011)  # TODO: log error
     finally:
         _clients.discard(websocket)
 
 
+# TODO: move this method to the game module and provide suitable ws method
 @event.listens_for(Session, 'before_commit')
 def _broadcast_updates(session: Session) -> None:
     # Recursively add each dirty, deleted, or new model
