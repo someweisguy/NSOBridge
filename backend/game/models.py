@@ -180,7 +180,15 @@ class AbstractOneShotModel(BaseSQLModel):
 
 
 class DatabaseMemento(Memento):
+    """A Memento sub-class for models in the database."""
+
     def __init__(self, state: CacheableSQLModel) -> None:
+        """Construct a database Memento using the desired model.
+
+        Args:
+            state (CacheableSQLModel): the model with which a Memento should be created.
+
+        """
         self._detached_state_to_restore: CacheableSQLModel = state
 
     @override
@@ -189,10 +197,8 @@ class DatabaseMemento(Memento):
         async with session_factory() as session, session.begin():
             # Query and detach the current state of the database object
             Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
-            statement: Select[tuple[CacheableSQLModel]] = (
-                select(Table)
-                .where(Table.id == self._detached_state_to_restore.id)
-                .limit(1)
+            statement: Select[tuple[CacheableSQLModel]] = select(Table).where(
+                Table.id == self._detached_state_to_restore.id
             )
             results: Result[tuple[CacheableSQLModel]] = await session.execute(statement)
             current_state: CacheableSQLModel = results.scalar_one()
