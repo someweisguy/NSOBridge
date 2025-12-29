@@ -19,7 +19,6 @@ from uvicorn import Config, Server
 from .exceptions import ClientError
 
 if TYPE_CHECKING:
-    from fastapi import APIRouter
     from sqlalchemy.ext.asyncio import AsyncEngine
     from sqlalchemy.orm import DeclarativeBase
 
