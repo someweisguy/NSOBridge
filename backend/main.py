@@ -28,12 +28,11 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
     await db.create_all()
 
     # Create a Bout model if one does not already exist
-    bout: wftda_2025.Bout | None = None
     session_factory: async_sessionmaker = db.get_async_session_factory()
     async with session_factory() as session, session.begin():
         statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
-        if results.scalar() is None:
+        if results.scalar_one_or_none() is None:
             print('Creating initial Bout model')
             bout = wftda_2025.Bout(
                 Series(),
