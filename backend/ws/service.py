@@ -54,9 +54,18 @@ async def _handle_socket(websocket: WebSocket) -> None:
         _clients.discard(websocket)
 
 
-def invalidate_queries(models: BaseSQLModel | Iterable[BaseSQLModel]) -> None:
-    if not isinstance(models, Iterable):
-        models = [models]
+def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
+    """Invalidate client queries pertaining to the provided models.
+
+    This method is typically only used handle a list of models which have just been
+    updated. The parent of each model is fetched and added to this list. The list is
+    then deduplicated and each model's cache key is sent to each client. This allows
+    clients to refetch new data and update their cache.
+
+    Args:
+        models (Iterable[BaseSQLModel]): a list of models which should be invalided.
+
+    """
 
     async def send_model_tree_updates(models: Iterable[BaseSQLModel]) -> None:
         async with db.get_async_session() as session:
@@ -94,5 +103,11 @@ def invalidate_queries(models: BaseSQLModel | Iterable[BaseSQLModel]) -> None:
 
 
 async def disconnect_all(reason: str) -> None:
+    """Disconnect all the WebSocket clients.
+
+    Args:
+        reason (str): the reason for the disconnection.
+
+    """
     for client in _clients:
         await client.close(code=1000, reason=reason)
