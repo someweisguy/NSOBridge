@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Annotated, Any, override
+from typing import TYPE_CHECKING, Any, override
 
 from core import BaseSQLModel, Memento, db
 from sqlalchemy import CheckConstraint, Constraint, Result, Select, select
@@ -12,9 +12,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
 
 
-type CacheKey = Annotated[
-    tuple[Any, ...], 'The type of the cache key used by cacheable models.'
-]
+type CacheKey = tuple[Any, ...]
 
 
 class CacheableSQLModel(BaseSQLModel):
