@@ -158,6 +158,7 @@ async def _render_generic(request: Request) -> FileResponse:
     # Don't forget to register new files with the FastAPI app!
     return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
 
+# TODO: add version getter
 
 @app.exception_handler(ClientError)
 async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
