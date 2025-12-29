@@ -51,7 +51,8 @@ class CacheableSQLModel(BaseSQLModel):
         """Get the cache key of this model.
 
         Return a unique cache key for this model which can be used by clients to cache
-        model data.
+        model data. Cache keys should be serializable by Pydantic and should generally
+        not be used in any business logic.
 
         Returns:
             CacheKey: the unique cache key of this model.
