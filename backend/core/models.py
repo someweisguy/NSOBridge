@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Final, final
+from typing import Final
 
-from sqlalchemy import inspect
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import CascadeOptions, DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from .utils import _TimedeltaAsMilliseconds
 
@@ -28,34 +27,15 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
     __abstract__: bool = True
     __type_annotation_map__: dict = {timedelta: _TimedeltaAsMilliseconds}
 
-    def _get_parents(self) -> list[BaseSQLModel]:
-        parents: list[BaseSQLModel] = []
-        for name, mapper in inspect(self).mapper.relationships.items():
-            if mapper.cascade == CascadeOptions(PARENT_RELATIONSHIP):
-                parent: BaseSQLModel | None = getattr(self, name)
-                if parent is not None:
-                    parents.append(parent)
-        return parents
-
-    @final
-    def search_parents(self) -> set[BaseSQLModel]:
-        """Recursively get a set of this model's parents.
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        """Asynchronously get a tuple of this model's parents.
 
         This method is used to get the hierarchical branch of models that this model
         is on. This is useful to ensure that clients can refresh objects that have
         updated.
 
         Returns:
-            set[BaseSQLModel]: all of the parents of this model, up to the root model.
+            tuple[BaseSQLModel]: the immediate parents of this model.
 
         """
-        models: set[BaseSQLModel] = set()
-        for parent in self._get_parents():
-            models.add(parent)
-            models |= parent.search_parents()
-        return models
-    
-    
-    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
         ...
-        

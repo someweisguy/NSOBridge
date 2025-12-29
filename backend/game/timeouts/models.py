@@ -65,7 +65,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         return (self.__tablename__, self.bout_id, self.id)
 
     @override
-    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team)
 
     def set_type(self, is_review: bool) -> None: ...

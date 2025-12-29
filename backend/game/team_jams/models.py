@@ -56,5 +56,5 @@ class TeamJam(BaseSQLModel):
         super().__init__(team=team)
 
     @override
-    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs.team, await self.awaitable_attrs.jam)

@@ -65,7 +65,7 @@ async def _unpack_updates(models: Iterable[BaseSQLModel]) -> None:
         for model in models:
             cacheables |= {
                 parent
-                for parent in await model.async_get_parents()
+                for parent in await model.get_parents()
                 if isinstance(parent, CacheableSQLModel)
             }
         if len(cacheables) == 0:

@@ -70,7 +70,7 @@ class BaseTeam(BaseSQLModel):
         super().__init__(roster=roster)
 
     @override
-    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs.bout,)
 
     @property

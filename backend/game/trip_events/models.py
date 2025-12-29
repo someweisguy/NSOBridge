@@ -49,7 +49,7 @@ class TripEvent(BaseSQLModel):
         )
 
     @override
-    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs.team_jam,)
 
     def is_empty(self) -> bool:

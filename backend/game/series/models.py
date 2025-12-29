@@ -28,5 +28,5 @@ class Series(CacheableSQLModel):
         return (self.__tablename__, self.id)
 
     @override
-    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
