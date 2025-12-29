@@ -59,7 +59,7 @@ class CacheableSQLModel(BaseSQLModel):
         """
         ...
 
-    def get_snapshot(self) -> DatabaseMemento:
+    def get_memento(self) -> DatabaseMemento:
         copy: CacheableSQLModel = deepcopy(self)
         return DatabaseMemento(copy)
 
@@ -141,4 +141,4 @@ class DatabaseMemento(Memento):
             _ = await session.merge(self._detached_state_to_restore)
             await session.commit()
 
-            return current_state.get_snapshot()
+            return current_state.get_memento()

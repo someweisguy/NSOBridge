@@ -70,7 +70,7 @@ async def get_jam_by_index(
 
     # Optionally take a snapshot of the state
     if request.method != 'GET':
-        user.stage(jam.get_snapshot())
+        user.stage(jam.get_memento())
 
     return jam
 
@@ -87,7 +87,7 @@ async def get_jam_by_id(
 
     # Optionally take a snapshot of the state
     if request.method != 'GET':
-        user.stage(jam.get_snapshot())
+        user.stage(jam.get_memento())
 
     return jam
 

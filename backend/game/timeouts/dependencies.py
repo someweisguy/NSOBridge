@@ -66,7 +66,7 @@ async def get_timeout_by_index(
 
     # Optionally take a snapshot of the Timeout state
     if request.method != 'GET':
-        user.stage(timeout.get_snapshot())
+        user.stage(timeout.get_memento())
     return timeout
 
 
@@ -84,7 +84,7 @@ async def get_timeout_by_id(
 
     # Optionally take a snapshot of the Timeout state
     if request.method != 'GET':
-        user.stage(timeout.get_snapshot())
+        user.stage(timeout.get_memento())
     return timeout
 
 
