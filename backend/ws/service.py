@@ -1,5 +1,4 @@
 import asyncio
-from asyncio import Task
 from typing import Final
 
 from core.models import BaseSQLModel
@@ -71,7 +70,7 @@ def _broadcast_updates(session: Session) -> None:
 
 def broadcast(payload: WebSocketServerSchema) -> None:
     for client in _clients:
-        task: Task[None] = asyncio.create_task(
+        task: asyncio.Task[None] = asyncio.create_task(
             client.send_text(payload.model_dump_json())
         )
         task.add_done_callback(_background_tasks.discard)
