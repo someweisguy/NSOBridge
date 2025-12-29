@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from core.models import PARENT_RELATIONSHIP, BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
@@ -47,6 +47,10 @@ class TripEvent(BaseSQLModel):
             passes=passes,
             star_pass=star_pass,
         )
+
+    @override
+    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs.team_jam,)
 
     def is_empty(self) -> bool:
         return self.passes is None and not any([self.lead, self.lost, self.star_pass])

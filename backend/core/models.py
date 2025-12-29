@@ -54,3 +54,8 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
             models.add(parent)
             models |= parent.search_parents()
         return models
+    
+    
+    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+        ...
+        

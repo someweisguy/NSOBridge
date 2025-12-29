@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
 
+from core import BaseSQLModel
 from core.models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP
 from game.clocks.models import Clock
 from game.models import CacheableSQLModel, CacheKey
@@ -75,6 +76,9 @@ class BaseBout(CacheableSQLModel):
     @override
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.id)
+
+    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return ()
 
     @final
     @property

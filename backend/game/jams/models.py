@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, override
 
-from core.models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP
+from core.models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
@@ -62,6 +62,10 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     @override
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_id, self.period, self.num)
+
+    @override
+    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team_jams)
 
     def get_team_jam_by_team(self, team: BaseTeam | int) -> TeamJam:
         if not isinstance(team, int):

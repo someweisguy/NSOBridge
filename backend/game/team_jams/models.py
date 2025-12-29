@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from core.models import (
     CHILD_RELATIONSHIP,
@@ -54,3 +54,7 @@ class TeamJam(BaseSQLModel):
 
     def __init__(self, team: BaseTeam) -> None:
         super().__init__(team=team)
+
+    @override
+    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs.team, await self.awaitable_attrs.jam)

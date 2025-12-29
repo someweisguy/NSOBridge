@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from core.models import CHILD_RELATIONSHIP
+from core.models import CHILD_RELATIONSHIP, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,3 +26,7 @@ class Series(CacheableSQLModel):
     def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
         return (self.__tablename__, self.id)
+
+    @override
+    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return ()

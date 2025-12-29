@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
 
-from core.models import PARENT_RELATIONSHIP
+from core.models import PARENT_RELATIONSHIP, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey
@@ -63,6 +63,10 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     @override
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_id, self.id)
+
+    @override
+    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team)
 
     def set_type(self, is_review: bool) -> None: ...
 

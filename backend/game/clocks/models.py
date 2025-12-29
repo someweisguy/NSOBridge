@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from core.models import PARENT_RELATIONSHIP, BaseSQLModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -22,6 +22,10 @@ class Clock(BaseSQLModel):
     )
 
     __tablename__: str = 'clocks'
+
+    @override
+    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return ()
 
     def start(self, timestamp: datetime) -> None:
         if self.is_running():

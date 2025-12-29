@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Any, Final, override
 
 from core.models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
 from game.bouts.models import BaseBout
@@ -68,6 +68,10 @@ class BaseTeam(BaseSQLModel):
 
     def __init__(self, roster: Roster) -> None:
         super().__init__(roster=roster)
+
+    @override
+    async def async_get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs.bout,)
 
     @property
     def bout_score(self) -> int:
