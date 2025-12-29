@@ -10,7 +10,7 @@ from websockets import CloseCode
 from .schemas import (
     AboutWebsocketServerSchema,
     CacheWebsocketServerSchema,
-    WebsocketClientSchema,
+    AboutDataClientSchema,
     WebSocketServerSchema,
 )
 
@@ -37,7 +37,7 @@ async def _handle_socket(websocket: WebSocket) -> None:
         # Handle incoming socket packet data and send a response
         while True:
             # There is only one type of packet which should be received
-            request: WebsocketClientSchema = WebsocketClientSchema.model_validate_json(
+            request: AboutDataClientSchema = AboutDataClientSchema.model_validate_json(
                 await websocket.receive_text()
             )
             response: WebSocketServerSchema = AboutWebsocketServerSchema(
