@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import DeclarativeBase
 
 
-class EngineManager:
+class DatabaseEngine:
     _DRIVER: ClassVar[Final[str]] = 'sqlite+aiosqlite'
 
     def __init__(self, db_schema: type[DeclarativeBase], db_path: str = '') -> None:

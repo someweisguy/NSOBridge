@@ -8,12 +8,12 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from core.models import BaseSQLModel
-from core.service import EngineManager
+from core.service import DatabaseEngine
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
-db: Final[EngineManager] = EngineManager(BaseSQLModel)
+db: Final[DatabaseEngine] = DatabaseEngine(BaseSQLModel)
 
 
 async def _get_async_session(
