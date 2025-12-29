@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING, ClassVar, Final
 
 from sqlalchemy.engine import URL
@@ -22,6 +23,10 @@ class DatabaseEngine:
     """
 
     _DRIVER: ClassVar[Final[str]] = 'sqlite+aiosqlite'
+    _DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {
+        'true',
+        'yes',
+    }
 
     def __init__(self, db_schema: type[DeclarativeBase], db_path: str = '') -> None:
         """Create a database engine without connecting to the database.
@@ -55,7 +60,7 @@ class DatabaseEngine:
 
         # Initialize the database engine
         url: URL = URL.create(self._DRIVER, database=self.path)
-        engine: AsyncEngine = create_async_engine(url, echo=False)
+        engine: AsyncEngine = create_async_engine(url, echo=self._DEBUG)
 
         # Create the database tables
         async with engine.connect() as session:

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from datetime import timedelta
 from typing import Final, final
 
@@ -11,9 +10,6 @@ from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import CascadeOptions, DeclarativeBase, Mapped, mapped_column
 
 from .utils import _TimedeltaAsMilliseconds
-
-_DB_PREFIX: Final[str] = 'sqlite+aiosqlite:///' + ''
-_DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
 
 CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
 PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
