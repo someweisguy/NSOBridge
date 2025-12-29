@@ -60,6 +60,12 @@ class CacheableSQLModel(BaseSQLModel):
         ...
 
     def get_memento(self) -> DatabaseMemento:
+        """Get a memento of the current state of this model and all its children.
+
+        Returns:
+            DatabaseMemento: a Memento of this model's state.
+
+        """
         copy: CacheableSQLModel = deepcopy(self)
         return DatabaseMemento(copy)
 
@@ -84,28 +90,82 @@ class AbstractOneShotModel(BaseSQLModel):
     )
 
     def start(self, timestamp: datetime) -> None:
+        """Start the one-shot.
+
+        Args:
+            timestamp (datetime): The timestap at which to start the model.
+
+        Raises:
+            RuntimeError: if the one-shot is already running.
+
+        """
         if self.is_running():
-            raise RuntimeError('Cannot start a Clock when it is already running')
+            raise RuntimeError('Cannot start a one-shot when it is already running')
         self.start_timestamp = timestamp
 
     def stop(self, timestamp: datetime) -> None:
+        """Stop the one-shot.
+
+        Args:
+            timestamp (datetime): the timestamp at which to stop the model.
+
+        Raises:
+            RuntimeError: if the one-shot is not currently running.
+            ValueError: if the stop timestamp is before the start timestamp.
+
+        """
         if not self.is_running():
-            raise RuntimeError('Cannot stop a Clock when it is already stopped')
+            raise RuntimeError('Cannot stop a one-shot when it is already stopped')
         assert self.start_timestamp is not None
         if timestamp < self.start_timestamp:
-            raise RuntimeError('Cannot stop a Clock before it has been started')
+            raise ValueError('Cannot stop a one-shot before it has been started')
         self.stop_timestamp = timestamp
 
     def is_started(self) -> bool:
+        """Return True if the one-shot is started.
+
+        If this one-shot is finished, this method will return True.
+
+        Returns:
+            bool: True if the one-shot is started.
+
+        """
         return self.start_timestamp is not None
 
     def is_running(self) -> bool:
+        """Return True if this one-shot is running.
+
+        Returns:
+            bool: True if this one-shot is running.
+
+        """
         return self.is_started() and not self.is_finished()
 
     def is_finished(self) -> bool:
+        """Return True if this one-shot is finished.
+
+        Returns:
+            bool: True if this one-shot is finished.
+
+        """
         return self.stop_timestamp is not None
 
     def get_duration(self, timestamp: datetime | None = None) -> timedelta:
+        """Get the duration that has elapsed in this one-shot at the desired timestamp.
+
+        Args:
+            timestamp (datetime | None, optional): The timestamp which should be used to
+            calculate the remaining time on the one-shot. If None is provided, the
+            current timestamp will be used. Defaults to None.
+
+        Raises:
+            ValueError: if a timestamp that occurs before the start of the one-shot is
+            provided.
+
+        Returns:
+            timedelta: the elapsed time on this one-shot.
+
+        """
         if timestamp is None:
             timestamp = datetime.now()
         if self.start_timestamp is None:
