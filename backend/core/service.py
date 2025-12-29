@@ -14,10 +14,12 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
+from uvicorn import Config, Server
 
 from .exceptions import ClientError
 
 if TYPE_CHECKING:
+    from fastapi import APIRouter
     from sqlalchemy.ext.asyncio import AsyncEngine
     from sqlalchemy.orm import DeclarativeBase
 
@@ -30,35 +32,6 @@ logging.basicConfig(
 
 _FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 _DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
-
-
-# Initialize the application and set the appropriate routes
-app: Final[FastAPI] = FastAPI(
-    debug=_DEBUG,
-    routes=[
-        Mount('/assets', StaticFiles(directory=_FRONTEND / 'assets')),
-    ],
-)
-
-
-@app.get('/')
-async def _render_index() -> FileResponse:
-    return FileResponse(_FRONTEND / 'index.html')
-
-
-@app.get('/sb')
-async def _render_generic(request: Request) -> FileResponse:
-    # Render generic HTML files found in the frontend directory.
-    # Don't forget to register new files with the FastAPI app!
-    return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
-
-
-@app.exception_handler(ClientError)
-async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
-    return JSONResponse(
-        status_code=409,  # TODO: remove magic number
-        content={'message': str(e)},
-    )
 
 
 class DatabaseEngine:
@@ -145,3 +118,77 @@ class DatabaseEngine:
         """
         factory: async_sessionmaker = self.get_async_session_factory()
         return factory()
+
+
+# Initialize the application and set the appropriate routes
+app: Final[FastAPI] = FastAPI(
+    debug=_DEBUG,
+    routes=[
+        Mount('/assets', StaticFiles(directory=_FRONTEND / 'assets')),
+    ],
+)
+
+
+@app.get('/')
+async def _render_index() -> FileResponse:
+    return FileResponse(_FRONTEND / 'index.html')
+
+
+@app.get('/sb')
+async def _render_generic(request: Request) -> FileResponse:
+    # Render generic HTML files found in the frontend directory.
+    # Don't forget to register new files with the FastAPI app!
+    return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
+
+
+@app.exception_handler(ClientError)
+async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
+    return JSONResponse(
+        status_code=409,  # TODO: remove magic number
+        content={'message': str(e)},
+    )
+
+
+def load_api(router: APIRouter) -> None:
+    """Load an API router into the core application.
+
+    Args:
+        router (APIRouter): A FastAPI router with endpoints to attach to the
+        application.
+
+    """
+    API_PREFIX: Final[str] = '/api'
+    app.include_router(router, prefix=API_PREFIX)
+
+
+async def run(host: str = '0.0.0.0', port: int = 8000) -> None:
+    """Asynchronously serve the application on the desired host and port.
+
+    Args:
+        host (str, optional): The desired host on which to serve the app. Defaults to
+        '0.0.0.0'.
+        port (int, optional): The desired port on which to serve the app. Defaults to
+        8000.
+
+    Raises:
+        ValueError: if the port number provided is invalid.
+
+    """
+    MAX_PORT_NUM: Final[int] = 65535
+    if 0 >= port > MAX_PORT_NUM:
+        raise ValueError('Invalid port number')
+
+    # Configure the server
+    server: Server = Server(
+        Config(
+            app,
+            host=host,
+            port=port,
+            log_config=None,
+            access_log=False,
+            log_level='warning',
+            server_header=False,
+        )
+    )
+
+    await server.serve()
