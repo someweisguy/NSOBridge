@@ -37,9 +37,27 @@ class Memento(Protocol):
 
 
 class CacheableSQLModel(BaseSQLModel):
+    """A database model which can be cached by clients.
+
+    Cacheable SQL models are the 'primary' models of the database. Clients are able to
+    query cacheable models only. Non-cacheable models should not be queried. Cacheable
+    models have cache keys which are unique keys used by clients to cache data to
+    prevent query duplication.
+    """
+
     __abstract__: bool = True
 
-    def cache_key(self) -> CacheKey: ...
+    def cache_key(self) -> CacheKey:
+        """Get the cache key of this model.
+
+        Return a unique cache key for this model which can be used by clients to cache
+        model data.
+
+        Returns:
+            CacheKey: the unique cache key of this model.
+
+        """
+        ...
 
     def get_snapshot(self) -> DatabaseMemento:
         copy: CacheableSQLModel = deepcopy(self)
