@@ -1,5 +1,6 @@
 import asyncio
 from typing import Final, Iterable
+from websockets import CloseCode
 
 from core import BaseSQLModel, db
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -15,6 +16,8 @@ from .schemas import (
 
 _clients: set[WebSocket] = set()
 _background_tasks: set[asyncio.Task[None]] = set()
+
+
 
 app: Final[FastAPI] = FastAPI()
 
@@ -45,11 +48,9 @@ async def _handle_socket(websocket: WebSocket) -> None:
     except WebSocketDisconnect:
         pass  # TODO: log client disconnection
     except ValidationError as e:
-        # TODO: remove magic number
-        await websocket.close(1007, str(e))  # TODO: log error
+        await websocket.close(CloseCode.INVALID_DATA, str(e))  # TODO: log error
     except Exception as e:
-        # TODO: remove magic number
-        await websocket.close(1011, str(e))  # TODO: log error
+        await websocket.close(CloseCode.INTERNAL_ERROR, str(e))  # TODO: log error
     finally:
         _clients.discard(websocket)
 
@@ -102,7 +103,7 @@ def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
     _background_tasks.add(task)
 
 
-async def disconnect_all(reason: str) -> None:
+async def disconnect_all(code: int, reason: str) -> None:
     """Disconnect all the WebSocket clients.
 
     Args:
@@ -110,4 +111,4 @@ async def disconnect_all(reason: str) -> None:
 
     """
     for client in _clients:
-        await client.close(code=1000, reason=reason)
+        await client.close(code=code, reason=reason)

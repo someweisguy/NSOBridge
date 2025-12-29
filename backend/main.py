@@ -10,6 +10,7 @@ from core import db
 from game import Roster, Series, game_routers, wftda_2025
 from sqlalchemy import Result, Select, select
 from users.router import router as user_router
+from websockets import CloseCode
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -59,7 +60,7 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
     print(f'Starting server at http://{ip}{f":{port}" if port != HTTP_PORT else ""}')
 
     await core.run(host, port)
-    await ws.disconnect_all('The server is shutting down')
+    await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
 
 
 if __name__ == '__main__':
