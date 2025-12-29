@@ -1,3 +1,5 @@
+"""Dependencies for the user module."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Annotated, TypeAlias

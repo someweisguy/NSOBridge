@@ -1,3 +1,5 @@
+"""Endpoints for user commands such as undo and redo."""
+
 from typing import Final
 
 from fastapi import APIRouter
@@ -8,10 +10,10 @@ router: Final[APIRouter] = APIRouter()
 
 
 @router.post('/undo')
-async def undo(user: GetUser) -> None:
+async def _undo(user: GetUser) -> None:
     await user.undo()
 
 
 @router.post('/redo')
-async def redo(user: GetUser) -> None:
+async def _redo(user: GetUser) -> None:
     await user.redo()
