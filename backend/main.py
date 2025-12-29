@@ -5,6 +5,7 @@ from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
 import core
+import ws
 from core.dependencies import db
 from game import ROUTERS as game_routers
 from game.rosters.models import Roster
@@ -45,7 +46,8 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
             session.add(bout)
         await session.commit()
 
-    # Load the server API
+    # Load the server API and the WebSocket application
+    core.app.mount('/ws', ws.app)
     for router in [*game_routers, user_router]:
         core.load_api(router)
 

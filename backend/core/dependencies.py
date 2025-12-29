@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Annotated, Final, TypeAlias
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from core.models import BaseSQLModel
-from core.service import DatabaseEngine
+from .models import BaseSQLModel
+from .service import DatabaseEngine
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator

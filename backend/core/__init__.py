@@ -6,17 +6,14 @@ This file contains the core functions needed to run NSO Bridge.
 from __future__ import annotations
 
 import logging
-from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
-import ws
-from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.routing import APIRouter, Mount
-from fastapi.staticfiles import StaticFiles
 from uvicorn import Config, Server
 
-from core.exceptions import ClientError
+from .service import app
+
+if TYPE_CHECKING:
+    from fastapi import APIRouter
 
 logging.basicConfig(
     format='{levelname}: {message}',
@@ -24,39 +21,6 @@ logging.basicConfig(
     style='{',
     level=logging.INFO,
 )
-
-_API_PREFIX: Final[str] = '/api'
-_FRONTEND: Final[Path] = Path.cwd() / Path('dist')
-
-
-# Initialize the application and set the appropriate routes
-app: Final[FastAPI] = FastAPI(
-    debug=True,
-    routes=[
-        Mount('/assets', StaticFiles(directory=_FRONTEND / 'assets')),
-        Mount('/ws', ws.app),
-    ],
-)
-
-
-@app.get('/')
-async def _render_index() -> FileResponse:
-    return FileResponse(_FRONTEND / 'index.html')
-
-
-@app.get('/sb')
-async def _render_generic(request: Request) -> FileResponse:
-    # Render generic HTML files found in the frontend directory.
-    # Don't forget to register new files with the FastAPI app!
-    return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
-
-
-@app.exception_handler(ClientError)
-async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
-    return JSONResponse(
-        status_code=409,
-        content={'message': str(e)},
-    )
 
 
 def load_api(router: APIRouter) -> None:
@@ -67,7 +31,8 @@ def load_api(router: APIRouter) -> None:
         application.
 
     """
-    app.include_router(router, prefix=_API_PREFIX)
+    API_PREFIX: Final[str] = '/api'
+    app.include_router(router, prefix=API_PREFIX)
 
 
 async def run(host: str = '0.0.0.0', port: int = 8000) -> None:

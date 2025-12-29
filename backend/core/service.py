@@ -2,16 +2,63 @@
 
 from __future__ import annotations
 
+import logging
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Final
 
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.routing import Mount
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
+from .exceptions import ClientError
+
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine
     from sqlalchemy.orm import DeclarativeBase
+
+logging.basicConfig(
+    format='{levelname}: {message}',
+    datefmt='%m/%d/%Y %H:%M:%S',
+    style='{',
+    level=logging.INFO,
+)
+
+_FRONTEND: Final[Path] = Path.cwd() / Path('dist')
+_DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
+
+
+# Initialize the application and set the appropriate routes
+app: Final[FastAPI] = FastAPI(
+    debug=_DEBUG,
+    routes=[
+        Mount('/assets', StaticFiles(directory=_FRONTEND / 'assets')),
+    ],
+)
+
+
+@app.get('/')
+async def _render_index() -> FileResponse:
+    return FileResponse(_FRONTEND / 'index.html')
+
+
+@app.get('/sb')
+async def _render_generic(request: Request) -> FileResponse:
+    # Render generic HTML files found in the frontend directory.
+    # Don't forget to register new files with the FastAPI app!
+    return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
+
+
+@app.exception_handler(ClientError)
+async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
+    return JSONResponse(
+        status_code=409,  # TODO: remove magic number
+        content={'message': str(e)},
+    )
 
 
 class DatabaseEngine:
@@ -23,10 +70,6 @@ class DatabaseEngine:
     """
 
     _DRIVER: ClassVar[Final[str]] = 'sqlite+aiosqlite'
-    _DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {
-        'true',
-        'yes',
-    }
 
     def __init__(self, db_schema: type[DeclarativeBase], db_path: str = '') -> None:
         """Create a database engine without connecting to the database.
@@ -60,7 +103,7 @@ class DatabaseEngine:
 
         # Initialize the database engine
         url: URL = URL.create(self._DRIVER, database=self.path)
-        engine: AsyncEngine = create_async_engine(url, echo=self._DEBUG)
+        engine: AsyncEngine = create_async_engine(url, echo=_DEBUG)
 
         # Create the database tables
         async with engine.connect() as session:
