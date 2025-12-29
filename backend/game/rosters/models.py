@@ -26,6 +26,10 @@ class Skater(BaseSQLModel):
     def __init__(self, name: str, number: str) -> None:
         super().__init__(name=name, number=number)
 
+    @override
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs.roster,)
+
 
 class Roster(CacheableSQLModel):
     name: Mapped[str] = mapped_column()

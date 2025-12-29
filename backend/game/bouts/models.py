@@ -77,6 +77,7 @@ class BaseBout(CacheableSQLModel):
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.id)
 
+    @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
 
