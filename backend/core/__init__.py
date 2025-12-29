@@ -7,7 +7,7 @@ from .dependencies import AsyncSessionDepends, db
 from .exceptions import ClientError
 from .models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
 from .schemas import ClientSchema, ServerSchema
-from .service import DatabaseEngine, app, load_api, run
+from .service import DatabaseEngine, Memento, app, load_api, run
 
 __all__ = (
     'app',
@@ -19,6 +19,7 @@ __all__ = (
     'DatabaseEngine',
     'db',
     'load_api',
+    'Memento',
     'PARENT_RELATIONSHIP',
     'run',
     'ServerSchema',

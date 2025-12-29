@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Annotated, Any, Protocol, override
+from typing import TYPE_CHECKING, Annotated, Any, override
 
-from core import BaseSQLModel, db
+from core import BaseSQLModel, Memento, db
 from sqlalchemy import CheckConstraint, Constraint, Result, Select, select
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,25 +15,6 @@ if TYPE_CHECKING:
 type CacheKey = Annotated[
     tuple[Any, ...], 'The type of the cache key used by cacheable models.'
 ]
-
-
-class Memento(Protocol):
-    """Represent a memento point-in-time of the application state.
-
-    Mementos can be used to implement functionality such as undo and redo by restoring
-    the application to a previous state.
-    """
-
-    async def restore(self) -> Memento:
-        """Restore the state of the application to when this Memento was constructed.
-
-        Returns:
-            Memento: A Memento of the state of the application before this method was
-            called. Calling `restore()` on this newly created Memento has the effect of
-            redoing an operation.
-
-        """
-        ...
 
 
 class CacheableSQLModel(BaseSQLModel):

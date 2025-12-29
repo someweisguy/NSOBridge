@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Final
+from typing import TYPE_CHECKING, ClassVar, Final, Protocol
 
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
@@ -32,6 +32,25 @@ logging.basicConfig(
 
 _FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 _DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
+
+
+class Memento(Protocol):
+    """Represent a memento point-in-time of the application state.
+
+    Mementos can be used to implement functionality such as undo and redo by restoring
+    the application to a previous state.
+    """
+
+    async def restore(self) -> Memento:
+        """Restore the state of the application to when this Memento was constructed.
+
+        Returns:
+            Memento: A Memento of the state of the application before this method was
+            called. Calling `restore()` on this newly created Memento has the effect of
+            redoing an operation.
+
+        """
+        ...
 
 
 class DatabaseEngine:
