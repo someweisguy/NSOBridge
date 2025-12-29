@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from core import Memento
 
 
-class UserContext:
+class User:
     __slots__: tuple[str, ...] = '_undo_history', '_redo_history', '_staged'
 
     def __init__(self) -> None:

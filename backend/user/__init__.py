@@ -1,9 +1,9 @@
-from .dependencies import UserDepends
+from .dependencies import GetUser
 from .router import router
-from .service import UserContext
+from .service import User
 
 __all__ = (
+    'GetUser',
     'router',
-    'UserContext',
-    'UserDepends',
+    'User',
 )
