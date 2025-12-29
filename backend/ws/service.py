@@ -1,28 +1,53 @@
 import asyncio
 from asyncio import Task
+from typing import Final
 
 from core.models import BaseSQLModel
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from game.models import CacheableSQLModel
+from pydantic import ValidationError
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 
-from ws.schemas import CacheWebsocketServerSchema
+from .schemas import (
+    AboutWebsocketServerSchema,
+    CacheWebsocketServerSchema,
+    WebsocketClientSchema,
+    WebSocketServerSchema,
+)
 
-from .router import BACKGROUND_TASKS, CLIENTS
-from .schemas import WebSocketServerSchema
+_clients: set[WebSocket] = set()
+_background_tasks: set[asyncio.Task[None]] = set()
+
+app: Final[FastAPI] = FastAPI()
 
 
-def broadcast(payload: WebSocketServerSchema) -> None:
-    for client in CLIENTS:
-        task: Task[None] = asyncio.create_task(
-            client.send_text(payload.model_dump_json())
-        )
-        task.add_done_callback(BACKGROUND_TASKS.discard)
-        BACKGROUND_TASKS.add(task)
+@app.websocket('/')
+async def _handle_socket(websocket: WebSocket) -> None:
+    await websocket.accept()
+    _clients.add(websocket)
+
+    try:
+        while True:
+            request: WebsocketClientSchema = WebsocketClientSchema.model_validate_json(
+                await websocket.receive_text()
+            )
+            response: WebSocketServerSchema = AboutWebsocketServerSchema(
+                request.process
+            )
+            await websocket.send_text(response.model_dump_json())
+    except WebSocketDisconnect:
+        pass  # TODO: log client disconnection
+    except ValidationError:
+        await websocket.close(1007)  # TODO: log error
+    except Exception:
+        await websocket.close(1011)  # TODO: log error
+    finally:
+        _clients.discard(websocket)
 
 
 @event.listens_for(Session, 'before_commit')
-def broadcast_updates(session: Session) -> None:
+def _broadcast_updates(session: Session) -> None:
     # Recursively add each dirty, deleted, or new model
     cacheables: set[CacheableSQLModel] = {
         parent
@@ -42,3 +67,12 @@ def broadcast_updates(session: Session) -> None:
     )
     if len(payload.data) > 0:
         broadcast(payload)
+
+
+def broadcast(payload: WebSocketServerSchema) -> None:
+    for client in _clients:
+        task: Task[None] = asyncio.create_task(
+            client.send_text(payload.model_dump_json())
+        )
+        task.add_done_callback(_background_tasks.discard)
+        _background_tasks.add(task)

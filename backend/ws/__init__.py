@@ -18,8 +18,7 @@ order to keep code complexity to a minimum, this module shall be made only to me
 minimum project requirements.
 """
 
-from .router import app
-from .service import broadcast
+from .service import app, broadcast
 
 __all__ = (
     'app',
