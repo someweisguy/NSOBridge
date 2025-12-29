@@ -54,7 +54,7 @@ async def _handle_socket(websocket: WebSocket) -> None:
         _clients.discard(websocket)
 
 
-def broadcast_updates(models: BaseSQLModel | Iterable[BaseSQLModel]) -> None:
+def invalidate_queries(models: BaseSQLModel | Iterable[BaseSQLModel]) -> None:
     if not isinstance(models, Iterable):
         models = [models]
 

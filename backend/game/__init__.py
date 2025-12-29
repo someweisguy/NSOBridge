@@ -49,7 +49,7 @@ def _handle_dirty_session(session: Session) -> None:
     }
 
     if len(models) > 0:
-        ws.broadcast_updates(models)
+        ws.invalidate_queries(models)
 
 
 game_routers: Final[tuple[APIRouter, ...]] = (
