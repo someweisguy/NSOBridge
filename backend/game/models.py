@@ -82,7 +82,7 @@ class DatabaseMemento(Memento):
 
     @override
     async def restore(self) -> Memento:
-        session_factory: async_sessionmaker = await db.get_async_session_factory()
+        session_factory: async_sessionmaker = db.get_async_session_factory()
         async with session_factory() as session, session.begin():
             # Query and detach the current state of the database object
             Table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
