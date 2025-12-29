@@ -8,9 +8,9 @@ from pydantic import ValidationError
 from websockets import CloseCode
 
 from .schemas import (
+    AboutDataClientSchema,
     AboutWebsocketServerSchema,
     CacheWebsocketServerSchema,
-    AboutDataClientSchema,
     WebSocketServerSchema,
 )
 
@@ -106,6 +106,7 @@ async def disconnect_all(code: int, reason: str) -> None:
     """Disconnect all the WebSocket clients.
 
     Args:
+        code (int): the WebSocket disconnect code.
         reason (str): the reason for the disconnection.
 
     """
