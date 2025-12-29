@@ -29,7 +29,7 @@ from sqlalchemy.orm import Session
 
 from .bouts.router import router as bout_router
 from .jams.router import router as jam_router
-from .models import CacheKey
+from .models import CacheableSQLModel, CacheKey
 from .rosters.models import Roster
 from .rosters.router import router as roster_router
 from .rulesets import wftda_2025
@@ -63,6 +63,7 @@ game_routers: Final[tuple[APIRouter, ...]] = (
 
 __all__ = (
     'CacheKey',
+    'CacheableSQLModel',
     'game_routers',
     'Roster',  # Non-rule-bound objects can be exported
     'Series',  # Non-rule-bound objects can be exported

@@ -1,11 +1,11 @@
 import asyncio
 from typing import Final, Iterable
-from websockets import CloseCode
 
 from core import BaseSQLModel, db
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from game.models import CacheableSQLModel
+from game import CacheableSQLModel
 from pydantic import ValidationError
+from websockets import CloseCode
 
 from .schemas import (
     AboutWebsocketServerSchema,
@@ -16,7 +16,6 @@ from .schemas import (
 
 _clients: set[WebSocket] = set()
 _background_tasks: set[asyncio.Task[None]] = set()
-
 
 
 app: Final[FastAPI] = FastAPI()
