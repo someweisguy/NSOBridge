@@ -6,11 +6,8 @@ from typing import TYPE_CHECKING, Final
 
 import core
 import ws
-from core.dependencies import db
-from game import ROUTERS as game_routers
-from game.rosters.models import Roster
-from game.rulesets.wftda_2025 import Bout
-from game.series.models import Series
+from core import db
+from game import Roster, Series, game_routers, wftda_2025
 from sqlalchemy import Result, Select, select
 from users.router import router as user_router
 
@@ -31,14 +28,14 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
     await db.create_all()
 
     # Create a Bout model if one does not already exist
-    bout: Bout | None = None
+    bout: wftda_2025.Bout | None = None
     session_factory: async_sessionmaker = db.get_async_session_factory()
     async with session_factory() as session, session.begin():
-        statement: Select[tuple[Bout]] = select(Bout)
-        results: Result[tuple[Bout]] = await session.execute(statement)
+        statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
+        results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
         if results.scalar() is None:
             print('Creating initial Bout model')
-            bout = Bout(
+            bout = wftda_2025.Bout(
                 Series(),
                 Roster('Home', 'Default League'),
                 Roster('Away', 'Default League'),
