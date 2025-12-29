@@ -55,7 +55,7 @@ async def _handle_socket(websocket: WebSocket) -> None:
 
 
 async def _unpack_updates(models: Iterable[BaseSQLModel]) -> None:
-    async with db.get_async_session() as session, session.begin():
+    async with db.get_async_session() as session:
         # Merge the models with the current session
         models = [await session.merge(model) for model in models]
         # Get a set of the cacheable models from all the updated models
@@ -79,7 +79,6 @@ async def _unpack_updates(models: Iterable[BaseSQLModel]) -> None:
                 if cacheable.id is not None
             ]
         )
-        await session.rollback()  # TODO: figure out a way to remove this line
 
     # Send the payload to all clients
     for client in _clients:
