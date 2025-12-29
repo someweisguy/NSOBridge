@@ -54,41 +54,41 @@ async def _handle_socket(websocket: WebSocket) -> None:
         _clients.discard(websocket)
 
 
-async def _unpack_updates(models: Iterable[BaseSQLModel]) -> None:
-    async with db.get_async_session() as session:
-        # Merge the models with the current session
-        models = [await session.merge(model) for model in models]
-        # Get a set of the cacheable models from all the updated models
-        cacheables: set[CacheableSQLModel] = {
-            model for model in models if isinstance(model, CacheableSQLModel)
-        }
-        for model in models:
-            cacheables |= {
-                parent
-                for parent in await model.get_parents()
-                if isinstance(parent, CacheableSQLModel)
-            }
-        if len(cacheables) == 0:
-            return
-
-        # Generate the payload to broadcast
-        payload = CacheWebsocketServerSchema(
-            [
-                cacheable.cache_key()
-                for cacheable in cacheables
-                if cacheable.id is not None
-            ]
-        )
-
-    # Send the payload to all clients
-    for client in _clients:
-        await client.send_text(payload.model_dump_json())
-
-
 def broadcast_updates(models: BaseSQLModel | Iterable[BaseSQLModel]) -> None:
     if not isinstance(models, Iterable):
         models = [models]
-    task: asyncio.Task[None] = asyncio.create_task(_unpack_updates(models))
+
+    async def send_model_tree_updates(models: Iterable[BaseSQLModel]) -> None:
+        async with db.get_async_session() as session:
+            # Merge the models with the current session
+            models = [await session.merge(model) for model in models]
+            # Get a set of the cacheable models from all the updated models
+            cacheables: set[CacheableSQLModel] = {
+                model for model in models if isinstance(model, CacheableSQLModel)
+            }
+            for model in models:
+                cacheables |= {
+                    parent
+                    for parent in await model.get_parents()
+                    if isinstance(parent, CacheableSQLModel)
+                }
+            if len(cacheables) == 0:
+                return
+
+            # Generate the payload to broadcast
+            payload = CacheWebsocketServerSchema(
+                [
+                    cacheable.cache_key()
+                    for cacheable in cacheables
+                    if cacheable.id is not None
+                ]
+            )
+
+        # Send the payload to all clients
+        for client in _clients:
+            await client.send_text(payload.model_dump_json())
+
+    task: asyncio.Task[None] = asyncio.create_task(send_model_tree_updates(models))
     task.add_done_callback(_background_tasks.discard)
     _background_tasks.add(task)
 
