@@ -39,7 +39,7 @@ from .timeouts.router import router as timeout_router
 
 
 @event.listens_for(Session, 'before_commit')
-def _get_updates(session: Session) -> None:
+def _handle_dirty_session(session: Session) -> None:
     # Add each dirty or deleted model to a set for updates
     models: set[BaseSQLModel] = {
         model
