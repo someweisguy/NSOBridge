@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any, Protocol, override
+from typing import TYPE_CHECKING, Annotated, Any, Protocol, override
 
-from core.dependencies import db
-from core.models import BaseSQLModel
+from core import BaseSQLModel, db
 from sqlalchemy import CheckConstraint, Constraint, Result, Select, select
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -13,10 +12,49 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
 
 
-type CacheKey = tuple[Any, ...]
+type CacheKey = Annotated[
+    tuple[Any, ...], 'The type of the cache key used by cacheable models.'
+]
+
+
+class Memento(Protocol):
+    """Represent a memento point-in-time of the application state.
+
+    Mementos can be used to implement functionality such as undo and redo by restoring
+    the application to a previous state.
+    """
+
+    async def restore(self) -> Memento:
+        """Restore the state of the application to when this Memento was constructed.
+
+        Returns:
+            Memento: A Memento of the state of the application before this method was
+            called. Calling `restore()` on this newly created Memento has the effect of
+            redoing an operation.
+
+        """
+        ...
+
+
+class CacheableSQLModel(BaseSQLModel):
+    __abstract__: bool = True
+
+    def cache_key(self) -> CacheKey: ...
+
+    def get_snapshot(self) -> DatabaseMemento:
+        copy: CacheableSQLModel = deepcopy(self)
+        return DatabaseMemento(copy)
 
 
 class AbstractOneShotModel(BaseSQLModel):
+    """The abstract base class for one-shot models.
+
+    One-shot models are models which can be started and stopped only once. Once a
+    one-shot is stopped, a new one-shot must be instantiated and started. An example of
+    this would be a Jam or a Timeout. Once the Jam ends, it is permanently over. The
+    Period Clock, on the other hand, can be started and stopped multiple times.
+    """
+
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     stop_timestamp: Mapped[datetime | None] = mapped_column(default=None)
 
@@ -60,20 +98,6 @@ class AbstractOneShotModel(BaseSQLModel):
             if timestamp < self.start_timestamp:
                 raise ValueError('Cannot get a duration for a time that is in the past')
             return timestamp - self.start_timestamp
-
-
-class CacheableSQLModel(BaseSQLModel):
-    __abstract__: bool = True
-
-    def cache_key(self) -> CacheKey: ...
-
-    def get_snapshot(self) -> DatabaseMemento:
-        copy: CacheableSQLModel = deepcopy(self)
-        return DatabaseMemento(copy)
-
-
-class Memento(Protocol):
-    async def restore(self) -> Memento: ...
 
 
 class DatabaseMemento(Memento):
