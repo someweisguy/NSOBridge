@@ -168,18 +168,6 @@ async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse
     )
 
 
-def load_api(router: APIRouter) -> None:
-    """Load an API router into the core application.
-
-    Args:
-        router (APIRouter): A FastAPI router with endpoints to attach to the
-        application.
-
-    """
-    API_PREFIX: Final[str] = '/api'
-    app.include_router(router, prefix=API_PREFIX)
-
-
 async def run(host: str = '0.0.0.0', port: int = 8000) -> None:
     """Asynchronously serve the application on the desired host and port.
 

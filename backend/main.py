@@ -45,7 +45,7 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
     # Load the server API and the WebSocket application
     core.app.mount('/ws', ws.app)
     for router in [*game_routers, user_router]:
-        core.load_api(router)
+        core.app.include_router(router, prefix='/api')
 
     # Log the server's address and serve the application
     # TODO: Strictly speaking, we should cross-check this against the host
