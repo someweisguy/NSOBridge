@@ -1,3 +1,5 @@
+"""Services for the WebSocket module including the sub-application and methods."""
+
 import asyncio
 from typing import Final, Iterable
 

@@ -1,3 +1,5 @@
+"""Schemas used in the WebSocket module."""
+
 import os
 from abc import ABC
 from datetime import datetime
