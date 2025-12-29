@@ -42,7 +42,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
         """Recursively get a set of this model's parents.
 
         This method is used to get the hierarchical branch of models that this model
-        is on. This is useful to ensure that clients can update objects that may have
+        is on. This is useful to ensure that clients can refresh objects that have
         updated.
 
         Returns:
