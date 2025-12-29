@@ -52,7 +52,7 @@ def _handle_dirty_session(session: Session) -> None:
         ws.invalidate_queries(models)
 
 
-game_routers: Final[tuple[APIRouter, ...]] = (
+routers: Final[tuple[APIRouter, ...]] = (
     bout_router,
     jam_router,
     roster_router,
@@ -64,8 +64,8 @@ game_routers: Final[tuple[APIRouter, ...]] = (
 __all__ = (
     'CacheKey',
     'CacheableSQLModel',
-    'game_routers',
     'Roster',  # Non-rule-bound objects can be exported
+    'routers',
     'Series',  # Non-rule-bound objects can be exported
     'wftda_2025',
 )
