@@ -4,23 +4,13 @@ from __future__ import annotations
 
 import os
 from datetime import timedelta
-from typing import TYPE_CHECKING, ClassVar, Final, final
+from typing import Final, final
 
 from sqlalchemy import inspect
-from sqlalchemy.engine import URL
-from sqlalchemy.ext.asyncio import (
-    AsyncAttrs,
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import CascadeOptions, DeclarativeBase, Mapped, mapped_column
 
 from .utils import _TimedeltaAsMilliseconds
-
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio.engine import AsyncEngine
-
 
 _DB_PREFIX: Final[str] = 'sqlite+aiosqlite:///' + ''
 _DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
@@ -68,4 +58,3 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
             models.add(parent)
             models |= parent.search_parents()
         return models
-

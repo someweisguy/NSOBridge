@@ -31,11 +31,11 @@ class EngineManager:
         # Initialize the database engine
         url: URL = URL.create(self._DRIVER, database=self.path)
         engine: AsyncEngine = create_async_engine(url, echo=False)
-        self._session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
 
         # Create the database tables
         async with engine.connect() as session:
             await session.run_sync(self._db_schema.metadata.create_all)
+        self._session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
 
     def get_async_session_factory(self) -> async_sessionmaker:
         if self._session_factory is None:
