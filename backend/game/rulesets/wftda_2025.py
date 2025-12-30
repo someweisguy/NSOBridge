@@ -1,3 +1,5 @@
+"""Models and Business logic pertaining to the WFTDA 2025 ruleset."""
+
 from datetime import datetime, timedelta
 from typing import ClassVar, override
 
@@ -26,6 +28,8 @@ class _WFTDAModel:
 
 
 class Bout(_WFTDAModel, BaseBout):
+    """A Bout model using the WFTDA 2025 ruleset."""
+
     ruleset: ClassVar[Ruleset] = Ruleset(
         name=RULESET_NAME,
         num_periods=2,
@@ -188,6 +192,8 @@ class Bout(_WFTDAModel, BaseBout):
 
 
 class Team(_WFTDAModel, BaseTeam):
+    """A Team model using the WFTDA 2025 ruleset."""
+
     @classmethod
     @override
     def get_team_jam_score(cls, team_jam: TeamJam) -> int:
@@ -199,6 +205,8 @@ class Team(_WFTDAModel, BaseTeam):
 
 
 class Jam(_WFTDAModel, BaseJam):
+    """A Jam model using the WFTDA 2025 ruleset."""
+
     @override
     async def add_trip(self, team_id: int, timestamp: datetime, passes: int) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
@@ -284,6 +292,8 @@ class Jam(_WFTDAModel, BaseJam):
 
 
 class Timeout(_WFTDAModel, BaseTimeout):
+    """A Timeout model using the WFTDA 2025 ruleset."""
+
     @override
     def set_type(self, is_review: bool) -> None:
         self.is_review = is_review
