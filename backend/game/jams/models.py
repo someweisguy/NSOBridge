@@ -27,6 +27,8 @@ type StopReasonStr = Literal['called', 'elapsed', 'injury', 'other']
 
 
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
+    """An abstract Jam without any associated ruleset."""
+    
     bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
 
     num: Mapped[int] = mapped_column(index=True)
