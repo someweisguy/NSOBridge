@@ -24,6 +24,7 @@ export class Timeout {
   id: number;
 
   boutId: number;
+  num: number;
   teamId: number | null;
   jamId: number | null;
   startTimestamp: Date | null;

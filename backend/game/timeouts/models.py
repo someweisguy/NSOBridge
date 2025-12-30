@@ -14,6 +14,7 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 
 if TYPE_CHECKING:
     from game.jams.models import BaseJam
@@ -25,6 +26,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
 
+    num: Mapped[int] = mapped_column()
     clock_elapsed: Mapped[timedelta | None] = mapped_column(default=None)
     team_is_officials: Mapped[bool] = mapped_column(default=False)
     is_review: Mapped[bool] = mapped_column(default=False)
@@ -55,9 +57,10 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         'polymorphic_abstract': True,
         'polymorphic_on': ruleset,
     }
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_id', 'num'),)
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, num: int) -> None:
+        super().__init__(num=num)
 
     @override
     def cache_key(self) -> CacheKey:

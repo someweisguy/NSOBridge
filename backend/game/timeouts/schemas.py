@@ -6,6 +6,8 @@ from core import ServerSchema
 class TimeoutSchema(ServerSchema):
     id: int
     bout_id: int
+    num: int
+
     team_id: int | None
     jam_id: int | None
 
