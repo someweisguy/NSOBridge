@@ -153,7 +153,7 @@ app: Final[FastAPI] = FastAPI(
     description="""
     
     """,
-    version='0.0.0',  # TODO: store version number correctly
+    version='0.0.0',
     license_info={
         'name': 'MIT License',
         'identifier': 'MIT',

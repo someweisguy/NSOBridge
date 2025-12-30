@@ -1,10 +1,10 @@
 """Schemas used in the WebSocket module."""
 
-import os
 from abc import ABC
 from datetime import datetime
 from typing import Any, Sequence
 
+import core
 from core import ClientSchema, ServerSchema
 from game import CacheKey
 from pydantic import Field, field_serializer
@@ -39,7 +39,7 @@ class AboutDataServerSchema(ServerSchema):
 
     process: datetime | None
     server: datetime = Field(default_factory=datetime.now, init=False)
-    version: str = Field(os.environ.get('VERSION', '0.0.0'), init=False)
+    version: str = Field(core.app.version, init=False)
 
 
 class WebSocketServerSchema[T: Any](ServerSchema, ABC):
