@@ -16,6 +16,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
 
+from core.schemas import VersionSchema
+
 from .exceptions import ClientError
 
 if TYPE_CHECKING:
@@ -179,9 +181,9 @@ async def _render_generic(request: Request) -> FileResponse:
 
 
 @app.get('/version', tags=['Metadata'])
-def _get_app_version(request: Request) -> dict[str, str]:
+def _get_app_version(request: Request) -> VersionSchema:
     """Return the current version of the app."""
-    return {'version': request.app.version}
+    return VersionSchema(version=request.app.version)
 
 
 @app.exception_handler(ClientError)

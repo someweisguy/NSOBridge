@@ -43,3 +43,9 @@ class ClientSchema(BaseModel):
         json_encoders={timedelta: _timedelta_encoder},
         validate_by_alias=True,
     )
+
+
+class VersionSchema(ServerSchema):
+    """The schema which returns application version information."""
+
+    version: str
