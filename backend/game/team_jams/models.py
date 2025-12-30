@@ -2,11 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from core.models import (
-    CHILD_RELATIONSHIP,
-    PARENT_RELATIONSHIP,
-    BaseSQLModel,
-)
+from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
 from game.jams.models import BaseJam
 from game.trip_events.models import TripEvent
 from sqlalchemy import ForeignKey, select

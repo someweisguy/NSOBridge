@@ -3,10 +3,10 @@ from __future__ import annotations
 from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
 
-from core.models import PARENT_RELATIONSHIP, BaseSQLModel
+from core import PARENT_RELATIONSHIP, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import (
     Mapped,
     MappedSQLExpression,
@@ -14,7 +14,6 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
-from sqlalchemy.sql._selectable_constructors import select
 
 if TYPE_CHECKING:
     from game.jams.models import BaseJam

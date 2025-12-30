@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta  # noqa: TC003
 
-from core.schemas import ServerSchema
+from core import ServerSchema
 
 
 class ClockSchema(ServerSchema):

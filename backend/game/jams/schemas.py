@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from core.schemas import ServerSchema
+from core import ServerSchema
 from game.jams.models import StopReasonStr
 from game.team_jams.schemas import TeamJamSchema
 

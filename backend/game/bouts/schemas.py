@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import Literal  # noqa: TC003
 
-from core.schemas import ServerSchema
+from core import ServerSchema
 from game.clocks.schemas import ClockSchema  # noqa: TC002
 from game.jams.schemas import JamSchema  # noqa: TC002
 from game.teams.schemas import TeamSchema  # noqa: TC002

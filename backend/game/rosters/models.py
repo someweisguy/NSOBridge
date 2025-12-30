@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import override
 
-from core.models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship

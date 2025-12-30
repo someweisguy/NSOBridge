@@ -1,6 +1,6 @@
 from typing import Annotated, TypeAlias
 
-from core.dependencies import AsyncSessionDepends
+from core import AsyncSessionDepends
 from fastapi import Depends, Query
 from sqlalchemy import Result, select
 

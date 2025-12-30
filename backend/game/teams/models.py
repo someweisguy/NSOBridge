@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, override
 
-from core.models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.team_jams.models import TeamJam
 from game.timeouts.models import BaseTimeout

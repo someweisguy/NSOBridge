@@ -5,14 +5,14 @@ from fastapi import APIRouter, Body
 from game.rulesets.schemas import Ruleset
 from game.teams.dependencies import OptionalTeamDepends
 
-from .dependencies import BoutDepends, get_bout
+from .dependencies import BoutDepends, _get_bout
 from .schemas import BoutSchema
 
 if TYPE_CHECKING:
     from game.timeouts.models import BaseTimeout
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
-router.add_api_route('', get_bout, response_model=BoutSchema)
+router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 
 @router.get('/ruleset', response_model=Ruleset)

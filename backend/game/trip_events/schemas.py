@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from core.schemas import ServerSchema
+from core import ServerSchema
 
 
 class TripEventSchema(ServerSchema):

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
-from core.dependencies import AsyncSessionDepends
+from core import AsyncSessionDepends
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from user import GetUser
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.selectable import Select
 
 
-async def get_bout(
+async def _get_bout(
     request: Request,
     user: GetUser,
     session: AsyncSessionDepends,
@@ -29,4 +29,4 @@ async def get_bout(
     return bout
 
 
-BoutDepends: TypeAlias = Annotated[BaseBout, Depends(get_bout)]
+BoutDepends: TypeAlias = Annotated[BaseBout, Depends(_get_bout)]

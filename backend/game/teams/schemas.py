@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from core.schemas import ServerSchema
+from core import ServerSchema
 
 
 class TeamSchema(ServerSchema):

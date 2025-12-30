@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta
 
-from core.schemas import ServerSchema
+from core import ServerSchema
 
 
 @dataclass(frozen=True)

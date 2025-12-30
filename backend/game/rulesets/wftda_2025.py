@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import ClassVar, override
 
-from core.exceptions import ClientError
+from core import ClientError
 from game.bouts.models import BaseBout
 from game.jams.models import BaseJam
 from game.rosters.models import Roster

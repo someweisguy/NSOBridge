@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
-from core.dependencies import AsyncSessionDepends
+from core import AsyncSessionDepends
 from fastapi import Body, Depends, Query, Request
 from sqlalchemy import select
 from user import GetUser
@@ -8,8 +8,7 @@ from user import GetUser
 from .models import BaseTeam
 
 if TYPE_CHECKING:
-    from sqlalchemy.engine.result import Result
-    from sqlalchemy.sql.selectable import Select
+    from sqlalchemy import Result, Select
 
 
 async def query_team_or_none(

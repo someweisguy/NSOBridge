@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, override
 
-from core.models import PARENT_RELATIONSHIP, BaseSQLModel
+from core import PARENT_RELATIONSHIP, BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
