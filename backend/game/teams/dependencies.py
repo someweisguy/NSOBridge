@@ -45,5 +45,7 @@ async def _get_team_or_none(
     return team
 
 
-OptionalTeamDepends: TypeAlias = Annotated[BaseTeam | None, Depends(_query_team_or_none)]
+OptionalTeamDepends: TypeAlias = Annotated[
+    BaseTeam | None, Depends(_query_team_or_none)
+]
 GetTeamOrNoneByID: TypeAlias = Annotated[BaseTeam | None, Depends(_get_team_or_none)]
