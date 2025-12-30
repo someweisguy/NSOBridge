@@ -9,7 +9,7 @@ from sqlalchemy import Result, select
 from .models import Roster
 
 
-async def get_roster(
+async def _get_roster(
     session: AsyncSessionDepends,
     roster_id: Annotated[int, Query(alias='rosterId')],
 ) -> Roster:
@@ -20,4 +20,4 @@ async def get_roster(
     return roster
 
 
-GetRoster: TypeAlias = Annotated[Roster, Depends(get_roster)]
+GetRoster: TypeAlias = Annotated[Roster, Depends(_get_roster)]
