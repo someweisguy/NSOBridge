@@ -6,6 +6,8 @@ from core import ServerSchema
 
 
 class TimeoutSchema(ServerSchema):
+    """Represent a Timeout as a JSON schema."""
+
     id: int
     bout_id: int
     num: int

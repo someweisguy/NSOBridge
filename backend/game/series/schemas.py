@@ -6,6 +6,8 @@ from pydantic import Field, computed_field
 
 
 class SeriesSchema(ServerSchema):
+    """Represent a Series as a JSON schema."""
+
     id: int
     name: str
     bouts: list[BoutSchema] = Field(exclude=True)
