@@ -1,3 +1,5 @@
+"""Pydantic Series schemas."""
+
 from core import ServerSchema
 from game.bouts.schemas import BoutSchema
 from pydantic import Field, computed_field

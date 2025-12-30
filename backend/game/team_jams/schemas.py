@@ -1,3 +1,5 @@
+"""Pydantic TeamJam schemas."""
+
 from core import ServerSchema
 from game.trip_events.schemas import TripEventSchema
 

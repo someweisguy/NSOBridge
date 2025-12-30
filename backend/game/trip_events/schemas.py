@@ -1,3 +1,5 @@
+"""Pydantic TripEvent schemas."""
+
 from datetime import datetime
 
 from core import ServerSchema

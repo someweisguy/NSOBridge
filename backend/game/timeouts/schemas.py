@@ -1,3 +1,5 @@
+"""Pydantic Timeout schemas."""
+
 from datetime import datetime, timedelta  # noqa: TC003
 
 from core import ServerSchema

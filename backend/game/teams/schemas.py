@@ -1,3 +1,5 @@
+"""Pydantic Team schemas."""
+
 from __future__ import annotations
 
 from core import ServerSchema

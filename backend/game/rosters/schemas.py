@@ -1,4 +1,6 @@
-from core.schemas import ServerSchema
+"""Pydantic Roster schemas."""
+
+from core import ServerSchema
 
 
 class RosterSchema(ServerSchema):
