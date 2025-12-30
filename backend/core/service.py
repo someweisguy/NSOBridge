@@ -178,7 +178,10 @@ async def _render_generic(request: Request) -> FileResponse:
     return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
 
 
-# TODO: add version getter
+@app.get('/version', tags=['Metadata'])
+def _get_app_version(request: Request) -> dict[str, str]:
+    """Return the current version of the app."""
+    return {'version': request.app.version}
 
 
 @app.exception_handler(ClientError)
