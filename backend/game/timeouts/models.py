@@ -24,7 +24,10 @@ if TYPE_CHECKING:
 
 
 class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
-    """An abstract Timeout without any associated ruleset."""
+    """An abstract Timeout without any associated ruleset.
+
+    Timeouts models can represent either a timeout or an official review.
+    """
 
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
@@ -64,6 +67,16 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_id', 'num'),)
 
     def __init__(self, bout: BaseBout, num: int) -> None:
+        """Initialize a Timeout.
+
+        The default state for a Timeout is a regular timeout (not an official review)
+        with an unknown caller (called by neither a Team nor by the officials).
+
+        Args:
+            bout (BaseBout): the Bout that owns this Timeout.
+            num (int): the unique Timeout number associated with this Bout.
+
+        """
         super().__init__(bout=bout, bout_id=bout.id, num=num)
 
     @override
@@ -74,8 +87,33 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team)
 
-    def set_type(self, is_review: bool) -> None: ...
+    def set_type(self, is_review: bool) -> None:
+        """Set whether this Timeout is a timeout or an official review.
 
-    def set_team(self, team: BaseTeam | None) -> None: ...
+        Args:
+            is_review (bool): True if this Timeout is an official review.
 
-    def set_retained(self, retained: bool) -> None: ...
+        """
+        ...
+
+    def set_team(self, team: BaseTeam | None) -> None:
+        """Set the calling Team of this Timeout.
+
+        Args:
+            team (BaseTeam | None): the calling Team of this Timeout or None if this
+            Timeout was called by the officials.
+
+        """
+        ...
+
+    def set_retained(self, retained: bool) -> None:
+        """Set whether or not this Timeout was retained.
+
+        A retained Timeout is not subtracted from a Team's remaining timeouts or
+        official reviews when it is completed.
+
+        Args:
+            retained (bool): True if this timeout should be retained.
+
+        """
+        ...
