@@ -10,7 +10,6 @@ import core
 import game
 import user
 import ws
-from core import db
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
 from websockets import CloseCode
@@ -39,11 +38,15 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
         port (int, optional): The port on which to serve the app. Defaults to 8000.
 
     """
-    print(f'Connecting to Database in: {db.path}')
-    await db.create_all()
+    MAX_PORT_NUM: Final = 65535
+    if 0 <= port > MAX_PORT_NUM:
+        raise ValueError('Invalid port number')
+
+    print(f'Connecting to Database in: {core.db.path}')
+    await core.db.create_all()
 
     # Create a Bout model if one does not already exist
-    session_factory: async_sessionmaker = db.get_async_session_factory()
+    session_factory: async_sessionmaker = core.db.get_async_session_factory()
     async with session_factory() as session, session.begin():
         statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
