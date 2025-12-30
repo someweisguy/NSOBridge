@@ -156,6 +156,7 @@ app: Final[FastAPI] = FastAPI(
         'name': 'MIT License',
         'identifier': 'MIT',
     },
+    docs_url=None if not _DEBUG else '/docs'
 )
 
 
