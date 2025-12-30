@@ -104,7 +104,7 @@ class AbstractOneShotModel(BaseSQLModel):
     def is_started(self) -> bool:
         """Return True if the one-shot is started.
 
-        If this one-shot is finished, this method will return True.
+        If this one-shot is stopped, this method will return True.
 
         Returns:
             bool: True if the one-shot is started.
@@ -119,13 +119,13 @@ class AbstractOneShotModel(BaseSQLModel):
             bool: True if this one-shot is running.
 
         """
-        return self.is_started() and not self.is_finished()
+        return self.is_started() and not self.is_stopped()
 
-    def is_finished(self) -> bool:
-        """Return True if this one-shot is finished.
+    def is_stopped(self) -> bool:
+        """Return True if this one-shot is stopped.
 
         Returns:
-            bool: True if this one-shot is finished.
+            bool: True if this one-shot is stopped.
 
         """
         return self.stop_timestamp is not None
