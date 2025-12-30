@@ -71,12 +71,15 @@ def _handle_dirty_session(session: Session) -> None:
         for model in identity_map
         if isinstance(model, BaseSQLModel)
     }
+    if len(models) == 0:
+        return
 
-    if len(models) > 0:
-        invalidate_queries(models)
+    task: asyncio.Task[None] = asyncio.create_task(invalidate_queries(models))
+    task.add_done_callback(_background_tasks.discard)
+    _background_tasks.add(task)
 
 
-def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
+async def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
     """Invalidate client queries pertaining to the provided models.
 
     This method is typically only used handle a list of models which have just been
@@ -88,37 +91,31 @@ def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
         models (Iterable[BaseSQLModel]): a list of models which should be invalided.
 
     """
-
-    async def send_model_tree_updates(models: Iterable[BaseSQLModel]) -> None:
-        async with db.get_async_session() as session:
-            # Merge the models with the current session
-            models = [await session.merge(model) for model in models]
-            # Get a set of the cacheable models from all the updated models
-            cacheables: set[CacheableSQLModel] = {
-                model for model in models if isinstance(model, CacheableSQLModel)
+    async with db.get_async_session() as new_session:
+        # Merge the models with the current session
+        models = [await new_session.merge(model) for model in models]
+        # Get a set of the cacheable models from all the updated models
+        cacheables: set[CacheableSQLModel] = {
+            model for model in models if isinstance(model, CacheableSQLModel)
+        }
+        for model in models:
+            cacheables |= {
+                parent
+                for parent in await model.get_recursive_parents()
+                if isinstance(parent, CacheableSQLModel)
             }
-            for model in models:
-                cacheables |= {
-                    parent
-                    for parent in await model.get_recursive_parents()
-                    if isinstance(parent, CacheableSQLModel)
-                }
-            cache_keys: list[CacheKey] = [
-                cacheable.cache_key()
-                for cacheable in cacheables
-                if cacheable.id is not None
-            ]
-        if len(cache_keys) == 0:
-            return
+        cache_keys: list[CacheKey] = [
+            cacheable.cache_key()
+            for cacheable in cacheables
+            if cacheable.id is not None
+        ]
+    if len(cache_keys) == 0:
+        return
 
-        # Generate and send the payload to all clients
-        payload: str = CacheWebsocketServerSchema(cache_keys).model_dump_json()
-        for client in _clients:
-            await client.send_text(payload)
-
-    task: asyncio.Task[None] = asyncio.create_task(send_model_tree_updates(models))
-    task.add_done_callback(_background_tasks.discard)
-    _background_tasks.add(task)
+    # Generate and send the payload to all clients
+    payload: str = CacheWebsocketServerSchema(cache_keys).model_dump_json()
+    for client in _clients:
+        await client.send_text(payload)
 
 
 async def disconnect_all(code: int, reason: str) -> None:
