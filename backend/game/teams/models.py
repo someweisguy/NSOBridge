@@ -73,9 +73,27 @@ class BaseTeam(BaseSQLModel):
 
     @classmethod
     def get_team_jam_score(cls, team_jam: TeamJam) -> int:
+        """Calculate the score in the desired TeamJam.
+
+        This method may change depending on the ruleset of the owning Bout.
+
+        Args:
+            team_jam (TeamJam): the TeamJam with which to calculate the score.
+
+        Returns:
+            int: the calculated score of the TeamJam.
+
+        """
         raise NotImplementedError()
 
     def __init__(self, bout: BaseBout, roster: Roster) -> None:
+        """Initialize a Team.
+
+        Args:
+            bout (BaseBout): the owning Bout of the Team.
+            roster (Roster): the Roster that this Team will use.
+
+        """
         super().__init__(bout=bout, bout_id=bout.id, roster=roster)
 
     @override
@@ -84,6 +102,14 @@ class BaseTeam(BaseSQLModel):
 
     @property
     def bout_score(self) -> int:
+        """Calculate the total bout score of this Team.
+
+        This method may change depending on the ruleset of the owning Bout.
+
+        Returns:
+            int: the total bout score of this Team.
+
+        """
         bout_score: int = 0
         for team_jam in self.team_jams:
             bout_score += self.get_team_jam_score(team_jam)
@@ -91,6 +117,14 @@ class BaseTeam(BaseSQLModel):
 
     @property
     def jam_score(self) -> int:
+        """Calculate the current jam score of this Team.
+
+        This method may change depending on the ruleset of the owning Bout.
+
+        Returns:
+            int: the current jam score of this Team.
+
+        """
         if len(self.team_jams) == 0:
             return 0
         active_team_jam: TeamJam = (
