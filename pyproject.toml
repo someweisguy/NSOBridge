@@ -47,11 +47,6 @@ ignore = [
   "D213", # Multi-line docstring summary should start at the first line
 ]
 
-[tool.ruff.lint.extend-per-file-ignores]
-"dependencies.py" = [
-  "PLR0913", # Dependency methods may have more arguments than typical
-]
-
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
