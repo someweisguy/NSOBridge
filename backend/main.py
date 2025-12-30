@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """The injection point of the program."""
 
 import asyncio
