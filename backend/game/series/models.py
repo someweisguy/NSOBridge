@@ -13,6 +13,14 @@ if TYPE_CHECKING:
 
 
 class Series(CacheableSQLModel):
+    """Represent a Series of Bouts.
+
+    The Series is used to represent a sequence of Bouts. A Series can be thought of as
+    an "event" which is hosted by a roller derby league or team such as a tournament or
+    a double-header.
+
+    """
+
     rowid: Mapped[int] = mapped_column(system=True)
     name: Mapped[str] = mapped_column(default='')
 

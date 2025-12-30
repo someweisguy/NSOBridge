@@ -21,6 +21,17 @@ if TYPE_CHECKING:
 
 
 class TeamJam(BaseSQLModel):
+    """Represent a TeamJam in a Jam.
+
+    A TeamJam is a representation of a specific Team in a given Jam. Since each Jam has
+    two Teams competing against each other, each Jam model should have two TeamJam
+    models.
+
+    TeamJams can be used to represent jammer trips and the lineup roster for each Team
+    in a Jam.
+
+    """
+
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
@@ -42,15 +53,15 @@ class TeamJam(BaseSQLModel):
     )
 
     jam_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.num).where(BaseJam.id == jam_id).limit(1).scalar_subquery()
+        select(BaseJam.num).where(BaseJam.id == jam_id).scalar_subquery()
     )
     period_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.period).where(BaseJam.id == jam_id).limit(1).scalar_subquery()
+        select(BaseJam.period).where(BaseJam.id == jam_id).scalar_subquery()
     )
 
     __tablename__: str = 'team_jams'
 
-    def __init__(self, team: BaseTeam) -> None:
+    def __init__(self, team: BaseTeam, jam:) -> None:
         super().__init__(team=team)
 
     @override
