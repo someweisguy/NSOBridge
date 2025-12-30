@@ -17,14 +17,6 @@ if TYPE_CHECKING:
 
 tags_metadata: list[dict[str, dict[str, str] | str] | dict[str, str]] = [
     {
-        'name': 'Pages',
-        'description': 'Endpoints that render HTML.',
-    },
-    {
-        'name': 'History',
-        'description': 'User history commands',
-    },
-    {
         'name': 'Series',
         'description': 'A sequence of Bouts, such as a double-header or a tournament.',
     },
@@ -43,6 +35,14 @@ tags_metadata: list[dict[str, dict[str, str] | str] | dict[str, str]] = [
     {
         'name': 'Timeouts',
         'description': 'Manage items. So _fancy_ they have their own docs.',
+    },
+    {
+        'name': 'History',
+        'description': 'User history commands',
+    },
+    {
+        'name': 'Pages',
+        'description': 'Endpoints that render HTML.',
     },
 ]
 
