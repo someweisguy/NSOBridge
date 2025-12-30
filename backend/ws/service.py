@@ -1,12 +1,11 @@
 """Services for the WebSocket module including the sub-application and methods."""
 
 import asyncio
-from typing import Final, Iterable
+from typing import TYPE_CHECKING, Final, Iterable
 
 from core import BaseSQLModel, db
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from game import CacheableSQLModel
-from game.models import CacheKey
 from pydantic import ValidationError
 from sqlalchemy import event
 from sqlalchemy.orm import Session
@@ -18,6 +17,10 @@ from .schemas import (
     CacheWebsocketServerSchema,
     WebSocketServerSchema,
 )
+
+if TYPE_CHECKING:
+    from game import CacheKey
+
 
 _clients: set[WebSocket] = set()
 _background_tasks: set[asyncio.Task[None]] = set()
