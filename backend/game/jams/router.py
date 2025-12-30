@@ -12,7 +12,7 @@ router: Final[APIRouter] = APIRouter(prefix='/jam')
 router.add_api_route('', _get_jam, response_model=JamSchema | None, tags=[JAMS_TAG])
 
 
-@router.post('/add-trip', tags=[JAMS_TAG])
+@router.post('/addTrip', tags=[JAMS_TAG])
 async def add_trip(
     jam: GetJamByID,
     team_id: Annotated[int, Query(alias='teamId')],
@@ -22,7 +22,7 @@ async def add_trip(
     await jam.add_trip(team_id, datetime.now(), passes)
 
 
-@router.post('/set-lead', tags=[JAMS_TAG])
+@router.post('/setLead', tags=[JAMS_TAG])
 async def set_lead(
     jam: GetJamByID,
     team_id: Annotated[int, Query(alias='teamId')],
@@ -32,7 +32,7 @@ async def set_lead(
     await jam.set_lead(team_id, datetime.now(), lead)
 
 
-@router.post('/set-lost', tags=[JAMS_TAG])
+@router.post('/setLost', tags=[JAMS_TAG])
 async def set_lost(
     jam: GetJamByID,
     team_id: Annotated[int, Query(alias='teamId')],
@@ -42,7 +42,7 @@ async def set_lost(
     await jam.set_lost(team_id, datetime.now(), lost)
 
 
-@router.post('/set-star-pass', tags=[JAMS_TAG])
+@router.post('/setStarPass', tags=[JAMS_TAG])
 async def set_star_pass(
     jam: GetJamByID,
     team_id: Annotated[int, Query(alias='teamId')],

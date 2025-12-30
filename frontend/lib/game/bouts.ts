@@ -38,27 +38,27 @@ export class Bout {
   }
 
   async beginPeriod(): Promise<void> {
-    await localAPI.post("bout/begin-period", { query: { boutId: this.id } });
+    await localAPI.post("bout/beginPeriod", { query: { boutId: this.id } });
   }
 
   async endPeriod(): Promise<void> {
-    await localAPI.post("bout/end-period", { query: { boutId: this.id } });
+    await localAPI.post("bout/endPeriod", { query: { boutId: this.id } });
   }
 
   async startJam(): Promise<void> {
-    await localAPI.post("bout/start-jam", { query: { boutId: this.id } });
+    await localAPI.post("bout/startJam", { query: { boutId: this.id } });
   }
 
   async stopJam(): Promise<void> {
-    await localAPI.post("bout/stop-jam", { query: { boutId: this.id } });
+    await localAPI.post("bout/stopJam", { query: { boutId: this.id } });
   }
 
   async startTimeout(): Promise<void> {
-    await localAPI.post("bout/start-timeout", { query: { boutId: this.id } });
+    await localAPI.post("bout/startTimeout", { query: { boutId: this.id } });
   }
 
   async stopTimeout(): Promise<void> {
-    await localAPI.post("bout/stop-timeout", { query: { boutId: this.id } });
+    await localAPI.post("bout/stopTimeout", { query: { boutId: this.id } });
   }
 
   getLatestJamIndex(): [number, number] {
