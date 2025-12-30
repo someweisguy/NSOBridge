@@ -39,7 +39,7 @@ class Bout(_WFTDAModel, BaseBout):
     def __init__(self, series: Series, home: Roster, away: Roster) -> None:
         super().__init__(series=series, ruleset=self.rules.name)
         self.clock.alarm = timedelta(minutes=30)
-        self.teams.extend((Team(home), Team(away)))
+        self.teams.extend((Team(self, home), Team(self, away)))
         for team in self.teams:
             team.timeouts_remaining = self.rules.num_timeouts
             team.reviews_remaining = self.rules.num_reviews

@@ -75,8 +75,8 @@ class BaseTeam(BaseSQLModel):
     def get_team_jam_score(cls, team_jam: TeamJam) -> int:
         raise NotImplementedError()
 
-    def __init__(self, roster: Roster) -> None:
-        super().__init__(roster=roster)
+    def __init__(self, bout: BaseBout, roster: Roster) -> None:
+        super().__init__(bout=bout, bout_id=bout.id, roster=roster)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
