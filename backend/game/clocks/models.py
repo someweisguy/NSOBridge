@@ -68,4 +68,5 @@ class Clock(TimeableModel):
         return (timestamp - self.start_timestamp) + self.elapsed
 
     def reset(self) -> None:
+        """Reset the clock to zero."""
         self.elapsed = timedelta(seconds=0)
