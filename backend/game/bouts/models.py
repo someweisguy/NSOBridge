@@ -30,7 +30,7 @@ REQUIRED_NUM_TEAMS: Final[int] = 2
 class BaseBout(CacheableSQLModel):
     """An abstract Bout without any associated ruleset."""
 
-    rules: ClassVar[Ruleset]
+    ruleset: ClassVar[Ruleset]
 
     series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
     clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
@@ -38,7 +38,7 @@ class BaseBout(CacheableSQLModel):
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
     is_running: Mapped[bool] = mapped_column(default=False)
-    ruleset: Mapped[str] = mapped_column()
+    ruleset_name: Mapped[str] = mapped_column()
 
     clock: Mapped[Clock] = relationship(
         cascade=CHILD_RELATIONSHIP,
@@ -71,18 +71,20 @@ class BaseBout(CacheableSQLModel):
     __tablename__: str = 'bouts'
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,
-        'polymorphic_on': ruleset,
+        'polymorphic_on': ruleset_name,
     }
 
-    def __init__(self, series: Series, ruleset: str) -> None:
+    def __init__(self, series: Series, ruleset_name: str) -> None:
         """Instantiate a Bout.
 
         Args:
             series (Series): The series to which this Bout belongs.
-            ruleset (str): The ruleset which the Bout will use.
+            ruleset_name (str): The ruleset which the Bout will use.
 
         """
-        super().__init__(series=series, clock=Clock(bout=self), ruleset=ruleset)
+        super().__init__(
+            series=series, clock=Clock(bout=self), ruleset_name=ruleset_name
+        )
 
     @override
     def cache_key(self) -> CacheKey:

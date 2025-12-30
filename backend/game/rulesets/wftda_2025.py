@@ -26,7 +26,7 @@ class _WFTDAModel:
 
 
 class Bout(_WFTDAModel, BaseBout):
-    rules: ClassVar[Ruleset] = Ruleset(
+    ruleset: ClassVar[Ruleset] = Ruleset(
         name=RULESET_NAME,
         num_periods=2,
         jam_duration=timedelta(minutes=2),
@@ -38,12 +38,12 @@ class Bout(_WFTDAModel, BaseBout):
 
     @override
     def __init__(self, series: Series, home: Roster, away: Roster) -> None:
-        super().__init__(series=series, ruleset=self.rules.name)
+        super().__init__(series=series, ruleset_name=RULESET_NAME)
         self.clock.alarm = timedelta(minutes=30)
         self.teams.extend((Team(self, home), Team(self, away)))
         for team in self.teams:
-            team.timeouts_remaining = self.rules.num_timeouts
-            team.reviews_remaining = self.rules.num_reviews
+            team.timeouts_remaining = self.ruleset.num_timeouts
+            team.reviews_remaining = self.ruleset.num_reviews
         initial_jam: Jam = Jam(self, 0, 0)
         initial_jam.team_jams = [TeamJam(team, initial_jam) for team in self.teams]
         self.jams.append(initial_jam)
@@ -55,15 +55,15 @@ class Bout(_WFTDAModel, BaseBout):
             raise ClientError('this bout cannot be started now')
         if (
             len(self.jams) > 0
-            and self.jams[-1].period == self.rules.num_periods
+            and self.jams[-1].period == self.ruleset.num_periods
             and self.jams[-1].start_timestamp is not None
         ):
             raise ClientError(
-                f'this bout can only have {self.rules.num_periods} periods'
+                f'this bout can only have {self.ruleset.num_periods} periods'
             )
 
         # If this Period is not in overtime reset the Clock and Official Reviews
-        if self.jams[-1].period < self.rules.num_periods:
+        if self.jams[-1].period < self.ruleset.num_periods:
             self.clock.reset()
             for team in self.teams:
                 team.reviews_remaining = 1
@@ -74,12 +74,12 @@ class Bout(_WFTDAModel, BaseBout):
     def end_period(self, timestamp: datetime) -> None:
         if self.is_running and self.state != 'lineup':
             raise ClientError('the period can only be ended during lineup')
-        if not self.is_running and self.jams[-1].period < self.rules.num_periods:
+        if not self.is_running and self.jams[-1].period < self.ruleset.num_periods:
             raise ClientError('there is no running period to end')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
         # Or calling end_period() after OT ends the Bout
-        if not self.is_running or self.jams[-1].period == self.rules.num_periods:
+        if not self.is_running or self.jams[-1].period == self.ruleset.num_periods:
             self.is_final = True
 
         if self.clock.is_running():
@@ -117,7 +117,7 @@ class Bout(_WFTDAModel, BaseBout):
             raise RuntimeError(f'each Jam requires {REQUIRED_NUM_TEAMS} TeamJams')
 
         # Start the Clock if not in overtime
-        if jam.period < self.rules.num_periods and not self.clock.is_running():
+        if jam.period < self.ruleset.num_periods and not self.clock.is_running():
             self.clock.start(timestamp)
         jam.start(timestamp)
 
@@ -208,11 +208,11 @@ class Jam(_WFTDAModel, BaseJam):
         # TODO: handle overtime conditions
 
         # Automatically set lead on the first 4-point trip
-        if not self.lead_is_declared() and passes == self.bout.rules.points_per_trip:
+        if not self.lead_is_declared() and passes == self.bout.ruleset.points_per_trip:
             event.lead = True
 
         # Lose eligibility on initial no-pass/no-penalty
-        if len(team_jam.events) == 0 and passes < self.bout.rules.points_per_trip:
+        if len(team_jam.events) == 0 and passes < self.bout.ruleset.points_per_trip:
             event.lost = True
 
         # Jammer cannot earn points on the initial pass

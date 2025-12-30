@@ -21,7 +21,7 @@ router.add_api_route('', _get_bout, response_model=BoutSchema, tags=[BOUTS_TAG])
 
 @router.get('/ruleset', response_model=Ruleset, tags=[BOUTS_TAG])
 async def _get_ruleset(bout: BoutDepends) -> Ruleset:
-    return bout.rules
+    return bout.ruleset
 
 
 @router.post('/beginPeriod', tags=[BOUTS_TAG])

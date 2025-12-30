@@ -48,7 +48,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset).where(BaseBout.id == bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name).where(BaseBout.id == bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'jams'

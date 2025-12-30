@@ -18,7 +18,7 @@ class BoutSchema(ServerSchema):
 
     id: int
     series_id: int
-    ruleset: str
+    ruleset_name: str
     clock: ClockSchema
     is_running: bool
     start_countdown: datetime | None
