@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Final
 
 from fastapi import APIRouter, Body
-from game.bouts.models import BaseBout
 from game.rulesets.schemas import Ruleset
 from game.teams.dependencies import OptionalTeamDepends
 
