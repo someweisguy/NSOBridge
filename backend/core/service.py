@@ -194,14 +194,12 @@ async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse
     )
 
 
-async def run(host: str = '0.0.0.0', port: int = 8000) -> None:
+async def run(host: str, port: int) -> None:
     """Asynchronously serve the application on the desired host and port.
 
     Args:
-        host (str, optional): The desired host on which to serve the app. Defaults to
-        '0.0.0.0'.
-        port (int, optional): The desired port on which to serve the app. Defaults to
-        8000.
+        host (str): The desired host on which to serve the app.
+        port (int, optional): The desired port on which to serve the app.
 
     Raises:
         ValueError: if the port number provided is invalid.

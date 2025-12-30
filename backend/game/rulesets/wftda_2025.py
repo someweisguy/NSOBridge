@@ -116,7 +116,8 @@ class Bout(_WFTDAModel, BaseBout):
 
         # Get the first Jam that has not started
         jam: BaseJam | None = self.get_upcoming_jam()
-        assert jam is not None  # FIXME: push a new Jam if this is None
+        if jam is None:
+            raise NotImplementedError()  # FIXME: push a new Jam if this is None
         if len(jam.team_jams) != REQUIRED_NUM_TEAMS:
             raise RuntimeError(f'each Jam requires {REQUIRED_NUM_TEAMS} TeamJams')
 
@@ -155,7 +156,8 @@ class Bout(_WFTDAModel, BaseBout):
 
         # Instantiate and start the Timeout
         timeout: BaseTimeout | None = self.get_upcoming_timeout()
-        assert timeout is not None  # FIXME push a new Timeout
+        if timeout is None:
+            raise NotImplementedError()  # FIXME push a new Timeout
 
         timeout.clock_elapsed = self.clock.get_duration(timestamp)
         timeout.start(timestamp)

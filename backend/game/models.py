@@ -161,9 +161,10 @@ class AbstractOneShotModel(TimeableModel):
 
     @override
     def stop(self, timestamp: datetime) -> None:
-        if not self.is_running():
-            raise RuntimeError('Cannot stop a one-shot when it is already stopped')
-        assert self.start_timestamp is not None
+        if self.start_timestamp is None:
+            raise RuntimeError('Cannot stop a one-shot when it is not running')
+        if self.stop_timestamp is not None:
+            raise RuntimeError('Cannot stop a one-shot when it has already stopped')
         if timestamp < self.start_timestamp:
             raise ValueError('Cannot stop a one-shot before it has been started')
         self.stop_timestamp = timestamp

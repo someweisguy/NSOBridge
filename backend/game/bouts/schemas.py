@@ -41,7 +41,6 @@ class BoutSchema(ServerSchema):
         """
         jam_ids: list[list[int]] = [[], [], []]
         for jam in self.jams:
-            assert jam.num == len(jam_ids[jam.period])
             jam_ids[jam.period].append(jam.id)
         return jam_ids
 

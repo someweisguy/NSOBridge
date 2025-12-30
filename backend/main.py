@@ -26,16 +26,15 @@ logging.basicConfig(
 )
 
 
-async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
+async def main(*, host: str, port: int) -> None:
     """Begin the program.
 
     Handles the configuration of the database, the API, the GUI, and then serves the
     app.
 
     Args:
-        host (str, optional): The host IP address on which to serve the app. Defaults to
-        '0.0.0.0'.
-        port (int, optional): The port on which to serve the app. Defaults to 8000.
+        host (str): The host IP address on which to serve the app.
+        port (int): The port on which to serve the app.
 
     """
     print(f'Connecting to Database in: {core.db.path}')
@@ -77,7 +76,7 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
 
 
 if __name__ == '__main__':
-    HOST: Final[str] = os.environ.get('UVICORN_HOST', '0.0.0.0')
-    PORT: Final[int] = int(os.environ.get('UVICORN_PORT', str(8000)))
+    HOST: Final[str] = os.environ['UVICORN_HOST']
+    PORT: Final[int] = int(os.environ['UVICORN_PORT'])
 
     asyncio.run(main(host=HOST, port=PORT))

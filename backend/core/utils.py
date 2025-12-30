@@ -59,13 +59,15 @@ class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
     @override
     def process_bind_param(self, value: Any | None, dialect: Dialect) -> Any:
         if value is not None:
-            assert isinstance(value, timedelta)
+            if not isinstance(value, timedelta):
+                raise TypeError()
             return floor(value.total_seconds() * 1000)
         return value
 
     @override
     def process_result_value(self, value: Any | None, dialect: Dialect) -> Any | None:
-        assert isinstance(value, (float, int))
+        if not isinstance(value, (float, int)):
+            raise TypeError()
         return timedelta(milliseconds=value)
 
 

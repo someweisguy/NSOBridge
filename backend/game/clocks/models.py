@@ -45,11 +45,10 @@ class Clock(TimeableModel):
 
     @override
     def stop(self, timestamp: datetime) -> None:
-        if not self.is_running():
-            raise RuntimeError('Cannot stop a Clock when it is already stopped')
-        assert self.start_timestamp is not None
+        if self.start_timestamp is None:
+            raise RuntimeError('Cannot stop a one-shot when it is not running')
         if timestamp < self.start_timestamp:
-            raise RuntimeError('Cannot stop a Clock before it has been started')
+            raise ValueError('Cannot stop a one-shot before it has been started')
         self.elapsed += timestamp - self.start_timestamp
         self.start_timestamp = None
 
