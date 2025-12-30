@@ -205,8 +205,8 @@ async def run(host: str = '0.0.0.0', port: int = 8000) -> None:
         ValueError: if the port number provided is invalid.
 
     """
-    MAX_PORT_NUM: Final[int] = 65535
-    if 0 >= port > MAX_PORT_NUM:
+    max_port_num: Final[int] = 65535
+    if 0 >= port > max_port_num:
         raise ValueError('Invalid port number')
 
     # Configure the server

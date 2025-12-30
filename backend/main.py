@@ -38,10 +38,6 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
         port (int, optional): The port on which to serve the app. Defaults to 8000.
 
     """
-    MAX_PORT_NUM: Final = 65535
-    if 0 <= port > MAX_PORT_NUM:
-        raise ValueError('Invalid port number')
-
     print(f'Connecting to Database in: {core.db.path}')
     await core.db.create_all()
 
@@ -73,8 +69,8 @@ async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
             ip: str = sock.getsockname()[0]
     except OSError:
         ip = '127.0.0.1'
-    HTTP_PORT: Final[int] = 80
-    print(f'Starting server at http://{ip}{f":{port}" if port != HTTP_PORT else ""}')
+    http_port: Final[int] = 80
+    print(f'Starting server at http://{ip}{f":{port}" if port != http_port else ""}')
 
     await core.run(host, port)
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
