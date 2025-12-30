@@ -1,3 +1,5 @@
+"""FastAPI routes associated with Timeouts."""
+
 from typing import Annotated, Final, Literal
 
 from fastapi import APIRouter, Body

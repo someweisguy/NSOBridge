@@ -1,3 +1,5 @@
+"""FastAPI routes associated with Jams."""
+
 from datetime import datetime
 from typing import Annotated, Final
 

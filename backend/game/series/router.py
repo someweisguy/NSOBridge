@@ -1,3 +1,5 @@
+"""FastAPI routes associated with Series."""
+
 from typing import Final
 
 from fastapi import APIRouter
