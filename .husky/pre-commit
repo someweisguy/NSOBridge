@@ -1,3 +1,4 @@
-# .husky/pre-commit
-prettier $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g') --write --ignore-unknown
+# ruff check --fix
+# ruff format .
+npx lint-staged
 git update-index --again

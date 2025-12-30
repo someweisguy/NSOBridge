@@ -11,6 +11,12 @@
     "preview": "vite preview",
     "prepare": "husky"
   },
+  "lint-staged": {
+    "*.{js,ts,tsx,json,css,md}": [
+        "prettier --write",
+        "eslint --fix"
+    ]
+},
   "dependencies": {
     "@fit-screen/react": "^1.0.2",
     "@mantine/core": "^8.3.9",
