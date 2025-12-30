@@ -61,8 +61,10 @@ class TeamJam(BaseSQLModel):
 
     __tablename__: str = 'team_jams'
 
-    def __init__(self, team: BaseTeam, jam:) -> None:
-        super().__init__(team=team)
+    def __init__(self, team: BaseTeam, jam: BaseJam) -> None:
+        if team.bout_id != jam.bout_id:
+            raise ValueError('Team and Jam must be from the same Bout')
+        super().__init__(team=team, jam=jam)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

@@ -60,6 +60,19 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         UniqueConstraint('bout_id', 'num', 'period'),
     )
 
+    def __init__(
+        self,
+        bout: BaseBout,
+        period_num: int,
+        jam_num: int,
+    ) -> None:
+        super().__init__(
+            bout=bout,
+            bout_id=bout.id,
+            period=period_num,
+            num=jam_num,
+        )
+
     @override
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_id, self.period, self.num)

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import ClassVar, override
 
 from core import ClientError
-from game.bouts.models import BaseBout
+from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
 from game.jams.models import BaseJam
 from game.rosters.models import Roster
 from game.series.models import Series
@@ -43,11 +43,8 @@ class Bout(_WFTDAModel, BaseBout):
         for team in self.teams:
             team.timeouts_remaining = self.rules.num_timeouts
             team.reviews_remaining = self.rules.num_reviews
-        initial_jam: Jam = Jam(
-            0,
-            0,
-            [self.teams[0], self.teams[1]],
-        )
+        initial_jam: Jam = Jam(self, 0, 0)
+        initial_jam.team_jams = [TeamJam(team, initial_jam) for team in self.teams]
         self.jams.append(initial_jam)
         self.timeouts.append(Timeout(0))
 
@@ -115,6 +112,8 @@ class Bout(_WFTDAModel, BaseBout):
         # Get the first Jam that has not started
         jam: BaseJam | None = self.get_upcoming_jam()
         assert jam is not None  # FIXME: push a new Jam if this is None
+        if len(jam.team_jams) != REQUIRED_NUM_TEAMS:
+            raise RuntimeError(f'each Jam requires {REQUIRED_NUM_TEAMS} TeamJams')
 
         # Start the Clock if not in overtime
         if jam.period < self.rules.num_periods and not self.clock.is_running():
@@ -122,14 +121,9 @@ class Bout(_WFTDAModel, BaseBout):
         jam.start(timestamp)
 
         # Push a new Jam to allow users to prefetch it
-        home, away = self.teams[:2]
-        self.jams.append(
-            Jam(
-                jam.period,
-                jam.num + 1,
-                [home, away],
-            )
-        )
+        new_jam: Jam = Jam(self, jam.period, jam.num + 1)
+        new_jam.team_jams = [TeamJam(team, new_jam) for team in self.teams[:2]]
+        self.jams.append(new_jam)
 
         return jam
 
@@ -204,18 +198,6 @@ class Team(_WFTDAModel, BaseTeam):
 
 
 class Jam(_WFTDAModel, BaseJam):
-    def __init__(
-        self,
-        period_num: int,
-        jam_num: int,
-        teams: list[BaseTeam],
-    ) -> None:
-        super().__init__(
-            period=period_num,
-            num=jam_num,
-            team_jams=[TeamJam(team) for team in teams],
-        )
-
     async def add_trip(self, team_id: int, timestamp: datetime, passes: int) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
 
