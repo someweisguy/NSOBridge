@@ -38,7 +38,7 @@ extend-select = [
   "FAST",
   "PL",
   "EXE",
-  "TC", # Put imports in TYPE_CHECKING blocks when possible
+  "TC",   # Put imports in TYPE_CHECKING blocks when possible
 ]
 ignore = [
   "D203", # No blank lines allowed before class docstring
