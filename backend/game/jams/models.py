@@ -28,7 +28,7 @@ type StopReasonStr = Literal['called', 'elapsed', 'injury', 'other']
 
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     """An abstract Jam without any associated ruleset."""
-    
+
     bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
 
     num: Mapped[int] = mapped_column(index=True)
@@ -88,19 +88,59 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         return team_jam
 
     def lead_is_declared(self) -> bool:
+        """Return True if the lead Jammer has been declared.
+
+        Returns:
+            bool: True if lead is declared.
+
+        """
         for team_jam in self.team_jams:
             if any(event.lead for event in team_jam.events):
                 return True
         return False
 
-    async def add_trip(
-        self, team_id: int, timestamp: datetime, passes: int
-    ) -> None: ...
+    async def add_trip(self, team_id: int, timestamp: datetime, passes: int) -> None:
+        """Add a Jammer trip to the desired Team's TeamJam.
 
-    async def set_lead(self, team_id: int, timestamp: datetime, lead: bool) -> None: ...
+        Args:
+            team_id (int): the ID of the desired Team.
+            timestamp (datetime): the timestamp at which to add the trip.
+            passes (int): the number of passes the Jammer earned.
 
-    async def set_lost(self, team_id: int, timestamp: datetime, lost: bool) -> None: ...
+        """
+        ...
+
+    async def set_lead(self, team_id: int, timestamp: datetime, lead: bool) -> None:
+        """Set the lead Jammer status for the desired Team.
+
+        Args:
+            team_id (int): the ID of the desired Team.
+            timestamp (datetime): the timestamp at which to set lead.
+            lead (bool): True if the Jammer has been declared lead.
+
+        """
+        ...
+
+    async def set_lost(self, team_id: int, timestamp: datetime, lost: bool) -> None:
+        """Set the lead eligibility for the desired Team.
+
+        Args:
+            team_id (int): the ID of the desired Team.
+            timestamp (datetime): the timestamp at which to set lead eligibility.
+            lost (bool): True if the Jammer has lost lead eligibility.
+
+        """
+        ...
 
     async def set_star_pass(
         self, team_id: int, timestamp: datetime, star_pass: bool
-    ) -> None: ...
+    ) -> None:
+        """Add a star pass to the desired Team.
+
+        Args:
+            team_id (int): the ID of the desired Team.
+            timestamp (datetime): the timestamp at which to add the star pass.
+            star_pass (bool): True if the star has been successfully passed.
+
+        """
+        ...
