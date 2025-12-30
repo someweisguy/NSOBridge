@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.selectable import Select
 
 
-async def get_all_series(session: AsyncSessionDepends) -> Sequence[Series]:
+async def _get_all_series(session: AsyncSessionDepends) -> Sequence[Series]:
     statement: Select[tuple[Series]] = select(Series)
     results: Result[tuple[Series]] = await session.execute(statement)
     return results.scalars().all()
