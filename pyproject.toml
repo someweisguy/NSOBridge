@@ -1,7 +1,4 @@
 [project]
-name = "nso-bridge"
-requires-python = ">=3.13"
-version = "0.1.0"
 dependencies = [
   "aiosqlite>=0.22.1",
   "fastapi[standard]>=0.115.14",
@@ -11,6 +8,9 @@ dependencies = [
   "uvicorn>=0.34.3",
   "websockets>=15.0.1",
 ]
+name = "nso-bridge"
+requires-python = ">=3.13"
+version = "0.1.0"
 
 [tool.pyrefly]
 project-includes = ["**/*.py*", "**/*.ipynb"]
@@ -21,10 +21,10 @@ indent-width = 4
 line-length = 88
 
 [tool.ruff.format]
-indent-style = "space"
-quote-style = "single"
 docstring-code-format = true
 docstring-code-line-length = 88
+indent-style = "space"
+quote-style = "single"
 
 [tool.ruff.lint]
 extend-select = [
@@ -38,9 +38,12 @@ extend-select = [
   "FAST",
   "PL",
   "EXE",
-  "TC",   # Put imports in TYPE_CHECKING blocks when possible
+  "TC", # Put imports in TYPE_CHECKING blocks when possible
 ]
-ignore = []
+ignore = [
+  "D203", # No blank lines allowed before class docstring
+  "D213", # Multi-line docstring summary should start at the first line
+]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "dependencies.py" = [
