@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from sqlalchemy import Result, Select
 
 
-async def query_team_or_none(
+async def _query_team_or_none(
     request: Request,
     user: GetUser,
     session: AsyncSessionDepends,
@@ -30,7 +30,7 @@ async def query_team_or_none(
     return team
 
 
-async def get_team_or_none(
+async def _get_team_or_none(
     session: AsyncSessionDepends,
     team_id: Annotated[int | None, Body(alias='teamId')] = None,
 ) -> BaseTeam | None:
@@ -45,5 +45,5 @@ async def get_team_or_none(
     return team
 
 
-OptionalTeamDepends: TypeAlias = Annotated[BaseTeam | None, Depends(query_team_or_none)]
-GetTeamOrNoneByID: TypeAlias = Annotated[BaseTeam | None, Depends(get_team_or_none)]
+OptionalTeamDepends: TypeAlias = Annotated[BaseTeam | None, Depends(_query_team_or_none)]
+GetTeamOrNoneByID: TypeAlias = Annotated[BaseTeam | None, Depends(_get_team_or_none)]
