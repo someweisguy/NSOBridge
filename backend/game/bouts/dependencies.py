@@ -1,3 +1,5 @@
+"""The FastAPI dependencies methods for Bouts."""
+
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from core import AsyncSessionDepends
