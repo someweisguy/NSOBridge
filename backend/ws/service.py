@@ -74,6 +74,7 @@ def _handle_dirty_session(session: Session) -> None:
     if len(models) == 0:
         return
 
+    # SQLAlchemy events do not support async methods so a task is needed
     task: asyncio.Task[None] = asyncio.create_task(invalidate_queries(models))
     task.add_done_callback(_background_tasks.discard)
     _background_tasks.add(task)
