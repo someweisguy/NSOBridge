@@ -22,7 +22,6 @@ async def _get_jam(
     results: Result[tuple[BaseJam]] = await session.execute(statement)
     jam: BaseJam = results.scalar_one()
 
-    # Optionally take a snapshot of the state
     if request.method != 'GET':
         user.stage(jam.get_memento())
 
