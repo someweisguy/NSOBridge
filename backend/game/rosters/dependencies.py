@@ -1,3 +1,5 @@
+"""The FastAPI dependencies methods for Rosters."""
+
 from typing import Annotated, TypeAlias
 
 from core import AsyncSessionDepends

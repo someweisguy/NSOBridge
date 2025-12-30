@@ -1,3 +1,5 @@
+"""The FastAPI dependencies methods for Series."""
+
 from typing import TYPE_CHECKING, Sequence
 
 from core import AsyncSessionDepends

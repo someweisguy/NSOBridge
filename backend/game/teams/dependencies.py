@@ -1,3 +1,5 @@
+"""The FastAPI dependencies methods for Teams."""
+
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from core import AsyncSessionDepends

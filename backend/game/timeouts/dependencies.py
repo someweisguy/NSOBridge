@@ -1,3 +1,5 @@
+"""The FastAPI dependencies methods for Timeouts."""
+
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from core import AsyncSessionDepends
