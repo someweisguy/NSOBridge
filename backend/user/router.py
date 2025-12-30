@@ -6,14 +6,16 @@ from fastapi import APIRouter
 
 from .dependencies import GetUser
 
+HISTORY_TAG = 'History'
+
 router: Final[APIRouter] = APIRouter()
 
 
-@router.post('/undo')
+@router.post('/undo', tags=[HISTORY_TAG])
 async def _undo(user: GetUser) -> None:
     await user.undo()
 
 
-@router.post('/redo')
+@router.post('/redo', tags=[HISTORY_TAG])
 async def _redo(user: GetUser) -> None:
     await user.redo()

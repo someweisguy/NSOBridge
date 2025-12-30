@@ -138,27 +138,41 @@ class DatabaseEngine:
         return factory()
 
 
+PAGES_TAG = 'Pages'
+
 # Initialize the application and set the appropriate routes
 app: Final[FastAPI] = FastAPI(
     debug=_DEBUG,
     routes=[
         Mount('/assets', StaticFiles(directory=_FRONTEND / 'assets')),
     ],
+    title='NSO Bridge',
+    summary='A scoreboard and stats application for roller derby.',
+    description="""
+    
+    """,
+    version='0.0.0',  # TODO: store version number correctly
+    license_info={
+        'name': 'MIT License',
+        'identifier': 'MIT',
+    },
 )
 
 
-@app.get('/')
+@app.get('/', tags=[PAGES_TAG])
 async def _render_index() -> FileResponse:
     return FileResponse(_FRONTEND / 'index.html')
 
 
-@app.get('/sb')
+@app.get('/sb', tags=[PAGES_TAG])
 async def _render_generic(request: Request) -> FileResponse:
     # Render generic HTML files found in the frontend directory.
     # Don't forget to register new files with the FastAPI app!
     return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
 
+
 # TODO: add version getter
+
 
 @app.exception_handler(ClientError)
 async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:

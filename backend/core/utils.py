@@ -15,6 +15,37 @@ from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
 
+tags_metadata: list[dict[str, dict[str, str] | str] | dict[str, str]] = [
+    {
+        'name': 'Pages',
+        'description': 'Endpoints that render HTML.',
+    },
+    {
+        'name': 'History',
+        'description': 'User history commands',
+    },
+    {
+        'name': 'Series',
+        'description': 'A sequence of Bouts, such as a double-header or a tournament.',
+    },
+    {
+        'name': 'Rosters',
+        'description': 'Roster management',
+    },
+    {
+        'name': 'Bouts',
+        'description': 'Bout and bout state controls',
+    },
+    {
+        'name': 'Jams',
+        'description': 'Manage ',
+    },
+    {
+        'name': 'Timeouts',
+        'description': 'Manage items. So _fancy_ they have their own docs.',
+    },
+]
+
 
 class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
     """Converts integer number of milliseconds to a Python timedelta object.
