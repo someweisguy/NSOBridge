@@ -62,6 +62,16 @@ class TeamJam(BaseSQLModel):
     __tablename__: str = 'team_jams'
 
     def __init__(self, team: BaseTeam, jam: BaseJam) -> None:
+        """Initialize a TeamJam.
+
+        Args:
+            team (BaseTeam): the Team to which this TeamJam belongs.
+            jam (BaseJam): the Jam to which this TeamJam belongs.
+
+        Raises:
+            ValueError: if the Team and Jam provided are not in the same Bout.
+
+        """
         if team.bout_id != jam.bout_id:
             raise ValueError('Team and Jam must be from the same Bout')
         super().__init__(team=team, jam=jam)
