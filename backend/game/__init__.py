@@ -21,11 +21,7 @@ instantiation.
 
 from typing import Final
 
-import ws
-from core import BaseSQLModel
 from fastapi import APIRouter
-from sqlalchemy import event
-from sqlalchemy.orm import Session
 
 from .bouts.router import router as bout_router
 from .jams.router import router as jam_router
@@ -36,21 +32,6 @@ from .rulesets import wftda_2025
 from .series.models import Series
 from .series.router import router as series_router
 from .timeouts.router import router as timeout_router
-
-
-@event.listens_for(Session, 'before_commit')
-def _handle_dirty_session(session: Session) -> None:
-    # Add each dirty or deleted model to a set for updates
-    models: set[BaseSQLModel] = {
-        model
-        for identity_map in [session.dirty, session.deleted]
-        for model in identity_map
-        if isinstance(model, BaseSQLModel)
-    }
-
-    if len(models) > 0:
-        ws.invalidate_queries(models)
-
 
 routers: Final[tuple[APIRouter, ...]] = (
     bout_router,

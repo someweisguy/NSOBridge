@@ -7,6 +7,8 @@ from core import BaseSQLModel, db
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from game import CacheableSQLModel
 from pydantic import ValidationError
+from sqlalchemy import event
+from sqlalchemy.orm import Session
 from websockets import CloseCode
 
 from .schemas import (
@@ -54,6 +56,20 @@ async def _handle_socket(websocket: WebSocket) -> None:
         await websocket.close(CloseCode.INTERNAL_ERROR, str(e))  # TODO: log error
     finally:
         _clients.discard(websocket)
+
+
+@event.listens_for(Session, 'before_commit')
+def _handle_dirty_session(session: Session) -> None:
+    # Add each dirty or deleted model to a set for updates
+    models: set[BaseSQLModel] = {
+        model
+        for identity_map in [session.dirty, session.deleted]
+        for model in identity_map
+        if isinstance(model, BaseSQLModel)
+    }
+
+    if len(models) > 0:
+        invalidate_queries(models)
 
 
 def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
