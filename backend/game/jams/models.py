@@ -66,9 +66,17 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         period_num: int,
         jam_num: int,
     ) -> None:
+        """Initialize a Jam.
+
+        Args:
+            bout (BaseBout): the Bout to which this Jam belongs.
+            period_num (int): the Period number of this Jam, zero-indexed.
+            jam_num (int): the Jam number of this Jam, zero-indexed.
+
+        """
         super().__init__(
             bout=bout,
-            bout_id=bout.id,
+            bout_id=bout.id,  # Prevent `bout_id is None` condition
             period=period_num,
             num=jam_num,
         )
