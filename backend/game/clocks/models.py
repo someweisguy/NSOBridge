@@ -1,3 +1,5 @@
+"""The Clock model and associated business logic."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -11,6 +13,13 @@ if TYPE_CHECKING:
 
 
 class Clock(BaseSQLModel):
+    """Represent a Clock.
+
+    Clocks differ from one-shots in that Clocks can be started and stopped multiple
+    times. They can be used to represent time objects such as the Period or Penalty
+    clocks.
+    """
+
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     elapsed: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
     alarm: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
