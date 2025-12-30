@@ -15,7 +15,7 @@ from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
 
-tags_metadata: list[dict[str, dict[str, str] | str] | dict[str, str]] = [
+tags_metadata: list[dict[str, str]] = [
     {
         'name': 'Series',
         'description': 'A sequence of Bouts, such as a double-header or a tournament.',
