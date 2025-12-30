@@ -25,6 +25,13 @@ REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
 class BaseTeam(BaseSQLModel):
+    """An abstract Team without any associated ruleset.
+
+    A Team contains team-related information in a given Bout. Example information
+    includes the number timeouts and official reviews remaining, as well as more obscure
+    data like a team's score offset.
+    """
+
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
 
