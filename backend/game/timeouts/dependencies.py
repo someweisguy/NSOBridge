@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Annotated, Literal, TypeAlias, overload
+from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from core import AsyncSessionDepends
 from fastapi import Depends, Query, Request
@@ -11,65 +11,7 @@ if TYPE_CHECKING:
     from sqlalchemy import Result, Select
 
 
-@overload
-async def get_timeout_or_none(
-    session: AsyncSessionDepends,
-    bout_id: int,
-    index: int,
-    allow_none: Literal[True],
-) -> BaseTimeout | None: ...
-
-
-@overload
-async def get_timeout_or_none(
-    session: AsyncSessionDepends,
-    bout_id: int,
-    index: int,
-    allow_none: Literal[False],
-) -> BaseTimeout: ...
-
-
-async def get_timeout_or_none(
-    session: AsyncSessionDepends,
-    bout_id: Annotated[int, Query(alias='boutId')],
-    index: Annotated[int, Query(alias='index')],
-    allow_none: Annotated[bool, Query(include_in_schema=False)] = True,
-) -> BaseTimeout | None:
-    statement: Select[tuple[BaseTimeout]] = (
-        select(BaseTimeout)
-        .where(BaseTimeout.bout_id == bout_id)
-        .order_by(BaseTimeout.start_timestamp)
-        .offset(index)
-        .limit(1)
-    )
-    results: Result[tuple[BaseTimeout]] = await session.execute(statement)
-    return results.scalar_one_or_none() if allow_none else results.scalar_one()
-
-
-async def get_timeout_by_index(
-    request: Request,
-    user: GetUser,
-    session: AsyncSessionDepends,
-    bout_id: Annotated[int, Query(alias='boutId')],
-    index: Annotated[int, Query(alias='index')],
-) -> BaseTimeout:
-    allow_none: bool = False
-    timeout: BaseTimeout | None = await get_timeout_or_none(
-        session,
-        bout_id,
-        index,
-        allow_none,
-    )
-    if timeout is None:
-        raise IndexError('timeout not found')
-
-    # Optionally take a snapshot of the Timeout state
-    if request.method != 'GET':
-        user.stage(timeout.get_memento())
-    return timeout
-
-
-async def get_timeout_by_id(
+async def _get_timeout(
     request: Request,
     user: GetUser,
     session: AsyncSessionDepends,
@@ -87,5 +29,4 @@ async def get_timeout_by_id(
     return timeout
 
 
-GetTimeoutByIndex: TypeAlias = Annotated[BaseTimeout, Depends(get_timeout_by_index)]
-GetTimeoutByID: TypeAlias = Annotated[BaseTimeout, Depends(get_timeout_by_id)]
+GetTimeoutByID: TypeAlias = Annotated[BaseTimeout, Depends(_get_timeout)]
