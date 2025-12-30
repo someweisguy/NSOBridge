@@ -1,3 +1,5 @@
+"""The injection point of the program."""
+
 import asyncio
 import logging
 import os
@@ -26,6 +28,17 @@ logging.basicConfig(
 
 
 async def main(*, host: str = '0.0.0.0', port: int = 8000) -> None:
+    """Begin the program.
+
+    Handles the configuration of the database, the API, the GUI, and then serves the
+    app.
+
+    Args:
+        host (str, optional): The host IP address on which to serve the app. Defaults to
+        '0.0.0.0'.
+        port (int, optional): The port on which to serve the app. Defaults to 8000.
+
+    """
     print(f'Connecting to Database in: {db.path}')
     await db.create_all()
 
