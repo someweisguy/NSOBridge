@@ -3,23 +3,18 @@ name = "nso-bridge"
 requires-python = ">=3.13"
 version = "0.1.0"
 dependencies = [
-    "aiosqlite>=0.22.1",
-    "fastapi[standard]>=0.115.14",
-    "requests>=2.32.5",
-    "ruff>=0.14.10",
-    "sqlalchemy>=2.0.45",
-    "uvicorn>=0.34.3",
-    "websockets>=15.0.1",
+  "aiosqlite>=0.22.1",
+  "fastapi[standard]>=0.115.14",
+  "requests>=2.32.5",
+  "ruff>=0.14.10",
+  "sqlalchemy>=2.0.45",
+  "uvicorn>=0.34.3",
+  "websockets>=15.0.1",
 ]
 
 [tool.pyrefly]
-project-includes = [
-  "**/*.py*",
-  "**/*.ipynb",
-]
-search_path = [
-  "backend",
-]
+project-includes = ["**/*.py*", "**/*.ipynb"]
+search_path = ["backend"]
 
 [tool.ruff]
 indent-width = 4
@@ -43,10 +38,9 @@ extend-select = [
   "FAST",
   "PL",
   "EXE",
-  "TC", # Put imports in TYPE_CHECKING blocks when possible
+  "TC",   # Put imports in TYPE_CHECKING blocks when possible
 ]
-ignore = [
-]
+ignore = []
 
 [tool.ruff.lint.extend-per-file-ignores]
 "dependencies.py" = [
@@ -58,6 +52,4 @@ combine-as-imports = true
 force-single-line = false
 
 [tool.setuptools.packages.find]
-include = [
-  "backend",
-]
+include = ["backend"]
