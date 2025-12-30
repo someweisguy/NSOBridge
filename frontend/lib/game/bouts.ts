@@ -21,7 +21,7 @@ export async function createBout(
 export class Bout {
   id: number;
   seriesId: number;
-  ruleset: string;
+  ruleset_name: string;
 
   startCountdown: Date | null;
   clock: Clock;
