@@ -14,6 +14,18 @@ if TYPE_CHECKING:
 
 
 class TripEvent(BaseSQLModel):
+    """Represent a TripEvent in a TeamJam.
+
+    A TripEvent represents an event that takes place during a jammer's Trip in a Jam. It
+    should be noticed that there is a subtle distinction between a trip and a TripEvent.
+    In the WFTDA 2025 ruleset, a trip is when a jammer gains position ahead of the pack.
+    A TripEvent is any remarkable event that may occur during a trip, including the
+    completion of the trip.
+
+    Events that may occur during a trip include completing a star pass or losing lead
+    eligibility.
+    """
+
     team_jam_id: Mapped[int | None] = mapped_column(ForeignKey('team_jams.id'))
     timestamp: Mapped[datetime] = mapped_column()
     lead: Mapped[bool] = mapped_column(default=False)
@@ -41,6 +53,22 @@ class TripEvent(BaseSQLModel):
         passes: int | None = None,
         star_pass: bool = False,
     ) -> None:
+        """Initialize a TripEvent.
+
+        Args:
+            timestamp (datetime): the timestamp of the TripEvent.
+            lead (bool, optional): True if lead was assessed after this TripEvent.
+            Defaults to False.
+            lost (bool, optional): True if lead eligibility was lost after this
+            TripEvent. Defaults to False.
+            passes (int | None, optional): the number of legal passes that were earned
+            during this TripEvent. Setting this value to an integer is interpreted as a
+            complete trip. If a trip has not been completed, this value should be set to
+            None. Defaults to None.
+            star_pass (bool, optional): True if a legal star pass was completed after
+            this TripEvent. Defaults to False.
+
+        """
         super().__init__(
             team_jam=None,
             timestamp=timestamp,
@@ -55,4 +83,13 @@ class TripEvent(BaseSQLModel):
         return (await self.awaitable_attrs.team_jam,)
 
     def is_empty(self) -> bool:
+        """Return True if this TripEvent is empty.
+
+        A TripEvent is empty if it does not contain any meaningful data. Typically an
+        empty TripEvent should be pruned from the database.
+
+        Returns:
+            bool: if the TripEvent is empty.
+
+        """
         return self.passes is None and not any([self.lead, self.lost, self.star_pass])
