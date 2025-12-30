@@ -48,7 +48,7 @@ class BoutSchema(ServerSchema):
     @computed_field
     @property
     def timeout_ids(self) -> list[int]:
-        """Get a list of representing the IDs of this Bout's Timeouts.
+        """Get a list representing the IDs of this Bout's Timeouts.
 
         Returns:
             list[int]: the Timeout IDs of this Bout's Timeouts.
