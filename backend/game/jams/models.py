@@ -60,9 +60,6 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         UniqueConstraint('bout_id', 'num', 'period'),
     )
 
-    def __getitem__(self, key: BaseTeam | int) -> TeamJam:
-        return self.get_team_jam(key)
-
     @override
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_id, self.period, self.num)
@@ -72,6 +69,19 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team_jams)
 
     def get_team_jam(self, team: BaseTeam | int) -> TeamJam:
+        """Get the TeamJam associated with the desired Team.
+
+        Args:
+            team (BaseTeam | int): the Team or Team ID of the desired TeamJam.
+
+        Raises:
+            KeyError: the specified Team is not persistent in the database.
+            ValueError: the specified Team is not in this Jam.
+
+        Returns:
+            TeamJam: the TeamJam associated with the desired Team.
+
+        """
         if not isinstance(team, int):
             if team.id is None:
                 raise KeyError('this team does not exist')
@@ -83,7 +93,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         )
 
         if team_jam is None:
-            raise KeyError('the specified team is not in this Jam')
+            raise ValueError('the specified team is not in this Jam')
 
         return team_jam
 
