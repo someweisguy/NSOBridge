@@ -36,6 +36,7 @@ class Bout(_WFTDAModel, BaseBout):
         num_reviews=1,
     )
 
+    @override
     def __init__(self, series: Series, home: Roster, away: Roster) -> None:
         super().__init__(series=series, ruleset=self.rules.name)
         self.clock.alarm = timedelta(minutes=30)
@@ -192,12 +193,13 @@ class Team(_WFTDAModel, BaseTeam):
     def get_team_jam_score(cls, team_jam: TeamJam) -> int:
         jam_score: int = 0
         for event in team_jam.events:
-            if event.passes is not None:  # TODO: can event.passes be non-nullable?
+            if event.passes is not None:
                 jam_score += event.passes
         return jam_score
 
 
 class Jam(_WFTDAModel, BaseJam):
+    @override
     async def add_trip(self, team_id: int, timestamp: datetime, passes: int) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
 
@@ -219,6 +221,7 @@ class Jam(_WFTDAModel, BaseJam):
 
         team_jam.events.append(event)
 
+    @override
     async def set_lead(self, team_id: int, timestamp: datetime, lead: bool) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
 
@@ -236,6 +239,7 @@ class Jam(_WFTDAModel, BaseJam):
             if event.is_empty():
                 team_jam.events.remove(event)
 
+    @override
     async def set_lost(self, team_id: int, timestamp: datetime, lost: bool) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
 
@@ -253,6 +257,7 @@ class Jam(_WFTDAModel, BaseJam):
             if event.is_empty():
                 team_jam.events.remove(event)
 
+    @override
     async def set_star_pass(
         self, team_id: int, timestamp: datetime, star_pass: bool
     ) -> None:
@@ -279,9 +284,11 @@ class Jam(_WFTDAModel, BaseJam):
 
 
 class Timeout(_WFTDAModel, BaseTimeout):
+    @override
     def set_type(self, is_review: bool) -> None:
         self.is_review = is_review
 
+    @override
     def set_team(self, team: BaseTeam | None) -> None:
         if team is not None and team.bout_id != self.bout_id:
             raise ValueError('team and timeout are not part of the same Bout')
@@ -291,5 +298,6 @@ class Timeout(_WFTDAModel, BaseTimeout):
         self.team = team
         self.team_is_officials = team is None
 
+    @override
     def set_retained(self, retained: bool) -> None:
         self.retained = retained
