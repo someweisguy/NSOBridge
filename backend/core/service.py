@@ -156,16 +156,22 @@ app: Final[FastAPI] = FastAPI(
         'name': 'MIT License',
         'identifier': 'MIT',
     },
-    docs_url='/docs'
+    docs_url='/docs',
 )
 
 
-@app.get('/', tags=[PAGES_TAG])
+@app.get('/', tags=[PAGES_TAG], name='Render Index Page')
 async def _render_index() -> FileResponse:
+    """Render the index page."""
     return FileResponse(_FRONTEND / 'index.html')
 
 
-@app.get('/sb', tags=[PAGES_TAG])
+@app.get(
+    '/sb',
+    tags=[PAGES_TAG],
+    name='Render Scoreboard Page',
+    description='Render the scoreboard page.',
+)
 async def _render_generic(request: Request) -> FileResponse:
     # Render generic HTML files found in the frontend directory.
     # Don't forget to register new files with the FastAPI app!
