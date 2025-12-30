@@ -1,3 +1,5 @@
+"""The Bout model and associated business logic."""
+
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
@@ -26,6 +28,8 @@ REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
 class BaseBout(CacheableSQLModel):
+    """An abstract Bout without any associated ruleset."""
+
     rules: ClassVar[Ruleset]
 
     series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
@@ -71,6 +75,13 @@ class BaseBout(CacheableSQLModel):
     }
 
     def __init__(self, series: Series, ruleset: str) -> None:
+        """Instantiate a Bout.
+
+        Args:
+            series (Series): The series to which this Bout belongs.
+            ruleset (str): The ruleset which the Bout will use.
+
+        """
         super().__init__(series=series, clock=Clock(bout=self), ruleset=ruleset)
 
     @override
@@ -84,6 +95,16 @@ class BaseBout(CacheableSQLModel):
     @final
     @property
     def state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
+        """Get the current state of the Bout.
+
+        Returns:
+           'final': the Bout is finalized.
+           'jam': a Jam is running.
+           'timeout': a Timeout is running.
+           'lineup': skaters are lining up before a Jam.
+           'stopped': the Bout is in a period break such as halftime.
+
+        """
         if self.is_final:
             return 'final'
         if any(jam.is_running() for jam in self.jams):
@@ -96,25 +117,107 @@ class BaseBout(CacheableSQLModel):
             return 'stopped'
 
     def get_running_jam(self) -> BaseJam | None:
+        """Get the running Jam if there is one.
+
+        Returns:
+            BaseJam | None: the running Jam or None.
+
+        """
         return next((j for j in self.jams if j.is_running()), None)
 
     def get_upcoming_jam(self) -> BaseJam | None:
+        """Get the upcoming Jam if there is one.
+
+        The upcoming Jam is the first Jam that is not started.
+
+        Returns:
+            BaseJam | None: the upcoming Jam or None.
+
+        """
         return next((j for j in self.jams if not j.is_started()), None)
 
     def get_running_timeout(self) -> BaseTimeout | None:
+        """Get the running Timeout if there is one.
+
+        Returns:
+            BaseTimeout | None: the running Timeout or None.
+
+        """
         return next((t for t in self.timeouts if t.is_running()), None)
 
     def get_upcoming_timeout(self) -> BaseTimeout | None:
+        """Get the upcoming Timeout if there is one.
+
+        The upcoming Timeout is the first Timeout that is not started.
+
+        Returns:
+            BaseTimeout | None: the upcoming Timeout or None.
+
+        """
         return next((t for t in self.timeouts if not t.is_started()), None)
 
-    def begin_period(self, timestamp: datetime) -> None: ...
+    def begin_period(self, timestamp: datetime) -> None:
+        """Begin the next Period.
 
-    def end_period(self, timestamp: datetime) -> None: ...
+        Args:
+            timestamp (datetime): the timestamp at which to begin the Period.
 
-    def start_jam(self, timestamp: datetime) -> BaseJam: ...
+        """
+        ...
 
-    def stop_jam(self, timestamp: datetime) -> BaseJam: ...
+    def end_period(self, timestamp: datetime) -> None:
+        """End the current Period.
 
-    def start_timeout(self, timestamp: datetime) -> BaseTimeout: ...
+        Args:
+            timestamp (datetime): the timestamp at which to end the Period.
 
-    def stop_timeout(self, timestamp: datetime) -> BaseTimeout: ...
+        """
+        ...
+
+    def start_jam(self, timestamp: datetime) -> BaseJam:
+        """Start the next Jam.
+
+        Args:
+            timestamp (datetime): the timestamp at which to start the Jam.
+
+        Returns:
+            BaseJam: the Jam that was started.
+
+        """
+        ...
+
+    def stop_jam(self, timestamp: datetime) -> BaseJam:
+        """Stop the current Jam.
+
+        Args:
+            timestamp (datetime): the timestamp at which to stop the Jam.
+
+        Returns:
+            BaseJam: the Jam that was stopped.
+
+        """
+        ...
+
+    def start_timeout(self, timestamp: datetime) -> BaseTimeout:
+        """Call a Timeout.
+
+        Args:
+            timestamp (datetime): the timestamp at which to call the Timeout.
+
+        Returns:
+            BaseTimeout: the Timeout that was called.
+
+        """
+        ...
+
+    def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
+        """Stop the current Timeout.
+
+        Args:
+            timestamp (datetime): the timestamp at which to stop the Timeout.
+
+        Returns:
+            BaseTimeout: the Timeout that was stopped.
+
+        """
+        ...
