@@ -217,7 +217,7 @@ class Jam(_WFTDAModel, BaseJam):
         )
 
     async def add_trip(self, team_id: int, timestamp: datetime, passes: int) -> None:
-        team_jam: TeamJam = self.get_team_jam_by_team(team_id)
+        team_jam: TeamJam = self.get_team_jam(team_id)
 
         event: TripEvent = TripEvent(timestamp, passes=passes)
 
@@ -238,7 +238,7 @@ class Jam(_WFTDAModel, BaseJam):
         team_jam.events.append(event)
 
     async def set_lead(self, team_id: int, timestamp: datetime, lead: bool) -> None:
-        team_jam: TeamJam = self.get_team_jam_by_team(team_id)
+        team_jam: TeamJam = self.get_team_jam(team_id)
 
         if lead:
             # Add a new Trip Event in which lead is declared
@@ -255,7 +255,7 @@ class Jam(_WFTDAModel, BaseJam):
                 team_jam.events.remove(event)
 
     async def set_lost(self, team_id: int, timestamp: datetime, lost: bool) -> None:
-        team_jam: TeamJam = self.get_team_jam_by_team(team_id)
+        team_jam: TeamJam = self.get_team_jam(team_id)
 
         if lost:
             # Add a new Trip Event in which the Jammer has lost eligibility for lead
@@ -274,7 +274,7 @@ class Jam(_WFTDAModel, BaseJam):
     async def set_star_pass(
         self, team_id: int, timestamp: datetime, star_pass: bool
     ) -> None:
-        team_jam: TeamJam = self.get_team_jam_by_team(team_id)
+        team_jam: TeamJam = self.get_team_jam(team_id)
 
         if star_pass:
             if any(event.star_pass for event in team_jam.events):

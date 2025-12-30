@@ -61,7 +61,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     )
 
     def __getitem__(self, key: BaseTeam | int) -> TeamJam:
-        return self.get_team_jam_by_team(key)
+        return self.get_team_jam(key)
 
     @override
     def cache_key(self) -> CacheKey:
@@ -71,7 +71,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team_jams)
 
-    def get_team_jam_by_team(self, team: BaseTeam | int) -> TeamJam:
+    def get_team_jam(self, team: BaseTeam | int) -> TeamJam:
         if not isinstance(team, int):
             if team.id is None:
                 raise KeyError('this team does not exist')
