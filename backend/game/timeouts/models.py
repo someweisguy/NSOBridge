@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     """An abstract Timeout without any associated ruleset."""
-    
+
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
@@ -63,8 +63,8 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     }
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_id', 'num'),)
 
-    def __init__(self, num: int) -> None:
-        super().__init__(num=num)
+    def __init__(self, bout: BaseBout, num: int) -> None:
+        super().__init__(bout=bout, bout_id=bout.id, num=num)
 
     @override
     def cache_key(self) -> CacheKey:

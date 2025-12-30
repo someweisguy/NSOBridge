@@ -46,7 +46,7 @@ class Bout(_WFTDAModel, BaseBout):
         initial_jam: Jam = Jam(self, 0, 0)
         initial_jam.team_jams = [TeamJam(team, initial_jam) for team in self.teams]
         self.jams.append(initial_jam)
-        self.timeouts.append(Timeout(0))
+        self.timeouts.append(Timeout(self, 0))
 
     @override
     def begin_period(self, timestamp: datetime) -> None:
@@ -159,7 +159,7 @@ class Bout(_WFTDAModel, BaseBout):
             self.clock.stop(timestamp)
 
         # Push a new Timeout to allow users to prefetch it
-        self.timeouts.append(Timeout(timeout.num + 1))
+        self.timeouts.append(Timeout(self, timeout.num + 1))
 
         return timeout
 
