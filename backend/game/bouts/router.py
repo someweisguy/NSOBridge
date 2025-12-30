@@ -1,3 +1,5 @@
+"""FastAPI routes associated with Bouts."""
+
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Final
 
