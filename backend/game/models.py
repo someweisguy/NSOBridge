@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, override
 
 from core import BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint
@@ -50,7 +51,90 @@ class CacheableSQLModel(BaseSQLModel):
         return DatabaseMemento(copy)
 
 
-class AbstractOneShotModel(BaseSQLModel):
+class TimeableModel(BaseSQLModel):
+    """An abstract base model which has an associated duration."""
+
+    __abstract__: bool = True
+
+    @abstractmethod
+    def start(self, timestamp: datetime) -> None:
+        """Start the timeable object.
+
+        Args:
+            timestamp (datetime): The timestap at which to start the model.
+
+        Raises:
+            RuntimeError: if the timeable object is already running.
+
+        """
+        ...
+
+    @abstractmethod
+    def stop(self, timestamp: datetime) -> None:
+        """Stop the timeable object.
+
+        Args:
+            timestamp (datetime): the timestamp at which to stop the model.
+
+        Raises:
+            RuntimeError: if the timeable object is already stopped.
+
+        """
+        ...
+
+    @abstractmethod
+    def is_started(self) -> bool:
+        """Return True if the timeable object is started.
+
+        If this timeable object is stopped, this method will return True.
+
+        Returns:
+            bool: True if the timeable object is started.
+
+        """
+        ...
+
+    @abstractmethod
+    def is_running(self) -> bool:
+        """Return True if this timeable object is running.
+
+        Returns:
+            bool: True if this timeable object is running.
+
+        """
+        ...
+
+    @abstractmethod
+    def is_stopped(self) -> bool:
+        """Return True if this timeable object is stopped.
+
+        Returns:
+            bool: True if this timeable object is stopped.
+
+        """
+        ...
+
+    @abstractmethod
+    def get_duration(self, timestamp: datetime | None = None) -> timedelta:
+        """Get the duration that has elapsed in this timeable object.
+
+        Args:
+            timestamp (datetime | None, optional): The timestamp which should be used to
+            calculate the remaining time on the timeable object. If None is provided,
+            the current timestamp will be used. Defaults to None.
+
+        Raises:
+            ValueError: if a timestamp that occurs before the start of the timeable
+            object is provided.
+
+        Returns:
+            timedelta: the elapsed time on this timeable object.
+
+        """
+        ...
+
+
+class AbstractOneShotModel(TimeableModel):
     """The abstract base class for one-shot models.
 
     One-shot models are models which can be started and stopped only once. Once a
@@ -69,31 +153,14 @@ class AbstractOneShotModel(BaseSQLModel):
         CheckConstraint('start_timestamp IS NOT NULL OR stop_timestamp IS NULL'),
     )
 
+    @override
     def start(self, timestamp: datetime) -> None:
-        """Start the one-shot.
-
-        Args:
-            timestamp (datetime): The timestap at which to start the model.
-
-        Raises:
-            RuntimeError: if the one-shot is already running.
-
-        """
         if self.is_running():
             raise RuntimeError('Cannot start a one-shot when it is already running')
         self.start_timestamp = timestamp
 
+    @override
     def stop(self, timestamp: datetime) -> None:
-        """Stop the one-shot.
-
-        Args:
-            timestamp (datetime): the timestamp at which to stop the model.
-
-        Raises:
-            RuntimeError: if the one-shot is not currently running.
-            ValueError: if the stop timestamp is before the start timestamp.
-
-        """
         if not self.is_running():
             raise RuntimeError('Cannot stop a one-shot when it is already stopped')
         assert self.start_timestamp is not None
@@ -101,51 +168,20 @@ class AbstractOneShotModel(BaseSQLModel):
             raise ValueError('Cannot stop a one-shot before it has been started')
         self.stop_timestamp = timestamp
 
+    @override
     def is_started(self) -> bool:
-        """Return True if the one-shot is started.
-
-        If this one-shot is stopped, this method will return True.
-
-        Returns:
-            bool: True if the one-shot is started.
-
-        """
         return self.start_timestamp is not None
 
+    @override
     def is_running(self) -> bool:
-        """Return True if this one-shot is running.
-
-        Returns:
-            bool: True if this one-shot is running.
-
-        """
         return self.is_started() and not self.is_stopped()
 
+    @override
     def is_stopped(self) -> bool:
-        """Return True if this one-shot is stopped.
-
-        Returns:
-            bool: True if this one-shot is stopped.
-
-        """
         return self.stop_timestamp is not None
 
+    @override
     def get_duration(self, timestamp: datetime | None = None) -> timedelta:
-        """Get the duration that has elapsed in this one-shot at the desired timestamp.
-
-        Args:
-            timestamp (datetime | None, optional): The timestamp which should be used to
-            calculate the remaining time on the one-shot. If None is provided, the
-            current timestamp will be used. Defaults to None.
-
-        Raises:
-            ValueError: if a timestamp that occurs before the start of the one-shot is
-            provided.
-
-        Returns:
-            timedelta: the elapsed time on this one-shot.
-
-        """
         if timestamp is None:
             timestamp = datetime.now()
         if self.start_timestamp is None:
