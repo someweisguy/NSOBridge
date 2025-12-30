@@ -54,8 +54,16 @@ class Clock(TimeableModel):
         self.start_timestamp = None
 
     @override
+    def is_started(self) -> bool:
+        return self.start_timestamp is not None or self.elapsed.total_seconds() > 0
+
+    @override
     def is_running(self) -> bool:
         return self.start_timestamp is not None
+
+    @override
+    def is_stopped(self) -> bool:
+        return self.start_timestamp is None
 
     @override
     def get_duration(self, timestamp: datetime | None = None) -> timedelta:
