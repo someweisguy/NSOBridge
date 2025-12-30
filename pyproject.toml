@@ -40,6 +40,7 @@ extend-select = [
   "EXE",  # flake8 executable
   "TC",   # flake8 type checking
   "N",    # pep8 naming conventions
+  "S",    # flake8 bandit
 ]
 ignore = [
   "D203", # No blank lines allowed before class docstring
