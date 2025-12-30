@@ -1,3 +1,5 @@
+"""Pydantic Bout schemas."""
+
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
@@ -12,6 +14,8 @@ from pydantic import Field, computed_field
 
 
 class BoutSchema(ServerSchema):
+    """Represent a Bout as a JSON schema."""
+
     id: int
     series_id: int
     ruleset: str
@@ -27,6 +31,14 @@ class BoutSchema(ServerSchema):
     @computed_field
     @property
     def jam_ids(self) -> list[list[int]]:
+        """Get a list of lists representing the IDs of this Bout's Jams.
+
+        Returns:
+            list[list[int]]: the Jam IDs of this Bout's Jams. Each list represents a
+            Period such that a specific Jam may be queried using
+            `bout.jam_ids[period_num][jam_num]`.
+
+        """
         jam_ids: list[list[int]] = [[], [], []]
         for jam in self.jams:
             assert jam.num == len(jam_ids[jam.period])
@@ -36,4 +48,10 @@ class BoutSchema(ServerSchema):
     @computed_field
     @property
     def timeout_ids(self) -> list[int]:
+        """Get a list of representing the IDs of this Bout's Timeouts.
+
+        Returns:
+            list[int]: the Timeout IDs of this Bout's Timeouts.
+
+        """
         return [timeout.id for timeout in self.timeouts]
