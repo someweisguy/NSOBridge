@@ -1,3 +1,5 @@
+"""Pydantic Ruleset schemas."""
+
 from dataclasses import dataclass
 from datetime import timedelta
 

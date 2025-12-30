@@ -1,3 +1,5 @@
+"""The TeamJam model and associated business logic."""
+
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003

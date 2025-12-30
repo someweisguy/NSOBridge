@@ -1,3 +1,5 @@
+"""The Timeout model and associated business logic."""
+
 from __future__ import annotations
 
 from datetime import timedelta  # noqa: TC003
