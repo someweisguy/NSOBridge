@@ -6,6 +6,7 @@ from typing import Final, Iterable
 from core import BaseSQLModel, db
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from game import CacheableSQLModel
+from game.models import CacheKey
 from pydantic import ValidationError
 from sqlalchemy import event
 from sqlalchemy.orm import Session
@@ -99,21 +100,18 @@ def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
                     for parent in await model.get_parents()
                     if isinstance(parent, CacheableSQLModel)
                 }
-            if len(cacheables) == 0:
-                return
+            cache_keys: list[CacheKey] = [
+                cacheable.cache_key()
+                for cacheable in cacheables
+                if cacheable.id is not None
+            ]
+        if len(cache_keys) == 0:
+            return
 
-            # Generate the payload to broadcast
-            payload = CacheWebsocketServerSchema(
-                [
-                    cacheable.cache_key()
-                    for cacheable in cacheables
-                    if cacheable.id is not None
-                ]
-            )
-
-        # Send the payload to all clients
+        # Generate and send the payload to all clients
+        payload: str = CacheWebsocketServerSchema(cache_keys).model_dump_json()
         for client in _clients:
-            await client.send_text(payload.model_dump_json())
+            await client.send_text(payload)
 
     task: asyncio.Task[None] = asyncio.create_task(send_model_tree_updates(models))
     task.add_done_callback(_background_tasks.discard)
