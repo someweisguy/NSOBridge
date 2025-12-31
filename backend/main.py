@@ -7,6 +7,7 @@ import os
 import sys
 from datetime import datetime
 from logging import Handler
+from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
@@ -35,8 +36,11 @@ async def main(host_port: tuple[str, int], *, debug: bool = False) -> None:
 
     """
     # Configure logging
-    file_name: str = f'{datetime.now().strftime("%Y-%m-%d")}.log'
-    logging_handlers: list[Handler] = [logging.FileHandler(file_name, mode='a')]
+    log_dir: Final[Path] = Path('./logs')
+    if not log_dir.exists():
+        log_dir.mkdir()
+    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
+    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
     if debug:
         logging_handlers.append(logging.StreamHandler(sys.stdout))
     logging.basicConfig(
