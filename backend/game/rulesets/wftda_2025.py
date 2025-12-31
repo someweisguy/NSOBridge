@@ -236,9 +236,15 @@ class Jam(_WFTDAModel, BaseJam):
             f'J{self.num} of Bout ID {self.bout_id}'
         )
 
-        event: TripEvent = TripEvent(timestamp, passes=passes)
+        is_overtime: bool = False  # TODO: handle overtime conditions
+        is_initial: bool = len(team_jam.events) == 0
+        if is_initial:
+            logging.info(
+                f'This is the initial pass for Team ID {team_id} in P{self.period} '
+                f'J{self.num} of Bout ID {self.bout_id}'
+            )
 
-        # TODO: handle overtime conditions
+        event: TripEvent = TripEvent(timestamp, passes=passes)
 
         # Automatically set lead on the first 4-point trip
         if not self.lead_is_declared() and passes == self.bout.ruleset.points_per_trip:
@@ -249,7 +255,7 @@ class Jam(_WFTDAModel, BaseJam):
             await self.set_lost(team_id, timestamp, True)
 
         # Jammer cannot earn points on the initial pass
-        if len(team_jam.events) == 0:
+        if is_initial and not is_overtime:
             event.passes = 0
 
         team_jam.events.append(event)
