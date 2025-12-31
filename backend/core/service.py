@@ -163,7 +163,9 @@ app: Final[FastAPI] = FastAPI(
 @app.get('/', tags=[PAGES_TAG], name='Render Index Page')
 async def _render_index() -> FileResponse:
     """Render the index page."""
-    return FileResponse(FRONTEND / 'index.html')
+    page_path_name: str = 'index.html'
+    logging.info(f'Serving "{page_path_name}"')
+    return FileResponse(FRONTEND / page_path_name)
 
 
 @app.get(
@@ -175,7 +177,9 @@ async def _render_index() -> FileResponse:
 async def _render_generic(request: Request) -> FileResponse:
     # Render generic HTML files found in the frontend directory.
     # Don't forget to register new files with the FastAPI app!
-    return FileResponse(FRONTEND / (request.url.path[1:] + '.html'))
+    page_path_name: str = request.url.path[1:] + '.html'
+    logging.info(f'Serving "{page_path_name}"')
+    return FileResponse(FRONTEND / page_path_name)
 
 
 @app.get('/version', tags=['Metadata'])
