@@ -186,6 +186,7 @@ def _get_app_version(request: Request) -> VersionSchema:
 
 @app.exception_handler(ClientError)
 async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
+    logging.info(f'Handling client error: {str(e)}')
     return JSONResponse(
         status_code=409,  # TODO: remove magic number
         content={'message': str(e)},
