@@ -95,7 +95,7 @@ class DatabaseEngine:
 
         # Initialize the database engine
         url: URL = URL.create(self._DRIVER, database=self.path)
-        logging.debug(f'Initializing engine at {str(url)}')
+        logging.debug(f'Initializing engine at "{str(url)}"')
         engine: AsyncEngine = create_async_engine(url, echo=False)
 
         # Create the database tables
