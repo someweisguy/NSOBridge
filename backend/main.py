@@ -11,17 +11,20 @@ import core
 import game
 import user
 import ws
+from core import DatabaseEngine, EngineFactory
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
 from websockets import CloseCode
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
+    from sqlalchemy.ext.asyncio.session import AsyncSession
 
 HOST: str = os.environ['UVICORN_HOST']
 PORT: int = int(os.environ['UVICORN_PORT'])
 LOG_LEVEL: int | None = logging.DEBUG
 LOG_DIR_NAME: str = './logs'
+DB_PATH_NAME: str = 'test.db'
 SILENT: bool = False
 
 
@@ -52,23 +55,23 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
 
     # Connect to the desired database
     db_path_name = db_path_name.strip()
+    db: DatabaseEngine = EngineFactory.get_default_engine()
     if not db_path_name:
         logging.warning('Connecting to in-memory database')
     else:
         logging.info(f'Connecting to Database: {db_path_name}')
-    try:
-        # TODO: allow different database names
-        # core.db = DatabaseEngine(BaseSQLModel, db_path_name)
-        pass
-    except ValueError:
-        logging.critical(f'database path name is invalid ({db_path_name=})')
-        return
-    await core.db.create_all()
+        try:
+            db = EngineFactory.create_engine(db_path_name)
+            EngineFactory.set_default_engine(db)
+        except ValueError:
+            logging.critical(f'database path name is invalid ({db_path_name=})')
+            return
+    await db.create_all()
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking for initial data')
-    session_factory: async_sessionmaker = core.db.get_async_session_factory()
-    async with session_factory() as session, session.begin():
+    session_factory: async_sessionmaker[AsyncSession] = db.get_async_session_factory()
+    async with session_factory() as session:
         statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
         if results.scalar_one_or_none() is None:
@@ -79,8 +82,10 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
                 Roster('Away', 'Default League'),
             )
             session.add(bout)
-        await session.commit()
-    logging.debug('Initial data created')
+            logging.debug('Initial data created')
+            await session.commit()
+        else:
+            logging.debug('Initial data found')
 
     # Load the server API and the WebSocket application
     logging.debug('Mounting application API')
@@ -114,4 +119,4 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
 
 
 if __name__ == '__main__':
-    asyncio.run(main((HOST, PORT), debug=True))
+    asyncio.run(main((HOST, PORT), db_path_name=DB_PATH_NAME, debug=True))

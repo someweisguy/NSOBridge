@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Final, Iterable
 
-from core import BaseSQLModel, db
+from core import BaseSQLModel, EngineFactory
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from game import CacheableSQLModel
 from pydantic import ValidationError
@@ -96,6 +96,7 @@ async def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
         models (Iterable[BaseSQLModel]): a list of models which should be invalided.
 
     """
+    db = EngineFactory.get_default_engine()
     async with db.get_async_session() as new_session:
         # Merge the models with the current session
         models = [await new_session.merge(model) for model in models]
