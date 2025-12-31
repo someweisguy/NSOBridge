@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Final, TypeAlias
+from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -13,7 +13,7 @@ from .service import DatabaseEngine
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
-db: Final[DatabaseEngine] = DatabaseEngine(BaseSQLModel)
+db: DatabaseEngine = DatabaseEngine(BaseSQLModel)
 
 
 async def _get_async_session(
