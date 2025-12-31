@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Final, Protocol
@@ -24,12 +23,6 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine
     from sqlalchemy.orm import DeclarativeBase
 
-logging.basicConfig(
-    format='{levelname}: {message}',
-    datefmt='%m/%d/%Y %H:%M:%S',
-    style='{',
-    level=logging.INFO,
-)
 
 FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
