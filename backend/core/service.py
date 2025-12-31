@@ -31,8 +31,8 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
-_FRONTEND: Final[Path] = Path.cwd() / Path('dist')
-_DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
+FRONTEND: Final[Path] = Path.cwd() / Path('dist')
+DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
 PAGES_TAG = 'Pages'
 
 
@@ -97,7 +97,7 @@ class DatabaseEngine:
 
         # Initialize the database engine
         url: URL = URL.create(self._DRIVER, database=self.path)
-        engine: AsyncEngine = create_async_engine(url, echo=_DEBUG)
+        engine: AsyncEngine = create_async_engine(url, echo=DEBUG)
 
         # Create the database tables
         async with engine.connect() as session:
@@ -143,9 +143,9 @@ class DatabaseEngine:
 
 # Initialize the application and set the appropriate routes
 app: Final[FastAPI] = FastAPI(
-    debug=_DEBUG,
+    debug=DEBUG,
     routes=[
-        Mount('/assets', StaticFiles(directory=_FRONTEND / 'assets')),
+        Mount('/assets', StaticFiles(directory=FRONTEND / 'assets')),
     ],
     title='NSO Bridge',
     summary='A scoreboard and stats application for roller derby.',
@@ -164,7 +164,7 @@ app: Final[FastAPI] = FastAPI(
 @app.get('/', tags=[PAGES_TAG], name='Render Index Page')
 async def _render_index() -> FileResponse:
     """Render the index page."""
-    return FileResponse(_FRONTEND / 'index.html')
+    return FileResponse(FRONTEND / 'index.html')
 
 
 @app.get(
@@ -176,7 +176,7 @@ async def _render_index() -> FileResponse:
 async def _render_generic(request: Request) -> FileResponse:
     # Render generic HTML files found in the frontend directory.
     # Don't forget to register new files with the FastAPI app!
-    return FileResponse(_FRONTEND / (request.url.path[1:] + '.html'))
+    return FileResponse(FRONTEND / (request.url.path[1:] + '.html'))
 
 
 @app.get('/version', tags=['Metadata'])
