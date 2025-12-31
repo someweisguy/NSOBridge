@@ -83,7 +83,7 @@ class DatabaseEngine:
             logging.error('invalid database pathname')
             raise ValueError('db path is invalid')
         self._db_schema: type[DeclarativeBase] = db_schema
-        self._session_factory: async_sessionmaker | None = None
+        self._session_factory: async_sessionmaker[AsyncSession] | None = None
         self.path: Final[str] = db_path if db_path != '' else ':memory:'
 
     async def create_all(self) -> None:
@@ -116,7 +116,7 @@ class DatabaseEngine:
         """
         return self._session_factory is not None
 
-    def get_async_session_factory(self) -> async_sessionmaker:
+    def get_async_session_factory(self) -> async_sessionmaker[AsyncSession]:
         """Return a session factory that is associated with the database engine.
 
         Raises:
@@ -140,7 +140,7 @@ class DatabaseEngine:
             AsyncSession: an asynchronous session.
 
         """
-        factory: async_sessionmaker = self.get_async_session_factory()
+        factory: async_sessionmaker[AsyncSession] = self.get_async_session_factory()
         return factory()
 
 
