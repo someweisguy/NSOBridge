@@ -16,7 +16,6 @@ import core
 import game
 import user
 import ws
-from core import BaseSQLModel, DatabaseEngine
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
 from websockets import CloseCode
@@ -101,7 +100,9 @@ async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
     else:
         logging.info(f'Connecting to Database: {db_path_name}')
     try:
-        core.db = DatabaseEngine(BaseSQLModel, db_path_name)
+        # TODO: allow different database names
+        # core.db = DatabaseEngine(BaseSQLModel, db_path_name)
+        pass
     except ValueError:
         logging.critical(f'database path name is invalid ({db_path_name=})')
         return
