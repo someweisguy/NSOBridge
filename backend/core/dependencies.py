@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Annotated, ClassVar, TypeAlias
+from typing import Annotated, AsyncGenerator, ClassVar, TypeAlias
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from .models import BaseSQLModel
 from .service import DatabaseEngine
@@ -52,7 +52,29 @@ class EngineFactory:
         """
         return DatabaseEngine(BaseSQLModel, db_path)
 
+    @classmethod
+    async def yield_async_session(cls) -> AsyncGenerator[AsyncSession, None]:
+        """Yield a session which automatically commits.
+
+        This method is useful for FastAPI dependency injection.
+
+        Returns:
+            AsyncGenerator[AsyncEngine, None]: a generator which yields an AsyncSession
+
+        Yields:
+            Iterator[AsyncGenerator[AsyncEngine, None]]: an auto-committing
+            AsyncSession.
+
+        """
+        db: DatabaseEngine = cls.get_default_engine()
+        session_factory: async_sessionmaker = db.get_async_session_factory()
+        async with session_factory() as session, session.begin():
+            yield session
+
+            await session.commit()  # Automatically commit after each session
+
 
 AsyncSessionDepends: TypeAlias = Annotated[
-    AsyncSession, Depends(EngineFactory.get_default_engine().yield_async_session)
+    AsyncSession,
+    Depends(EngineFactory.yield_async_session),
 ]
