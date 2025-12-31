@@ -84,6 +84,8 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
             session.add(bout)
             logging.debug('Initial data created')
             await session.commit()
+        else:
+            logging.debug('Initial data found')
 
     # Load the server API and the WebSocket application
     logging.debug('Mounting application API')
