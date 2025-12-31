@@ -60,6 +60,15 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         UniqueConstraint('bout_id', 'num', 'period'),
     )
 
+    def __str__(self) -> str:
+        """Return a str representation of this Jam.
+
+        Returns:
+            str: a str representation of this Jam.
+
+        """
+        return f'[Bout ID: {self.bout_id}, P{self.period} J{self.num}]'
+
     def __init__(
         self,
         bout: BaseBout,
