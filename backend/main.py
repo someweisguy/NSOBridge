@@ -4,7 +4,6 @@
 import asyncio
 import logging
 import os
-from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
 import core
@@ -62,15 +61,8 @@ async def main(*, host: str, port: int) -> None:
         core.app.include_router(router, prefix='/api')
 
     # Log the server's address and serve the application
-    # TODO: Strictly speaking, we should cross-check this against the host
-    try:
-        with socket(AF_INET, SOCK_DGRAM) as sock:
-            sock.connect(('1.1.1.1', 80))
-            ip: str = sock.getsockname()[0]
-    except OSError:
-        ip = '127.0.0.1'
     http_port: Final[int] = 80
-    print(f'Starting server at http://{ip}{f":{port}" if port != http_port else ""}')
+    print(f'Starting server at http://{host}{f":{port}" if port != http_port else ""}')
 
     await core.run(host, port)
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
