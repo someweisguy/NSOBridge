@@ -3,7 +3,7 @@
 This file exports the core functions needed to run NSO Bridge.
 """
 
-from .dependencies import AsyncSessionDepends, db
+from .dependencies import AsyncSessionDepends, EngineFactory
 from .exceptions import ClientError
 from .models import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
 from .schemas import ClientSchema, ServerSchema
@@ -18,7 +18,7 @@ __all__ = (
     'ClientSchema',
     'configure_logging',
     'DatabaseEngine',
-    'db',
+    'EngineFactory',
     'Memento',
     'PARENT_RELATIONSHIP',
     'run',

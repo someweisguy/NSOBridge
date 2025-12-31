@@ -11,6 +11,7 @@ import core
 import game
 import user
 import ws
+from core import DatabaseEngine, EngineFactory
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
 from websockets import CloseCode
@@ -52,22 +53,22 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
 
     # Connect to the desired database
     db_path_name = db_path_name.strip()
+    db: DatabaseEngine = EngineFactory.get_default_engine()
     if not db_path_name:
         logging.warning('Connecting to in-memory database')
     else:
         logging.info(f'Connecting to Database: {db_path_name}')
-    try:
-        # TODO: allow different database names
-        # core.db = DatabaseEngine(BaseSQLModel, db_path_name)
-        pass
-    except ValueError:
-        logging.critical(f'database path name is invalid ({db_path_name=})')
-        return
-    await core.db.create_all()
+        try:
+            db = EngineFactory.create_engine(db_path_name)
+            EngineFactory.set_default_engine(db)
+        except ValueError:
+            logging.critical(f'database path name is invalid ({db_path_name=})')
+            return
+    await db.create_all()
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking for initial data')
-    session_factory: async_sessionmaker = core.db.get_async_session_factory()
+    session_factory: async_sessionmaker = db.get_async_session_factory()
     async with session_factory() as session, session.begin():
         statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)

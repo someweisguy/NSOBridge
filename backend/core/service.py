@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 from logging import Handler, StreamHandler
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Final, Protocol
+from typing import TYPE_CHECKING, AsyncGenerator, ClassVar, Final, Protocol
 
 import colorlog
 from fastapi import FastAPI, Request
@@ -142,6 +142,25 @@ class DatabaseEngine:
         """
         factory: async_sessionmaker = self.get_async_session_factory()
         return factory()
+
+    async def yield_async_session(self) -> AsyncGenerator[AsyncSession, None]:
+        """Yield a session which automatically commits.
+
+        This method is useful for FastAPI dependency injection.
+
+        Returns:
+            AsyncGenerator[AsyncEngine, None]: a generator which yields an AsyncSession
+
+        Yields:
+            Iterator[AsyncGenerator[AsyncEngine, None]]: an auto-committing
+            AsyncSession.
+
+        """
+        session_factory: async_sessionmaker = self.get_async_session_factory()
+        async with session_factory() as session, session.begin():
+            yield session
+
+            await session.commit()  # Automatically commit after each session
 
 
 # Initialize the application and set the appropriate routes

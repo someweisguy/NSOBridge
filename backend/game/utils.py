@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from core import Memento, db
+from core import DatabaseEngine, EngineFactory, Memento
 from sqlalchemy import Result, Select, select
 
 if TYPE_CHECKING:
@@ -27,6 +27,7 @@ class DatabaseMemento(Memento):
 
     @override
     async def restore(self) -> Memento:
+        db: DatabaseEngine = EngineFactory.get_default_engine()
         session_factory: async_sessionmaker = db.get_async_session_factory()
         async with session_factory() as session, session.begin():
             # Query and detach the current state of the database object
