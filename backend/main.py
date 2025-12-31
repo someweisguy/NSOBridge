@@ -27,23 +27,14 @@ HOST: Final[str] = os.environ['UVICORN_HOST']
 PORT: Final[int] = int(os.environ['UVICORN_PORT'])
 LOG_LEVEL: Final[int | None] = logging.DEBUG
 LOG_DATE_FMT: Final[str] = '%H:%M:%S'
-
-
-def get_log_format(*, use_colors: bool = False) -> str:
-    """Get a log format string with or without colors."""
-    level = '%(levelname)s'
-    if use_colors:
-        level = f'%(log_color)s{level}%(reset)s'
-    return f'%(asctime)s {level} %(message)s'
+LOG_DIR_NAME: Final[str] = './logs'
+SILENT: Final[bool] = False
 
 
 async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
     interface: tuple[str, int],
     *,
     db_path_name: str = '',
-    silent: bool = False,
-    log_level: int | str | None = logging.INFO,
-    log_dir_name: str = './logs',
     debug: bool = False,
 ) -> None:
     """Begin the program.
@@ -56,42 +47,11 @@ async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
         application, as a tuple (host, port).
         db_path_name: (str, optional): the path of the database to use. Uses an
         in-memory database if no path name is provided. Defaults to ''.
-        silent (bool, optional): False to log to console
-        log_level (int | str | None, optional): the log level at which to run the
-        application. Defaults to 'logging.INFO'.
-        log_dir_name (str, optional): the directory in which to store logs. Defaults to
-        './logs'.
         debug (bool, optional): True to enable debug mode. Defaults to False.
 
     """
-    # Configure logging
-    log_dir: Final[Path] = Path(log_dir_name)
-    if not log_dir.exists():
-        log_dir.mkdir()
-    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
-    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
-    if not silent:
-        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
-        console_logger.formatter = colorlog.ColoredFormatter(
-            fmt=get_log_format(use_colors=True),
-            datefmt=LOG_DATE_FMT,
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'red,bg_white',
-            },
-        )
-        logging_handlers.append(console_logger)
-    logging.basicConfig(
-        level=log_level,
-        format=get_log_format(use_colors=False),
-        datefmt=LOG_DATE_FMT,
-        handlers=logging_handlers,
-    )
     logging.info(f'Program started{" in debug mode" if debug else ""}')
-    logging.debug(f'args: {interface=} {db_path_name=} {silent=} {debug=}')
+    logging.debug(f'args: {interface=} {db_path_name=} {debug=}')
 
     # Connect to the desired database
     db_path_name = db_path_name.strip()
@@ -156,5 +116,40 @@ async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
     logging.shutdown()
 
 
+def get_log_format(*, use_colors: bool = False) -> str:
+    """Get a log format string with or without colors."""
+    level = '%(levelname)s'
+    if use_colors:
+        level = f'%(log_color)s{level}%(reset)s'
+    return f'%(asctime)s {level} %(message)s'
+
+
 if __name__ == '__main__':
-    asyncio.run(main((HOST, PORT), log_level=LOG_LEVEL, debug=True))
+    # Configure logging
+    log_dir: Final[Path] = Path(LOG_DIR_NAME)
+    if not log_dir.exists():
+        log_dir.mkdir()
+    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
+    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
+    if not SILENT:
+        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
+        console_logger.formatter = colorlog.ColoredFormatter(
+            fmt=get_log_format(use_colors=True),
+            datefmt=LOG_DATE_FMT,
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+        )
+        logging_handlers.append(console_logger)
+    logging.basicConfig(
+        level=LOG_LEVEL,
+        format=get_log_format(use_colors=False),
+        datefmt=LOG_DATE_FMT,
+        handlers=logging_handlers,
+    )
+
+    asyncio.run(main((HOST, PORT), debug=True))
