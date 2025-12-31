@@ -23,6 +23,7 @@ HOST: str = os.environ['UVICORN_HOST']
 PORT: int = int(os.environ['UVICORN_PORT'])
 LOG_LEVEL: int | None = logging.DEBUG
 LOG_DIR_NAME: str = './logs'
+DB_PATH_NAME: str = 'test.db'
 SILENT: bool = False
 
 
@@ -115,4 +116,4 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
 
 
 if __name__ == '__main__':
-    asyncio.run(main((HOST, PORT), debug=True))
+    asyncio.run(main((HOST, PORT), db_path_name=DB_PATH_NAME, debug=True))
