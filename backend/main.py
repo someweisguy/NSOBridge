@@ -24,7 +24,7 @@ HOST: str = os.environ['UVICORN_HOST']
 PORT: int = int(os.environ['UVICORN_PORT'])
 LOG_LEVEL: int | None = logging.DEBUG
 LOG_DIR_NAME: str = './logs'
-DB_PATH_NAME: str = 'test.db'
+DB_PATH_NAME: str = ''
 SILENT: bool = False
 
 
