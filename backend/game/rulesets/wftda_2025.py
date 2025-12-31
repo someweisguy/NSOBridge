@@ -64,7 +64,7 @@ class Bout(_WFTDAModel, BaseBout):
                 f'this bout can only have {self.ruleset.num_periods} periods'
             )
 
-        logging.info(f'Beginning P{jam.period} in Bout ID {self.id}')
+        logging.info(f'Beginning P{jam.period} in {self}')
 
         # If this Period is not in overtime reset the Clock and Official Reviews
         if jam.period < self.ruleset.num_periods:
@@ -84,7 +84,7 @@ class Bout(_WFTDAModel, BaseBout):
             raise ClientError('there is no running period to end')
 
         final_jam: BaseJam = self.jams[-1]
-        logging.info(f'Ending P{final_jam.period} in Bout ID {self.id}')
+        logging.info(f'Ending P{final_jam.period} in {self}')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
         # Or calling end_period() after OT ends the Bout
@@ -128,7 +128,7 @@ class Bout(_WFTDAModel, BaseBout):
         if len(jam.team_jams) != REQUIRED_NUM_TEAMS:
             raise RuntimeError(f'each Jam requires {REQUIRED_NUM_TEAMS} TeamJams')
 
-        logging.info(f'Starting P{jam.period} J{jam.num} in Bout ID {self.id}')
+        logging.info(f'Starting {jam}')
 
         # Start the Clock if not in overtime
         if jam.period < self.ruleset.num_periods and not self.clock.is_running():
@@ -148,7 +148,7 @@ class Bout(_WFTDAModel, BaseBout):
         if jam is None:
             raise ClientError('there is no running jam to stop')
 
-        logging.info(f'Stopping P{jam.period} J{jam.num} in Bout ID {self.id}')
+        logging.info(f'Stopping {jam}')
 
         jam.stop(timestamp)
 
@@ -168,7 +168,7 @@ class Bout(_WFTDAModel, BaseBout):
         if running_timeout is not None:
             raise ClientError('a timeout cannot be called now')
 
-        logging.info(f'Calling Timeout in Bout ID {self.id}')
+        logging.info(f'Calling Timeout {self}')
 
         # Instantiate and start the Timeout
         timeout: BaseTimeout | None = self.get_upcoming_timeout()
@@ -192,7 +192,7 @@ class Bout(_WFTDAModel, BaseBout):
         if timeout is None:
             raise ClientError('there is no active timeout to stop')
 
-        logging.info(f'Stopping Timeout in Bout ID {self.id}')
+        logging.info(f'Stopping Timeout in {self}')
 
         # Validate the Timeout's state
         if timeout.is_review and timeout.team is None:
@@ -231,18 +231,12 @@ class Jam(_WFTDAModel, BaseJam):
     async def add_trip(self, team_id: int, timestamp: datetime, passes: int) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
 
-        logging.info(
-            f'Adding {passes} passes to Team ID {team_id} in P{self.period} '
-            f'J{self.num} of Bout ID {self.bout_id}'
-        )
+        logging.info(f'Adding {passes} passes to Team ID {team_id} in {self}')
 
         is_overtime: bool = False  # TODO: handle overtime conditions
         is_initial: bool = len(team_jam.events) == 0
         if is_initial:
-            logging.info(
-                f'This is the initial pass for Team ID {team_id} in P{self.period} '
-                f'J{self.num} of Bout ID {self.bout_id}'
-            )
+            logging.info(f'This is the initial pass for Team ID {team_id} in {self}')
 
         event: TripEvent = TripEvent(timestamp, passes=passes)
 
@@ -265,8 +259,7 @@ class Jam(_WFTDAModel, BaseJam):
         team_jam: TeamJam = self.get_team_jam(team_id)
 
         logging.info(
-            f'{"Setting" if lead else "Unsetting"} lead for Team ID {team_id} in '
-            f'P{self.period} J{self.num} of Bout ID {self.bout_id}'
+            f'{"Setting" if lead else "Unsetting"} lead for Team ID {team_id} in {self}'
         )
 
         if lead:
@@ -288,8 +281,7 @@ class Jam(_WFTDAModel, BaseJam):
         team_jam: TeamJam = self.get_team_jam(team_id)
 
         logging.info(
-            f'{"Setting" if lost else "Unsetting"} lost for Team ID {team_id} in '
-            f'P{self.period} J{self.num} of Bout ID {self.bout_id}'
+            f'{"Setting" if lost else "Unsetting"} lost for Team ID {team_id} in {self}'
         )
 
         if lost:
@@ -313,8 +305,8 @@ class Jam(_WFTDAModel, BaseJam):
         team_jam: TeamJam = self.get_team_jam(team_id)
 
         logging.info(
-            f'{"Setting" if star_pass else "Unsetting"} star pass for Team '
-            f'ID {team_id} in P{self.period} J{self.num} of Bout ID {self.bout_id}'
+            f'{"Setting" if star_pass else "Unsetting"} star pass for Team ID '
+            f'{team_id} in {self}'
         )
 
         if star_pass:
@@ -343,9 +335,8 @@ class Timeout(_WFTDAModel, BaseTimeout):
     @override
     def set_type(self, is_review: bool) -> None:
         logging.info(
-            f'Setting Timeout ID {self.id} to '
-            f'{"official review" if is_review else "timeout"} type in Bout ID '
-            f'{self.bout_id}'
+            f'Setting {self} to {"official review" if is_review else "timeout"} type '
+            f'in Bout ID {self.bout_id}'
         )
 
         self.is_review = is_review
@@ -369,8 +360,8 @@ class Timeout(_WFTDAModel, BaseTimeout):
     @override
     def set_retained(self, retained: bool) -> None:
         logging.info(
-            f'Setting Timeout ID {self.id} to {"" if retained else "un"}retained in '
-            f'Bout ID {self.bout_id}'
+            f'Setting {self} to {"" if retained else "un"}retained in Bout ID '
+            f'{self.bout_id}'
         )
 
         self.retained = retained
