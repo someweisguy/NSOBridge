@@ -18,6 +18,7 @@ from websockets import CloseCode
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
+    from sqlalchemy.ext.asyncio.session import AsyncSession
 
 HOST: str = os.environ['UVICORN_HOST']
 PORT: int = int(os.environ['UVICORN_PORT'])
@@ -69,8 +70,8 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking for initial data')
-    session_factory: async_sessionmaker = db.get_async_session_factory()
-    async with session_factory() as session, session.begin():
+    session_factory: async_sessionmaker[AsyncSession] = db.get_async_session_factory()
+    async with session_factory() as session:
         statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
         if results.scalar_one_or_none() is None:
@@ -81,8 +82,8 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
                 Roster('Away', 'Default League'),
             )
             session.add(bout)
-        await session.commit()
-    logging.debug('Initial data created')
+            logging.debug('Initial data created')
+            await session.commit()
 
     # Load the server API and the WebSocket application
     logging.debug('Mounting application API')
