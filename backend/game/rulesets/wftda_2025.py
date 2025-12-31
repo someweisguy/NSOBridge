@@ -1,5 +1,6 @@
 """Models and Business logic pertaining to the WFTDA 2025 ruleset."""
 
+import logging
 from datetime import datetime, timedelta
 from typing import ClassVar, override
 
@@ -55,19 +56,18 @@ class Bout(_WFTDAModel, BaseBout):
 
     @override
     def begin_period(self, timestamp: datetime) -> None:
-        if self.state != 'stopped':
+        jam: BaseJam | None = self.get_upcoming_jam()
+        if jam is None:
             raise ClientError('this bout cannot be started now')
-        if (
-            len(self.jams) > 0
-            and self.jams[-1].period == self.ruleset.num_periods
-            and self.jams[-1].start_timestamp is not None
-        ):
+        if jam.period == self.ruleset.num_periods:
             raise ClientError(
                 f'this bout can only have {self.ruleset.num_periods} periods'
             )
 
+        logging.info(f'Beginning P{jam.period} in Bout ID {self.id}')
+
         # If this Period is not in overtime reset the Clock and Official Reviews
-        if self.jams[-1].period < self.ruleset.num_periods:
+        if jam.period < self.ruleset.num_periods:
             self.clock.reset()
             for team in self.teams:
                 team.reviews_remaining = 1
@@ -76,10 +76,15 @@ class Bout(_WFTDAModel, BaseBout):
 
     @override
     def end_period(self, timestamp: datetime) -> None:
-        if self.is_running and self.state != 'lineup':
+        running_jam: BaseJam | None = self.get_running_jam()
+        running_timeout: BaseTimeout | None = self.get_running_timeout()
+        if running_jam is not None or running_timeout is not None:
             raise ClientError('the period can only be ended during lineup')
-        if not self.is_running and self.jams[-1].period < self.ruleset.num_periods:
+        if not self.is_running:
             raise ClientError('there is no running period to end')
+
+        final_jam: BaseJam = self.jams[-1]
+        logging.info(f'Ending P{final_jam.period} in Bout ID {self.id}')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
         # Or calling end_period() after OT ends the Bout
@@ -91,7 +96,6 @@ class Bout(_WFTDAModel, BaseBout):
 
         # Update the final Jam
         if len(self.jams) > 0:
-            final_jam: BaseJam = self.jams[-1]
             if self.is_final:
                 # Cull the final Jam
                 self.jams.remove(final_jam)
@@ -104,14 +108,17 @@ class Bout(_WFTDAModel, BaseBout):
 
     @override
     def start_jam(self, timestamp: datetime) -> BaseJam:
+        running_timeout: BaseTimeout | None = self.get_running_timeout()
         if not self.is_running:
             # Allow user to skip the initial call to begin_period()
             self.begin_period(timestamp)
-        if self.state == 'timeout':
+        if running_timeout is not None:
             # Allow the user to end a Timeout and immediately start the next Jam
             self.stop_timeout(timestamp)
+            running_timeout = None
 
-        if self.state != 'lineup':
+        running_jam: BaseJam | None = self.get_running_jam()
+        if running_jam is not None:
             raise ClientError('a jam may only be started from lineup')
 
         # Get the first Jam that has not started
@@ -120,6 +127,8 @@ class Bout(_WFTDAModel, BaseBout):
             raise NotImplementedError()  # FIXME: push a new Jam if this is None
         if len(jam.team_jams) != REQUIRED_NUM_TEAMS:
             raise RuntimeError(f'each Jam requires {REQUIRED_NUM_TEAMS} TeamJams')
+
+        logging.info(f'Starting P{jam.period} J{jam.num} in Bout ID {self.id}')
 
         # Start the Clock if not in overtime
         if jam.period < self.ruleset.num_periods and not self.clock.is_running():
@@ -139,6 +148,8 @@ class Bout(_WFTDAModel, BaseBout):
         if jam is None:
             raise ClientError('there is no running jam to stop')
 
+        logging.info(f'Stopping P{jam.period} J{jam.num} in Bout ID {self.id}')
+
         jam.stop(timestamp)
 
         # TODO: Attempt to guess the reason that the Jam ended
@@ -147,12 +158,17 @@ class Bout(_WFTDAModel, BaseBout):
 
     @override
     def start_timeout(self, timestamp: datetime) -> BaseTimeout:
-        if self.state == 'jam':
+        running_jam: BaseJam | None = self.get_running_jam()
+        if running_jam is not None:
             # Allow the user to end the Jam and immediately start a Timeout
             self.stop_jam(timestamp)
+            running_jam = None
 
-        if self.state != 'lineup':
+        running_timeout: BaseTimeout | None = self.get_running_timeout()
+        if running_timeout is not None:
             raise ClientError('a timeout cannot be called now')
+
+        logging.info(f'Calling Timeout in Bout ID {self.id}')
 
         # Instantiate and start the Timeout
         timeout: BaseTimeout | None = self.get_upcoming_timeout()
@@ -175,6 +191,8 @@ class Bout(_WFTDAModel, BaseBout):
         timeout: BaseTimeout | None = self.get_running_timeout()
         if timeout is None:
             raise ClientError('there is no active timeout to stop')
+
+        logging.info(f'Stopping Timeout in Bout ID {self.id}')
 
         # Validate the Timeout's state
         if timeout.is_review and timeout.team is None:
