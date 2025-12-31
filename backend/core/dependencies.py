@@ -70,7 +70,7 @@ class EngineFactory:
         session_factory: async_sessionmaker[AsyncSession] = (
             db.get_async_session_factory()
         )
-        async with session_factory() as session, session.begin():
+        async with session_factory() as session:
             yield session
 
             await session.commit()  # Automatically commit after each session
