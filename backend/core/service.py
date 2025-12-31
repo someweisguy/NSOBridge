@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 from logging import Handler, StreamHandler
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Final, Protocol
+from typing import TYPE_CHECKING, ClassVar, Final, LiteralString, Protocol
 
 import colorlog
 from fastapi import FastAPI, Request
@@ -209,10 +209,12 @@ def configure_logging(
 
     def get_log_format(*, use_colors: bool = False) -> str:
         """Get a log format string with or without colors."""
-        level = '%(levelname)s'
+        time: LiteralString = '%(asctime)s'
+        level: LiteralString = '%(levelname)s'
         if use_colors:
-            level = f'%(log_color)s{level}%(reset)s'
-        return f'%(asctime)s {level} %(message)s'
+            time = f'%(light_black)s{time}%(reset)s'
+            level = f'%(bold)s%(log_color)s{level}%(reset)s'
+        return f'{time} {level} %(message)s'
 
     log_dir: Final[Path] = Path(log_dir_name)
     if not log_dir.exists():
