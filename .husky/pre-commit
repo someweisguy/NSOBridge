@@ -1,4 +1,4 @@
-ruff check --fix
-ruff format .
+uv run ruff check --fix
+uv run ruff format .
 npx lint-staged
 git update-index --again
