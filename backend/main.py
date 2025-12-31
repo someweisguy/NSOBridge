@@ -50,6 +50,32 @@ async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
         debug (bool, optional): True to enable debug mode. Defaults to False.
 
     """
+    # Configure logging
+    log_dir: Final[Path] = Path(LOG_DIR_NAME)
+    if not log_dir.exists():
+        log_dir.mkdir()
+    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
+    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
+    if not SILENT:
+        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
+        console_logger.formatter = colorlog.ColoredFormatter(
+            fmt=get_log_format(use_colors=True),
+            datefmt=LOG_DATE_FMT,
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+        )
+        logging_handlers.append(console_logger)
+    logging.basicConfig(
+        level=LOG_LEVEL,
+        format=get_log_format(use_colors=False),
+        datefmt=LOG_DATE_FMT,
+        handlers=logging_handlers,
+    )
     logging.info(f'Program started{" in debug mode" if debug else ""}')
     logging.debug(f'args: {interface=} {db_path_name=} {debug=}')
 
@@ -113,6 +139,7 @@ async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
     logging.debug('WebSockets disconnected')
     logging.info('Program terminated')
+    logging.shutdown()
 
 
 def get_log_format(*, use_colors: bool = False) -> str:
@@ -124,32 +151,4 @@ def get_log_format(*, use_colors: bool = False) -> str:
 
 
 if __name__ == '__main__':
-    # Configure logging
-    log_dir: Final[Path] = Path(LOG_DIR_NAME)
-    if not log_dir.exists():
-        log_dir.mkdir()
-    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
-    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
-    if not SILENT:
-        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
-        console_logger.formatter = colorlog.ColoredFormatter(
-            fmt=get_log_format(use_colors=True),
-            datefmt=LOG_DATE_FMT,
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'red,bg_white',
-            },
-        )
-        logging_handlers.append(console_logger)
-    logging.basicConfig(
-        level=LOG_LEVEL,
-        format=get_log_format(use_colors=False),
-        datefmt=LOG_DATE_FMT,
-        handlers=logging_handlers,
-    )
-
     asyncio.run(main((HOST, PORT), debug=True))
-    logging.shutdown()
