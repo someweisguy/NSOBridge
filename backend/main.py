@@ -4,14 +4,9 @@
 import asyncio
 import logging
 import os
-import sys
-from datetime import datetime
-from logging import Handler, StreamHandler
-from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
-import colorlog
 import core
 import game
 import user
@@ -23,8 +18,6 @@ from websockets import CloseCode
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
 
-LOG_DATE_FMT: Final[str] = '%H:%M:%S'
-
 HOST: str = os.environ['UVICORN_HOST']
 PORT: int = int(os.environ['UVICORN_PORT'])
 LOG_LEVEL: int | None = logging.DEBUG
@@ -32,7 +25,7 @@ LOG_DIR_NAME: str = './logs'
 SILENT: bool = False
 
 
-async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
+async def main(  # noqa: PLR0915 - main method may have many arguments
     interface: tuple[str, int],
     *,
     db_path_name: str = '',
@@ -51,31 +44,8 @@ async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
         debug (bool, optional): True to enable debug mode. Defaults to False.
 
     """
-    # Configure logging
-    log_dir: Final[Path] = Path(LOG_DIR_NAME)
-    if not log_dir.exists():
-        log_dir.mkdir()
-    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
-    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
-    if not SILENT:
-        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
-        console_logger.formatter = colorlog.ColoredFormatter(
-            fmt=get_log_format(use_colors=True),
-            datefmt=LOG_DATE_FMT,
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'red,bg_white',
-            },
-        )
-        logging_handlers.append(console_logger)
-    logging.basicConfig(
-        level=LOG_LEVEL,
-        format=get_log_format(use_colors=False),
-        datefmt=LOG_DATE_FMT,
-        handlers=logging_handlers,
+    core.configure_logging(
+        log_dir_name=LOG_DIR_NAME, log_level=LOG_LEVEL, silent=SILENT
     )
     logging.info(f'Program started{" in debug mode" if debug else ""}')
     logging.debug(f'args: {interface=} {db_path_name=} {debug=}')
@@ -141,14 +111,6 @@ async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
     logging.debug('WebSockets disconnected')
     logging.info('Program terminated')
     logging.shutdown()
-
-
-def get_log_format(*, use_colors: bool = False) -> str:
-    """Get a log format string with or without colors."""
-    level = '%(levelname)s'
-    if use_colors:
-        level = f'%(log_color)s{level}%(reset)s'
-    return f'%(asctime)s {level} %(message)s'
 
 
 if __name__ == '__main__':

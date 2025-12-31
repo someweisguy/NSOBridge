@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
+from datetime import datetime
+from logging import Handler, StreamHandler
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Final, Protocol
 
+import colorlog
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
@@ -194,6 +198,46 @@ async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse
     return JSONResponse(
         status_code=409,  # TODO: remove magic number
         content={'message': str(e)},
+    )
+
+
+def configure_logging(
+    *, log_dir_name: str, log_level: int | None, silent: bool
+) -> None:
+    """Configure the logging system for the application."""
+    datefmt: Final[str] = '%H:%M:%S'
+
+    def get_log_format(*, use_colors: bool = False) -> str:
+        """Get a log format string with or without colors."""
+        level = '%(levelname)s'
+        if use_colors:
+            level = f'%(log_color)s{level}%(reset)s'
+        return f'%(asctime)s {level} %(message)s'
+
+    log_dir: Final[Path] = Path(log_dir_name)
+    if not log_dir.exists():
+        log_dir.mkdir()
+    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
+    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
+    if not silent:
+        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
+        console_logger.formatter = colorlog.ColoredFormatter(
+            fmt=get_log_format(use_colors=True),
+            datefmt=datefmt,
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+        )
+        logging_handlers.append(console_logger)
+    logging.basicConfig(
+        level=log_level,
+        format=get_log_format(use_colors=False),
+        datefmt=datefmt,
+        handlers=logging_handlers,
     )
 
 
