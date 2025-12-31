@@ -231,17 +231,22 @@ class Jam(_WFTDAModel, BaseJam):
     async def add_trip(self, team_id: int, timestamp: datetime, passes: int) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
 
+        logging.info(
+            f'Adding {passes} passes to Team ID {team_id} in P{self.period} '
+            f'J{self.num} of Bout ID {self.bout_id}'
+        )
+
         event: TripEvent = TripEvent(timestamp, passes=passes)
 
         # TODO: handle overtime conditions
 
         # Automatically set lead on the first 4-point trip
         if not self.lead_is_declared() and passes == self.bout.ruleset.points_per_trip:
-            event.lead = True
+            await self.set_lead(team_id, timestamp, True)
 
         # Lose eligibility on initial no-pass/no-penalty
         if len(team_jam.events) == 0 and passes < self.bout.ruleset.points_per_trip:
-            event.lost = True
+            await self.set_lost(team_id, timestamp, True)
 
         # Jammer cannot earn points on the initial pass
         if len(team_jam.events) == 0:
@@ -252,6 +257,11 @@ class Jam(_WFTDAModel, BaseJam):
     @override
     async def set_lead(self, team_id: int, timestamp: datetime, lead: bool) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
+
+        logging.info(
+            f'{"Setting" if lead else "Unsetting"} lead for Team ID {team_id} in '
+            f'P{self.period} J{self.num} of Bout ID {self.bout_id}'
+        )
 
         if lead:
             # Add a new Trip Event in which lead is declared
@@ -270,6 +280,11 @@ class Jam(_WFTDAModel, BaseJam):
     @override
     async def set_lost(self, team_id: int, timestamp: datetime, lost: bool) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
+
+        logging.info(
+            f'{"Setting" if lost else "Unsetting"} lost for Team ID {team_id} in '
+            f'P{self.period} J{self.num} of Bout ID {self.bout_id}'
+        )
 
         if lost:
             # Add a new Trip Event in which the Jammer has lost eligibility for lead
@@ -290,6 +305,11 @@ class Jam(_WFTDAModel, BaseJam):
         self, team_id: int, timestamp: datetime, star_pass: bool
     ) -> None:
         team_jam: TeamJam = self.get_team_jam(team_id)
+
+        logging.info(
+            f'{"Setting" if star_pass else "Unsetting"} star pass for Team '
+            f'ID {team_id} in P{self.period} J{self.num} of Bout ID {self.bout_id}'
+        )
 
         if star_pass:
             if any(event.star_pass for event in team_jam.events):
@@ -316,18 +336,35 @@ class Timeout(_WFTDAModel, BaseTimeout):
 
     @override
     def set_type(self, is_review: bool) -> None:
+        logging.info(
+            f'Setting Timeout ID {self.id} to '
+            f'{"official review" if is_review else "timeout"} type in Bout ID '
+            f'{self.bout_id}'
+        )
+
         self.is_review = is_review
 
     @override
     def set_team(self, team: BaseTeam | None) -> None:
         if team is not None and team.bout_id != self.bout_id:
-            raise ValueError('team and timeout are not part of the same Bout')
+            raise ClientError('team and timeout are not part of the same Bout')
         if team is None and self.is_review:
             raise ClientError('official reviews can only be called by teams')
+
+        logging.info(
+            f'Setting Timeout ID {self.id} calling team to '
+            f'{f"Team ID {team.id}" if team is not None else "officials"} in Bout ID '
+            f'{self.bout_id}'
+        )
 
         self.team = team
         self.team_is_officials = team is None
 
     @override
     def set_retained(self, retained: bool) -> None:
+        logging.info(
+            f'Setting Timeout ID {self.id} to {"" if retained else "un"}retained in '
+            f'Bout ID {self.bout_id}'
+        )
+
         self.retained = retained
