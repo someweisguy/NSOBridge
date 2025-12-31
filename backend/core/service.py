@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Final, Protocol
@@ -23,6 +24,8 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine
     from sqlalchemy.orm import DeclarativeBase
 
+
+logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
 
 FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
@@ -73,6 +76,7 @@ class DatabaseEngine:
         """
         # TODO: ensure that path is a legal file name
         if not db_path.isprintable():
+            logging.error('invalid database pathname')
             raise ValueError('db path is invalid')
         self._db_schema: type[DeclarativeBase] = db_schema
         self._session_factory: async_sessionmaker | None = None
@@ -86,11 +90,13 @@ class DatabaseEngine:
 
         """
         if self._session_factory is not None:
+            logging.error('the database has already been created')
             raise RuntimeError('the database has already been created')
 
         # Initialize the database engine
         url: URL = URL.create(self._DRIVER, database=self.path)
-        engine: AsyncEngine = create_async_engine(url, echo=DEBUG)
+        logging.debug(f'Initializing engine at {str(url)}')
+        engine: AsyncEngine = create_async_engine(url, echo=False)
 
         # Create the database tables
         async with engine.connect() as session:
@@ -199,6 +205,7 @@ async def run(host: str, port: int) -> None:
     """
     max_port_num: Final[int] = 65535
     if 0 >= port > max_port_num:
+        logging.critical('Invalid port number')
         raise ValueError('Invalid port number')
 
     # Configure the server

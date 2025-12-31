@@ -6,15 +6,17 @@ import logging
 import os
 import sys
 from datetime import datetime
-from logging import Handler
+from logging import Handler, StreamHandler
 from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
+import colorlog
 import core
 import game
 import user
 import ws
+from core import BaseSQLModel, DatabaseEngine
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
 from websockets import CloseCode
@@ -22,37 +24,87 @@ from websockets import CloseCode
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
 
+HOST: Final[str] = os.environ['UVICORN_HOST']
+PORT: Final[int] = int(os.environ['UVICORN_PORT'])
+LOG_LEVEL: Final[int | None] = logging.DEBUG
+LOG_DATE_FMT: Final[str] = '%H:%M:%S'
 
-async def main(host_port: tuple[str, int], *, debug: bool = False) -> None:
+
+def get_log_format(*, use_colors: bool = False) -> str:
+    """Get a log format string with or without colors."""
+    level = '%(levelname)s'
+    if use_colors:
+        level = f'%(log_color)s{level}%(reset)s'
+    return f'%(asctime)s {level} %(message)s'
+
+
+async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
+    interface: tuple[str, int],
+    *,
+    db_path_name: str = '',
+    silent: bool = False,
+    log_level: int | str | None = logging.INFO,
+    log_dir_name: str = './logs',
+    debug: bool = False,
+) -> None:
     """Begin the program.
 
     Handles the configuration of the database, the API, the GUI, and then serves the
     app.
 
     Args:
-        host_port (tuple[str, int]): the host IP address and port on which to serve the
+        interface (tuple[str, int]): the host IP address and port on which to serve the
         application, as a tuple (host, port).
-        debug (bool): True to enable logging to console.
+        db_path_name: (str, optional): the path of the database to use. Uses an
+        in-memory database if no path name is provided. Defaults to ''.
+        silent (bool, optional): False to log to console
+        log_level (int | str | None, optional): the log level at which to run the
+        application. Defaults to 'logging.INFO'.
+        log_dir_name (str, optional): the directory in which to store logs. Defaults to
+        './logs'.
+        debug (bool, optional): True to enable debug mode. Defaults to False.
 
     """
     # Configure logging
-    log_dir: Final[Path] = Path('./logs')
+    log_dir: Final[Path] = Path(log_dir_name)
     if not log_dir.exists():
         log_dir.mkdir()
     file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
     logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
-    if debug:
-        logging_handlers.append(logging.StreamHandler(sys.stdout))
+    if not silent:
+        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
+        console_logger.formatter = colorlog.ColoredFormatter(
+            fmt=get_log_format(use_colors=True),
+            datefmt=LOG_DATE_FMT,
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+        )
+        logging_handlers.append(console_logger)
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s %(levelname)s (%(filename)s:%(lineno)d) %(message)s',
-        datefmt='%H:%M:%S',
+        level=log_level,
+        format=get_log_format(use_colors=False),
+        datefmt=LOG_DATE_FMT,
         handlers=logging_handlers,
     )
-    if debug:
-        logging.debug('Starting application in debug mode')
+    logging.info(f'Program started{" in debug mode" if debug else ""}')
+    logging.debug(f'args: {interface=} {db_path_name=} {silent=} {debug=}')
 
-    logging.info(f'Connecting to Database in: {core.db.path}')
+    # Connect to the desired database
+    db_path_name = db_path_name.strip()
+    if not db_path_name:
+        logging.warning('Connecting to in-memory database')
+    else:
+        logging.info(f'Connecting to Database: {db_path_name}')
+    try:
+        core.db = DatabaseEngine(BaseSQLModel, db_path_name)
+    except ValueError:
+        logging.critical(f'database path name is invalid ({db_path_name=})')
+        return
     await core.db.create_all()
 
     # Create a Bout model if one does not already exist
@@ -79,9 +131,9 @@ async def main(host_port: tuple[str, int], *, debug: bool = False) -> None:
         core.app.include_router(router, prefix='/api')
 
     # Log the server's address and serve the application
-    host, port = host_port
+    host, port = interface
     ip: str = host
-    if ip == '0.0.0.0':  # noqa: S104
+    if ip == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
         try:
             with socket(AF_INET, SOCK_DGRAM) as sock:
                 sock.connect(('1.1.1.1', 80))
@@ -99,10 +151,9 @@ async def main(host_port: tuple[str, int], *, debug: bool = False) -> None:
     logging.info('Disconnecting all WebSockets')
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
     logging.debug('WebSockets disconnected')
+    logging.info('Program terminated')
+    logging.shutdown()
 
 
 if __name__ == '__main__':
-    HOST: Final[str] = os.environ['UVICORN_HOST']
-    PORT: Final[int] = int(os.environ['UVICORN_PORT'])
-
-    asyncio.run(main((HOST, PORT), debug=True))
+    asyncio.run(main((HOST, PORT), log_level=LOG_LEVEL, debug=True))
