@@ -33,6 +33,7 @@ logging.basicConfig(
 
 _FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 _DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
+PAGES_TAG = 'Pages'
 
 
 class Memento(Protocol):
@@ -139,8 +140,6 @@ class DatabaseEngine:
         factory: async_sessionmaker = self.get_async_session_factory()
         return factory()
 
-
-PAGES_TAG = 'Pages'
 
 # Initialize the application and set the appropriate routes
 app: Final[FastAPI] = FastAPI(
