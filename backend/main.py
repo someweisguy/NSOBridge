@@ -4,6 +4,7 @@
 import asyncio
 import logging
 import os
+from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
 import core
@@ -17,36 +18,61 @@ from websockets import CloseCode
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
 
-
-logging.basicConfig(
-    format='{levelname}: {message}',
-    datefmt='%m/%d/%Y %H:%M:%S',
-    style='{',
-    level=logging.INFO,
-)
+HOST: str = os.environ['UVICORN_HOST']
+PORT: int = int(os.environ['UVICORN_PORT'])
+LOG_LEVEL: int | None = logging.DEBUG
+LOG_DIR_NAME: str = './logs'
+SILENT: bool = False
 
 
-async def main(*, host: str, port: int) -> None:
+async def main(  # noqa: PLR0915 - main method may have many arguments
+    interface: tuple[str, int],
+    *,
+    db_path_name: str = '',
+    debug: bool = False,
+) -> None:
     """Begin the program.
 
     Handles the configuration of the database, the API, the GUI, and then serves the
     app.
 
     Args:
-        host (str): The host IP address on which to serve the app.
-        port (int): The port on which to serve the app.
+        interface (tuple[str, int]): the host IP address and port on which to serve the
+        application, as a tuple (host, port).
+        db_path_name: (str, optional): the path of the database to use. Uses an
+        in-memory database if no path name is provided. Defaults to ''.
+        debug (bool, optional): True to enable debug mode. Defaults to False.
 
     """
-    print(f'Connecting to Database in: {core.db.path}')
+    core.configure_logging(
+        log_dir_name=LOG_DIR_NAME, log_level=LOG_LEVEL, silent=SILENT
+    )
+    logging.info(f'Program started{" in debug mode" if debug else ""}')
+    logging.debug(f'args: {interface=} {db_path_name=} {debug=}')
+
+    # Connect to the desired database
+    db_path_name = db_path_name.strip()
+    if not db_path_name:
+        logging.warning('Connecting to in-memory database')
+    else:
+        logging.info(f'Connecting to Database: {db_path_name}')
+    try:
+        # TODO: allow different database names
+        # core.db = DatabaseEngine(BaseSQLModel, db_path_name)
+        pass
+    except ValueError:
+        logging.critical(f'database path name is invalid ({db_path_name=})')
+        return
     await core.db.create_all()
 
     # Create a Bout model if one does not already exist
+    logging.debug('Checking for initial data')
     session_factory: async_sessionmaker = core.db.get_async_session_factory()
     async with session_factory() as session, session.begin():
         statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
         if results.scalar_one_or_none() is None:
-            print('Creating initial Bout model')
+            logging.info('Creating initial Bout model')
             bout = wftda_2025.Bout(
                 Series(),
                 Roster('Home', 'Default League'),
@@ -54,22 +80,38 @@ async def main(*, host: str, port: int) -> None:
             )
             session.add(bout)
         await session.commit()
+    logging.debug('Initial data created')
 
     # Load the server API and the WebSocket application
+    logging.debug('Mounting application API')
     core.app.mount('/ws', ws.app)
     for router in [*game.routers, user.router]:
         core.app.include_router(router, prefix='/api')
 
     # Log the server's address and serve the application
+    host, port = interface
+    ip: str = host
+    if ip == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
+        try:
+            with socket(AF_INET, SOCK_DGRAM) as sock:
+                sock.connect(('1.1.1.1', 80))
+                ip = sock.getsockname()[0]
+        except OSError:
+            logging.warning('Unable to get default route')
+            ip = '127.0.0.1'
     http_port: Final[int] = 80
-    print(f'Starting server at http://{host}{f":{port}" if port != http_port else ""}')
-
+    logging.info(
+        f'Starting server at http://{ip}{f":{port}" if port != http_port else ""}'
+    )
     await core.run(host, port)
+    logging.debug('Application stopped')
+
+    logging.info('Disconnecting all WebSockets')
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
+    logging.debug('WebSockets disconnected')
+    logging.info('Program terminated')
+    logging.shutdown()
 
 
 if __name__ == '__main__':
-    HOST: Final[str] = os.environ['UVICORN_HOST']
-    PORT: Final[int] = int(os.environ['UVICORN_PORT'])
-
-    asyncio.run(main(host=HOST, port=PORT))
+    asyncio.run(main((HOST, PORT), debug=True))

@@ -66,6 +66,15 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     }
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_id', 'num'),)
 
+    def __str__(self) -> str:
+        """Return a str representation of this Timeout.
+
+        Returns:
+            str: a str representation of this Timeout.
+
+        """
+        return f'[Bout ID: {self.bout_id}, T{self.num}]'
+
     def __init__(self, bout: BaseBout, num: int) -> None:
         """Initialize a Timeout.
 

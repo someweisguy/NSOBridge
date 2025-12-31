@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 import os
+import sys
+from datetime import datetime
+from logging import Handler, StreamHandler
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Final, Protocol
 
+import colorlog
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
@@ -23,6 +28,8 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine
     from sqlalchemy.orm import DeclarativeBase
 
+
+logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
 
 FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
@@ -73,6 +80,7 @@ class DatabaseEngine:
         """
         # TODO: ensure that path is a legal file name
         if not db_path.isprintable():
+            logging.error('invalid database pathname')
             raise ValueError('db path is invalid')
         self._db_schema: type[DeclarativeBase] = db_schema
         self._session_factory: async_sessionmaker | None = None
@@ -86,11 +94,13 @@ class DatabaseEngine:
 
         """
         if self._session_factory is not None:
+            logging.error('the database has already been created')
             raise RuntimeError('the database has already been created')
 
         # Initialize the database engine
         url: URL = URL.create(self._DRIVER, database=self.path)
-        engine: AsyncEngine = create_async_engine(url, echo=DEBUG)
+        logging.debug(f'Initializing engine at "{str(url)}"')
+        engine: AsyncEngine = create_async_engine(url, echo=False)
 
         # Create the database tables
         async with engine.connect() as session:
@@ -157,7 +167,9 @@ app: Final[FastAPI] = FastAPI(
 @app.get('/', tags=[PAGES_TAG], name='Render Index Page')
 async def _render_index() -> FileResponse:
     """Render the index page."""
-    return FileResponse(FRONTEND / 'index.html')
+    page_path_name: str = 'index.html'
+    logging.info(f'Serving "{page_path_name}"')
+    return FileResponse(FRONTEND / page_path_name)
 
 
 @app.get(
@@ -169,7 +181,9 @@ async def _render_index() -> FileResponse:
 async def _render_generic(request: Request) -> FileResponse:
     # Render generic HTML files found in the frontend directory.
     # Don't forget to register new files with the FastAPI app!
-    return FileResponse(FRONTEND / (request.url.path[1:] + '.html'))
+    page_path_name: str = request.url.path[1:] + '.html'
+    logging.info(f'Serving "{page_path_name}"')
+    return FileResponse(FRONTEND / page_path_name)
 
 
 @app.get('/version', tags=['Metadata'])
@@ -180,9 +194,50 @@ def _get_app_version(request: Request) -> VersionSchema:
 
 @app.exception_handler(ClientError)
 async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
+    logging.info(f'Handling client error: {str(e)}')
     return JSONResponse(
         status_code=409,  # TODO: remove magic number
         content={'message': str(e)},
+    )
+
+
+def configure_logging(
+    *, log_dir_name: str, log_level: int | None, silent: bool
+) -> None:
+    """Configure the logging system for the application."""
+    datefmt: Final[str] = '%H:%M:%S'
+
+    def get_log_format(*, use_colors: bool = False) -> str:
+        """Get a log format string with or without colors."""
+        level = '%(levelname)s'
+        if use_colors:
+            level = f'%(log_color)s{level}%(reset)s'
+        return f'%(asctime)s {level} %(message)s'
+
+    log_dir: Final[Path] = Path(log_dir_name)
+    if not log_dir.exists():
+        log_dir.mkdir()
+    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
+    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
+    if not silent:
+        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
+        console_logger.formatter = colorlog.ColoredFormatter(
+            fmt=get_log_format(use_colors=True),
+            datefmt=datefmt,
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+        )
+        logging_handlers.append(console_logger)
+    logging.basicConfig(
+        level=log_level,
+        format=get_log_format(use_colors=False),
+        datefmt=datefmt,
+        handlers=logging_handlers,
     )
 
 
@@ -199,6 +254,7 @@ async def run(host: str, port: int) -> None:
     """
     max_port_num: Final[int] = 65535
     if 0 >= port > max_port_num:
+        logging.critical('Invalid port number')
         raise ValueError('Invalid port number')
 
     # Configure the server

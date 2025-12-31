@@ -1,6 +1,7 @@
 """Services for the WebSocket module including the sub-application and methods."""
 
 import asyncio
+import logging
 from typing import TYPE_CHECKING, Final, Iterable
 
 from core import BaseSQLModel, db
@@ -38,6 +39,7 @@ async def _handle_socket(websocket: WebSocket) -> None:
 
     """
     # Connect to the incoming socket
+    logging.debug('Accepting WebSocket client')
     await websocket.accept()
     _clients.add(websocket)
 
@@ -53,11 +55,13 @@ async def _handle_socket(websocket: WebSocket) -> None:
             )
             await websocket.send_text(response.model_dump_json())
     except WebSocketDisconnect:
-        pass  # TODO: log client disconnection
+        logging.debug('WebSocket client disconnected')
     except ValidationError as e:
-        await websocket.close(CloseCode.INVALID_DATA, str(e))  # TODO: log error
+        logging.info('closing WebSocket due to invalid data received')
+        await websocket.close(CloseCode.INVALID_DATA, str(e))
     except Exception as e:
-        await websocket.close(CloseCode.INTERNAL_ERROR, str(e))  # TODO: log error
+        logging.error('an unhandled WebSocket exception occurred, closing socket')
+        await websocket.close(CloseCode.INTERNAL_ERROR, str(e))
     finally:
         _clients.discard(websocket)
 
@@ -114,6 +118,7 @@ async def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
         return
 
     # Generate and send the payload to all clients
+    logging.debug(f'Invalidating cache keys: {str(cache_keys)}')
     payload: str = CacheWebsocketServerSchema(cache_keys).model_dump_json()
     for client in _clients:
         await client.send_text(payload)

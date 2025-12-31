@@ -74,6 +74,15 @@ class BaseBout(CacheableSQLModel):
         'polymorphic_on': ruleset_name,
     }
 
+    def __str__(self) -> str:
+        """Return a str representation of this Bout.
+
+        Returns:
+            str: a str representation of this Bout.
+
+        """
+        return f'[Bout ID: {self.id}]'
+
     def __init__(self, series: Series, ruleset_name: str) -> None:
         """Instantiate a Bout.
 

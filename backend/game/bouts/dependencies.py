@@ -10,8 +10,7 @@ from user import GetUser
 from .models import BaseBout
 
 if TYPE_CHECKING:
-    from sqlalchemy.engine.result import Result
-    from sqlalchemy.sql.selectable import Select
+    from sqlalchemy import Result, Select
 
 
 async def _get_bout(
