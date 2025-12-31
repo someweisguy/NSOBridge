@@ -23,12 +23,13 @@ from websockets import CloseCode
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
 
-HOST: Final[str] = os.environ['UVICORN_HOST']
-PORT: Final[int] = int(os.environ['UVICORN_PORT'])
-LOG_LEVEL: Final[int | None] = logging.DEBUG
 LOG_DATE_FMT: Final[str] = '%H:%M:%S'
-LOG_DIR_NAME: Final[str] = './logs'
-SILENT: Final[bool] = False
+
+HOST: str = os.environ['UVICORN_HOST']
+PORT: int = int(os.environ['UVICORN_PORT'])
+LOG_LEVEL: int | None = logging.DEBUG
+LOG_DIR_NAME: str = './logs'
+SILENT: bool = False
 
 
 async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
