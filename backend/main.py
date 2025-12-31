@@ -113,7 +113,6 @@ async def main(  # noqa: PLR0913 PLR0915 - main method may have many arguments
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
     logging.debug('WebSockets disconnected')
     logging.info('Program terminated')
-    logging.shutdown()
 
 
 def get_log_format(*, use_colors: bool = False) -> str:
@@ -153,3 +152,4 @@ if __name__ == '__main__':
     )
 
     asyncio.run(main((HOST, PORT), debug=True))
+    logging.shutdown()
