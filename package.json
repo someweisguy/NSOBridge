@@ -1,4 +1,5 @@
 {
+  "name": "nso-bridge",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +12,7 @@
   },
   "lint-staged": {
     "*.{js,ts,tsx,json,css,md,toml}": [
-      "prettier --write",
+      "npx prettier --write",
       "eslint --fix"
     ]
   },
@@ -36,7 +37,7 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react-swc": "^3.5.0",
-    "eslint": "^9.20.1",
+    "eslint": "^9.39.2",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
