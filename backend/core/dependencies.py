@@ -67,7 +67,9 @@ class EngineFactory:
 
         """
         db: DatabaseEngine = cls.get_default_engine()
-        session_factory: async_sessionmaker = db.get_async_session_factory()
+        session_factory: async_sessionmaker[AsyncSession] = (
+            db.get_async_session_factory()
+        )
         async with session_factory() as session, session.begin():
             yield session
 
