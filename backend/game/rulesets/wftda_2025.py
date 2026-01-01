@@ -229,8 +229,8 @@ class Jam(_WFTDAModel, BaseJam):
 
         logging.info(f'Adding {passes} passes to Team ID {team_id} in {self}')
 
-        is_overtime: bool = False  # TODO: handle overtime conditions
         is_initial: bool = len(team_jam.events) == 0
+        is_overtime: bool = self.period >= Bout.ruleset.num_periods
         if is_initial:
             logging.info(f'This is the initial pass for Team ID {team_id} in {self}')
 
