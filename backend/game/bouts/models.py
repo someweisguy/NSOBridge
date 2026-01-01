@@ -63,6 +63,7 @@ class BaseBout(CacheableSQLModel):
         order_by=[column('period'), column('num')],
     )
     timeouts: Mapped[list[BaseTimeout]] = relationship(
+        back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
         order_by=[column('id')],
