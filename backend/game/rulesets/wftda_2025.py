@@ -55,7 +55,7 @@ class Bout(_WFTDAModel, BaseBout):
         self.timeouts.append(Timeout(self, 0))
 
     @override
-    def begin_period(self, timestamp: datetime) -> None:
+    async def begin_period(self, timestamp: datetime) -> None:
         jam: BaseJam | None = self.get_upcoming_jam()
         if jam is None:
             raise ClientError('this bout cannot be started now')
@@ -75,7 +75,7 @@ class Bout(_WFTDAModel, BaseBout):
         self.is_running = True
 
     @override
-    def end_period(self, timestamp: datetime) -> None:
+    async def end_period(self, timestamp: datetime) -> None:
         running_jam: BaseJam | None = self.get_running_jam()
         running_timeout: BaseTimeout | None = self.get_running_timeout()
         if running_jam is not None or running_timeout is not None:
@@ -107,14 +107,14 @@ class Bout(_WFTDAModel, BaseBout):
         self.is_running = False
 
     @override
-    def start_jam(self, timestamp: datetime) -> BaseJam:
+    async def start_jam(self, timestamp: datetime) -> BaseJam:
         running_timeout: BaseTimeout | None = self.get_running_timeout()
         if not self.is_running:
             # Allow user to skip the initial call to begin_period()
-            self.begin_period(timestamp)
+            await self.begin_period(timestamp)
         if running_timeout is not None:
             # Allow the user to end a Timeout and immediately start the next Jam
-            self.stop_timeout(timestamp)
+            await self.stop_timeout(timestamp)
             running_timeout = None
 
         running_jam: BaseJam | None = self.get_running_jam()
@@ -143,7 +143,7 @@ class Bout(_WFTDAModel, BaseBout):
         return jam
 
     @override
-    def stop_jam(self, timestamp: datetime) -> BaseJam:
+    async def stop_jam(self, timestamp: datetime) -> BaseJam:
         jam: BaseJam | None = self.get_running_jam()
         if jam is None:
             raise ClientError('there is no running jam to stop')
@@ -157,11 +157,11 @@ class Bout(_WFTDAModel, BaseBout):
         return jam
 
     @override
-    def start_timeout(self, timestamp: datetime) -> BaseTimeout:
+    async def start_timeout(self, timestamp: datetime) -> BaseTimeout:
         running_jam: BaseJam | None = self.get_running_jam()
         if running_jam is not None:
             # Allow the user to end the Jam and immediately start a Timeout
-            self.stop_jam(timestamp)
+            await self.stop_jam(timestamp)
             running_jam = None
 
         running_timeout: BaseTimeout | None = self.get_running_timeout()
@@ -187,7 +187,7 @@ class Bout(_WFTDAModel, BaseBout):
         return timeout
 
     @override
-    def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
+    async def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
         timeout: BaseTimeout | None = self.get_running_timeout()
         if timeout is None:
             raise ClientError('there is no active timeout to stop')

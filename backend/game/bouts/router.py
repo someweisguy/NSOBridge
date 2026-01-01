@@ -27,25 +27,25 @@ async def _get_ruleset(bout: BoutDepends) -> Ruleset:
 @router.post('/beginPeriod', tags=[BOUTS_TAG])
 async def begin_period(bout: BoutDepends) -> None:
     """Begin the period of the specified Bout."""
-    bout.begin_period(datetime.now())
+    await bout.begin_period(datetime.now())
 
 
 @router.post('/endPeriod', tags=[BOUTS_TAG])
 async def end_period(bout: BoutDepends) -> None:
     """End the period of the specified Bout."""
-    bout.end_period(datetime.now())
+    await bout.end_period(datetime.now())
 
 
 @router.post('/startJam', tags=[BOUTS_TAG])
 async def start_jam(bout: BoutDepends) -> None:
     """Start the next Jam of the specified Bout."""
-    bout.start_jam(datetime.now())
+    await bout.start_jam(datetime.now())
 
 
 @router.post('/stopJam', tags=[BOUTS_TAG])
 async def stop_jam(bout: BoutDepends) -> None:
     """Stop the active Jam of the specified Bout."""
-    bout.stop_jam(datetime.now())
+    await bout.stop_jam(datetime.now())
 
 
 @router.post('/startTimeout', tags=[BOUTS_TAG])
@@ -55,7 +55,7 @@ async def start_timeout(
     is_review: Annotated[bool, Body(alias='isReview')] = False,
 ) -> None:
     """Start a new Timeout in the specified Bout."""
-    timeout: BaseTimeout = bout.start_timeout(datetime.now())
+    timeout: BaseTimeout = await bout.start_timeout(datetime.now())
     timeout.is_review = is_review
     if team is not None:
         timeout.team = team
@@ -64,7 +64,7 @@ async def start_timeout(
 @router.post(path='/stopTimeout', tags=[BOUTS_TAG])
 async def stop_timeout(bout: BoutDepends) -> None:
     """Stop the active Timeout in the specified Bout."""
-    bout.stop_timeout(datetime.now())
+    await bout.stop_timeout(datetime.now())
 
 
 __all__ = ('router',)

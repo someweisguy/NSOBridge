@@ -167,7 +167,7 @@ class BaseBout(CacheableSQLModel):
         """
         return next((t for t in self.timeouts if not t.is_started()), None)
 
-    def begin_period(self, timestamp: datetime) -> None:
+    async def begin_period(self, timestamp: datetime) -> None:
         """Begin the next Period.
 
         Args:
@@ -176,7 +176,7 @@ class BaseBout(CacheableSQLModel):
         """
         ...
 
-    def end_period(self, timestamp: datetime) -> None:
+    async def end_period(self, timestamp: datetime) -> None:
         """End the current Period.
 
         Args:
@@ -185,7 +185,7 @@ class BaseBout(CacheableSQLModel):
         """
         ...
 
-    def start_jam(self, timestamp: datetime) -> BaseJam:
+    async def start_jam(self, timestamp: datetime) -> BaseJam:
         """Start the next Jam.
 
         Args:
@@ -197,7 +197,7 @@ class BaseBout(CacheableSQLModel):
         """
         ...
 
-    def stop_jam(self, timestamp: datetime) -> BaseJam:
+    async def stop_jam(self, timestamp: datetime) -> BaseJam:
         """Stop the current Jam.
 
         Args:
@@ -209,7 +209,7 @@ class BaseBout(CacheableSQLModel):
         """
         ...
 
-    def start_timeout(self, timestamp: datetime) -> BaseTimeout:
+    async def start_timeout(self, timestamp: datetime) -> BaseTimeout:
         """Call a Timeout.
 
         Args:
@@ -221,7 +221,7 @@ class BaseBout(CacheableSQLModel):
         """
         ...
 
-    def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
+    async def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
         """Stop the current Timeout.
 
         Args:
