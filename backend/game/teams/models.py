@@ -41,6 +41,7 @@ class BaseTeam(BaseSQLModel):
     reviews_remaining: Mapped[int] = mapped_column()
 
     bout: Mapped[BaseBout] = relationship(
+        back_populates='teams',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[bout_id],
         lazy='selectin',
