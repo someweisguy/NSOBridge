@@ -92,9 +92,7 @@ class BaseBout(CacheableSQLModel):
             ruleset_name (str): The ruleset which the Bout will use.
 
         """
-        super().__init__(
-            series=series, clock=Clock(bout=self), ruleset_name=ruleset_name
-        )
+        super().__init__(series=series, clock=Clock(), ruleset_name=ruleset_name)
 
     @override
     def cache_key(self) -> CacheKey:
