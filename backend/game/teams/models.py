@@ -32,24 +32,22 @@ class BaseTeam(BaseSQLModel):
     data like a team's score offset.
     """
 
-    bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
+    bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
 
     # TODO: Implement Team colors
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
+    roster: Mapped[Roster] = relationship(
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[roster_id],
+    )
     bout: Mapped[BaseBout] = relationship(
         back_populates='teams',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[bout_id],
-        lazy='selectin',
-    )
-    roster: Mapped[Roster] = relationship(
-        cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[roster_id],
-        lazy='joined',
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='team',
