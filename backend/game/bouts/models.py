@@ -40,27 +40,27 @@ class BaseBout(CacheableSQLModel):
     is_running: Mapped[bool] = mapped_column(default=False)
     ruleset_name: Mapped[str] = mapped_column()
 
+    series: Mapped[Series] = relationship(
+        back_populates='bouts',
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[series_id],
+    )
     clock: Mapped[Clock] = relationship(
         cascade=CHILD_RELATIONSHIP,
         foreign_keys=[clock_id],
         lazy='joined',
         single_parent=True,
     )
+    teams: Mapped[list[BaseTeam]] = relationship(
+        back_populates='bout',
+        cascade=CHILD_RELATIONSHIP,
+        lazy='selectin',
+    )
     jams: Mapped[list[BaseJam]] = relationship(
         back_populates='bout',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
         order_by=[column('period'), column('num')],
-    )
-    series: Mapped[Series] = relationship(
-        back_populates='bouts',
-        cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[series_id],
-    )
-    teams: Mapped[list[BaseTeam]] = relationship(
-        back_populates='bout',
-        cascade=CHILD_RELATIONSHIP,
-        lazy='selectin',
     )
     timeouts: Mapped[list[BaseTimeout]] = relationship(
         cascade=CHILD_RELATIONSHIP,
