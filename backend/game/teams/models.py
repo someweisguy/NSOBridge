@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Final, override
 
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
+from game.jams.models import BaseJam
 from game.team_jams.models import TeamJam
 from game.timeouts.models import BaseTimeout
 from sqlalchemy import ForeignKey, select
@@ -16,6 +17,7 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+from sqlalchemy.sql._elements_constructors import desc
 
 if TYPE_CHECKING:
     from game.rosters.models import Roster
@@ -60,6 +62,14 @@ class BaseTeam(BaseSQLModel):
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[BaseTimeout.num],
+    )
+
+    # Used to calculate the current Jam score
+    _active_jam_id: MappedSQLExpression[int | None] = column_property(
+        select(BaseJam.id)
+        .where(BaseJam.start_timestamp != None)  # noqa: E711
+        .order_by(desc(BaseJam.period), desc(BaseJam.num))
+        .scalar_subquery()
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
@@ -143,15 +153,9 @@ class BaseTeam(BaseSQLModel):
             int: the current jam score of this Team.
 
         """
-        return 0
-
-        # FIXME
-        # if len(self.team_jams) == 0:
-        #     return 0
-        # active_team_jam: TeamJam = (
-        #     self.team_jams[-1]
-        #     if self.bout.state in ['stopped', 'jam'] or len(self.team_jams) == 1
-        #     else self.team_jams[-2]
-        # )
-        # jam_score: int = self.get_team_jam_score(active_team_jam)
-        # return jam_score
+        active_team_jam: TeamJam | None = next(
+            (tj for tj in self.team_jams if tj.jam_id == self._active_jam_id), None
+        )
+        if active_team_jam is None:
+            return 0
+        return self.get_team_jam_score(active_team_jam)
