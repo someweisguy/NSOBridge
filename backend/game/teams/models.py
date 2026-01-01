@@ -59,7 +59,7 @@ class BaseTeam(BaseSQLModel):
         back_populates='team',
         cascade=CHILD_RELATIONSHIP,
         lazy='selectin',
-        order_by=BaseTimeout.id,
+        order_by=[BaseTimeout.num],
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
