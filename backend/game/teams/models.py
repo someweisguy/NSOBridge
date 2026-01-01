@@ -33,7 +33,7 @@ class BaseTeam(BaseSQLModel):
     """
 
     roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
-    bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
+    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'), nullable=False)
 
     # TODO: Implement Team colors
     score_offset: Mapped[int] = mapped_column(default=0)
@@ -44,7 +44,7 @@ class BaseTeam(BaseSQLModel):
         cascade=CASCADE_OTHER,
         foreign_keys=[roster_id],
     )
-    _bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[BaseBout | None] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
@@ -86,7 +86,7 @@ class BaseTeam(BaseSQLModel):
         """
         raise NotImplementedError()
 
-    def __init__(self, bout: BaseBout, roster: Roster) -> None:
+    def __init__(self, roster: Roster) -> None:
         """Initialize a Team.
 
         Args:
@@ -94,7 +94,7 @@ class BaseTeam(BaseSQLModel):
             roster (Roster): the Roster that this Team will use.
 
         """
-        super().__init__(_bout=bout, bout_id=bout.id, _roster=roster)
+        super().__init__(_roster=roster)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
