@@ -34,9 +34,7 @@ class TripEvent(BaseSQLModel):
     star_pass: Mapped[bool] = mapped_column(default=False)
 
     team_jam: Mapped[TeamJam | None] = relationship(
-        cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[team_jam_id],
-        lazy='joined',
+        cascade=PARENT_RELATIONSHIP, foreign_keys=[team_jam_id]
     )
 
     __tablename__: str = 'trip_events'
