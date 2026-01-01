@@ -72,13 +72,13 @@ class BaseTeam(BaseSQLModel):
         .scalar_subquery()
     )
 
-    ruleset: MappedSQLExpression[str] = column_property(
+    _ruleset: MappedSQLExpression[str] = column_property(
         select(BaseBout.ruleset_name).where(BaseBout.id == bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'teams'
     __mapper_args__: dict[str, Any] = {
-        'polymorphic_on': ruleset,
+        'polymorphic_on': _ruleset,
     }
 
     @classmethod
