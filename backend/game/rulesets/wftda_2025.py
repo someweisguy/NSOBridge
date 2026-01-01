@@ -8,7 +8,6 @@ from core import ClientError
 from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
 from game.jams.models import BaseJam
 from game.rosters.models import Roster
-from game.series.models import Series
 from game.team_jams.models import TeamJam
 from game.teams.models import BaseTeam
 from game.timeouts.models import BaseTimeout
@@ -44,8 +43,8 @@ class Bout(_WFTDAModel, BaseBout):
     ruleset: ClassVar[Ruleset] = RULESET
 
     @override
-    def __init__(self, series: Series, home: Roster, away: Roster) -> None:
-        super().__init__(series=series, ruleset_name=RULESET_NAME)
+    def __init__(self, home: Roster, away: Roster) -> None:
+        super().__init__(RULESET_NAME, Team(self, home), Team(self, away))
         self.clock.alarm = timedelta(minutes=30)
         self.teams = [Team(self, home), Team(self, away)]
         for team in self.teams:

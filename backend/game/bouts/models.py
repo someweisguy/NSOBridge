@@ -84,15 +84,16 @@ class BaseBout(CacheableSQLModel):
         """
         return f'[Bout ID: {self.id}]'
 
-    def __init__(self, series: Series, ruleset_name: str) -> None:
+    def __init__(self, ruleset_name: str, *teams: BaseTeam) -> None:
         """Instantiate a Bout.
 
         Args:
             series (Series): The series to which this Bout belongs.
             ruleset_name (str): The ruleset which the Bout will use.
+            teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout.
 
         """
-        super().__init__(_series=series, clock=Clock(), ruleset_name=ruleset_name)
+        super().__init__(clock=Clock(), ruleset_name=ruleset_name, teams=list(teams))
 
     @override
     def cache_key(self) -> CacheKey:
