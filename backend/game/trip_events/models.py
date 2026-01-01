@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, override
 
-from core import PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_OTHER, BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -34,7 +34,7 @@ class TripEvent(BaseSQLModel):
     star_pass: Mapped[bool] = mapped_column(default=False)
 
     team_jam: Mapped[TeamJam | None] = relationship(
-        back_populates='events', cascade=PARENT_RELATIONSHIP, foreign_keys=[team_jam_id]
+        back_populates='events', cascade=CASCADE_OTHER, foreign_keys=[team_jam_id]
     )
 
     __tablename__: str = 'trip_events'

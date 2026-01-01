@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
@@ -37,12 +37,12 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     bout: Mapped[BaseBout] = relationship(
         back_populates='jams',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='jam',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
     )
 

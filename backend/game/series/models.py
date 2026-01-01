@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from core import CHILD_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_CHILD, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,7 +26,7 @@ class Series(CacheableSQLModel):
 
     bouts: Mapped[list[BaseBout]] = relationship(
         back_populates='series',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
     )
 

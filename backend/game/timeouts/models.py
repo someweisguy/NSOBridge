@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
 
-from core import PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, select
@@ -43,16 +43,16 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
 
     bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
     )
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[team_id],
     )
     jam: Mapped[BaseJam | None] = relationship(
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[jam_id],
     )
 

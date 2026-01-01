@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP
+from core import CASCADE_CHILD, CASCADE_OTHER
 from game.clocks.models import Clock
 from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, column
@@ -42,29 +42,29 @@ class BaseBout(CacheableSQLModel):
 
     series: Mapped[Series] = relationship(
         back_populates='bouts',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[series_id],
     )
     clock: Mapped[Clock] = relationship(
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         foreign_keys=[clock_id],
         lazy='joined',
         single_parent=True,
     )
     teams: Mapped[list[BaseTeam]] = relationship(
         back_populates='bout',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
     )
     jams: Mapped[list[BaseJam]] = relationship(
         back_populates='bout',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('period'), column('num')],
     )
     timeouts: Mapped[list[BaseTimeout]] = relationship(
         back_populates='bout',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('id')],
     )

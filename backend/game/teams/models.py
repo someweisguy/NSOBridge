@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.team_jams.models import TeamJam
 from game.timeouts.models import BaseTimeout
@@ -41,23 +41,23 @@ class BaseTeam(BaseSQLModel):
     reviews_remaining: Mapped[int] = mapped_column()
 
     roster: Mapped[Roster] = relationship(
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[roster_id],
     )
     bout: Mapped[BaseBout] = relationship(
         back_populates='teams',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='team',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[TeamJam.period_num, TeamJam.jam_num],
     )
     timeouts: Mapped[list[BaseTimeout]] = relationship(
         back_populates='team',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[BaseTimeout.num],
     )

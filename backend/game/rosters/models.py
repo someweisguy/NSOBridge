@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,7 +20,7 @@ class Skater(BaseSQLModel):
 
     roster: Mapped[Roster] = relationship(
         back_populates='skaters',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[roster_id],
         lazy='selectin',
     )
@@ -55,7 +55,7 @@ class Roster(CacheableSQLModel):
 
     skaters: Mapped[list[Skater]] = relationship(
         back_populates='roster',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('number')],
     )

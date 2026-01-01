@@ -10,8 +10,8 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from .utils import _TimedeltaAsMilliseconds
 
-CHILD_RELATIONSHIP: Final[str] = 'all, delete-orphan'
-PARENT_RELATIONSHIP: Final[str] = 'expunge, save-update'
+CASCADE_CHILD: Final[str] = 'all, delete-orphan'
+CASCADE_OTHER: Final[str] = 'expunge, save-update'
 
 
 class BaseSQLModel(AsyncAttrs, DeclarativeBase):

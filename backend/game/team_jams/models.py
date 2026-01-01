@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.jams.models import BaseJam
 from game.trip_events.models import TripEvent
 from sqlalchemy import ForeignKey, select
@@ -37,17 +37,17 @@ class TeamJam(BaseSQLModel):
 
     jam: Mapped[BaseJam] = relationship(
         back_populates='team_jams',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[jam_id],
     )
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='team_jams',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[team_id],
     )
     events: Mapped[list[TripEvent]] = relationship(
         back_populates='team_jam',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[TripEvent.timestamp],
     )
