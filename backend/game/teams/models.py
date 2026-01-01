@@ -126,12 +126,15 @@ class BaseTeam(BaseSQLModel):
             int: the current jam score of this Team.
 
         """
-        if len(self.team_jams) == 0:
-            return 0
-        active_team_jam: TeamJam = (
-            self.team_jams[-1]
-            if self.bout.state in ['stopped', 'jam'] or len(self.team_jams) == 1
-            else self.team_jams[-2]
-        )
-        jam_score: int = self.get_team_jam_score(active_team_jam)
-        return jam_score
+        return 0
+
+        # FIXME
+        # if len(self.team_jams) == 0:
+        #     return 0
+        # active_team_jam: TeamJam = (
+        #     self.team_jams[-1]
+        #     if self.bout.state in ['stopped', 'jam'] or len(self.team_jams) == 1
+        #     else self.team_jams[-2]
+        # )
+        # jam_score: int = self.get_team_jam_score(active_team_jam)
+        # return jam_score
