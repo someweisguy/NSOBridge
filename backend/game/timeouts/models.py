@@ -30,8 +30,8 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     """
 
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
-    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
+    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
     num: Mapped[int] = mapped_column()
     clock_elapsed: Mapped[timedelta | None] = mapped_column(default=None)
@@ -46,14 +46,14 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[bout_id],
     )
-    jam: Mapped[BaseJam | None] = relationship(
-        cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[jam_id],
-    )
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[team_id],
+    )
+    jam: Mapped[BaseJam | None] = relationship(
+        cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[jam_id],
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
