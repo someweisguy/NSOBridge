@@ -41,7 +41,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
@@ -87,7 +87,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             num (int): the unique Timeout number associated with this Bout.
 
         """
-        super().__init__(bout=bout, bout_id=bout.id, num=num)
+        super().__init__(_bout=bout, bout_id=bout.id, num=num)
 
     @override
     def cache_key(self) -> CacheKey:
@@ -95,7 +95,10 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team)
+        team: BaseTeam | None = await self.awaitable_attrs.team
+        if team is None:
+            return (await self.awaitable_attrs._bout,)
+        return (await self.awaitable_attrs._bout, team)
 
     def set_type(self, is_review: bool) -> None:
         """Set whether this Timeout is a timeout or an official review.

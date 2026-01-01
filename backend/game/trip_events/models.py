@@ -33,7 +33,7 @@ class TripEvent(BaseSQLModel):
     passes: Mapped[int | None] = mapped_column(default=None)
     star_pass: Mapped[bool] = mapped_column(default=False)
 
-    team_jam: Mapped[TeamJam | None] = relationship(
+    _team_jam: Mapped[TeamJam | None] = relationship(
         back_populates='events', cascade=CASCADE_OTHER, foreign_keys=[team_jam_id]
     )
 
@@ -68,7 +68,7 @@ class TripEvent(BaseSQLModel):
 
         """
         super().__init__(
-            team_jam=None,
+            _team_jam=None,
             timestamp=timestamp,
             lead=lead,
             lost=lost,
@@ -78,7 +78,7 @@ class TripEvent(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.team_jam,)
+        return (await self.awaitable_attrs._team_jam,)
 
     def is_empty(self) -> bool:
         """Return True if this TripEvent is empty.

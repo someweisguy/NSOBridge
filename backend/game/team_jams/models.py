@@ -35,18 +35,18 @@ class TeamJam(BaseSQLModel):
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
     jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
-    jam: Mapped[BaseJam] = relationship(
-        back_populates='team_jams',
-        cascade=CASCADE_OTHER,
-        foreign_keys=[jam_id],
-    )
-    team: Mapped[BaseTeam | None] = relationship(
+    _team: Mapped[BaseTeam | None] = relationship(
         back_populates='team_jams',
         cascade=CASCADE_OTHER,
         foreign_keys=[team_id],
     )
+    _jam: Mapped[BaseJam] = relationship(
+        back_populates='team_jams',
+        cascade=CASCADE_OTHER,
+        foreign_keys=[jam_id],
+    )
     events: Mapped[list[TripEvent]] = relationship(
-        back_populates='team_jam',
+        back_populates='_team_jam',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[TripEvent.timestamp],
@@ -74,8 +74,8 @@ class TeamJam(BaseSQLModel):
         """
         if team.bout_id != jam.bout_id:
             raise ValueError('Team and Jam must be from the same Bout')
-        super().__init__(team=team, jam=jam)
+        super().__init__(_team=team, _jam=jam)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.team, await self.awaitable_attrs.jam)
+        return (await self.awaitable_attrs._team, await self.awaitable_attrs._jam)

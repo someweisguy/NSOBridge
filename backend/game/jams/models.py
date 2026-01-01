@@ -35,13 +35,13 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     period: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
-    bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
-        back_populates='jam',
+        back_populates='_jam',
         cascade=CASCADE_CHILD,
         lazy='selectin',
     )
@@ -83,7 +83,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
         """
         super().__init__(
-            bout=bout,
+            _bout=bout,
             bout_id=bout.id,  # Prevent `bout_id is None` condition
             period=period_num,
             num=jam_num,
@@ -95,7 +95,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team_jams)
+        return (await self.awaitable_attrs._bout,)
 
     def get_team_jam(self, team: BaseTeam | int) -> TeamJam:
         """Get the TeamJam associated with the desired Team.

@@ -18,7 +18,7 @@ class Skater(BaseSQLModel):
     pronouns: Mapped[str] = mapped_column()  # TODO: Implement pronouns
     number: Mapped[str] = mapped_column()
 
-    roster: Mapped[Roster] = relationship(
+    _roster: Mapped[Roster] = relationship(
         back_populates='skaters',
         cascade=CASCADE_OTHER,
         foreign_keys=[roster_id],
@@ -43,7 +43,7 @@ class Skater(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.roster,)
+        return (await self.awaitable_attrs._roster,)
 
 
 class Roster(CacheableSQLModel):
@@ -54,7 +54,7 @@ class Roster(CacheableSQLModel):
     mnemonic: Mapped[str] = mapped_column()
 
     skaters: Mapped[list[Skater]] = relationship(
-        back_populates='roster',
+        back_populates='_roster',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('number')],

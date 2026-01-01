@@ -40,7 +40,7 @@ class BaseBout(CacheableSQLModel):
     is_running: Mapped[bool] = mapped_column(default=False)
     ruleset_name: Mapped[str] = mapped_column()
 
-    series: Mapped[Series] = relationship(
+    _series: Mapped[Series] = relationship(
         back_populates='bouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[series_id],
@@ -52,18 +52,18 @@ class BaseBout(CacheableSQLModel):
         single_parent=True,
     )
     teams: Mapped[list[BaseTeam]] = relationship(
-        back_populates='bout',
+        back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
     )
     jams: Mapped[list[BaseJam]] = relationship(
-        back_populates='bout',
+        back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('period'), column('num')],
     )
     timeouts: Mapped[list[BaseTimeout]] = relationship(
-        back_populates='bout',
+        back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('id')],
@@ -92,7 +92,7 @@ class BaseBout(CacheableSQLModel):
             ruleset_name (str): The ruleset which the Bout will use.
 
         """
-        super().__init__(series=series, clock=Clock(), ruleset_name=ruleset_name)
+        super().__init__(_series=series, clock=Clock(), ruleset_name=ruleset_name)
 
     @override
     def cache_key(self) -> CacheKey:

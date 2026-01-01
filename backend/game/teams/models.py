@@ -40,17 +40,17 @@ class BaseTeam(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
-    roster: Mapped[Roster] = relationship(
+    _roster: Mapped[Roster] = relationship(
         cascade=CASCADE_OTHER,
         foreign_keys=[roster_id],
     )
-    bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
-        back_populates='team',
+        back_populates='_team',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[TeamJam.period_num, TeamJam.jam_num],
@@ -94,11 +94,11 @@ class BaseTeam(BaseSQLModel):
             roster (Roster): the Roster that this Team will use.
 
         """
-        super().__init__(bout=bout, bout_id=bout.id, roster=roster)
+        super().__init__(_bout=bout, bout_id=bout.id, _roster=roster)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.bout,)
+        return (await self.awaitable_attrs._bout,)
 
     @property
     def bout_score(self) -> int:

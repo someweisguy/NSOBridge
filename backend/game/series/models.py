@@ -25,7 +25,7 @@ class Series(CacheableSQLModel):
     name: Mapped[str] = mapped_column(default='')
 
     bouts: Mapped[list[BaseBout]] = relationship(
-        back_populates='series',
+        back_populates='_series',
         cascade=CASCADE_CHILD,
         lazy='selectin',
     )
