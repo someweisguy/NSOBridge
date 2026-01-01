@@ -85,7 +85,16 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs._bout,)
+        return (await self.get_bout(),)
+
+    async def get_bout(self) -> BaseBout:
+        """Get the Bout that owns this Jam.
+
+        Returns:
+            BaseBout: the Bout that owns this Jam.
+
+        """
+        return await self.awaitable_attrs._bout
 
     def get_team_jam(self, team: BaseTeam | int) -> TeamJam:
         """Get the TeamJam associated with the desired Team.

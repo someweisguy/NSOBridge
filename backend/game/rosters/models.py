@@ -43,7 +43,16 @@ class Skater(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs._roster,)
+        return (await self.get_roster(),)
+
+    async def get_roster(self) -> Roster:
+        """Get the Roster to which this Skater belongs.
+
+        Returns:
+            Roster: the Roster to which this Skater belongs.
+
+        """
+        return await self.awaitable_attrs._roster
 
 
 class Roster(CacheableSQLModel):

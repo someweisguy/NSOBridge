@@ -103,6 +103,15 @@ class BaseBout(CacheableSQLModel):
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
 
+    async def get_series(self) -> Series:
+        """Get the Series that owns this Bout.
+
+        Returns:
+            Series: the Series that owns this Bout.
+
+        """
+        return await self.awaitable_attrs._series
+
     @final
     @property
     def state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:

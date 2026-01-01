@@ -76,4 +76,22 @@ class TeamJam(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs._team, await self.awaitable_attrs._jam)
+        return (await self.get_team(), await self.get_jam())
+
+    async def get_team(self) -> BaseTeam:
+        """Get the Team that owns this TeamJam.
+
+        Returns:
+            BaseTeam: the Team that owns this TeamJam.
+
+        """
+        return await self.awaitable_attrs._team
+
+    async def get_jam(self) -> BaseJam:
+        """Get the Jam that owns this TeamJam.
+
+        Returns:
+            BaseJam: the Jam that owns this TeamJam.
+
+        """
+        return await self.awaitable_attrs._jam

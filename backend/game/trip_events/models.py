@@ -26,7 +26,10 @@ class TripEvent(BaseSQLModel):
     eligibility.
     """
 
-    team_jam_id: Mapped[int | None] = mapped_column(ForeignKey('team_jams.id'))
+    team_jam_id: Mapped[int | None] = mapped_column(
+        ForeignKey('team_jams.id'), nullable=False
+    )
+
     timestamp: Mapped[datetime] = mapped_column()
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
@@ -78,7 +81,16 @@ class TripEvent(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs._team_jam,)
+        return (await self.get_team_jam(),)
+
+    async def get_team_jam(self) -> TeamJam:
+        """Get the TeamJam to which this TripEvent belongs.
+
+        Returns:
+            TeamJam: the TeamJam to which this TripEvent belongs.
+
+        """
+        return await self.awaitable_attrs._team_jam
 
     def is_empty(self) -> bool:
         """Return True if this TripEvent is empty.

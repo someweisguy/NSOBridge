@@ -98,7 +98,25 @@ class BaseTeam(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs._bout,)
+        return (await self.get_bout(),)
+
+    async def get_roster(self) -> Roster:
+        """Get the Roster to which this Team belongs.
+
+        Returns:
+            Roster: the Roster to which this Team belongs.
+
+        """
+        return await self.awaitable_attrs._roster
+
+    async def get_bout(self) -> BaseBout:
+        """Get the Bout to which this Team belongs.
+
+        Returns:
+            BaseBout: the Bout to which this Team belongs.
+
+        """
+        return await self.awaitable_attrs._bout
 
     @property
     def bout_score(self) -> int:

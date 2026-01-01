@@ -46,14 +46,16 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
     )
+
+    # The next two relationships are special cases - they can be eagerly loaded
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[team_id],
+        lazy='selectin',
     )
     jam: Mapped[BaseJam | None] = relationship(
-        cascade=CASCADE_OTHER,
-        foreign_keys=[jam_id],
+        cascade=CASCADE_OTHER, foreign_keys=[jam_id], lazy='selectin'
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
@@ -95,10 +97,18 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        team: BaseTeam | None = await self.awaitable_attrs.team
-        if team is None:
-            return (await self.awaitable_attrs._bout,)
-        return (await self.awaitable_attrs._bout, team)
+        if self.team is None:
+            return (await self.get_bout(),)
+        return (await self.get_bout(), self.team)
+
+    async def get_bout(self) -> BaseBout:
+        """Get the Bout that owns this Timeout.
+
+        Returns:
+            BaseBout: the Bout that Owns this Timeout.
+
+        """
+        return await self.awaitable_attrs._bout
 
     def set_type(self, is_review: bool) -> None:
         """Set whether this Timeout is a timeout or an official review.
