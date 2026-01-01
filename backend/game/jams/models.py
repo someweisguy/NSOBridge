@@ -29,13 +29,13 @@ type StopReasonStr = Literal['called', 'elapsed', 'injury', 'other']
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     """An abstract Jam without any associated ruleset."""
 
-    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
+    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'), nullable=False)
 
     num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
-    _bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[BaseBout | None] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
@@ -68,26 +68,16 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         """
         return f'[Bout ID: {self.bout_id}, P{self.period} J{self.num}]'
 
-    def __init__(
-        self,
-        bout: BaseBout,
-        period_num: int,
-        jam_num: int,
-    ) -> None:
+    def __init__(self, period_num: int, jam_num: int, *team_jams: TeamJam) -> None:
         """Initialize a Jam.
 
         Args:
-            bout (BaseBout): the Bout to which this Jam belongs.
             period_num (int): the Period number of this Jam, zero-indexed.
             jam_num (int): the Jam number of this Jam, zero-indexed.
+            team_jams (tuple[TeamJam, ...]): the TeamJams that will compete in this Jam.
 
         """
-        super().__init__(
-            _bout=bout,
-            bout_id=bout.id,  # Prevent `bout_id is None` condition
-            period=period_num,
-            num=jam_num,
-        )
+        super().__init__(period=period_num, num=jam_num, team_jams=list(team_jams))
 
     @override
     def cache_key(self) -> CacheKey:

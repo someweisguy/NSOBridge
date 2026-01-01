@@ -49,8 +49,7 @@ class Bout(_WFTDAModel, BaseBout):
         for team in self.teams:
             team.timeouts_remaining = self.ruleset.num_timeouts
             team.reviews_remaining = self.ruleset.num_reviews
-        initial_jam: Jam = Jam(self, 0, 0)
-        initial_jam.team_jams = [TeamJam(team, initial_jam) for team in self.teams]
+        initial_jam: Jam = Jam(0, 0, *[TeamJam(team) for team in self.teams])
         self.jams.append(initial_jam)
         self.timeouts.append(Timeout(self, 0))
 
@@ -136,8 +135,9 @@ class Bout(_WFTDAModel, BaseBout):
         jam.start(timestamp)
 
         # Push a new Jam to allow users to prefetch it
-        new_jam: Jam = Jam(self, jam.period, jam.num + 1)
-        new_jam.team_jams = [TeamJam(team, new_jam) for team in self.teams[:2]]
+        new_jam: Jam = Jam(
+            jam.period, jam.num + 1, *[TeamJam(team) for team in self.teams]
+        )
         self.jams.append(new_jam)
 
         return jam

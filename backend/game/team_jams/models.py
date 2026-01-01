@@ -32,8 +32,8 @@ class TeamJam(BaseSQLModel):
 
     """
 
-    team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
-    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
+    team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'), nullable=False)
+    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'), nullable=False)
 
     _team: Mapped[BaseTeam | None] = relationship(
         back_populates='team_jams',
@@ -61,7 +61,7 @@ class TeamJam(BaseSQLModel):
 
     __tablename__: str = 'team_jams'
 
-    def __init__(self, team: BaseTeam, jam: BaseJam) -> None:
+    def __init__(self, team: BaseTeam) -> None:
         """Initialize a TeamJam.
 
         Args:
@@ -72,9 +72,7 @@ class TeamJam(BaseSQLModel):
             ValueError: if the Team and Jam provided are not in the same Bout.
 
         """
-        if team.bout_id != jam.bout_id:
-            raise ValueError('Team and Jam must be from the same Bout')
-        super().__init__(_team=team, _jam=jam)
+        super().__init__(_team=team)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
