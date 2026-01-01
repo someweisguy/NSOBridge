@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Any, override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.jams.models import BaseJam
 from game.trip_events.models import TripEvent
 from sqlalchemy import ForeignKey, select
@@ -32,22 +32,22 @@ class TeamJam(BaseSQLModel):
 
     """
 
-    team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
-    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
+    team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'), nullable=False)
+    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'), nullable=False)
 
-    jam: Mapped[BaseJam] = relationship(
+    _team: Mapped[BaseTeam | None] = relationship(
         back_populates='team_jams',
-        cascade=PARENT_RELATIONSHIP,
-        lazy='selectin',
-    )
-    team: Mapped[BaseTeam | None] = relationship(
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[team_id],
-        lazy='selectin',
+    )
+    _jam: Mapped[BaseJam] = relationship(
+        back_populates='team_jams',
+        cascade=CASCADE_OTHER,
+        foreign_keys=[jam_id],
     )
     events: Mapped[list[TripEvent]] = relationship(
-        back_populates='team_jam',
-        cascade=CHILD_RELATIONSHIP,
+        back_populates='_team_jam',
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[TripEvent.timestamp],
     )
@@ -60,8 +60,11 @@ class TeamJam(BaseSQLModel):
     )
 
     __tablename__: str = 'team_jams'
+    __mapper_args__: dict[str, Any] = {
+        'confirm_deleted_rows': False,  # Make best effort to delete orphaned rows
+    }
 
-    def __init__(self, team: BaseTeam, jam: BaseJam) -> None:
+    def __init__(self, team: BaseTeam) -> None:
         """Initialize a TeamJam.
 
         Args:
@@ -72,10 +75,26 @@ class TeamJam(BaseSQLModel):
             ValueError: if the Team and Jam provided are not in the same Bout.
 
         """
-        if team.bout_id != jam.bout_id:
-            raise ValueError('Team and Jam must be from the same Bout')
-        super().__init__(team=team, jam=jam)
+        super().__init__(_team=team)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.team, await self.awaitable_attrs.jam)
+        return (await self.get_team(), await self.get_jam())
+
+    async def get_team(self) -> BaseTeam:
+        """Get the Team that owns this TeamJam.
+
+        Returns:
+            BaseTeam: the Team that owns this TeamJam.
+
+        """
+        return await self.awaitable_attrs._team
+
+    async def get_jam(self) -> BaseJam:
+        """Get the Jam that owns this TeamJam.
+
+        Returns:
+            BaseJam: the Jam that owns this TeamJam.
+
+        """
+        return await self.awaitable_attrs._jam

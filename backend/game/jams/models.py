@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
@@ -29,32 +29,31 @@ type StopReasonStr = Literal['called', 'elapsed', 'injury', 'other']
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     """An abstract Jam without any associated ruleset."""
 
-    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'))
+    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'), nullable=False)
 
     num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
     stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
-    bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[BaseBout | None] = relationship(
         back_populates='jams',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[bout_id],
-        lazy='selectin',
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
-        back_populates='jam',
-        cascade=CHILD_RELATIONSHIP,
+        back_populates='_jam',
+        cascade=CASCADE_CHILD,
         lazy='selectin',
     )
 
-    ruleset: MappedSQLExpression[str] = column_property(
+    _ruleset: MappedSQLExpression[str] = column_property(
         select(BaseBout.ruleset_name).where(BaseBout.id == bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'jams'
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,
-        'polymorphic_on': ruleset,
+        'polymorphic_on': _ruleset,
     }
     __table_args__: tuple[Constraint, ...] = AbstractOneShotModel.__table_args__ + (
         UniqueConstraint('bout_id', 'num', 'period'),
@@ -69,26 +68,16 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         """
         return f'[Bout ID: {self.bout_id}, P{self.period} J{self.num}]'
 
-    def __init__(
-        self,
-        bout: BaseBout,
-        period_num: int,
-        jam_num: int,
-    ) -> None:
+    def __init__(self, period_num: int, jam_num: int, *team_jams: TeamJam) -> None:
         """Initialize a Jam.
 
         Args:
-            bout (BaseBout): the Bout to which this Jam belongs.
             period_num (int): the Period number of this Jam, zero-indexed.
             jam_num (int): the Jam number of this Jam, zero-indexed.
+            team_jams (tuple[TeamJam, ...]): the TeamJams that will compete in this Jam.
 
         """
-        super().__init__(
-            bout=bout,
-            bout_id=bout.id,  # Prevent `bout_id is None` condition
-            period=period_num,
-            num=jam_num,
-        )
+        super().__init__(period=period_num, num=jam_num, team_jams=list(team_jams))
 
     @override
     def cache_key(self) -> CacheKey:
@@ -96,7 +85,16 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team_jams)
+        return (await self.get_bout(),)
+
+    async def get_bout(self) -> BaseBout:
+        """Get the Bout that owns this Jam.
+
+        Returns:
+            BaseBout: the Bout that owns this Jam.
+
+        """
+        return await self.awaitable_attrs._bout
 
     def get_team_jam(self, team: BaseTeam | int) -> TeamJam:
         """Get the TeamJam associated with the desired Team.

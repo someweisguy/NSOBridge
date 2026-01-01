@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP
+from core import CASCADE_CHILD, CASCADE_OTHER
 from game.clocks.models import Clock
 from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, column
@@ -40,30 +40,31 @@ class BaseBout(CacheableSQLModel):
     is_running: Mapped[bool] = mapped_column(default=False)
     ruleset_name: Mapped[str] = mapped_column()
 
+    _series: Mapped[Series] = relationship(
+        back_populates='bouts',
+        cascade=CASCADE_OTHER,
+        foreign_keys=[series_id],
+    )
     clock: Mapped[Clock] = relationship(
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         foreign_keys=[clock_id],
         lazy='joined',
         single_parent=True,
     )
+    teams: Mapped[list[BaseTeam]] = relationship(
+        back_populates='_bout',
+        cascade=CASCADE_CHILD,
+        lazy='selectin',
+    )
     jams: Mapped[list[BaseJam]] = relationship(
-        back_populates='bout',
-        cascade=CHILD_RELATIONSHIP,
+        back_populates='_bout',
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('period'), column('num')],
     )
-    series: Mapped[Series] = relationship(
-        back_populates='bouts',
-        cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[series_id],
-    )
-    teams: Mapped[list[BaseTeam]] = relationship(
-        back_populates='bout',
-        cascade=CHILD_RELATIONSHIP,
-        lazy='selectin',
-    )
     timeouts: Mapped[list[BaseTimeout]] = relationship(
-        cascade=CHILD_RELATIONSHIP,
+        back_populates='_bout',
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('id')],
     )
@@ -83,17 +84,16 @@ class BaseBout(CacheableSQLModel):
         """
         return f'[Bout ID: {self.id}]'
 
-    def __init__(self, series: Series, ruleset_name: str) -> None:
+    def __init__(self, ruleset_name: str, *teams: BaseTeam) -> None:
         """Instantiate a Bout.
 
         Args:
             series (Series): The series to which this Bout belongs.
             ruleset_name (str): The ruleset which the Bout will use.
+            teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout.
 
         """
-        super().__init__(
-            series=series, clock=Clock(bout=self), ruleset_name=ruleset_name
-        )
+        super().__init__(clock=Clock(), ruleset_name=ruleset_name, teams=list(teams))
 
     @override
     def cache_key(self) -> CacheKey:
@@ -102,6 +102,15 @@ class BaseBout(CacheableSQLModel):
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
+
+    async def get_series(self) -> Series:
+        """Get the Series that owns this Bout.
+
+        Returns:
+            Series: the Series that owns this Bout.
+
+        """
+        return await self.awaitable_attrs._series
 
     @final
     @property

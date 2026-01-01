@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -18,10 +18,10 @@ class Skater(BaseSQLModel):
     pronouns: Mapped[str] = mapped_column()  # TODO: Implement pronouns
     number: Mapped[str] = mapped_column()
 
-    roster: Mapped[Roster] = relationship(
+    _roster: Mapped[Roster] = relationship(
         back_populates='skaters',
-        cascade=PARENT_RELATIONSHIP,
-        foreign_keys=roster_id,
+        cascade=CASCADE_OTHER,
+        foreign_keys=[roster_id],
         lazy='selectin',
     )
 
@@ -43,7 +43,16 @@ class Skater(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.roster,)
+        return (await self.get_roster(),)
+
+    async def get_roster(self) -> Roster:
+        """Get the Roster to which this Skater belongs.
+
+        Returns:
+            Roster: the Roster to which this Skater belongs.
+
+        """
+        return await self.awaitable_attrs._roster
 
 
 class Roster(CacheableSQLModel):
@@ -54,8 +63,8 @@ class Roster(CacheableSQLModel):
     mnemonic: Mapped[str] = mapped_column()
 
     skaters: Mapped[list[Skater]] = relationship(
-        back_populates='roster',
-        cascade=CHILD_RELATIONSHIP,
+        back_populates='_roster',
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('number')],
     )

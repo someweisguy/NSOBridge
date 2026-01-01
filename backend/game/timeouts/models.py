@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
 
-from core import PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, select
@@ -30,8 +30,8 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     """
 
     bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
-    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
+    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
 
     num: Mapped[int] = mapped_column()
     clock_elapsed: Mapped[timedelta | None] = mapped_column(default=None)
@@ -41,18 +41,21 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
+        foreign_keys=[bout_id],
     )
-    jam: Mapped[BaseJam | None] = relationship(
-        cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[jam_id],
-    )
+
+    # The next two relationships are special cases - they can be eagerly loaded
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
-        cascade=PARENT_RELATIONSHIP,
+        cascade=CASCADE_OTHER,
         foreign_keys=[team_id],
+        lazy='selectin',
+    )
+    jam: Mapped[BaseJam | None] = relationship(
+        cascade=CASCADE_OTHER, foreign_keys=[jam_id], lazy='selectin'
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
@@ -86,7 +89,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             num (int): the unique Timeout number associated with this Bout.
 
         """
-        super().__init__(bout=bout, bout_id=bout.id, num=num)
+        super().__init__(_bout=bout, bout_id=bout.id, num=num)
 
     @override
     def cache_key(self) -> CacheKey:
@@ -94,7 +97,18 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.bout, await self.awaitable_attrs.team)
+        if self.team is None:
+            return (await self.get_bout(),)
+        return (await self.get_bout(), self.team)
+
+    async def get_bout(self) -> BaseBout:
+        """Get the Bout that owns this Timeout.
+
+        Returns:
+            BaseBout: the Bout that Owns this Timeout.
+
+        """
+        return await self.awaitable_attrs._bout
 
     def set_type(self, is_review: bool) -> None:
         """Set whether this Timeout is a timeout or an official review.

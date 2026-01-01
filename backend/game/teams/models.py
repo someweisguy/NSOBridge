@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, override
 
-from core import CHILD_RELATIONSHIP, PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
+from game.jams.models import BaseJam
 from game.team_jams.models import TeamJam
 from game.timeouts.models import BaseTimeout
 from sqlalchemy import ForeignKey, select
@@ -16,6 +17,7 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+from sqlalchemy.sql._elements_constructors import desc
 
 if TYPE_CHECKING:
     from game.rosters.models import Roster
@@ -32,43 +34,51 @@ class BaseTeam(BaseSQLModel):
     data like a team's score offset.
     """
 
-    bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
     roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
+    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'), nullable=False)
 
     # TODO: Implement Team colors
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
-    bout: Mapped[BaseBout] = relationship(
-        cascade=PARENT_RELATIONSHIP,
-        lazy='selectin',
-    )
-    roster: Mapped[Roster] = relationship(
-        cascade=PARENT_RELATIONSHIP,
+    _roster: Mapped[Roster] = relationship(
+        cascade=CASCADE_OTHER,
         foreign_keys=[roster_id],
-        lazy='joined',
+    )
+    _bout: Mapped[BaseBout | None] = relationship(
+        back_populates='teams',
+        cascade=CASCADE_OTHER,
+        foreign_keys=[bout_id],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
-        back_populates='team',
-        cascade=CHILD_RELATIONSHIP,
+        back_populates='_team',
+        cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[TeamJam.period_num, TeamJam.jam_num],
     )
     timeouts: Mapped[list[BaseTimeout]] = relationship(
         back_populates='team',
-        cascade=CHILD_RELATIONSHIP,
+        cascade=CASCADE_CHILD,
         lazy='selectin',
-        order_by=BaseTimeout.id,
+        order_by=[BaseTimeout.num],
     )
 
-    ruleset: MappedSQLExpression[str] = column_property(
+    # Used to calculate the current Jam score
+    _active_jam_id: MappedSQLExpression[int | None] = column_property(
+        select(BaseJam.id)
+        .where(BaseJam.start_timestamp != None)  # noqa: E711
+        .order_by(desc(BaseJam.period), desc(BaseJam.num))
+        .scalar_subquery()
+    )
+
+    _ruleset: MappedSQLExpression[str] = column_property(
         select(BaseBout.ruleset_name).where(BaseBout.id == bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'teams'
     __mapper_args__: dict[str, Any] = {
-        'polymorphic_on': ruleset,
+        'polymorphic_on': _ruleset,
     }
 
     @classmethod
@@ -86,7 +96,7 @@ class BaseTeam(BaseSQLModel):
         """
         raise NotImplementedError()
 
-    def __init__(self, bout: BaseBout, roster: Roster) -> None:
+    def __init__(self, roster: Roster) -> None:
         """Initialize a Team.
 
         Args:
@@ -94,11 +104,29 @@ class BaseTeam(BaseSQLModel):
             roster (Roster): the Roster that this Team will use.
 
         """
-        super().__init__(bout=bout, bout_id=bout.id, roster=roster)
+        super().__init__(_roster=roster)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.bout,)
+        return (await self.get_bout(),)
+
+    async def get_roster(self) -> Roster:
+        """Get the Roster to which this Team belongs.
+
+        Returns:
+            Roster: the Roster to which this Team belongs.
+
+        """
+        return await self.awaitable_attrs._roster
+
+    async def get_bout(self) -> BaseBout:
+        """Get the Bout to which this Team belongs.
+
+        Returns:
+            BaseBout: the Bout to which this Team belongs.
+
+        """
+        return await self.awaitable_attrs._bout
 
     @property
     def bout_score(self) -> int:
@@ -125,12 +153,9 @@ class BaseTeam(BaseSQLModel):
             int: the current jam score of this Team.
 
         """
-        if len(self.team_jams) == 0:
-            return 0
-        active_team_jam: TeamJam = (
-            self.team_jams[-1]
-            if self.bout.state in ['stopped', 'jam'] or len(self.team_jams) == 1
-            else self.team_jams[-2]
+        active_team_jam: TeamJam | None = next(
+            (tj for tj in self.team_jams if tj.jam_id == self._active_jam_id), None
         )
-        jam_score: int = self.get_team_jam_score(active_team_jam)
-        return jam_score
+        if active_team_jam is None:
+            return 0
+        return self.get_team_jam_score(active_team_jam)

@@ -5,12 +5,11 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, override
 
-from core import PARENT_RELATIONSHIP, BaseSQLModel
 from game.models import TimeableModel
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 if TYPE_CHECKING:
-    from game.bouts.models import BaseBout
+    from core import BaseSQLModel
 
 
 class Clock(TimeableModel):
@@ -24,12 +23,6 @@ class Clock(TimeableModel):
     start_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     elapsed: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
     alarm: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
-
-    bout: Mapped[BaseBout | None] = relationship(
-        back_populates='clock',
-        cascade=PARENT_RELATIONSHIP,
-        lazy='joined',
-    )
 
     __tablename__: str = 'clocks'
 

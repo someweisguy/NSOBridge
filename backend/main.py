@@ -76,12 +76,14 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
         if results.scalar_one_or_none() is None:
             logging.info('Creating initial Bout model')
-            bout = wftda_2025.Bout(
-                Series(),
-                Roster('Home', 'Default League'),
-                Roster('Away', 'Default League'),
+            series: Series = Series()
+            series.bouts.append(
+                wftda_2025.Bout(
+                    Roster('Home', 'Default League'),
+                    Roster('Away', 'Default League'),
+                )
             )
-            session.add(bout)
+            session.add(series)
             logging.debug('Initial data created')
             await session.commit()
         else:

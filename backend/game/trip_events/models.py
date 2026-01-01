@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, override
 
-from core import PARENT_RELATIONSHIP, BaseSQLModel
+from core import CASCADE_OTHER, BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,17 +26,18 @@ class TripEvent(BaseSQLModel):
     eligibility.
     """
 
-    team_jam_id: Mapped[int | None] = mapped_column(ForeignKey('team_jams.id'))
+    team_jam_id: Mapped[int | None] = mapped_column(
+        ForeignKey('team_jams.id'), nullable=False
+    )
+
     timestamp: Mapped[datetime] = mapped_column()
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
     passes: Mapped[int | None] = mapped_column(default=None)
     star_pass: Mapped[bool] = mapped_column(default=False)
 
-    team_jam: Mapped[TeamJam | None] = relationship(
-        cascade=PARENT_RELATIONSHIP,
-        foreign_keys=[team_jam_id],
-        lazy='joined',
+    _team_jam: Mapped[TeamJam | None] = relationship(
+        back_populates='events', cascade=CASCADE_OTHER, foreign_keys=[team_jam_id]
     )
 
     __tablename__: str = 'trip_events'
@@ -70,7 +71,7 @@ class TripEvent(BaseSQLModel):
 
         """
         super().__init__(
-            team_jam=None,
+            _team_jam=None,
             timestamp=timestamp,
             lead=lead,
             lost=lost,
@@ -80,7 +81,16 @@ class TripEvent(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs.team_jam,)
+        return (await self.get_team_jam(),)
+
+    async def get_team_jam(self) -> TeamJam:
+        """Get the TeamJam to which this TripEvent belongs.
+
+        Returns:
+            TeamJam: the TeamJam to which this TripEvent belongs.
+
+        """
+        return await self.awaitable_attrs._team_jam
 
     def is_empty(self) -> bool:
         """Return True if this TripEvent is empty.
