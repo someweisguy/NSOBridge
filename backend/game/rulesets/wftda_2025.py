@@ -18,6 +18,16 @@ from .schemas import Ruleset
 
 RULESET_NAME = 'WFTDA 2025'
 
+RULESET = Ruleset(
+    name=RULESET_NAME,
+    num_periods=2,
+    jam_duration=timedelta(minutes=2),
+    lineup_duration=timedelta(seconds=30),
+    points_per_trip=4,
+    num_timeouts=3,
+    num_reviews=1,
+)
+
 
 class _WFTDAModel:
     __mapper_args__: dict[str, str] = {
@@ -31,15 +41,7 @@ class _WFTDAModel:
 class Bout(_WFTDAModel, BaseBout):
     """A Bout model using the WFTDA 2025 ruleset."""
 
-    ruleset: ClassVar[Ruleset] = Ruleset(
-        name=RULESET_NAME,
-        num_periods=2,
-        jam_duration=timedelta(minutes=2),
-        lineup_duration=timedelta(seconds=30),
-        points_per_trip=4,
-        num_timeouts=3,
-        num_reviews=1,
-    )
+    ruleset: ClassVar[Ruleset] = RULESET
 
     @override
     def __init__(self, series: Series, home: Roster, away: Roster) -> None:
@@ -241,11 +243,11 @@ class Jam(_WFTDAModel, BaseJam):
         event: TripEvent = TripEvent(timestamp, passes=passes)
 
         # Automatically set lead on the first 4-point trip
-        if not self.lead_is_declared() and passes == self.bout.ruleset.points_per_trip:
+        if not self.lead_is_declared() and passes == RULESET.points_per_trip:
             await self.set_lead(team_id, timestamp, True)
 
         # Lose eligibility on initial no-pass/no-penalty
-        if len(team_jam.events) == 0 and passes < self.bout.ruleset.points_per_trip:
+        if len(team_jam.events) == 0 and passes < RULESET.points_per_trip:
             await self.set_lost(team_id, timestamp, True)
 
         # Jammer cannot earn points on the initial pass
