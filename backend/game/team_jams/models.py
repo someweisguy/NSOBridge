@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Any, override
 
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.jams.models import BaseJam
@@ -60,6 +60,9 @@ class TeamJam(BaseSQLModel):
     )
 
     __tablename__: str = 'team_jams'
+    __mapper_args__: dict[str, Any] = {
+        'confirm_deleted_rows': False,  # Make best effort to delete orphaned rows
+    }
 
     def __init__(self, team: BaseTeam) -> None:
         """Initialize a TeamJam.
