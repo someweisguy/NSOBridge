@@ -39,12 +39,11 @@ class TeamJam(BaseSQLModel):
         back_populates='team_jams',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[jam_id],
-        lazy='selectin',
     )
     team: Mapped[BaseTeam | None] = relationship(
+        back_populates='team_jams',
         cascade=PARENT_RELATIONSHIP,
         foreign_keys=[team_id],
-        lazy='selectin',
     )
     events: Mapped[list[TripEvent]] = relationship(
         back_populates='team_jam',
