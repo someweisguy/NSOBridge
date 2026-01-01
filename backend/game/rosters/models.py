@@ -21,7 +21,7 @@ class Skater(BaseSQLModel):
     roster: Mapped[Roster] = relationship(
         back_populates='skaters',
         cascade=PARENT_RELATIONSHIP,
-        foreign_keys=roster_id,
+        foreign_keys=[roster_id],
         lazy='selectin',
     )
 

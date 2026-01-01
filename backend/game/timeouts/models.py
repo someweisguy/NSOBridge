@@ -44,6 +44,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
         cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[bout_id],
     )
     jam: Mapped[BaseJam | None] = relationship(
         cascade=PARENT_RELATIONSHIP,

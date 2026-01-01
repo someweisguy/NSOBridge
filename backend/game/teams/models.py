@@ -42,6 +42,7 @@ class BaseTeam(BaseSQLModel):
 
     bout: Mapped[BaseBout] = relationship(
         cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[bout_id],
         lazy='selectin',
     )
     roster: Mapped[Roster] = relationship(

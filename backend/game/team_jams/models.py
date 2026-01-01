@@ -38,6 +38,7 @@ class TeamJam(BaseSQLModel):
     jam: Mapped[BaseJam] = relationship(
         back_populates='team_jams',
         cascade=PARENT_RELATIONSHIP,
+        foreign_keys=[jam_id],
         lazy='selectin',
     )
     team: Mapped[BaseTeam | None] = relationship(
