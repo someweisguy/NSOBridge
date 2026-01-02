@@ -1,5 +1,6 @@
 """The FastAPI dependencies methods for Jams."""
 
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
 from core import AsyncSessionDepends, ClientError
@@ -27,7 +28,9 @@ async def _get_jam(
     try:
         jam: BaseJam = results.scalar_one()
     except NoResultFound as e:
-        raise ClientError(f'Could not find Jam with ID {jam_id}') from e
+        raise ClientError(
+            f'Could not find Jam with ID {jam_id}', status_code=HTTPStatus.NOT_FOUND
+        ) from e
 
     if request.method != 'GET':
         user.stage(jam.get_memento())

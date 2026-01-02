@@ -21,6 +21,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
 
+from core.schemas import APISchema
+
 from .exceptions import ClientError
 from .schemas import ErrorSchema, VersionSchema
 
@@ -204,11 +206,12 @@ async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse
         )
 
     return JSONResponse(
-        status_code=409,
-        content=ErrorSchema(
-            code=str(type(cause).__name__),
-            message=str(cause),
-            description=str(e),
+        status_code=e.status_code,
+        content=APISchema(
+            status_code=e.status_code,
+            error=ErrorSchema(
+                type=str(type(cause).__name__), message=str(cause), description=str(e)
+            ),
             path=f'{request.url.path}?{request.url.query}',
             method=request.method,
         ).model_dump_json(),
