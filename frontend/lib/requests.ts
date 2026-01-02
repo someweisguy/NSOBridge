@@ -57,8 +57,6 @@ export default class API {
     // Get the response and revive any Date values
     const text: string = await response.text();
     const payload = JSON.parse(text, dateReviver) as APIResponse<T>;
-
-    console.log(typeof payload);
     return payload;
   }
 
