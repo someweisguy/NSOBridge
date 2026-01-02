@@ -15,4 +15,7 @@ if TYPE_CHECKING:
 async def _get_all_series(session: AsyncSessionDepends) -> Sequence[Series]:
     statement: Select[tuple[Series]] = select(Series)
     results: Result[tuple[Series]] = await session.execute(statement)
+
+    # TODO: figure out how to handle series dependencies
+
     return results.scalars().all()

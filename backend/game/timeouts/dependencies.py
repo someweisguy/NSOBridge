@@ -1,10 +1,12 @@
 """The FastAPI dependencies methods for Timeouts."""
 
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
-from core import AsyncSessionDepends
+from core import AsyncSessionDepends, ClientError
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
 from user import GetUser
 
 from .models import BaseTimeout
@@ -23,7 +25,14 @@ async def _get_timeout(
         BaseTimeout.id == timeout_id
     )
     results: Result[tuple[BaseTimeout]] = await session.execute(statement)
-    timeout: BaseTimeout = results.scalar_one()
+
+    try:
+        timeout: BaseTimeout = results.scalar_one()
+    except NoResultFound as e:
+        raise ClientError(
+            f'Could not find Timeout with ID {timeout_id}',
+            status_code=HTTPStatus.NOT_FOUND,
+        ) from e
 
     # Optionally take a snapshot of the Timeout state
     if request.method != 'GET':
