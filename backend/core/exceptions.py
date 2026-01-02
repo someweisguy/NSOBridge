@@ -8,4 +8,7 @@ class ClientError(Exception):
     These types of exception should almost always be recoverable.
     """
 
-    pass
+    def __init__(self, message: str, *, status_code: int = 500) -> None:
+        """Initialize the exception, providing an optional status code."""
+        super().__init__(message)
+        self.status_code = status_code

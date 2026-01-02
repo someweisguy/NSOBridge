@@ -1,10 +1,13 @@
 """Base schemas for use in other modules."""
 
-from datetime import timedelta
-from typing import ClassVar
+from __future__ import annotations
+
+from datetime import datetime, timedelta
+from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
+from pydantic.fields import Field
 
 from .utils import _timedelta_encoder
 
@@ -43,6 +46,25 @@ class ClientSchema(BaseModel):
         json_encoders={timedelta: _timedelta_encoder},
         validate_by_alias=True,
     )
+
+
+class APISchema(ServerSchema):
+    """The default schema for returning API requests."""
+
+    status_code: int
+    error: ErrorSchema | None = Field(default=None, exclude_if=lambda e: e is None)
+    data: Any = None
+    timestamp: datetime = Field(default_factory=datetime.now, init=False)
+    path: str
+    method: str
+
+
+class ErrorSchema(ServerSchema):
+    """A schema for returning detailed error messages to clients."""
+
+    type: str
+    message: str
+    description: str
 
 
 class VersionSchema(ServerSchema):
