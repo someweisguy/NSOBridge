@@ -45,6 +45,16 @@ class ClientSchema(BaseModel):
     )
 
 
+class ErrorSchema(ServerSchema):
+    """A schema for returning detailed error messages to clients."""
+
+    code: str
+    message: str
+    description: str
+    path: str
+    method: str
+
+
 class VersionSchema(ServerSchema):
     """The schema which returns application version information."""
 

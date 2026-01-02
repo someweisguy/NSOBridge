@@ -21,9 +21,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
 
-from core.schemas import VersionSchema
-
 from .exceptions import ClientError
+from .schemas import ErrorSchema, VersionSchema
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine
@@ -196,9 +195,23 @@ def _get_app_version(request: Request) -> VersionSchema:
 @app.exception_handler(ClientError)
 async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
     logging.info(f'{e} ({request.method}: {request.url.path}?{request.url.query})')
+
+    cause: BaseException | None = e.__cause__
+    if cause is None:
+        return JSONResponse(
+            status_code=409,  # TODO: remove magic number
+            content={'message': str(e)},
+        )
+
     return JSONResponse(
-        status_code=409,  # TODO: remove magic number
-        content={'message': str(e)},
+        status_code=409,
+        content=ErrorSchema(
+            code=str(type(cause).__name__),
+            message=str(cause),
+            description=str(e),
+            path=f'{request.url.path}?{request.url.query}',
+            method=request.method,
+        ).model_dump_json(),
     )
 
 
