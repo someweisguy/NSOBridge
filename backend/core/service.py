@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.engine import URL
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
@@ -194,11 +195,17 @@ def _get_app_version(request: Request) -> VersionSchema:
 
 @app.exception_handler(ClientError)
 async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
-    logging.info(f'Handling client error: {str(e)}')
+    logging.info(f'{e} ({request.method}: {request.url.path}?{request.url.query})')
     return JSONResponse(
         status_code=409,  # TODO: remove magic number
         content={'message': str(e)},
     )
+
+
+@app.exception_handler(NoResultFound)
+async def _no_result_found_handler(request: Request, e: NoResultFound) -> JSONResponse:
+    logging.info(f'{e} ({request.method}: {request.url.path}?{request.url.query})')
+    return JSONResponse(status_code=404, content={'messages': str(e)})
 
 
 def configure_logging(
