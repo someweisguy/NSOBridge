@@ -5,6 +5,17 @@ interface URLParameters {
   body?: string | number | boolean | object | null;
 }
 
+interface APIResponse<T = unknown> {
+  statusCode: number;
+  data: T;
+  error?: {
+    type: string;
+    message: string;
+    description: string;
+  };
+  timestamp: string;
+}
+
 export default class API {
   readonly host: string;
 
@@ -16,7 +27,7 @@ export default class API {
     endpoint: string,
     method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH",
     params?: URLParameters,
-  ): Promise<T> {
+  ): Promise<APIResponse<T>> {
     // Generate the request URL
     const url = new URL(`/api/${endpoint}`, this.host);
     if (params?.query !== undefined) {
@@ -45,39 +56,67 @@ export default class API {
 
     // Get the response and revive any Date values
     const text: string = await response.text();
-    return JSON.parse(text, dateReviver) as T;
+    const payload = JSON.parse(text, dateReviver) as APIResponse<T>;
+
+    console.log(typeof payload);
+    return payload;
   }
 
   async get<T = unknown>(
     endpoint: string,
     params?: Omit<URLParameters, "body">,
   ): Promise<T> {
-    return this.sendRequest(endpoint, "GET", params);
+    const response: APIResponse<T> = await this.sendRequest(
+      endpoint,
+      "GET",
+      params,
+    );
+    return response.data;
   }
 
   async head<T = unknown>(
     endpoint: string,
     params?: Omit<URLParameters, "body">,
   ): Promise<T> {
-    return this.sendRequest(endpoint, "HEAD", params);
+    const response: APIResponse<T> = await this.sendRequest(
+      endpoint,
+      "HEAD",
+      params,
+    );
+    return response.data;
   }
 
   async post<T = unknown>(
     endpoint: string,
     params?: URLParameters,
   ): Promise<T> {
-    return this.sendRequest(endpoint, "POST", params);
+    const response: APIResponse<T> = await this.sendRequest(
+      endpoint,
+      "POST",
+      params,
+    );
+    return response.data;
   }
 
   async put<T = unknown>(endpoint: string, params?: URLParameters): Promise<T> {
-    return this.sendRequest(endpoint, "PUT", params);
+    const response: APIResponse<T> = await this.sendRequest(
+      endpoint,
+      "PUT",
+      params,
+    );
+    return response.data;
   }
 
   async delete<T = unknown>(
     endpoint: string,
     params?: URLParameters,
   ): Promise<T> {
-    return this.sendRequest(endpoint, "DELETE", params);
+    const response: APIResponse<T> = await this.sendRequest(
+      endpoint,
+      "DELETE",
+      params,
+    );
+    return response.data;
   }
 }
 
