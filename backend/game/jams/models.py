@@ -54,6 +54,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,
         'polymorphic_on': _ruleset,
+        'confirm_deleted_rows': False,
     }
     __table_args__: tuple[Constraint, ...] = AbstractOneShotModel.__table_args__ + (
         UniqueConstraint('bout_id', 'num', 'period'),
