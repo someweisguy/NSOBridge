@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import sys
 from datetime import datetime
+from http import HTTPStatus
 from logging import Handler, StreamHandler
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Final, LiteralString, Protocol
+from typing import TYPE_CHECKING, Any, ClassVar, Final, LiteralString, Mapping, Protocol
 
 import colorlog
 from fastapi import FastAPI, Request
@@ -20,14 +22,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
 
-from core.schemas import APISchema
-
 from .exceptions import ClientError
-from .schemas import ErrorSchema, VersionSchema
+from .schemas import APISchema, ErrorSchema, VersionSchema
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine
     from sqlalchemy.orm import DeclarativeBase
+    from starlette.background import BackgroundTask
 
 
 logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
@@ -145,9 +146,50 @@ class DatabaseEngine:
         return factory()
 
 
+class _APIResponseClass(JSONResponse):
+    """Used to wrap all API responses in a common JSON interface.
+
+    See `core.schemas.APISchema`.
+    """
+
+    def __init__(
+        self,
+        content: Any,
+        status_code: int = HTTPStatus.OK,
+        headers: Mapping[str, str] | None = None,
+        media_type: str | None = None,
+        background: BackgroundTask | None = None,
+    ) -> None:
+        error_occurred: bool = status_code not in range(
+            HTTPStatus.OK, HTTPStatus.MULTIPLE_CHOICES
+        )
+        super().__init__(
+            APISchema(
+                status_code=status_code,
+                error=content if error_occurred else None,
+                data=content if not error_occurred else None,
+            ).model_dump(),
+            status_code,
+            headers,
+            media_type,
+            background,
+        )
+
+    def render(self, content: Any) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(',', ':'),
+            default=(lambda dt: str(dt)),  # Explicitly serialize datetime objects
+        ).encode('utf-8')
+
+
 # Initialize the application and set the appropriate routes
 app: Final[FastAPI] = FastAPI(
     debug=DEBUG,
+    default_response_class=_APIResponseClass,
     routes=[
         Mount('/assets', StaticFiles(directory=FRONTEND / 'assets')),
     ],
@@ -213,7 +255,7 @@ async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse
             ),
             path=f'{request.url.path}?{request.url.query}',
             method=request.method,
-        ).model_dump_json(),
+        ).model_dump(),
     )
 
 
