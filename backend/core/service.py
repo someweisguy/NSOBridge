@@ -236,27 +236,23 @@ def _get_app_version(request: Request) -> VersionSchema:
 
 
 @app.exception_handler(ClientError)
-async def _rules_error_handler(request: Request, e: ClientError) -> JSONResponse:
-    logging.info(f'{e} ({request.method}: {request.url.path}?{request.url.query})')
-
+async def _client_error_handler(request: Request, e: ClientError) -> _APIResponseClass:
     cause: BaseException | None = e.__cause__
     if cause is None:
-        return JSONResponse(
-            status_code=409,  # TODO: remove magic number
-            content={'message': str(e)},
+        logging.warning(
+            f'An unknown client error occurred ({request.method}:{request.url.path}'
+            f'?{request.url.query})'
         )
+        cause = Exception('Unknown exception')
 
-    return JSONResponse(
-        status_code=e.status_code,
-        content=APISchema(
-            status_code=e.status_code,
-            error=ErrorSchema(
-                type=str(type(cause).__name__), message=str(cause), description=str(e)
-            ),
-            path=f'{request.url.path}?{request.url.query}',
-            method=request.method,
-        ).model_dump(),
+    error_schema: ErrorSchema = ErrorSchema(
+        type=str(type(cause).__name__),
+        message=str(cause),
+        description=str(e),
     )
+    logging.info(error_schema.description)
+
+    return _APIResponseClass(status_code=e.status_code, content=error_schema)
 
 
 def configure_logging(
