@@ -70,8 +70,7 @@ class ErrorSchema(ServerSchema):
             e (Exception): the Exception to serialize.
 
         """
-        self.type = type(e).__name__
-        self.message = str(e)
+        super().__init__(type=type(e).__name__, message=str(e))
 
 
 class VersionSchema(ServerSchema):

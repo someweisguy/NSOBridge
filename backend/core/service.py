@@ -236,6 +236,7 @@ def _get_app_version(request: Request) -> VersionSchema:
 
 
 @app.exception_handler(Exception)
+@app.exception_handler(ClientError)
 async def _generic_error_handler(request: Request, e: Exception) -> _APIResponseClass:
     error: ErrorSchema = ErrorSchema(e)
 
@@ -250,6 +251,8 @@ async def _generic_error_handler(request: Request, e: Exception) -> _APIResponse
             status_code = HTTPStatus.NOT_FOUND
         case _:
             status_code = HTTPStatus.CONFLICT
+
+    logging.info(f'{error.message} (HTTP {status_code})')
 
     return _APIResponseClass(error, status_code=status_code)
 
