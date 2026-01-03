@@ -124,12 +124,12 @@ if __name__ == '__main__':
     parser.add_argument(
         'host',
         type=str,
-        help='The interface on which to serve the app.',
+        help='The interface on which to serve the app',
     )
     parser.add_argument(
         '-p',
         type=int,
-        help='The port on which to serve the app. Defaults to 8000.',
+        help='The port on which to serve the app (Defaults to 8000)',
         default=8000,
         dest='port',
     )
@@ -137,21 +137,21 @@ if __name__ == '__main__':
         '-f',
         type=str,
         help='The database file to use for storing game data. If no file is provided, '
-        'an in-memory database will be used.',
+        'an in-memory database will be used',
         default='',
         dest='db_path_name',
     )
     parser.add_argument(
         '-d',
         '--debug',
-        help='Enable debug logging.',
+        help='Enable debug logging',
         action='store_true',
         dest='debug',
     )
     parser.add_argument(
         '-s',
         '--silent',
-        help='Disables log messages to the console.',
+        help='Disables log messages to the console',
         action='store_true',
         dest='silent',
     )
