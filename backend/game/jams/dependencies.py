@@ -3,7 +3,7 @@
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
-from core import AsyncSessionDepends, ClientError
+from core import AsyncSessionDepends, ChainedClientError
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
@@ -28,7 +28,7 @@ async def _get_jam(
     try:
         jam: BaseJam = results.scalar_one()
     except NoResultFound as e:
-        raise ClientError(
+        raise ChainedClientError(
             f'Could not find Jam with ID {jam_id}', status_code=HTTPStatus.NOT_FOUND
         ) from e
 

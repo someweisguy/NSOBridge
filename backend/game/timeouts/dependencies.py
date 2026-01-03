@@ -3,7 +3,7 @@
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
-from core import AsyncSessionDepends, ClientError
+from core import AsyncSessionDepends, ChainedClientError
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
@@ -29,7 +29,7 @@ async def _get_timeout(
     try:
         timeout: BaseTimeout = results.scalar_one()
     except NoResultFound as e:
-        raise ClientError(
+        raise ChainedClientError(
             f'Could not find Timeout with ID {timeout_id}',
             status_code=HTTPStatus.NOT_FOUND,
         ) from e

@@ -22,7 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
 
-from .exceptions import ClientError
+from .exceptions import ChainedClientError, ClientError
 from .schemas import APISchema, ErrorSchema, VersionSchema
 
 if TYPE_CHECKING:
@@ -236,11 +236,25 @@ def _get_app_version(request: Request) -> VersionSchema:
 
 
 @app.exception_handler(ClientError)
-async def _client_error_handler(request: Request, e: ClientError) -> _APIResponseClass:
+async def _client_error_handler(_: Request, e: ClientError) -> _APIResponseClass:
+    error_schema: ErrorSchema = ErrorSchema(
+        type=str(type(e).__name__),
+        message=str(e),
+        description=str(e.description),
+    )
+    logging.info(error_schema.description)
+
+    return _APIResponseClass(status_code=e.status_code, content=error_schema)
+
+
+@app.exception_handler(ChainedClientError)
+async def _client_error_handler(
+    request: Request, e: ChainedClientError
+) -> _APIResponseClass:
     cause: BaseException | None = e.__cause__
     if cause is None:
         logging.warning(
-            f'An unknown client error occurred ({request.method}:{request.url.path}'
+            f'An unchained client error occurred ({request.method}:{request.url.path}'
             f'?{request.url.query})'
         )
         cause = Exception('Unknown exception')
