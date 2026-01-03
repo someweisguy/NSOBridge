@@ -16,7 +16,7 @@ class ClientError(Exception):
 
 
 class ChainedClientError(Exception):
-    """The base exception for client errors.
+    """The base exception for client errors, designed to be chained.
 
     This exception should be thrown when an error originating from client input occurs.
     These types of exception should almost always be recoverable.
