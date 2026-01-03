@@ -52,11 +52,9 @@ class APISchema(ServerSchema):
     """The default schema for returning API requests."""
 
     status_code: int
-    error: ErrorSchema | None = Field(default=None, exclude_if=lambda e: e is None)
     data: Any = None
+    error: ErrorSchema | None = Field(default=None, exclude_if=lambda e: e is None)
     timestamp: datetime = Field(default_factory=datetime.now, init=False)
-    path: str
-    method: str
 
 
 class ErrorSchema(ServerSchema):
@@ -64,7 +62,6 @@ class ErrorSchema(ServerSchema):
 
     type: str
     message: str
-    description: str
 
 
 class VersionSchema(ServerSchema):

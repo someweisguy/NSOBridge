@@ -1,9 +1,9 @@
 """The FastAPI dependencies methods for Jams."""
 
-from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 
-from core import AsyncSessionDepends, ClientError
+from core import AsyncSessionDepends
+from core.exceptions import ModelLookupError
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
@@ -28,9 +28,7 @@ async def _get_jam(
     try:
         jam: BaseJam = results.scalar_one()
     except NoResultFound as e:
-        raise ClientError(
-            f'Could not find Jam with ID {jam_id}', status_code=HTTPStatus.NOT_FOUND
-        ) from e
+        raise ModelLookupError(f'Could not find Jam with ID {jam_id}') from e
 
     if request.method != 'GET':
         user.stage(jam.get_memento())
