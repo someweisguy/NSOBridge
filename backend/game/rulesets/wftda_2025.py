@@ -4,16 +4,15 @@ import logging
 from datetime import datetime, timedelta
 from typing import ClassVar, override
 
+from core.exceptions import GameRulesError, GameStateError
 from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
 from game.jams.models import BaseJam
 from game.rosters.models import Roster
-from game.rulesets.exceptions import GameStateError
 from game.team_jams.models import TeamJam
 from game.teams.models import BaseTeam
 from game.timeouts.models import BaseTimeout
 from game.trip_events.models import TripEvent
 
-from .exceptions import RulesError
 from .schemas import Ruleset
 
 RULESET_NAME = 'WFTDA 2025'
@@ -57,7 +56,7 @@ class Bout(_WFTDAModel, BaseBout):
         if jam is None:
             raise GameStateError('There is no upcoming Jam in this period')
         if jam.period == Bout.ruleset.num_periods:
-            raise RulesError(
+            raise GameRulesError(
                 f'This Bout can only have {Bout.ruleset.num_periods} periods'
             )
 
@@ -76,7 +75,7 @@ class Bout(_WFTDAModel, BaseBout):
         running_jam: BaseJam | None = self.get_running_jam()
         running_timeout: BaseTimeout | None = self.get_running_timeout()
         if running_jam is not None or running_timeout is not None:
-            raise RulesError('A period can only be ended during a lineup')
+            raise GameRulesError('A period can only be ended during a lineup')
         if not self.is_running:
             raise GameStateError('There is no running period to end')
 
@@ -116,7 +115,7 @@ class Bout(_WFTDAModel, BaseBout):
 
         running_jam: BaseJam | None = self.get_running_jam()
         if running_jam is not None:
-            raise RulesError('A Jam may only be started from lineup')
+            raise GameRulesError('A Jam may only be started from lineup')
 
         # Get the first Jam that has not started
         jam: BaseJam | None = self.get_upcoming_jam()
@@ -193,7 +192,7 @@ class Bout(_WFTDAModel, BaseBout):
 
         # Validate the Timeout's state
         if timeout.is_review and timeout.team is None:
-            raise RulesError('Officials cannot call an official review')
+            raise GameRulesError('Officials cannot call an official review')
 
         # Stop the Timeout
         timeout.stop(timestamp)
@@ -262,7 +261,7 @@ class Jam(_WFTDAModel, BaseJam):
         if lead:
             # Add a new Trip Event in which lead is declared
             if self.lead_is_declared():
-                raise RulesError('A lead jammer has already been declared')
+                raise GameRulesError('A lead jammer has already been declared')
             event: TripEvent = TripEvent(timestamp, lead=lead)
             team_jam.events.append(event)
         else:
@@ -284,7 +283,7 @@ class Jam(_WFTDAModel, BaseJam):
         if lost:
             # Add a new Trip Event in which the Jammer has lost eligibility for lead
             if any(event.lost for event in team_jam.events):
-                raise RulesError('This team has already lost lead eligibility')
+                raise GameRulesError('This team has already lost lead eligibility')
             event: TripEvent = TripEvent(timestamp, lost=lost)
             team_jam.events.append(event)
         else:
@@ -308,7 +307,7 @@ class Jam(_WFTDAModel, BaseJam):
 
         if star_pass:
             if any(event.star_pass for event in team_jam.events):
-                raise RulesError(
+                raise GameRulesError(
                     'This team has already completed a star pass in this Jam'
                 )
             event: TripEvent = TripEvent(timestamp, star_pass=star_pass)
@@ -343,7 +342,7 @@ class Timeout(_WFTDAModel, BaseTimeout):
         if team is not None and team.bout_id != self.bout_id:
             raise GameStateError('Team and timeout are not part of the same Bout')
         if team is None and self.is_review:
-            raise RulesError('Official reviews can only be called by teams')
+            raise GameRulesError('Official reviews can only be called by teams')
 
         logging.info(
             f'Setting Timeout ID {self.id} calling team to '

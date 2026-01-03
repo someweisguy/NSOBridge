@@ -1,9 +1,9 @@
 """The FastAPI dependencies methods for Rosters."""
 
-from http import HTTPStatus
 from typing import Annotated, TypeAlias
 
-from core import AsyncSessionDepends, ChainedClientError
+from core import AsyncSessionDepends
+from core.exceptions import ModelLookupError
 from fastapi import Depends, Query
 from sqlalchemy import Result, select
 from sqlalchemy.exc import NoResultFound
@@ -22,10 +22,7 @@ async def _get_roster(
     try:
         roster: Roster = results.scalar_one()
     except NoResultFound as e:
-        raise ChainedClientError(
-            f'Could not find Roster with ID {roster_id}',
-            status_code=HTTPStatus.NOT_FOUND,
-        ) from e
+        raise ModelLookupError(f'Could not find Roster with ID {roster_id}') from e
 
     # TODO: handle mementos
 

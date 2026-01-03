@@ -22,7 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
 
-from .exceptions import ChainedClientError, ClientError
+from .exceptions import ClientError, ModelLookupError
 from .schemas import APISchema, ErrorSchema, VersionSchema
 
 if TYPE_CHECKING:
@@ -235,38 +235,23 @@ def _get_app_version(request: Request) -> VersionSchema:
     return VersionSchema(version=request.app.version)
 
 
-@app.exception_handler(ClientError)
-async def _client_error_handler(_: Request, e: ClientError) -> _APIResponseClass:
-    error_schema: ErrorSchema = ErrorSchema(
-        type=str(type(e).__name__),
-        message=str(e),
-        description=str(e.description),
-    )
-    logging.info(error_schema.description)
+@app.exception_handler(Exception)
+async def _generic_error_handler(request: Request, e: Exception) -> _APIResponseClass:
+    error: ErrorSchema = ErrorSchema(e)
 
-    return _APIResponseClass(status_code=e.status_code, content=error_schema)
+    # Handle exceptions that weren't explicitly caught
+    if not isinstance(e, ClientError):
+        logging.error(f'An unexpected error occurred: {error.type=} {error.message=}')
+        return _APIResponseClass(error, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
+    # Determine the HTTP status code base on the exception type
+    match e:
+        case ModelLookupError():
+            status_code = HTTPStatus.NOT_FOUND
+        case _:
+            status_code = HTTPStatus.CONFLICT
 
-@app.exception_handler(ChainedClientError)
-async def _client_error_handler(
-    request: Request, e: ChainedClientError
-) -> _APIResponseClass:
-    cause: BaseException | None = e.__cause__
-    if cause is None:
-        logging.warning(
-            f'An unchained client error occurred ({request.method}:{request.url.path}'
-            f'?{request.url.query})'
-        )
-        cause = Exception('Unknown exception')
-
-    error_schema: ErrorSchema = ErrorSchema(
-        type=str(type(cause).__name__),
-        message=str(cause),
-        description=str(e),
-    )
-    logging.info(error_schema.description)
-
-    return _APIResponseClass(status_code=e.status_code, content=error_schema)
+    return _APIResponseClass(error, status_code=status_code)
 
 
 def configure_logging(

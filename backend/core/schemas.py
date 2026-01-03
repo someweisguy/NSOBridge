@@ -62,7 +62,16 @@ class ErrorSchema(ServerSchema):
 
     type: str
     message: str
-    description: str
+
+    def __init__(self, e: Exception) -> None:
+        """Create an ErrorSchema based on the exception provided.
+
+        Args:
+            e (Exception): the Exception to serialize.
+
+        """
+        self.type = type(e).__name__
+        self.message = str(e)
 
 
 class VersionSchema(ServerSchema):
