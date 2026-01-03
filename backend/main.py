@@ -107,7 +107,7 @@ async def main(  # noqa: PLR0915
         f'Starting server at http://{ip}{f":{port}" if port != http_port else ""}'
     )
     await core.run(host, port)
-    logging.debug('Application stopped')
+    logging.debug('Server stopped')
 
     logging.info('Disconnecting all WebSockets')
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
@@ -157,11 +157,15 @@ if __name__ == '__main__':
     )
     args: Namespace = parser.parse_args()
 
-    asyncio.run(
-        main(
-            (args.host, args.port),
-            db_path_name=args.db_path_name,
-            debug=args.debug,
-            silent=args.silent,
+    try:
+        asyncio.run(
+            main(
+                (args.host, args.port),
+                db_path_name=args.db_path_name,
+                debug=args.debug,
+                silent=args.silent,
+            ),
+            loop_factory=asyncio.new_event_loop,
         )
-    )
+    except KeyboardInterrupt:
+        core.shutdown()
