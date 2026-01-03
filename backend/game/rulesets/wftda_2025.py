@@ -44,9 +44,6 @@ class Bout(_WFTDAModel, BaseBout):
     def __init__(self, home: Roster, away: Roster) -> None:
         super().__init__(RULESET_NAME, Team(home), Team(away))
         self.clock.alarm = timedelta(minutes=30)
-        for team in self.teams:
-            team.timeouts_remaining = Bout.ruleset.num_timeouts
-            team.reviews_remaining = Bout.ruleset.num_reviews
         self.jams.append(Jam(0, 0, *[TeamJam(team) for team in self.teams]))
         self.timeouts.append(Timeout(self, 0))
 
@@ -209,6 +206,12 @@ class Bout(_WFTDAModel, BaseBout):
 
 class Team(_WFTDAModel, BaseTeam):
     """A Team model using the WFTDA 2025 ruleset."""
+
+    @override
+    def __init__(self, roster: Roster) -> None:
+        super().__init__(roster)
+        self.timeouts_remaining = Bout.ruleset.num_timeouts
+        self.reviews_remaining = Bout.ruleset.num_reviews
 
     @classmethod
     @override

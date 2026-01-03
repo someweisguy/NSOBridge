@@ -78,6 +78,7 @@ class BaseTeam(BaseSQLModel):
 
     __tablename__: str = 'teams'
     __mapper_args__: dict[str, Any] = {
+        'polymorphic_abstract': True,
         'polymorphic_on': _ruleset,
     }
 
