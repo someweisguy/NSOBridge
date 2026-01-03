@@ -20,6 +20,7 @@ from .schemas import (
 )
 
 if TYPE_CHECKING:
+    from core import DatabaseEngine
     from game import CacheKey
 
 
@@ -96,7 +97,7 @@ async def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
         models (Iterable[BaseSQLModel]): a list of models which should be invalided.
 
     """
-    db = EngineFactory.get_default_engine()
+    db: DatabaseEngine = EngineFactory.get_default_engine()
     async with db.get_async_session() as new_session:
         # Merge the models with the current session
         models = [await new_session.merge(model) for model in models]
