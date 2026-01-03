@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Final, LiteralString, Mapping, 
 
 import colorlog
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
@@ -238,7 +239,7 @@ def _get_app_version(request: Request) -> VersionSchema:
 @app.exception_handler(Exception)
 @app.exception_handler(ClientError)
 async def _generic_error_handler(request: Request, e: Exception) -> _APIResponseClass:
-    error: ErrorSchema = ErrorSchema(e)
+    error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=str(e))
 
     # Handle exceptions that weren't explicitly caught
     if not isinstance(e, ClientError):
@@ -255,6 +256,14 @@ async def _generic_error_handler(request: Request, e: Exception) -> _APIResponse
     logging.info(f'{error.message} (HTTP {status_code})')
 
     return _APIResponseClass(error, status_code=status_code)
+
+
+@app.exception_handler(RequestValidationError)
+async def _validation_error_handler(
+    request: Request, e: RequestValidationError
+) -> _APIResponseClass:
+    error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=(str(e)))
+    return _APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
 
 
 def configure_logging(

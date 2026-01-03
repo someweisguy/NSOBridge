@@ -63,15 +63,6 @@ class ErrorSchema(ServerSchema):
     type: str
     message: str
 
-    def __init__(self, e: Exception) -> None:
-        """Create an ErrorSchema based on the exception provided.
-
-        Args:
-            e (Exception): the Exception to serialize.
-
-        """
-        super().__init__(type=type(e).__name__, message=str(e))
-
 
 class VersionSchema(ServerSchema):
     """The schema which returns application version information."""
