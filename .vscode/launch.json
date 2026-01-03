@@ -5,7 +5,11 @@
       "name": "No GUI",
       "type": "debugpy",
       "request": "launch",
-      "program": "backend/main.py 0.0.0.0 -d",
+      "program": "backend/main.py",
+      "args": [
+        "0.0.0.0",
+        "-d"
+      ],
       "console": "integratedTerminal",
       "env": {
         "SQLALCHEMY_DEBUG": "false",
