@@ -243,7 +243,8 @@ async def _generic_error_handler(request: Request, e: Exception) -> _APIResponse
 
     # Handle exceptions that weren't explicitly caught
     if not isinstance(e, ClientError):
-        logging.error(f'An unexpected error occurred: {error.type=} {error.message=}')
+        err, message = error.type, error.message
+        logging.error(f'An unexpected error occurred: {err=} {message=}')
         return _APIResponseClass(error, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
     # Determine the HTTP status code base on the exception type
