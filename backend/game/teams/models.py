@@ -17,7 +17,7 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
-from sqlalchemy.sql._elements_constructors import desc
+from sqlalchemy.sql import desc
 
 if TYPE_CHECKING:
     from game.rosters.models import Roster
@@ -95,7 +95,7 @@ class BaseTeam(BaseSQLModel):
             int: the calculated score of the TeamJam.
 
         """
-        raise NotImplementedError()
+        ...
 
     def __init__(self, roster: Roster) -> None:
         """Initialize a Team.
