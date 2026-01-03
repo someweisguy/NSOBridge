@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import signal
 import sys
 from datetime import datetime
 from http import HTTPStatus
@@ -339,3 +340,8 @@ async def run(host: str, port: int) -> None:
     )
 
     await server.serve()
+
+
+def shutdown() -> None:
+    """Shutdown the server process. Allows the program to terminate."""
+    os.kill(os.getpid(), signal.SIGTERM)

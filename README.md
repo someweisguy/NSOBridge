@@ -4,7 +4,15 @@ This is a scoreboard application designed for the Women's Flat Track Derby Assoc
 
 ## How to Install
 
-More information about how to install this app on your computer is coming soon!
+This app currently supports running in a command line interface which is an advanced installation method. Users who wish to run this app as a command line program should read below. An easy installation method is coming soon!
+
+### Command-Line Interface
+
+This application offers a command-line interface for advanced users.
+
+To install this application [NPM][Node.js and NPM Installation] and [Python 3.14][Python Installation] (or greater) are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a package manager but it is not required. Download the required Python packages listed in `pyproject.toml` by running `python pip install .` or `uv pip install .` if Astral uv is installed. The Node.js dependencies can be installed by running `npm install .`. Finally, the frontend can be compiled by running `npm run build`.
+
+After all the required packages have been installed and the frontend has been built, the application can be served on all interfaces by running `python backend/main.py 0.0.0.0`. For more information on how to use the command-line interface, run `python backend/main.py --help`.
 
 ## Differences from CRG Derby Scoreboard
 
@@ -16,9 +24,9 @@ This app also allows for roller derby statistics as a use-case. In addition to [
 
 This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. Websockets is used for bidirectional, client-server communication.
 
-A proper server-side GUI is planned for this app, but it is not yet supported. Until then, this app is command-line only. To use this app in its current state, Python 3.14 and Node.js is required. Clone this repository into a directory on your device and install the Python requirements found in `pyproject.toml`. The React frontend dependencies can be installed by running `npm install` and then the frontend can be built by running `npm run build`.
+A proper server-side GUI is planned for this app, but it is not yet supported. Until then, this app is command-line only.
 
-This app will be distributed using a Python bundler, such as _pyinstaller_, so that users may easily run this app. Python bundling is not yet supported. This program is currently command-line only, by running `backend/main.py` in your Python interpreter.
+This app will be distributed using a Python bundler, such as _pyinstaller_, so that users may easily run this app. Python bundling is not yet supported.
 
 ### Contributing
 
@@ -32,3 +40,6 @@ If you'd like to contribute to this app, more information can be found in the [N
 [React]: https://react.dev/
 [Tanstack Query]: https://tanstack.com/query/latest
 [Mantine]: https://mantine.dev/
+[Node.js and NPM Installation]: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+[Python Installation]: https://www.python.org/downloads/
+[uv Installation]: https://docs.astral.sh/uv/getting-started/installation/

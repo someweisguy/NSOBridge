@@ -6,12 +6,13 @@
       "type": "debugpy",
       "request": "launch",
       "program": "backend/main.py",
+      "args": [
+        "0.0.0.0",
+        "-d"
+      ],
       "console": "integratedTerminal",
       "env": {
-        "DB_PATH": "",
         "SQLALCHEMY_DEBUG": "false",
-        "UVICORN_HOST": "0.0.0.0",
-        "UVICORN_PORT": "8000",
       }
     },
   ]
