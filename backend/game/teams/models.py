@@ -17,7 +17,7 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
-from sqlalchemy.sql._elements_constructors import desc
+from sqlalchemy.sql import desc
 
 if TYPE_CHECKING:
     from game.rosters.models import Roster
@@ -78,6 +78,7 @@ class BaseTeam(BaseSQLModel):
 
     __tablename__: str = 'teams'
     __mapper_args__: dict[str, Any] = {
+        'polymorphic_abstract': True,
         'polymorphic_on': _ruleset,
     }
 
@@ -94,7 +95,7 @@ class BaseTeam(BaseSQLModel):
             int: the calculated score of the TeamJam.
 
         """
-        raise NotImplementedError()
+        raise NotImplementedError('BaseTeam.get_team_jam_score() must be overridden')
 
     def __init__(self, roster: Roster) -> None:
         """Initialize a Team.
