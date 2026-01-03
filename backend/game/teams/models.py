@@ -95,7 +95,7 @@ class BaseTeam(BaseSQLModel):
             int: the calculated score of the TeamJam.
 
         """
-        ...
+        raise NotImplementedError('BaseTeam.get_team_jam_score() must be overridden')
 
     def __init__(self, roster: Roster) -> None:
         """Initialize a Team.
