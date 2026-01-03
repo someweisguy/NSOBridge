@@ -236,8 +236,8 @@ def _get_app_version(request: Request) -> VersionSchema:
     return VersionSchema(version=request.app.version)
 
 
-@app.exception_handler(ClientError)
 @app.exception_handler(Exception)
+@app.exception_handler(ClientError)
 async def _generic_error_handler(request: Request, e: Exception) -> _APIResponseClass:
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=str(e))
 
