@@ -236,8 +236,8 @@ def _get_app_version(request: Request) -> VersionSchema:
     return VersionSchema(version=request.app.version)
 
 
-@app.exception_handler(Exception)
 @app.exception_handler(ClientError)
+@app.exception_handler(Exception)
 async def _generic_error_handler(request: Request, e: Exception) -> _APIResponseClass:
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=str(e))
 
@@ -322,7 +322,7 @@ async def run(host: str, port: int) -> None:
     """
     max_port_num: Final[int] = 65535
     if 0 >= port > max_port_num:
-        logging.critical('Invalid port number')
+        logging.critical('An invalid port number was provided for the host server')
         raise ValueError('Invalid port number')
 
     # Configure the server
@@ -333,7 +333,7 @@ async def run(host: str, port: int) -> None:
             port=port,
             log_config=None,
             access_log=False,
-            log_level='warning',
+            log_level='critical',
             server_header=False,
         )
     )
