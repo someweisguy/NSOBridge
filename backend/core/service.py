@@ -263,6 +263,7 @@ async def _validation_error_handler(
     request: Request, e: RequestValidationError
 ) -> _APIResponseClass:
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=(str(e)))
+    logging.warning(f'Received invalid input: {str(e)}')
     return _APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
 
 
