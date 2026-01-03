@@ -3,7 +3,7 @@
 
 import asyncio
 import logging
-import os
+from argparse import ArgumentParser, Namespace
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
@@ -20,19 +20,12 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
     from sqlalchemy.ext.asyncio.session import AsyncSession
 
-HOST: str = os.environ['UVICORN_HOST']
-PORT: int = int(os.environ['UVICORN_PORT'])
-LOG_LEVEL: int | None = logging.DEBUG
+
 LOG_DIR_NAME: str = './logs'
-DB_PATH_NAME: str = ''
-SILENT: bool = False
 
 
-async def main(  # noqa: PLR0915 - main method may have many arguments
-    interface: tuple[str, int],
-    *,
-    db_path_name: str = '',
-    debug: bool = False,
+async def main(  # noqa: PLR0915
+    interface: tuple[str, int], *, db_path_name: str, debug: bool, silent: bool
 ) -> None:
     """Begin the program.
 
@@ -42,13 +35,16 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
     Args:
         interface (tuple[str, int]): the host IP address and port on which to serve the
         application, as a tuple (host, port).
-        db_path_name: (str, optional): the path of the database to use. Uses an
-        in-memory database if no path name is provided. Defaults to ''.
-        debug (bool, optional): True to enable debug mode. Defaults to False.
+        db_path_name: (str): the path of the database to use. Uses an
+        in-memory database if no path name is provided.
+        debug (bool): True to enable debug logging.
+        silent (bool): True to disable logging to the console.
 
     """
     core.configure_logging(
-        log_dir_name=LOG_DIR_NAME, log_level=LOG_LEVEL, silent=SILENT
+        log_dir_name=LOG_DIR_NAME,
+        log_level=logging.DEBUG if debug else logging.INFO,
+        silent=silent,
     )
     logging.info(f'Program started{" in debug mode" if debug else ""}')
     logging.debug(f'args: {interface=} {db_path_name=} {debug=}')
@@ -121,4 +117,51 @@ async def main(  # noqa: PLR0915 - main method may have many arguments
 
 
 if __name__ == '__main__':
-    asyncio.run(main((HOST, PORT), db_path_name=DB_PATH_NAME, debug=True))
+    parser: ArgumentParser = ArgumentParser(
+        prog='NSO Bridge',
+        description='A scoreboard app designed for the WFTDA roller derby ruleset.',
+    )
+    parser.add_argument(
+        'host',
+        type=str,
+        help='The interface on which to serve the app.',
+    )
+    parser.add_argument(
+        '-p',
+        type=int,
+        help='The port on which to serve the app. Defaults to 8000.',
+        default=8000,
+        dest='port',
+    )
+    parser.add_argument(
+        '-f',
+        type=str,
+        help='The database file to use for storing game data. If no file is provided, '
+        'an in-memory database will be used.',
+        default='',
+        dest='db_path_name',
+    )
+    parser.add_argument(
+        '-d',
+        '--debug',
+        help='Enable debug logging.',
+        action='store_true',
+        dest='debug',
+    )
+    parser.add_argument(
+        '-s',
+        '--silent',
+        help='Disables log messages to the console.',
+        action='store_true',
+        dest='silent',
+    )
+    args: Namespace = parser.parse_args()
+
+    asyncio.run(
+        main(
+            (args.host, args.port),
+            db_path_name=args.db_path_name,
+            debug=args.debug,
+            silent=args.silent,
+        )
+    )
