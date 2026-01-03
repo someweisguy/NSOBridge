@@ -48,3 +48,15 @@ class GameRulesError(ClientError):
     """
 
     pass
+
+
+class UserStateError(ClientError):
+    """An error occurred while managing a user's state.
+
+    These types of exceptions occur in the user service. An example of such an error is
+    when a user tries to undo their last command but there are no commands on the user's
+    command history.
+
+    """
+
+    pass

@@ -15,13 +15,13 @@ if TYPE_CHECKING:
 class User:
     """The User class. Store contextual information about a user."""
 
-    __slots__: tuple[str, ...] = '_undo_history', '_redo_history', '_staged'
+    __slots__: tuple[str, ...] = '_staged', 'undo_history', 'redo_history'
 
     def __init__(self) -> None:
         """Initialize a User."""
-        self._undo_history: list[Memento] = []
-        self._redo_history: list[Memento] = []
         self._staged: Memento | None = None
+        self.undo_history: list[Memento] = []
+        self.redo_history: list[Memento] = []
 
     def stage(self, memento: Memento) -> None:
         """Stage a Memento before committing it.
@@ -43,8 +43,8 @@ class User:
         Memento is ready to be undone with the undo command.
         """
         if self._staged is not None:
-            self._undo_history.append(self._staged)
-            self._redo_history.clear()
+            self.undo_history.append(self._staged)
+            self.redo_history.clear()
             self._staged = None
 
     def unstage(self) -> None:
@@ -65,10 +65,10 @@ class User:
             RuntimeError: if there is nothing to undo.
 
         """
-        if len(self._undo_history) == 0:
+        if len(self.undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
-        redo_memento: Memento = await self._undo_history.pop().restore()
-        self._redo_history.append(redo_memento)
+        redo_memento: Memento = await self.undo_history.pop().restore()
+        self.redo_history.append(redo_memento)
 
     async def redo(self) -> None:
         """Redo the last undone command.
@@ -80,7 +80,7 @@ class User:
             RuntimeError: if there is nothing to redo.
 
         """
-        if len(self._redo_history) == 0:
+        if len(self.redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
-        undo_memento: Memento = await self._redo_history.pop().restore()
-        self._undo_history.append(undo_memento)
+        undo_memento: Memento = await self.redo_history.pop().restore()
+        self.undo_history.append(undo_memento)
