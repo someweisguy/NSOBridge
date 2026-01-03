@@ -5,13 +5,10 @@
       "name": "No GUI",
       "type": "debugpy",
       "request": "launch",
-      "program": "backend/main.py",
+      "program": "backend/main.py 0.0.0.0 -d",
       "console": "integratedTerminal",
       "env": {
-        "DB_PATH": "",
         "SQLALCHEMY_DEBUG": "false",
-        "UVICORN_HOST": "0.0.0.0",
-        "UVICORN_PORT": "8000",
       }
     },
   ]
