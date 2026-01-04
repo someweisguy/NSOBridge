@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """The injection point of the program."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from argparse import ArgumentParser, Namespace
@@ -13,8 +15,11 @@ import update
 import user
 import ws
 from core import DatabaseEngine, EngineFactory
+from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from update import GithubReleaseSchema
 from websockets import CloseCode
 
@@ -24,54 +29,31 @@ if TYPE_CHECKING:
 
 
 LOG_DIR_NAME: str = './logs'
+API_PREFIX: str = '/api'
 
 
-async def main(  # noqa: PLR0915
-    interface: tuple[str, int],
-    *,
-    db_path_name: str,
-    debug: bool,
-    silent: bool,
-    check_for_updates: bool,
-) -> None:
-    """Begin the program.
-
-    Handles the configuration of the database, the API, the GUI, and then serves the
-    app.
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Handle the app setup and teardown.
 
     Args:
-        interface (tuple[str, int]): the host IP address and port on which to serve the
-        application, as a tuple (host, port).
-        db_path_name: (str): the path of the database to use. Uses an
-        in-memory database if no path name is provided.
-        debug (bool): True to enable debug logging.
-        silent (bool): True to disable logging to the console.
-        check_for_updates (bool): True to enable update checking.
+        app (FastAPI): the app to setup and teardown.
 
     """
-    core.configure_logging(
-        log_dir_name=LOG_DIR_NAME,
-        log_level=logging.DEBUG if debug else logging.INFO,
-        silent=silent,
-    )
-    logging.info(f'Program started{" in debug mode" if debug else ""}')
-    logging.debug(f'args: {interface=} {db_path_name=} {debug=}')
+    core.do_app_setup(app, prefix=API_PREFIX)
 
-    if check_for_updates:
-        try:
-            logging.info('Checking for application updates')
-            releases: list[GithubReleaseSchema] = update.check_for_updates()
-            latest: GithubReleaseSchema = releases[-1]
-            logging.debug(f'Found latest release tagged "{latest.tag_name}"')
-            logging.debug(f'Current version is "{core.app.version}"')
-        except ConnectionError:
-            logging.warning('Unable to check for updates at this time')
-    else:
-        logging.info('Skipping update checking')
+    # Load the server API and the WebSocket application
+    logging.debug('Mounting application API')
+    app.mount('/ws', ws.app)
+    for router in [*game.routers, user.router]:
+        app.include_router(router, prefix=API_PREFIX)
 
     # Connect to the desired database
-    db_path_name = db_path_name.strip()
     db: DatabaseEngine = EngineFactory.get_default_engine()
+    db_path_name: str | None = app.extra.get('db_path_name', None)
+    if db_path_name is None:
+        logging.error('No database pathname was found')
+        db_path_name = ''
     if not db_path_name:
         logging.warning('Connecting to in-memory database')
     else:
@@ -105,14 +87,50 @@ async def main(  # noqa: PLR0915
         else:
             logging.debug('Initial data found')
 
-    # Load the server API and the WebSocket application
-    logging.debug('Mounting application API')
-    core.app.mount('/ws', ws.app)
-    for router in [*game.routers, user.router]:
-        core.app.include_router(router, prefix='/api')
+    yield  # Yield the application runtime
+
+    logging.info('Disconnecting all WebSockets')
+    await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
+    logging.debug('WebSockets disconnected')
+
+
+async def main(app: FastAPI, check_for_updates: bool, silent: bool) -> None:
+    """Begin the program.
+
+    Handles the configuration of the database, the API, the GUI, and then serves the
+    app.
+
+    Args:
+        app (FastAPI): the FastAPI app to serve.
+        check_for_updates (bool): True to check for updates.
+        silent (bool): True to disable logging to the terminal
+
+    """
+    host: str = app.extra['host']  # Required argument
+    port: int = app.extra.get('port', 8000)
+    db_path_name: str = app.extra.get('db_path_name', '')
+
+    core.configure_logging(
+        log_dir_name=LOG_DIR_NAME,
+        log_level=logging.DEBUG if app.debug else logging.INFO,
+        silent=silent,
+    )
+    logging.info(f'Program started{" in debug mode" if app.debug else ""}')
+    logging.debug(f'args: {host=} {port=} {db_path_name=}')
+
+    if check_for_updates:
+        try:
+            logging.info('Checking for application updates')
+            releases: list[GithubReleaseSchema] = update.check_for_updates()
+            latest: GithubReleaseSchema = releases[-1]
+            logging.debug(f'Found latest release tagged "{latest.tag_name}"')
+            logging.debug(f'Current version is "{app.version}"')
+        except ConnectionError:
+            logging.warning('Unable to check for updates at this time')
+    else:
+        logging.info('Skipping update check')
 
     # Log the server's address and serve the application
-    host, port = interface
     ip: str = host
     if ip == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
         try:
@@ -126,12 +144,10 @@ async def main(  # noqa: PLR0915
     logging.info(
         f'Starting server at http://{ip}{f":{port}" if port != http_port else ""}'
     )
-    await core.run(host, port)
+
+    await core.run(app, host, port)
     logging.debug('Server stopped')
 
-    logging.info('Disconnecting all WebSockets')
-    await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
-    logging.debug('WebSockets disconnected')
     logging.info('Program terminated')
     logging.shutdown()
 
@@ -159,7 +175,7 @@ if __name__ == '__main__':
         help='The database file to use for storing game data. If no file is provided, '
         'an in-memory database will be used',
         default='',
-        dest='db_path_name',
+        dest='db_pathname',
     )
     parser.add_argument(
         '-d',
@@ -179,19 +195,33 @@ if __name__ == '__main__':
         '-U',
         help='Disables checking for updates on app startup',
         action='store_false',
-        dest='enable_updates',
+        dest='check_for_updates',
     )
     args: Namespace = parser.parse_args()
 
+    # Initialize the application and set the appropriate routes
+    app: Final[FastAPI] = FastAPI(
+        debug=args.debug,
+        default_response_class=core.APIResponseClass,
+        title='NSO Bridge',
+        summary='A scoreboard and stats application for roller derby.',
+        description="""
+        
+        """,
+        version='v0.1.0-alpha',
+        license_info={
+            'name': 'MIT License',
+            'identifier': 'MIT',
+        },
+        docs_url='/docs',
+        host=args.host,
+        port=args.port,
+        db_pathname=args.db_pathname,
+    )
+
     try:
         asyncio.run(
-            main(
-                (args.host, args.port),
-                db_path_name=args.db_path_name,
-                debug=args.debug,
-                silent=args.silent,
-                check_for_updates=args.enable_updates,
-            ),
+            main(app, args.check_for_updates, args.silent),
             loop_factory=asyncio.new_event_loop,
         )
     except KeyboardInterrupt:

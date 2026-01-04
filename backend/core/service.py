@@ -11,13 +11,21 @@ from datetime import datetime
 from http import HTTPStatus
 from logging import Handler, StreamHandler
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Final, LiteralString, Mapping, Protocol
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    ClassVar,
+    Final,
+    LiteralString,
+    Mapping,
+    Protocol,
+    override,
+)
 
 import colorlog
-from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
-from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -28,6 +36,7 @@ from .exceptions import ClientError, ModelLookupError
 from .schemas import APISchema, ErrorSchema, VersionSchema
 
 if TYPE_CHECKING:
+    from fastapi import FastAPI, Request
     from sqlalchemy.ext.asyncio import AsyncEngine
     from sqlalchemy.orm import DeclarativeBase
     from starlette.background import BackgroundTask
@@ -38,6 +47,7 @@ logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
 FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
 PAGES_TAG = 'Pages'
+METADATA_TAG = 'Metadata'
 
 
 class Memento(Protocol):
@@ -148,12 +158,13 @@ class DatabaseEngine:
         return factory()
 
 
-class _APIResponseClass(JSONResponse):
+class APIResponseClass(JSONResponse):
     """Used to wrap all API responses in a common JSON interface.
 
     See `core.schemas.APISchema`.
     """
 
+    @override
     def __init__(
         self,
         content: Any,
@@ -177,6 +188,7 @@ class _APIResponseClass(JSONResponse):
             background,
         )
 
+    @override
     def render(self, content: Any) -> bytes:
         return json.dumps(
             content,
@@ -188,28 +200,6 @@ class _APIResponseClass(JSONResponse):
         ).encode('utf-8')
 
 
-# Initialize the application and set the appropriate routes
-app: Final[FastAPI] = FastAPI(
-    debug=DEBUG,
-    default_response_class=_APIResponseClass,
-    routes=[
-        Mount('/assets', StaticFiles(directory=FRONTEND / 'assets')),
-    ],
-    title='NSO Bridge',
-    summary='A scoreboard and stats application for roller derby.',
-    description="""
-    
-    """,
-    version='v0.1.0-alpha',
-    license_info={
-        'name': 'MIT License',
-        'identifier': 'MIT',
-    },
-    docs_url='/docs',
-)
-
-
-@app.get('/', tags=[PAGES_TAG], name='Render Index Page')
 async def _render_index() -> FileResponse:
     """Render the index page."""
     page_path_name: str = 'index.html'
@@ -217,35 +207,25 @@ async def _render_index() -> FileResponse:
     return FileResponse(FRONTEND / page_path_name)
 
 
-@app.get(
-    '/sb',
-    tags=[PAGES_TAG],
-    name='Render Scoreboard Page',
-    description='Render the scoreboard page.',
-)
 async def _render_generic(request: Request) -> FileResponse:
     # Render generic HTML files found in the frontend directory.
-    # Don't forget to register new files with the FastAPI app!
     page_path_name: str = request.url.path[1:] + '.html'
     logging.info(f'Serving "{page_path_name}"')
     return FileResponse(FRONTEND / page_path_name)
 
 
-@app.get('/version', tags=['Metadata'])
-def _get_app_version(request: Request) -> VersionSchema:
+async def _get_app_version(request: Request) -> VersionSchema:
     """Return the current version of the app."""
     return VersionSchema(version=request.app.version)
 
 
-@app.exception_handler(Exception)
-@app.exception_handler(ClientError)
-async def _generic_error_handler(request: Request, e: Exception) -> _APIResponseClass:
+async def _generic_error_handler(request: Request, e: Exception) -> APIResponseClass:
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=str(e))
 
     # Handle exceptions that weren't explicitly caught
     if not isinstance(e, ClientError):
         logging.error(f'An unexpected "{error.type}" error occurred: {error.message}')
-        return _APIResponseClass(error, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+        return APIResponseClass(error, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
     # Determine the HTTP status code base on the exception type
     match e:
@@ -256,16 +236,58 @@ async def _generic_error_handler(request: Request, e: Exception) -> _APIResponse
 
     logging.info(f'{error.message} (HTTP {status_code})')
 
-    return _APIResponseClass(error, status_code=status_code)
+    return APIResponseClass(error, status_code=status_code)
 
 
-@app.exception_handler(RequestValidationError)
 async def _validation_error_handler(
     request: Request, e: RequestValidationError
-) -> _APIResponseClass:
+) -> APIResponseClass:
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=(str(e)))
     logging.warning(f'Received invalid input: {str(e)}')
-    return _APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
+    return APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
+
+
+def do_app_setup(app: FastAPI, *, prefix: str) -> None:
+    """Do the required application setup.
+
+    Args:
+        app (FastAPI): the FastAPI app to configure.
+        prefix (str): the default API path prefix.
+
+    """
+    # Install exception handlers
+    error_handlers: dict[type[Exception], Callable[[Request, ...], Any]] = {
+        Exception: _generic_error_handler,
+        ClientError: _generic_error_handler,
+        RequestValidationError: _validation_error_handler,
+    }
+    for e, handler in error_handlers.items():
+        app.add_exception_handler(e, handler)
+
+    # Install HTML application endpoints
+    app.mount('/assets', StaticFiles(directory=FRONTEND / 'assets'))
+    app.add_api_route(
+        '/',
+        _render_index,
+        tags=[PAGES_TAG],
+        name='Render Index Page',
+    )
+    app.add_api_route(
+        '/sb',
+        _render_generic,
+        tags=[PAGES_TAG],
+        name='Render Scoreboard Page',
+        description='Render the scoreboard page.',
+    )
+
+    # Install default API endpoints
+    app.add_api_route(
+        f'{prefix}/version',
+        _get_app_version,
+        tags=[METADATA_TAG],
+        name='Get app version',
+        description='Get the current app version',
+    )
 
 
 def configure_logging(
@@ -310,10 +332,11 @@ def configure_logging(
     )
 
 
-async def run(host: str, port: int) -> None:
+async def run(app: FastAPI, host: str, port: int) -> None:
     """Asynchronously serve the application on the desired host and port.
 
     Args:
+        app (FastAPI): The FastAPI app to serve.
         host (str): The desired host on which to serve the app.
         port (int, optional): The desired port on which to serve the app.
 

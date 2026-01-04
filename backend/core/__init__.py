@@ -6,10 +6,18 @@ This file exports the core functions needed to run NSO Bridge.
 from .dependencies import AsyncSessionDepends, EngineFactory
 from .models import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from .schemas import ClientSchema, ServerSchema
-from .service import DatabaseEngine, Memento, app, configure_logging, run, shutdown
+from .service import (
+    APIResponseClass,
+    DatabaseEngine,
+    Memento,
+    configure_logging,
+    do_app_setup,
+    run,
+    shutdown,
+)
 
 __all__ = (
-    'app',
+    'APIResponseClass',
     'AsyncSessionDepends',
     'BaseSQLModel',
     'CASCADE_CHILD',
@@ -17,6 +25,7 @@ __all__ = (
     'ClientSchema',
     'configure_logging',
     'DatabaseEngine',
+    'do_app_setup',
     'EngineFactory',
     'Memento',
     'run',
