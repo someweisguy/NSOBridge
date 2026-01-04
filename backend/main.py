@@ -68,7 +68,7 @@ async def lifespan(app: FastAPI):
             db = EngineFactory.create_engine(db_pathname)
             EngineFactory.set_default_engine(db)
         except ValueError:
-            logging.critical(f'database path name is invalid ({db_pathname=})')
+            logging.critical('Database pathname is invalid')
             return
     await db.create_all()
 
