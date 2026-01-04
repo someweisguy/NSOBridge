@@ -134,7 +134,7 @@ if __name__ == '__main__':
         return f'{time} {level} %(message)s'
 
     # Configure logging
-    datefmt: Final[str] = '%H:%M:%S'
+    datefmt: LiteralString = '%H:%M:%S'
     log_dir: Final[Path] = Path(LOG_DIR_NAME)
     if not log_dir.exists():
         log_dir.mkdir()
