@@ -11,7 +11,7 @@ from .service import (
     DatabaseEngine,
     Memento,
     do_app_setup,
-    run,
+    main,
     shutdown,
 )
 
@@ -25,8 +25,8 @@ __all__ = (
     'DatabaseEngine',
     'do_app_setup',
     'EngineFactory',
+    'main',
     'Memento',
-    'run',
     'ServerSchema',
     'shutdown',
 )

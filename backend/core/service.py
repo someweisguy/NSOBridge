@@ -6,10 +6,7 @@ import json
 import logging
 import os
 import signal
-import sys
-from datetime import datetime
 from http import HTTPStatus
-from logging import Handler, StreamHandler
 from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import (
@@ -18,13 +15,11 @@ from typing import (
     Callable,
     ClassVar,
     Final,
-    LiteralString,
     Mapping,
     Protocol,
     override,
 )
 
-import colorlog
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -49,8 +44,6 @@ FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
 PAGES_TAG = 'Pages'
 METADATA_TAG = 'Metadata'
-
-datefmt: Final[str] = '%H:%M:%S'
 
 
 class Memento(Protocol):
@@ -293,27 +286,11 @@ def do_app_setup(app: FastAPI, *, prefix: str) -> None:
     )
 
 
-def _get_log_format(*, use_colors: bool = False) -> str:
-    time: LiteralString = '%(asctime)s'
-    level: LiteralString = '%(levelname)s'
-    if use_colors:
-        time = f'%(light_black)s{time}%(reset)s'
-        level = f'%(bold)s%(log_color)s{level}%(reset)s'
-    return f'{time} {level} %(message)s'
-
-
-async def run(
-    app: FastAPI, check_for_updates: bool, silent: bool, log_dir_name: str = './logs'
-) -> None:
+async def main(app: FastAPI) -> None:
     """Asynchronously serve the application on the desired host and port.
 
     Args:
         app (FastAPI): The FastAPI app to serve.
-        check_for_updates (bool): True to check for updates.
-        silent (bool): True to disable logging to the terminal
-        log_dir_name (str, optional): the directory name to store logs. Defaults to
-        './logs'.
-
 
     Raises:
         KeyError: if a host or port is not included in the app extras.
@@ -328,47 +305,8 @@ async def run(
         logging.critical('An invalid port number was provided for the host server')
         raise ValueError('Invalid port number')
 
-    log_dir: Final[Path] = Path(log_dir_name)
-    if not log_dir.exists():
-        log_dir.mkdir()
-    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
-    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
-    if not silent:
-        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
-        console_logger.formatter = colorlog.ColoredFormatter(
-            fmt=_get_log_format(use_colors=True),
-            datefmt=datefmt,
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'red,bg_white',
-            },
-        )
-        logging_handlers.append(console_logger)
-    logging.basicConfig(
-        level=logging.DEBUG if app.debug else logging.INFO,
-        format=_get_log_format(use_colors=False),
-        datefmt=datefmt,
-        handlers=logging_handlers,
-    )
     logging.info(f'Program started{" in debug mode" if app.debug else ""}')
     logging.debug(f'{app.extra=}')
-
-    # FIXME: Handle update checking
-    # if check_for_updates:
-    #     try:
-    #         logging.info('Checking for application updates')
-    #         releases: list[GithubReleaseSchema] = update.check_for_updates()
-    #         latest: GithubReleaseSchema = releases[-1]
-    #         logging.debug(f'Found latest release tagged "{latest.tag_name}"')
-    #         logging.debug(f'Current version is "{app.version}"')
-    #     except ConnectionError:
-    #         logging.warning('Unable to check for updates at this time')
-    # else:
-    #     logging.info('Skipping update check')
-    logging.error('Update checking cannot be completed at this time')
 
     # Log the server's address
     ip: str = host
@@ -385,8 +323,8 @@ async def run(
         f'Starting server at http://{ip}{f":{port}" if port != http_port else ""}'
     )
 
-    # Configure the server
-    server: Server = Server(
+    # Run the server with the specified config
+    await Server(
         Config(
             app,
             host=host,
@@ -396,13 +334,8 @@ async def run(
             log_level='critical',
             server_header=False,
         )
-    )
-
-    await server.serve()
+    ).serve()
     logging.debug('Server stopped')
-
-    logging.info('Program terminated')
-    logging.shutdown()
 
 
 def shutdown() -> None:
