@@ -4,13 +4,13 @@ This is a scoreboard application designed for the Women's Flat Track Derby Assoc
 
 ## How to Install
 
-This app currently supports running in a command line interface which is an advanced installation method. Users who wish to run this app as a command line program should read below. An easy installation method is coming soon!
+This app currently supports running in a command-line interface which is an advanced installation method. Users who wish to run this app as a command-line program should read below. An easy installation method is coming soon!
 
 ### Command-Line Interface
 
 This application offers a command-line interface for advanced users.
 
-To install this application [NPM][Node.js and NPM Installation] and [Python 3.14][Python Installation] (or greater) are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a package manager but it is not required. Download the required Python packages listed in `pyproject.toml` by running `python pip install .` or `uv pip install .` if Astral uv is installed. The Node.js dependencies can be installed by running `npm install .`. Finally, the frontend can be compiled by running `npm run build`.
+To install this application [NPM][Node.js and NPM Installation] and [Python 3.14][Python Installation] (or greater) are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a package manager but it is not required. Download the required Python packages listed in `pyproject.toml` by running `pip install .` or `uv sync` if Astral uv is installed. The Node.js dependencies can be installed by running `npm install .`. Finally, the frontend can be compiled by running `npm run build`.
 
 After all the required packages have been installed and the frontend has been built, the application can be served on all interfaces by running `python backend/main.py 0.0.0.0`. For more information on how to use the command-line interface, run `python backend/main.py --help`.
 
