@@ -23,12 +23,10 @@ from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from websockets import CloseCode
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import async_sessionmaker
-    from sqlalchemy.ext.asyncio.session import AsyncSession
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
     from update import GithubReleaseSchema
 
 
