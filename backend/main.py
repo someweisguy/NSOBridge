@@ -96,8 +96,7 @@ async def lifespan(app: FastAPI):
 async def main(app: FastAPI, check_for_updates: bool, silent: bool) -> None:
     """Begin the program.
 
-    Handles the configuration of the database, the API, the GUI, and then serves the
-    app.
+    Handles the configuration of the the GUI and serves the app.
 
     Args:
         app (FastAPI): the FastAPI app to serve.
