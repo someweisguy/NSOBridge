@@ -478,10 +478,14 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "pytest" },
     { name = "requests" },
-    { name = "ruff" },
     { name = "sqlalchemy" },
     { name = "uvicorn" },
     { name = "websockets" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -492,11 +496,13 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.14" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "requests", specifier = ">=2.32.5" },
-    { name = "ruff", specifier = ">=0.14.10" },
     { name = "sqlalchemy", specifier = ">=2.0.45" },
     { name = "uvicorn", specifier = ">=0.34.3" },
     { name = "websockets", specifier = ">=15.0.1" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ruff", specifier = ">=0.14.10" }]
 
 [[package]]
 name = "packaging"
