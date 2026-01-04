@@ -243,7 +243,7 @@ async def run(app: FastAPI) -> None:
         logging.critical('An invalid port number was provided for the host server')
         raise ValueError('Invalid port number')
 
-    logging.info(f'Program started{" in debug mode" if app.debug else ""}')
+    logging.info(f'App started{" in debug mode" if app.debug else ""}')
     logging.debug(f'{app.extra=}')
 
     # Log the server's address
@@ -257,9 +257,7 @@ async def run(app: FastAPI) -> None:
             logging.warning('Unable to get default route')
             ip = '127.0.0.1'
     http_port: Final[int] = 80
-    logging.info(
-        f'Starting server at http://{ip}{f":{port}" if port != http_port else ""}'
-    )
+    logging.info(f'Serving app at http://{ip}{f":{port}" if port != http_port else ""}')
 
     # Run the server with the specified config
     await Server(
