@@ -73,13 +73,13 @@ async def lifespan(app: FastAPI):
     await db.create_all()
 
     # Create a Bout model if one does not already exist
-    logging.debug('Checking for initial data')
+    logging.debug('Checking database for model data')
     session_factory: async_sessionmaker[AsyncSession] = db.get_async_session_factory()
     async with session_factory() as session:
         statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
         if results.scalar_one_or_none() is None:
-            logging.info('Creating initial Bout model')
+            logging.info('Instantiating the initial Bout model')
             series: Series = Series()
             series.bouts.append(
                 wftda_2025.Bout(
@@ -88,10 +88,10 @@ async def lifespan(app: FastAPI):
                 )
             )
             session.add(series)
-            logging.debug('Initial data created')
             await session.commit()
+            logging.debug('The Bout model was inserted into the database')
         else:
-            logging.debug('Initial data found')
+            logging.debug('Model data was found in the database')
 
     logging.debug('Yielding the app runtime')
     yield
