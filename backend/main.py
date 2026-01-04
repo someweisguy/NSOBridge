@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Final
 
 import core
 import game
-import update
 import user
 import ws
 from core import DatabaseEngine, EngineFactory
@@ -19,7 +18,6 @@ from fastapi.concurrency import asynccontextmanager
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-from update import GithubReleaseSchema
 from websockets import CloseCode
 
 if TYPE_CHECKING:
@@ -93,44 +91,6 @@ async def lifespan(app: FastAPI):
     logging.debug('WebSockets disconnected')
 
 
-async def main(app: FastAPI, check_for_updates: bool, silent: bool) -> None:
-    """Begin the program.
-
-    Handles the configuration of the the GUI and serves the app.
-
-    Args:
-        app (FastAPI): the FastAPI app to serve.
-        check_for_updates (bool): True to check for updates.
-        silent (bool): True to disable logging to the terminal
-
-    """
-    core.configure_logging(
-        log_dir_name=LOG_DIR_NAME,
-        log_level=logging.DEBUG if app.debug else logging.INFO,
-        silent=silent,
-    )
-    logging.info(f'Program started{" in debug mode" if app.debug else ""}')
-    logging.debug(f'args: {app.extra=}')
-
-    if check_for_updates:
-        try:
-            logging.info('Checking for application updates')
-            releases: list[GithubReleaseSchema] = update.check_for_updates()
-            latest: GithubReleaseSchema = releases[-1]
-            logging.debug(f'Found latest release tagged "{latest.tag_name}"')
-            logging.debug(f'Current version is "{app.version}"')
-        except ConnectionError:
-            logging.warning('Unable to check for updates at this time')
-    else:
-        logging.info('Skipping update check')
-
-    await core.run(app)
-    logging.debug('Server stopped')
-
-    logging.info('Program terminated')
-    logging.shutdown()
-
-
 parser: ArgumentParser = ArgumentParser(
     prog='NSO Bridge',
     description='A scoreboard app designed for the WFTDA roller derby ruleset.',
@@ -201,7 +161,7 @@ app: Final[FastAPI] = FastAPI(
 if __name__ == '__main__':
     try:
         asyncio.run(
-            main(app, args.check_for_updates, args.silent),
+            core.run(app, args.check_for_updates, args.silent),
             loop_factory=asyncio.new_event_loop,
         )
     except KeyboardInterrupt:

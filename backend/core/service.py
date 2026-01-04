@@ -50,6 +50,8 @@ DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 
 PAGES_TAG = 'Pages'
 METADATA_TAG = 'Metadata'
 
+datefmt: Final[str] = '%H:%M:%S'
+
 
 class Memento(Protocol):
     """Represent a memento point-in-time of the application state.
@@ -228,7 +230,7 @@ async def _generic_error_handler(request: Request, e: Exception) -> APIResponseC
         logging.error(f'An unexpected "{error.type}" error occurred: {error.message}')
         return APIResponseClass(error, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    # Determine the HTTP status code base on the exception type
+    # Determine the HTTP status code based on the exception type
     match e:
         case ModelLookupError():
             status_code = HTTPStatus.NOT_FOUND
@@ -291,53 +293,27 @@ def do_app_setup(app: FastAPI, *, prefix: str) -> None:
     )
 
 
-def configure_logging(
-    *, log_dir_name: str, log_level: int | None, silent: bool
+def _get_log_format(*, use_colors: bool = False) -> str:
+    time: LiteralString = '%(asctime)s'
+    level: LiteralString = '%(levelname)s'
+    if use_colors:
+        time = f'%(light_black)s{time}%(reset)s'
+        level = f'%(bold)s%(log_color)s{level}%(reset)s'
+    return f'{time} {level} %(message)s'
+
+
+async def run(
+    app: FastAPI, check_for_updates: bool, silent: bool, log_dir_name: str = './logs'
 ) -> None:
-    """Configure the logging system for the application."""
-    datefmt: Final[str] = '%H:%M:%S'
-
-    def get_log_format(*, use_colors: bool = False) -> str:
-        """Get a log format string with or without colors."""
-        time: LiteralString = '%(asctime)s'
-        level: LiteralString = '%(levelname)s'
-        if use_colors:
-            time = f'%(light_black)s{time}%(reset)s'
-            level = f'%(bold)s%(log_color)s{level}%(reset)s'
-        return f'{time} {level} %(message)s'
-
-    log_dir: Final[Path] = Path(log_dir_name)
-    if not log_dir.exists():
-        log_dir.mkdir()
-    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
-    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
-    if not silent:
-        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
-        console_logger.formatter = colorlog.ColoredFormatter(
-            fmt=get_log_format(use_colors=True),
-            datefmt=datefmt,
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'red,bg_white',
-            },
-        )
-        logging_handlers.append(console_logger)
-    logging.basicConfig(
-        level=log_level,
-        format=get_log_format(use_colors=False),
-        datefmt=datefmt,
-        handlers=logging_handlers,
-    )
-
-
-async def run(app: FastAPI) -> None:
     """Asynchronously serve the application on the desired host and port.
 
     Args:
         app (FastAPI): The FastAPI app to serve.
+        check_for_updates (bool): True to check for updates.
+        silent (bool): True to disable logging to the terminal
+        log_dir_name (str, optional): the directory name to store logs. Defaults to
+        './logs'.
+
 
     Raises:
         KeyError: if a host or port is not included in the app extras.
@@ -351,6 +327,48 @@ async def run(app: FastAPI) -> None:
     if 0 >= port > max_port_num:
         logging.critical('An invalid port number was provided for the host server')
         raise ValueError('Invalid port number')
+
+    log_dir: Final[Path] = Path(log_dir_name)
+    if not log_dir.exists():
+        log_dir.mkdir()
+    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
+    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
+    if not silent:
+        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
+        console_logger.formatter = colorlog.ColoredFormatter(
+            fmt=_get_log_format(use_colors=True),
+            datefmt=datefmt,
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+        )
+        logging_handlers.append(console_logger)
+    logging.basicConfig(
+        level=logging.DEBUG if app.debug else logging.INFO,
+        format=_get_log_format(use_colors=False),
+        datefmt=datefmt,
+        handlers=logging_handlers,
+    )
+    logging.info(f'Program started{" in debug mode" if app.debug else ""}')
+    logging.debug(f'{app.extra=}')
+
+    # FIXME: Handle update checking
+    # if check_for_updates:
+    #     try:
+    #         logging.info('Checking for application updates')
+    #         releases: list[GithubReleaseSchema] = update.check_for_updates()
+    #         latest: GithubReleaseSchema = releases[-1]
+    #         logging.debug(f'Found latest release tagged "{latest.tag_name}"')
+    #         logging.debug(f'Current version is "{app.version}"')
+    #     except ConnectionError:
+    #         logging.warning('Unable to check for updates at this time')
+    # else:
+    #     logging.info('Skipping update check')
+    logging.error('Update checking cannot be completed at this time')
 
     # Log the server's address
     ip: str = host
@@ -381,6 +399,10 @@ async def run(app: FastAPI) -> None:
     )
 
     await server.serve()
+    logging.debug('Server stopped')
+
+    logging.info('Program terminated')
+    logging.shutdown()
 
 
 def shutdown() -> None:
