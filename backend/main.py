@@ -18,7 +18,7 @@ import update
 import user
 import ws
 from cli import args
-from core import DatabaseEngine, EngineFactory
+from core import APIResponseClass, DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Roster, Series, wftda_2025
@@ -54,19 +54,19 @@ async def lifespan(app: FastAPI):
 
     # Connect to the desired database
     db: DatabaseEngine = EngineFactory.get_default_engine()
-    db_path_name: str | None = app.extra.get('db_path_name', None)
-    if db_path_name is None:
+    db_pathname: str | None = app.extra.get('db_pathname', None)
+    if db_pathname is None:
         logging.error('No database pathname was found')
-        db_path_name = ''
-    if not db_path_name:
+        db_pathname = ''
+    if not db_pathname:
         logging.warning('Connecting to in-memory database')
     else:
-        logging.info(f'Connecting to Database: {db_path_name}')
+        logging.info(f'Connecting to database: {db_pathname}')
         try:
-            db = EngineFactory.create_engine(db_path_name)
+            db = EngineFactory.create_engine(db_pathname)
             EngineFactory.set_default_engine(db)
         except ValueError:
-            logging.critical(f'database path name is invalid ({db_path_name=})')
+            logging.critical(f'database path name is invalid ({db_pathname=})')
             return
     await db.create_all()
 
@@ -101,7 +101,8 @@ async def lifespan(app: FastAPI):
 # Initialize the application and set the appropriate routes
 app: Final[FastAPI] = FastAPI(
     debug=args.debug,
-    default_response_class=core.APIResponseClass,
+    default_response_class=APIResponseClass,
+    lifespan=lifespan,
     title='NSO Bridge',
     summary='A scoreboard and stats application for roller derby.',
     description="""
