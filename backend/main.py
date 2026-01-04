@@ -116,9 +116,10 @@ app: Final[FastAPI] = FastAPI(
         'identifier': 'MIT',
     },
     docs_url='/docs',
+    # App extras go below this comment
+    db_pathname=cli.args.db_pathname,
     host=cli.args.host,
     port=cli.args.port,
-    db_pathname=cli.args.db_pathname,
 )
 
 
