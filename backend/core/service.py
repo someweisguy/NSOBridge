@@ -7,7 +7,6 @@ import logging
 import os
 import signal
 from http import HTTPStatus
-from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
 from typing import (
     TYPE_CHECKING,
@@ -21,8 +20,7 @@ from typing import (
 )
 
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
@@ -40,8 +38,6 @@ if TYPE_CHECKING:
 
 logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
 
-FRONTEND: Final[Path] = Path.cwd() / Path('dist')
-DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
 PAGES_TAG = 'Pages'
 METADATA_TAG = 'Metadata'
 
@@ -196,20 +192,7 @@ class APIResponseClass(JSONResponse):
         ).encode('utf-8')
 
 
-async def _render_index() -> FileResponse:
-    """Render the index page."""
-    page_path_name: str = 'index.html'
-    logging.info(f'Serving "{page_path_name}"')
-    return FileResponse(FRONTEND / page_path_name)
-
-
-async def _render_generic(request: Request) -> FileResponse:
-    # Render generic HTML files found in the frontend directory.
-    page_path_name: str = request.url.path[1:] + '.html'
-    logging.info(f'Serving "{page_path_name}"')
-    return FileResponse(FRONTEND / page_path_name)
-
-
+# TODO: include in routes
 async def _get_app_version(request: Request) -> VersionSchema:
     """Return the current version of the app."""
     return VersionSchema(version=request.app.version)
@@ -243,7 +226,7 @@ async def _validation_error_handler(
     return APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
 
 
-def do_app_setup(app: FastAPI, *, prefix: str) -> None:
+def configure(app: FastAPI, *, prefix: str) -> None:
     """Do the required application setup.
 
     Args:
@@ -260,22 +243,7 @@ def do_app_setup(app: FastAPI, *, prefix: str) -> None:
     for e, handler in error_handlers.items():
         app.add_exception_handler(e, handler)
 
-    # Install HTML application endpoints
-    app.mount('/assets', StaticFiles(directory=FRONTEND / 'assets'))
-    app.add_api_route(
-        '/',
-        _render_index,
-        tags=[PAGES_TAG],
-        name='Render Index Page',
-    )
-    app.add_api_route(
-        '/sb',
-        _render_generic,
-        tags=[PAGES_TAG],
-        name='Render Scoreboard Page',
-        description='Render the scoreboard page.',
-    )
-
+    # FIXME: this method call crashes the docs page
     # Install default API endpoints
     app.add_api_route(
         f'{prefix}/version',

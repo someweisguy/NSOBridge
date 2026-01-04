@@ -5,12 +5,13 @@ This file exports the core functions needed to run NSO Bridge.
 
 from .dependencies import AsyncSessionDepends, EngineFactory
 from .models import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
+from .router import FRONTEND
 from .schemas import ClientSchema, ServerSchema
 from .service import (
     APIResponseClass,
     DatabaseEngine,
     Memento,
-    do_app_setup,
+    configure,
     main,
     shutdown,
 )
@@ -22,9 +23,10 @@ __all__ = (
     'CASCADE_CHILD',
     'CASCADE_OTHER',
     'ClientSchema',
+    'configure',
     'DatabaseEngine',
-    'do_app_setup',
     'EngineFactory',
+    'FRONTEND',
     'main',
     'Memento',
     'ServerSchema',

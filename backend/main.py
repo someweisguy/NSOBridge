@@ -18,9 +18,11 @@ import update
 import user
 import ws
 from cli import args
-from core import APIResponseClass, DatabaseEngine, EngineFactory
+from core import FRONTEND, APIResponseClass, DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
+from fastapi.routing import Mount
+from fastapi.staticfiles import StaticFiles
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -44,7 +46,7 @@ async def lifespan(app: FastAPI):
         app (FastAPI): the app to setup and teardown.
 
     """
-    core.do_app_setup(app, prefix=API_PREFIX)
+    core.configure(app, prefix=API_PREFIX)
 
     # Load the server API and the WebSocket application
     logging.debug('Mounting application API')
@@ -103,6 +105,7 @@ app: Final[FastAPI] = FastAPI(
     debug=args.debug,
     default_response_class=APIResponseClass,
     lifespan=lifespan,
+    routes=[Mount('/assets', StaticFiles(directory=FRONTEND / 'assets'))],
     title='NSO Bridge',
     summary='A scoreboard and stats application for roller derby.',
     description="""
