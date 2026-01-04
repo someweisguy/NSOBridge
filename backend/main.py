@@ -44,6 +44,9 @@ async def lifespan(app: FastAPI):
         app (FastAPI): the app to setup and teardown.
 
     """
+    logging.info(f'App started{" in debug mode" if app.debug else ""}')
+    logging.debug(f'{app.extra=}')
+
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
         app.add_exception_handler(e, handler)

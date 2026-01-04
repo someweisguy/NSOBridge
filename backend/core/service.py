@@ -225,7 +225,7 @@ error_handlers: Final[dict[type[Exception], Callable[[Request, ...], Any]]] = {
 
 
 async def run(app: FastAPI) -> None:
-    """Asynchronously serve the application on the desired host and port.
+    """Asynchronously serve the desired application using a Uvicorn server.
 
     Args:
         app (FastAPI): The FastAPI app to serve.
@@ -240,11 +240,10 @@ async def run(app: FastAPI) -> None:
 
     max_port_num: Final[int] = 65535
     if 0 >= port > max_port_num:
-        logging.critical('An invalid port number was provided for the host server')
+        logging.critical(
+            f'An invalid port number was provided for the host server ({port=})'
+        )
         raise ValueError('Invalid port number')
-
-    logging.info(f'App started{" in debug mode" if app.debug else ""}')
-    logging.debug(f'{app.extra=}')
 
     # Log the server's address
     ip: str = host
