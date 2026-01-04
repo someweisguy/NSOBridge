@@ -21,7 +21,6 @@ from cli import args
 from core import FRONTEND, APIResponseClass, DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from fastapi.routing import Mount
 from fastapi.staticfiles import StaticFiles
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
@@ -46,13 +45,14 @@ async def lifespan(app: FastAPI):
         app (FastAPI): the app to setup and teardown.
 
     """
-    core.configure(app, prefix=API_PREFIX)
+    core.configure_error_handlers(app)
 
-    # Load the server API and the WebSocket application
-    logging.debug('Mounting application API')
-    app.mount('/ws', ws.app)
-    for router in [*game.routers, user.router]:
+    # Load the API
+    app.mount('/assets', StaticFiles(directory=FRONTEND / 'assets'))
+    app.include_router(core.pages_router)
+    for router in [core.api_router, *game.routers, *user.routers]:
         app.include_router(router, prefix=API_PREFIX)
+    app.mount('/ws', ws.app)
 
     # Connect to the desired database
     db: DatabaseEngine = EngineFactory.get_default_engine()
@@ -93,6 +93,7 @@ async def lifespan(app: FastAPI):
         else:
             logging.debug('Initial data found')
 
+    logging.info('Starting application')
     yield  # Yield the application runtime
 
     logging.info('Disconnecting all WebSockets')
@@ -105,7 +106,6 @@ app: Final[FastAPI] = FastAPI(
     debug=args.debug,
     default_response_class=APIResponseClass,
     lifespan=lifespan,
-    routes=[Mount('/assets', StaticFiles(directory=FRONTEND / 'assets'))],
     title='NSO Bridge',
     summary='A scoreboard and stats application for roller derby.',
     description="""
@@ -176,7 +176,7 @@ if __name__ == '__main__':
 
     # Run the application
     try:
-        asyncio.run(core.main(app), loop_factory=asyncio.new_event_loop)
+        asyncio.run(core.run(app), loop_factory=asyncio.new_event_loop)
     except KeyboardInterrupt:
         logging.info('Server stopped due to keyboard interrupt')
     finally:

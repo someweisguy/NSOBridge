@@ -12,6 +12,8 @@ HISTORY_TAG = 'History'
 
 router: Final[APIRouter] = APIRouter()
 
+routers: Final[tuple[APIRouter, ...]] = (router,)
+
 
 @router.post('/undo', tags=[HISTORY_TAG])
 async def _undo(user: GetUser) -> None:

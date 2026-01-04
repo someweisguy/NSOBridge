@@ -27,7 +27,7 @@ from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
 
 from .exceptions import ClientError, ModelLookupError
-from .schemas import APISchema, ErrorSchema, VersionSchema
+from .schemas import APISchema, ErrorSchema
 
 if TYPE_CHECKING:
     from fastapi import FastAPI, Request
@@ -37,9 +37,6 @@ if TYPE_CHECKING:
 
 
 logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
-
-PAGES_TAG = 'Pages'
-METADATA_TAG = 'Metadata'
 
 
 class Memento(Protocol):
@@ -192,12 +189,6 @@ class APIResponseClass(JSONResponse):
         ).encode('utf-8')
 
 
-# TODO: include in routes
-async def _get_app_version(request: Request) -> VersionSchema:
-    """Return the current version of the app."""
-    return VersionSchema(version=request.app.version)
-
-
 async def _generic_error_handler(request: Request, e: Exception) -> APIResponseClass:
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=str(e))
 
@@ -226,12 +217,11 @@ async def _validation_error_handler(
     return APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
 
 
-def configure(app: FastAPI, *, prefix: str) -> None:
-    """Do the required application setup.
+def configure_error_handlers(app: FastAPI) -> None:
+    """Add error handlers to the application.
 
     Args:
         app (FastAPI): the FastAPI app to configure.
-        prefix (str): the default API path prefix.
 
     """
     # Install exception handlers
@@ -243,18 +233,8 @@ def configure(app: FastAPI, *, prefix: str) -> None:
     for e, handler in error_handlers.items():
         app.add_exception_handler(e, handler)
 
-    # FIXME: this method call crashes the docs page
-    # Install default API endpoints
-    app.add_api_route(
-        f'{prefix}/version',
-        _get_app_version,
-        tags=[METADATA_TAG],
-        name='Get app version',
-        description='Get the current app version',
-    )
 
-
-async def main(app: FastAPI) -> None:
+async def run(app: FastAPI) -> None:
     """Asynchronously serve the application on the desired host and port.
 
     Args:

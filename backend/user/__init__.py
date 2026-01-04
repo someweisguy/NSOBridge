@@ -5,11 +5,11 @@ users to undo and redo commands.
 """
 
 from .dependencies import GetUser
-from .router import router
+from .router import routers
 from .service import User
 
 __all__ = (
     'GetUser',
-    'router',
+    'routers',
     'User',
 )

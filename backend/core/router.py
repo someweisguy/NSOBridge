@@ -7,12 +7,16 @@ from typing import Final
 from fastapi import APIRouter, Request
 from fastapi.responses import FileResponse
 
+from .schemas import VersionSchema
+
 FRONTEND: Final[Path] = Path.cwd() / Path('dist')
 
 PAGES_TAG = 'Pages'
+METADATA_TAG = 'Metadata'
 
-pages_router: Final[APIRouter] = APIRouter(prefix='/')
-api_router: Final[APIRouter] = APIRouter(prefix='/api')
+
+pages_router: Final[APIRouter] = APIRouter(prefix='')
+api_router: Final[APIRouter] = APIRouter(prefix='')
 
 
 @pages_router.get('/', tags=[PAGES_TAG], name='Render Index Page')
@@ -29,3 +33,9 @@ async def _render_generic(request: Request) -> FileResponse:
     page_path_name: str = request.url.path[1:] + '.html'
     logging.info(f'Serving "{page_path_name}"')
     return FileResponse(FRONTEND / page_path_name)
+
+
+@api_router.get('/version', tags=[METADATA_TAG])
+async def _get_app_version(request: Request) -> VersionSchema:
+    """Return the current version of the app."""
+    return VersionSchema(version=request.app.version)
