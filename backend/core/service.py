@@ -11,6 +11,7 @@ from datetime import datetime
 from http import HTTPStatus
 from logging import Handler, StreamHandler
 from pathlib import Path
+from socket import AF_INET, SOCK_DGRAM, socket
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -196,7 +197,7 @@ class APIResponseClass(JSONResponse):
             allow_nan=False,
             indent=None,
             separators=(',', ':'),
-            default=(lambda dt: str(dt)),  # Explicitly serialize datetime objects
+            default=(lambda dt: str(dt)),  # Serialize datetime objects
         ).encode('utf-8')
 
 
@@ -332,22 +333,39 @@ def configure_logging(
     )
 
 
-async def run(app: FastAPI, host: str, port: int) -> None:
+async def run(app: FastAPI) -> None:
     """Asynchronously serve the application on the desired host and port.
 
     Args:
         app (FastAPI): The FastAPI app to serve.
-        host (str): The desired host on which to serve the app.
-        port (int, optional): The desired port on which to serve the app.
 
     Raises:
+        KeyError: if a host or port is not included in the app extras.
         ValueError: if the port number provided is invalid.
 
     """
+    host: str = app.extra['host']
+    port: int = app.extra['port']
+
     max_port_num: Final[int] = 65535
     if 0 >= port > max_port_num:
         logging.critical('An invalid port number was provided for the host server')
         raise ValueError('Invalid port number')
+
+    # Log the server's address
+    ip: str = host
+    if ip == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
+        try:
+            with socket(AF_INET, SOCK_DGRAM) as sock:
+                sock.connect(('1.1.1.1', 80))
+                ip = sock.getsockname()[0]
+        except OSError:
+            logging.warning('Unable to get default route')
+            ip = '127.0.0.1'
+    http_port: Final[int] = 80
+    logging.info(
+        f'Starting server at http://{ip}{f":{port}" if port != http_port else ""}'
+    )
 
     # Configure the server
     server: Server = Server(

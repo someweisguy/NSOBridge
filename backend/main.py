@@ -6,7 +6,6 @@ from __future__ import annotations
 import asyncio
 import logging
 from argparse import ArgumentParser, Namespace
-from socket import AF_INET, SOCK_DGRAM, socket
 from typing import TYPE_CHECKING, Final
 
 import core
@@ -106,17 +105,13 @@ async def main(app: FastAPI, check_for_updates: bool, silent: bool) -> None:
         silent (bool): True to disable logging to the terminal
 
     """
-    host: str = app.extra['host']  # Required argument
-    port: int = app.extra.get('port', 8000)
-    db_path_name: str = app.extra.get('db_path_name', '')
-
     core.configure_logging(
         log_dir_name=LOG_DIR_NAME,
         log_level=logging.DEBUG if app.debug else logging.INFO,
         silent=silent,
     )
     logging.info(f'Program started{" in debug mode" if app.debug else ""}')
-    logging.debug(f'args: {host=} {port=} {db_path_name=}')
+    logging.debug(f'args: {app.extra=}')
 
     if check_for_updates:
         try:
@@ -130,22 +125,7 @@ async def main(app: FastAPI, check_for_updates: bool, silent: bool) -> None:
     else:
         logging.info('Skipping update check')
 
-    # Log the server's address and serve the application
-    ip: str = host
-    if ip == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
-        try:
-            with socket(AF_INET, SOCK_DGRAM) as sock:
-                sock.connect(('1.1.1.1', 80))
-                ip = sock.getsockname()[0]
-        except OSError:
-            logging.warning('Unable to get default route')
-            ip = '127.0.0.1'
-    http_port: Final[int] = 80
-    logging.info(
-        f'Starting server at http://{ip}{f":{port}" if port != http_port else ""}'
-    )
-
-    await core.run(app, host, port)
+    await core.run(app)
     logging.debug('Server stopped')
 
     logging.info('Program terminated')
