@@ -152,73 +152,74 @@ async def main(app: FastAPI, check_for_updates: bool, silent: bool) -> None:
     logging.shutdown()
 
 
+parser: ArgumentParser = ArgumentParser(
+    prog='NSO Bridge',
+    description='A scoreboard app designed for the WFTDA roller derby ruleset.',
+)
+parser.add_argument(
+    'host',
+    type=str,
+    help='The interface on which to serve the app',
+)
+parser.add_argument(
+    '-p',
+    type=int,
+    help='The port on which to serve the app (Defaults to 8000)',
+    default=8000,
+    dest='port',
+)
+parser.add_argument(
+    '-f',
+    type=str,
+    help='The database file to use for storing game data. If no file is provided, '
+    'an in-memory database will be used',
+    default='',
+    dest='db_pathname',
+)
+parser.add_argument(
+    '-d',
+    '--debug',
+    help='Enable debug logging',
+    action='store_true',
+    dest='debug',
+)
+parser.add_argument(
+    '-s',
+    '--silent',
+    help='Disables log messages to the console',
+    action='store_true',
+    dest='silent',
+)
+parser.add_argument(
+    '-U',
+    help='Disables checking for updates on app startup',
+    action='store_false',
+    dest='check_for_updates',
+)
+args: Namespace = parser.parse_args()
+
+# Initialize the application and set the appropriate routes
+app: Final[FastAPI] = FastAPI(
+    debug=args.debug,
+    default_response_class=core.APIResponseClass,
+    title='NSO Bridge',
+    summary='A scoreboard and stats application for roller derby.',
+    description="""
+    
+    """,
+    version='v0.1.0-alpha',
+    license_info={
+        'name': 'MIT License',
+        'identifier': 'MIT',
+    },
+    docs_url='/docs',
+    host=args.host,
+    port=args.port,
+    db_pathname=args.db_pathname,
+)
+
+
 if __name__ == '__main__':
-    parser: ArgumentParser = ArgumentParser(
-        prog='NSO Bridge',
-        description='A scoreboard app designed for the WFTDA roller derby ruleset.',
-    )
-    parser.add_argument(
-        'host',
-        type=str,
-        help='The interface on which to serve the app',
-    )
-    parser.add_argument(
-        '-p',
-        type=int,
-        help='The port on which to serve the app (Defaults to 8000)',
-        default=8000,
-        dest='port',
-    )
-    parser.add_argument(
-        '-f',
-        type=str,
-        help='The database file to use for storing game data. If no file is provided, '
-        'an in-memory database will be used',
-        default='',
-        dest='db_pathname',
-    )
-    parser.add_argument(
-        '-d',
-        '--debug',
-        help='Enable debug logging',
-        action='store_true',
-        dest='debug',
-    )
-    parser.add_argument(
-        '-s',
-        '--silent',
-        help='Disables log messages to the console',
-        action='store_true',
-        dest='silent',
-    )
-    parser.add_argument(
-        '-U',
-        help='Disables checking for updates on app startup',
-        action='store_false',
-        dest='check_for_updates',
-    )
-    args: Namespace = parser.parse_args()
-
-    # Initialize the application and set the appropriate routes
-    app: Final[FastAPI] = FastAPI(
-        debug=args.debug,
-        default_response_class=core.APIResponseClass,
-        title='NSO Bridge',
-        summary='A scoreboard and stats application for roller derby.',
-        description="""
-        
-        """,
-        version='v0.1.0-alpha',
-        license_info={
-            'name': 'MIT License',
-            'identifier': 'MIT',
-        },
-        docs_url='/docs',
-        host=args.host,
-        port=args.port,
-        db_pathname=args.db_pathname,
-    )
-
     try:
         asyncio.run(
             main(app, args.check_for_updates, args.silent),
