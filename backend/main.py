@@ -11,13 +11,13 @@ from logging import Handler, StreamHandler
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, LiteralString
 
+import cli
 import colorlog
 import core
 import game
 import update
 import user
 import ws
-from cli import args
 from core import APIResponseClass, DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
@@ -105,7 +105,7 @@ async def lifespan(app: FastAPI):
 
 # Initialize the application and set the appropriate routes
 app: Final[FastAPI] = FastAPI(
-    debug=args.debug,
+    debug=cli.args.debug,
     default_response_class=APIResponseClass,
     lifespan=lifespan,
     title='NSO Bridge',
@@ -119,9 +119,9 @@ app: Final[FastAPI] = FastAPI(
         'identifier': 'MIT',
     },
     docs_url='/docs',
-    host=args.host,
-    port=args.port,
-    db_pathname=args.db_pathname,
+    host=cli.args.host,
+    port=cli.args.port,
+    db_pathname=cli.args.db_pathname,
 )
 
 
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         log_dir.mkdir()
     file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
     logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
-    if not args.silent:
+    if not cli.args.silent:
         console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
         console_logger.formatter = colorlog.ColoredFormatter(
             fmt=_get_log_format(use_colors=True),
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     )
 
     # Check for new releases in the Github releases page
-    if args.check_for_releases:
+    if cli.args.check_for_releases:
         logging.info('Checking for new releases')
         try:
             releases: list[GithubReleaseSchema] = update.check_for_releases()
