@@ -183,7 +183,7 @@ class BaseBout(CacheableSQLModel):
             timestamp (datetime): the timestamp at which to begin the Period.
 
         """
-        ...
+        raise NotImplementedError('begin_period() is not implemented in this model')
 
     async def end_period(self, timestamp: datetime) -> None:
         """End the current Period.
@@ -192,7 +192,7 @@ class BaseBout(CacheableSQLModel):
             timestamp (datetime): the timestamp at which to end the Period.
 
         """
-        ...
+        raise NotImplementedError('end_period() is not implemented in this model')
 
     async def start_jam(self, timestamp: datetime) -> BaseJam:
         """Start the next Jam.
@@ -204,7 +204,7 @@ class BaseBout(CacheableSQLModel):
             BaseJam: the Jam that was started.
 
         """
-        ...
+        raise NotImplementedError('start_jam() is not implemented in this model')
 
     async def stop_jam(self, timestamp: datetime) -> BaseJam:
         """Stop the current Jam.
@@ -216,7 +216,7 @@ class BaseBout(CacheableSQLModel):
             BaseJam: the Jam that was stopped.
 
         """
-        ...
+        raise NotImplementedError('stop_jam() is not implemented in this model')
 
     async def start_timeout(self, timestamp: datetime) -> BaseTimeout:
         """Call a Timeout.
@@ -228,7 +228,7 @@ class BaseBout(CacheableSQLModel):
             BaseTimeout: the Timeout that was called.
 
         """
-        ...
+        raise NotImplementedError('start_timeout() is not implemented in this model')
 
     async def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
         """Stop the current Timeout.
@@ -240,4 +240,4 @@ class BaseBout(CacheableSQLModel):
             BaseTimeout: the Timeout that was stopped.
 
         """
-        ...
+        raise NotImplementedError('stop_timeout() is not implemented in this model')

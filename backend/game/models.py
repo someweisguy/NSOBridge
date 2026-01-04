@@ -38,7 +38,7 @@ class CacheableSQLModel(BaseSQLModel):
             CacheKey: the unique cache key of this model.
 
         """
-        ...
+        raise NotImplementedError('cache_key() is not implemented in this model')
 
     def get_memento(self) -> DatabaseMemento:
         """Get a memento of the current state of this model and all its children.
