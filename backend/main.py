@@ -92,8 +92,8 @@ async def lifespan(app: FastAPI):
         else:
             logging.debug('Initial data found')
 
-    logging.info('Starting application')
-    yield  # Yield the application runtime
+    logging.debug('Yielding the application runtime')
+    yield
 
     logging.info('Disconnecting all WebSockets')
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
