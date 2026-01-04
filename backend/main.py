@@ -17,6 +17,7 @@ import game
 import update
 import user
 import ws
+from cli import args
 from core import DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
@@ -24,8 +25,6 @@ from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from websockets import CloseCode
-
-from .cli import args
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -121,7 +120,6 @@ app: Final[FastAPI] = FastAPI(
 
 
 if __name__ == '__main__':
-    datefmt: Final[str] = '%H:%M:%S'
 
     def _get_log_format(*, use_colors: bool = False) -> str:
         time: LiteralString = '%(asctime)s'
@@ -131,6 +129,8 @@ if __name__ == '__main__':
             level = f'%(bold)s%(log_color)s{level}%(reset)s'
         return f'{time} {level} %(message)s'
 
+    # Configure logging
+    datefmt: Final[str] = '%H:%M:%S'
     log_dir: Final[Path] = Path(LOG_DIR_NAME)
     if not log_dir.exists():
         log_dir.mkdir()
@@ -157,6 +157,7 @@ if __name__ == '__main__':
         handlers=logging_handlers,
     )
 
+    # Check for new releases in the Github releases page
     if args.check_for_updates:
         try:
             logging.info('Checking for application updates')
@@ -169,6 +170,7 @@ if __name__ == '__main__':
     else:
         logging.info('Skipping update check')
 
+    # Run the application
     try:
         asyncio.run(core.main(app), loop_factory=asyncio.new_event_loop)
     except KeyboardInterrupt:
