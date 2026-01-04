@@ -9,11 +9,13 @@ from typing import TYPE_CHECKING, Final
 
 import core
 import game
+import update
 import user
 import ws
 from core import DatabaseEngine, EngineFactory
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
+from update import GithubReleaseSchema
 from websockets import CloseCode
 
 if TYPE_CHECKING:
@@ -25,7 +27,12 @@ LOG_DIR_NAME: str = './logs'
 
 
 async def main(  # noqa: PLR0915
-    interface: tuple[str, int], *, db_path_name: str, debug: bool, silent: bool
+    interface: tuple[str, int],
+    *,
+    db_path_name: str,
+    debug: bool,
+    silent: bool,
+    check_for_updates: bool,
 ) -> None:
     """Begin the program.
 
@@ -39,6 +46,7 @@ async def main(  # noqa: PLR0915
         in-memory database if no path name is provided.
         debug (bool): True to enable debug logging.
         silent (bool): True to disable logging to the console.
+        check_for_updates (bool): True to enable update checking.
 
     """
     core.configure_logging(
@@ -48,6 +56,18 @@ async def main(  # noqa: PLR0915
     )
     logging.info(f'Program started{" in debug mode" if debug else ""}')
     logging.debug(f'args: {interface=} {db_path_name=} {debug=}')
+
+    if check_for_updates:
+        try:
+            logging.info('Checking for application updates')
+            releases: list[GithubReleaseSchema] = update.check_for_updates()
+            latest: GithubReleaseSchema = releases[-1]
+            logging.debug(f'Found latest release tagged "{latest.tag_name}"')
+            logging.debug(f'Current version is "{core.app.version}"')
+        except ConnectionError:
+            logging.warning('Unable to check for updates at this time')
+    else:
+        logging.info('Skipping update checking')
 
     # Connect to the desired database
     db_path_name = db_path_name.strip()
@@ -155,6 +175,12 @@ if __name__ == '__main__':
         action='store_true',
         dest='silent',
     )
+    parser.add_argument(
+        '-U',
+        help='Disables checking for updates on app startup',
+        action='store_false',
+        dest='enable_updates',
+    )
     args: Namespace = parser.parse_args()
 
     try:
@@ -164,6 +190,7 @@ if __name__ == '__main__':
                 db_path_name=args.db_path_name,
                 debug=args.debug,
                 silent=args.silent,
+                check_for_updates=args.enable_updates,
             ),
             loop_factory=asyncio.new_event_loop,
         )
