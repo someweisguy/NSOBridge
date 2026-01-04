@@ -34,7 +34,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
             tuple[BaseSQLModel]: the immediate parents of this model.
 
         """
-        ...
+        raise NotImplementedError('get_parents() is not implemented in this model')
 
     async def get_recursive_parents(self) -> tuple[BaseSQLModel, ...]:
         """Recursively and asynchronously get a tuple of this model's parents.
