@@ -1,6 +1,7 @@
 """Command-line arguments for the application."""
 
 from argparse import ArgumentParser, Namespace
+from typing import Final
 
 _parser: ArgumentParser = ArgumentParser(
     prog='NSO Bridge',
@@ -42,8 +43,8 @@ _parser.add_argument(
 )
 _parser.add_argument(
     '-U',
-    help='Disables checking for updates on app startup',
+    help='Disables checking for new releases on app startup',
     action='store_false',
-    dest='check_for_updates',
+    dest='check_for_releases',
 )
-args: Namespace = _parser.parse_args()
+args: Final[Namespace] = _parser.parse_args()
