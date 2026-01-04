@@ -92,7 +92,7 @@ async def lifespan(app: FastAPI):
         else:
             logging.debug('Initial data found')
 
-    logging.debug('Yielding the application runtime')
+    logging.debug('Yielding the app runtime')
     yield
 
     logging.info('Disconnecting all WebSockets')
