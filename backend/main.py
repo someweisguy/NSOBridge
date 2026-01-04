@@ -101,7 +101,6 @@ async def lifespan(app: FastAPI):
     logging.debug('WebSockets disconnected')
 
 
-# Initialize the application and set the appropriate routes
 app: Final[FastAPI] = FastAPI(
     debug=cli.args.debug,
     default_response_class=APIResponseClass,
