@@ -18,10 +18,9 @@ import update
 import user
 import ws
 from cli import args
-from core import FRONTEND, APIResponseClass, DatabaseEngine, EngineFactory
+from core import APIResponseClass, DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from fastapi.staticfiles import StaticFiles
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -45,13 +44,13 @@ async def lifespan(app: FastAPI):
         app (FastAPI): the app to setup and teardown.
 
     """
-    core.configure_error_handlers(app)
-
-    # Load the API
-    app.mount('/assets', StaticFiles(directory=FRONTEND / 'assets'))
+    # Load the API and exception handlers
+    for e, handler in core.error_handlers.items():
+        app.add_exception_handler(e, handler)
     app.include_router(core.pages_router)
     for router in [core.api_router, *game.routers, *user.routers]:
         app.include_router(router, prefix=API_PREFIX)
+    app.mount('/assets', core.assets)
     app.mount('/ws', ws.app)
 
     # Connect to the desired database

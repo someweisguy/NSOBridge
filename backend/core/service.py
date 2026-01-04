@@ -217,21 +217,11 @@ async def _validation_error_handler(
     return APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
 
 
-def configure_error_handlers(app: FastAPI) -> None:
-    """Add error handlers to the application.
-
-    Args:
-        app (FastAPI): the FastAPI app to configure.
-
-    """
-    # Install exception handlers
-    error_handlers: dict[type[Exception], Callable[[Request, ...], Any]] = {
-        Exception: _generic_error_handler,
-        ClientError: _generic_error_handler,
-        RequestValidationError: _validation_error_handler,
-    }
-    for e, handler in error_handlers.items():
-        app.add_exception_handler(e, handler)
+error_handlers: Final[dict[type[Exception], Callable[[Request, ...], Any]]] = {
+    Exception: _generic_error_handler,
+    ClientError: _generic_error_handler,
+    RequestValidationError: _validation_error_handler,
+}
 
 
 async def run(app: FastAPI) -> None:
