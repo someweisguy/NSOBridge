@@ -9,10 +9,13 @@ from typing import TYPE_CHECKING, Final
 
 import core
 import game
+import update
 import user
 import ws
 from core import DatabaseEngine, EngineFactory
 from game import Roster, Series, wftda_2025
+from requests.exceptions import Timeout
+from requests.models import HTTPError
 from sqlalchemy import Result, Select, select
 from websockets import CloseCode
 
@@ -48,6 +51,12 @@ async def main(  # noqa: PLR0915
     )
     logging.info(f'Program started{" in debug mode" if debug else ""}')
     logging.debug(f'args: {interface=} {db_path_name=} {debug=}')
+
+    try:
+        logging.info('Checking for application updates')
+        update.check_for_updates()
+    except (HTTPError, Timeout):
+        logging.warning('Unable to check for updates at this time')
 
     # Connect to the desired database
     db_path_name = db_path_name.strip()
