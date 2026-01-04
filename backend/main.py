@@ -159,8 +159,8 @@ if __name__ == '__main__':
 
     # Check for new releases in the Github releases page
     if args.check_for_updates:
+        logging.info('Checking for application updates')
         try:
-            logging.info('Checking for application updates')
             releases: list[GithubReleaseSchema] = update.check_for_updates()
             latest: GithubReleaseSchema = releases[-1]
             logging.debug(f'Found latest release tagged "{latest.tag_name}"')
