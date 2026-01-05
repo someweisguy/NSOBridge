@@ -11,9 +11,9 @@ dependencies = [
   "uvicorn>=0.34.3",
   "websockets>=15.0.1",
 ]
+dynamic = ["version"]
 name = "nso-bridge"
 requires-python = ">=3.13"
-dynamic = ["version"]
 
 [dependency-groups]
 dev = ["ruff>=0.14.10", "ty>=0.0.8"]
@@ -55,3 +55,6 @@ force-single-line = false
 
 [tool.setuptools.packages.find]
 include = ["backend"]
+
+[tool.pytest.ini_options]
+pythonpath = ["backend/src"]
