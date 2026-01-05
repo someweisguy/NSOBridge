@@ -10,10 +10,14 @@ from datetime import timedelta
 from math import floor
 from typing import TYPE_CHECKING, Any, override
 
+from pydantic import PlainSerializer
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
+
+
+timedelta_serializer = PlainSerializer(lambda td: floor(td.total_seconds() * 1000))
 
 tags_metadata: list[dict[str, str]] = [
     {
@@ -69,18 +73,3 @@ class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
         if not isinstance(value, (float, int)):
             raise TypeError()
         return timedelta(milliseconds=value)
-
-
-def _timedelta_encoder(value: timedelta) -> int:
-    """Convert a Python timedelta object to an integer number of milliseconds.
-
-    This method is used for serializing timedelta objects to JSON.
-
-    Args:
-        value (timedelta): the timedelta to convert.
-
-    Returns:
-        int: the number of milliseconds represented by the timedelta object.
-
-    """
-    return floor(value.total_seconds() * 1000)

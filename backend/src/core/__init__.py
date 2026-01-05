@@ -15,6 +15,7 @@ from .service import (
     run,
     shutdown,
 )
+from .utils import timedelta_serializer
 
 __all__ = (
     'api_router',
@@ -33,4 +34,5 @@ __all__ = (
     'run',
     'ServerSchema',
     'shutdown',
+    'timedelta_serializer',
 )

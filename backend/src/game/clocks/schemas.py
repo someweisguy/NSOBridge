@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta  # noqa: TC003
+from typing import Annotated
 
-from core import ServerSchema
+from core import ServerSchema, timedelta_serializer
 
 
 class ClockSchema(ServerSchema):
@@ -12,5 +13,5 @@ class ClockSchema(ServerSchema):
 
     id: int
     start_timestamp: datetime | None
-    elapsed: timedelta
-    alarm: timedelta
+    elapsed: Annotated[timedelta, timedelta_serializer]
+    alarm: Annotated[timedelta, timedelta_serializer]

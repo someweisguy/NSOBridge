@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 from pydantic.fields import Field
-
-from .utils import _timedelta_encoder
 
 
 class ServerSchema(BaseModel):
@@ -23,7 +21,6 @@ class ServerSchema(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(
         alias_generator=to_camel,
         from_attributes=True,
-        json_encoders={timedelta: _timedelta_encoder},
         validate_by_name=True,
         serialize_by_alias=True,
     )
@@ -43,7 +40,6 @@ class ClientSchema(BaseModel):
         alias_generator=to_camel,
         extra='forbid',
         from_attributes=True,
-        json_encoders={timedelta: _timedelta_encoder},
         validate_by_alias=True,
     )
 
