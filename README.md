@@ -22,7 +22,7 @@ This app also allows for roller derby statistics as a use-case. In addition to [
 
 ## Information for the Nerds
 
-This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. Websockets is used for bidirectional, client-server communication.
+This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. WebSockets are used for bidirectional, client-server communication.
 
 A proper server-side GUI is planned for this app, but it is not yet supported. Until then, this app is command-line only.
 
