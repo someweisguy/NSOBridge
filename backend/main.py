@@ -101,6 +101,7 @@ async def lifespan(app: FastAPI):
 
 
 app: Final[FastAPI] = FastAPI(
+    db_pathname='',  # Require default empty string
     default_response_class=APIResponseClass,
     lifespan=lifespan,
     title='NSO Bridge',
@@ -114,8 +115,6 @@ app: Final[FastAPI] = FastAPI(
         'identifier': 'MIT',
     },
     docs_url='/docs',
-    # App extras go below this comment
-    db_pathname='',
 )
 
 
