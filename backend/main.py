@@ -11,7 +11,6 @@ from logging import Handler, StreamHandler
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, LiteralString
 
-import cli
 import colorlog
 import core
 import game
@@ -102,7 +101,6 @@ async def lifespan(app: FastAPI):
 
 
 app: Final[FastAPI] = FastAPI(
-    debug=cli.args.debug,
     default_response_class=APIResponseClass,
     lifespan=lifespan,
     title='NSO Bridge',
@@ -117,13 +115,18 @@ app: Final[FastAPI] = FastAPI(
     },
     docs_url='/docs',
     # App extras go below this comment
-    db_pathname=cli.args.db_pathname,
-    host=cli.args.host,
-    port=cli.args.port,
+    db_pathname='',
 )
 
 
 if __name__ == '__main__':
+    # Import the command line arguments
+    import cli
+
+    app.debug: bool = cli.args.debug
+    app.extra['db_pathname'] = cli.args.db_pathname
+    app.extra['host'] = cli.args.host
+    app.extra['port'] = cli.args.port
 
     def _get_log_format(*, use_colors: bool = False) -> str:
         time: LiteralString = '%(asctime)s'
