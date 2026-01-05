@@ -4,19 +4,19 @@ dependencies = [
   "argparse>=1.4.0",
   "colorlog>=6.10.1",
   "fastapi[standard]>=0.115.14",
+  "httpx>=0.28.1",
   "pytest>=9.0.2",
   "requests>=2.32.5",
   "sqlalchemy>=2.0.45",
   "uvicorn>=0.34.3",
   "websockets>=15.0.1",
 ]
+dynamic = ["version"]
 name = "nso-bridge"
 requires-python = ">=3.13"
-dynamic = ["version"]
 
-[tool.pyrefly]
-project-includes = ["**/*.py*", "**/*.ipynb"]
-search_path = ["backend"]
+[dependency-groups]
+dev = ["ruff>=0.14.10", "ty>=0.0.8"]
 
 [tool.ruff]
 indent-width = 4
@@ -56,5 +56,5 @@ force-single-line = false
 [tool.setuptools.packages.find]
 include = ["backend"]
 
-[dependency-groups]
-dev = ["ruff>=0.14.10"]
+[tool.pytest.ini_options]
+pythonpath = ["backend/src"]

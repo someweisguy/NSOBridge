@@ -10,9 +10,9 @@ This app currently supports running in a command-line interface which is an adva
 
 This application offers a command-line interface for advanced users.
 
-To install this application [NPM][Node.js and NPM Installation] and [Python 3.14][Python Installation] (or greater) are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a package manager but it is not required. Download the required Python packages listed in `pyproject.toml` by running `pip install .` or `uv sync` if Astral uv is installed. The Node.js dependencies can be installed by running `npm install .`. Finally, the frontend can be compiled by running `npm run build`.
+To install this application [npm][Node.js and npm Installation] and [Python 3.13][Python Installation] (or greater) are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a Python package manager. Create a Python virtual environment with `uv venv`. Source the newly created Python environment with `.venv/Scripts/activate` and then call `uv sync` to download the required Python dependencies. The Node.js dependencies can be installed by running `npm install`. Finally, the frontend can be compiled by running `npm run build`.
 
-After all the required packages have been installed and the frontend has been built, the application can be served on all interfaces by running `python backend/main.py 0.0.0.0`. For more information on how to use the command-line interface, run `python backend/main.py --help`.
+After all the required packages have been installed and the frontend has been built, the application can be served on all interfaces. Run the application with `python backend/src/main.py 0.0.0.0`. For more information on how to use the command-line interface, run `python backend/src/main.py --help`.
 
 ## Differences from CRG Derby Scoreboard
 
@@ -22,7 +22,7 @@ This app also allows for roller derby statistics as a use-case. In addition to [
 
 ## Information for the Nerds
 
-This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. Websockets is used for bidirectional, client-server communication.
+This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. WebSockets are used for bidirectional, client-server communication.
 
 A proper server-side GUI is planned for this app, but it is not yet supported. Until then, this app is command-line only.
 
@@ -40,6 +40,6 @@ If you'd like to contribute to this app, more information can be found in the [N
 [React]: https://react.dev/
 [Tanstack Query]: https://tanstack.com/query/latest
 [Mantine]: https://mantine.dev/
-[Node.js and NPM Installation]: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+[Node.js and npm Installation]: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 [Python Installation]: https://www.python.org/downloads/
 [uv Installation]: https://docs.astral.sh/uv/getting-started/installation/

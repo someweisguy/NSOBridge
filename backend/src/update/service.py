@@ -13,8 +13,8 @@ OWNER: Final[str] = 'someweisguy'
 REPO: Final[str] = 'NSOBridge'
 
 
-def check_for_updates() -> list[GithubReleaseSchema]:
-    """Check for the latest update of the application.
+def check_for_releases() -> list[GithubReleaseSchema]:
+    """Check for the latest release of the application.
 
     Raises:
         ConnectionError: if there was an error connecting to the Github API.

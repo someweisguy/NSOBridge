@@ -6,38 +6,37 @@ import json
 import logging
 import os
 import signal
-import sys
-from datetime import datetime
 from http import HTTPStatus
-from logging import Handler, StreamHandler
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Final, LiteralString, Mapping, Protocol
+from socket import AF_INET, SOCK_DGRAM, socket
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    ClassVar,
+    Final,
+    Mapping,
+    Protocol,
+    override,
+)
 
-import colorlog
-from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.routing import Mount
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
 
 from .exceptions import ClientError, ModelLookupError
-from .schemas import APISchema, ErrorSchema, VersionSchema
+from .schemas import APISchema, ErrorSchema
 
 if TYPE_CHECKING:
+    from fastapi import FastAPI, Request
     from sqlalchemy.ext.asyncio import AsyncEngine
     from sqlalchemy.orm import DeclarativeBase
     from starlette.background import BackgroundTask
 
 
 logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
-
-FRONTEND: Final[Path] = Path.cwd() / Path('dist')
-DEBUG: Final[bool] = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {'true', 'yes'}
-PAGES_TAG = 'Pages'
 
 
 class Memento(Protocol):
@@ -148,12 +147,13 @@ class DatabaseEngine:
         return factory()
 
 
-class _APIResponseClass(JSONResponse):
+class APIResponseClass(JSONResponse):
     """Used to wrap all API responses in a common JSON interface.
 
     See `core.schemas.APISchema`.
     """
 
+    @override
     def __init__(
         self,
         content: Any,
@@ -177,6 +177,7 @@ class _APIResponseClass(JSONResponse):
             background,
         )
 
+    @override
     def render(self, content: Any) -> bytes:
         return json.dumps(
             content,
@@ -184,70 +185,19 @@ class _APIResponseClass(JSONResponse):
             allow_nan=False,
             indent=None,
             separators=(',', ':'),
-            default=(lambda dt: str(dt)),  # Explicitly serialize datetime objects
+            default=(lambda dt: str(dt)),  # Serialize datetime objects
         ).encode('utf-8')
 
 
-# Initialize the application and set the appropriate routes
-app: Final[FastAPI] = FastAPI(
-    debug=DEBUG,
-    default_response_class=_APIResponseClass,
-    routes=[
-        Mount('/assets', StaticFiles(directory=FRONTEND / 'assets')),
-    ],
-    title='NSO Bridge',
-    summary='A scoreboard and stats application for roller derby.',
-    description="""
-    
-    """,
-    version='v0.1.0-alpha',
-    license_info={
-        'name': 'MIT License',
-        'identifier': 'MIT',
-    },
-    docs_url='/docs',
-)
-
-
-@app.get('/', tags=[PAGES_TAG], name='Render Index Page')
-async def _render_index() -> FileResponse:
-    """Render the index page."""
-    page_path_name: str = 'index.html'
-    logging.info(f'Serving "{page_path_name}"')
-    return FileResponse(FRONTEND / page_path_name)
-
-
-@app.get(
-    '/sb',
-    tags=[PAGES_TAG],
-    name='Render Scoreboard Page',
-    description='Render the scoreboard page.',
-)
-async def _render_generic(request: Request) -> FileResponse:
-    # Render generic HTML files found in the frontend directory.
-    # Don't forget to register new files with the FastAPI app!
-    page_path_name: str = request.url.path[1:] + '.html'
-    logging.info(f'Serving "{page_path_name}"')
-    return FileResponse(FRONTEND / page_path_name)
-
-
-@app.get('/version', tags=['Metadata'])
-def _get_app_version(request: Request) -> VersionSchema:
-    """Return the current version of the app."""
-    return VersionSchema(version=request.app.version)
-
-
-@app.exception_handler(Exception)
-@app.exception_handler(ClientError)
-async def _generic_error_handler(request: Request, e: Exception) -> _APIResponseClass:
+async def _generic_error_handler(request: Request, e: Exception) -> APIResponseClass:
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=str(e))
 
     # Handle exceptions that weren't explicitly caught
     if not isinstance(e, ClientError):
         logging.error(f'An unexpected "{error.type}" error occurred: {error.message}')
-        return _APIResponseClass(error, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+        return APIResponseClass(error, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    # Determine the HTTP status code base on the exception type
+    # Determine the HTTP status code based on the exception type
     match e:
         case ModelLookupError():
             status_code = HTTPStatus.NOT_FOUND
@@ -256,78 +206,60 @@ async def _generic_error_handler(request: Request, e: Exception) -> _APIResponse
 
     logging.info(f'{error.message} (HTTP {status_code})')
 
-    return _APIResponseClass(error, status_code=status_code)
+    return APIResponseClass(error, status_code=status_code)
 
 
-@app.exception_handler(RequestValidationError)
 async def _validation_error_handler(
     request: Request, e: RequestValidationError
-) -> _APIResponseClass:
+) -> APIResponseClass:
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=(str(e)))
     logging.warning(f'Received invalid input: {str(e)}')
-    return _APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
+    return APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
 
 
-def configure_logging(
-    *, log_dir_name: str, log_level: int | None, silent: bool
-) -> None:
-    """Configure the logging system for the application."""
-    datefmt: Final[str] = '%H:%M:%S'
-
-    def get_log_format(*, use_colors: bool = False) -> str:
-        """Get a log format string with or without colors."""
-        time: LiteralString = '%(asctime)s'
-        level: LiteralString = '%(levelname)s'
-        if use_colors:
-            time = f'%(light_black)s{time}%(reset)s'
-            level = f'%(bold)s%(log_color)s{level}%(reset)s'
-        return f'{time} {level} %(message)s'
-
-    log_dir: Final[Path] = Path(log_dir_name)
-    if not log_dir.exists():
-        log_dir.mkdir()
-    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
-    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
-    if not silent:
-        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
-        console_logger.formatter = colorlog.ColoredFormatter(
-            fmt=get_log_format(use_colors=True),
-            datefmt=datefmt,
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'red,bg_white',
-            },
-        )
-        logging_handlers.append(console_logger)
-    logging.basicConfig(
-        level=log_level,
-        format=get_log_format(use_colors=False),
-        datefmt=datefmt,
-        handlers=logging_handlers,
-    )
+error_handlers: Final[dict[type[Exception], Callable[[Request, ...], Any]]] = {
+    Exception: _generic_error_handler,
+    ClientError: _generic_error_handler,
+    RequestValidationError: _validation_error_handler,
+}
 
 
-async def run(host: str, port: int) -> None:
-    """Asynchronously serve the application on the desired host and port.
+async def run(app: FastAPI) -> None:
+    """Asynchronously serve the desired application using a Uvicorn server.
 
     Args:
-        host (str): The desired host on which to serve the app.
-        port (int, optional): The desired port on which to serve the app.
+        app (FastAPI): The FastAPI app to serve.
 
     Raises:
+        KeyError: if a host or port is not included in the app extras.
         ValueError: if the port number provided is invalid.
 
     """
+    host: str = app.extra['host']
+    port: int = app.extra['port']
+
     max_port_num: Final[int] = 65535
     if 0 >= port > max_port_num:
-        logging.critical('An invalid port number was provided for the host server')
+        logging.critical(
+            f'An invalid port number was provided for the host server ({port=})'
+        )
         raise ValueError('Invalid port number')
 
-    # Configure the server
-    server: Server = Server(
+    # Log the server's address
+    ip: str = host
+    if ip == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
+        try:
+            with socket(AF_INET, SOCK_DGRAM) as sock:
+                sock.connect(('1.1.1.1', 80))
+                ip = sock.getsockname()[0]
+        except OSError:
+            logging.warning('Unable to get default route')
+            ip = '127.0.0.1'
+    http_port: Final[int] = 80
+    logging.info(f'Serving app at http://{ip}{f":{port}" if port != http_port else ""}')
+
+    # Run the server with the specified config
+    await Server(
         Config(
             app,
             host=host,
@@ -337,9 +269,8 @@ async def run(host: str, port: int) -> None:
             log_level='critical',
             server_header=False,
         )
-    )
-
-    await server.serve()
+    ).serve()
+    logging.debug('Server stopped')
 
 
 def shutdown() -> None:

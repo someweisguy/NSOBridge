@@ -4,7 +4,6 @@ from abc import ABC
 from datetime import datetime
 from typing import Any, Sequence
 
-import core
 from core import ClientSchema, ServerSchema
 from game import CacheKey
 from pydantic import Field, field_serializer
@@ -29,7 +28,7 @@ class AboutDataServerSchema(ServerSchema):
     This schema contains three fields: `process`, `server`, and `version`. The `process`
     field is the process time which is sent by clients to the server. The server passes
     this data back to clients unchanged. The `server` field is the current datetime
-    on this server. The `version` field is the current application version.
+    on this server.
 
     The `process` and `server` fields are provided to allow clients to synchronize game
     clocks with the server. To do so, Cristian's algorithm is used. To learn more about
@@ -39,7 +38,6 @@ class AboutDataServerSchema(ServerSchema):
 
     process: datetime | None
     server: datetime = Field(default_factory=datetime.now, init=False)
-    version: str = Field(core.app.version, init=False)
 
 
 class WebSocketServerSchema[T: Any](ServerSchema, ABC):

@@ -2,8 +2,9 @@
 
 from dataclasses import dataclass
 from datetime import timedelta
+from typing import Annotated
 
-from core import ServerSchema
+from core import ServerSchema, timedelta_serializer
 
 
 @dataclass(frozen=True)
@@ -17,8 +18,8 @@ class Ruleset(ServerSchema):
 
     name: str
     num_periods: int
-    jam_duration: timedelta
-    lineup_duration: timedelta
+    jam_duration: Annotated[timedelta, timedelta_serializer]
+    lineup_duration: Annotated[timedelta, timedelta_serializer]
     points_per_trip: int
     num_timeouts: int
     num_reviews: int

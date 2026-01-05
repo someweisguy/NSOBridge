@@ -5,7 +5,7 @@
       "name": "No GUI",
       "type": "debugpy",
       "request": "launch",
-      "program": "backend/main.py",
+      "program": "backend/src/main.py",
       "args": [
         "0.0.0.0",
         "-d"
