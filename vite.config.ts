@@ -10,9 +10,6 @@ export default defineConfig({
     cssMinify: true,
     minify: false, // TODO: Enable minification
     outDir: "dist",
-    watch: {
-      include: ["frontend/**"],
-    },
   },
   plugins: [
     react(),
