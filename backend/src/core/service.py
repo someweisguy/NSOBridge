@@ -38,6 +38,11 @@ if TYPE_CHECKING:
 
 logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
 
+SQLALCHEMY_DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {
+    'true',
+    'yes',
+}
+
 
 class Memento(Protocol):
     """Represent a memento point-in-time of the application state.
@@ -103,12 +108,14 @@ class DatabaseEngine:
         # Initialize the database engine
         url: URL = URL.create(self._DRIVER, database=self.path)
         logging.debug(f'Initializing engine at "{str(url)}"')
-        engine: AsyncEngine = create_async_engine(url, echo=False)
+        engine: AsyncEngine = create_async_engine(url, echo=SQLALCHEMY_DEBUG)
 
         # Create the database tables
         async with engine.connect() as session:
             await session.run_sync(self._db_schema.metadata.create_all)
-        self._session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+        self._session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
+            bind=engine, expire_on_commit=False
+        )
 
     def is_connected(self) -> bool:
         """Return True if the database is connected.
