@@ -1,4 +1,4 @@
-"""Core services including database engine management."""
+"""FastAPI error handlers and core service methods."""
 
 from __future__ import annotations
 
