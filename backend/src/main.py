@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import logging
-from signal import SIGTERM
 from typing import TYPE_CHECKING, Final
 
 import core
@@ -18,7 +17,6 @@ from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
-from uvicorn import Server
 from websockets import CloseCode
 
 if TYPE_CHECKING:
@@ -117,9 +115,11 @@ app: Final[FastAPI] = FastAPI(
 
 
 if __name__ == '__main__':
+    from signal import SIGTERM
     from threading import Thread
 
     import cli
+    from uvicorn import Server
 
     if TYPE_CHECKING:
         from uvicorn import Server
