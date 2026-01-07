@@ -47,4 +47,6 @@ _parser.add_argument(
     action='store_false',
     dest='check_for_releases',
 )
+
+
 args: Final[Namespace] = _parser.parse_args()
