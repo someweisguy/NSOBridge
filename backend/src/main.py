@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 from logging import Handler, StreamHandler
 from pathlib import Path
-from signal import SIGINT
+from signal import SIGTERM
 from typing import TYPE_CHECKING, Final, LiteralString
 
 import colorlog
@@ -192,11 +192,12 @@ if __name__ == '__main__':
     # Run the application
     try:
         gui.run(app)  # Blocks program execution
+        logging.info('GUI has been closed')
     except KeyboardInterrupt:
-        logging.info('Server stopped due to keyboard interrupt')
+        logging.info('Handling keyboard interrupt')
     finally:
-        logging.debug('Sending interrupt signal to Uvicorn server')
-        uvicorn.handle_exit(SIGINT, None)
+        logging.debug('Sending terminate signal to Uvicorn server')
+        uvicorn.handle_exit(SIGTERM, None)
         uvicorn_thread.join()
 
         logging.info('Program terminated')
