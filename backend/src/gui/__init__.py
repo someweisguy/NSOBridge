@@ -4,6 +4,6 @@ Creates a desktop window for the application so users have a polished experience
 the server.
 """
 
-from .service import run_gui
+from .service import run
 
-__all__ = ('run_gui',)
+__all__ = ('run',)

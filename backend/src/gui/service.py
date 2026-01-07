@@ -140,7 +140,7 @@ class AppWindow(QMainWindow):
         )
 
 
-def run_gui(app: FastAPI) -> None:
+def run(app: FastAPI) -> None:
     """Run the GUI.
 
     Args:
