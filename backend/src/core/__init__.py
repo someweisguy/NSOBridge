@@ -8,11 +8,7 @@ from .dependencies import AsyncSessionDepends, EngineFactory
 from .protocols import Memento
 from .router import api_router, assets, pages_router
 from .schemas import APIResponseClass, ClientSchema, ServerSchema
-from .service import (
-    error_handlers,
-    get_server,
-    shutdown,
-)
+from .service import configure_logging, error_handlers, get_server, shutdown
 from .utils import timedelta_serializer
 
 __all__ = (
@@ -24,6 +20,7 @@ __all__ = (
     'CASCADE_CHILD',
     'CASCADE_OTHER',
     'ClientSchema',
+    'configure_logging',
     'DatabaseEngine',
     'EngineFactory',
     'error_handlers',
