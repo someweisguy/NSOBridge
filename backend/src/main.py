@@ -156,7 +156,7 @@ if __name__ == '__main__':
     # Run the application
     try:
         gui.run(app)  # Blocks program execution
-        logging.info('GUI has been closed')
+        logging.info('The GUI has been closed')
     except KeyboardInterrupt:
         logging.info('Handling keyboard interrupt')
     finally:
