@@ -231,8 +231,8 @@ error_handlers: Final[dict[type[Exception], Callable[[Request, ...], Any]]] = {
 }
 
 
-async def run(app: FastAPI) -> None:
-    """Asynchronously serve the desired application using a Uvicorn server.
+def build_server(app: FastAPI) -> Server:
+    """Build and return a Uvicorn server to serve the desired FastAPI app.
 
     Args:
         app (FastAPI): The FastAPI app to serve.
@@ -240,6 +240,9 @@ async def run(app: FastAPI) -> None:
     Raises:
         KeyError: if a host or port is not included in the app extras.
         ValueError: if the port number provided is invalid.
+
+    Returns:
+        Server: the configured server which can be used to serve the app.
 
     """
     host: str = app.extra['host']
@@ -263,10 +266,13 @@ async def run(app: FastAPI) -> None:
             logging.warning('Unable to get default route')
             ip = '127.0.0.1'
     http_port: Final[int] = 80
-    logging.info(f'Serving app at http://{ip}{f":{port}" if port != http_port else ""}')
+    logging.info(
+        f'Configuring Uvicorn to serve app at '
+        f'http://{ip}{f":{port}" if port != http_port else ""}'
+    )
 
     # Run the server with the specified config
-    await Server(
+    return Server(
         Config(
             app,
             host=host,
@@ -276,8 +282,7 @@ async def run(app: FastAPI) -> None:
             log_level='critical',
             server_header=False,
         )
-    ).serve()
-    logging.debug('Server stopped')
+    )
 
 
 def shutdown() -> None:

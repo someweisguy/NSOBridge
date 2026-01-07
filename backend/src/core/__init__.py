@@ -11,8 +11,8 @@ from .service import (
     APIResponseClass,
     DatabaseEngine,
     Memento,
+    build_server,
     error_handlers,
-    run,
     shutdown,
 )
 from .utils import timedelta_serializer
@@ -23,6 +23,7 @@ __all__ = (
     'assets',
     'AsyncSessionDepends',
     'BaseSQLModel',
+    'build_server',
     'CASCADE_CHILD',
     'CASCADE_OTHER',
     'ClientSchema',
@@ -31,7 +32,6 @@ __all__ = (
     'error_handlers',
     'Memento',
     'pages_router',
-    'run',
     'ServerSchema',
     'shutdown',
     'timedelta_serializer',
