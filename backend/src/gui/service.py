@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from fastapi import FastAPI
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QDesktopServices, QFont, QPainter, QPixmap
@@ -41,22 +42,22 @@ class AppWindow(QMainWindow):
 
         return pixmap
 
-    def __init__(self, name: str, icon_path: Path | str):
+    def __init__(self, app: FastAPI, icon_path: Path | str):
         """Initialize the main window.
 
         Args:
-            name (str): the display name of the GUI.
+            app (FastAPI): the app whose information should be displayed.
             icon_path (Path | str): the pathname of a .svg file to act as the GUI icon.
 
         """
         super().__init__()
-        self.setWindowTitle(name)
+        self.setWindowTitle(app.title)
 
         page_layout = QtWidgets.QVBoxLayout()
         button_layout = QtWidgets.QHBoxLayout()
 
         version_text = QtWidgets.QLabel(
-            'v0.1.0', alignment=Qt.AlignmentFlag.AlignHCenter
+            app.version, alignment=Qt.AlignmentFlag.AlignHCenter
         )
         version_text.setFixedHeight(15)
         font: QFont = version_text.font()
@@ -68,7 +69,7 @@ class AppWindow(QMainWindow):
         image_label.setPixmap(self.get_svg_pixmap(icon_path))
 
         self.text = QtWidgets.QLabel(
-            'Hello World!',
+            'Loading...',
             alignment=Qt.AlignmentFlag.AlignCenter,
         )
         font: QFont = self.text.font()
@@ -139,15 +140,21 @@ class AppWindow(QMainWindow):
         )
 
 
-if __name__ == '__main__':
+def run_gui(app: FastAPI) -> None:
+    """Run the GUI.
+
+    Args:
+        app (FastAPI): the FastAPI app to pass to the GUI.
+
+    """
     gui = QtWidgets.QApplication([])
-    gui.setApplicationName('NSOBridge')
+    gui.setApplicationName(app.title)
 
     icon_path: Path = Path.cwd() / 'frontend/public/skate.svg'
     icon: QPixmap = AppWindow.get_svg_pixmap(icon_path)
     gui.setWindowIcon(icon)
 
-    window = AppWindow('NSO Bridge', icon_path)
+    window = AppWindow(app, icon_path)
     window.show()
 
     gui.exec()
