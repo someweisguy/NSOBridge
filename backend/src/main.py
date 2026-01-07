@@ -3,17 +3,18 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import sys
 from datetime import datetime
 from logging import Handler, StreamHandler
 from pathlib import Path
+from signal import SIGINT
 from typing import TYPE_CHECKING, Final, LiteralString
 
 import colorlog
 import core
 import game
+import gui
 import update
 import user
 import ws
@@ -22,6 +23,7 @@ from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Roster, Series, wftda_2025
 from sqlalchemy import Result, Select, select
+from uvicorn import Server
 from websockets import CloseCode
 
 if TYPE_CHECKING:
@@ -94,6 +96,7 @@ async def lifespan(app: FastAPI):
 
     logging.debug('Yielding the app runtime')
     yield
+    logging.debug('App runtime has yielded to shutdown handler')
 
     logging.info('Disconnecting all WebSockets')
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
@@ -119,9 +122,14 @@ app: Final[FastAPI] = FastAPI(
 
 
 if __name__ == '__main__':
-    # Import the command line arguments
+    from threading import Thread
+
     import cli
 
+    if TYPE_CHECKING:
+        from uvicorn import Server
+
+    # Import the command line arguments
     app.debug: bool = cli.args.debug
     app.extra['db_pathname'] = cli.args.db_pathname
     app.extra['host'] = cli.args.host
@@ -176,12 +184,21 @@ if __name__ == '__main__':
     else:
         logging.info('Skipping release check')
 
+    # Build a server and run it in a new thread
+    uvicorn: Server = core.build_server(app)
+    uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
+    uvicorn_thread.start()
+
     # Run the application
     try:
-        asyncio.run(core.run(app), loop_factory=asyncio.new_event_loop)
+        gui.run(app)  # Blocks program execution
     except KeyboardInterrupt:
         logging.info('Server stopped due to keyboard interrupt')
     finally:
+        logging.debug('Sending interrupt signal to Uvicorn server')
+        uvicorn.handle_exit(SIGINT, None)
+        uvicorn_thread.join()
+
         logging.info('Program terminated')
         logging.shutdown()
         core.shutdown()
