@@ -2,12 +2,24 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
-from typing import Any, ClassVar
+from http import HTTPStatus
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Mapping,
+    override,
+)
 
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 from pydantic.fields import Field
+
+if TYPE_CHECKING:
+    from starlette.background import BackgroundTask
 
 
 class ServerSchema(BaseModel):
@@ -64,3 +76,45 @@ class VersionSchema(ServerSchema):
     """The schema which returns application version information."""
 
     version: str
+
+
+class APIResponseClass(JSONResponse):
+    """Used to wrap all API responses in a common JSON interface.
+
+    See `core.schemas.APISchema`.
+    """
+
+    @override
+    def __init__(
+        self,
+        content: Any,
+        status_code: int = HTTPStatus.OK,
+        headers: Mapping[str, str] | None = None,
+        media_type: str | None = None,
+        background: BackgroundTask | None = None,
+    ) -> None:
+        error_occurred: bool = status_code not in range(
+            HTTPStatus.OK, HTTPStatus.MULTIPLE_CHOICES
+        )
+        super().__init__(
+            APISchema(
+                status_code=status_code,
+                error=content if error_occurred else None,
+                data=content if not error_occurred else None,
+            ).model_dump(),
+            status_code,
+            headers,
+            media_type,
+            background,
+        )
+
+    @override
+    def render(self, content: Any) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(',', ':'),
+            default=(lambda dt: str(dt)),  # Serialize datetime objects
+        ).encode('utf-8')

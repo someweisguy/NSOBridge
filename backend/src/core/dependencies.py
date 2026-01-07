@@ -7,8 +7,7 @@ from typing import Annotated, AsyncGenerator, ClassVar, TypeAlias
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from .models import BaseSQLModel
-from .service import DatabaseEngine
+from .database import BaseSQLModel, DatabaseEngine
 
 
 class EngineFactory:

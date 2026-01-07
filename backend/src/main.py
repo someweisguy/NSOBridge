@@ -185,7 +185,7 @@ if __name__ == '__main__':
         logging.info('Skipping release check')
 
     # Build a server and run it in a new thread
-    uvicorn: Server = core.build_server(app)
+    uvicorn: Server = core.get_server(app)
     uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
     uvicorn_thread.start()
 
