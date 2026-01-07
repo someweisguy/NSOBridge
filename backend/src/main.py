@@ -42,11 +42,13 @@ async def lifespan(app: FastAPI):
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
         app.add_exception_handler(e, handler)
-    app.include_router(core.pages_router)
     for router in [core.api_router, *game.routers, *user.routers]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.assets)
     app.mount('/ws', ws.app)
+
+    # Load the pages router without a path prefix
+    app.include_router(core.pages_router)
 
     # Connect to the desired database
     db: DatabaseEngine = EngineFactory.get_default_engine()
