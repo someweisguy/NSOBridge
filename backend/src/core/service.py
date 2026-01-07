@@ -147,7 +147,7 @@ def get_server(app: FastAPI) -> Server:
             ip = '127.0.0.1'
     http_port: Final[int] = 80
     logging.info(
-        f'Configuring Uvicorn to serve app at '
+        f'Configuring Uvicorn service for '
         f'http://{ip}{f":{port}" if port != http_port else ""}'
     )
 
