@@ -134,7 +134,7 @@ class AppWindow(QMainWindow):
             data: Iterable = json.loads(bytes(message.data()).decode('utf-8'))
 
             # Preset this value in case this method fails
-            self.update_label.setText('There are no updates at this time.')
+            self.update_label.setText('You are running the latest version!')
 
             # Get the latest, non-draft release
             releases: list[GithubReleaseSchema] = []
