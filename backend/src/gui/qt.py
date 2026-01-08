@@ -149,7 +149,7 @@ class AppWindow(QMainWindow):
 
             self.update_label.setTextFormat(Qt.TextFormat.MarkdownText)
             self.update_label.setText(
-                f'[Click here to get the latest version!]({release.html_url})'
+                f'[_Click here_]({release.html_url}) to get the latest version!'
             )
             self.update_label.setOpenExternalLinks(True)
 
@@ -197,8 +197,7 @@ class AppWindow(QMainWindow):
     @QtCore.Slot()
     def launch_web(self):
         """Open the default web browser to the client page."""
-        # TODO: point this to the actual IP address and port of this server
-        QDesktopServices.openUrl('http://localhost:8000')
+        QDesktopServices.openUrl(self.host_label.text())
 
     @QtCore.Slot()
     def show_options(self):
