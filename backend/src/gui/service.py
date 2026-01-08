@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from fastapi import FastAPI
-from PySide6 import QtWidgets
+from PySide6.QtWidgets import QApplication
 
 from .qt import AppWindow
 
@@ -19,9 +19,10 @@ def run(app: FastAPI) -> None:
         app (FastAPI): the FastAPI app to pass to the GUI.
 
     """
-    gui = QtWidgets.QApplication([])
+    gui = QApplication()
     gui.setApplicationName(app.title)
 
+    # TODO: fix this path
     icon_path: Path = Path.cwd() / 'frontend/public/skate.svg'
     icon: QPixmap = AppWindow.get_svg_pixmap(icon_path)
     gui.setWindowIcon(icon)
