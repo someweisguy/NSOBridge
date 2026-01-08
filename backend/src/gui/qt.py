@@ -101,8 +101,8 @@ class AppWindow(QMainWindow):
         if not self.has_shown_help_toast:
             self.has_shown_help_toast = True
             self.tray_icon.showMessage(
-                'NSO Bridge has been hidden for now',
-                'Click the NSO Bridge icon to open the server window',
+                'NSO Bridge has been hidden',
+                'Click the tray icon to open the window.',
                 QSystemTrayIcon.MessageIcon.NoIcon,
                 2000,
             )
