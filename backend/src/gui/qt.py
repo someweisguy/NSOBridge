@@ -74,6 +74,7 @@ class AppWindow(QMainWindow):
 
         # TODO: Conditionally run this if there is no system tray
         self.tray_icon = QtWidgets.QSystemTrayIcon(self.centralWidget())
+        self.has_shown_help_toast: bool = False
         self.tray_icon.setIcon(self.windowIcon())
         self.tray_icon.setVisible(True)
         self.create_tray_icon()
@@ -96,12 +97,14 @@ class AppWindow(QMainWindow):
     def hide_window(self):
         """Minimize the main window to the system tray."""
         self.hide()
-        self.tray_icon.showMessage(
-            'NSO Bridge has been hidden for now',
-            'Click the NSO Bridge icon to open the server window',
-            QSystemTrayIcon.MessageIcon.NoIcon,
-            2000,
-        )
+        if not self.has_shown_help_toast:
+            self.has_shown_help_toast = True
+            self.tray_icon.showMessage(
+                'NSO Bridge has been hidden for now',
+                'Click the NSO Bridge icon to open the server window',
+                QSystemTrayIcon.MessageIcon.NoIcon,
+                2000,
+            )
 
     def handle_response(self, reply: QNetworkReply) -> None:
         """Handle network responses for the GUI.
