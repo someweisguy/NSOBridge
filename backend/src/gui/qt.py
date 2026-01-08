@@ -52,6 +52,7 @@ class AppWindow(QMainWindow):
             'Checking for Updates...',
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
         )
+        self.update_label.setWordWrap(True)
         self.status_label: QLabel = QLabel(
             'Loading...',
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
@@ -127,7 +128,7 @@ class AppWindow(QMainWindow):
                 self.nam.get(request)
         elif e != QNetworkReply.NetworkError.NoError:
             # This was a request to check for updates, but it failed
-            self.update_label.setText('Unable to check for updates right now.')
+            self.update_label.setText('Connect to the internet to check for updates.')
         else:
             # This request was a successful update check!
             message: QByteArray = reply.readAll()
