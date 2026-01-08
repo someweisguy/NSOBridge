@@ -12,6 +12,8 @@ from .schemas import GithubReleaseSchema
 OWNER: Final[str] = 'someweisguy'
 REPO: Final[str] = 'NSOBridge'
 
+UPDATE_URL: Final[str] = f'https://api.github.com/repos/{OWNER}/{REPO}/releases'
+
 
 def check_for_releases() -> list[GithubReleaseSchema]:
     """Check for the latest release of the application.
@@ -24,9 +26,8 @@ def check_for_releases() -> list[GithubReleaseSchema]:
 
     """
     try:
-        url: str = f'https://api.github.com/repos/{OWNER}/{REPO}/releases'
         response: Response = requests.get(
-            url, headers={'Accept': 'application/vnd.github+json'}, timeout=5
+            UPDATE_URL, headers={'Accept': 'application/vnd.github+json'}, timeout=5
         )
         response.raise_for_status()
     except (
