@@ -72,7 +72,7 @@ class AppWindow(QMainWindow):
         self.nam: QNetworkAccessManager = QNetworkAccessManager()
         self.nam.finished.connect(self.handle_response)
 
-        # TODO: Conditionally run this if there is no system tray
+        # Configure the system tray
         self.tray_icon = QtWidgets.QSystemTrayIcon(self.centralWidget())
         self.has_shown_help_toast: bool = False
         self.tray_icon.setIcon(self.windowIcon())
