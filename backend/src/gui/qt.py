@@ -27,75 +27,72 @@ from update import UPDATE_URL, GithubReleaseSchema
 class AppWindow(QMainWindow):
     """The main Qt window for the GUI."""
 
-    def _add_widgets(self, app: FastAPI, icon_pixmap: QPixmap) -> None:
+    def __init__(self, app: FastAPI, icon_pixmap: QPixmap):
+        """Initialize the main window.
+
+        Args:
+            app (FastAPI): the app whose information should be displayed.
+            icon_pixmap (QPixmap): the pixmap of the image to be the GUI's icon.
+
+        """
+        super().__init__()
+
+        host: str = app.extra['host']
+        port: int = app.extra['port']
+        if host == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
+            http_port: int = 80
+            host = core.get_default_route()
+
+        self.version_label: QLabel = QLabel(
+            f'v{app.version}', alignment=Qt.AlignmentFlag.AlignHCenter
+        )
+        self.update_label: QLabel = QLabel(
+            'Checking for Updates...',
+            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+        )
+        self.status_label: QLabel = QLabel(
+            'Loading...',
+            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+        )
+        http_port: int = 80
+        self.host_label: QLabel = QLabel(
+            f'http://{host}{f":{port}" if port != http_port else ""}',
+            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+        )
+        self.add_widgets(icon_pixmap)
         self.setWindowTitle(app.title)
 
-        page_layout = QVBoxLayout()
-        button_layout = QHBoxLayout()
+        # Setup the network manager
+        self.nam: QNetworkAccessManager = QNetworkAccessManager()
+        self.nam.finished.connect(self.handle_response)
 
-        image_label: QLabel = QLabel(alignment=Qt.AlignmentFlag.AlignCenter)
-        image_label.setPixmap(icon_pixmap)
+        # Check if the server is running yet and check for updates
+        self.nam.get(QNetworkRequest(QUrl(self.host_label.text())))
+        self.nam.get(QNetworkRequest(QUrl(UPDATE_URL)))
 
-        self.version_label.setFixedHeight(15)
-        font: QFont = self.version_label.font()
-        font.setPointSize(9)
-        self.version_label.setFont(font)
+    @QtCore.Slot()
+    def launch_web(self):
+        """Open the default web browser to the client page."""
+        QDesktopServices.openUrl(self.host_label.text())
 
-        font: QFont = self.update_label.font()
-        font.setPointSize(10)
-        self.update_label.setFont(font)
+    @QtCore.Slot()
+    def show_advanced(self):
+        """Open a window to configure advanced server options."""
+        pass  # TODO: implement advanced options
 
-        font: QFont = self.status_label.font()
-        font.setPointSize(16)
-        font.setBold(True)
-        self.status_label.setFont(font)
+    @QtCore.Slot()
+    def hide_window(self):
+        """Minimize the main window to the system tray."""
+        # TODO: implement window un-hiding
+        self.hide()
+        self.tray_icon.showMessage(
+            'NSO Bridge has been hidden for now',
+            'Click the NSO Bridge icon to open the server window',
+            QSystemTrayIcon.MessageIcon.NoIcon,
+            2000,
+        )
 
-        font: QFont = self.host_label.font()
-        font.setPointSize(8)
-        self.host_label.setFont(font)
-
-        launch_button = QPushButton('Launch NSO Bridge')
-        launch_button.clicked.connect(self.launch_web)
-
-        line = QFrame()
-        line.setFrameShape(QFrame.Shape.HLine)
-        line.setFrameShadow(QFrame.Shadow.Sunken)
-        line.setLineWidth(1)
-
-        page_layout.addWidget(image_label)
-        page_layout.addWidget(self.version_label)
-        page_layout.addWidget(self.update_label)
-        page_layout.addWidget(self.status_label)
-        page_layout.addWidget(self.host_label)
-        page_layout.addWidget(launch_button)
-        page_layout.addWidget(line)
-        page_layout.addLayout(button_layout)
-
-        hide_button = QPushButton('Hide')
-        hide_button.clicked.connect(self.hide_window)
-
-        options_button = QPushButton('Advanced...')
-        options_button.clicked.connect(self.show_options)
-        options_button.setDisabled(True)  # TODO: implement advanced features
-
-        button_layout.addWidget(hide_button)
-        button_layout.addWidget(options_button)
-
-        widget = QWidget()
-        widget.setLayout(page_layout)
-
-        self.setCentralWidget(widget)
-
-        # Hide the minimize and maximize buttons
-        self.setWindowFlags(Qt.WindowType.Dialog)
-        self.setFixedSize(250, 300)
-
-        # TODO: Conditionally run this if there is no system tray
-        self.tray_icon = QtWidgets.QSystemTrayIcon(widget)
-        self.tray_icon.setIcon(self.windowIcon())
-        self.tray_icon.setVisible(True)
-
-    def _handle_response(self, reply: QNetworkReply) -> None:
+    def handle_response(self, reply: QNetworkReply) -> None:
         """Handle network responses for the GUI.
 
         Don't call this method directly.
@@ -153,66 +150,74 @@ class AppWindow(QMainWindow):
             )
             self.update_label.setOpenExternalLinks(True)
 
-    def __init__(self, app: FastAPI, icon_pixmap: QPixmap):
-        """Initialize the main window.
+    def add_widgets(self, icon_pixmap: QPixmap) -> None:
+        """Add the widgets to the window.
 
         Args:
-            app (FastAPI): the app whose information should be displayed.
-            icon_pixmap (QPixmap): the pixmap of the image to be the GUI's icon.
+            icon_pixmap (QPixmap): the pixmap of the app icon.
 
         """
-        super().__init__()
+        page_layout = QVBoxLayout()
+        button_layout = QHBoxLayout()
 
-        host: str = app.extra['host']
-        port: int = app.extra['port']
-        if host == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
-            http_port: int = 80
-            host = core.get_default_route()
+        image_label: QLabel = QLabel(alignment=Qt.AlignmentFlag.AlignCenter)
+        image_label.setPixmap(icon_pixmap)
 
-        self.version_label: QLabel = QLabel(
-            f'v{app.version}', alignment=Qt.AlignmentFlag.AlignHCenter
-        )
-        self.update_label: QLabel = QLabel(
-            'Checking for Updates...',
-            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
-        )
-        self.status_label: QLabel = QLabel(
-            'Loading...',
-            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
-        )
-        http_port: int = 80
-        self.host_label: QLabel = QLabel(
-            f'http://{host}{f":{port}" if port != http_port else ""}',
-            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
-        )
+        self.version_label.setFixedHeight(15)
+        font: QFont = self.version_label.font()
+        font.setPointSize(9)
+        self.version_label.setFont(font)
 
-        self._add_widgets(app, icon_pixmap)
+        font: QFont = self.update_label.font()
+        font.setPointSize(10)
+        self.update_label.setFont(font)
 
-        port: int = app.extra['port']
-        self.nam: QNetworkAccessManager = QNetworkAccessManager()
-        self.nam.finished.connect(self._handle_response)
-        self.nam.get(QNetworkRequest(QUrl(self.host_label.text())))
-        self.nam.get(QNetworkRequest(QUrl(UPDATE_URL)))
+        font: QFont = self.status_label.font()
+        font.setPointSize(16)
+        font.setBold(True)
+        self.status_label.setFont(font)
 
-    @QtCore.Slot()
-    def launch_web(self):
-        """Open the default web browser to the client page."""
-        QDesktopServices.openUrl(self.host_label.text())
+        font: QFont = self.host_label.font()
+        font.setPointSize(8)
+        self.host_label.setFont(font)
 
-    @QtCore.Slot()
-    def show_options(self):
-        """Open a window to configure advanced server options."""
-        # TODO: implement advanced options
-        pass
+        launch_button = QPushButton('Launch NSO Bridge')
+        launch_button.clicked.connect(self.launch_web)
 
-    @QtCore.Slot()
-    def hide_window(self):
-        """Minimize the main window to the system tray."""
-        # TODO: implement window un-hiding
-        self.hide()
-        self.tray_icon.showMessage(
-            'NSO Bridge is in your system tray!',
-            'Click the NSO Bridge icon to open the server window',
-            QSystemTrayIcon.MessageIcon.NoIcon,
-            2000,
-        )
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
+        line.setLineWidth(1)
+
+        page_layout.addWidget(image_label)
+        page_layout.addWidget(self.version_label)
+        page_layout.addWidget(self.update_label)
+        page_layout.addWidget(self.status_label)
+        page_layout.addWidget(self.host_label)
+        page_layout.addWidget(launch_button)
+        page_layout.addWidget(line)
+        page_layout.addLayout(button_layout)
+
+        hide_button = QPushButton('Hide')
+        hide_button.clicked.connect(self.hide_window)
+
+        options_button = QPushButton('Advanced...')
+        options_button.clicked.connect(self.show_advanced)
+        options_button.setDisabled(True)  # TODO: implement advanced features
+
+        button_layout.addWidget(hide_button)
+        button_layout.addWidget(options_button)
+
+        widget = QWidget()
+        widget.setLayout(page_layout)
+
+        self.setCentralWidget(widget)
+
+        # Hide the minimize and maximize buttons
+        self.setWindowFlags(Qt.WindowType.Dialog)
+        self.setFixedSize(250, 300)
+
+        # TODO: Conditionally run this if there is no system tray
+        self.tray_icon = QtWidgets.QSystemTrayIcon(widget)
+        self.tray_icon.setIcon(self.windowIcon())
+        self.tray_icon.setVisible(True)
