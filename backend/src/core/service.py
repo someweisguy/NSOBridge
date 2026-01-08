@@ -138,13 +138,7 @@ def get_server(app: FastAPI) -> Server:
     # Log the server's address
     ip: str = host
     if ip == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
-        try:
-            with socket(AF_INET, SOCK_DGRAM) as sock:
-                sock.connect(('1.1.1.1', 80))
-                ip = sock.getsockname()[0]
-        except OSError:
-            logging.warning('Unable to get default route')
-            ip = '127.0.0.1'
+        ip = get_default_route()
     http_port: Final[int] = 80
     logging.info(
         f'Configuring Uvicorn service for '
@@ -163,6 +157,26 @@ def get_server(app: FastAPI) -> Server:
             server_header=False,
         )
     )
+
+
+def get_default_route() -> str:
+    """Get the default route of this device.
+
+    This is the IP address that this server would serve on if the user allows the server
+    to run on all interfaces (0.0.0.0). This method doesn't actually transmit any data.
+    This is a known
+
+    Returns:
+        str: the default route of this device.
+
+    """
+    try:
+        with socket(AF_INET, SOCK_DGRAM) as sock:
+            sock.connect(('1.1.1.1', 80))
+            ip: str = sock.getsockname()[0]
+    except OSError:
+        ip = 'localhost'
+    return ip
 
 
 def shutdown() -> None:

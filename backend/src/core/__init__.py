@@ -8,7 +8,13 @@ from .dependencies import AsyncSessionDepends, EngineFactory
 from .protocols import Memento
 from .router import api_router, assets, pages_router
 from .schemas import APIResponseClass, ClientSchema, ServerSchema
-from .service import configure_logging, error_handlers, get_server, shutdown
+from .service import (
+    configure_logging,
+    error_handlers,
+    get_default_route,
+    get_server,
+    shutdown,
+)
 from .utils import timedelta_serializer
 
 __all__ = (
@@ -24,6 +30,7 @@ __all__ = (
     'DatabaseEngine',
     'EngineFactory',
     'error_handlers',
+    'get_default_route',
     'get_server',
     'Memento',
     'pages_router',
