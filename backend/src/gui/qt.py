@@ -1,14 +1,14 @@
 """Qt windows for the GUI module."""
 
 import json
-from typing import Iterable
+from typing import Iterable, override
 
 import core
 from fastapi import FastAPI
 from pydantic import ValidationError
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QByteArray, QCoreApplication, Qt, QUrl
-from PySide6.QtGui import QAction, QDesktopServices, QFont, QPixmap
+from PySide6.QtGui import QAction, QCloseEvent, QDesktopServices, QFont, QPixmap
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PySide6.QtWidgets import (
     QApplication,
@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMainWindow,
     QMenu,
+    QMessageBox,
     QPushButton,
     QSystemTrayIcon,
     QVBoxLayout,
@@ -84,18 +85,41 @@ class AppWindow(QMainWindow):
         self.nam.get(QNetworkRequest(QUrl(self.host_label.text())))
         self.nam.get(QNetworkRequest(QUrl(UPDATE_URL)))
 
+    @override
+    def closeEvent(self, event: QCloseEvent | bool) -> None:
+        confirm: QMessageBox.StandardButton = QMessageBox.question(
+            self,
+            '',
+            'Are you sure you want to quit?',
+            defaultButton=QMessageBox.StandardButton.No,
+        )
+
+        # Handle situation where this event is called from system tray
+        if isinstance(event, bool):
+            if confirm != QMessageBox.StandardButton.No:
+                gui: QCoreApplication | None = QApplication.instance()
+                if gui is None:
+                    raise ValueError('GUI is not available')
+                gui.quit()
+            return
+
+        if confirm == QMessageBox.StandardButton.No:
+            event.ignore()
+            return
+        event.accept()
+
     @QtCore.Slot()
-    def launch_web(self):
+    def launch_web(self) -> None:
         """Open the default web browser to the client page."""
         QDesktopServices.openUrl(self.host_label.text())
 
     @QtCore.Slot()
-    def show_advanced(self):
+    def show_advanced(self) -> None:
         """Open a window to configure advanced server options."""
         pass  # TODO: implement advanced options
 
     @QtCore.Slot()
-    def hide_window(self):
+    def hide_window(self) -> None:
         """Minimize the main window to the system tray."""
         self.hide()
         if not self.has_shown_help_toast:
@@ -165,7 +189,7 @@ class AppWindow(QMainWindow):
             )
             self.update_label.setOpenExternalLinks(True)
 
-    def create_tray_icon(self):
+    def create_tray_icon(self) -> None:
         """Create the system tray GUI element.
 
         Raises:
@@ -184,10 +208,7 @@ class AppWindow(QMainWindow):
 
         # Add Quit action
         quit_action = QAction('Quit', self)
-        gui: QCoreApplication | None = QApplication.instance()
-        if gui is None:
-            raise ValueError('invalid GUI instance')
-        quit_action.triggered.connect(gui.quit)
+        quit_action.triggered.connect(self.closeEvent)
         self.tray_menu.addAction(quit_action)
 
         self.tray_icon.setContextMenu(self.tray_menu)
@@ -195,7 +216,7 @@ class AppWindow(QMainWindow):
         self.tray_icon.show()
 
     @QtCore.Slot()
-    def on_tray_activated(self, reason: Qt.ConnectionType):
+    def on_tray_activated(self, reason: Qt.ConnectionType) -> None:
         """Open the app when interacting with the system tray.
 
         This method shouldn't be called directly.
@@ -208,7 +229,7 @@ class AppWindow(QMainWindow):
             self.show_window()
 
     @QtCore.Slot()
-    def show_window(self):
+    def show_window(self) -> None:
         """Show the window after it has been hidden."""
         self.show()
         self.activateWindow()
