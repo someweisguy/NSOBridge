@@ -7,14 +7,16 @@ import core
 from fastapi import FastAPI
 from pydantic import ValidationError
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QByteArray, Qt, QUrl
-from PySide6.QtGui import QDesktopServices, QFont, QPixmap
+from PySide6.QtCore import QByteArray, QCoreApplication, Qt, QUrl
+from PySide6.QtGui import QAction, QDesktopServices, QFont, QPixmap
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PySide6.QtWidgets import (
+    QApplication,
     QFrame,
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QMenu,
     QPushButton,
     QSystemTrayIcon,
     QVBoxLayout,
@@ -70,6 +72,12 @@ class AppWindow(QMainWindow):
         self.nam: QNetworkAccessManager = QNetworkAccessManager()
         self.nam.finished.connect(self.handle_response)
 
+        # TODO: Conditionally run this if there is no system tray
+        self.tray_icon = QtWidgets.QSystemTrayIcon(self.centralWidget())
+        self.tray_icon.setIcon(self.windowIcon())
+        self.tray_icon.setVisible(True)
+        self.create_tray_icon()
+
         # Check if the server is running yet and check for updates
         self.nam.get(QNetworkRequest(QUrl(self.host_label.text())))
         self.nam.get(QNetworkRequest(QUrl(UPDATE_URL)))
@@ -87,7 +95,6 @@ class AppWindow(QMainWindow):
     @QtCore.Slot()
     def hide_window(self):
         """Minimize the main window to the system tray."""
-        # TODO: implement window un-hiding
         self.hide()
         self.tray_icon.showMessage(
             'NSO Bridge has been hidden for now',
@@ -153,6 +160,55 @@ class AppWindow(QMainWindow):
                 f'[_Click here_]({release.html_url}) to get the latest version!'
             )
             self.update_label.setOpenExternalLinks(True)
+
+    def create_tray_icon(self):
+        """Create the system tray GUI element.
+
+        Raises:
+            ValueError: if there is no GUI application instance running.
+
+        """
+        self.tray_icon.setToolTip(self.windowTitle())
+
+        # Create the context menu for the tray icon
+        self.tray_menu = QMenu()
+
+        # Add Restore action
+        restore_action = QAction('Restore', self)
+        restore_action.triggered.connect(self.show_window)
+        self.tray_menu.addAction(restore_action)
+
+        # Add Quit action
+        quit_action = QAction('Quit', self)
+        gui: QCoreApplication | None = QApplication.instance()
+        if gui is None:
+            raise ValueError('invalid GUI instance')
+        quit_action.triggered.connect(gui.quit)
+        self.tray_menu.addAction(quit_action)
+
+        self.tray_icon.setContextMenu(self.tray_menu)
+        self.tray_icon.activated.connect(self.on_tray_activated)
+        self.tray_icon.show()
+
+    @QtCore.Slot()
+    def on_tray_activated(self, reason: Qt.ConnectionType):
+        """Open the app when interacting with the system tray.
+
+        This method shouldn't be called directly.
+
+        Args:
+            reason (Qt.ConnectionType): the reason this event is firing.
+
+        """
+        if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
+            self.show_window()
+
+    @QtCore.Slot()
+    def show_window(self):
+        """Show the window after it has been hidden."""
+        self.show()
+        self.activateWindow()
+        self.raise_()
 
     def add_widgets(self, icon_pixmap: QPixmap) -> None:
         """Add the widgets to the window.
@@ -220,8 +276,3 @@ class AppWindow(QMainWindow):
         # Hide the minimize and maximize buttons
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setFixedSize(250, 300)
-
-        # TODO: Conditionally run this if there is no system tray
-        self.tray_icon = QtWidgets.QSystemTrayIcon(widget)
-        self.tray_icon.setIcon(self.windowIcon())
-        self.tray_icon.setVisible(True)
