@@ -4,10 +4,21 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QFont, QPainter, QPixmap
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtWidgets import QMainWindow, QSystemTrayIcon, QWidget
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QPushButton,
+    QSystemTrayIcon,
+    QVBoxLayout,
+    QWidget,
+)
+from update import UPDATE_URL
 
 
 class AppWindow(QMainWindow):
@@ -42,59 +53,59 @@ class AppWindow(QMainWindow):
 
         return pixmap
 
-    def __init__(self, app: FastAPI, icon_path: Path | str):
-        """Initialize the main window.
-
-        Args:
-            app (FastAPI): the app whose information should be displayed.
-            icon_path (Path | str): the pathname of a .svg file to act as the GUI icon.
-
-        """
-        super().__init__()
+    def _add_widgets(self, app: FastAPI, icon_path: Path | str) -> None:
         self.setWindowTitle(app.title)
 
-        page_layout = QtWidgets.QVBoxLayout()
-        button_layout = QtWidgets.QHBoxLayout()
+        page_layout = QVBoxLayout()
+        button_layout = QHBoxLayout()
 
-        version_text = QtWidgets.QLabel(
-            app.version, alignment=Qt.AlignmentFlag.AlignHCenter
-        )
+        image_label: QLabel = QLabel(alignment=Qt.AlignmentFlag.AlignCenter)
+        image_label.setPixmap(self.get_svg_pixmap(icon_path))
+
+        version_text = QLabel(app.version, alignment=Qt.AlignmentFlag.AlignHCenter)
         version_text.setFixedHeight(15)
         font: QFont = version_text.font()
         font.setPointSize(9)
-        font.setItalic(True)
         version_text.setFont(font)
 
-        image_label = QtWidgets.QLabel(alignment=Qt.AlignmentFlag.AlignCenter)
-        image_label.setPixmap(self.get_svg_pixmap(icon_path))
+        font: QFont = self.update_available.font()
+        font.setPointSize(10)
+        self.update_available.setFont(font)
 
-        self.text = QtWidgets.QLabel(
-            'Loading...',
-            alignment=Qt.AlignmentFlag.AlignCenter,
-        )
         font: QFont = self.text.font()
         font.setPointSize(16)
+        font.setBold(True)
         self.text.setFont(font)
 
-        launch_button = QtWidgets.QPushButton('Launch NSO Bridge')
+        url_text: QLabel = QLabel(
+            'http://localhost:8000',
+            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+        )
+        font: QFont = url_text.font()
+        font.setPointSize(8)
+        url_text.setFont(font)
+
+        launch_button = QPushButton('Launch NSO Bridge')
         launch_button.clicked.connect(self.launch_web)
 
-        line = QtWidgets.QFrame()
-        line.setFrameShape(QtWidgets.QFrame.Shape.HLine)
-        line.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
         line.setLineWidth(1)
 
         page_layout.addWidget(image_label)
         page_layout.addWidget(version_text)
+        page_layout.addWidget(self.update_available)
         page_layout.addWidget(self.text)
+        page_layout.addWidget(url_text)
         page_layout.addWidget(launch_button)
         page_layout.addWidget(line)
         page_layout.addLayout(button_layout)
 
-        hide_button = QtWidgets.QPushButton('Hide')
+        hide_button = QPushButton('Hide')
         hide_button.clicked.connect(self.hide_window)
 
-        options_button = QtWidgets.QPushButton('Advanced...')
+        options_button = QPushButton('Advanced...')
         options_button.clicked.connect(self.show_options)
         options_button.setDisabled(True)  # TODO: implement advanced features
 
@@ -114,6 +125,56 @@ class AppWindow(QMainWindow):
         self.tray_icon = QtWidgets.QSystemTrayIcon(widget)
         self.tray_icon.setIcon(self.windowIcon())
         self.tray_icon.setVisible(True)
+
+    def _handle_response(self, reply: QNetworkReply) -> None:
+        """Handle network responses for the GUI.
+
+        Don't call this method directly.
+
+        Args:
+            reply (QNetworkReply): the reply from a network request.
+
+        """
+        e: QNetworkReply.NetworkError = reply.error()
+
+        if reply.request().url().host() == 'localhost':
+            if e == QNetworkReply.NetworkError.NoError:
+                self.text.setText('Running')
+            else:
+                request = QNetworkRequest(QUrl(self.server_url))
+                self.nam.get(request)
+        elif e != QNetworkReply.NetworkError.NoError:
+            self.update_available.setText('Unable to check for updates right now.')
+        else:
+            # TODO: get a link to the latest update
+            self.update_available.setText('Unable to check for updates right now.')
+
+    def __init__(self, app: FastAPI, icon_path: Path | str):
+        """Initialize the main window.
+
+        Args:
+            app (FastAPI): the app whose information should be displayed.
+            icon_path (Path | str): the pathname of a .svg file to act as the GUI icon.
+
+        """
+        super().__init__()
+        self.text: QLabel = QLabel(
+            'Loading...',
+            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+        )
+        self.update_available: QLabel = QLabel(
+            'Checking for Updates...',
+            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+        )
+
+        self._add_widgets(app, icon_path)
+
+        port: int = app.extra['port']
+        self.server_url = f'http://localhost:{port}'
+        self.nam: QNetworkAccessManager = QNetworkAccessManager()
+        self.nam.finished.connect(self._handle_response)
+        self.nam.get(QNetworkRequest(QUrl(self.server_url)))
+        self.nam.get(QNetworkRequest(QUrl(UPDATE_URL)))
 
     @QtCore.Slot()
     def launch_web(self):
