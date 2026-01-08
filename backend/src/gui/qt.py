@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import core
 from fastapi import FastAPI
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QSize, Qt, QUrl
@@ -68,22 +69,18 @@ class AppWindow(QMainWindow):
         font.setPointSize(9)
         version_text.setFont(font)
 
-        font: QFont = self.update_available.font()
+        font: QFont = self.update_label.font()
         font.setPointSize(10)
-        self.update_available.setFont(font)
+        self.update_label.setFont(font)
 
-        font: QFont = self.text.font()
+        font: QFont = self.status_label.font()
         font.setPointSize(16)
         font.setBold(True)
-        self.text.setFont(font)
+        self.status_label.setFont(font)
 
-        url_text: QLabel = QLabel(
-            'http://localhost:8000',
-            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
-        )
-        font: QFont = url_text.font()
+        font: QFont = self.host_label.font()
         font.setPointSize(8)
-        url_text.setFont(font)
+        self.host_label.setFont(font)
 
         launch_button = QPushButton('Launch NSO Bridge')
         launch_button.clicked.connect(self.launch_web)
@@ -95,9 +92,9 @@ class AppWindow(QMainWindow):
 
         page_layout.addWidget(image_label)
         page_layout.addWidget(version_text)
-        page_layout.addWidget(self.update_available)
-        page_layout.addWidget(self.text)
-        page_layout.addWidget(url_text)
+        page_layout.addWidget(self.update_label)
+        page_layout.addWidget(self.status_label)
+        page_layout.addWidget(self.host_label)
         page_layout.addWidget(launch_button)
         page_layout.addWidget(line)
         page_layout.addLayout(button_layout)
@@ -136,18 +133,22 @@ class AppWindow(QMainWindow):
 
         """
         e: QNetworkReply.NetworkError = reply.error()
+        url: QUrl = QUrl(self.host_label.text())
 
-        if reply.request().url().host() == 'localhost':
+        if reply.request().url() == url:
+            # This was a request to see if the server was started yet
             if e == QNetworkReply.NetworkError.NoError:
-                self.text.setText('Running')
+                self.status_label.setText('Running')
             else:
-                request = QNetworkRequest(QUrl(self.server_url))
+                request = QNetworkRequest(url)
                 self.nam.get(request)
         elif e != QNetworkReply.NetworkError.NoError:
-            self.update_available.setText('Unable to check for updates right now.')
+            # This was a request to check for updates, but it failed
+            self.update_label.setText('Unable to check for updates right now.')
         else:
+            # This request was a successful update check!
             # TODO: get a link to the latest update
-            self.update_available.setText('Unable to check for updates right now.')
+            self.update_label.setText('There are no updates at this time.')
 
     def __init__(self, app: FastAPI, icon_path: Path | str):
         """Initialize the main window.
@@ -158,22 +159,33 @@ class AppWindow(QMainWindow):
 
         """
         super().__init__()
-        self.text: QLabel = QLabel(
+
+        host: str = app.extra['host']
+        port: int = app.extra['port']
+        if host == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
+            http_port: int = 80
+            host = core.get_default_route()
+
+        self.status_label: QLabel = QLabel(
             'Loading...',
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
         )
-        self.update_available: QLabel = QLabel(
+        self.update_label: QLabel = QLabel(
             'Checking for Updates...',
+            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+        )
+        http_port: int = 80
+        self.host_label: QLabel = QLabel(
+            f'http://{host}{f":{port}" if port != http_port else ""}',
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
         )
 
         self._add_widgets(app, icon_path)
 
         port: int = app.extra['port']
-        self.server_url = f'http://localhost:{port}'
         self.nam: QNetworkAccessManager = QNetworkAccessManager()
         self.nam.finished.connect(self._handle_response)
-        self.nam.get(QNetworkRequest(QUrl(self.server_url)))
+        self.nam.get(QNetworkRequest(QUrl(self.host_label.text())))
         self.nam.get(QNetworkRequest(QUrl(UPDATE_URL)))
 
     @QtCore.Slot()
