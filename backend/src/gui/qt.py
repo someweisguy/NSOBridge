@@ -1,9 +1,13 @@
 """Qt windows for the GUI module."""
 
+import json
+from typing import Iterable
+
 import core
 from fastapi import FastAPI
+from pydantic import ValidationError
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import Qt, QUrl
+from PySide6.QtCore import QByteArray, Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QFont, QPixmap
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PySide6.QtWidgets import (
@@ -16,7 +20,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from update import UPDATE_URL
+from semver import VersionInfo
+from update import UPDATE_URL, GithubReleaseSchema
 
 
 class AppWindow(QMainWindow):
@@ -31,11 +36,10 @@ class AppWindow(QMainWindow):
         image_label: QLabel = QLabel(alignment=Qt.AlignmentFlag.AlignCenter)
         image_label.setPixmap(icon_pixmap)
 
-        version_text = QLabel(app.version, alignment=Qt.AlignmentFlag.AlignHCenter)
-        version_text.setFixedHeight(15)
-        font: QFont = version_text.font()
+        self.version_label.setFixedHeight(15)
+        font: QFont = self.version_label.font()
         font.setPointSize(9)
-        version_text.setFont(font)
+        self.version_label.setFont(font)
 
         font: QFont = self.update_label.font()
         font.setPointSize(10)
@@ -59,7 +63,7 @@ class AppWindow(QMainWindow):
         line.setLineWidth(1)
 
         page_layout.addWidget(image_label)
-        page_layout.addWidget(version_text)
+        page_layout.addWidget(self.version_label)
         page_layout.addWidget(self.update_label)
         page_layout.addWidget(self.status_label)
         page_layout.addWidget(self.host_label)
@@ -115,8 +119,39 @@ class AppWindow(QMainWindow):
             self.update_label.setText('Unable to check for updates right now.')
         else:
             # This request was a successful update check!
-            # TODO: get a link to the latest update
+            message: QByteArray = reply.readAll()
+            data: Iterable = json.loads(bytes(message.data()).decode('utf-8'))
+
+            # Preset this value in case this method fails
             self.update_label.setText('There are no updates at this time.')
+
+            # Get the latest, non-draft release
+            releases: list[GithubReleaseSchema] = []
+            for obj in data:
+                try:
+                    release = GithubReleaseSchema.model_validate(obj)
+                    if not release.draft and VersionInfo.is_valid(release.tag_name):
+                        releases.append(release)
+                except ValidationError:
+                    continue
+            releases.sort(key=lambda schema: VersionInfo.parse(schema.tag_name))
+            if len(releases) == 0:
+                return
+            release: GithubReleaseSchema = releases[-1]
+
+            # Get and compare the against the latest version
+            latest_version: VersionInfo = VersionInfo.parse(release.tag_name)
+            current_version: VersionInfo = VersionInfo.parse(
+                self.version_label.text()[1:]
+            )
+            if current_version >= latest_version:
+                return
+
+            self.update_label.setTextFormat(Qt.TextFormat.MarkdownText)
+            self.update_label.setText(
+                f'[Click here to get the latest version!]({release.html_url})'
+            )
+            self.update_label.setOpenExternalLinks(True)
 
     def __init__(self, app: FastAPI, icon_pixmap: QPixmap):
         """Initialize the main window.
@@ -134,13 +169,16 @@ class AppWindow(QMainWindow):
             http_port: int = 80
             host = core.get_default_route()
 
-        self.status_label: QLabel = QLabel(
-            'Loading...',
-            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+        self.version_label: QLabel = QLabel(
+            f'v{app.version}', alignment=Qt.AlignmentFlag.AlignHCenter
         )
         self.update_label: QLabel = QLabel(
             'Checking for Updates...',
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+        )
+        self.status_label: QLabel = QLabel(
+            'Loading...',
+            alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
         )
         http_port: int = 80
         self.host_label: QLabel = QLabel(
