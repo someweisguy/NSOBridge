@@ -55,6 +55,11 @@ ignore = [
 combine-as-imports = true
 force-single-line = false
 
+[tool.ruff.lint.per-file-ignores]
+"backend/tests/*" = [
+  "S101", # Allow asserts
+]
+
 [tool.setuptools.packages.find]
 include = ["backend"]
 
