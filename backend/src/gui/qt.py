@@ -59,6 +59,10 @@ class AppWindow(QMainWindow):
             f'http://{host}{f":{port}" if port != http_port else ""}',
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
         )
+        self.host_label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        self.host_label.adjustSize()
         self.add_widgets(icon_pixmap)
         self.setWindowTitle(app.title)
 
