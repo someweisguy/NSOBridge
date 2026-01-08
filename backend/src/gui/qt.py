@@ -1,14 +1,11 @@
 """Qt windows for the GUI module."""
 
-from pathlib import Path
-
 import core
 from fastapi import FastAPI
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QSize, Qt, QUrl
-from PySide6.QtGui import QDesktopServices, QFont, QPainter, QPixmap
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QDesktopServices, QFont, QPixmap
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
-from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -25,43 +22,14 @@ from update import UPDATE_URL
 class AppWindow(QMainWindow):
     """The main Qt window for the GUI."""
 
-    @classmethod
-    def get_svg_pixmap(cls, path: Path | str) -> QPixmap:
-        """Get a Qt Pixmap of the desired .svg file.
-
-        Args:
-            path (Path | str): the pathname to the .svg file.
-
-        Raises:
-            ValueError: if the pathname is invalid.
-
-        Returns:
-            QPixmap: a Qt Pixmap of of the .svg file.
-
-        """
-        renderer = QSvgRenderer(str(path))
-        if not renderer.isValid():
-            raise ValueError('Invalid GUI icon path')
-
-        # Create the Qt pixmap
-        pixmap: QPixmap = QPixmap(QSize(64, 64))
-        pixmap.fill(Qt.GlobalColor.transparent)
-
-        # Paint the icon onto the pixmap
-        painter: QPainter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-
-        return pixmap
-
-    def _add_widgets(self, app: FastAPI, icon_path: Path | str) -> None:
+    def _add_widgets(self, app: FastAPI, icon_pixmap: QPixmap) -> None:
         self.setWindowTitle(app.title)
 
         page_layout = QVBoxLayout()
         button_layout = QHBoxLayout()
 
         image_label: QLabel = QLabel(alignment=Qt.AlignmentFlag.AlignCenter)
-        image_label.setPixmap(self.get_svg_pixmap(icon_path))
+        image_label.setPixmap(icon_pixmap)
 
         version_text = QLabel(app.version, alignment=Qt.AlignmentFlag.AlignHCenter)
         version_text.setFixedHeight(15)
@@ -150,12 +118,12 @@ class AppWindow(QMainWindow):
             # TODO: get a link to the latest update
             self.update_label.setText('There are no updates at this time.')
 
-    def __init__(self, app: FastAPI, icon_path: Path | str):
+    def __init__(self, app: FastAPI, icon_pixmap: QPixmap):
         """Initialize the main window.
 
         Args:
             app (FastAPI): the app whose information should be displayed.
-            icon_path (Path | str): the pathname of a .svg file to act as the GUI icon.
+            icon_pixmap (QPixmap): the pixmap of the image to be the GUI's icon.
 
         """
         super().__init__()
@@ -180,7 +148,7 @@ class AppWindow(QMainWindow):
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
         )
 
-        self._add_widgets(app, icon_path)
+        self._add_widgets(app, icon_pixmap)
 
         port: int = app.extra['port']
         self.nam: QNetworkAccessManager = QNetworkAccessManager()
