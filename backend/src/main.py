@@ -16,6 +16,7 @@ from core import APIResponseClass, DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Roster, Series, wftda_2025
+from semver import VersionInfo
 from sqlalchemy import Result, Select, select
 from websockets import CloseCode
 
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
     from update import GithubReleaseSchema
 
 
+APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 1, 0)
 LOG_DIR_NAME: str = './logs'
 API_PREFIX: str = '/api'
 
@@ -107,7 +109,7 @@ app: Final[FastAPI] = FastAPI(
     description="""
     
     """,
-    version='v0.1.0-alpha',
+    version=str(APP_VERSION_INFO),
     license_info={
         'name': 'MIT License',
         'identifier': 'MIT',
