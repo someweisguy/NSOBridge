@@ -207,11 +207,11 @@ if __name__ == '__main__':
         logging.info('Skipping release check')
 
     # Run the application
-    server: Server = core.get_server(app)
     try:
         if args.use_gui:
             gui.run(app, auto_hide=False)
         else:
+            server: Server = core.get_server(app)
             asyncio.run(server.serve())
     except KeyboardInterrupt:
         logging.info('Handling keyboard interrupt')
