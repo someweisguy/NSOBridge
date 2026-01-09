@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
@@ -151,8 +152,9 @@ if __name__ == '__main__':
     )
 
     # Configure logging
+    silent: bool = os.environ.get('silent', '').lower in truth_values
     log_level: int = logging.DEBUG if app.debug else logging.INFO
-    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=False)
+    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=silent)
 
     # Run the application
     try:
