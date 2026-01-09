@@ -1,7 +1,12 @@
 """Service methods for the GUI module."""
 
+import logging
 from pathlib import Path
+from signal import SIGTERM
+from threading import Thread
+from typing import TYPE_CHECKING
 
+import core
 from fastapi import FastAPI
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPainter, QPixmap
@@ -9,6 +14,9 @@ from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication
 
 from .qt import AppWindow
+
+if TYPE_CHECKING:
+    from uvicorn import Server
 
 
 def get_svg_pixmap(path: Path | str) -> QPixmap:
@@ -40,11 +48,12 @@ def get_svg_pixmap(path: Path | str) -> QPixmap:
     return pixmap
 
 
-def run(app: FastAPI) -> None:
-    """Run the GUI.
+def run(app: FastAPI, *, auto_hide: bool) -> None:
+    """Run the app until the GUI is closed.
 
     Args:
         app (FastAPI): the FastAPI app to pass to the GUI.
+        auto_hide (bool): True to automatically hide the GUI on app startup.
 
     """
     gui = QApplication()
@@ -55,7 +64,17 @@ def run(app: FastAPI) -> None:
     icon: QPixmap = get_svg_pixmap(icon_path)
     gui.setWindowIcon(icon)
 
+    uvicorn: Server = core.get_server(app)
+    uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
+    uvicorn_thread.start()
+
     window = AppWindow(app, icon)
-    window.show()
+    if not auto_hide:
+        window.show()
 
     gui.exec()
+    logging.info('The GUI has been closed')
+
+    logging.debug('Sending terminate signal to Uvicorn server')
+    uvicorn.handle_exit(SIGTERM, None)
+    uvicorn_thread.join()

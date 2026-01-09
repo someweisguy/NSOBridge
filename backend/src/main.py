@@ -4,12 +4,11 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Final, Iterable
+from typing import TYPE_CHECKING, Final
 
 import core
 import game
 import gui
-import update
 import user
 import ws
 from core import APIResponseClass, DatabaseEngine, EngineFactory
@@ -22,7 +21,6 @@ from websockets import CloseCode
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-    from update import GithubReleaseSchema
 
 
 APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 1, 0)
@@ -119,62 +117,24 @@ app: Final[FastAPI] = FastAPI(
 
 
 if __name__ == '__main__':
-    from signal import SIGTERM
-    from threading import Thread
-
-    import cli
-    from uvicorn import Server
-
-    if TYPE_CHECKING:
-        from uvicorn import Server
-
+    # TODO: import arguments from .ini file
     # Import the command line arguments
-    app.debug: bool = cli.args.debug
-    app.extra['db_pathname'] = cli.args.db_pathname
-    app.extra['host'] = cli.args.host
-    app.extra['port'] = cli.args.port
+    app.debug: bool = True
+    app.extra['db_pathname'] = ''
+    app.extra['host'] = '0.0.0.0'  # noqa: S104
+    app.extra['port'] = 8000
+    auto_hide: bool = False
 
     # Configure logging
-    silent_logging: bool = cli.args.silent
     log_level: int = logging.DEBUG if app.debug else logging.INFO
-    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=silent_logging)
-
-    # Check for new releases in the Github releases page
-    if cli.args.check_for_releases:
-        logging.info('Checking for new releases')
-        try:
-            data: Iterable = update.fetch_release_data()
-            release: GithubReleaseSchema = update.parse_latest_release(data)
-
-            latest_version: VersionInfo = VersionInfo.parse(release.tag_name)
-            current_version: VersionInfo = VersionInfo.parse(app.version)
-            logging.debug(f'Found latest release tagged "{release.tag_name}"')
-            logging.debug(f'Current version is "{app.version}"')
-            if current_version < latest_version:
-                logging.info(
-                    f'A new version is available! Download it at {release.html_url}'
-                )
-        except (ConnectionError, ValueError):
-            logging.warning('Unable to check for releases at this time')
-    else:
-        logging.info('Skipping release check')
-
-    # Build a server and run it in a new thread
-    uvicorn: Server = core.get_server(app)
-    uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
-    uvicorn_thread.start()
+    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=True)
 
     # Run the application
     try:
-        gui.run(app)  # Blocks program execution
-        logging.info('The GUI has been closed')
+        gui.run(app, auto_hide=auto_hide)  # Blocks program execution
     except KeyboardInterrupt:
         logging.info('Handling keyboard interrupt')
     finally:
-        logging.debug('Sending terminate signal to Uvicorn server')
-        uvicorn.handle_exit(SIGTERM, None)
-        uvicorn_thread.join()
-
         logging.info('Program terminated')
         logging.shutdown()
         core.shutdown()
