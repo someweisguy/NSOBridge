@@ -64,10 +64,6 @@ def run(app: FastAPI, *, auto_hide: bool) -> None:
     icon: QPixmap = get_svg_pixmap(icon_path)
     gui.setWindowIcon(icon)
 
-    uvicorn: Server = core.get_server(app)
-    uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
-    uvicorn_thread.start()
-
     window = AppWindow(app, icon)
     if not auto_hide:
         window.show()
@@ -78,6 +74,11 @@ def run(app: FastAPI, *, auto_hide: bool) -> None:
             QSystemTrayIcon.MessageIcon.NoIcon,
             2000,
         )
+
+    # Configure and start the server on a new thread
+    uvicorn: Server = core.get_server(app)
+    uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
+    uvicorn_thread.start()
 
     gui.exec()
     logging.info('The GUI has been closed')
