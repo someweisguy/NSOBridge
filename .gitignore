@@ -8,7 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Production
-backend/config.ini
+/config.ini
 build
 node_modules
 dist
