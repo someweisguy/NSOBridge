@@ -123,14 +123,7 @@ class AppWindow(QMainWindow):
     def hide_window(self) -> None:
         """Minimize the main window to the system tray."""
         self.hide()
-        if not self.has_shown_help_toast:
-            self.has_shown_help_toast = True
-            self.tray_icon.showMessage(
-                'NSO Bridge has been hidden',
-                'Click the tray icon to open the window.',
-                QSystemTrayIcon.MessageIcon.NoIcon,
-                2000,
-            )
+        self.show_help_toast()
 
     def handle_response(self, reply: QNetworkReply) -> None:
         """Handle network responses for the GUI.
@@ -205,6 +198,7 @@ class AppWindow(QMainWindow):
 
         self.tray_icon.setContextMenu(self.tray_menu)
         self.tray_icon.activated.connect(self.on_tray_activated)
+        self.tray_icon.messageClicked.connect(self.launch_web)
         self.tray_icon.show()
 
     @QtCore.Slot()
@@ -293,3 +287,14 @@ class AppWindow(QMainWindow):
         # Hide the minimize and maximize buttons
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setFixedSize(250, 300)
+
+    def show_help_toast(self) -> None:
+        """Display the help toast if it hasn't already been shown."""
+        if not self.has_shown_help_toast:
+            self.has_shown_help_toast = True
+            self.tray_icon.showMessage(
+                'NSO Bridge is running in your system tray',
+                'Click here to open the main page!',
+                QSystemTrayIcon.MessageIcon.NoIcon,
+                2000,
+            )
