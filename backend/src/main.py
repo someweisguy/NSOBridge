@@ -127,13 +127,13 @@ if __name__ == '__main__':
     parser.add_argument(
         'host',
         type=str,
-        help='The interface on which to serve the app. `0.0.0.0` serves the app on all '
+        help='The interface on which to serve the app. "0.0.0.0" serves the app on all '
         'interfaces',
     )
     parser.add_argument(
         '-p',
         type=int,
-        help='The port on which to serve the app (Defaults to `8000`)',
+        help='The port on which to serve the app (Defaults to 8000)',
         default=8000,
         dest='port',
     )
