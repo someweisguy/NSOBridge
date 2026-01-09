@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from update import GithubReleaseSchema
 
 
-APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 0, 0)
+APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 1, 0)
 LOG_DIR_NAME: str = './logs'
 API_PREFIX: str = '/api'
 
