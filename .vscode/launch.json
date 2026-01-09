@@ -13,6 +13,7 @@
       "console": "integratedTerminal",
       "env": {
         "SQLALCHEMY_DEBUG": "false",
+        "SILENT_LOGGING":  "false"
       }
     },
   ]
