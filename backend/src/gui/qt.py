@@ -4,6 +4,7 @@ import json
 from typing import Iterable, override
 
 import core
+import update
 from fastapi import FastAPI
 from pydantic import ValidationError
 from PySide6 import QtCore, QtWidgets
@@ -161,19 +162,10 @@ class AppWindow(QMainWindow):
             # Preset this value in case this method fails
             self.update_label.setText('You are running the latest version!')
 
-            # Get the latest, non-draft release
-            releases: list[GithubReleaseSchema] = []
-            for obj in data:
-                try:
-                    release = GithubReleaseSchema.model_validate(obj)
-                    if not release.draft and VersionInfo.is_valid(release.tag_name):
-                        releases.append(release)
-                except ValidationError:
-                    continue
-            releases.sort(key=lambda schema: VersionInfo.parse(schema.tag_name))
-            if len(releases) == 0:
+            try:
+                release: GithubReleaseSchema = update.parse_latest_release(data)
+            except (ValidationError, ValueError):
                 return
-            release: GithubReleaseSchema = releases[-1]
 
             # Get and compare the against the latest version
             latest_version: VersionInfo = VersionInfo.parse(release.tag_name)

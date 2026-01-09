@@ -9,6 +9,11 @@ easy for users to update to the latest version of the app.
 """
 
 from .schemas import GithubReleaseSchema
-from .service import UPDATE_URL, check_for_releases
+from .service import UPDATE_URL, fetch_release_data, parse_latest_release
 
-__all__ = ('check_for_releases', 'GithubReleaseSchema', 'UPDATE_URL')
+__all__ = (
+    'fetch_release_data',
+    'parse_latest_release',
+    'GithubReleaseSchema',
+    'UPDATE_URL',
+)

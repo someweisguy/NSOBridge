@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, Iterable
 
 import core
 import game
@@ -143,11 +143,18 @@ if __name__ == '__main__':
     if cli.args.check_for_releases:
         logging.info('Checking for new releases')
         try:
-            releases: list[GithubReleaseSchema] = update.check_for_releases()
-            latest: GithubReleaseSchema = releases[-1]
-            logging.debug(f'Found latest release tagged "{latest.tag_name}"')
+            data: Iterable = update.fetch_release_data()
+            release: GithubReleaseSchema = update.parse_latest_release(data)
+
+            latest_version: VersionInfo = VersionInfo.parse(release.tag_name)
+            current_version: VersionInfo = VersionInfo.parse(app.version)
+            logging.debug(f'Found latest release tagged "{release.tag_name}"')
             logging.debug(f'Current version is "{app.version}"')
-        except ConnectionError:
+            if current_version < latest_version:
+                logging.info(
+                    f'A new version is available! Download it at {release.html_url}'
+                )
+        except (ConnectionError, ValueError):
             logging.warning('Unable to check for releases at this time')
     else:
         logging.info('Skipping release check')
