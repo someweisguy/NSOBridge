@@ -1,19 +1,13 @@
-#!/usr/bin/env python3
-"""The injection point of the program."""
-
-from __future__ import annotations
+"""Command-line arguments for the application."""
 
 import asyncio
 import logging
-import sys
-from datetime import datetime
-from logging import Handler, StreamHandler
-from pathlib import Path
-from typing import TYPE_CHECKING, Final, LiteralString
+from argparse import ArgumentParser, Namespace
+from typing import TYPE_CHECKING, Final, Iterable
 
-import colorlog
 import core
 import game
+import gui
 import update
 import user
 import ws
@@ -21,14 +15,18 @@ from core import APIResponseClass, DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Roster, Series, wftda_2025
+from semver import VersionInfo
 from sqlalchemy import Result, Select, select
+from update import GithubReleaseSchema
+from uvicorn import Server
 from websockets import CloseCode
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-    from update import GithubReleaseSchema
 
 
+APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 1, 0)
+CONFIG_FILE_NAME: str = './config.ini'
 LOG_DIR_NAME: str = './logs'
 API_PREFIX: str = '/api'
 
@@ -47,11 +45,13 @@ async def lifespan(app: FastAPI):
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
         app.add_exception_handler(e, handler)
-    app.include_router(core.pages_router)
     for router in [core.api_router, *game.routers, *user.routers]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.assets)
     app.mount('/ws', ws.app)
+
+    # Load the pages router without a path prefix
+    app.include_router(core.pages_router)
 
     # Connect to the desired database
     db: DatabaseEngine = EngineFactory.get_default_engine()
@@ -94,6 +94,7 @@ async def lifespan(app: FastAPI):
 
     logging.debug('Yielding the app runtime')
     yield
+    logging.debug('App lifespan has resumed execution')
 
     logging.info('Disconnecting all WebSockets')
     await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
@@ -105,11 +106,11 @@ app: Final[FastAPI] = FastAPI(
     default_response_class=APIResponseClass,
     lifespan=lifespan,
     title='NSO Bridge',
-    summary='A scoreboard and stats application for roller derby.',
+    summary='A scoreboard and statistics server for roller derby.',
     description="""
     
     """,
-    version='v0.1.0-alpha',
+    version=str(APP_VERSION_INFO),
     license_info={
         'name': 'MIT License',
         'identifier': 'MIT',
@@ -119,68 +120,101 @@ app: Final[FastAPI] = FastAPI(
 
 
 if __name__ == '__main__':
-    # Import the command line arguments
-    import cli
-
-    app.debug: bool = cli.args.debug
-    app.extra['db_pathname'] = cli.args.db_pathname
-    app.extra['host'] = cli.args.host
-    app.extra['port'] = cli.args.port
-
-    def _get_log_format(*, use_colors: bool = False) -> str:
-        time: LiteralString = '%(asctime)s'
-        level: LiteralString = '%(levelname)s'
-        if use_colors:
-            time = f'%(light_black)s{time}%(reset)s'
-            level = f'%(bold)s%(log_color)s{level}%(reset)s'
-        return f'{time} {level} %(message)s'
-
-    # Configure logging
-    datefmt: LiteralString = '%H:%M:%S'
-    log_dir: Final[Path] = Path(LOG_DIR_NAME)
-    if not log_dir.exists():
-        log_dir.mkdir()
-    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
-    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
-    if not cli.args.silent:
-        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
-        console_logger.formatter = colorlog.ColoredFormatter(
-            fmt=_get_log_format(use_colors=True),
-            datefmt=datefmt,
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'red,bg_white',
-            },
-        )
-        logging_handlers.append(console_logger)
-    logging.basicConfig(
-        level=logging.DEBUG if app.debug else logging.INFO,
-        format=_get_log_format(use_colors=False),
-        datefmt=datefmt,
-        handlers=logging_handlers,
+    parser: ArgumentParser = ArgumentParser(
+        prog=app.title,
+        description=app.summary,
+        epilog=app.description,
+    )
+    parser.add_argument(
+        'host',
+        type=str,
+        help='The interface on which to serve the app. "0.0.0.0" serves the app on all '
+        'interfaces',
+    )
+    parser.add_argument(
+        '-p',
+        type=int,
+        help='The port on which to serve the app (Defaults to 8000)',
+        default=8000,
+        dest='port',
+    )
+    parser.add_argument(
+        '-f',
+        type=str,
+        help='The database file to use for storing game data. If no file is provided, '
+        'an in-memory database will be used',
+        default='',
+        dest='db_pathname',
+    )
+    parser.add_argument(
+        '-d',
+        '--debug',
+        help='Enable debug logging',
+        action='store_true',
+        dest='debug',
+    )
+    parser.add_argument(
+        '-s',
+        '--silent',
+        help='Disables log messages to the console',
+        action='store_true',
+        dest='silent',
+    )
+    parser.add_argument(
+        '-U',
+        help='Disables checking for new releases on app startup',
+        action='store_false',
+        dest='check_for_releases',
+    )
+    parser.add_argument(
+        '-G',
+        help='Runs the app with a GUI',
+        action='store_true',
+        dest='use_gui',
     )
 
+    args: Final[Namespace] = parser.parse_args()
+
+    # Import the command line arguments
+    app.debug: bool = args.debug
+    app.extra['db_pathname'] = args.db_pathname
+    app.extra['host'] = args.host
+    app.extra['port'] = args.port
+
+    # Configure logging
+    silent_logging: bool = args.silent
+    log_level: int = logging.DEBUG if app.debug else logging.INFO
+    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=silent_logging)
+
     # Check for new releases in the Github releases page
-    if cli.args.check_for_releases:
+    if args.check_for_releases:
         logging.info('Checking for new releases')
         try:
-            releases: list[GithubReleaseSchema] = update.check_for_releases()
-            latest: GithubReleaseSchema = releases[-1]
-            logging.debug(f'Found latest release tagged "{latest.tag_name}"')
+            data: Iterable = update.fetch_release_data()
+            release: GithubReleaseSchema = update.parse_latest_release(data)
+
+            latest_version: VersionInfo = VersionInfo.parse(release.tag_name)
+            current_version: VersionInfo = VersionInfo.parse(app.version)
+            logging.debug(f'Found latest release tagged "{release.tag_name}"')
             logging.debug(f'Current version is "{app.version}"')
-        except ConnectionError:
+            if current_version < latest_version:
+                logging.info(
+                    f'A new version is available! Download it at {release.html_url}'
+                )
+        except (ConnectionError, ValueError):
             logging.warning('Unable to check for releases at this time')
     else:
         logging.info('Skipping release check')
 
     # Run the application
+    server: Server = core.get_server(app)
     try:
-        asyncio.run(core.run(app), loop_factory=asyncio.new_event_loop)
+        if args.use_gui:
+            gui.run(app, auto_hide=False)
+        else:
+            asyncio.run(server.serve())
     except KeyboardInterrupt:
-        logging.info('Server stopped due to keyboard interrupt')
+        logging.info('Handling keyboard interrupt')
     finally:
         logging.info('Program terminated')
         logging.shutdown()

@@ -1,199 +1,30 @@
-"""Core services including database engine management."""
+"""FastAPI error handlers and core service methods."""
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import signal
+import sys
+from datetime import datetime
 from http import HTTPStatus
+from logging import Handler, StreamHandler
+from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ClassVar,
-    Final,
-    Mapping,
-    Protocol,
-    override,
-)
+from typing import TYPE_CHECKING, Any, Callable, Final, LiteralString
 
+import colorlog
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
-from sqlalchemy.engine import URL
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
 from uvicorn import Config, Server
 
 from .exceptions import ClientError, ModelLookupError
-from .schemas import APISchema, ErrorSchema
+from .schemas import APIResponseClass, ErrorSchema
 
 if TYPE_CHECKING:
     from fastapi import FastAPI, Request
-    from sqlalchemy.ext.asyncio import AsyncEngine
-    from sqlalchemy.orm import DeclarativeBase
-    from starlette.background import BackgroundTask
 
 
 logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
-
-SQLALCHEMY_DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {
-    'true',
-    'yes',
-}
-
-
-class Memento(Protocol):
-    """Represent a memento point-in-time of the application state.
-
-    Mementos can be used to implement functionality such as undo and redo by restoring
-    the application to a previous state.
-    """
-
-    async def restore(self) -> Memento:
-        """Restore the state of the application to when this Memento was constructed.
-
-        Returns:
-            Memento: A Memento of the state of the application before this method was
-            called. Calling `restore()` on this newly created Memento has the effect of
-            redoing an operation.
-
-        """
-        ...
-
-
-class DatabaseEngine:
-    """A connection to a database which stores models.
-
-    Attributes:
-        path (str): the relative path to the database.
-
-    """
-
-    _DRIVER: ClassVar[Final[str]] = 'sqlite+aiosqlite'
-
-    def __init__(self, db_schema: type[DeclarativeBase], db_path: str = '') -> None:
-        """Create a database engine without connecting to the database.
-
-        Args:
-            db_schema (type[DeclarativeBase]): a SQLAlchemy base model type which will
-            be initialized with the database.
-            db_path (str, optional): The relative path to the database. If left blank,
-            a database in memory will be used. Defaults to ''.
-
-        Raises:
-            ValueError: if the db_path is not a legal file name.
-
-        """
-        # TODO: ensure that path is a legal file name
-        if not db_path.isprintable():
-            logging.error('invalid database pathname')
-            raise ValueError('db path is invalid')
-        self._db_schema: type[DeclarativeBase] = db_schema
-        self._session_factory: async_sessionmaker[AsyncSession] | None = None
-        self.path: Final[str] = db_path if db_path != '' else ':memory:'
-
-    async def create_all(self) -> None:
-        """Initialize the connection to the database and create all tables.
-
-        Raises:
-            RuntimeError: if the database connection has already been established.
-
-        """
-        if self._session_factory is not None:
-            logging.error('the database has already been created')
-            raise RuntimeError('the database has already been created')
-
-        # Initialize the database engine
-        url: URL = URL.create(self._DRIVER, database=self.path)
-        logging.debug(f'Initializing engine at "{str(url)}"')
-        engine: AsyncEngine = create_async_engine(url, echo=SQLALCHEMY_DEBUG)
-
-        # Create the database tables
-        async with engine.connect() as session:
-            await session.run_sync(self._db_schema.metadata.create_all)
-        self._session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
-            bind=engine, expire_on_commit=False
-        )
-
-    def is_connected(self) -> bool:
-        """Return True if the database is connected.
-
-        Returns:
-            bool: True if the database is connected.
-
-        """
-        return self._session_factory is not None
-
-    def get_async_session_factory(self) -> async_sessionmaker[AsyncSession]:
-        """Return a session factory that is associated with the database engine.
-
-        Raises:
-            RuntimeError: if the database has not yet been created.
-
-        Returns:
-            async_sessionmaker: an asynchronous session factory.
-
-        """
-        if self._session_factory is None:
-            raise RuntimeError('the database has not been created yet')
-        return self._session_factory
-
-    def get_async_session(self) -> AsyncSession:
-        """Return a session that is associated with the database engine.
-
-        Raises:
-            RuntimeError: if the database has not yet been created.
-
-        Returns:
-            AsyncSession: an asynchronous session.
-
-        """
-        factory: async_sessionmaker[AsyncSession] = self.get_async_session_factory()
-        return factory()
-
-
-class APIResponseClass(JSONResponse):
-    """Used to wrap all API responses in a common JSON interface.
-
-    See `core.schemas.APISchema`.
-    """
-
-    @override
-    def __init__(
-        self,
-        content: Any,
-        status_code: int = HTTPStatus.OK,
-        headers: Mapping[str, str] | None = None,
-        media_type: str | None = None,
-        background: BackgroundTask | None = None,
-    ) -> None:
-        error_occurred: bool = status_code not in range(
-            HTTPStatus.OK, HTTPStatus.MULTIPLE_CHOICES
-        )
-        super().__init__(
-            APISchema(
-                status_code=status_code,
-                error=content if error_occurred else None,
-                data=content if not error_occurred else None,
-            ).model_dump(),
-            status_code,
-            headers,
-            media_type,
-            background,
-        )
-
-    @override
-    def render(self, content: Any) -> bytes:
-        return json.dumps(
-            content,
-            ensure_ascii=False,
-            allow_nan=False,
-            indent=None,
-            separators=(',', ':'),
-            default=(lambda dt: str(dt)),  # Serialize datetime objects
-        ).encode('utf-8')
 
 
 async def _generic_error_handler(request: Request, e: Exception) -> APIResponseClass:
@@ -231,8 +62,57 @@ error_handlers: Final[dict[type[Exception], Callable[[Request, ...], Any]]] = {
 }
 
 
-async def run(app: FastAPI) -> None:
-    """Asynchronously serve the desired application using a Uvicorn server.
+def configure_logging(
+    log_dir: Path | str, *, level: int | str | None, silent: bool
+) -> None:
+    """Configure logging for the application.
+
+    Args:
+        log_dir (Path | str): the directory in which to write log files.
+        level (int | str | None): the logging level to use.
+        silent (bool): False to disable logging to the console.
+
+    """
+
+    def _get_log_format(*, use_colors: bool = False) -> str:
+        time: LiteralString = '%(asctime)s'
+        level: LiteralString = '%(levelname)s'
+        if use_colors:
+            time = f'%(light_black)s{time}%(reset)s'
+            level = f'%(bold)s%(log_color)s{level}%(reset)s'
+        return f'{time} {level} %(message)s'
+
+    datefmt: LiteralString = '%H:%M:%S'
+    if not isinstance(log_dir, Path):
+        log_dir = Path(log_dir)
+    if not log_dir.exists():
+        log_dir.mkdir()
+    file: Path = log_dir / Path(f'{datetime.now().strftime("%Y-%m-%d")}.log')
+    logging_handlers: list[Handler] = [logging.FileHandler(file, mode='a')]
+    if not silent:
+        console_logger: StreamHandler = logging.StreamHandler(sys.stdout)
+        console_logger.formatter = colorlog.ColoredFormatter(
+            fmt=_get_log_format(use_colors=True),
+            datefmt=datefmt,
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+        )
+        logging_handlers.append(console_logger)
+    logging.basicConfig(
+        level=level,
+        format=_get_log_format(use_colors=False),
+        datefmt=datefmt,
+        handlers=logging_handlers,
+    )
+
+
+def get_server(app: FastAPI) -> Server:
+    """Build and return a Uvicorn server to serve the desired FastAPI app.
 
     Args:
         app (FastAPI): The FastAPI app to serve.
@@ -240,6 +120,9 @@ async def run(app: FastAPI) -> None:
     Raises:
         KeyError: if a host or port is not included in the app extras.
         ValueError: if the port number provided is invalid.
+
+    Returns:
+        Server: the configured server which can be used to serve the app.
 
     """
     host: str = app.extra['host']
@@ -255,18 +138,15 @@ async def run(app: FastAPI) -> None:
     # Log the server's address
     ip: str = host
     if ip == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
-        try:
-            with socket(AF_INET, SOCK_DGRAM) as sock:
-                sock.connect(('1.1.1.1', 80))
-                ip = sock.getsockname()[0]
-        except OSError:
-            logging.warning('Unable to get default route')
-            ip = '127.0.0.1'
+        ip = get_default_route()
     http_port: Final[int] = 80
-    logging.info(f'Serving app at http://{ip}{f":{port}" if port != http_port else ""}')
+    logging.info(
+        f'Configuring Uvicorn service for '
+        f'http://{ip}{f":{port}" if port != http_port else ""}'
+    )
 
     # Run the server with the specified config
-    await Server(
+    return Server(
         Config(
             app,
             host=host,
@@ -276,8 +156,27 @@ async def run(app: FastAPI) -> None:
             log_level='critical',
             server_header=False,
         )
-    ).serve()
-    logging.debug('Server stopped')
+    )
+
+
+def get_default_route() -> str:
+    """Get the default route of this device.
+
+    This is the IP address that this server would serve on if the user allows the server
+    to run on all interfaces (0.0.0.0). This method doesn't actually transmit any data.
+    This is a known
+
+    Returns:
+        str: the default route of this device.
+
+    """
+    try:
+        with socket(AF_INET, SOCK_DGRAM) as sock:
+            sock.connect(('1.1.1.1', 80))
+            ip: str = sock.getsockname()[0]
+    except OSError:
+        ip = 'localhost'
+    return ip
 
 
 def shutdown() -> None:

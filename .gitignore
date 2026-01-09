@@ -8,12 +8,13 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Production
+/config.ini
 build
 node_modules
 dist
 dist-ssr
 *.local
-/*.db
+*.db
 
 # Editor directories and files
 .vscode
