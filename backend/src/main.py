@@ -152,7 +152,7 @@ if __name__ == '__main__':
     )
 
     # Configure logging
-    silent: bool = os.environ.get('SILENT', str(True)).lower() in truth_values
+    silent: bool = os.environ.get('SILENT_LOGGING', str(True)).lower() in truth_values
     log_level: int = logging.DEBUG if app.debug else logging.INFO
     core.configure_logging(LOG_DIR_NAME, level=log_level, silent=silent)
 
