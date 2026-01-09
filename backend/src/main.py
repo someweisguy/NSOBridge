@@ -106,7 +106,7 @@ app: Final[FastAPI] = FastAPI(
     default_response_class=APIResponseClass,
     lifespan=lifespan,
     title='NSO Bridge',
-    summary='A scoreboard and stats application for roller derby.',
+    summary='A scoreboard and statistics server for roller derby.',
     description="""
     
     """,
@@ -122,7 +122,8 @@ app: Final[FastAPI] = FastAPI(
 if __name__ == '__main__':
     parser: ArgumentParser = ArgumentParser(
         prog=app.title,
-        description=app.description,
+        description=app.summary,
+        epilog=app.description,
     )
     parser.add_argument(
         'host',
