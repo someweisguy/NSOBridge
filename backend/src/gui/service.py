@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QSystemTrayIcon
 
 from .qt import AppWindow
 
@@ -71,6 +71,13 @@ def run(app: FastAPI, *, auto_hide: bool) -> None:
     window = AppWindow(app, icon)
     if not auto_hide:
         window.show()
+    else:
+        window.tray_icon.showMessage(
+            'NSO Bridge has started',
+            'Click the tray icon to open the window.',
+            QSystemTrayIcon.MessageIcon.NoIcon,
+            2000,
+        )
 
     gui.exec()
     logging.info('The GUI has been closed')
