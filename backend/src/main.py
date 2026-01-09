@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Final, Iterable
 
 import core
 import game
+import gui
 import update
 import user
 import ws
@@ -164,6 +165,12 @@ if __name__ == '__main__':
         action='store_false',
         dest='check_for_releases',
     )
+    parser.add_argument(
+        '-G',
+        help='Runs the app with a GUI',
+        action='store_true',
+        dest='use_gui',
+    )
 
     args: Final[Namespace] = parser.parse_args()
 
@@ -201,7 +208,10 @@ if __name__ == '__main__':
     # Run the application
     server: Server = core.get_server(app)
     try:
-        asyncio.run(server.serve())
+        if args.use_gui:
+            gui.run(app, auto_hide=False)
+        else:
+            asyncio.run(server.serve())
     except KeyboardInterrupt:
         logging.info('Handling keyboard interrupt')
     finally:
