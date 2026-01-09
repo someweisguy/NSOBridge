@@ -157,11 +157,7 @@ if __name__ == '__main__':
     core.configure_logging(LOG_DIR_NAME, level=log_level, silent=silent)
 
     # Run the application
-    try:
-        gui.run(app, auto_hide=auto_hide)  # Blocks program execution
-    except KeyboardInterrupt:
-        logging.info('Handling keyboard interrupt')
-    finally:
-        logging.info('Program terminated')
-        logging.shutdown()
-        core.shutdown()
+    gui.run(app, auto_hide=auto_hide)  # Blocks program execution
+    logging.info('Program terminated')
+    logging.shutdown()
+    core.shutdown()
