@@ -25,8 +25,8 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
-CONFIG_PATHNAME: Final[Path] = Path.cwd() / 'backend' / 'config.ini'
 APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 1, 0)
+CONFIG_FILE_NAME: str = './config.ini'
 LOG_DIR_NAME: str = './logs'
 API_PREFIX: str = '/api'
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     # Parse the backend arguments from the config file
     section: Final[str] = 'backend'
     config = ConfigParser()
-    if not CONFIG_PATHNAME.exists():
+    if not Path(CONFIG_FILE_NAME).exists():
         config.read_dict(
             {
                 section: {
@@ -137,10 +137,10 @@ if __name__ == '__main__':
                 }
             }
         )
-        with open(CONFIG_PATHNAME, 'w') as file:
+        with open(CONFIG_FILE_NAME, 'w') as file:
             config.write(file)
     else:
-        with open(CONFIG_PATHNAME, 'r') as file:
+        with open(CONFIG_FILE_NAME, 'r') as file:
             config.read_file(file)
     truth_values: set[str] = {'true', 'yes'}
     app.extra['db_pathname'] = config.get(section, 'db_pathname', fallback='')
