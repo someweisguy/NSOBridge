@@ -83,7 +83,7 @@ class AppWindow(QMainWindow):
         self.create_tray_icon()
 
         # Check if the server is running yet and check for updates
-        self.nam.get(QNetworkRequest(QUrl(self.host_label.text())))
+        self.nam.head(QNetworkRequest(QUrl(self.host_label.text())))
         self.nam.get(QNetworkRequest(QUrl(UPDATE_URL)))
 
     @override
