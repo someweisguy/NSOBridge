@@ -6,7 +6,6 @@ dependencies = [
   "fastapi[standard]>=0.115.14",
   "httpx>=0.28.1",
   "pyside6>=6.10.1",
-  "pytest>=9.0.2",
   "requests>=2.32.5",
   "semver>=3.0.4",
   "sqlalchemy>=2.0.45",
@@ -18,7 +17,7 @@ name = "nso-bridge"
 requires-python = ">=3.13"
 
 [dependency-groups]
-dev = ["ruff>=0.14.10", "ty>=0.0.8"]
+dev = ["pytest>=9.0.2", "ruff>=0.14.10", "ty>=0.0.8"]
 
 [tool.ruff]
 indent-width = 4
