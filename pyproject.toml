@@ -59,7 +59,7 @@ force-single-line = false
   "S101", # Allow asserts
 ]
 "backend/src/*" = [
-  "S104", # Allow use of all interfaces string (0.0.0.0)
+  "S104", # Allow use of all-interfaces string (0.0.0.0)
 ]
 
 [tool.setuptools.packages.find]
