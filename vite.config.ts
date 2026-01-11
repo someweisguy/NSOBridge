@@ -9,7 +9,7 @@ export default defineConfig({
   build: {
     cssMinify: true,
     minify: false, // TODO: Enable minification
-    outDir: "dist",
+    outDir: "www",
   },
   plugins: [
     react(),

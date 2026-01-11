@@ -13,7 +13,7 @@ from .schemas import VersionSchema
 PAGES_TAG = 'Pages'
 METADATA_TAG = 'Metadata'
 
-frontend_dir: Final[Path] = Path.cwd() / Path('dist')
+frontend_dir: Final[Path] = Path.cwd() / Path('www')
 assets = StaticFiles(directory=frontend_dir / 'assets')
 
 
