@@ -24,8 +24,8 @@ jobs:
       - name: Compile the application
         run: pyinstaller ${{ github.workspace }}/onedir.spec -y
 
-      - name: list dir
-        run: ls ${{ github.workspace }}
+      - name: tree dir
+        run: tree ${{ github.workspace }}
 
       - name: Upload the file as an artifact
         uses: actions/upload-artifact@v4
