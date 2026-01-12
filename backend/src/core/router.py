@@ -9,11 +9,12 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .schemas import VersionSchema
+from .utils import get_resource_path
 
 PAGES_TAG = 'Pages'
 METADATA_TAG = 'Metadata'
 
-frontend_dir: Final[Path] = Path.cwd() / Path('www')
+frontend_dir: Final[Path] = get_resource_path('www')
 assets = StaticFiles(directory=frontend_dir / 'assets')
 
 

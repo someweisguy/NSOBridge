@@ -15,7 +15,7 @@ from .service import (
     get_server,
     shutdown,
 )
-from .utils import timedelta_serializer
+from .utils import get_resource_path, timedelta_serializer
 
 __all__ = (
     'api_router',
@@ -31,6 +31,7 @@ __all__ = (
     'EngineFactory',
     'error_handlers',
     'get_default_route',
+    'get_resource_path',
     'get_server',
     'Memento',
     'pages_router',

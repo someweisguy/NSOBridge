@@ -6,9 +6,12 @@ These should not generally be used outside of the core module.
 
 from __future__ import annotations
 
+import os
+import sys
 from datetime import timedelta
 from math import floor
-from typing import TYPE_CHECKING, Any, override
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, LiteralString, override
 
 from pydantic import PlainSerializer
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
@@ -73,3 +76,19 @@ class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
         if not isinstance(value, (float, int)):
             raise TypeError()
         return timedelta(milliseconds=value)
+
+
+def get_resource_path(relative_path: LiteralString) -> Path:
+    """Get absolute path to resource, works for dev and for pyinstaller.
+
+    Args:
+        relative_path (LiteralStr): the relative path of the desired resource.
+
+    Returns:
+        Path: a path to the resource.
+
+    """
+    base_path: str = getattr(
+        sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__))
+    )
+    return Path(os.path.join(base_path, relative_path))

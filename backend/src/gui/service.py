@@ -59,7 +59,7 @@ def run(app: FastAPI, *, auto_hide: bool) -> None:
     gui = QApplication()
     gui.setApplicationName(app.title)
 
-    icon_path: Path = Path.cwd() / 'public' / 'skate.svg'
+    icon_path: Path = core.get_resource_path('public') / 'skate.svg'
     icon: QPixmap = get_svg_pixmap(icon_path)
     gui.setWindowIcon(icon)
 

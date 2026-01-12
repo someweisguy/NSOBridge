@@ -3,6 +3,7 @@
 import asyncio
 import logging
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
 from typing import TYPE_CHECKING, Final, Iterable
 
 import core
@@ -26,8 +27,8 @@ if TYPE_CHECKING:
 
 
 APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 1, 0)
-CONFIG_FILE_NAME: str = './config.ini'
-LOG_DIR_NAME: str = './logs'
+CONFIG_FILE_NAME: Path = core.get_resource_path('./config.ini')
+LOG_DIR_NAME: Path = core.get_resource_path('./logs')
 API_PREFIX: str = '/api'
 
 
