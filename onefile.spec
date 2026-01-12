@@ -1,15 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+
 a = Analysis(
-    ['backend\\src\\with_gui.py'],
+    ['backend/src/with_gui.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        ('www', 'www'),
-        ('public', 'public'),
-        ('README.md', '.'),
-        ('LICENSE.txt', '.'),
-    ],
+    datas=[('www', 'www'), ('public', 'public')],
     hiddenimports=['aiosqlite', 'sqlalchemy.dialects.sqlite', 'PIL'],
     hookspath=[],
     hooksconfig={},
@@ -23,27 +19,21 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.datas,
     [],
-    exclude_binaries=True,
     name='NSO Bridge',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='public/skate.png',
-)
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='nso-bridge',
+    icon=['public/skate.png'],
 )
