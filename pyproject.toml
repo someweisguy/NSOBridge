@@ -17,7 +17,7 @@ name = "nso-bridge"
 requires-python = ">=3.13"
 
 [dependency-groups]
-dev = ["pytest>=9.0.2", "ruff>=0.14.10", "ty>=0.0.8"]
+dev = ["pillow>=12.1.0", "pytest>=9.0.2", "ruff>=0.14.10", "ty>=0.0.8"]
 
 [tool.ruff]
 indent-width = 4

@@ -1,6 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-
 a = Analysis(
     ['backend\\src\\with_gui.py'],
     pathex=[],
@@ -11,7 +10,7 @@ a = Analysis(
         ('README.md', '.'),
         ('LICENSE.txt', '.'),
     ],
-    hiddenimports=['aiosqlite', 'sqlalchemy.dialects.sqlite'],
+    hiddenimports=['aiosqlite', 'sqlalchemy.dialects.sqlite', 'PIL'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -31,12 +30,13 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='public/skate.png',
 )
 coll = COLLECT(
     exe,
