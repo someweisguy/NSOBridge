@@ -1,6 +1,31 @@
 name: Deploy
 on: [push]
 jobs:
+  Test-Backend:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    # Setup the Node.js frontend
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+    - name: Install Node dependencies
+      run: npm install
+    - name: Build frontend
+      run: npm run build
+
+    # Setup the Python backend
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        activate-environment: "true"
+    - name: Setup the virtual environment
+      run: uv venv | uv sync
+
+    # Run Pytest
+    - name: Run Pytest
+      run: pytest
   Bundle-Application:
     runs-on: ${{ matrix.os }}
     strategy:
