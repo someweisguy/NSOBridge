@@ -1,7 +1,7 @@
-name: Create runnable
+name: Deploy
 on: [push]
 jobs:
-  Compile-Executable:
+  Bundle application:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -11,13 +11,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      # Setup the Node.js frontend
       - name: Install Node.js
         uses: actions/setup-node@v4
-      - name: Install Node.js dependencies
+      - name: Install Node dependencies
         run: npm install
       - name: Build frontend
         run: npm run build
 
+      # Setup the Python backend
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
@@ -25,9 +27,10 @@ jobs:
       - name: Setup the virtual environment
         run: uv venv | uv sync
       - name: Compile the application
-        run: pyinstaller ${{ github.workspace }}/onedir.spec -y
+        run: pyinstaller ./onedir.spec -y
 
-      - name: Upload the file as an artifact
+
+      - name: Upload the folder as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: nsobridge-${{ runner.os }}
