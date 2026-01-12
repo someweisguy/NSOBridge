@@ -22,11 +22,11 @@ jobs:
       - name: Setup the virtual environment
         run: uv venv | uv sync
       - name: Compile the application
-        run: pyinstaller onedir.spec -y
+        run: pyinstaller ${{ github.workspace }}/onedir.spec -y
 
       - name: Upload the file as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: my-artifact
-          path: dist/"NSO Bridge"
+          path: ${{ github.workspace }}/dist/"NSO Bridge"
           retention-days: 5 # Optional: how long to keep the artifact
