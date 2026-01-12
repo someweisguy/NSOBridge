@@ -24,9 +24,12 @@ jobs:
       - name: Compile the application
         run: pyinstaller ${{ github.workspace }}/onedir.spec -y
 
+      - name: list dir
+        run: ls ${{ github.workspace }}
+
       - name: Upload the file as an artifact
         uses: actions/upload-artifact@v4
         with:
-          name: my-artifact
+          name: nsobridge-${{ runner.os }}
           path: ${{ github.workspace }}/dist/"NSO Bridge"
           retention-days: 5 # Optional: how long to keep the artifact
