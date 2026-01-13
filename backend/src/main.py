@@ -70,6 +70,7 @@ async def lifespan(app: FastAPI):
         except ValueError:
             logging.critical('Database pathname is invalid')
             return
+    logging.debug('Creating database schema')
     await db.create_all()
 
     # Create a Bout model if one does not already exist
