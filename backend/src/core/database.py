@@ -21,6 +21,8 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from sqlalchemy.ext.asyncio import AsyncEngine
 
 
@@ -85,7 +87,9 @@ class DatabaseEngine:
 
     _DRIVER: ClassVar[Final[str]] = 'sqlite+aiosqlite'
 
-    def __init__(self, db_schema: type[DeclarativeBase], db_path: str = '') -> None:
+    def __init__(
+        self, db_schema: type[DeclarativeBase], db_path: str | Path = ''
+    ) -> None:
         """Create a database engine without connecting to the database.
 
         Args:
@@ -99,9 +103,10 @@ class DatabaseEngine:
 
         """
         # TODO: ensure that path is a legal file name
-        if not db_path.isprintable():
+        if isinstance(db_path, str) and not db_path.isprintable():
             logging.error('invalid database pathname')
             raise ValueError('db path is invalid')
+        db_path = str(db_path)
         self._db_schema: type[DeclarativeBase] = db_schema
         self._session_factory: async_sessionmaker[AsyncSession] | None = None
         self.path: Final[str] = db_path if db_path != '' else ':memory:'

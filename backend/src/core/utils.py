@@ -11,7 +11,7 @@ import sys
 from datetime import timedelta
 from math import floor
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, LiteralString, override
+from typing import TYPE_CHECKING, Any, override
 
 from pydantic import PlainSerializer
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
@@ -78,7 +78,7 @@ class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
         return timedelta(milliseconds=value)
 
 
-def get_resource_path(relative_path: LiteralString) -> Path:
+def get_resource_path(relative_path: str) -> Path:
     """Get absolute path to resource, works for dev and for pyinstaller.
 
     Args:

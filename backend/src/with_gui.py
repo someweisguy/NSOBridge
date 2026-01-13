@@ -11,6 +11,8 @@ import core
 import gui
 from main import CONFIG_FILE_NAME, LOG_DIR_NAME, app
 
+DEFAULT_RELATIVE_DATA_FILE_NAME: Final[str] = './data.db'
+
 if __name__ == '__main__':
     from configparser import ConfigParser
 
@@ -22,7 +24,7 @@ if __name__ == '__main__':
             {
                 section: {
                     'debug': False,
-                    'db_pathname': 'data.db',
+                    'db_pathname': DEFAULT_RELATIVE_DATA_FILE_NAME,
                     'host': '0.0.0.0',
                     'port': 8000,
                     'auto_hide': False,
@@ -34,8 +36,17 @@ if __name__ == '__main__':
     else:
         with open(CONFIG_FILE_NAME, 'r') as file:
             config.read_file(file)
+
+    # Get the database pathname as a relative path unless it is absolute
+    db_pathname: str | Path = config.get(section, 'db_pathname', fallback='')
+    if db_pathname != '':
+        if not Path(db_pathname).is_absolute():
+            db_pathname = core.get_resource_path(db_pathname)
+        else:
+            db_pathname = Path(db_pathname)
+
     truth_values: set[str] = {'true', 'yes'}
-    app.extra['db_pathname'] = config.get(section, 'db_pathname', fallback='')
+    app.extra['db_pathname'] = db_pathname
     app.extra['host'] = config.get(section, 'host', fallback='0.0.0.0')
     app.extra['port'] = int(config.get(section, 'port', fallback=8000))
     app.debug: bool = config.get(section, 'debug', fallback='').lower() in truth_values
