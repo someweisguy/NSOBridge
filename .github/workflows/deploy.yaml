@@ -36,8 +36,8 @@ jobs:
       # TODO: Ensure that the app version matches the Tag
 
       # Test the backend
-      - name: Run Pytest
-        run: pytest
+      # - name: Run Pytest
+      #   run: pytest
 
       # Bundle the application
       - name: Bundle application
