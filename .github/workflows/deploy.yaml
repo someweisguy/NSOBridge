@@ -60,5 +60,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nsobridge-${{ runner.os }}
-          path: "./dist/NSO Bridge"
+          path: "./dist"
           retention-days: 5 # Optional: how long to keep the artifact
