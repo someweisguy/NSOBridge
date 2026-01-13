@@ -69,5 +69,5 @@ jobs:
         with:
           name: nsobridge-${{ runner.os }}
           path: |
-            "./dist/NSO Bridge.app/"
+            "./dist/NSO Bridge.app"
           retention-days: 5 
