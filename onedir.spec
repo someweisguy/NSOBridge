@@ -50,6 +50,6 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='NSO Bridge.app',
-    icon=['public/skate.png'],
+    icon='public/skate.png',
     bundle_identifier=None,
 )
