@@ -57,8 +57,16 @@ jobs:
 
 
       - name: Upload the folder as an artifact
+        if: runner.os != 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: nsobridge-${{ runner.os }}
-          path: "./dist"
-          retention-days: 5 # Optional: how long to keep the artifact
+          path: "./dist/NSO Bridge"
+          retention-days: 5
+      - name: Upload the app bundle as an artifact
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nsobridge-${{ runner.os }}
+          path: "./dist/NSO Bridge.app"
+          retention-days: 5 
