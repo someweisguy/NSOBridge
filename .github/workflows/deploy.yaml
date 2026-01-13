@@ -50,7 +50,7 @@ jobs:
       - name: Upload application artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nsobridge-${{ runner.os }}
+          name: nsobridge-${{ runner.os }}.zip
           path: "./dist"
 
   create-release:
