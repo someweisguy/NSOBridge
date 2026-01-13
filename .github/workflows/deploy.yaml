@@ -68,5 +68,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nsobridge-${{ runner.os }}
-          path: "./dist/NSO Bridge.app"
+          path: |
+            "./dist"
+            !"./dist/NSO Bridge/"
           retention-days: 5 
