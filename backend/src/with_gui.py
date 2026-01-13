@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     # Configure logging
     log_level: int = logging.DEBUG if app.debug else logging.INFO
-    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=False)
+    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=True)
 
     # Run the application
     gui.run(app, auto_hide=auto_hide)  # Blocks program execution
