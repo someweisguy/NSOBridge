@@ -75,5 +75,7 @@ jobs:
           draft: true
           generate_release_notes: true
           files: |
-            ./artifacts/*
+            artifacts/nsobridge-Linux.zip
+            artifacts/nsobridge-macOS.zip
+            artifact/nsobridge-Windows.zip
           token: ${{ secrets.GITHUB_TOKEN }}
