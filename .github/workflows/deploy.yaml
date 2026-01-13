@@ -73,5 +73,5 @@ jobs:
         with:
           release_name: Release ${{ github.ref }}
           draft: true
-          files: artifacts
+          files: artifacts/*
           token: ${{ secrets.GITHUB_TOKEN }}
