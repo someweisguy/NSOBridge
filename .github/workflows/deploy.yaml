@@ -50,7 +50,7 @@ jobs:
       - name: Upload application artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nsobridge-${{ runner.os }}.zip
+          name: nsobridge-${{ runner.os }}
           path: "./dist"
 
   create-release:
@@ -68,14 +68,17 @@ jobs:
       - name: List artifacts
         run: ls -la artifacts
 
+      - name: Zip artifacts
+        run: for folder in */; do zip -r "${folder%/}".zip "$folder"; done
+        
+      - name: List artifacts
+        run: ls -la artifacts
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ github.ref }}
           draft: true
           generate_release_notes: true
-          files: |
-            artifacts/nsobridge-Linux.zip
-            artifacts/nsobridge-macOS.zip
-            artifact/nsobridge-Windows.zip
+          files: artifacts/*.zip
           token: ${{ secrets.GITHUB_TOKEN }}
