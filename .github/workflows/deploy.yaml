@@ -55,20 +55,13 @@ jobs:
       - name: Compile the application
         run: pyinstaller ./onedir.spec -y
 
-
-      - name: Upload the folder as an artifact
-        if: runner.os != 'macOS'
-        uses: actions/upload-artifact@v4
-        with:
-          name: nsobridge-${{ runner.os }}
-          path: "./dist/NSO Bridge"
-          retention-days: 5
-      - name: Upload the app bundle as an artifact
+      - name: Remove unused folder
         if: runner.os == 'macOS'
+        run: rm -rf "./dist/NSO Bridge"
+
+      - name: Upload the application as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: nsobridge-${{ runner.os }}
-          path: |
-            "./dist"
-            !"./dist/NSO Bridge"
-          retention-days: 5 
+          path: "./dist"
+          retention-days: 5
