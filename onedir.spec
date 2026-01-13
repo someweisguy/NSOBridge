@@ -47,3 +47,9 @@ coll = COLLECT(
     upx_exclude=[],
     name='NSO Bridge',
 )
+app = BUNDLE(
+    coll,
+    name='NSO Bridge.app',
+    icon=['public/skate.png'],
+    bundle_identifier=None,
+)
