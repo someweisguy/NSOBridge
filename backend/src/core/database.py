@@ -123,8 +123,10 @@ class DatabaseEngine:
         engine: AsyncEngine = create_async_engine(url, echo=SQLALCHEMY_DEBUG)
 
         # Create the database tables
+        logging.debug('Creating metadata in synchronous context')
         async with engine.connect() as session:
             await session.run_sync(self._db_schema.metadata.create_all)
+        logging.debug('Initializing asynchronous session factory')
         self._session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
             bind=engine, expire_on_commit=False
         )
