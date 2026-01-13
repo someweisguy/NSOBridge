@@ -1,33 +1,11 @@
 name: Deploy
-on: [push]
+on:
+  push:
+    tags:
+      - "v*"
+
 jobs:
-  Test-Backend:
-    runs-on: windows-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v6
-
-    # Setup the Node.js frontend
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-    - name: Install Node dependencies
-      run: npm install
-    - name: Build frontend
-      run: npm run build
-
-    # Setup the Python backend
-    - name: Install uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        activate-environment: "true"
-        python-version: 3.13
-    - name: Setup the virtual environment
-      run: uv venv | uv sync
-
-    # Run Pytest
-    - name: Run Pytest
-      run: pytest
-  Bundle-Application:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -40,28 +18,60 @@ jobs:
       # Setup the Node.js frontend
       - name: Install Node.js
         uses: actions/setup-node@v4
-      - name: Install Node dependencies
+      - name: Install Node.js dependencies
         run: npm install
       - name: Build frontend
         run: npm run build
 
       # Setup the Python backend
-      - name: Install uv
+      - name: Install Astral uv
         uses: astral-sh/setup-uv@v7
         with:
           activate-environment: "true"
-      - name: Setup the virtual environment
-        run: uv venv | uv sync
-      - name: Compile the application
-        run: pyinstaller ./onedir.spec -y
+      - name: Setup Python virtual environment
+        run: uv venv
+      - name: Install Python dependencies
+        run: uv sync
 
-      - name: Remove unused folder
+      # TODO: Ensure that the app version matches the Tag
+
+      # Test the backend
+      - name: Run Pytest
+        run: pytest
+
+      # Bundle the application
+      - name: Bundle application
+        run: pyinstaller ./onedir.spec -y
+      - name: Remove unused folder on MacOS
         if: runner.os == 'macOS'
         run: rm -rf "./dist/NSO Bridge"
 
-      - name: Upload the application as an artifact
+      # Get artifacts
+      - name: Upload application artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nsobridge-${{ runner.os }}
           path: "./dist"
-          retention-days: 5
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: ls artifacts
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          release_name: Release ${{ github.ref }}
+          draft: true
+          files: artifacts
+          token: ${{ secrets.GITHUB_TOKEN }}
