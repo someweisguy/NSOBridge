@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [windows-latest, macos-latest]
 
     steps:
       - name: Checkout repository
@@ -32,11 +32,9 @@ jobs:
       - name: Install Python dependencies
         run: uv sync
 
-      # TODO: Ensure that the app version matches the Tag
-
       # Test the backend
-      # - name: Run Pytest
-      #   run: pytest
+      - name: Run Pytest
+        run: pytest
 
       # Bundle the application
       - name: Bundle application
