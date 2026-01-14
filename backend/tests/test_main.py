@@ -26,4 +26,5 @@ def test_app_version_matches_tag(request: pytest.FixtureRequest):
         pytest.skip('Skipping because a git tag name was not provided')
     if git_tag_name.startswith('v'):
         git_tag_name = git_tag_name[1:]
+    assert VersionInfo.is_valid(git_tag_name)
     assert git_tag_name == str(app.version)
