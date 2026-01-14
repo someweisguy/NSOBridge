@@ -4,6 +4,7 @@
 # identifier that matches `vX.Y.Z`. Technically, this pattern is only a subset of
 # semver, but for simplicity this script only uses the above pattern. To fire this
 # script, generate a new tag matching that pattern and push it to the remote.
+name: Generate Release
 on:
   push:
     tags:
