@@ -10,7 +10,7 @@ This app currently supports running in a command-line interface which is an adva
 
 This application offers a command-line interface for advanced users.
 
-To install this application [npm][Node.js and npm Installation] and [Python 3.13][Python Installation] are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a Python package manager. Create a Python virtual environment with `uv venv`. Source the newly created Python environment with `.venv/Scripts/activate` and then call `uv sync` to download the required Python dependencies. The Node.js dependencies can be installed by running `npm install`. Finally, the frontend can be compiled by running `npm run build`.
+To install this application [npm][Node.js and npm Installation] and [Python 3.13][Python Installation] are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a Python package manager. Create a Python virtual environment with `uv venv`. Source the newly created Python environment with `.venv/Scripts/activate` on Windows or `source .venv/bin/activate` on Linux or MacOS and then call `uv sync` to download the required Python dependencies. The Node.js dependencies can be installed by running `npm install`. Finally, the frontend can be compiled by running`npm run build`.
 
 After all the required packages have been installed and the frontend has been built, the application can be served on all interfaces. Run the application with `python backend/src/main.py 0.0.0.0`. For more information on how to use the command-line interface, run `python backend/src/main.py --help`.
 
