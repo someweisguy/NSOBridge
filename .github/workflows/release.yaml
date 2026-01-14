@@ -68,7 +68,7 @@ jobs:
         with:
           path: artifacts
       - name: Zip artifacts
-        run: cd artifacts && for i in */; do zip -r "${i%/}.zip" .; done
+        run: cd artifacts && for i in */; do zip -r "${i%/}.zip" "$i"; done
 
       # Generate a release
       - name: Create release
