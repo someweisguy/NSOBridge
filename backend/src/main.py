@@ -3,6 +3,7 @@
 import asyncio
 import logging
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
 from typing import TYPE_CHECKING, Final, Iterable
 
 import core
@@ -25,9 +26,9 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
-APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 1, 0)
-CONFIG_FILE_NAME: str = './config.ini'
-LOG_DIR_NAME: str = './logs'
+APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 1, 1)
+CONFIG_FILE_NAME: Path = core.get_resource_path('./config.ini')
+LOG_DIR_NAME: Path = core.get_resource_path('./logs')
 API_PREFIX: str = '/api'
 
 
@@ -69,6 +70,7 @@ async def lifespan(app: FastAPI):
         except ValueError:
             logging.critical('Database pathname is invalid')
             return
+    logging.debug('Creating database schema')
     await db.create_all()
 
     # Create a Bout model if one does not already exist

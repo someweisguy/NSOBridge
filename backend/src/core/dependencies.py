@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Annotated, AsyncGenerator, ClassVar, TypeAlias
+from typing import TYPE_CHECKING, Annotated, AsyncGenerator, ClassVar, TypeAlias
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from .database import BaseSQLModel, DatabaseEngine
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class EngineFactory:
@@ -36,7 +39,7 @@ class EngineFactory:
         cls._default_engine = engine
 
     @classmethod
-    def create_engine(cls, db_path: str = '') -> DatabaseEngine:
+    def create_engine(cls, db_path: str | Path = '') -> DatabaseEngine:
         """Create a new DatabaseEngine.
 
         When no db_path is provided, an in-memory database engine will be created.

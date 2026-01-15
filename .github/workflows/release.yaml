@@ -1,0 +1,85 @@
+# Generate a Github release for the application.
+#
+# This workflow runs when a new tag is pushed to Github. The tag must be a semver
+# identifier that matches `vX.Y.Z`. To fire this script, generate a new tag matching
+# that pattern and push it to the remote. The release is generated as a draft with 
+# automatically generated release notes. Because a draft release is not publically
+# visible, the release needs to be manually reviewed and published.
+name: Generate Release
+on:
+  push:
+    tags: "*"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Setup the Node.js frontend
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+      - name: Install Node.js dependencies
+        run: npm install
+      - name: Build frontend
+        run: npm run build
+
+      # Setup the Python backend
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          activate-environment: "true"
+      - name: Setup python virtual environment
+        run: uv venv
+      - name: Install python dependencies
+        run: uv sync
+
+      # Test the backend
+      - name: Test backend
+        run: pytest backend/tests --tag-name ${{ github.ref_name }}
+
+      # Bundle the application
+      - name: Bundle application
+        run: pyinstaller ./onedir.spec -y
+      - name: Remove unused folder on macOS
+        if: runner.os == 'macOS'
+        run: rm -rf "./dist/NSO Bridge"
+
+      # Get artifacts
+      - name: Upload application artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nsobridge-${{ runner.os }}
+          path: "./dist"
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # Prepare application bundles
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: artifacts
+      - name: Zip artifacts
+        run: cd artifacts && for i in */; do zip -r "${i%/}.zip" "$i"; done
+
+      # Generate a release
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          draft: true
+          generate_release_notes: true
+          files: artifacts/*.zip
+          discussion_category_name: Announcements
+          fail_on_unmatched_files: true
+          token: ${{ secrets.GITHUB_TOKEN }}

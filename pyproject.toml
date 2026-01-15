@@ -8,20 +8,27 @@ dependencies = [
   "pyside6>=6.10.1",
   "requests>=2.32.5",
   "semver>=3.0.4",
-  "sqlalchemy>=2.0.45",
+  "sqlalchemy[asyncio]>=2.0.45",
   "uvicorn>=0.34.3",
   "websockets>=15.0.1",
 ]
 dynamic = ["version"]
 name = "nso-bridge"
-requires-python = ">=3.13"
+requires-python = "==3.13.*"
 
 [dependency-groups]
-dev = ["pytest>=9.0.2", "ruff>=0.14.10", "ty>=0.0.8"]
+dev = [
+  "pillow>=12.1.0",
+  "pyinstaller>=6.17.0",
+  "pytest>=9.0.2",
+  "ruff>=0.14.10",
+  "ty>=0.0.8",
+]
 
 [tool.ruff]
 indent-width = 4
 line-length = 88
+exclude = ["./*.spec"]
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -59,7 +66,7 @@ force-single-line = false
   "S101", # Allow asserts
 ]
 "backend/src/*" = [
-  "S104", # Allow use of all interfaces string (0.0.0.0)
+  "S104", # Allow use of all-interfaces string (0.0.0.0)
 ]
 
 [tool.setuptools.packages.find]
@@ -67,3 +74,6 @@ include = ["backend"]
 
 [tool.pytest.ini_options]
 pythonpath = ["backend/src"]
+
+[tool.ty.src]
+exclude = ["./*.spec"]
