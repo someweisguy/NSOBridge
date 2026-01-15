@@ -18,9 +18,11 @@ This app also allows for roller derby statistics as a use-case. In addition to [
 
 ## Information for the Nerds
 
+A key goal of NSO Bridge is to make it easy to contribute! A contribution guide will be published after the NSO Bridge beta version is released.
+
 This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. WebSockets are used for bidirectional, client-server communication.
 
-This app is distributed using the Python bundler [PyInstaller][PyInstaller] so that users may easily run this app.
+The backend server is provided a GUI written in [PySide6][PySide6]. This app is distributed using the Python bundler [PyInstaller][PyInstaller] so that users may easily run this app.
 
 ### Command-Line Interface
 
@@ -44,4 +46,5 @@ If you'd like to contribute to this app, more information can be found in the [N
 [Node.js and npm Installation]: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 [Python Installation]: https://www.python.org/downloads/
 [uv Installation]: https://docs.astral.sh/uv/getting-started/installation/
+[PySide6]: https://pypi.org/project/PySide6/
 [PyInstaller]: https://pyinstaller.org/en/stable/
