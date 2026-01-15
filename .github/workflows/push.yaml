@@ -3,11 +3,13 @@
 # This workflow runs when a a commit is pushed. It sets up the programming environment
 # and runs linting, testing, and build scripts. 
 name: Lint, Test, and Build
+
 on: push
 
 jobs:
   setup_environment:
     name: Setup Environment
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
