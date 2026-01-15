@@ -12,5 +12,5 @@ jobs:
     name: Lint Frontend
     steps:
       - name: Lint Frontend
-        uses: ./.github/workflows/lint-frontend.yaml@dev
+        uses: someweisguy/NSOBridge/.github/workflows/lint-frontend.yaml@dev
  
