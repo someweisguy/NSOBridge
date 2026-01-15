@@ -9,5 +9,5 @@ on: push
 jobs:
   lint_frontend:
     name: Lint Frontend in Push
-    uses: ./.github/workflows/lint-frontend.yaml
+    uses: .github/workflows/lint-frontend.yaml
  
