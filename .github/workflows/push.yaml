@@ -10,4 +10,5 @@ jobs:
   lint_frontend:
     name: Lint Frontend
     uses: someweisguy/NSOBridge/.github/workflows/lint-frontend.yaml@dev
+    runs-on: ubuntu-latest
  
