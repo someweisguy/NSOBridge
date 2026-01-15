@@ -8,6 +8,7 @@ on: push
 
 jobs:
   lint_frontend:
+    runs-on: ubuntu-latest
     name: Lint Frontend
     uses: ./.github/workflows/lint-frontend.yaml@dev
  
