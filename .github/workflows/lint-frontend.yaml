@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: List Directories
+        run: ls ./.github/workflows
       - uses: ./.github/workflows/setup-frontend.yaml
       - name: Run linter scripts
         run: npm run lint
