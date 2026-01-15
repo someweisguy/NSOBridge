@@ -10,8 +10,7 @@ jobs:
     name: Setup Environment
     runs-on: ubuntu-linux
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
       - name: Install Node.js
         uses: actions/setup-node@v4
       - name: Install Node.js dependencies
