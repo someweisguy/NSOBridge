@@ -43,6 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup_environment
     if: false  # TODO: add frontend testing
+    steps:
+      - name: Pass
+        run: ls
   build_frontend:
     name: Build Backend
     runs-on: ubuntu-latest
