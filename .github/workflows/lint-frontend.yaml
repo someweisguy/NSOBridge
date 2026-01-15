@@ -11,6 +11,7 @@ on:
 jobs:
   lint_frontend:
     name: Lint Frontend
+    runs-on: ubuntu-latest
     steps:
       - name: Setup environment
         uses: ./.github/workflows/setup-frontend.yaml@dev
