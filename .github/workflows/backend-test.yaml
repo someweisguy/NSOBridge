@@ -6,7 +6,7 @@ name: Test Backend
 on: push
 
 jobs:
-  setup-environment:
+  run-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,13 +29,6 @@ jobs:
         run: uv venv
       - name: Install python dependencies
         run: uv sync
-
-  test:
-    runs-on: ubuntu-latest
-    needs: setup-environment
-    steps:
-      - name: Activate virtual environment
-        run: source .venv/Scripts/activate
 
       - name: Run pytest
         run: pytest
