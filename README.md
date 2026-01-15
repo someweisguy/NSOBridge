@@ -6,7 +6,7 @@ This is a scoreboard application designed for the Women's Flat Track Derby Assoc
 
 NSO Bridge can run on Windows 10/11, MacOS, and Linux.
 
-To download this app, go to the [latest release page](https://github.com/someweisguy/NSOBridge/releases/latest) and download the appropriate version - `nsobridge-Windows` if you are using Windows, or `nsobridge-MacOS` if you are using MacOS. If you are using Linux see the [command-line interface section](#command-line-interface) below.
+To download this app, go to the [latest release page](https://github.com/someweisguy/NSOBridge/releases/latest) and download the appropriate version - `nsobridge-Windows` if you are using Windows, or `nsobridge-macOS` if you are using MacOS. If you are using Linux see the [command-line interface section](#command-line-interface) below.
 
 Unzip the release. On Windows 10 or 11, `NSO Bridge.exe` can be found within the `NSO Bridge` folder. Double-click the `.exe` file to start NSO Bridge. On MacOS, double-click the unzipped `NSO Bridge.app` bundle to start NSO Bridge.
 
