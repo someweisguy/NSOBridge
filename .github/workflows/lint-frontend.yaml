@@ -13,7 +13,7 @@ jobs:
     name: Lint Frontend
     steps:
       - name: Setup environment
-        uses: someweisguy/NSOBridge/.github/workflows/setup-frontend.yaml
+        uses: ./.github/workflows/setup-frontend.yaml@${{ github.head_ref }}
       - name: Run linter scripts
         run: npm run lint
  
