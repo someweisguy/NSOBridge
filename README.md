@@ -4,7 +4,23 @@ This is a scoreboard application designed for the Women's Flat Track Derby Assoc
 
 ## How to Install
 
-This app currently supports running in a command-line interface which is an advanced installation method. Users who wish to run this app as a command-line program should read below. An easy installation method is coming soon!
+NSO Bridge can run on Windows 10/11, MacOS, and Linux.
+
+To download this app, go to the [latest release page](https://github.com/someweisguy/NSOBridge/releases/latest) and download the appropriate version - `nsobridge-Windows` if you are using Windows, or `nsobridge-MacOS` if you are using MacOS. If you are using Linux see the [command-line interface section](#command-line-interface) below.
+
+Unzip the release. On Windows 10 or 11, `NSO Bridge.exe` can be found within the `NSO Bridge` folder. Double-click the `.exe` file to start NSO Bridge. On MacOS, double-click the unzipped `NSO Bridge.app` bundle to start NSO Bridge.
+
+## Differences from CRG Derby Scoreboard
+
+The primary goal of this app is to make it easier for new NSOs to learn how to operate the scoreboard. This app achieves this goal by exposing users to a simple interface and a streamlined workflow.
+
+This app also allows for roller derby statistics as a use-case. In addition to [WFTDA IGRF stats][WFTDA statsbook], skaters and coaches will be able to use this app to gain insights about individual and team performances in bouts.
+
+## Information for the Nerds
+
+This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. WebSockets are used for bidirectional, client-server communication.
+
+This app is distributed using the Python bundler [PyInstaller][PyInstaller] so that users may easily run this app.
 
 ### Command-Line Interface
 
@@ -14,24 +30,11 @@ To install this application [npm][Node.js and npm Installation] and [Python 3.13
 
 After all the required packages have been installed and the frontend has been built, the application can be served on all interfaces. Run the application with `python backend/src/main.py 0.0.0.0`. For more information on how to use the command-line interface, run `python backend/src/main.py --help`.
 
-## Differences from CRG Derby Scoreboard
-
-The primary goal of this app is to make it easier for new NSOs to learn how to operate the scoreboard. This app achieves this goal by exposing users to a simpler interface and a streamlined workflow.
-
-This app also allows for roller derby statistics as a use-case. In addition to [WFTDA IGRF stats][WFTDA statsbook], skaters and coaches will be able to use this app to gain insights about individual performances in bouts. For example, coaches will be able glean which skaters are most successful against a particular wall. This will ensure that coaches have the information that they need to field the best skaters for the jam. Skaters will be able to track their stats over time. This will ensure that skaters can set [smart goals][SMART goals] to improve their skills over time.
-
-## Information for the Nerds
-
-This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. WebSockets are used for bidirectional, client-server communication.
-
-This app will be distributed using a Python bundler, such as _pyinstaller_, so that users may easily run this app. Python bundling is not yet supported.
-
 ### Contributing
 
 If you'd like to contribute to this app, more information can be found in the [NSO Bridge wiki](https://github.com/someweisguy/NSOBridge/wiki).
 
 [WFTDA statsbook]: https://static.wftda.com/stats/wftda-statsbook-manual.pdf
-[SMART goals]: https://en.wikipedia.org/wiki/SMART_criteria
 [FastAPI]: https://fastapi.tiangolo.com/
 [SQLAlchemy]: https://www.sqlalchemy.org/
 [Pydantic]: https://docs.pydantic.dev/latest/
@@ -41,3 +44,4 @@ If you'd like to contribute to this app, more information can be found in the [N
 [Node.js and npm Installation]: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 [Python Installation]: https://www.python.org/downloads/
 [uv Installation]: https://docs.astral.sh/uv/getting-started/installation/
+[PyInstaller]: https://pyinstaller.org/en/stable/
