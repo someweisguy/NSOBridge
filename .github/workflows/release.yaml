@@ -78,4 +78,6 @@ jobs:
           draft: true # FIXME: Remove this when done
           generate_release_notes: true
           files: artifacts/*.zip
+          discussion_category_name: Announcements
+          fail_on_unmatched_files: true
           token: ${{ secrets.GITHUB_TOKEN }}
