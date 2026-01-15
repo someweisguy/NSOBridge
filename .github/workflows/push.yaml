@@ -9,6 +9,6 @@ on: push
 jobs:
   lint_frontend:
     name: Lint Frontend
-    uses: someweisguy/NSOBridge/.github/workflows/lint-frontend.yaml@dev
+    uses: ./.github/workflows/lint-frontend.yaml
     runs-on: ubuntu-latest
  
