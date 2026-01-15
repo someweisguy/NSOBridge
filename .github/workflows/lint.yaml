@@ -1,0 +1,45 @@
+# Lint the Application.
+#
+# This workflow runs when a a commit is pushed. It sets up the programming environment
+# and runs lint scripts. The frontend and backend are linted concurrently to reduce
+# runtime.
+name: Lint
+on: push
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Setup the Python backend
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          activate-environment: "true"
+      - name: Setup python virtual environment
+        run: uv venv
+      - name: Install python dependencies
+        run: uv sync
+
+      - name: Lint
+        run: ruff check
+
+      - name: Type check
+        run: ty check
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Setup the Node.js frontend
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+      - name: Install Node.js dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
