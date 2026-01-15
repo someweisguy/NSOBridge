@@ -18,11 +18,13 @@ This app also allows for roller derby statistics as a use-case. In addition to [
 
 ## Information for the Nerds
 
-A key goal of NSO Bridge is to make it easy to contribute! A contribution guide will be published after the NSO Bridge beta version is released.
-
 This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. WebSockets are used for bidirectional, client-server communication.
 
 The backend server is provided a GUI written in [PySide6][PySide6]. This app is distributed using the Python bundler [PyInstaller][PyInstaller] so that users may easily run this app.
+
+### Contributing
+
+A key goal of NSO Bridge is to make it easy to contribute! A contribution guide will be published after the NSO Bridge beta version is released.
 
 ### Command-Line Interface
 
@@ -31,8 +33,6 @@ This application offers a command-line interface for advanced users.
 To install this application [npm][Node.js and npm Installation] and [Python 3.13][Python Installation] are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a Python package manager. Create a Python virtual environment with `uv venv`. Source the newly created Python environment with `.venv/Scripts/activate` on Windows or `source .venv/bin/activate` on Linux or MacOS and then call `uv sync` to download the required Python dependencies. The Node.js dependencies can be installed by running `npm install`. Finally, the frontend can be compiled by running`npm run build`.
 
 After all the required packages have been installed and the frontend has been built, the application can be served on all interfaces. Run the application with `python backend/src/main.py 0.0.0.0`. For more information on how to use the command-line interface, run `python backend/src/main.py --help`.
-
-### Contributing
 
 If you'd like to contribute to this app, more information can be found in the [NSO Bridge wiki](https://github.com/someweisguy/NSOBridge/wiki).
 
