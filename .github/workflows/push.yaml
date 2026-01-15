@@ -10,5 +10,4 @@ jobs:
   lint_frontend:
     name: Lint Frontend
     uses: ./.github/workflows/lint-frontend.yaml
-    runs-on: ubuntu-latest
  
