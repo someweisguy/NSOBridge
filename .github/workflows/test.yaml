@@ -1,8 +1,8 @@
-# Test the Application Backend.
+# Test the Application.
 #
 # This workflow runs when a a commit is pushed. It sets up the programming environment
-# and runs test scripts for the backend.
-name: Test Backend
+# and runs test scripts.
+name: Test
 on: push
 
 jobs:
@@ -19,6 +19,8 @@ jobs:
         run: npm install
       - name: Build frontend
         run: npm run build
+
+      # TODO: add test scripts for frontend
 
       # Setup the Python backend
       - name: Install Astral uv
