@@ -51,7 +51,7 @@ class AppWindow(QMainWindow):
             f'v{app.version}', alignment=Qt.AlignmentFlag.AlignHCenter
         )
         self.update_label: QLabel = QLabel(
-            'Checking for Updates...',
+            'Checking for updates...',
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
         )
         self.update_label.setWordWrap(True)
