@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Final, Iterable
 
 import core
 import game
-import gui
 import update
 import user
 import ws
@@ -122,6 +121,8 @@ app: Final[FastAPI] = FastAPI(
 
 
 if __name__ == '__main__':
+    import gui
+
     parser: ArgumentParser = ArgumentParser(
         prog=app.title,
         description=app.summary,
