@@ -1,0 +1,17 @@
+name: Setup Frontend
+
+on:
+  workflow_call:
+    secrets:
+        personal_access_token:
+          required: false
+jobs:
+  setup_environment:
+    name: Setup Environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+      - name: Install Node.js dependencies
+        uses: actions/checkout@v6
+        run: npm install

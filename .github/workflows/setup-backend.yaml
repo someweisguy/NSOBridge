@@ -1,0 +1,22 @@
+name: Setup Backend
+
+on:
+  workflow_call:
+    secrets:
+        personal_access_token:
+          required: false
+jobs:
+  setup_environment:
+    name: Setup Environment
+    runs-on: ubuntu-latest
+    steps:
+      # Setup the Python backend
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          activate-environment: "true"
+      - name: Setup python virtual environment
+        uses: actions/checkout@v6
+        run: uv venv
+      - name: Install python dependencies
+        run: uv sync

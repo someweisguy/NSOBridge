@@ -2,78 +2,12 @@
 #
 # This workflow runs when a a commit is pushed. It sets up the programming environment
 # and runs linting, testing, and build scripts. 
-name: Lint, Test, and Build
+name: Push
 
 on: push
 
 jobs:
-  setup_environment:
-    name: Setup Environment
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      # Setup the Node.js frontend
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-      - name: Install Node.js dependencies
-        run: npm install
-
-      # Setup the Python backend
-      - name: Install Astral uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          activate-environment: "true"
-      - name: Setup python virtual environment
-        run: uv venv
-      - name: Install python dependencies
-        run: uv sync
-
   lint_frontend:
     name: Lint Frontend
-    runs-on: ubuntu-latest
-    needs: setup_environment
-    steps:
-      - name: Run linter scripts
-        run: npm run lint
+    uses: someweisguy/NSOBridge/.github/workflows/lint-frontend.yaml
  
-  test_frontend:
-    name: Test Frontend
-    runs-on: ubuntu-latest
-    needs: setup_environment
-    if: false  # TODO: add frontend testing
-    steps:
-      - name: Pass
-        run: ls
-  build_frontend:
-    name: Build Frontend
-    runs-on: ubuntu-latest
-    needs: setup_environment
-    steps:
-      - name: Run build scripts
-        run: npm run lint
-
-  lint_backend:
-    name: Lint Backend
-    runs-on: ubuntu-latest
-    needs: setup_environment
-    steps:
-      - name: Ruff check
-        run: ruff check . --ignore EXE001
-      - name: Ty check
-        run: ty check
-  test_backend:
-    name: Test Backend
-    runs-on: ubuntu-latest
-    needs: setup_environment
-    steps:
-      - name: Run pytest
-        run: pytest
-  build_backend:
-    name: Build Backend
-    runs-on: ubuntu-latest
-    needs: [setup_environment, build_frontend]
-    steps:
-      - name: Bundle application with PyInstaller
-        run: pyinstaller ./onedir.spec -y
