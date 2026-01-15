@@ -8,6 +8,7 @@ on:
 jobs:
   setup_environment:
     name: Setup Environment
+    runs-on: ubuntu-linux
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
