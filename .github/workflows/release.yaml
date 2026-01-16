@@ -25,6 +25,8 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           path: artifacts
+      - name: Zip artifacts
+        run: cd artifacts && for i in */; do zip -r "${i%/}.zip" "$i"; done
       - uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ github.ref_name }}
