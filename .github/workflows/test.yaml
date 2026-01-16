@@ -1,4 +1,5 @@
 name: Test, Lint, and Build
+
 on:
   workflow_call:
     inputs:
@@ -155,26 +156,11 @@ jobs:
           activate-environment: true
           enable-cache: true
       - run: pyinstaller onedir.spec
-      - uses: actions/cache@v5
-        with:
-          path: ./dist
-          key: ${{ inputs.runs-on }}-app-dist
-
-  create-artifact:
-    name: Create artifact
-    if: ${{ inputs.create-artifact }}
-    needs: build_backend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v5
-        with:
-          path: ./dist
-          key: ${{ inputs.runs-on }}-app-dist
-          fail-on-cache-miss: true
-      - name: Remove unused folder on MacOS
+      - name: Delete unused folder on MacOS
+        run: rm -rf "dist/NSO Bridge"
         if: ${{ inputs.runs-on == 'macos-latest' }}
-        run: rm -rf "dist/NSO Bridge/"
       - uses: actions/upload-artifact@v4
+        if: ${{ inputs.create-artifact }}
         with:
-          name: nsobridge-${{ inputs.runs-on }}
-          path: "dist/NSO Bridge/*"
+          name: nsobridge-${{ runner.os }}
+          path: dist
