@@ -157,8 +157,8 @@ jobs:
       - run: pyinstaller onedir.spec
       - uses: actions/cache@v5
         with:
-          path: dist
-          key: ${{ inputs.runs-on }}-dist
+          path: ./dist
+          key: ${{ inputs.runs-on }}-app-dist
 
   create-artifact:
     name: Create artifact
@@ -168,8 +168,8 @@ jobs:
     steps:
       - uses: actions/cache@v5
         with:
-          path: dist
-          key: ${{ inputs.runs-on }}-dist
+          path: ./dist
+          key: ${{ inputs.runs-on }}-app-dist
           fail-on-cache-miss: true
       - name: Remove unused folder on MacOS
         if: ${{ inputs.runs-on == 'macos-latest' }}
