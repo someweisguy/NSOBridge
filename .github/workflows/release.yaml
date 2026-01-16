@@ -30,16 +30,14 @@ jobs:
 
     steps:
       # Prepare application bundles
-      - name: Download artifacts
-        uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v5
         with:
           path: artifacts
       - name: Zip artifacts
         run: cd artifacts && for i in */; do zip -r "${i%/}.zip" "$i"; done
 
       # Generate a release
-      - name: Create release
-        uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ github.ref_name }}
           draft: true

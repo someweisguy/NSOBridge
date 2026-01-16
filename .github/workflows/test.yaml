@@ -22,10 +22,8 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-      - name: Install Node.js dependencies
-        run: npm install
+      - uses: actions/setup-node@v4
+      - run: npm install
       - uses: actions/cache@v5
         with:
           path: node_modules
@@ -41,8 +39,7 @@ jobs:
           path: node_modules
           key: node_modules
           fail-on-cache-miss: true
-      - name: Run linter scripts
-        run: npm run lint
+      - run: npm run lint
   test_frontend:
     name: Test Frontend
     needs: setup_frontend
@@ -62,8 +59,7 @@ jobs:
           path: node_modules
           key: node_modules
           fail-on-cache-miss: true
-      - name: Run build scripts
-        run: npm run build
+      - run: npm run build
       - uses: actions/cache@v5
         with:
           path: www
@@ -75,22 +71,15 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
-
-      - name: Setup python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
-
-      - name: Install Astral uv
-        uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           activate-environment: true
           enable-cache: true
-
-      - name: Setup python virtual environment
-        run: uv venv
-      - name: Install python dependencies
-        run: uv sync
+      - run: uv venv
+      - run: uv sync
       - uses: actions/cache@v5
         with:
           path: .venv
@@ -105,13 +94,11 @@ jobs:
         with:
           path: .venv
           key: .venv
-      - name: Setup python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
 
-      - name: Install Astral uv
-        uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           activate-environment: true
           enable-cache: true
@@ -125,15 +112,14 @@ jobs:
         with:
           path: .venv
           key: .venv
-      - name: Setup python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
-      - name: Install Astral uv
-        uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           activate-environment: true
           enable-cache: true
+      - run: pytest
   build_backend:
     name: Build backend
     needs: [setup_backend, build_frontend]
@@ -150,21 +136,17 @@ jobs:
           path: www
           key: www
           fail-on-cache-miss: true
-      - name: Setup python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
-      - name: Install Astral uv
-        uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           activate-environment: true
           enable-cache: true
-      - name: Run PyInstaller scripts
-        run: pyinstaller onedir.spec
+      - run: pyinstaller onedir.spec
 
-      - name: Upload bundle artifact
+      - uses: actions/upload-artifact@v4
         if: ${{ inputs.create-artifact }}
-        uses: actions/upload-artifact@v4
         with:
           name: nsobridge-${{ runner.os }}
           path: ./dist
