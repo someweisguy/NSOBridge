@@ -2,6 +2,16 @@ name: Test application
 
 on:
   workflow_call:
+    inputs:
+      runs-on:
+        description: The runner on which to run this script
+        required: true
+        type: string
+      create-artifact:
+        description: True to allow the workflow to create a build artifact
+        required: false
+        default: false
+        type: boolean
     secrets:
       personal_access_token:
         required: false
@@ -9,7 +19,7 @@ on:
 jobs:
   setup_frontend:
     name: Setup Frontend
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
       - name: Install Node.js
@@ -23,7 +33,7 @@ jobs:
   lint_frontend:
     name: Lint Frontend
     needs: setup_frontend
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/cache@v5
@@ -36,7 +46,7 @@ jobs:
   test_frontend:
     name: Test Frontend
     needs: setup_frontend
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     if: false
     steps:
       - uses: actions/checkout@v6
@@ -44,7 +54,7 @@ jobs:
   build_frontend:
     name: Build Frontend
     needs: setup_frontend
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/cache@v5
@@ -62,7 +72,7 @@ jobs:
 
   setup_backend:
     name: Setup Backend
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
 
@@ -88,7 +98,7 @@ jobs:
   lint_backend:
     name: Lint Backend
     needs: setup_backend
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/cache@v5
@@ -108,7 +118,7 @@ jobs:
   test_backend:
     name: Test Backend
     needs: setup_backend
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/cache@v5
@@ -127,7 +137,7 @@ jobs:
   build_backend:
     name: Build backend
     needs: [setup_backend, build_frontend]
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/cache@v5
@@ -151,3 +161,11 @@ jobs:
           enable-cache: true
       - name: Run PyInstaller scripts
         run: pyinstaller onedir.spec
+
+      - name: Upload bundle artifact
+        if: ${{ inputs.create-artifact }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: nsobridge-${{ runner.os }}
+          path: ./dist
+

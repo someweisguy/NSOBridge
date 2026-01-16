@@ -10,3 +10,5 @@ jobs:
   run_tests:
     name: Test application
     uses: ./.github/workflows/test.yaml
+    with:
+      runs-on: ubuntu-latest
