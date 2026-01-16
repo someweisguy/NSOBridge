@@ -128,7 +128,7 @@ jobs:
         with:
           activate-environment: true
           enable-cache: true
-      - run: pytest --tag-name ${{ github.ref_name }}
+      - run: pytest backend/tests --tag-name ${{ github.ref_name }}
         if: ${{ inputs.test-release }}
       - run: pytest
         if: ${{ !inputs.test-release }}
