@@ -61,7 +61,6 @@ jobs:
 
 
   setup_backend:
-    runs-on: ubuntu-latest
     name: Setup Backend
     runs-on: ubuntu-latest
     steps:
