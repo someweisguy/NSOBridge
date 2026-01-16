@@ -175,8 +175,7 @@ jobs:
       - name: Remove unused folder on MacOS
         if: ${{ runner.os == 'macos-latest' }}
         run: rm -rf "dist/NSO Bridge/"
-      - run: zip -r "dist/NSO Bridge.zip" "dist/NSO Bridge"
       - uses: actions/upload-artifact@v4
         with:
           name: nsobridge-${{ runner.os }}
-          path: "dist/NSO Bridge.zip"
+          path: "dist/NSO Bridge/*"
