@@ -104,7 +104,7 @@ jobs:
           enable-cache: true
   test_backend:
     name: Test Backend
-    needs: setup_backend
+    needs: [setup_backend, build_frontend]
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
