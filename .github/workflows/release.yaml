@@ -5,7 +5,7 @@
 # that pattern and push it to the remote. The release is generated as a draft with
 # automatically generated release notes. Because a draft release is not publically
 # visible, the release needs to be manually reviewed and published.
-name: Generate Release
+name: On Release
 on:
   push:
     tags: "*"

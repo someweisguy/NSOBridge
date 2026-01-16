@@ -2,7 +2,7 @@
 #
 # This workflow runs when a a commit is pushed. It sets up the programming environment
 # and runs linting, testing, and build scripts.
-name: Push
+name: On Push
 
 on: push
 
