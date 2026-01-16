@@ -1,8 +1,4 @@
-# Lint, test, and build the application.
-#
-# This workflow runs when a a commit is pushed. It sets up the programming environment
-# and runs linting, testing, and build scripts.
-name: Push
+name: On Push
 
 on: push
 
@@ -13,3 +9,4 @@ jobs:
     with:
       runs-on: ubuntu-latest
       create-artifact: false
+      test-release: false
