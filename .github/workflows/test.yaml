@@ -1,0 +1,154 @@
+name: Setup Backend
+
+on:
+  workflow_call:
+    secrets:
+      personal_access_token:
+        required: false
+
+jobs:
+  setup_frontend:
+    name: Setup Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+      - name: Install Node.js dependencies
+        run: npm install
+      - uses: actions/cache@v5
+        with:
+          path: node_modules
+          key: node_modules
+  lint_frontend:
+    name: Lint Frontend
+    needs: setup_frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: node_modules
+          key: node_modules
+          fail_on_cache_miss: true
+      - name: Run linter scripts
+        run: npm run lint
+  test_frontend:
+    name: Test Frontend
+    needs: setup_frontend
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - uses: actions/checkout@v6
+      # TODO: Figure out testing for frontend
+  build_frontend:
+    name: Build Frontend
+    needs: setup_frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: node_modules
+          key: node_modules
+          fail_on_cache_miss: true
+      - name: Run build scripts
+        run: npm run build
+      - uses: actions/cache@v5
+        with:
+          path: www
+          key: www
+
+
+  setup_backend:
+    runs-on: ubuntu-latest
+    name: Setup Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: pyproject.toml
+
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          activate-environment: true
+          enable-cache: true
+
+      - name: Setup python virtual environment
+        run: uv venv
+      - name: Install python dependencies
+        run: uv sync
+      - uses: actions/cache@v5
+        with:
+          path: .venv
+          key: .venv
+  lint_backend:
+    name: Lint Backend
+    needs: setup_backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: .venv
+          key: .venv
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: pyproject.toml
+
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          activate-environment: true
+          enable-cache: true
+  test_backend:
+    name: Test Backend
+    needs: setup_backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: .venv
+          key: .venv
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: pyproject.toml
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          activate-environment: true
+          enable-cache: true
+  build_backend:
+    name: Build backend
+    needs: [setup_backend, build_frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v5
+        with:
+          path: .venv
+          key: .venv
+          fail_on_cache_miss: true
+      - uses: actions/cache@v5
+        with:
+          path: www
+          key: www
+          fail_on_cache_miss: true
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: pyproject.toml
+      - name: Install Astral uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          activate-environment: true
+          enable-cache: true
+      - name: Run PyInstaller scripts
+        run: pyinstaller onedir.spec

@@ -1,13 +1,12 @@
 # Lint, test, and build the application.
 #
 # This workflow runs when a a commit is pushed. It sets up the programming environment
-# and runs linting, testing, and build scripts. 
+# and runs linting, testing, and build scripts.
 name: Push
 
 on: push
 
 jobs:
-  lint_frontend:
-    name: Lint Frontend in Push
-    uses: ./.github/actions/lint-frontend
- 
+  run_tests:
+    name: Test application
+    uses: ./.github/workflows/test
