@@ -32,7 +32,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: node_modules
-          key: ${{ inputs.runs-on }}-node_modules
+          key: ${{ runner.os }}-node_modules
   lint_frontend:
     name: Lint Frontend
     needs: setup_frontend
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: node_modules
-          key: ${{ inputs.runs-on }}-node_modules
+          key: ${{ runner.os }}-node_modules
           fail-on-cache-miss: true
       - run: npm run lint
   test_frontend:
@@ -62,13 +62,13 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: node_modules
-          key: ${{ inputs.runs-on }}-node_modules
+          key: ${{ runner.os }}-node_modules
           fail-on-cache-miss: true
       - run: npm run build
       - uses: actions/cache@v5
         with:
           path: www
-          key: ${{ inputs.runs-on }}-www
+          key: ${{ runner.os }}-www
 
   setup_backend:
     name: Setup Backend
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: .venv
-          key: ${{ inputs.runs-on }}-.venv
+          key: ${{ runner.os }}-.venv
   lint_backend:
     name: Lint Backend
     needs: setup_backend
@@ -97,7 +97,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: .venv
-          key: ${{ inputs.runs-on }}-.venv
+          key: ${{ runner.os }}-.venv
       - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
@@ -115,11 +115,11 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: .venv
-          key: ${{ inputs.runs-on }}-.venv
+          key: ${{ runner.os }}-.venv
       - uses: actions/cache@v5
         with:
           path: www
-          key: ${{ inputs.runs-on }}-www
+          key: ${{ runner.os }}-www
           fail-on-cache-miss: true
       - uses: actions/setup-python@v6
         with:
@@ -141,12 +141,12 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: .venv
-          key: ${{ inputs.runs-on }}-.venv
+          key: ${{ runner.os }}-.venv
           fail-on-cache-miss: true
       - uses: actions/cache@v5
         with:
           path: www
-          key: ${{ inputs.runs-on }}-www
+          key: ${{ runner.os }}-www
           fail-on-cache-miss: true
       - uses: actions/setup-python@v6
         with:
@@ -159,7 +159,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: dist
-          key: ${{ inputs.runs-on }}-dist
+          key: ${{ runner.os }}-dist
 
   create-artifact:
     name: Create artifact
@@ -170,7 +170,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: dist
-          key: ${{ inputs.runs-on }}-dist
+          key: ${{ runner.os }}-dist
           fail-on-cache-miss: true
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.create-artifact }}
