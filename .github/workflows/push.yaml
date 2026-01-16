@@ -8,5 +8,5 @@ jobs:
     uses: ./.github/workflows/test.yaml
     with:
       runs-on: ubuntu-latest
-      create-artifact: true
+      create-artifact: false
       test-release: false
