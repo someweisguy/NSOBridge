@@ -32,7 +32,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: node_modules
-          key: node_modules
+          key: ${{ inputs.runs-on }}-node_modules
   lint_frontend:
     name: Lint Frontend
     needs: setup_frontend
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: node_modules
-          key: node_modules
+          key: ${{ inputs.runs-on }}-node_modules
           fail-on-cache-miss: true
       - run: npm run lint
   test_frontend:
@@ -62,13 +62,13 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: node_modules
-          key: node_modules
+          key: ${{ inputs.runs-on }}-node_modules
           fail-on-cache-miss: true
       - run: npm run build
       - uses: actions/cache@v5
         with:
           path: www
-          key: www
+          key: ${{ inputs.runs-on }}-www
 
   setup_backend:
     name: Setup Backend
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: .venv
-          key: .venv
+          key: ${{ inputs.runs-on }}-.venv
   lint_backend:
     name: Lint Backend
     needs: setup_backend
@@ -97,7 +97,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: .venv
-          key: .venv
+          key: ${{ inputs.runs-on }}-.venv
       - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
@@ -115,11 +115,11 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: .venv
-          key: .venv
+          key: ${{ inputs.runs-on }}-.venv
       - uses: actions/cache@v5
         with:
           path: www
-          key: www
+          key: ${{ inputs.runs-on }}-www
           fail-on-cache-miss: true
       - uses: actions/setup-python@v6
         with:
@@ -141,12 +141,12 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: .venv
-          key: .venv
+          key: ${{ inputs.runs-on }}-.venv
           fail-on-cache-miss: true
       - uses: actions/cache@v5
         with:
           path: www
-          key: www
+          key: ${{ inputs.runs-on }}-www
           fail-on-cache-miss: true
       - uses: actions/setup-python@v6
         with:
