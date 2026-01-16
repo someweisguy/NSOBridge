@@ -12,52 +12,17 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    name: Build
+    uses: ./.github/workflows/test.yaml
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      # Setup the Node.js frontend
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-      - name: Install Node.js dependencies
-        run: npm install
-      - name: Build frontend
-        run: npm run build
-
-      # Setup the Python backend
-      - name: Install Astral uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          activate-environment: "true"
-      - name: Setup python virtual environment
-        run: uv venv
-      - name: Install python dependencies
-        run: uv sync
-
-      # Test the backend
-      - name: Test backend
-        run: pytest backend/tests --tag-name ${{ github.ref_name }}
-
-      # Bundle the application
-      - name: Bundle application
-        run: pyinstaller ./onedir.spec -y
-      - name: Remove unused folder on macOS
-        if: runner.os == 'macOS'
-        run: rm -rf "./dist/NSO Bridge"
-
-      # Get artifacts
-      - name: Upload application artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: nsobridge-${{ runner.os }}
-          path: "./dist"
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    with:
+      runs-on: ${{ matrix.os }}
+      create-artifact: true
 
   create-release:
+    name: Create release ${{ github.ref_name }}
     needs: build
     runs-on: ubuntu-latest
     permissions:
