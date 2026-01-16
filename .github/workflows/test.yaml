@@ -165,15 +165,18 @@ jobs:
     name: Create artifact
     if: ${{ inputs.create-artifact }}
     needs: build_backend
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/cache@v5
         with:
           path: dist
           key: ${{ runner.os }}-dist
           fail-on-cache-miss: true
+      - name: Remove unused folder on MacOS
+        if: ${{ runner.os == "macos-latest" }}
+        run: rm -rf "dist/NSO Bridge/"
+      - run: zip -r "dist/NSO Bridge.zip" "dist/NSO Bridge"
       - uses: actions/upload-artifact@v4
-        if: ${{ inputs.create-artifact }}
         with:
           name: nsobridge-${{ runner.os }}
-          path: dist
+          path: "dist/NSO Bridge.zip"
