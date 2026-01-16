@@ -13,6 +13,7 @@ jobs:
     with:
       runs-on: ${{ matrix.os }}
       create-artifact: true
+      test-release: true
 
   create-release:
     name: Create release ${{ github.ref_name }}

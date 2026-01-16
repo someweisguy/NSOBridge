@@ -12,6 +12,11 @@ on:
         required: false
         default: false
         type: boolean
+      test-release:
+        description: True to ensure that release testing is performed
+        required: false
+        default: false
+        type: boolean
     secrets:
       personal_access_token:
         required: false
@@ -123,7 +128,10 @@ jobs:
         with:
           activate-environment: true
           enable-cache: true
+      - run: pytest --tag-name ${{ github.ref_name }}
+        if: ${{ inputs.test-release }}
       - run: pytest
+        if: ${{ !inputs.test-release }}
   build_backend:
     name: Build backend
     needs: [setup_backend, build_frontend]
