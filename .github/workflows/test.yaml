@@ -1,5 +1,4 @@
 name: Test, Lint, and Build
-
 on:
   workflow_call:
     inputs:
