@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
-APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 2, 0)
+APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 2, 1)
 CONFIG_FILE_NAME: Path = core.get_resource_path('./config.ini')
 LOG_DIR_NAME: Path = core.get_resource_path('./logs')
 API_PREFIX: str = '/api'
