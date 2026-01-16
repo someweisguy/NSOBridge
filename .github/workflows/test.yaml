@@ -156,8 +156,7 @@ jobs:
           activate-environment: true
           enable-cache: true
       - run: pyinstaller onedir.spec
-      - name: Delete unused folder on MacOS
-        run: rm -rf "dist/NSO Bridge"
+      - run: rm -rf "dist/NSO Bridge"
         if: ${{ inputs.runs-on == 'macos-latest' }}
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.create-artifact }}
