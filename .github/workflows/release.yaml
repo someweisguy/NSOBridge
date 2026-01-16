@@ -2,7 +2,7 @@
 #
 # This workflow runs when a new tag is pushed to Github. The tag must be a semver
 # identifier that matches `vX.Y.Z`. To fire this script, generate a new tag matching
-# that pattern and push it to the remote. The release is generated as a draft with 
+# that pattern and push it to the remote. The release is generated as a draft with
 # automatically generated release notes. Because a draft release is not publically
 # visible, the release needs to be manually reviewed and published.
 name: Generate Release
@@ -27,16 +27,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
-      # Prepare application bundles
       - uses: actions/download-artifact@v5
         with:
           path: artifacts
       - name: Zip artifacts
         run: cd artifacts && for i in */; do zip -r "${i%/}.zip" "$i"; done
-
-      # Generate a release
       - uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ github.ref_name }}
