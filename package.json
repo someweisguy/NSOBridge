@@ -3,11 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
     "watch": "tsc -b && vite build --watch",
     "lint": "eslint .",
-    "preview": "vite preview",
     "prepare": "husky"
   },
   "lint-staged": {
