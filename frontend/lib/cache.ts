@@ -22,14 +22,17 @@ localSocket.addCallback("connect", (connected: boolean) => {
 
 localSocket.addCallback("cache", (keys: CacheKey[]) => {
   for (const key of keys) {
-    void queryClient.invalidateQueries(
-      {
-        queryKey: key,
-        type: "active",
-        exact: true,
-      },
-      { cancelRefetch: true },
-    );
+    for (let i = key.length; i > 0; --i) {
+      // Invalidate super-sets of the stale model
+      void queryClient.invalidateQueries(
+        {
+          queryKey: key.slice(0, i),
+          type: "active",
+          exact: true,
+        },
+        { cancelRefetch: true },
+      );
+    }
   }
 });
 
