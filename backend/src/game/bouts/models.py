@@ -32,8 +32,10 @@ class BaseBout(CacheableSQLModel):
 
     ruleset: ClassVar[Ruleset]
 
-    series_id: Mapped[int] = mapped_column(ForeignKey('series._id'))
-    clock_id: Mapped[int] = mapped_column(ForeignKey('clocks._id', ondelete='RESTRICT'))
+    _series_id: Mapped[int] = mapped_column(ForeignKey('series._id'))
+    _clock_id: Mapped[int] = mapped_column(
+        ForeignKey('clocks._id', ondelete='RESTRICT')
+    )
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
@@ -43,11 +45,11 @@ class BaseBout(CacheableSQLModel):
     _series: Mapped[Series] = relationship(
         back_populates='bouts',
         cascade=CASCADE_OTHER,
-        foreign_keys=[series_id],
+        foreign_keys=[_series_id],
     )
     clock: Mapped[Clock] = relationship(
         cascade=CASCADE_CHILD,
-        foreign_keys=[clock_id],
+        foreign_keys=[_clock_id],
         lazy='joined',
         single_parent=True,
     )
