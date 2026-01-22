@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
+from uuid import UUID, uuid4
 
 from core import CASCADE_CHILD, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
@@ -20,6 +21,8 @@ class Series(CacheableSQLModel):
     a double-header.
 
     """
+
+    uuid: Mapped[UUID] = mapped_column(default_factory=uuid4, init=False)
 
     name: Mapped[str] = mapped_column(default='')
 

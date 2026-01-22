@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import override
+from uuid import UUID, uuid4
 
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
@@ -57,6 +58,8 @@ class Skater(BaseSQLModel):
 
 class Roster(CacheableSQLModel):
     """Represent a Roster of skaters."""
+
+    uuid: Mapped[UUID] = mapped_column(default_factory=uuid4, init=False)
 
     name: Mapped[str] = mapped_column()
     league: Mapped[str] = mapped_column()

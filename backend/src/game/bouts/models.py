@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
+from uuid import UUID, uuid4
 
 from core import CASCADE_CHILD, CASCADE_OTHER
 from game.clocks.models import Clock
@@ -36,6 +37,7 @@ class BaseBout(CacheableSQLModel):
     _clock_id: Mapped[int] = mapped_column(
         ForeignKey('clocks._id', ondelete='RESTRICT')
     )
+    uuid: Mapped[UUID] = mapped_column(default_factory=uuid4, init=False)
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
