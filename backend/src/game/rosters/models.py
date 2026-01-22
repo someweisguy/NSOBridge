@@ -94,7 +94,7 @@ class Roster(CacheableSQLModel):
         super().__init__(name=name, league=league, mnemonic=mnemonic)
 
     @override
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         return (self.__tablename__, self._id)
 
     @override

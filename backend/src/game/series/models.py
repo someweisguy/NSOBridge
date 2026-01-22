@@ -32,7 +32,7 @@ class Series(CacheableSQLModel):
     __tablename__: str = 'series'
 
     @override
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
         return (self.__tablename__, self._id)
 
