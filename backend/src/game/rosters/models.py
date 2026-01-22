@@ -59,7 +59,7 @@ class Skater(BaseSQLModel):
 class Roster(CacheableSQLModel):
     """Represent a Roster of skaters."""
 
-    uuid: Mapped[UUID] = mapped_column(default_factory=uuid4, init=False)
+    uuid: Mapped[UUID] = mapped_column()
 
     name: Mapped[str] = mapped_column()
     league: Mapped[str] = mapped_column()
@@ -94,7 +94,7 @@ class Roster(CacheableSQLModel):
         mnemonic = mnemonic.strip()
         if mnemonic == '':
             pass  # TODO: Implement team name mnemonic algorithm
-        super().__init__(name=name, league=league, mnemonic=mnemonic)
+        super().__init__(uuid=uuid4(), name=name, league=league, mnemonic=mnemonic)
 
     @override
     async def cache_key(self) -> CacheKey:

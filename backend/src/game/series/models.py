@@ -22,7 +22,7 @@ class Series(CacheableSQLModel):
 
     """
 
-    uuid: Mapped[UUID] = mapped_column(default_factory=uuid4, init=False)
+    uuid: Mapped[UUID] = mapped_column()
 
     name: Mapped[str] = mapped_column(default='')
 
@@ -33,6 +33,15 @@ class Series(CacheableSQLModel):
     )
 
     __tablename__: str = 'series'
+
+    def __init__(self, name: str = '') -> None:
+        """Initialize a Series.
+
+        Args:
+            name (str, optional): the name of the Series. Defaults to ''.
+
+        """
+        super().__init__(uuid=uuid4(), name=name)
 
     @override
     async def cache_key(self) -> CacheKey:

@@ -37,7 +37,7 @@ class BaseBout(CacheableSQLModel):
     _clock_id: Mapped[int] = mapped_column(
         ForeignKey('clocks._id', ondelete='RESTRICT')
     )
-    uuid: Mapped[UUID] = mapped_column(default_factory=uuid4, init=False)
+    uuid: Mapped[UUID] = mapped_column()
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
@@ -70,7 +70,7 @@ class BaseBout(CacheableSQLModel):
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
-        order_by=[column('id')],
+        order_by=[column('_id')],
     )
 
     __tablename__: str = 'bouts'
@@ -97,7 +97,9 @@ class BaseBout(CacheableSQLModel):
             teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout.
 
         """
-        super().__init__(clock=Clock(), ruleset_name=ruleset_name, teams=list(teams))
+        super().__init__(
+            uuid=uuid4(), clock=Clock(), ruleset_name=ruleset_name, teams=list(teams)
+        )
 
     @override
     async def cache_key(self) -> CacheKey:

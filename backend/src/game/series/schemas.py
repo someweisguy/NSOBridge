@@ -1,5 +1,7 @@
 """Pydantic Series schemas."""
 
+from uuid import UUID
+
 from core import ServerSchema
 from game.bouts.schemas import BoutSchema
 
@@ -7,7 +9,7 @@ from game.bouts.schemas import BoutSchema
 class SeriesSchema(ServerSchema):
     """Represent a Series as a JSON schema."""
 
-    # FIXME: add Series UUID
+    uuid: UUID
     name: str
     _bouts: list[BoutSchema]
 
