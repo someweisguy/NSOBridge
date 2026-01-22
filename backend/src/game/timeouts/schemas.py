@@ -9,12 +9,11 @@ from core import ServerSchema, timedelta_serializer
 class TimeoutSchema(ServerSchema):
     """Represent a Timeout as a JSON schema."""
 
-    id: int
-    bout_id: int
+    # FIXME: add Bout UUID
     num: int
 
-    team_id: int | None
-    jam_id: int | None
+    # team_id: int | None  # FIXME: add a way to refer to team
+    # FIXME: add period num and jam num, if any
 
     start_timestamp: datetime | None
     stop_timestamp: datetime | None

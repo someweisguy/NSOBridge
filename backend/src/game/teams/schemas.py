@@ -8,9 +8,7 @@ from core import ServerSchema
 class TeamSchema(ServerSchema):
     """Represent a Team as a JSON schema."""
 
-    id: int
-    roster_id: int
-    bout_id: int
+    # FIXME: add Roster UUID
     bout_score: int
     jam_score: int
     timeouts_remaining: int

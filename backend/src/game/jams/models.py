@@ -29,7 +29,9 @@ type StopReasonStr = Literal['called', 'elapsed', 'injury', 'other']
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     """An abstract Jam without any associated ruleset."""
 
-    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'), nullable=False)
+    _bout_id: Mapped[int | None] = mapped_column(
+        ForeignKey('bouts._id'), nullable=False
+    )
 
     num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
@@ -38,7 +40,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     _bout: Mapped[BaseBout | None] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
-        foreign_keys=[bout_id],
+        foreign_keys=[_bout_id],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='_jam',
@@ -47,7 +49,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name).where(BaseBout._id == bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name).where(BaseBout._id == _bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'jams'
@@ -57,7 +59,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         'confirm_deleted_rows': False,
     }
     __table_args__: tuple[Constraint, ...] = AbstractOneShotModel.__table_args__ + (
-        UniqueConstraint('bout_id', 'num', 'period'),
+        UniqueConstraint('_bout_id', 'num', 'period'),
     )
 
     def __str__(self) -> str:
@@ -67,7 +69,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
             str: a str representation of this Jam.
 
         """
-        return f'[Bout ID: {self.bout_id}, P{self.period} J{self.num}]'
+        return f'[Bout ID: {self._bout_id}, P{self.period} J{self.num}]'
 
     def __init__(self, period_num: int, jam_num: int, *team_jams: TeamJam) -> None:
         """Initialize a Jam.
@@ -82,7 +84,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.bout_id, self.period, self.num)
+        return (self.__tablename__, self._bout_id, self.period, self.num)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
@@ -118,7 +120,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
         # Get the first TeamJam that has the specified Team ID
         team_jam: TeamJam | None = next(
-            (tj for tj in self.team_jams if tj.team_id == team), None
+            (tj for tj in self.team_jams if tj._team_id == team), None
         )
 
         if team_jam is None:

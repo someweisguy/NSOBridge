@@ -10,8 +10,7 @@ from game.team_jams.schemas import TeamJamSchema
 class JamSchema(ServerSchema):
     """Represent a Jam as a JSON schema."""
 
-    id: int
-    bout_id: int
+    # FIXME: add Bout UUID
     period: int
     num: int
 

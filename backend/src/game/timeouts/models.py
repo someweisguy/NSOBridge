@@ -29,9 +29,9 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     Timeouts models can represent either a timeout or an official review.
     """
 
-    bout_id: Mapped[int] = mapped_column(ForeignKey('bouts.id'))
-    team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'))
-    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'))
+    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
+    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'))
+    _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams._id'))
 
     num: Mapped[int] = mapped_column()
     clock_elapsed: Mapped[timedelta | None] = mapped_column(default=None)
@@ -44,22 +44,22 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     _bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
-        foreign_keys=[bout_id],
+        foreign_keys=[_bout_id],
     )
 
     # The next two relationships are special cases - they can be eagerly loaded
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
-        foreign_keys=[team_id],
+        foreign_keys=[_team_id],
         lazy='selectin',
     )
     jam: Mapped[BaseJam | None] = relationship(
-        cascade=CASCADE_OTHER, foreign_keys=[jam_id], lazy='selectin'
+        cascade=CASCADE_OTHER, foreign_keys=[_jam_id], lazy='selectin'
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name).where(BaseBout._id == bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name).where(BaseBout._id == _bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'timeouts'
@@ -67,7 +67,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         'polymorphic_abstract': True,
         'polymorphic_on': ruleset,
     }
-    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_id', 'num'),)
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_bout_id', 'num'),)
 
     def __str__(self) -> str:
         """Return a str representation of this Timeout.
@@ -76,7 +76,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             str: a str representation of this Timeout.
 
         """
-        return f'[Bout ID: {self.bout_id}, T{self.num}]'
+        return f'[Bout ID: {self._bout_id}, T{self.num}]'
 
     def __init__(self, bout: BaseBout, num: int) -> None:
         """Initialize a Timeout.
@@ -89,11 +89,11 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             num (int): the unique Timeout number associated with this Bout.
 
         """
-        super().__init__(_bout=bout, bout_id=bout._id, num=num)
+        super().__init__(_bout=bout, num=num)
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.bout_id, self._id)
+        return (self.__tablename__, self._bout_id, self._id)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

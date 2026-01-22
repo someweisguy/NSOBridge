@@ -11,7 +11,6 @@ from core import ServerSchema, timedelta_serializer
 class ClockSchema(ServerSchema):
     """Represent a Clock as a JSON schema."""
 
-    id: int
     start_timestamp: datetime | None
     elapsed: Annotated[timedelta, timedelta_serializer]
     alarm: Annotated[timedelta, timedelta_serializer]

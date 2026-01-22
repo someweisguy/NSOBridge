@@ -6,5 +6,5 @@ from core import ServerSchema
 class RosterSchema(ServerSchema):
     """Represent a Roster as a JSON schema."""
 
-    id: int
+    # FIXME: add roster UUID
     name: str

@@ -34,8 +34,10 @@ class BaseTeam(BaseSQLModel):
     data like a team's score offset.
     """
 
-    roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
-    bout_id: Mapped[int | None] = mapped_column(ForeignKey('bouts.id'), nullable=False)
+    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'))
+    _bout_id: Mapped[int | None] = mapped_column(
+        ForeignKey('bouts._id'), nullable=False
+    )
 
     # TODO: Implement Team colors
     score_offset: Mapped[int] = mapped_column(default=0)
@@ -44,12 +46,12 @@ class BaseTeam(BaseSQLModel):
 
     _roster: Mapped[Roster] = relationship(
         cascade=CASCADE_OTHER,
-        foreign_keys=[roster_id],
+        foreign_keys=[_roster_id],
     )
     _bout: Mapped[BaseBout | None] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
-        foreign_keys=[bout_id],
+        foreign_keys=[_bout_id],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='_team',
@@ -73,7 +75,7 @@ class BaseTeam(BaseSQLModel):
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name).where(BaseBout._id == bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name).where(BaseBout._id == _bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'teams'
@@ -155,7 +157,7 @@ class BaseTeam(BaseSQLModel):
 
         """
         active_team_jam: TeamJam | None = next(
-            (tj for tj in self.team_jams if tj.jam_id == self._active_jam_id), None
+            (tj for tj in self.team_jams if tj._jam_id == self._active_jam_id), None
         )
         if active_team_jam is None:
             return 0

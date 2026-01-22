@@ -335,14 +335,14 @@ class Timeout(_WFTDAModel, BaseTimeout):
     def set_type(self, is_review: bool) -> None:
         logging.info(
             f'Setting {self} to {"official review" if is_review else "timeout"} type '
-            f'in Bout ID {self.bout_id}'
+            f'in Bout ID {self._bout_id}'
         )
 
         self.is_review = is_review
 
     @override
     def set_team(self, team: BaseTeam | None) -> None:
-        if team is not None and team.bout_id != self.bout_id:
+        if team is not None and team._bout_id != self._bout_id:
             raise GameStateError('Team and timeout are not part of the same Bout')
         if team is None and self.is_review:
             raise GameRulesError('Official reviews can only be called by teams')
@@ -350,7 +350,7 @@ class Timeout(_WFTDAModel, BaseTimeout):
         logging.info(
             f'Setting Timeout ID {self._id} calling team to '
             f'{f"Team ID {team._id}" if team is not None else "officials"} in Bout ID '
-            f'{self.bout_id}'
+            f'{self._bout_id}'
         )
 
         self.team = team
@@ -360,7 +360,7 @@ class Timeout(_WFTDAModel, BaseTimeout):
     def set_retained(self, retained: bool) -> None:
         logging.info(
             f'Setting {self} to {"" if retained else "un"}retained in Bout ID '
-            f'{self.bout_id}'
+            f'{self._bout_id}'
         )
 
         self.retained = retained

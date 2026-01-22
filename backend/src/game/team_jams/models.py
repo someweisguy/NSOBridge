@@ -32,18 +32,20 @@ class TeamJam(BaseSQLModel):
 
     """
 
-    team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'), nullable=False)
-    jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams.id'), nullable=False)
+    _team_id: Mapped[int | None] = mapped_column(
+        ForeignKey('teams._id'), nullable=False
+    )
+    _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams._id'), nullable=False)
 
     _team: Mapped[BaseTeam | None] = relationship(
         back_populates='team_jams',
         cascade=CASCADE_OTHER,
-        foreign_keys=[team_id],
+        foreign_keys=[_team_id],
     )
     _jam: Mapped[BaseJam] = relationship(
         back_populates='team_jams',
         cascade=CASCADE_OTHER,
-        foreign_keys=[jam_id],
+        foreign_keys=[_jam_id],
     )
     events: Mapped[list[TripEvent]] = relationship(
         back_populates='_team_jam',
@@ -53,10 +55,10 @@ class TeamJam(BaseSQLModel):
     )
 
     jam_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.num).where(BaseJam._id == jam_id).scalar_subquery()
+        select(BaseJam.num).where(BaseJam._id == _jam_id).scalar_subquery()
     )
     period_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.period).where(BaseJam._id == jam_id).scalar_subquery()
+        select(BaseJam.period).where(BaseJam._id == _jam_id).scalar_subquery()
     )
 
     __tablename__: str = 'team_jams'

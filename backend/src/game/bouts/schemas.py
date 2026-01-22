@@ -10,14 +10,13 @@ from game.clocks.schemas import ClockSchema  # noqa: TC002
 from game.jams.schemas import JamSchema  # noqa: TC002
 from game.teams.schemas import TeamSchema  # noqa: TC002
 from game.timeouts.schemas import TimeoutSchema  # noqa: TC002
-from pydantic import Field, computed_field
+from pydantic import computed_field
 
 
 class BoutSchema(ServerSchema):
     """Represent a Bout as a JSON schema."""
 
-    id: int
-    series_id: int
+    # FIXME: add Series UUID
     ruleset_name: str
     clock: ClockSchema
     is_running: bool
@@ -25,12 +24,12 @@ class BoutSchema(ServerSchema):
     is_final: bool
     state: Literal['final', 'jam', 'lineup', 'stopped', 'timeout']
     teams: list[TeamSchema]
-    jams: list[JamSchema] = Field(exclude=True)
-    timeouts: list[TimeoutSchema] = Field(exclude=True)
+    _jams: list[JamSchema]
+    _timeouts: list[TimeoutSchema]
 
     @computed_field
     @property
-    def jam_ids(self) -> list[list[int]]:
+    def jams(self) -> tuple[int, int, int]:
         """Get a list of lists representing the IDs of this Bout's Jams.
 
         Returns:
@@ -39,18 +38,18 @@ class BoutSchema(ServerSchema):
             `bout.jam_ids[period_num][jam_num]`.
 
         """
-        jam_ids: list[list[int]] = [[], [], []]
-        for jam in self.jams:
-            jam_ids[jam.period].append(jam.id)
-        return jam_ids
+        counts: dict[int, int] = {}
+        for jam in self._jams:
+            counts[jam.period] = counts.get(jam.period, 0) + 1
+        return counts[0], counts[1], counts[2]
 
     @computed_field
     @property
-    def timeout_ids(self) -> list[int]:
+    def timeouts(self) -> int:
         """Get a list representing the IDs of this Bout's Timeouts.
 
         Returns:
             list[int]: the Timeout IDs of this Bout's Timeouts.
 
         """
-        return [timeout.id for timeout in self.timeouts]
+        return len(self._timeouts)

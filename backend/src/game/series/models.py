@@ -21,7 +21,6 @@ class Series(CacheableSQLModel):
 
     """
 
-    rowid: Mapped[int] = mapped_column(system=True)
     name: Mapped[str] = mapped_column(default='')
 
     bouts: Mapped[list[BaseBout]] = relationship(

@@ -32,8 +32,8 @@ class BaseBout(CacheableSQLModel):
 
     ruleset: ClassVar[Ruleset]
 
-    series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
-    clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
+    series_id: Mapped[int] = mapped_column(ForeignKey('series._id'))
+    clock_id: Mapped[int] = mapped_column(ForeignKey('clocks._id', ondelete='RESTRICT'))
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)

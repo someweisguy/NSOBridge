@@ -13,7 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 class Skater(BaseSQLModel):
     """Represent a singular Skater in roller derby."""
 
-    roster_id: Mapped[int] = mapped_column(ForeignKey('rosters.id'))
+    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'))
     name: Mapped[str] = mapped_column()
     pronouns: Mapped[str] = mapped_column()  # TODO: Implement pronouns
     number: Mapped[str] = mapped_column()
@@ -21,7 +21,7 @@ class Skater(BaseSQLModel):
     _roster: Mapped[Roster] = relationship(
         back_populates='skaters',
         cascade=CASCADE_OTHER,
-        foreign_keys=[roster_id],
+        foreign_keys=[_roster_id],
         lazy='selectin',
     )
 
