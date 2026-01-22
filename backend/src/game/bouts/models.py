@@ -82,7 +82,7 @@ class BaseBout(CacheableSQLModel):
             str: a str representation of this Bout.
 
         """
-        return f'[Bout ID: {self.id}]'
+        return f'[Bout ID: {self._id}]'
 
     def __init__(self, ruleset_name: str, *teams: BaseTeam) -> None:
         """Instantiate a Bout.
@@ -97,7 +97,7 @@ class BaseBout(CacheableSQLModel):
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.id)
+        return (self.__tablename__, self._id)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

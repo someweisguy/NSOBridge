@@ -348,8 +348,8 @@ class Timeout(_WFTDAModel, BaseTimeout):
             raise GameRulesError('Official reviews can only be called by teams')
 
         logging.info(
-            f'Setting Timeout ID {self.id} calling team to '
-            f'{f"Team ID {team.id}" if team is not None else "officials"} in Bout ID '
+            f'Setting Timeout ID {self._id} calling team to '
+            f'{f"Team ID {team._id}" if team is not None else "officials"} in Bout ID '
             f'{self.bout_id}'
         )
 

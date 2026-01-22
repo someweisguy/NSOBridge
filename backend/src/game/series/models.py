@@ -35,7 +35,7 @@ class Series(CacheableSQLModel):
     @override
     def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
-        return (self.__tablename__, self.id)
+        return (self.__tablename__, self._id)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

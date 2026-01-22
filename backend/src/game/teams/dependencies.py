@@ -23,7 +23,7 @@ async def _query_team_or_none(
         return None
 
     # Query the database for the desired Bout
-    statement: Select[tuple[BaseTeam]] = select(BaseTeam).where(BaseTeam.id == team_id)
+    statement: Select[tuple[BaseTeam]] = select(BaseTeam).where(BaseTeam._id == team_id)
     results: Result[tuple[BaseTeam]] = await session.execute(statement)
     team: BaseTeam = results.scalar_one()
 
@@ -38,7 +38,7 @@ async def _get_team_or_none(
         return None
 
     # Query the database for the desired Bout
-    statement: Select[tuple[BaseTeam]] = select(BaseTeam).where(BaseTeam.id == team_id)
+    statement: Select[tuple[BaseTeam]] = select(BaseTeam).where(BaseTeam._id == team_id)
     results: Result[tuple[BaseTeam]] = await session.execute(statement)
     team: BaseTeam = results.scalar_one()
 

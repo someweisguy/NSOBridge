@@ -22,7 +22,7 @@ async def _get_timeout(
     timeout_id: Annotated[int, Query(alias='timeoutId')],
 ) -> BaseTimeout:
     statement: Select[tuple[BaseTimeout]] = select(BaseTimeout).where(
-        BaseTimeout.id == timeout_id
+        BaseTimeout._id == timeout_id
     )
     results: Result[tuple[BaseTimeout]] = await session.execute(statement)
 

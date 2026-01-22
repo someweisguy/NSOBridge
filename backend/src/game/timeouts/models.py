@@ -59,7 +59,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name).where(BaseBout.id == bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name).where(BaseBout._id == bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'timeouts'
@@ -89,11 +89,11 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             num (int): the unique Timeout number associated with this Bout.
 
         """
-        super().__init__(_bout=bout, bout_id=bout.id, num=num)
+        super().__init__(_bout=bout, bout_id=bout._id, num=num)
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.bout_id, self.id)
+        return (self.__tablename__, self.bout_id, self._id)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

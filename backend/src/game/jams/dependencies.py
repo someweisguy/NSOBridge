@@ -22,7 +22,7 @@ async def _get_jam(
     session: AsyncSessionDepends,
     jam_id: Annotated[int, Query(alias='jamId')],
 ) -> BaseJam:
-    statement: Select[tuple[BaseJam]] = select(BaseJam).where(BaseJam.id == jam_id)
+    statement: Select[tuple[BaseJam]] = select(BaseJam).where(BaseJam._id == jam_id)
     results: Result[tuple[BaseJam]] = await session.execute(statement)
 
     try:

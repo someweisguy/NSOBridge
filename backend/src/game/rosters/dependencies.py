@@ -16,7 +16,7 @@ async def _get_roster(
     roster_id: Annotated[int, Query(alias='rosterId')],
 ) -> Roster:
     results: Result[tuple[Roster]] = await session.execute(
-        select(Roster).where(Roster.id == roster_id)
+        select(Roster).where(Roster._id == roster_id)
     )
 
     try:

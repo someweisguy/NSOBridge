@@ -47,7 +47,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name).where(BaseBout.id == bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name).where(BaseBout._id == bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'jams'
@@ -112,9 +112,9 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
         """
         if not isinstance(team, int):
-            if team.id is None:
+            if team._id is None:
                 raise KeyError('this team does not exist')
-            team = team.id
+            team = team._id
 
         # Get the first TeamJam that has the specified Team ID
         team_jam: TeamJam | None = next(

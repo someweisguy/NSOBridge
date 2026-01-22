@@ -22,7 +22,7 @@ async def _get_bout(
     bout_id: Annotated[int, Query(alias='boutId')],
 ) -> BaseBout:
     # Query the database for the desired Bout
-    statement: Select[tuple[BaseBout]] = select(BaseBout).where(BaseBout.id == bout_id)
+    statement: Select[tuple[BaseBout]] = select(BaseBout).where(BaseBout._id == bout_id)
     results: Result[tuple[BaseBout]] = await session.execute(statement)
 
     try:

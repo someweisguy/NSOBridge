@@ -33,7 +33,7 @@ class DatabaseMemento(Memento):
             # Query and detach the current state of the database object
             table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
             statement: Select[tuple[CacheableSQLModel]] = select(table).where(
-                table.id == self._detached_state_to_restore.id
+                table._id == self._detached_state_to_restore._id
             )
             results: Result[tuple[CacheableSQLModel]] = await session.execute(statement)
             current_state: CacheableSQLModel = results.scalar_one()

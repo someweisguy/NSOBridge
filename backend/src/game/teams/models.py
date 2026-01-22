@@ -66,14 +66,14 @@ class BaseTeam(BaseSQLModel):
 
     # Used to calculate the current Jam score
     _active_jam_id: MappedSQLExpression[int | None] = column_property(
-        select(BaseJam.id)
+        select(BaseJam._id)
         .where(BaseJam.start_timestamp != None)  # noqa: E711
         .order_by(desc(BaseJam.period), desc(BaseJam.num))
         .scalar_subquery()
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name).where(BaseBout.id == bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name).where(BaseBout._id == bout_id).scalar_subquery()
     )
 
     __tablename__: str = 'teams'

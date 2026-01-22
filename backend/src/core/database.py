@@ -45,7 +45,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
 
     """
 
-    id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
+    _id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
 
     __abstract__: bool = True
     __type_annotation_map__: dict = {timedelta: _TimedeltaAsMilliseconds}

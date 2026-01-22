@@ -53,10 +53,10 @@ class TeamJam(BaseSQLModel):
     )
 
     jam_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.num).where(BaseJam.id == jam_id).scalar_subquery()
+        select(BaseJam.num).where(BaseJam._id == jam_id).scalar_subquery()
     )
     period_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.period).where(BaseJam.id == jam_id).scalar_subquery()
+        select(BaseJam.period).where(BaseJam._id == jam_id).scalar_subquery()
     )
 
     __tablename__: str = 'team_jams'
