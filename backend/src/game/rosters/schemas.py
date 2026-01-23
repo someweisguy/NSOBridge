@@ -10,3 +10,5 @@ class RosterSchema(ServerSchema):
 
     uuid: UUID
     name: str
+    league: str
+    mnemonic: str
