@@ -22,7 +22,7 @@ class Series(CacheableSQLModel):
 
     """
 
-    uuid: Mapped[UUID] = mapped_column()
+    uuid: Mapped[UUID] = mapped_column(index=True)
 
     name: Mapped[str] = mapped_column(default='')
 

@@ -37,7 +37,7 @@ class BaseBout(CacheableSQLModel):
     _clock_id: Mapped[int] = mapped_column(
         ForeignKey('clocks._id', ondelete='RESTRICT')
     )
-    uuid: Mapped[UUID] = mapped_column()
+    uuid: Mapped[UUID] = mapped_column(index=True)
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)

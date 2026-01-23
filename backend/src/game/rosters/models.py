@@ -59,7 +59,7 @@ class Skater(BaseSQLModel):
 class Roster(CacheableSQLModel):
     """Represent a Roster of skaters."""
 
-    uuid: Mapped[UUID] = mapped_column()
+    uuid: Mapped[UUID] = mapped_column(index=True)
 
     name: Mapped[str] = mapped_column()
     league: Mapped[str] = mapped_column()
