@@ -20,16 +20,17 @@ async def _get_bout(
     request: Request,
     user: GetUser,
     session: AsyncSessionDepends,
-    uuid: Annotated[UUID, Query()],
+    bout_uuid: Annotated[UUID, Query(alias='boutUuid')],
 ) -> BaseBout:
-    # Query the database for the desired Bout
-    statement: Select[tuple[BaseBout]] = select(BaseBout).where(BaseBout.uuid == uuid)
+    statement: Select[tuple[BaseBout]] = select(BaseBout).where(
+        BaseBout.uuid == bout_uuid
+    )
     results: Result[tuple[BaseBout]] = await session.execute(statement)
 
     try:
         bout: BaseBout = results.scalar_one()
     except NoResultFound as e:
-        raise ModelLookupError(f'Could not find Bout with UUID {uuid}') from e
+        raise ModelLookupError(f'Could not find Bout with UUID {bout_uuid}') from e
 
     # Optionally take a snapshot of the Bout state and return the Bout
     if request.method != 'GET':

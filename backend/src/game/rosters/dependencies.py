@@ -13,15 +13,15 @@ from .models import Roster
 
 async def _get_roster(
     session: AsyncSessionDepends,
-    uuid: Annotated[int, Query(alias='rosterId')],
+    roster_uuid: Annotated[int, Query(alias='rosterUuid')],
 ) -> Roster:
-    statement: Select[tuple[Roster]] = select(Roster).where(Roster.uuid == uuid)
+    statement: Select[tuple[Roster]] = select(Roster).where(Roster.uuid == roster_uuid)
     results: Result[tuple[Roster]] = await session.execute(statement)
 
     try:
         roster: Roster = results.scalar_one()
     except NoResultFound as e:
-        raise ModelLookupError(f'Could not find Roster with UUID {uuid}') from e
+        raise ModelLookupError(f'Could not find Roster with UUID {roster_uuid}') from e
 
     # TODO: handle mementos
 
