@@ -44,7 +44,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         foreign_keys=[bout_uuid],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
-        back_populates='_jam',
+        back_populates='jam',
         cascade=CASCADE_CHILD,
         lazy='selectin',
     )
