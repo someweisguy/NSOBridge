@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, override
+from uuid import UUID
 
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
@@ -29,8 +30,8 @@ type StopReasonStr = Literal['called', 'elapsed', 'injury', 'other']
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     """An abstract Jam without any associated ruleset."""
 
-    _bout_id: Mapped[int | None] = mapped_column(
-        ForeignKey('bouts._id'), nullable=False
+    _bout_uuid: Mapped[UUID | None] = mapped_column(
+        ForeignKey('bouts.uuid'), nullable=False
     )
 
     num: Mapped[int] = mapped_column(index=True)
@@ -40,7 +41,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     _bout: Mapped[BaseBout | None] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
-        foreign_keys=[_bout_id],
+        foreign_keys=[_bout_uuid],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='_jam',
@@ -49,7 +50,9 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name).where(BaseBout._id == _bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name)
+        .where(BaseBout.uuid == _bout_uuid)
+        .scalar_subquery()
     )
 
     __tablename__: str = 'jams'
@@ -69,7 +72,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
             str: a str representation of this Jam.
 
         """
-        return f'[Bout ID: {self._bout_id}, P{self.period} J{self.num}]'
+        return f'[Bout ID: {self._bout_uuid}, P{self.period} J{self.num}]'
 
     def __init__(self, period_num: int, jam_num: int, *team_jams: TeamJam) -> None:
         """Initialize a Jam.
@@ -84,7 +87,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     async def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self._bout_id, self.period, self.num)
+        return (self.__tablename__, self._bout_uuid, self.period, self.num)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
@@ -99,11 +102,11 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         """
         return await self.awaitable_attrs._bout
 
-    def get_team_jam(self, team: BaseTeam | int) -> TeamJam:
+    def get_team_jam(self, team: BaseTeam | UUID) -> TeamJam:
         """Get the TeamJam associated with the desired Team.
 
         Args:
-            team (BaseTeam | int): the Team or Team ID of the desired TeamJam.
+            team (BaseTeam | UUID): the Team or Team UUID of the desired TeamJam.
 
         Raises:
             KeyError: the specified Team is not persistent in the database.
@@ -113,14 +116,14 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
             TeamJam: the TeamJam associated with the desired Team.
 
         """
-        if not isinstance(team, int):
-            if team._id is None:
+        if not isinstance(team, UUID):
+            if team.uuid is None:
                 raise KeyError('this team does not exist')
-            team = team._id
+            team = team.uuid
 
         # Get the first TeamJam that has the specified Team ID
         team_jam: TeamJam | None = next(
-            (tj for tj in self.team_jams if tj._team_id == team), None
+            (tj for tj in self.team_jams if tj.team_uuid == team), None
         )
 
         if team_jam is None:

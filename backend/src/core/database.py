@@ -10,6 +10,7 @@ from typing import (
     ClassVar,
     Final,
 )
+from uuid import UUID, uuid4
 
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import (
@@ -45,7 +46,7 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
 
     """
 
-    _id: Mapped[int | None] = mapped_column(nullable=False, primary_key=True)
+    uuid: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
 
     __abstract__: bool = True
     __type_annotation_map__: dict = {timedelta: _TimedeltaAsMilliseconds}

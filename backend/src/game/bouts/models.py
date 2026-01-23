@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
-from uuid import UUID, uuid4
+from uuid import UUID  # noqa: TC003
 
 from core import CASCADE_CHILD, CASCADE_OTHER
 from game.clocks.models import Clock
@@ -33,11 +33,11 @@ class BaseBout(CacheableSQLModel):
 
     ruleset: ClassVar[Ruleset]
 
-    _series_id: Mapped[int] = mapped_column(ForeignKey('series._id'))
-    _clock_id: Mapped[int] = mapped_column(
-        ForeignKey('clocks._id', ondelete='RESTRICT')
+    _clock_uuid: Mapped[UUID] = mapped_column(
+        ForeignKey('clocks.uuid', ondelete='RESTRICT')
     )
     uuid: Mapped[UUID] = mapped_column(index=True)
+    series_uuid: Mapped[UUID] = mapped_column(ForeignKey('series.uuid'))
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
@@ -47,11 +47,11 @@ class BaseBout(CacheableSQLModel):
     _series: Mapped[Series] = relationship(
         back_populates='bouts',
         cascade=CASCADE_OTHER,
-        foreign_keys=[_series_id],
+        foreign_keys=[series_uuid],
     )
     clock: Mapped[Clock] = relationship(
         cascade=CASCADE_CHILD,
-        foreign_keys=[_clock_id],
+        foreign_keys=[_clock_uuid],
         lazy='joined',
         single_parent=True,
     )
@@ -87,7 +87,7 @@ class BaseBout(CacheableSQLModel):
             str: a str representation of this Bout.
 
         """
-        return f'[Bout ID: {self._id}]'
+        return f'[Bout UUID: {self.uuid}]'
 
     def __init__(self, ruleset_name: str, *teams: BaseTeam) -> None:
         """Instantiate a Bout.
@@ -98,13 +98,11 @@ class BaseBout(CacheableSQLModel):
             teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout.
 
         """
-        super().__init__(
-            uuid=uuid4(), clock=Clock(), ruleset_name=ruleset_name, teams=list(teams)
-        )
+        super().__init__(clock=Clock(), ruleset_name=ruleset_name, teams=list(teams))
 
     @override
     async def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self._id)
+        return (self.__tablename__, self.uuid)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

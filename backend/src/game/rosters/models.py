@@ -98,7 +98,7 @@ class Roster(CacheableSQLModel):
 
     @override
     async def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self._id)
+        return (self.__tablename__, self.uuid)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

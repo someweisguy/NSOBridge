@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
+from uuid import UUID  # noqa: TC003
 
 from core import CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
@@ -29,9 +30,9 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     Timeouts models can represent either a timeout or an official review.
     """
 
-    _bout_id: Mapped[int] = mapped_column(ForeignKey('bouts._id'))
-    _team_id: Mapped[int | None] = mapped_column(ForeignKey('teams._id'))
-    _jam_id: Mapped[int | None] = mapped_column(ForeignKey('jams._id'))
+    _team_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('teams.uuid'))
+    _jam_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('jams.uuid'))
+    bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'))
 
     num: Mapped[int] = mapped_column()
     clock_elapsed: Mapped[timedelta | None] = mapped_column(default=None)
@@ -44,22 +45,24 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     _bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
-        foreign_keys=[_bout_id],
+        foreign_keys=[bout_uuid],
     )
 
     # The next two relationships are special cases - they can be eagerly loaded
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
-        foreign_keys=[_team_id],
+        foreign_keys=[_team_uuid],
         lazy='selectin',
     )
     jam: Mapped[BaseJam | None] = relationship(
-        cascade=CASCADE_OTHER, foreign_keys=[_jam_id], lazy='selectin'
+        cascade=CASCADE_OTHER, foreign_keys=[_jam_uuid], lazy='selectin'
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name).where(BaseBout._id == _bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name)
+        .where(BaseBout.uuid == bout_uuid)
+        .scalar_subquery()
     )
 
     __tablename__: str = 'timeouts'
@@ -76,7 +79,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             str: a str representation of this Timeout.
 
         """
-        return f'[Bout ID: {self._bout_id}, T{self.num}]'
+        return f'[Bout ID: {self.bout_uuid}, T{self.num}]'
 
     def __init__(self, bout: BaseBout, num: int) -> None:
         """Initialize a Timeout.
@@ -93,7 +96,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     async def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self._bout_id, self._id)
+        return (self.__tablename__, self.bout_uuid, self.num)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

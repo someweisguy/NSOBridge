@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
-from uuid import UUID, uuid4
 
 from core import CASCADE_CHILD, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
@@ -22,8 +21,6 @@ class Series(CacheableSQLModel):
 
     """
 
-    uuid: Mapped[UUID] = mapped_column(index=True)
-
     name: Mapped[str] = mapped_column(default='')
 
     bouts: Mapped[list[BaseBout]] = relationship(
@@ -41,12 +38,12 @@ class Series(CacheableSQLModel):
             name (str, optional): the name of the Series. Defaults to ''.
 
         """
-        super().__init__(uuid=uuid4(), name=name)
+        super().__init__(name=name)
 
     @override
     async def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
-        return (self.__tablename__, self._id)
+        return (self.__tablename__, self.uuid)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

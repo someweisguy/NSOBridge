@@ -34,8 +34,8 @@ class BaseTeam(BaseSQLModel):
     data like a team's score offset.
     """
 
-    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'))
-    _bout_id: Mapped[int | None] = mapped_column(
+    roster_uuid: Mapped[int] = mapped_column(ForeignKey('rosters.uuid'))
+    bout_uuid: Mapped[int | None] = mapped_column(
         ForeignKey('bouts._id'), nullable=False
     )
 
@@ -47,12 +47,12 @@ class BaseTeam(BaseSQLModel):
 
     _roster: Mapped[Roster] = relationship(
         cascade=CASCADE_OTHER,
-        foreign_keys=[_roster_id],
+        foreign_keys=[roster_uuid],
     )
     _bout: Mapped[BaseBout | None] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
-        foreign_keys=[_bout_id],
+        foreign_keys=[bout_uuid],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='_team',
@@ -68,15 +68,17 @@ class BaseTeam(BaseSQLModel):
     )
 
     # Used to calculate the current Jam score
-    _active_jam_id: MappedSQLExpression[int | None] = column_property(
-        select(BaseJam._id)
+    # SQLAlchemy does not understand `is` keyword in WHERE clauses, thus ignore E711.
+    _active_jam_uuid: MappedSQLExpression[int | None] = column_property(
+        select(BaseJam.uuid)
         .where(BaseJam.start_timestamp != None)  # noqa: E711
         .order_by(desc(BaseJam.period), desc(BaseJam.num))
         .scalar_subquery()
     )
-
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name).where(BaseBout._id == _bout_id).scalar_subquery()
+        select(BaseBout.ruleset_name)
+        .where(BaseBout.uuid == bout_uuid)
+        .scalar_subquery()
     )
 
     __tablename__: str = 'teams'
@@ -164,7 +166,7 @@ class BaseTeam(BaseSQLModel):
 
         """
         active_team_jam: TeamJam | None = next(
-            (tj for tj in self.team_jams if tj._jam_id == self._active_jam_id), None
+            (tj for tj in self.team_jams if tj.jam_uuid == self._active_jam_uuid), None
         )
         if active_team_jam is None:
             return 0
