@@ -2,7 +2,7 @@
 
 from typing import Final, Sequence
 
-from core import AsyncSessionDepends
+from core import GetAsyncSession
 from fastapi import APIRouter
 from sqlalchemy import Result, Select, select
 
@@ -17,7 +17,7 @@ router.add_api_route('', _get_all_series, response_model=list[SeriesSchema])
 
 
 @router.get('/allSeries', response_model=list[SeriesSchema])
-async def get_all_series(session: AsyncSessionDepends) -> Sequence[Series]:
+async def get_all_series(session: GetAsyncSession) -> Sequence[Series]:
     """Get all Series in the database."""
     statement: Select[tuple[Series]] = select(Series)
     results: Result[tuple[Series]] = await session.execute(statement)

@@ -2,7 +2,7 @@
 
 from typing import Annotated, TypeAlias
 
-from core import AsyncSessionDepends
+from core import GetAsyncSession
 from core.exceptions import ModelLookupError
 from fastapi import Depends, Query
 from sqlalchemy import Result, Select, select
@@ -12,7 +12,7 @@ from .models import Roster
 
 
 async def _get_roster(
-    session: AsyncSessionDepends,
+    session: GetAsyncSession,
     roster_uuid: Annotated[int, Query(alias='rosterUuid')],
 ) -> Roster:
     statement: Select[tuple[Roster]] = select(Roster).where(Roster.uuid == roster_uuid)

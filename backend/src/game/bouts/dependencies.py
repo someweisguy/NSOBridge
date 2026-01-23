@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 from uuid import UUID
 
-from core import AsyncSessionDepends
+from core import GetAsyncSession
 from core.exceptions import ModelLookupError
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 async def _get_bout(
     request: Request,
     user: GetUser,
-    session: AsyncSessionDepends,
+    session: GetAsyncSession,
     bout_uuid: Annotated[UUID, Query(alias='boutUuid')],
 ) -> BaseBout:
     statement: Select[tuple[BaseBout]] = select(BaseBout).where(

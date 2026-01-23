@@ -78,7 +78,7 @@ class EngineFactory:
             await session.commit()  # Automatically commit after each session
 
 
-AsyncSessionDepends: TypeAlias = Annotated[
+GetAsyncSession: TypeAlias = Annotated[
     AsyncSession,
     Depends(EngineFactory.yield_async_session),
 ]

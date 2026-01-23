@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, Sequence
 
-from core import AsyncSessionDepends
+from core import GetAsyncSession
 from sqlalchemy import select
 
 from .models import Series
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.selectable import Select
 
 
-async def _get_all_series(session: AsyncSessionDepends) -> Sequence[Series]:
+async def _get_all_series(session: GetAsyncSession) -> Sequence[Series]:
     statement: Select[tuple[Series]] = select(Series)
     results: Result[tuple[Series]] = await session.execute(statement)
 

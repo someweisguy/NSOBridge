@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
-from core import AsyncSessionDepends
+from core import GetAsyncSession
 from fastapi import APIRouter, Body
 from game.rulesets.schemas import Ruleset
 from sqlalchemy import Result, Select, select
@@ -22,7 +22,8 @@ router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])
-async def get_all_bouts(session: AsyncSessionDepends) -> Sequence[BaseBout]:
+async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
+    """Get all the Bouts in the database."""
     statement: Select[tuple[BaseBout]] = select(BaseBout)
     results: Result[tuple[BaseBout]] = await session.execute(statement)
 
