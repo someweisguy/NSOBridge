@@ -1,9 +1,14 @@
 """The FastAPI dependencies methods for Series."""
 
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Annotated, TypeAlias
+from uuid import UUID
 
 from core import GetAsyncSession
+from core.exceptions import ModelLookupError
+from fastapi import Depends, Query, Request
 from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
+from user import GetUser
 
 from .models import Series
 
@@ -12,10 +17,24 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.selectable import Select
 
 
-async def _get_all_series(session: GetAsyncSession) -> Sequence[Series]:
-    statement: Select[tuple[Series]] = select(Series)
+async def _get_series(
+    request: Request,
+    user: GetUser,
+    session: GetAsyncSession,
+    series_uuid: Annotated[UUID, Query(alias='seriesUuid')],
+) -> Series:
+    statement: Select[tuple[Series]] = select(Series).where(Series.uuid == series_uuid)
     results: Result[tuple[Series]] = await session.execute(statement)
 
-    # TODO: figure out how to handle series dependencies
+    try:
+        series: Series = results.scalar_one()
+    except NoResultFound as e:
+        raise ModelLookupError(f'Could not find Series ({series_uuid=})') from e
 
-    return results.scalars().all()
+    # Optionally take a snapshot of the Bout state and return the Bout
+    if request.method != 'GET':
+        user.stage(series.get_memento())
+    return series
+
+
+GetSeries: TypeAlias = Annotated[Series, Depends(_get_series)]
