@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+from uuid import UUID  # noqa: TC003
+
 from core import ServerSchema
 
 
 class TeamSchema(ServerSchema):
     """Represent a Team as a JSON schema."""
 
-    # FIXME: add Roster UUID
+    roster_uuid: UUID
     num: int
     bout_score: int
     jam_score: int
