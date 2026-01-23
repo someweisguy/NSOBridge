@@ -9,7 +9,7 @@ from game.bouts.models import BaseBout
 from game.jams.models import BaseJam
 from game.team_jams.models import TeamJam
 from game.timeouts.models import BaseTimeout
-from sqlalchemy import ForeignKey, select
+from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
     MappedSQLExpression,
@@ -40,6 +40,7 @@ class BaseTeam(BaseSQLModel):
     )
 
     # TODO: Implement Team colors
+    num: Mapped[int] = mapped_column()
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
@@ -79,6 +80,10 @@ class BaseTeam(BaseSQLModel):
     )
 
     __tablename__: str = 'teams'
+    __table_args__: tuple[Constraint, ...] = (
+        UniqueConstraint('_bout_id', '_roster_id'),
+        UniqueConstraint('_bout_id', 'num'),
+    )
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,
         'polymorphic_on': _ruleset,
@@ -99,15 +104,17 @@ class BaseTeam(BaseSQLModel):
         """
         raise NotImplementedError('BaseTeam.get_team_jam_score() must be overridden')
 
-    def __init__(self, roster: Roster) -> None:
+    def __init__(self, roster: Roster, team_num: int) -> None:
         """Initialize a Team.
 
         Args:
             bout (BaseBout): the owning Bout of the Team.
             roster (Roster): the Roster that this Team will use.
+            team_num (int): the Team number in the Bout. Each Team in a Bout must have
+            a unique team number. A 0 represents the home Team of a Bout.
 
         """
-        super().__init__(_roster=roster)
+        super().__init__(_roster=roster, num=team_num)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

@@ -9,6 +9,7 @@ class TeamSchema(ServerSchema):
     """Represent a Team as a JSON schema."""
 
     # FIXME: add Roster UUID
+    num: int
     bout_score: int
     jam_score: int
     timeouts_remaining: int

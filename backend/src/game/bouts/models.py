@@ -59,6 +59,7 @@ class BaseBout(CacheableSQLModel):
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
+        order_by=[column('num')],
     )
     jams: Mapped[list[BaseJam]] = relationship(
         back_populates='_bout',
