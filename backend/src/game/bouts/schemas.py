@@ -31,12 +31,10 @@ class BoutSchema(ServerSchema):
     @computed_field
     @property
     def jam_counts(self) -> tuple[int, int, int]:
-        """Get a list of lists representing the IDs of this Bout's Jams.
+        """A tuple representing the number of jams in this Bout, per Period.
 
         Returns:
-            list[list[int]]: the Jam IDs of this Bout's Jams. Each list represents a
-            Period such that a specific Jam may be queried using
-            `bout.jam_ids[period_num][jam_num]`.
+            tuple[int, int, int]: the number of Jams in each Period of this Bout.
 
         """
         counts: dict[int, int] = {}
@@ -50,7 +48,7 @@ class BoutSchema(ServerSchema):
         """Get a list representing the IDs of this Bout's Timeouts.
 
         Returns:
-            list[int]: the Timeout IDs of this Bout's Timeouts.
+            list[int]: the number of timeouts in this Bout.
 
         """
         return len(self.timeouts)
