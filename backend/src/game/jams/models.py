@@ -62,7 +62,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         'confirm_deleted_rows': False,
     }
     __table_args__: tuple[Constraint, ...] = AbstractOneShotModel.__table_args__ + (
-        UniqueConstraint('_bout_id', 'num', 'period'),
+        UniqueConstraint('_bout_uuid', 'num', 'period'),
     )
 
     def __str__(self) -> str:

@@ -36,7 +36,7 @@ class BaseTeam(BaseSQLModel):
 
     roster_uuid: Mapped[int] = mapped_column(ForeignKey('rosters.uuid'))
     bout_uuid: Mapped[int | None] = mapped_column(
-        ForeignKey('bouts._id'), nullable=False
+        ForeignKey('bouts.uuid'), nullable=False
     )
 
     # TODO: Implement Team colors
@@ -83,8 +83,8 @@ class BaseTeam(BaseSQLModel):
 
     __tablename__: str = 'teams'
     __table_args__: tuple[Constraint, ...] = (
-        UniqueConstraint('_bout_id', '_roster_id'),
-        UniqueConstraint('_bout_id', 'num'),
+        UniqueConstraint('bout_uuid', 'roster_uuid'),
+        UniqueConstraint('bout_uuid', 'num'),
     )
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,

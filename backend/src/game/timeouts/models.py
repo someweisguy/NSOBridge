@@ -70,7 +70,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         'polymorphic_abstract': True,
         'polymorphic_on': ruleset,
     }
-    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_bout_id', 'num'),)
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
 
     def __str__(self) -> str:
         """Return a str representation of this Timeout.

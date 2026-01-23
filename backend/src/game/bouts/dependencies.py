@@ -37,4 +37,4 @@ async def _get_bout(
     return bout
 
 
-BoutDepends: TypeAlias = Annotated[BaseBout, Depends(_get_bout)]
+GetBout: TypeAlias = Annotated[BaseBout, Depends(_get_bout)]
