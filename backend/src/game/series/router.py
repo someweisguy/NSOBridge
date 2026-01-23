@@ -1,15 +1,25 @@
 """FastAPI routes associated with Series."""
 
-from typing import Final
+from typing import Final, Sequence
 
+from core import AsyncSessionDepends
 from fastapi import APIRouter
+from sqlalchemy import Result, Select, select
 
 from .dependencies import _get_all_series
+from .models import Series
 from .schemas import SeriesSchema
 
 SERIES_TAG = 'Series'
 
-router: Final[APIRouter] = APIRouter(prefix='/series')
-router.add_api_route(
-    '', _get_all_series, response_model=list[SeriesSchema], tags=[SERIES_TAG]
-)
+router: Final[APIRouter] = APIRouter(prefix='/series', tags=[SERIES_TAG])
+router.add_api_route('', _get_all_series, response_model=list[SeriesSchema])
+
+
+@router.get('/allSeries', response_model=list[SeriesSchema])
+async def get_all_series(session: AsyncSessionDepends) -> Sequence[Series]:
+    """Get all Series in the database."""
+    statement: Select[tuple[Series]] = select(Series)
+    results: Result[tuple[Series]] = await session.execute(statement)
+
+    return results.scalars().all()

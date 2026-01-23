@@ -22,7 +22,7 @@ router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 
-@router.get('/bouts', response_model=list[BoutSchema])
+@router.get('/allBouts', response_model=list[BoutSchema])
 async def get_all_bouts(session: AsyncSessionDepends) -> Sequence[BaseBout]:
     statement: Select[tuple[BaseBout]] = select(BaseBout)
     results: Result[tuple[BaseBout]] = await session.execute(statement)
