@@ -19,7 +19,7 @@ async def _get_timeout(
     try:
         timeout: BaseTimeout = bout.timeouts[num]
     except KeyError as e:
-        raise ModelLookupError(f'Could not find Timeout {num} in this Bout') from e
+        raise ModelLookupError(f'Could not find Timeout ({bout=} {num=})') from e
 
     # Optionally take a snapshot of the Timeout state
     if request.method != 'GET':

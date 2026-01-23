@@ -30,7 +30,7 @@ async def _get_bout(
     try:
         bout: BaseBout = results.scalar_one()
     except NoResultFound as e:
-        raise ModelLookupError(f'Could not find Bout with UUID {bout_uuid}') from e
+        raise ModelLookupError(f'Could not find Bout ({bout_uuid=})') from e
 
     # Optionally take a snapshot of the Bout state and return the Bout
     if request.method != 'GET':

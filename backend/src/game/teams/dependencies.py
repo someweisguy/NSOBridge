@@ -13,9 +13,7 @@ async def _get_team(bout: GetBout, team_num: Annotated[int, Query()]) -> BaseTea
     try:
         return bout.teams[team_num]
     except KeyError as e:
-        raise ModelLookupError(
-            f'There is no team number {team_num} in this Bout'
-        ) from e
+        raise ModelLookupError(f'Could not find Team ({bout=} {team_num=})') from e
 
 
 GetTeam: TypeAlias = Annotated[BaseTeam, Depends(_get_team)]

@@ -22,7 +22,7 @@ async def _get_jam(
             jam for jam in bout.jams if jam.period == period and jam.num == num
         )
     except StopIteration as e:
-        raise ModelLookupError(f'Could not find P{period} J{num} in this Bout') from e
+        raise ModelLookupError(f'Could not find Jam ({bout=} {period=} {num=})') from e
 
     if request.method != 'GET':
         user.stage(jam.get_memento())

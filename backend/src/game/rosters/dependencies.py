@@ -21,7 +21,7 @@ async def _get_roster(
     try:
         roster: Roster = results.scalar_one()
     except NoResultFound as e:
-        raise ModelLookupError(f'Could not find Roster with UUID {roster_uuid}') from e
+        raise ModelLookupError(f'Could not find Roster ({roster_uuid=})') from e
 
     # TODO: handle mementos
 
