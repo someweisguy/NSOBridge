@@ -1,6 +1,7 @@
 """The FastAPI dependencies methods for Bouts."""
 
 from typing import TYPE_CHECKING, Annotated, TypeAlias
+from uuid import UUID
 
 from core import AsyncSessionDepends
 from core.exceptions import ModelLookupError
@@ -19,16 +20,16 @@ async def _get_bout(
     request: Request,
     user: GetUser,
     session: AsyncSessionDepends,
-    bout_id: Annotated[int, Query(alias='boutId')],
+    uuid: Annotated[UUID, Query()],
 ) -> BaseBout:
     # Query the database for the desired Bout
-    statement: Select[tuple[BaseBout]] = select(BaseBout).where(BaseBout._id == bout_id)
+    statement: Select[tuple[BaseBout]] = select(BaseBout).where(BaseBout.uuid == uuid)
     results: Result[tuple[BaseBout]] = await session.execute(statement)
 
     try:
         bout: BaseBout = results.scalar_one()
     except NoResultFound as e:
-        raise ModelLookupError(f'Could not find Bout with ID {bout_id}') from e
+        raise ModelLookupError(f'Could not find Bout with UUID {uuid}') from e
 
     # Optionally take a snapshot of the Bout state and return the Bout
     if request.method != 'GET':
