@@ -8,7 +8,7 @@ from uuid import UUID  # noqa: TC003
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.jams.models import BaseJam
 from game.trip_events.models import TripEvent
-from sqlalchemy import ForeignKey, select
+from sqlalchemy import ForeignKey, column, select, table
 from sqlalchemy.orm import (
     Mapped,
     MappedSQLExpression,
@@ -33,12 +33,10 @@ class TeamJam(BaseSQLModel):
 
     """
 
-    team_uuid: Mapped[UUID | None] = mapped_column(
-        ForeignKey('teams.uuid'), nullable=False
-    )
-    jam_uuid: Mapped[UUID | None] = mapped_column(
+    _jam_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('jams.uuid'), nullable=False
     )
+    team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
 
     _team: Mapped[BaseTeam | None] = relationship(
         back_populates='team_jams',
@@ -48,7 +46,8 @@ class TeamJam(BaseSQLModel):
     _jam: Mapped[BaseJam] = relationship(
         back_populates='team_jams',
         cascade=CASCADE_OTHER,
-        foreign_keys=[jam_uuid],
+        foreign_keys=[_jam_uuid],
+        lazy='selectin',
     )
     events: Mapped[list[TripEvent]] = relationship(
         back_populates='_team_jam',
@@ -58,10 +57,15 @@ class TeamJam(BaseSQLModel):
     )
 
     jam_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.num).where(BaseJam.uuid == jam_uuid).scalar_subquery()
+        select(BaseJam.num).where(BaseJam.uuid == _jam_uuid).scalar_subquery()
     )
     period_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.period).where(BaseJam.uuid == jam_uuid).scalar_subquery()
+        select(BaseJam.period).where(BaseJam.uuid == _jam_uuid).scalar_subquery()
+    )
+    team_num: MappedSQLExpression[int] = column_property(
+        select(table('teams', column('num')))
+        .where(column('uuid') == team_uuid)
+        .scalar_subquery()
     )
 
     __tablename__: str = 'team_jams'

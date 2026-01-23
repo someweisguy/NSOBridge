@@ -167,7 +167,7 @@ class BaseTeam(BaseSQLModel):
 
         """
         active_team_jam: TeamJam | None = next(
-            (tj for tj in self.team_jams if tj.jam_uuid == self._active_jam_uuid), None
+            (tj for tj in self.team_jams if tj._jam_uuid == self._active_jam_uuid), None
         )
         if active_team_jam is None:
             return 0
