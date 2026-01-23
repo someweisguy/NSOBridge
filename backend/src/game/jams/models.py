@@ -62,7 +62,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         'confirm_deleted_rows': False,
     }
     __table_args__: tuple[Constraint, ...] = AbstractOneShotModel.__table_args__ + (
-        UniqueConstraint('_bout_id', 'num', 'period'),
+        UniqueConstraint('_bout_uuid', 'num', 'period'),
     )
 
     def __str__(self) -> str:
@@ -143,33 +143,33 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
                 return True
         return False
 
-    async def add_trip(self, team_id: int, timestamp: datetime, passes: int) -> None:
+    async def add_trip(self, team: BaseTeam, timestamp: datetime, passes: int) -> None:
         """Add a Jammer trip to the desired Team's TeamJam.
 
         Args:
-            team_id (int): the ID of the desired Team.
+            team (BaseTeam): the desired Team.
             timestamp (datetime): the timestamp at which to add the trip.
             passes (int): the number of passes the Jammer earned.
 
         """
         ...
 
-    async def set_lead(self, team_id: int, timestamp: datetime, lead: bool) -> None:
+    async def set_lead(self, team: BaseTeam, timestamp: datetime, lead: bool) -> None:
         """Set the lead Jammer status for the desired Team.
 
         Args:
-            team_id (int): the ID of the desired Team.
+            team (BaseTeam): the desired Team.
             timestamp (datetime): the timestamp at which to set lead.
             lead (bool): True if the Jammer has been declared lead.
 
         """
         ...
 
-    async def set_lost(self, team_id: int, timestamp: datetime, lost: bool) -> None:
+    async def set_lost(self, team: BaseTeam, timestamp: datetime, lost: bool) -> None:
         """Set the lead eligibility for the desired Team.
 
         Args:
-            team_id (int): the ID of the desired Team.
+            team (BaseTeam): the desired Team.
             timestamp (datetime): the timestamp at which to set lead eligibility.
             lost (bool): True if the Jammer has lost lead eligibility.
 
@@ -177,12 +177,12 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         ...
 
     async def set_star_pass(
-        self, team_id: int, timestamp: datetime, star_pass: bool
+        self, team: BaseTeam, timestamp: datetime, star_pass: bool
     ) -> None:
         """Add a star pass to the desired Team.
 
         Args:
-            team_id (int): the ID of the desired Team.
+            team (BaseTeam): the desired Team.
             timestamp (datetime): the timestamp at which to add the star pass.
             star_pass (bool): True if the star has been successfully passed.
 

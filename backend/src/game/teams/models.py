@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Final, override
+from uuid import UUID  # noqa: TC003
 
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
@@ -34,9 +35,9 @@ class BaseTeam(BaseSQLModel):
     data like a team's score offset.
     """
 
-    roster_uuid: Mapped[int] = mapped_column(ForeignKey('rosters.uuid'))
-    bout_uuid: Mapped[int | None] = mapped_column(
-        ForeignKey('bouts._id'), nullable=False
+    roster_uuid: Mapped[UUID] = mapped_column(ForeignKey('rosters.uuid'))
+    bout_uuid: Mapped[UUID | None] = mapped_column(
+        ForeignKey('bouts.uuid'), nullable=False
     )
 
     # TODO: Implement Team colors
@@ -83,8 +84,8 @@ class BaseTeam(BaseSQLModel):
 
     __tablename__: str = 'teams'
     __table_args__: tuple[Constraint, ...] = (
-        UniqueConstraint('_bout_id', '_roster_id'),
-        UniqueConstraint('_bout_id', 'num'),
+        UniqueConstraint('bout_uuid', 'roster_uuid'),
+        UniqueConstraint('bout_uuid', 'num'),
     )
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,

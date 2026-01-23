@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import override
-from uuid import UUID, uuid4
+from uuid import UUID  # noqa: TC003
 
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
@@ -14,7 +14,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 class Skater(BaseSQLModel):
     """Represent a singular Skater in roller derby."""
 
-    _roster_id: Mapped[int] = mapped_column(ForeignKey('rosters._id'))
+    roster_uuid: Mapped[UUID] = mapped_column(ForeignKey('rosters.uuid'))
     name: Mapped[str] = mapped_column()
     pronouns: Mapped[str] = mapped_column()  # TODO: Implement pronouns
     number: Mapped[str] = mapped_column()
@@ -22,7 +22,7 @@ class Skater(BaseSQLModel):
     _roster: Mapped[Roster] = relationship(
         back_populates='skaters',
         cascade=CASCADE_OTHER,
-        foreign_keys=[_roster_id],
+        foreign_keys=[roster_uuid],
         lazy='selectin',
     )
 
@@ -59,8 +59,6 @@ class Skater(BaseSQLModel):
 class Roster(CacheableSQLModel):
     """Represent a Roster of skaters."""
 
-    uuid: Mapped[UUID] = mapped_column(index=True)
-
     name: Mapped[str] = mapped_column()
     league: Mapped[str] = mapped_column()
     mnemonic: Mapped[str] = mapped_column()
@@ -94,7 +92,7 @@ class Roster(CacheableSQLModel):
         mnemonic = mnemonic.strip()
         if mnemonic == '':
             pass  # TODO: Implement team name mnemonic algorithm
-        super().__init__(uuid=uuid4(), name=name, league=league, mnemonic=mnemonic)
+        super().__init__(name=name, league=league, mnemonic=mnemonic)
 
     @override
     async def cache_key(self) -> CacheKey:

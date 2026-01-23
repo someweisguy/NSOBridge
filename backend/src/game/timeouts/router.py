@@ -3,9 +3,9 @@
 from typing import Annotated, Final, Literal
 
 from fastapi import APIRouter, Body
-from game.teams.dependencies import GetTeamOrNoneByID
+from game.teams.dependencies import GetTeam
 
-from .dependencies import GetTimeoutByID, _get_timeout
+from .dependencies import GetTimeout, _get_timeout
 from .schemas import TimeoutSchema
 
 TIMEOUTS_TAG = 'Timeouts'
@@ -18,7 +18,7 @@ router.add_api_route(
 
 @router.post('/type', tags=[TIMEOUTS_TAG])
 async def set_type(
-    timeout: GetTimeoutByID,
+    timeout: GetTimeout,
     is_review: Annotated[Literal['timeout', 'review'], Body()],
 ) -> None:
     """Set the type of the specified Timeout."""
@@ -26,27 +26,25 @@ async def set_type(
 
 
 @router.post('/team', tags=[TIMEOUTS_TAG])
-async def set_team(timeout: GetTimeoutByID, team: GetTeamOrNoneByID) -> None:
+async def set_team(timeout: GetTimeout, team: GetTeam) -> None:
     """Set the calling Team of the specified Timeout."""
     timeout.set_team(team)
     pass
 
 
 @router.post('/retained', tags=[TIMEOUTS_TAG])
-async def set_retained(
-    timeout: GetTimeoutByID, retained: Annotated[bool, Body()]
-) -> None:
+async def set_retained(timeout: GetTimeout, retained: Annotated[bool, Body()]) -> None:
     """Set whether or not the Timeout is retained."""
     timeout.set_retained(retained)
 
 
 @router.put('/details', tags=[TIMEOUTS_TAG])
-async def set_details(timeout: GetTimeoutByID, details: Annotated[str, Body()]) -> None:
+async def set_details(timeout: GetTimeout, details: Annotated[str, Body()]) -> None:
     """Add details about the specified Timeout."""
     timeout.details = details
 
 
 @router.put('/result', tags=[TIMEOUTS_TAG])
-async def set_result(timeout: GetTimeoutByID, result: Annotated[str, Body()]) -> None:
+async def set_result(timeout: GetTimeout, result: Annotated[str, Body()]) -> None:
     """Add results about the specified Timeout."""
     timeout.result = result
