@@ -1,6 +1,7 @@
 """Pydantic Jam schemas."""
 
 from datetime import datetime
+from uuid import UUID
 
 from core import ServerSchema
 from game.jams.models import StopReasonStr
@@ -10,7 +11,7 @@ from game.team_jams.schemas import TeamJamSchema
 class JamSchema(ServerSchema):
     """Represent a Jam as a JSON schema."""
 
-    # FIXME: add Bout UUID
+    bout_uuid: UUID
     period: int
     num: int
 
