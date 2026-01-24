@@ -2,28 +2,29 @@
 
 from __future__ import annotations
 
-from typing import override
+from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
+from core import CASCADE_OTHER, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
-from sqlalchemy import ForeignKey, column
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+if TYPE_CHECKING:
+    from game.teams.models import BaseTeam
 
 
 class Skater(BaseSQLModel):
     """Represent a singular Skater in roller derby."""
 
-    roster_uuid: Mapped[UUID] = mapped_column(ForeignKey('rosters.uuid'))
+    team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
     name: Mapped[str] = mapped_column()
     pronouns: Mapped[str] = mapped_column()  # TODO: Implement pronouns
     number: Mapped[str] = mapped_column()
 
-    _roster: Mapped[Roster] = relationship(
-        back_populates='skaters',
+    _team: Mapped[BaseTeam] = relationship(
         cascade=CASCADE_OTHER,
-        foreign_keys=[roster_uuid],
-        lazy='selectin',
+        foreign_keys=[team_uuid],
     )
 
     __tablename__: str = 'skaters'
@@ -44,16 +45,16 @@ class Skater(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_roster(),)
+        return (await self.get_team(),)
 
-    async def get_roster(self) -> Roster:
-        """Get the Roster to which this Skater belongs.
+    async def get_team(self) -> BaseTeam:
+        """Get the Team to which this Skater belongs.
 
         Returns:
-            Roster: the Roster to which this Skater belongs.
+            BaseTeam: the Team to which this Skater belongs.
 
         """
-        return await self.awaitable_attrs._roster
+        return await self.awaitable_attrs._team
 
 
 class Roster(CacheableSQLModel):
@@ -62,13 +63,6 @@ class Roster(CacheableSQLModel):
     name: Mapped[str] = mapped_column()
     league: Mapped[str] = mapped_column()
     mnemonic: Mapped[str] = mapped_column()
-
-    skaters: Mapped[list[Skater]] = relationship(
-        back_populates='_roster',
-        cascade=CASCADE_CHILD,
-        lazy='selectin',
-        order_by=[column('number')],
-    )
 
     __tablename__: str = 'rosters'
 

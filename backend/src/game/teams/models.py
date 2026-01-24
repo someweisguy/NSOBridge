@@ -8,6 +8,7 @@ from uuid import UUID  # noqa: TC003
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.jams.models import BaseJam
+from game.skaters.models import Skater
 from game.team_jams.models import TeamJam
 from game.timeouts.models import BaseTimeout
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
@@ -54,6 +55,12 @@ class BaseTeam(BaseSQLModel):
         back_populates='teams',
         cascade=CASCADE_OTHER,
         foreign_keys=[bout_uuid],
+    )
+    skaters: Mapped[list[Skater]] = relationship(
+        back_populates='_team',
+        cascade=CASCADE_CHILD,
+        lazy='selectin',
+        order_by=[Skater.number],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='_team',
