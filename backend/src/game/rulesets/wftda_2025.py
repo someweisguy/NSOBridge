@@ -7,7 +7,7 @@ from typing import ClassVar, override
 from core.exceptions import GameRulesError, GameStateError
 from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
 from game.jams.models import BaseJam
-from game.rosters.models import Roster
+from game.skaters.models import Roster
 from game.team_jams.models import TeamJam
 from game.teams.models import BaseTeam
 from game.timeouts.models import BaseTimeout

@@ -21,7 +21,7 @@ from sqlalchemy.orm import (
 from sqlalchemy.sql import desc
 
 if TYPE_CHECKING:
-    from game.rosters.models import Roster
+    from game.skaters.models import Roster
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
