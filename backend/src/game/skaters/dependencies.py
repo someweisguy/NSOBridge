@@ -1,10 +1,10 @@
 """The FastAPI dependencies methods for Rosters."""
 
-from typing import Annotated, TypeAlias
+from typing import Annotated
 
 from core import GetAsyncSession
 from core.exceptions import ModelLookupError
-from fastapi import Depends, Query
+from fastapi import Query
 from sqlalchemy import Result, Select, select
 from sqlalchemy.exc import NoResultFound
 
@@ -26,6 +26,3 @@ async def _get_roster(
     # TODO: handle mementos
 
     return roster
-
-
-GetRoster: TypeAlias = Annotated[Roster, Depends(_get_roster)]
