@@ -55,7 +55,7 @@ class BaseTeam(BaseSQLModel):
         back_populates='_team',
         cascade=CASCADE_CHILD,
         lazy='selectin',
-        order_by=[Skater.number],
+        order_by=[Skater.num],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='_team',

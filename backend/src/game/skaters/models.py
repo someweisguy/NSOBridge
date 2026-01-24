@@ -7,7 +7,7 @@ from uuid import UUID  # noqa: TC003
 
 from core import CASCADE_OTHER, BaseSQLModel
 from game.models import CacheableSQLModel, CacheKey
-from sqlalchemy import ForeignKey
+from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ class Skater(BaseSQLModel):
     team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
     name: Mapped[str] = mapped_column()
     pronouns: Mapped[str] = mapped_column()  # TODO: Implement pronouns
-    number: Mapped[str] = mapped_column()
+    num: Mapped[str] = mapped_column()
 
     _team: Mapped[BaseTeam] = relationship(
         cascade=CASCADE_OTHER,
@@ -28,6 +28,7 @@ class Skater(BaseSQLModel):
     )
 
     __tablename__: str = 'skaters'
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('team_uuid', 'num'),)
 
     def __init__(self, name: str, number: str) -> None:
         """Initialize a Skater.
