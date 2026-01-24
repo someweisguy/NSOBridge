@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Final, override
+from typing import Any, Final, override
 from uuid import UUID  # noqa: TC003
 
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
@@ -20,10 +20,6 @@ from sqlalchemy.orm import (
     relationship,
 )
 from sqlalchemy.sql import desc
-
-if TYPE_CHECKING:
-    from game.skaters.models import Roster
-
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
@@ -109,30 +105,20 @@ class BaseTeam(BaseSQLModel):
         """
         raise NotImplementedError('BaseTeam.get_team_jam_score() must be overridden')
 
-    def __init__(self, team_num: int) -> None:
+    def __init__(self, name: str, team_num: int) -> None:
         """Initialize a Team.
 
         Args:
-            bout (BaseBout): the owning Bout of the Team.
-            roster (Roster): the Roster that this Team will use.
+            name (str): the name of this Team.
             team_num (int): the Team number in the Bout. Each Team in a Bout must have
             a unique team number. A 0 represents the home Team of a Bout.
 
         """
-        super().__init__(num=team_num)
+        super().__init__(name=name, num=team_num)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.get_bout(),)
-
-    async def get_roster(self) -> Roster:
-        """Get the Roster to which this Team belongs.
-
-        Returns:
-            Roster: the Roster to which this Team belongs.
-
-        """
-        return await self.awaitable_attrs._roster
 
     async def get_bout(self) -> BaseBout:
         """Get the Bout to which this Team belongs.

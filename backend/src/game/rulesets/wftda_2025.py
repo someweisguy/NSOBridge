@@ -1,5 +1,7 @@
 """Models and Business logic pertaining to the WFTDA 2025 ruleset."""
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime, timedelta
 from typing import ClassVar, override
@@ -7,7 +9,6 @@ from typing import ClassVar, override
 from core.exceptions import GameRulesError, GameStateError
 from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
 from game.jams.models import BaseJam
-from game.skaters.models import Roster
 from game.team_jams.models import TeamJam
 from game.teams.models import BaseTeam
 from game.timeouts.models import BaseTimeout
@@ -41,11 +42,11 @@ class Bout(_WFTDAModel, BaseBout):
     )
 
     @override
-    def __init__(self, home: Roster, away: Roster) -> None:
+    def __init__(self, home_team_name: str, away_team_name: str) -> None:
         super().__init__(
             RULESET_NAME,
-            Team(home, 0),
-            Team(away, 1),
+            Team(home_team_name, 0),
+            Team(away_team_name, 1),
         )
         self.clock.alarm = timedelta(minutes=30)
         self.jams.append(Jam(0, 0, *[TeamJam(team) for team in self.teams]))
@@ -212,8 +213,8 @@ class Team(_WFTDAModel, BaseTeam):
     """A Team model using the WFTDA 2025 ruleset."""
 
     @override
-    def __init__(self, roster: Roster, team_num: int) -> None:
-        super().__init__(team_num)
+    def __init__(self, name: str, team_num: int) -> None:
+        super().__init__(name, team_num)
         self.timeouts_remaining = Bout.ruleset.num_timeouts
         self.reviews_remaining = Bout.ruleset.num_reviews
 

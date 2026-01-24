@@ -29,7 +29,6 @@ from .models import CacheableSQLModel, CacheKey
 from .rulesets import wftda_2025
 from .series.models import Series
 from .series.router import router as series_router
-from .skaters.models import Roster
 from .skaters.router import router as skater_router
 from .timeouts.router import router as timeout_router
 
@@ -45,7 +44,6 @@ routers: Final[tuple[APIRouter, ...]] = (
 __all__ = (
     'CacheKey',
     'CacheableSQLModel',
-    'Roster',  # Non-rule-bound objects can be exported
     'routers',
     'Series',  # Non-rule-bound objects can be exported
     'wftda_2025',

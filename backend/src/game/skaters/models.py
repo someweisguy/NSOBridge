@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from game.teams.models import BaseTeam
 
 
-class Skater(BaseSQLModel):
+class Skater(CacheableSQLModel):
     """Represent a singular Skater in roller derby."""
 
     team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
@@ -45,6 +45,11 @@ class Skater(BaseSQLModel):
         super().__init__(name=name, number=number)
 
     @override
+    async def cache_key(self) -> CacheKey:
+        team: BaseTeam = await self.get_team()
+        return (self.__tablename__, team.bout_uuid, team.num, self.num)
+
+    @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.get_team(),)
 
@@ -56,43 +61,3 @@ class Skater(BaseSQLModel):
 
         """
         return await self.awaitable_attrs._team
-
-
-class Roster(CacheableSQLModel):
-    """Represent a Roster of skaters."""
-
-    name: Mapped[str] = mapped_column()
-    league: Mapped[str] = mapped_column()
-    mnemonic: Mapped[str] = mapped_column()
-
-    __tablename__: str = 'rosters'
-
-    def __init__(self, name: str, league: str, mnemonic: str = '') -> None:
-        """Initialize a Roster.
-
-        Args:
-            name (str): the name of this Roster.
-            league (str): the league to which this Roster belongs.
-            mnemonic (str, optional): a three to four letter mnemonic of this Roster's
-            name. When no mnemonic is provided, one will be automatically generated.
-            Defaults to ''.
-
-        Raises:
-            ValueError: if a blank Team name is provided.
-
-        """
-        name = name.strip()
-        if name == '':
-            raise ValueError('Team name cannot be blank')
-        mnemonic = mnemonic.strip()
-        if mnemonic == '':
-            pass  # TODO: Implement team name mnemonic algorithm
-        super().__init__(name=name, league=league, mnemonic=mnemonic)
-
-    @override
-    async def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.uuid)
-
-    @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return ()
