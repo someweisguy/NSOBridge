@@ -4,10 +4,6 @@ from typing import Final
 
 from fastapi import APIRouter
 
-from .dependencies import _get_roster
-from .schemas import RosterSchema
+SKATERS_TAG = 'Skater'
 
-ROSTERS_TAG = 'Rosters'
-
-router: Final[APIRouter] = APIRouter(prefix='/roster')
-router.add_api_route('', _get_roster, response_model=RosterSchema, tags=[ROSTERS_TAG])
+router: Final[APIRouter] = APIRouter(prefix='/skater', tags=[SKATERS_TAG])

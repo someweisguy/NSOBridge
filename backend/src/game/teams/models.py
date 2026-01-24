@@ -40,6 +40,9 @@ class BaseTeam(BaseSQLModel):
         ForeignKey('bouts.uuid'), nullable=False
     )
 
+    name: Mapped[str] = mapped_column(default='')
+    league: Mapped[str] = mapped_column(default='')
+    mnemonic: Mapped[str] = mapped_column(default='')
     # TODO: Implement Team colors
     num: Mapped[int] = mapped_column()
     score_offset: Mapped[int] = mapped_column(default=0)
