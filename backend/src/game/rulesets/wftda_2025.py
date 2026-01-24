@@ -213,7 +213,7 @@ class Team(_WFTDAModel, BaseTeam):
 
     @override
     def __init__(self, roster: Roster, team_num: int) -> None:
-        super().__init__(roster, team_num)
+        super().__init__(team_num)
         self.timeouts_remaining = Bout.ruleset.num_timeouts
         self.reviews_remaining = Bout.ruleset.num_reviews
 

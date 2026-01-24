@@ -36,7 +36,6 @@ class BaseTeam(BaseSQLModel):
     data like a team's score offset.
     """
 
-    roster_uuid: Mapped[UUID] = mapped_column(ForeignKey('rosters.uuid'))
     bout_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('bouts.uuid'), nullable=False
     )
@@ -47,10 +46,6 @@ class BaseTeam(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
-    _roster: Mapped[Roster] = relationship(
-        cascade=CASCADE_OTHER,
-        foreign_keys=[roster_uuid],
-    )
     _bout: Mapped[BaseBout | None] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
@@ -90,10 +85,7 @@ class BaseTeam(BaseSQLModel):
     )
 
     __tablename__: str = 'teams'
-    __table_args__: tuple[Constraint, ...] = (
-        UniqueConstraint('bout_uuid', 'roster_uuid'),
-        UniqueConstraint('bout_uuid', 'num'),
-    )
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,
         'polymorphic_on': _ruleset,
@@ -114,7 +106,7 @@ class BaseTeam(BaseSQLModel):
         """
         raise NotImplementedError('BaseTeam.get_team_jam_score() must be overridden')
 
-    def __init__(self, roster: Roster, team_num: int) -> None:
+    def __init__(self, team_num: int) -> None:
         """Initialize a Team.
 
         Args:
@@ -124,7 +116,7 @@ class BaseTeam(BaseSQLModel):
             a unique team number. A 0 represents the home Team of a Bout.
 
         """
-        super().__init__(_roster=roster, num=team_num)
+        super().__init__(num=team_num)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
