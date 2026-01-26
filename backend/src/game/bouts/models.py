@@ -169,6 +169,15 @@ class BaseBout(CacheableSQLModel):
         """
         return next((t for t in self.timeouts if t.is_running()), None)
 
+    def get_last_timeout(self) -> BaseTimeout | None:
+        """Get most recently complete Timeout if there is one.
+
+        Returns:
+            BaseTimeout | None: the most recently complete Timeout or None.
+
+        """
+        return next((t for t in reversed(self.timeouts) if not t.is_running()), None)
+
     async def begin_period(self, timestamp: datetime) -> None:
         """Begin the next Period.
 
