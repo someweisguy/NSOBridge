@@ -32,7 +32,9 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
 
     _team_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('teams.uuid'))
     _jam_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('jams.uuid'))
-    bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'))
+    bout_uuid: Mapped[UUID | None] = mapped_column(
+        ForeignKey('bouts.uuid'), nullable=False
+    )
 
     num: Mapped[int] = mapped_column()
     clock_elapsed: Mapped[timedelta | None] = mapped_column(default=None)
@@ -42,21 +44,21 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    _bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[BaseBout | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[bout_uuid],
     )
-
-    # The next two relationships are special cases - they can be eagerly loaded
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[_team_uuid],
-        lazy='selectin',
+        lazy='selectin',  # Eagerly fetch despite being a parent relationship
     )
     jam: Mapped[BaseJam | None] = relationship(
-        cascade=CASCADE_OTHER, foreign_keys=[_jam_uuid], lazy='selectin'
+        cascade=CASCADE_OTHER,
+        foreign_keys=[_jam_uuid],
+        lazy='selectin',  # Eagerly fetch despite being a parent relationship
     )
 
     ruleset: MappedSQLExpression[str] = column_property(
@@ -81,7 +83,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         """
         return f'[Bout ID: {self.bout_uuid}, T{self.num}]'
 
-    def __init__(self, bout: BaseBout, num: int) -> None:
+    def __init__(self, num: int) -> None:
         """Initialize a Timeout.
 
         The default state for a Timeout is a regular timeout (not an official review)
@@ -92,7 +94,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             num (int): the unique Timeout number associated with this Bout.
 
         """
-        super().__init__(_bout=bout, num=num)
+        super().__init__(num=num)
 
     @override
     async def cache_key(self) -> CacheKey:

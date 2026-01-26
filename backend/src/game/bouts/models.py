@@ -169,17 +169,6 @@ class BaseBout(CacheableSQLModel):
         """
         return next((t for t in self.timeouts if t.is_running()), None)
 
-    def get_upcoming_timeout(self) -> BaseTimeout | None:
-        """Get the upcoming Timeout if there is one.
-
-        The upcoming Timeout is the first Timeout that is not started.
-
-        Returns:
-            BaseTimeout | None: the upcoming Timeout or None.
-
-        """
-        return next((t for t in self.timeouts if not t.is_started()), None)
-
     async def begin_period(self, timestamp: datetime) -> None:
         """Begin the next Period.
 

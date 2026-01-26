@@ -50,7 +50,6 @@ class Bout(_WFTDAModel, BaseBout):
         )
         self.clock.alarm = timedelta(minutes=30)
         self.jams.append(Jam(0, 0, *[TeamJam(team) for team in self.teams]))
-        self.timeouts.append(Timeout(self, 0))
 
     @override
     async def begin_period(self, timestamp: datetime) -> None:
@@ -169,18 +168,13 @@ class Bout(_WFTDAModel, BaseBout):
         logging.info(f'Calling Timeout {self}')
 
         # Instantiate and start the Timeout
-        timeout: BaseTimeout | None = self.get_upcoming_timeout()
-        if timeout is None:
-            raise NotImplementedError()  # FIXME push a new Timeout
-
+        timeout: Timeout = Timeout(len(self.timeouts))
         timeout.clock_elapsed = self.clock.get_duration(timestamp)
         timeout.start(timestamp)
+        self.timeouts.append(timeout)
 
         if self.clock.is_running():
             self.clock.stop(timestamp)
-
-        # Push a new Timeout to allow users to prefetch it
-        self.timeouts.append(Timeout(self, timeout.num + 1))
 
         return timeout
 
