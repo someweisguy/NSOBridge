@@ -36,6 +36,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
+
     stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
     _bout: Mapped[BaseBout | None] = relationship(

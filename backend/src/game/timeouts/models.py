@@ -37,6 +37,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     )
 
     num: Mapped[int] = mapped_column()
+
     clock_elapsed: Mapped[timedelta | None] = mapped_column(default=None)
     team_is_officials: Mapped[bool] = mapped_column(default=False)
     is_review: Mapped[bool] = mapped_column(default=False)

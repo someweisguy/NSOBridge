@@ -27,7 +27,7 @@ class TripEvent(BaseSQLModel):
     eligibility.
     """
 
-    _team_jam_uuid: Mapped[UUID | None] = mapped_column(
+    team_jam_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('team_jams.uuid'), nullable=False
     )
 
@@ -38,7 +38,9 @@ class TripEvent(BaseSQLModel):
     star_pass: Mapped[bool] = mapped_column(default=False)
 
     _team_jam: Mapped[TeamJam | None] = relationship(
-        back_populates='events', cascade=CASCADE_OTHER, foreign_keys=[_team_jam_uuid]
+        back_populates='events',
+        cascade=CASCADE_OTHER,
+        foreign_keys=[team_jam_uuid],
     )
 
     __tablename__: str = 'trip_events'

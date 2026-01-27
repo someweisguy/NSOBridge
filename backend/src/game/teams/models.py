@@ -36,11 +36,12 @@ class BaseTeam(BaseSQLModel):
         ForeignKey('bouts.uuid'), nullable=False
     )
 
-    name: Mapped[str] = mapped_column(default='')
+    num: Mapped[int] = mapped_column()
+
+    name: Mapped[str] = mapped_column()
     league: Mapped[str] = mapped_column(default='')
     mnemonic: Mapped[str] = mapped_column(default='')
     # TODO: Implement Team colors
-    num: Mapped[int] = mapped_column()
     score_offset: Mapped[int] = mapped_column(default=0)
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()

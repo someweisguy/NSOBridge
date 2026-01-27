@@ -18,9 +18,10 @@ class Skater(CacheableSQLModel):
     """Represent a singular Skater in roller derby."""
 
     team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
+
+    num: Mapped[str] = mapped_column()
     name: Mapped[str] = mapped_column()
     pronouns: Mapped[str] = mapped_column()  # TODO: Implement pronouns
-    num: Mapped[str] = mapped_column()
 
     _team: Mapped[BaseTeam] = relationship(
         cascade=CASCADE_OTHER,
