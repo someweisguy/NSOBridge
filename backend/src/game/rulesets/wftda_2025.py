@@ -168,7 +168,7 @@ class Bout(_WFTDAModel, BaseBout):
         logging.info(f'Calling Timeout {self}')
 
         # Instantiate and start the Timeout
-        timeout: Timeout = Timeout(len(self.timeouts))
+        timeout: Timeout = Timeout(self.get_active_jam(), len(self.timeouts))
         timeout.clock_elapsed = self.clock.get_duration(timestamp)
         timeout.start(timestamp)
         self.timeouts.append(timeout)

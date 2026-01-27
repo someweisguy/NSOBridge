@@ -140,6 +140,15 @@ class BaseBout(CacheableSQLModel):
         else:
             return 'stopped'
 
+    def get_active_jam(self) -> BaseJam:
+        """Get the most recently started Jam or upcoming Jam.
+
+        Returns:
+            BaseJam: the active Jam.
+
+        """
+        return next((j for j in self.jams if j.is_started()), self.jams[-1])
+
     def get_running_jam(self) -> BaseJam | None:
         """Get the running Jam if there is one.
 

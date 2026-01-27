@@ -30,8 +30,8 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     Timeouts models can represent either a timeout or an official review.
     """
 
+    _jam_uuid: Mapped[UUID] = mapped_column(ForeignKey('jams.uuid'))
     _team_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('teams.uuid'))
-    _jam_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('jams.uuid'))
     bout_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('bouts.uuid'), nullable=False
     )
@@ -49,19 +49,19 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         cascade=CASCADE_OTHER,
         foreign_keys=[bout_uuid],
     )
+    jam: Mapped[BaseJam] = relationship(
+        cascade=CASCADE_OTHER,
+        foreign_keys=[_jam_uuid],
+        lazy='selectin',  # Eagerly fetch despite being a parent relationship
+    )
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[_team_uuid],
         lazy='selectin',  # Eagerly fetch despite being a parent relationship
     )
-    jam: Mapped[BaseJam | None] = relationship(
-        cascade=CASCADE_OTHER,
-        foreign_keys=[_jam_uuid],
-        lazy='selectin',  # Eagerly fetch despite being a parent relationship
-    )
 
-    ruleset: MappedSQLExpression[str] = column_property(
+    _ruleset: MappedSQLExpression[str] = column_property(
         select(BaseBout.ruleset_name)
         .where(BaseBout.uuid == bout_uuid)
         .scalar_subquery()
@@ -70,7 +70,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     __tablename__: str = 'timeouts'
     __mapper_args__: dict[str, Any] = {
         'polymorphic_abstract': True,
-        'polymorphic_on': ruleset,
+        'polymorphic_on': _ruleset,
     }
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
 
@@ -83,18 +83,18 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         """
         return f'[Bout ID: {self.bout_uuid}, T{self.num}]'
 
-    def __init__(self, num: int) -> None:
+    def __init__(self, jam: BaseJam, num: int) -> None:
         """Initialize a Timeout.
 
         The default state for a Timeout is a regular timeout (not an official review)
         with an unknown caller (called by neither a Team nor by the officials).
 
         Args:
-            bout (BaseBout): the Bout that owns this Timeout.
+            jam (BaseJam): the Jam preceding this Timeout
             num (int): the unique Timeout number associated with this Bout.
 
         """
-        super().__init__(num=num)
+        super().__init__(_jam=jam, num=num)
 
     @override
     async def cache_key(self) -> CacheKey:
