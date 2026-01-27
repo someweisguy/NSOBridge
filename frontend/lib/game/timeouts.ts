@@ -28,12 +28,12 @@ export class Timeout {
 
   boutUuid: string;
   num: number;
-  teamId: number | null;
-  jamId: number | null;
+
   startTimestamp: Date | null;
   stopTimestamp: Date | null;
   clockElapsed: number;
 
+  teamNum: number | null;
   teamIsOfficials: boolean;
   isReview: boolean;
   details: string;

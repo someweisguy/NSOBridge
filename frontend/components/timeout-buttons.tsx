@@ -49,11 +49,11 @@ export default function TimeoutButtons({
             },
           ]}
           value={
-            timeout.teamId == null
+            timeout.teamNum == null
               ? timeout.teamIsOfficials
                 ? String(NaN)
                 : ""
-              : String(timeout.teamId)
+              : String(timeout.teamNum)
           }
           onChange={(teamId) =>
             setTeam.mutate(teamId == String(NaN) ? null : Number(teamId))

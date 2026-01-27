@@ -37,7 +37,7 @@ export default function ExtraordinaryStateClock({
       gameState = "Official Timeout";
     } else if (latestTimeout?.isReview) {
       gameState = "Official Review";
-    } else if (latestTimeout?.teamId != null) {
+    } else if (latestTimeout?.teamNum != null) {
       gameState = "Team Timeout";
     } else {
       gameState = "Timeout";
