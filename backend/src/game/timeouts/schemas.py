@@ -34,6 +34,9 @@ class TimeoutSchema(ServerSchema):
     def period_num(self) -> int:
         """Get the Period number of the Jam preceding this Timeout.
 
+        Timeouts cannot be uniquely identified by their Period and Jam number because
+        multiple Timeouts may be called after a single Jam.
+
         Returns:
             int: the Period number of the Jam preceding this Timeout.
 
@@ -44,6 +47,9 @@ class TimeoutSchema(ServerSchema):
     @property
     def jam_num(self) -> int | None:
         """Get the Jam number of the Jam preceding this Timeout.
+
+        Timeouts cannot be uniquely identified by their Period and Jam number because
+        multiple Timeouts may be called after a single Jam.
 
         Returns:
             int: the Jam number of the Jam preceding this Timeout.
