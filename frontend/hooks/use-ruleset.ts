@@ -4,12 +4,12 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useSuspenseRuleset = (bout: Bout) =>
   useSuspenseQuery<Ruleset>({
-    queryKey: Ruleset.generateKey(bout.ruleset_name),
-    queryFn: () => getRuleset(bout.id),
+    queryKey: Ruleset.generateKey(bout.rulesetName),
+    queryFn: () => getRuleset(bout.uuid),
   });
 
 export const useRuleset = (bout: Bout) =>
   useQuery<Ruleset>({
-    queryKey: Ruleset.generateKey(bout.ruleset_name),
-    queryFn: () => getRuleset(bout.id),
+    queryKey: Ruleset.generateKey(bout.rulesetName),
+    queryFn: () => getRuleset(bout.uuid),
   });

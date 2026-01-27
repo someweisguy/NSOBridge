@@ -1,8 +1,14 @@
 import { localAPI } from "@/lib/requests";
 import { CacheKey } from "@/types/ws";
 
-export async function getJam(jamId: number): Promise<Jam> {
-  const data = await localAPI.get<Partial<Jam>>("jam", { query: { jamId } });
+export async function getJam(
+  boutUuid: string,
+  period: number,
+  num: number,
+): Promise<Jam> {
+  const data = await localAPI.get<Partial<Jam>>("jam", {
+    query: { boutUuid, period, num },
+  });
   data.teamJams = data.teamJams?.map((tj) => Object.assign(new TeamJam(), tj));
   return Object.assign(new Jam(), data);
 }
@@ -22,11 +28,11 @@ export class Jam {
   teamJams: TeamJam[];
 
   static generateKey(
-    boutId: number,
+    boutUuid: string,
     periodNum: number,
     jamNum: number,
   ): CacheKey {
-    return ["jams", boutId, periodNum, jamNum];
+    return ["jams", boutUuid, periodNum, jamNum];
   }
 
   hasStarted(): boolean {

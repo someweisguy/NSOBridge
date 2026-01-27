@@ -1,49 +1,28 @@
-import { Bout, createBout, getBout } from "@/lib/game/bouts";
-import { Series } from "@/lib/game/series";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { Bout, createBout, getAllBouts, getBout } from "@/lib/game/bouts";
+import {
+  QueryOptions,
+  useMutation,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
-export const useSuspenseBout = (series: Series, index?: number) => {
-  const [boutId, setBoutId] = useState(
-    index == undefined
-      ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
-      : series.boutIds[index],
-  );
-
-  useEffect(() => {
-    setBoutId(
-      index == undefined
-        ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
-        : series.boutIds[index],
-    );
-  }, [series, index]);
-
-  return useSuspenseQuery<Bout>({
-    queryKey: Bout.generateKey(boutId),
-    queryFn: () => getBout(boutId),
+export const useAllBouts = () =>
+  useSuspenseQuery({
+    queryKey: Bout.generateKey(),
+    queryFn: () => getAllBouts(),
   });
-};
 
-export const useBout = (series: Series, index?: number) => {
-  const [boutId, setBoutId] = useState(
-    index == undefined
-      ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
-      : series.boutIds[index],
-  );
+export const boutQueryOptions: (uuid: string) => QueryOptions = (
+  uuid: string,
+) => ({
+  queryKey: Bout.generateKey(uuid),
+  queryFn: () => getBout(uuid),
+});
 
-  useEffect(() => {
-    setBoutId(
-      index == undefined
-        ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
-        : series.boutIds[index],
-    );
-  }, [series, index]);
-
-  return useQuery<Bout>({
-    queryKey: Bout.generateKey(boutId),
-    queryFn: () => getBout(boutId),
+export const useBout = (uuid: string) =>
+  useSuspenseQuery({
+    queryKey: Bout.generateKey(uuid),
+    queryFn: () => getBout(uuid),
   });
-};
 
 // TODO: add ruleset parameter to this hook
 export const useCreateBout = () =>

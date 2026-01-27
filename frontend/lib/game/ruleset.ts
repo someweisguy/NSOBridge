@@ -1,9 +1,9 @@
 import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
-export async function getRuleset(boutId: number): Promise<Ruleset> {
+export async function getRuleset(boutUuid: string): Promise<Ruleset> {
   return localAPI.get<Ruleset>("bout/ruleset", {
-    query: { boutId },
+    query: { boutUuid },
   });
 }
 

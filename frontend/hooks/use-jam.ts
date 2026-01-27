@@ -4,14 +4,14 @@ import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useSuspenseJam = (bout: Bout, periodNum: number, jamNum: number) =>
   useSuspenseQuery<Jam>({
-    queryKey: Jam.generateKey(bout.id, periodNum, jamNum),
-    queryFn: () => getJam(bout.jamIds[periodNum][jamNum]),
+    queryKey: Jam.generateKey(bout.uuid, periodNum, jamNum),
+    queryFn: () => getJam(bout.uuid, periodNum, jamNum),
   });
 
 export const useJam = (bout: Bout, periodNum: number, jamNum: number) =>
   useQuery<Jam>({
-    queryKey: Jam.generateKey(bout.id, periodNum, jamNum),
-    queryFn: () => getJam(bout.jamIds[periodNum][jamNum]),
+    queryKey: Jam.generateKey(bout.uuid, periodNum, jamNum),
+    queryFn: () => getJam(bout.uuid, periodNum, jamNum),
   });
 
 export const useAddTrip = (teamJam: TeamJam) =>

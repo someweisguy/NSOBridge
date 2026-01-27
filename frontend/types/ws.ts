@@ -1,4 +1,4 @@
-export type CacheKey = [string, ...number[]] | [string, string];
+export type CacheKey = [string, ...unknown[]] | [string, string];
 
 export interface ServerData {
   process: Date | null;

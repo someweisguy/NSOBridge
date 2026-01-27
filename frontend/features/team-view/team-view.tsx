@@ -1,5 +1,4 @@
 import TimeoutBar from "@/components/timeout-bar";
-import { useSuspenseRoster } from "@/hooks/use-roster";
 import { Bout, Team } from "@/lib/game/bouts";
 import { Ruleset } from "@/lib/game/ruleset";
 import { Timeout } from "@/lib/game/timeouts";
@@ -13,13 +12,11 @@ interface TeamsViewProps {
 }
 
 export default function TeamView({ team, timeout, ruleset }: TeamsViewProps) {
-  const { data: roster } = useSuspenseRoster(team.rosterId);
-
   return (
     <Stack>
       <Center>
         <Title order={1} size={56}>
-          <b>{roster.name}</b>
+          <b>{team.name}</b>
         </Title>
       </Center>
       <Group justify="center">

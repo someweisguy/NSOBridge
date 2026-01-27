@@ -56,7 +56,7 @@ export default function TimeoutBar({
               invisible={i >= team.timeoutsRemaining}
               active={
                 i == team.timeoutsRemaining - 1 &&
-                activeTimeout?.teamId == team.id &&
+                activeTimeout?.teamId == team.num &&
                 !activeTimeout?.isReview
               }
             />
@@ -74,7 +74,7 @@ export default function TimeoutBar({
               invisible={i >= team.reviewsRemaining}
               active={
                 i == team.reviewsRemaining - 1 &&
-                activeTimeout?.teamId == team.id &&
+                activeTimeout?.teamId == team.num &&
                 activeTimeout?.isReview
               }
             />
