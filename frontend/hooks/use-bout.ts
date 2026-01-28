@@ -1,7 +1,7 @@
 import { Bout, createBout, getAllBouts, getBout } from "@/lib/game/bouts";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
-export const useAllBouts = () =>
+export const useSuspenseAllBouts = () =>
   useSuspenseQuery({
     queryKey: Bout.generateKey(),
     queryFn: () => getAllBouts(),

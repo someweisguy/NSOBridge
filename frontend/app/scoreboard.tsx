@@ -1,6 +1,6 @@
 import BoutStateView from "@/components/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
-import { useAllBouts, useSuspenseBout } from "@/hooks/use-bout";
+import { useSuspenseAllBouts, useSuspenseBout } from "@/hooks/use-bout";
 import { useJam, useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
@@ -37,7 +37,7 @@ export default function App() {
 function Scoreboard() {
   usePrefetchServerTime();
 
-  const { data: allBouts } = useAllBouts();
+  const { data: allBouts } = useSuspenseAllBouts();
 
   useEffect(() => {
     for (const bout of allBouts) {
