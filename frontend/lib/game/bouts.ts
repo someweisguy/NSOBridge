@@ -48,27 +48,29 @@ export class Bout {
   }
 
   async beginPeriod(): Promise<void> {
-    await localAPI.post("bout/beginPeriod", { query: { boutId: this.uuid } });
+    await localAPI.post("bout/beginPeriod", { query: { boutUuid: this.uuid } });
   }
 
   async endPeriod(): Promise<void> {
-    await localAPI.post("bout/endPeriod", { query: { boutId: this.uuid } });
+    await localAPI.post("bout/endPeriod", { query: { boutUuid: this.uuid } });
   }
 
   async startJam(): Promise<void> {
-    await localAPI.post("bout/startJam", { query: { boutId: this.uuid } });
+    await localAPI.post("bout/startJam", { query: { boutUuid: this.uuid } });
   }
 
   async stopJam(): Promise<void> {
-    await localAPI.post("bout/stopJam", { query: { boutId: this.uuid } });
+    await localAPI.post("bout/stopJam", { query: { boutUuid: this.uuid } });
   }
 
   async startTimeout(): Promise<void> {
-    await localAPI.post("bout/startTimeout", { query: { boutId: this.uuid } });
+    await localAPI.post("bout/startTimeout", {
+      query: { boutUuid: this.uuid },
+    });
   }
 
   async stopTimeout(): Promise<void> {
-    await localAPI.post("bout/stopTimeout", { query: { boutId: this.uuid } });
+    await localAPI.post("bout/stopTimeout", { query: { boutUuid: this.uuid } });
   }
 
   getLatestJamNum(): [number, number] {
