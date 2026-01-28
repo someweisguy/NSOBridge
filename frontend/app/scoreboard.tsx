@@ -1,6 +1,6 @@
 import BoutStateView from "@/components/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
-import { useAllBouts, useBout } from "@/hooks/use-bout";
+import { useAllBouts, useSuspenseBout } from "@/hooks/use-bout";
 import { useJam, useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
@@ -45,7 +45,7 @@ function Scoreboard() {
     }
   }, [allBouts]);
 
-  const { data: bout } = useBout(allBouts[0].uuid);
+  const { data: bout } = useSuspenseBout(allBouts[0].uuid);
 
   // Eagerly query the latest Jam and Timeout to avoid suspending
   void useJam(bout, ...bout.getLatestJamNum());
@@ -53,7 +53,7 @@ function Scoreboard() {
   const { data: ruleset } = useSuspenseRuleset(bout);
 
   // Fetch Jam data
-  const jamIndex = bout.getActiveOrLatestJamIndex();
+  const jamIndex = bout.getActiveOrLatestJamNum();
   const [periodNum, jamNum] = jamIndex;
   const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
 

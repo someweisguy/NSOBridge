@@ -106,7 +106,7 @@ export class Bout {
     return [periodNum, jamNum];
   }
 
-  getActiveOrLatestJamIndex(): [number, number] {
+  getActiveOrLatestJamNum(): [number, number] {
     return this.getActiveJamNum() ?? this.getLatestJamNum();
   }
 

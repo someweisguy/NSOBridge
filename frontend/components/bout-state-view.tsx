@@ -29,7 +29,7 @@ export default function BoutStateView({
     );
   }
 
-  let [periodNum, jamNum] = bout.getActiveOrLatestJamIndex();
+  let [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
   if (periodNum >= 2) {
     // Overtime Jams should be considered a continuation of the second half
     periodNum = 1;
