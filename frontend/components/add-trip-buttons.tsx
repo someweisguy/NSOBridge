@@ -1,4 +1,3 @@
-import { useAddTrip } from "@/hooks/use-jam";
 import { TeamJam } from "@/lib/game/jams";
 import { Ruleset } from "@/lib/game/ruleset";
 import { Button, Group, Stack } from "@mantine/core";
@@ -12,15 +11,21 @@ export default function AddTripButtons({
   teamJam,
   ruleset,
 }: AddTripButtonsProps) {
-  const addTrip = useAddTrip(teamJam);
+  // const addTrip = useAddTrip(teamJam);
 
   const addTripButtons =
     teamJam.events.length == 0 ? (
       <>
-        <Button variant="light" onClick={() => addTrip.mutate(0)}>
+        <Button
+          variant="light"
+          // onClick={() => addTrip.mutate(0)}
+        >
           No Pass
         </Button>
-        <Button variant="filled" onClick={() => addTrip.mutate(4)}>
+        <Button
+          variant="filled"
+          // onClick={() => addTrip.mutate(4)}
+        >
           Initial
         </Button>
       </>
@@ -30,7 +35,7 @@ export default function AddTripButtons({
           <Button
             key={i}
             variant={i == ruleset.pointsPerTrip ? "filled" : "light"}
-            onClick={() => addTrip.mutate(i)}
+            // onClick={() => addTrip.mutate(i)}
           >
             {i}
           </Button>
