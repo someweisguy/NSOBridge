@@ -4,7 +4,6 @@ import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { useJam, useSuspenseJam } from "@/hooks/use-jam";
-import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseAllSeries } from "@/hooks/use-series";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import queryClient from "@/lib/cache";
@@ -12,7 +11,7 @@ import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import { Timeout } from "@/lib/game/timeouts";
 import { redo, undo } from "@/lib/history";
-import { BoutContext, RulesetContext } from "@/utils/contexts";
+import { BoutContext } from "@/utils/contexts";
 import {
   AppShell,
   Burger,
@@ -98,29 +97,26 @@ function Main() {
 
   const timeout = new Timeout(); // FIXME
 
-  const { data: ruleset } = useSuspenseRuleset(bout);
   return (
     <BoutContext value={bout}>
-      <RulesetContext value={ruleset}>
-        <Stack align="stretch" justify="flex-start">
-          <BoutControlButtons bout={bout} />
-          <SimpleGrid cols={bout.teams.length}>
-            {bout.teams.map((team: Team, i: number) => (
-              <TeamView key={i} bout={bout} team={team} timeout={timeout} />
-            ))}
-          </SimpleGrid>
-          <BoutStateView
-            bout={bout}
-            activeOrLatestJam={jam}
-            activeTimeout={timeout}
-          />
-          <SimpleGrid cols={bout.teams.length}>
-            {bout.teams.map((team: Team, i: number) => (
-              <TeamJamView key={i} jam={jam} team={team} />
-            ))}
-          </SimpleGrid>
-        </Stack>
-      </RulesetContext>
+      <Stack align="stretch" justify="flex-start">
+        <BoutControlButtons bout={bout} />
+        <SimpleGrid cols={bout.teams.length}>
+          {bout.teams.map((team: Team, i: number) => (
+            <TeamView key={i} bout={bout} team={team} timeout={timeout} />
+          ))}
+        </SimpleGrid>
+        <BoutStateView
+          bout={bout}
+          activeOrLatestJam={jam}
+          activeTimeout={timeout}
+        />
+        <SimpleGrid cols={bout.teams.length}>
+          {bout.teams.map((team: Team, i: number) => (
+            <TeamJamView key={i} jam={jam} team={team} />
+          ))}
+        </SimpleGrid>
+      </Stack>
     </BoutContext>
   );
 }
