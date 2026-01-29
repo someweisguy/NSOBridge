@@ -1,6 +1,6 @@
-import BoutControlButtons from "@/components/bout-control-buttons";
-import BoutStateView from "@/components/bout-state-view";
-import TeamJamView from "@/components/team-jam-view";
+import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
+import BoutStateView from "@/features/bout-state-view/bout-state-view";
+import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { useJam, useSuspenseJam } from "@/hooks/use-jam";
@@ -112,7 +112,6 @@ function Main() {
                   <Grid.Col key={i} span={1}>
                     <Stack>
                       <TeamView
-                        bout={bout}
                         team={team}
                         timeout={timeout}
                         ruleset={ruleset}

@@ -1,4 +1,4 @@
-import BoutStateView from "@/components/bout-state-view";
+import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { useJam, useSuspenseJam } from "@/hooks/use-jam";

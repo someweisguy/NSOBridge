@@ -1,11 +1,10 @@
 import TimeoutBar from "@/components/timeout-bar";
-import { Bout, Team } from "@/lib/game/bouts";
+import { Team } from "@/lib/game/bouts";
 import { Ruleset } from "@/lib/game/ruleset";
 import { Timeout } from "@/lib/game/timeouts";
 import { Center, Grid, Group, Stack, Text, Title } from "@mantine/core";
 
 interface TeamsViewProps {
-  bout: Bout;
   team: Team;
   timeout: Timeout;
   ruleset: Ruleset;

@@ -1,5 +1,5 @@
 import ExtraordinaryStateClock from "@/components/extraordinary-state-clock";
-import IntermissionState from "@/components/intermission-state-view";
+import IntermissionState from "@/features/bout-state-view/intermission-state-view";
 import JamClock from "@/components/jam-clock";
 import PeriodClock from "@/components/period-clock";
 import { Bout } from "@/lib/game/bouts";

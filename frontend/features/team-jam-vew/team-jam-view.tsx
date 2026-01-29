@@ -1,4 +1,4 @@
-import TeamJamTrips from "@/components/team-jam-trips";
+import TeamJamTrips from "@/features/team-jam-vew/team-jam-trips";
 import { Team } from "@/lib/game/bouts";
 import { Jam, TeamJam } from "@/lib/game/jams";
 import { RulesetContext } from "@/utils/contexts";
