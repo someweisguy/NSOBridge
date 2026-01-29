@@ -97,7 +97,6 @@ export class TeamJam {
 }
 
 export interface TripEvent {
-  id: number;
   timestamp: Date;
   lead: boolean;
   lost: boolean;
