@@ -49,7 +49,7 @@ async def set_lost(
 async def set_star_pass(
     jam: GetJam,
     team: GetTeam,
-    star_pass: Annotated[bool, Body()],
+    star_pass: Annotated[bool, Body(alias='starPass')],
 ) -> None:
     """Set a Star Pass for the specified Team of the specified Jam."""
     await jam.set_star_pass(team, datetime.now(), star_pass)

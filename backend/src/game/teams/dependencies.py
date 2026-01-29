@@ -9,7 +9,9 @@ from game.bouts.dependencies import GetBout
 from .models import BaseTeam
 
 
-async def _get_team(bout: GetBout, team_num: Annotated[int, Query()]) -> BaseTeam:
+async def _get_team(
+    bout: GetBout, team_num: Annotated[int, Query(alias='teamNum')]
+) -> BaseTeam:
     try:
         return bout.teams[team_num]
     except KeyError as e:
