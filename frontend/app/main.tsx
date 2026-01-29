@@ -116,7 +116,6 @@ function Main() {
                         timeout={timeout}
                         ruleset={ruleset}
                       />
-                      <TeamJamView jam={jam} team={team} />
                     </Stack>
                   </Grid.Col>
                 ))}
@@ -128,6 +127,17 @@ function Main() {
               activeTimeout={timeout}
               ruleset={ruleset}
             />
+            <Grid columns={bout.teams.length} align="center">
+              <JamContext value={jam}>
+                {bout.teams.map((team: Team, i: number) => (
+                  <Grid.Col key={i} span={1}>
+                    <Stack>
+                      <TeamJamView jam={jam} team={team} />
+                    </Stack>
+                  </Grid.Col>
+                ))}
+              </JamContext>
+            </Grid>
           </Stack>
         </Container>
       </RulesetContext>
