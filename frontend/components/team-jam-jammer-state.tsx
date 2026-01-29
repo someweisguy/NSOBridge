@@ -1,4 +1,3 @@
-import { useSetLead, useSetLost, useSetStarPass } from "@/hooks/use-jam";
 import { TeamJam } from "@/lib/game/jams";
 import {
   Checkbox,
@@ -20,9 +19,9 @@ const checkBoxTheme = createTheme({
 export default function TeamJamJammerState({
   teamJam,
 }: JammerStatusButtonsProps) {
-  const setLead = useSetLead(teamJam);
-  const setLost = useSetLost(teamJam);
-  const setStarPass = useSetStarPass(teamJam);
+  // const setLead = useSetLead(teamJam);
+  // const setLost = useSetLost(teamJam);
+  // const setStarPass = useSetStarPass(teamJam);
 
   const lead = teamJam.events.some((tripEvent) => tripEvent.lead);
   const lost = teamJam.events.some((tripEvent) => tripEvent.lost);
@@ -35,7 +34,7 @@ export default function TeamJamJammerState({
           label="Lead"
           checked={lead}
           disabled={lost}
-          onClick={() => setLead.mutate(!lead)}
+          // onClick={() => setLead.mutate(!lead)}
           variant="outline"
           icon={({ ...others }) => <IconStarFilled {...others} />}
         />
@@ -43,14 +42,14 @@ export default function TeamJamJammerState({
         <Checkbox
           label="Lost"
           checked={lost}
-          onClick={() => setLost.mutate(!lost)}
+          // onClick={() => setLost.mutate(!lost)}
           variant="outline"
         />
         <Divider orientation="vertical" />
         <Checkbox
           label="Star Pass"
           checked={starPass}
-          onClick={() => setStarPass.mutate(!starPass)}
+          // onClick={() => setStarPass.mutate(!starPass)}
           variant="outline"
         />
       </MantineProvider>

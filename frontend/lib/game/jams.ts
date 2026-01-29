@@ -42,30 +42,50 @@ export class Jam {
     return this.hasStarted() && this.stopTimestamp == null;
   }
 
-  async addTrip(passes: number) {
+  async addTrip(teamJam: TeamJam, passes: number) {
     await localAPI.post("jam/addTrip", {
-      // query: { jamId: this.jamId, teamId: this.teamId },
+      query: {
+        boutUuid: this.boutUuid,
+        period: this.period,
+        num: this.num,
+        teamNum: teamJam.teamNum,
+      },
       body: passes,
     });
   }
 
-  async setLead(lead: boolean) {
+  async setLead(teamJam: TeamJam, lead: boolean) {
     await localAPI.post("jam/setLead", {
-      // query: { jamId: this.jamId, teamId: this.teamId },
+      query: {
+        boutUuid: this.boutUuid,
+        period: this.period,
+        num: this.num,
+        teamNum: teamJam.teamNum,
+      },
       body: lead,
     });
   }
 
-  async setLost(lost: boolean) {
+  async setLost(teamJam: TeamJam, lost: boolean) {
     await localAPI.post("jam/setLost", {
-      // query: { jamId: this.jamId, teamId: this.teamId },
+      query: {
+        boutUuid: this.boutUuid,
+        period: this.period,
+        num: this.num,
+        teamNum: teamJam.teamNum,
+      },
       body: lost,
     });
   }
 
-  async setStarPass(starPass: boolean) {
+  async setStarPass(teamJam: TeamJam, starPass: boolean) {
     await localAPI.post("jam/setStarPass", {
-      // query: { jamId: this.jamId, teamId: this.teamId },
+      query: {
+        boutUuid: this.boutUuid,
+        period: this.period,
+        num: this.num,
+        teamNum: teamJam.teamNum,
+      },
       body: starPass,
     });
   }
@@ -74,34 +94,6 @@ export class Jam {
 export class TeamJam {
   teamNum: number;
   events: TripEvent[];
-
-  async addTrip(passes: number) {
-    await localAPI.post("jam/addTrip", {
-      // query: { jamId: this.jamId, teamId: this.teamId },  // FIXME
-      body: passes,
-    });
-  }
-
-  async setLead(lead: boolean) {
-    await localAPI.post("jam/setLead", {
-      // query: { jamId: this.jamId, teamId: this.teamId },  // FIXME
-      body: lead,
-    });
-  }
-
-  async setLost(lost: boolean) {
-    await localAPI.post("jam/setLost", {
-      // query: { jamId: this.jamId, teamId: this.teamId },  // FIXME
-      body: lost,
-    });
-  }
-
-  async setStarPass(starPass: boolean) {
-    await localAPI.post("jam/setStarPass", {
-      // query: { jamId: this.jamId, teamId: this.teamId },  // FIXME
-      body: starPass,
-    });
-  }
 }
 
 export interface TripEvent {
