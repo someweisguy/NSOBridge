@@ -16,7 +16,6 @@ import { BoutContext, RulesetContext } from "@/utils/contexts";
 import {
   AppShell,
   Burger,
-  Container,
   MantineProvider,
   SimpleGrid,
   Stack,
@@ -103,32 +102,29 @@ function Main() {
   return (
     <BoutContext value={bout}>
       <RulesetContext value={ruleset}>
-        <Container>
-          <Stack>
-            <BoutControlButtons bout={bout} />
-            <SimpleGrid cols={bout.teams.length}>
-              {bout.teams.map((team: Team, i: number) => (
-                <TeamView
-                  key={i}
-                  team={team}
-                  timeout={timeout}
-                  ruleset={ruleset}
-                />
-              ))}
-            </SimpleGrid>
-            <BoutStateView
-              bout={bout}
-              activeOrLatestJam={jam}
-              activeTimeout={timeout}
-              ruleset={ruleset}
-            />
-            <SimpleGrid cols={bout.teams.length}>
-              {bout.teams.map((team: Team, i: number) => (
-                <TeamJamView key={i} jam={jam} team={team} />
-              ))}
-            </SimpleGrid>
-          </Stack>
-        </Container>
+        <Stack align="stretch" justify="flex-start">
+          <BoutControlButtons bout={bout} />
+          <SimpleGrid cols={bout.teams.length}>
+            {bout.teams.map((team: Team, i: number) => (
+              <TeamView
+                key={i}
+                team={team}
+                timeout={timeout}
+                ruleset={ruleset}
+              />
+            ))}
+          </SimpleGrid>
+          <BoutStateView
+            bout={bout}
+            activeOrLatestJam={jam}
+            activeTimeout={timeout}
+          />
+          <SimpleGrid cols={bout.teams.length}>
+            {bout.teams.map((team: Team, i: number) => (
+              <TeamJamView key={i} jam={jam} team={team} />
+            ))}
+          </SimpleGrid>
+        </Stack>
       </RulesetContext>
     </BoutContext>
   );

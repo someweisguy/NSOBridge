@@ -75,7 +75,6 @@ function Scoreboard() {
           bout={bout}
           activeOrLatestJam={jam}
           activeTimeout={timeout}
-          ruleset={ruleset}
         />
       </Center>
     </Stack>

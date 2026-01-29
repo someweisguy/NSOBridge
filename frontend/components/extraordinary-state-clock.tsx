@@ -7,13 +7,13 @@ import { Text, TextProps } from "@mantine/core";
 interface ExtraordinaryStateClockProps extends TextProps {
   bout: Bout;
   activeJam: Jam;
-  latestTimeout: Timeout | null;
+  activeTimeout: Timeout | null;
 }
 
 export default function ExtraordinaryStateClock({
   bout,
   activeJam,
-  latestTimeout,
+  activeTimeout,
   ...props
 }: ExtraordinaryStateClockProps) {
   // Render non-Jam Bout states
@@ -21,28 +21,28 @@ export default function ExtraordinaryStateClock({
   let gameState = "";
   if (bout.state === "lineup" && activeJam.stopTimestamp != null) {
     if (
-      latestTimeout?.stopTimestamp != null &&
-      latestTimeout.stopTimestamp > activeJam.stopTimestamp
+      activeTimeout?.stopTimestamp != null &&
+      activeTimeout.stopTimestamp > activeJam.stopTimestamp
     ) {
       // Handle post-timeout lineup condition
       gameState = "Post-Timeout";
-      gameStopTimestamp = latestTimeout.stopTimestamp;
+      gameStopTimestamp = activeTimeout.stopTimestamp;
     } else {
       // Handle standard lineup condition
       gameState = "Lineup";
       gameStopTimestamp = activeJam.stopTimestamp;
     }
   } else if (bout.state === "timeout") {
-    if (latestTimeout?.teamIsOfficials) {
+    if (activeTimeout?.teamIsOfficials) {
       gameState = "Official Timeout";
-    } else if (latestTimeout?.isReview) {
+    } else if (activeTimeout?.isReview) {
       gameState = "Official Review";
-    } else if (latestTimeout?.teamNum != null) {
+    } else if (activeTimeout?.teamNum != null) {
       gameState = "Team Timeout";
     } else {
       gameState = "Timeout";
     }
-    gameStopTimestamp = latestTimeout!.startTimestamp;
+    gameStopTimestamp = activeTimeout!.startTimestamp;
   }
 
   return (
