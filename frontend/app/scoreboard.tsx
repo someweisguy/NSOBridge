@@ -65,12 +65,7 @@ function Scoreboard() {
       <Grid columns={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
           <Grid.Col key={i} span={1}>
-            <TeamView
-              bout={bout}
-              timeout={timeout}
-              ruleset={ruleset}
-              team={team}
-            />
+            <TeamView timeout={timeout} ruleset={ruleset} team={team} />
           </Grid.Col>
         ))}
       </Grid>
