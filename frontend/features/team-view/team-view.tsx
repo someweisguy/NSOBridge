@@ -1,16 +1,18 @@
 import TimeoutBar from "@/components/timeout-bar";
-import { Team } from "@/lib/game/bouts";
-import { Ruleset } from "@/lib/game/ruleset";
+import { useSuspenseRuleset } from "@/hooks/use-ruleset";
+import { Bout, Team } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
 import { Center, Grid, Group, Stack, Text, Title } from "@mantine/core";
 
 interface TeamsViewProps {
+  bout: Bout;
   team: Team;
   timeout: Timeout;
-  ruleset: Ruleset;
 }
 
-export default function TeamView({ team, timeout, ruleset }: TeamsViewProps) {
+export default function TeamView({ bout, team, timeout }: TeamsViewProps) {
+  const { data: ruleset } = useSuspenseRuleset(bout);
+
   return (
     <Stack>
       <Center>
@@ -22,7 +24,8 @@ export default function TeamView({ team, timeout, ruleset }: TeamsViewProps) {
         <TimeoutBar
           team={team}
           activeTimeout={timeout}
-          ruleset={ruleset}
+          numTimeouts={ruleset.numTimeouts}
+          numReviews={ruleset.numReviews}
           size={30}
         />
 

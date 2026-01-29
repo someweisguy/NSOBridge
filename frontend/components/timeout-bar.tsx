@@ -1,5 +1,4 @@
 import { Team } from "@/lib/game/bouts";
-import { Ruleset } from "@/lib/game/ruleset";
 import { Timeout } from "@/lib/game/timeouts";
 import { Card, Center, Divider } from "@mantine/core";
 import { IconCircleFilled } from "@tabler/icons-react";
@@ -8,7 +7,8 @@ import { twMerge } from "tailwind-merge";
 interface TimeoutBarProps {
   team: Team;
   activeTimeout?: Timeout | null;
-  ruleset: Ruleset;
+  numTimeouts: number;
+  numReviews: number;
   size: number;
 }
 
@@ -38,7 +38,8 @@ function TimeoutPip({
 export default function TimeoutBar({
   team,
   activeTimeout,
-  ruleset,
+  numTimeouts,
+  numReviews,
   size = 30,
 }: TimeoutBarProps) {
   if (!activeTimeout?.isRunning()) {
@@ -48,7 +49,7 @@ export default function TimeoutBar({
 
   return (
     <Card withBorder w={size} radius="md">
-      {Array.from({ length: ruleset.numTimeouts }, (_, i) => (
+      {Array.from({ length: numTimeouts }, (_, i) => (
         <Card.Section key={i}>
           <Center>
             <TimeoutPip
@@ -66,7 +67,7 @@ export default function TimeoutBar({
       <Card.Section>
         <Divider mx={4} my={2} />
       </Card.Section>
-      {Array.from({ length: ruleset.numReviews }, (_, i) => (
+      {Array.from({ length: numReviews }, (_, i) => (
         <Card.Section key={i}>
           <Center>
             <TimeoutPip
