@@ -12,13 +12,13 @@ import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import { Timeout } from "@/lib/game/timeouts";
 import { redo, undo } from "@/lib/history";
-import { BoutContext, JamContext, RulesetContext } from "@/utils/contexts";
+import { BoutContext, RulesetContext } from "@/utils/contexts";
 import {
   AppShell,
   Burger,
   Container,
-  Grid,
   MantineProvider,
+  SimpleGrid,
   Stack,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -106,38 +106,27 @@ function Main() {
         <Container>
           <Stack>
             <BoutControlButtons bout={bout} />
-            <Grid columns={bout.teams.length} align="center">
-              <JamContext value={jam}>
-                {bout.teams.map((team: Team, i: number) => (
-                  <Grid.Col key={i} span={1}>
-                    <Stack>
-                      <TeamView
-                        team={team}
-                        timeout={timeout}
-                        ruleset={ruleset}
-                      />
-                    </Stack>
-                  </Grid.Col>
-                ))}
-              </JamContext>
-            </Grid>
+            <SimpleGrid cols={bout.teams.length}>
+              {bout.teams.map((team: Team, i: number) => (
+                <TeamView
+                  key={i}
+                  team={team}
+                  timeout={timeout}
+                  ruleset={ruleset}
+                />
+              ))}
+            </SimpleGrid>
             <BoutStateView
               bout={bout}
               activeOrLatestJam={jam}
               activeTimeout={timeout}
               ruleset={ruleset}
             />
-            <Grid columns={bout.teams.length} align="center">
-              <JamContext value={jam}>
-                {bout.teams.map((team: Team, i: number) => (
-                  <Grid.Col key={i} span={1}>
-                    <Stack>
-                      <TeamJamView jam={jam} team={team} />
-                    </Stack>
-                  </Grid.Col>
-                ))}
-              </JamContext>
-            </Grid>
+            <SimpleGrid cols={bout.teams.length}>
+              {bout.teams.map((team: Team, i: number) => (
+                <TeamJamView key={i} jam={jam} team={team} />
+              ))}
+            </SimpleGrid>
           </Stack>
         </Container>
       </RulesetContext>
