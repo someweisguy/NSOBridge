@@ -19,11 +19,18 @@ export default function TeamView({ team }: TeamsViewProps) {
   }
   const { data: ruleset } = useSuspenseRuleset(bout);
 
-  const { data: timeout, isPending } = useQuery<Timeout, Error>({
+  const { data: timeout } = useQuery<Timeout>({
     ...timeoutQueryOptions(bout, bout.timeoutCount - 1),
     enabled: bout.timeoutCount > 0,
-    placeholderData: new Timeout(),
+    placeholderData: undefined,
   });
+
+  const timeoutType: "review" | "timeout" | undefined =
+    timeout == undefined || timeout.teamIsOfficials
+      ? undefined
+      : timeout.isReview
+        ? "review"
+        : "timeout";
 
   return (
     <Stack>
@@ -34,9 +41,7 @@ export default function TeamView({ team }: TeamsViewProps) {
       </Center>
       <Group justify="center">
         <TimeoutBar
-          activeType={
-            isPending ? undefined : timeout?.isReview ? "review" : "timeout"
-          }
+          activeType={timeoutType}
           numTimeouts={ruleset.numTimeouts}
           timeoutsRemaining={team.timeoutsRemaining}
           numReviews={ruleset.numReviews}
