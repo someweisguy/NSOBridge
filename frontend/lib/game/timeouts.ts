@@ -54,21 +54,21 @@ export class Timeout {
 
   async setType(type: "timeout" | "review"): Promise<void> {
     await localAPI.post("timeout/type", {
-      query: { timeoutId: this.uuid },
+      query: { boutUuid: this.boutUuid, num: this.num },
       body: JSON.stringify(type),
     });
   }
 
   async setTeam(team: number | null): Promise<void> {
     await localAPI.post("timeout/team", {
-      query: { timeoutId: this.uuid },
+      query: { boutUuid: this.boutUuid, num: this.num },
       body: team,
     });
   }
 
   async setRetained(isRetained: boolean): Promise<void> {
     await localAPI.post("timeout/retained", {
-      query: { timeoutId: this.uuid },
+      query: { boutUuid: this.boutUuid, num: this.num },
       body: isRetained,
     });
   }
