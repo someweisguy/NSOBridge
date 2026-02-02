@@ -1,15 +1,15 @@
-import ExtraordinaryStateClock from "@/features/bout-state-view/extraordinary-state-clock";
 import JamClock from "@/components/jam-clock";
 import PeriodClock from "@/components/period-clock";
+import ExtraordinaryStateClock from "@/features/bout-state-view/extraordinary-state-clock";
 import IntermissionState from "@/features/bout-state-view/intermission-state-view";
 import { useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
+import { timeoutQueryOptions } from "@/hooks/use-timeout";
 import { Timeout } from "@/lib/game/timeouts";
 import { BoutContext } from "@/utils/contexts";
 import { Center, Group, Stack, Text } from "@mantine/core";
-import { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { timeoutQueryOptions } from "@/hooks/use-timeout";
+import { useContext } from "react";
 
 export default function BoutStateView() {
   const bout = useContext(BoutContext);

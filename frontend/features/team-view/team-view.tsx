@@ -1,9 +1,11 @@
 import TimeoutBar from "@/components/timeout-bar";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
-import { useTimeout } from "@/hooks/use-timeout";
+import { timeoutQueryOptions } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
+import { Timeout } from "@/lib/game/timeouts";
 import { BoutContext } from "@/utils/contexts";
 import { Center, Grid, Group, Stack, Text, Title } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 
 interface TeamsViewProps {
@@ -17,11 +19,11 @@ export default function TeamView({ team }: TeamsViewProps) {
   }
   const { data: ruleset } = useSuspenseRuleset(bout);
 
-  const {
-    data: timeout,
-    isPending,
-    isError,
-  } = useTimeout(bout, bout.timeoutCount - 1);
+  const { data: timeout, isPending } = useQuery<Timeout, Error>({
+    ...timeoutQueryOptions(bout, bout.timeoutCount - 1),
+    enabled: bout.timeoutCount > 0,
+    placeholderData: new Timeout(),
+  });
 
   return (
     <Stack>
@@ -33,11 +35,7 @@ export default function TeamView({ team }: TeamsViewProps) {
       <Group justify="center">
         <TimeoutBar
           activeType={
-            isPending || isError
-              ? undefined
-              : timeout?.isReview
-                ? "review"
-                : "timeout"
+            isPending ? undefined : timeout?.isReview ? "review" : "timeout"
           }
           numTimeouts={ruleset.numTimeouts}
           timeoutsRemaining={team.timeoutsRemaining}
