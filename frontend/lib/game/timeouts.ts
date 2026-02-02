@@ -12,8 +12,6 @@ export async function getTimeout(
 }
 
 export default class Clock {
-  id: number; // FIXME: remove this field
-
   startTimestamp: Date | null;
   elapsed: number;
   alarm: number;
