@@ -1,7 +1,7 @@
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseBout } from "@/hooks/use-bout";
-import { useJam, useSuspenseJam } from "@/hooks/use-jam";
+import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllSeries } from "@/hooks/use-series";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import { useSuspenseTimeout } from "@/hooks/use-timeout";
@@ -48,11 +48,6 @@ function Scoreboard() {
   // Eagerly query the latest Jam and Timeout to avoid suspending
   void useJam(bout, ...bout.getLatestJamNum());
 
-  // Fetch Jam data
-  const jamIndex = bout.getActiveOrLatestJamNum();
-  const [periodNum, jamNum] = jamIndex;
-  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
-
   // Fetch Timeout data
   const timeoutIndex = bout.getActiveOrLatestTimeoutIndex();
   const { data: timeout } = useSuspenseTimeout(bout, timeoutIndex);
@@ -68,11 +63,7 @@ function Scoreboard() {
       </Grid>
       {/* TODO: Lead Jam Status */}
       <Center>
-        <BoutStateView
-          bout={bout}
-          activeOrLatestJam={jam}
-          activeTimeout={timeout}
-        />
+        <BoutStateView activeTimeout={timeout} />
       </Center>
     </Stack>
   );
