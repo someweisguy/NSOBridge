@@ -37,13 +37,32 @@ export default function TeamJamJammerState({
   const lost = teamJam.events.some((tripEvent) => tripEvent.lost);
   const starPass = teamJam.events.some((tripEvent) => tripEvent.starPass);
 
+  // The Lead checkbox should be disabled if another team has lead
+  let isLeadEligible = true;
+  if (!lost) {
+    for (const tj of jam.teamJams) {
+      if (tj == teamJam) {
+        continue;
+      }
+      for (const event of tj.events) {
+        if (event.lead) {
+          isLeadEligible = false;
+          break;
+        }
+      }
+      if (!isLeadEligible) {
+        break;
+      }
+    }
+  }
+
   return (
     <Group justify="center" gap="md">
       <MantineProvider theme={checkBoxTheme}>
         <Checkbox
           label="Lead"
           checked={lead}
-          disabled={lost}
+          disabled={lost || !isLeadEligible}
           onClick={() => setLead.mutate(!lead)}
           variant="outline"
           icon={({ ...others }) => <IconStarFilled {...others} />}
