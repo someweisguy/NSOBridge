@@ -1,14 +1,13 @@
-import { Team } from "@/lib/game/bouts";
-import { Timeout } from "@/lib/game/timeouts";
 import { Card, Center, Divider } from "@mantine/core";
 import { IconCircleFilled } from "@tabler/icons-react";
 import { twMerge } from "tailwind-merge";
 
 interface TimeoutBarProps {
-  team: Team;
-  activeTimeout?: Timeout | null;
+  activeType?: "timeout" | "review";
   numTimeouts: number;
+  timeoutsRemaining: number;
   numReviews: number;
+  reviewsRemaining: number;
   size: number;
 }
 
@@ -36,17 +35,13 @@ function TimeoutPip({
 }
 
 export default function TimeoutBar({
-  team,
-  activeTimeout,
   numTimeouts,
   numReviews,
+  activeType,
+  timeoutsRemaining,
+  reviewsRemaining,
   size = 30,
 }: TimeoutBarProps) {
-  if (!activeTimeout?.isRunning()) {
-    // There is no active Timeout
-    activeTimeout = null;
-  }
-
   return (
     <Card withBorder w={size} radius="md">
       {Array.from({ length: numTimeouts }, (_, i) => (
@@ -54,12 +49,8 @@ export default function TimeoutBar({
           <Center>
             <TimeoutPip
               size={size}
-              invisible={i >= team.timeoutsRemaining}
-              active={
-                i == team.timeoutsRemaining - 1 &&
-                activeTimeout?.teamNum == team.num &&
-                !activeTimeout?.isReview
-              }
+              invisible={i >= timeoutsRemaining}
+              active={i == timeoutsRemaining - 1 && activeType == "timeout"}
             />
           </Center>
         </Card.Section>
@@ -72,12 +63,8 @@ export default function TimeoutBar({
           <Center>
             <TimeoutPip
               size={size}
-              invisible={i >= team.reviewsRemaining}
-              active={
-                i == team.reviewsRemaining - 1 &&
-                activeTimeout?.teamNum == team.num &&
-                activeTimeout?.isReview
-              }
+              invisible={i >= reviewsRemaining}
+              active={i == reviewsRemaining - 1 && activeType == "review"}
             />
           </Center>
         </Card.Section>

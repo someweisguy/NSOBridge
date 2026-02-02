@@ -1,17 +1,27 @@
 import TimeoutBar from "@/components/timeout-bar";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
+import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
-import { Timeout } from "@/lib/game/timeouts";
+import { BoutContext } from "@/utils/contexts";
 import { Center, Grid, Group, Stack, Text, Title } from "@mantine/core";
+import { useContext } from "react";
 
 interface TeamsViewProps {
-  bout: Bout;
   team: Team;
-  timeout: Timeout;
 }
 
-export default function TeamView({ bout, team, timeout }: TeamsViewProps) {
+export default function TeamView({ team }: TeamsViewProps) {
+  const bout: Bout | null = useContext(BoutContext);
+  if (bout == null) {
+    throw new Error("TeamView can only be used in a BoutContext");
+  }
   const { data: ruleset } = useSuspenseRuleset(bout);
+
+  const {
+    data: timeout,
+    isPending,
+    isError,
+  } = useTimeout(bout, bout.timeoutCount - 1);
 
   return (
     <Stack>
@@ -22,10 +32,17 @@ export default function TeamView({ bout, team, timeout }: TeamsViewProps) {
       </Center>
       <Group justify="center">
         <TimeoutBar
-          team={team}
-          activeTimeout={timeout}
+          activeType={
+            isPending || isError
+              ? undefined
+              : timeout?.isReview
+                ? "review"
+                : "timeout"
+          }
           numTimeouts={ruleset.numTimeouts}
+          timeoutsRemaining={team.timeoutsRemaining}
           numReviews={ruleset.numReviews}
+          reviewsRemaining={team.reviewsRemaining}
           size={30}
         />
 
