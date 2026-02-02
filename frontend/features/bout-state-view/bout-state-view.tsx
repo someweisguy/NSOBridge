@@ -2,24 +2,27 @@ import ExtraordinaryStateClock from "@/components/extraordinary-state-clock";
 import JamClock from "@/components/jam-clock";
 import PeriodClock from "@/components/period-clock";
 import IntermissionState from "@/features/bout-state-view/intermission-state-view";
+import { useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
-import { Bout } from "@/lib/game/bouts";
-import { Jam } from "@/lib/game/jams";
 import { Timeout } from "@/lib/game/timeouts";
+import { BoutContext } from "@/utils/contexts";
 import { Center, Group, Stack, Text } from "@mantine/core";
+import { useContext } from "react";
 
 interface BoutStateViewProps {
-  bout: Bout;
-  activeOrLatestJam: Jam;
   activeTimeout: Timeout | null;
 }
 
-export default function BoutStateView({
-  bout,
-  activeOrLatestJam,
-  activeTimeout,
-}: BoutStateViewProps) {
+export default function BoutStateView({ activeTimeout }: BoutStateViewProps) {
+  const bout = useContext(BoutContext);
+  if (bout == null) {
+    throw new Error("AddTripButtons must be inside a Bout context");
+  }
   const { data: ruleset } = useSuspenseRuleset(bout);
+
+  // Fetch Jam data
+  let [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
+  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
 
   if (!bout.isRunning) {
     return (
@@ -29,7 +32,6 @@ export default function BoutStateView({
     );
   }
 
-  let [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
   if (periodNum >= 2) {
     // Overtime Jams should be considered a continuation of the second half
     periodNum = 1;
@@ -48,11 +50,7 @@ export default function BoutStateView({
           </Text>
         </Center>
         <Center>
-          <JamClock
-            size="36pt"
-            jam={activeOrLatestJam}
-            jamDuration={ruleset.jamDuration}
-          />
+          <JamClock size="36pt" jam={jam} jamDuration={ruleset.jamDuration} />
         </Center>
       </Group>
 
@@ -60,7 +58,7 @@ export default function BoutStateView({
         <ExtraordinaryStateClock
           size="24pt"
           bout={bout}
-          activeJam={activeOrLatestJam}
+          activeJam={jam}
           activeTimeout={activeTimeout}
         />
       </Center>

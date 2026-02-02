@@ -106,11 +106,7 @@ function Main() {
             <TeamView key={i} team={team} />
           ))}
         </SimpleGrid>
-        <BoutStateView
-          bout={bout}
-          activeOrLatestJam={jam}
-          activeTimeout={timeout}
-        />
+        <BoutStateView activeTimeout={timeout} />
         <SimpleGrid cols={bout.teams.length}>
           {bout.teams.map((team: Team, i: number) => (
             <TeamJamView key={i} jam={jam} team={team} />
