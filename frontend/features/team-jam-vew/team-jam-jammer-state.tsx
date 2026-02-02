@@ -1,4 +1,6 @@
-import { TeamJam } from "@/lib/game/jams";
+import { useSetLead, useSetLost, useSetStarPass } from "@/hooks/use-jam";
+import { Team } from "@/lib/game/bouts";
+import { Jam, TeamJam } from "@/lib/game/jams";
 import {
   Checkbox,
   createTheme,
@@ -9,7 +11,8 @@ import {
 import { IconStarFilled } from "@tabler/icons-react";
 
 interface JammerStatusButtonsProps {
-  teamJam: TeamJam;
+  jam: Jam;
+  team: Team;
 }
 
 const checkBoxTheme = createTheme({
@@ -17,11 +20,18 @@ const checkBoxTheme = createTheme({
 });
 
 export default function TeamJamJammerState({
-  teamJam,
+  jam,
+  team,
 }: JammerStatusButtonsProps) {
-  // const setLead = useSetLead(teamJam);
-  // const setLost = useSetLost(teamJam);
-  // const setStarPass = useSetStarPass(teamJam);
+  const teamJam: TeamJam | undefined = jam.teamJams.find(
+    (teamJam: TeamJam) => teamJam.teamNum === team.num,
+  );
+  if (teamJam == undefined) {
+    throw new Error("team jam not found");
+  }
+  const setLead = useSetLead(jam, teamJam);
+  const setLost = useSetLost(jam, teamJam);
+  const setStarPass = useSetStarPass(jam, teamJam);
 
   const lead = teamJam.events.some((tripEvent) => tripEvent.lead);
   const lost = teamJam.events.some((tripEvent) => tripEvent.lost);
@@ -34,7 +44,7 @@ export default function TeamJamJammerState({
           label="Lead"
           checked={lead}
           disabled={lost}
-          // onClick={() => setLead.mutate(!lead)}
+          onClick={() => setLead.mutate(!lead)}
           variant="outline"
           icon={({ ...others }) => <IconStarFilled {...others} />}
         />
@@ -42,14 +52,14 @@ export default function TeamJamJammerState({
         <Checkbox
           label="Lost"
           checked={lost}
-          // onClick={() => setLost.mutate(!lost)}
+          onClick={() => setLost.mutate(!lost)}
           variant="outline"
         />
         <Divider orientation="vertical" />
         <Checkbox
           label="Star Pass"
           checked={starPass}
-          // onClick={() => setStarPass.mutate(!starPass)}
+          onClick={() => setStarPass.mutate(!starPass)}
           variant="outline"
         />
       </MantineProvider>
