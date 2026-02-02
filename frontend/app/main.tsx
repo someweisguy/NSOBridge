@@ -9,7 +9,6 @@ import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
-import { Timeout } from "@/lib/game/timeouts";
 import { redo, undo } from "@/lib/history";
 import { BoutContext } from "@/utils/contexts";
 import {
@@ -95,8 +94,6 @@ function Main() {
   const [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
   const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
 
-  const timeout = new Timeout(); // FIXME
-
   return (
     <BoutContext value={bout}>
       <Stack align="stretch" justify="flex-start">
@@ -106,7 +103,7 @@ function Main() {
             <TeamView key={i} team={team} />
           ))}
         </SimpleGrid>
-        <BoutStateView activeTimeout={timeout} />
+        <BoutStateView />
         <SimpleGrid cols={bout.teams.length}>
           {bout.teams.map((team: Team, i: number) => (
             <TeamJamView key={i} jam={jam} team={team} />

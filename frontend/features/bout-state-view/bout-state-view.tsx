@@ -8,17 +8,21 @@ import { Timeout } from "@/lib/game/timeouts";
 import { BoutContext } from "@/utils/contexts";
 import { Center, Group, Stack, Text } from "@mantine/core";
 import { useContext } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { timeoutQueryOptions } from "@/hooks/use-timeout";
 
-interface BoutStateViewProps {
-  activeTimeout: Timeout | null;
-}
-
-export default function BoutStateView({ activeTimeout }: BoutStateViewProps) {
+export default function BoutStateView() {
   const bout = useContext(BoutContext);
   if (bout == null) {
     throw new Error("AddTripButtons must be inside a Bout context");
   }
   const { data: ruleset } = useSuspenseRuleset(bout);
+
+  const { data: timeout } = useQuery<Timeout>({
+    ...timeoutQueryOptions(bout, bout.timeoutCount - 1),
+    enabled: bout.timeoutCount > 0,
+    placeholderData: new Timeout(),
+  });
 
   // Fetch Jam data
   let [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
@@ -59,7 +63,7 @@ export default function BoutStateView({ activeTimeout }: BoutStateViewProps) {
           size="24pt"
           bout={bout}
           activeJam={jam}
-          activeTimeout={activeTimeout}
+          activeTimeout={timeout!}
         />
       </Center>
     </Stack>
