@@ -95,7 +95,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             num (int): the unique Timeout number associated with this Bout.
 
         """
-        super().__init__(_jam=jam, num=num)
+        super().__init__(jam=jam, num=num)
 
     @override
     async def cache_key(self) -> CacheKey:
