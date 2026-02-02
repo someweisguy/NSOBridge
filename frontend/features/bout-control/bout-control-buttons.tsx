@@ -7,10 +7,12 @@ import {
   useStopTimeout,
 } from "@/hooks/use-bout";
 import { useRedo, useUndo } from "@/hooks/use-history";
-import { useSuspenseTimeout } from "@/hooks/use-timeout";
+import { timeoutQueryOptions } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
+import { Timeout } from "@/lib/game/timeouts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import TimeoutButtons from "./timeout-buttons";
 
 interface MainControlProps {
@@ -143,15 +145,18 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
   const stopTimeout = useStopTimeout(bout);
   const startJam = useStartJam(bout);
 
-  // FIXME: Remove this hook?
-  const { data } = useSuspenseTimeout(bout, bout.getActiveTimeoutNum()!);
+  const { data } = useQuery<Timeout>({
+    ...timeoutQueryOptions(bout, bout.timeoutCount - 1),
+    enabled: bout.timeoutCount > 0,
+    placeholderData: new Timeout(),
+  });
 
   return (
     <>
       <Button onClick={() => stopTimeout.mutate()}>End Timeout</Button>
       <Button onClick={() => startJam.mutate()}>Start Jam</Button>
       <Divider orientation="vertical" />
-      <TimeoutButtons timeout={data} teams={bout.teams} />
+      <TimeoutButtons timeout={data!} teams={bout.teams} />
     </>
   );
 }

@@ -1,12 +1,14 @@
 """FastAPI routes associated with Timeouts."""
 
-from typing import Annotated, Final, Literal
+from typing import TYPE_CHECKING, Annotated, Final, Literal
 
 from fastapi import APIRouter, Body
-from game.teams.dependencies import GetTeam
 
 from .dependencies import GetTimeout, _get_timeout
 from .schemas import TimeoutSchema
+
+if TYPE_CHECKING:
+    from game.bouts.models import BaseBout
 
 TIMEOUTS_TAG = 'Timeouts'
 
@@ -26,9 +28,12 @@ async def set_type(
 
 
 @router.post('/team', tags=[TIMEOUTS_TAG])
-async def set_team(timeout: GetTimeout, team: GetTeam) -> None:
+async def set_team(
+    timeout: GetTimeout, team_num: Annotated[int | None, Body()]
+) -> None:
     """Set the calling Team of the specified Timeout."""
-    timeout.set_team(team)
+    bout: BaseBout = await timeout.get_bout()
+    timeout.set_team(bout.teams[team_num] if team_num is not None else None)
     pass
 
 

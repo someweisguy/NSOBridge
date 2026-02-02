@@ -12,7 +12,7 @@ export async function getTimeout(
 }
 
 export default class Clock {
-  id: number;
+  id: number; // FIXME: remove this field
 
   startTimestamp: Date | null;
   elapsed: number;
@@ -59,10 +59,10 @@ export class Timeout {
     });
   }
 
-  async setTeam(team: number | null): Promise<void> {
+  async setTeam(teamNum: number | null): Promise<void> {
     await localAPI.post("timeout/team", {
       query: { boutUuid: this.boutUuid, num: this.num },
-      body: team,
+      body: JSON.stringify(teamNum), // FIXME: this doesn't work when null
     });
   }
 

@@ -27,7 +27,7 @@ export const useSetType = (timeout: Timeout) =>
 
 export const useSetTeam = (timeout: Timeout) =>
   useMutation({
-    mutationFn: (teamId: number | null) => timeout.setTeam(teamId),
+    mutationFn: (teamNum: number | null) => timeout.setTeam(teamNum),
   });
 
 export const useSetRetained = (timeout: Timeout) =>

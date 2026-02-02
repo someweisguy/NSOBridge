@@ -55,8 +55,8 @@ export default function TimeoutButtons({
                 : ""
               : String(timeout.teamNum)
           }
-          onChange={(teamId) =>
-            setTeam.mutate(teamId == String(NaN) ? null : Number(teamId))
+          onChange={(teamNum) =>
+            setTeam.mutate(teamNum == String(NaN) ? null : Number(teamNum))
           }
         />
       </div>
