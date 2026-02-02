@@ -1,4 +1,4 @@
-import ExtraordinaryStateClock from "@/components/extraordinary-state-clock";
+import ExtraordinaryStateClock from "@/features/bout-state-view/extraordinary-state-clock";
 import JamClock from "@/components/jam-clock";
 import PeriodClock from "@/components/period-clock";
 import IntermissionState from "@/features/bout-state-view/intermission-state-view";
