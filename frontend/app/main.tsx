@@ -97,7 +97,7 @@ function Main() {
   return (
     <BoutContext value={bout}>
       <Stack align="stretch" justify="flex-start">
-        <BoutControlButtons bout={bout} />
+        <BoutControlButtons />
         <SimpleGrid cols={bout.teams.length}>
           {bout.teams.map((team: Team, i: number) => (
             <TeamView key={i} team={team} />
