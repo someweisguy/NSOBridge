@@ -29,7 +29,7 @@ async def set_type(
 
 @router.post('/team', tags=[TIMEOUTS_TAG])
 async def set_team(
-    timeout: GetTimeout, team_num: Annotated[int | None, Body()]
+    timeout: GetTimeout, team_num: Annotated[int | None, Body()] = None
 ) -> None:
     """Set the calling Team of the specified Timeout."""
     bout: BaseBout = await timeout.get_bout()
