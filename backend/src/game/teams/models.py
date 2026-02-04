@@ -65,7 +65,7 @@ class BaseTeam(BaseSQLModel):
     )
     timeouts: Mapped[list[BaseTimeout]] = relationship(
         back_populates='team',
-        cascade=CASCADE_CHILD,
+        cascade='all',  # Exclude `delete-orphan` as Timeouts can be called by officials
         lazy='selectin',
         order_by=[BaseTimeout.num],
     )
