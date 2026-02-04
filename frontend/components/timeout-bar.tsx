@@ -3,11 +3,12 @@ import { IconCircleFilled } from "@tabler/icons-react";
 import { twMerge } from "tailwind-merge";
 
 interface TimeoutBarProps {
-  activeType?: "timeout" | "review";
   numTimeouts: number;
   timeoutsRemaining: number;
   numReviews: number;
   reviewsRemaining: number;
+  timeoutIsActive: boolean;
+  isReview: boolean;
   size: number;
 }
 
@@ -37,9 +38,10 @@ function TimeoutPip({
 export default function TimeoutBar({
   numTimeouts,
   numReviews,
-  activeType,
   timeoutsRemaining,
   reviewsRemaining,
+  timeoutIsActive,
+  isReview,
   size = 30,
 }: TimeoutBarProps) {
   return (
@@ -50,7 +52,9 @@ export default function TimeoutBar({
             <TimeoutPip
               size={size}
               invisible={i >= timeoutsRemaining}
-              active={i == timeoutsRemaining - 1 && activeType == "timeout"}
+              active={
+                i == timeoutsRemaining - 1 && timeoutIsActive && !isReview
+              }
             />
           </Center>
         </Card.Section>
@@ -64,7 +68,7 @@ export default function TimeoutBar({
             <TimeoutPip
               size={size}
               invisible={i >= reviewsRemaining}
-              active={i == reviewsRemaining - 1 && activeType == "review"}
+              active={i == reviewsRemaining - 1 && timeoutIsActive && isReview}
             />
           </Center>
         </Card.Section>

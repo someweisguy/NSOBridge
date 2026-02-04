@@ -25,13 +25,6 @@ export default function TeamView({ team }: TeamsViewProps) {
     placeholderData: undefined,
   });
 
-  const timeoutType: "review" | "timeout" | undefined =
-    timeout == undefined || timeout.teamIsOfficials
-      ? undefined
-      : timeout.isReview
-        ? "review"
-        : "timeout";
-
   return (
     <Stack>
       <Center>
@@ -41,11 +34,14 @@ export default function TeamView({ team }: TeamsViewProps) {
       </Center>
       <Group justify="center">
         <TimeoutBar
-          activeType={timeoutType}
           numTimeouts={ruleset.numTimeouts}
           timeoutsRemaining={team.timeoutsRemaining}
           numReviews={ruleset.numReviews}
           reviewsRemaining={team.reviewsRemaining}
+          timeoutIsActive={
+            (timeout?.isRunning() && timeout?.teamNum == team.num) ?? false
+          }
+          isReview={timeout?.isReview ?? false}
           size={30}
         />
 
