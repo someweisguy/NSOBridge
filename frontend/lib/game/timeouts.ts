@@ -60,7 +60,7 @@ export class Timeout {
   async setTeam(teamNum: number | null): Promise<void> {
     await localAPI.post("timeout/team", {
       query: { boutUuid: this.boutUuid, num: this.num },
-      body: JSON.stringify(teamNum), // FIXME: this doesn't work when null
+      body: teamNum,
     });
   }
 
