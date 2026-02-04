@@ -44,6 +44,8 @@ export default function App() {
   const { data: bouts } = useSuspenseAllBouts();
   const [boutUuid, setBoutUuid] = useState(bouts[bouts.length - 1].uuid);
 
+  // TODO: iterate bouts and manually add cache data
+
   return (
     <StrictMode>
       <MantineProvider>
