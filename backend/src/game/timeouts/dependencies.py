@@ -18,7 +18,7 @@ async def _get_timeout(
 ) -> BaseTimeout:
     try:
         timeout: BaseTimeout = bout.timeouts[num]
-    except KeyError as e:
+    except IndexError as e:
         raise ModelLookupError(f'Could not find Timeout ({bout=} {num=})') from e
 
     # Optionally take a snapshot of the Timeout state
