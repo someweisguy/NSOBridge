@@ -1,11 +1,15 @@
+import queryClient from "@/lib/cache";
 import { Bout, createBout, getAllBouts, getBout } from "@/lib/game/bouts";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useSuspenseAllBouts = () =>
-  useSuspenseQuery({
-    queryKey: Bout.generateKey(),
-    queryFn: () => getAllBouts(),
-  });
+  useSuspenseQuery(
+    {
+      queryKey: Bout.generateKey(),
+      queryFn: () => getAllBouts(),
+    },
+    queryClient,
+  );
 
 export const useBout = (uuid: string) =>
   useQuery({
