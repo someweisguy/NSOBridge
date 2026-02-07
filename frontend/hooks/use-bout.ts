@@ -6,7 +6,13 @@ export const useSuspenseAllBouts = () =>
   useSuspenseQuery(
     {
       queryKey: Bout.generateKey(),
-      queryFn: () => getAllBouts(),
+      queryFn: () =>
+        getAllBouts().then((bouts: Bout[]) => {
+          for (const bout of bouts) {
+            queryClient.setQueryData(Bout.generateKey(bout.uuid), bout);
+          }
+          return bouts;
+        }),
     },
     queryClient,
   );
