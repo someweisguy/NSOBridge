@@ -72,7 +72,7 @@ class BaseTeam(BaseSQLModel):
 
     # Used to calculate the current Jam score
     # SQLAlchemy does not understand `is` keyword in WHERE clauses, thus ignore E711.
-    _active_jam_uuid: MappedSQLExpression[int | None] = column_property(
+    _active_jam_uuid: MappedSQLExpression[UUID] = column_property(
         select(BaseJam.uuid)
         .where(BaseJam.start_timestamp != None)  # noqa: E711
         .order_by(desc(BaseJam.period), desc(BaseJam.num))
