@@ -116,5 +116,5 @@ class APIResponseClass(JSONResponse):
             allow_nan=False,
             indent=None,
             separators=(',', ':'),
-            default=(lambda dt: str(dt)),  # Serialize datetime objects
+            default=(str),  # Serialize datetime objects
         ).encode('utf-8')
