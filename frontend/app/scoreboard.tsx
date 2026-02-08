@@ -1,4 +1,5 @@
 import JamClock from "@/components/jam-clock";
+import JamNumber from "@/components/jam-number";
 import PeriodClock from "@/components/period-clock";
 import TeamProvider from "@/components/team-provider";
 import TeamView from "@/features/team-view/team-view";
@@ -10,14 +11,7 @@ import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import FitScreen from "@fit-screen/react";
-import {
-  Center,
-  Grid,
-  Group,
-  MantineProvider,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { Center, Grid, Group, MantineProvider, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -52,7 +46,6 @@ function Scoreboard() {
   const { data: bout } = useSuspenseBout(
     series.boutUuids[series.activeBoutIndex ?? series.boutUuids.length - 1],
   );
-  const [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
 
   // Eagerly query the latest Jam and Timeout to avoid suspending
   void useJam(bout, ...bout.getLatestJamNum());
@@ -73,12 +66,10 @@ function Scoreboard() {
             <PeriodClock size="36pt" />
           </Center>
           <Center>
-            <Text size="36pt">
-              P{periodNum + 1} J{jamNum + 1}
-            </Text>
+            <JamNumber size="36pt" />
           </Center>
           <Center>
-            <JamClock periodNum={periodNum} jamNum={jamNum} />
+            <JamClock />
           </Center>
         </Group>
       </Center>

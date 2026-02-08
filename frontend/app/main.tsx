@@ -1,6 +1,7 @@
 import BoutPicker from "@/components/bout-picker";
 import BoutProvider from "@/components/bout-provider";
 import JamClock from "@/components/jam-clock";
+import JamNumber from "@/components/jam-number";
 import JamProvider from "@/components/jam-provider";
 import PeriodClock from "@/components/period-clock";
 import TeamProvider from "@/components/team-provider";
@@ -20,7 +21,6 @@ import {
   MantineProvider,
   SimpleGrid,
   Stack,
-  Text,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
@@ -120,9 +120,7 @@ function Main({ boutUuid }: { boutUuid: string }) {
             <PeriodClock size="36pt" />
           </Center>
           <Center>
-            <Text size="36pt">
-              P{periodNum + 1} J{jamNum + 1}
-            </Text>
+            <JamNumber size="36pt" />
           </Center>
           <Center>
             <JamClock size="36pt" />
