@@ -17,7 +17,7 @@ import {
   AppShell,
   Burger,
   Center,
-  Group,
+  Grid,
   MantineProvider,
   SimpleGrid,
   Stack,
@@ -93,9 +93,6 @@ function Main({ boutUuid }: { boutUuid: string }) {
 
   const { data: bout } = useSuspenseBout(boutUuid);
 
-  // // Eagerly query the latest Jam and Timeout to avoid suspending
-  // void useJam(bout, ...bout.getLatestJamNum()); // TODO remove me
-
   // Fetch Jam data
   const [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
 
@@ -115,17 +112,26 @@ function Main({ boutUuid }: { boutUuid: string }) {
         </SimpleGrid>
 
         {/* Bout State View */}
-        <Group grow justify="center">
-          <Center>
-            <PeriodClock size="36pt" />
-          </Center>
-          <Center>
-            <JamNumber size="36pt" />
-          </Center>
-          <Center>
-            <JamClock size="36pt" />
-          </Center>
-        </Group>
+        <Grid grow columns={3} justify="space-around" align="flex-start">
+          <Grid.Col span={1}>
+            <Center>
+              <PeriodClock size="36pt" />
+            </Center>
+          </Grid.Col>
+          <Grid.Col span={1}>
+            <Center>
+              <JamNumber size="36pt" />
+            </Center>
+          </Grid.Col>
+          <Grid.Col span={1}>
+            <Center>
+              <JamClock size="36pt" />
+            </Center>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <Center></Center>
+          </Grid.Col>
+        </Grid>
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>
