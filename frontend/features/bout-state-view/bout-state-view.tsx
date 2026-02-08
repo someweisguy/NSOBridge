@@ -5,17 +5,16 @@ import IntermissionState from "@/features/bout-state-view/intermission-state-vie
 import { useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { timeoutQueryOptions } from "@/hooks/use-timeout";
+import { Bout } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
-import { BoutContext } from "@/utils/contexts";
 import { Center, Group, Stack, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { useContext } from "react";
 
-export default function BoutStateView() {
-  const bout = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("AddTripButtons must be inside a Bout context");
-  }
+interface BoutStateViewProps {
+  bout: Bout;
+}
+
+export default function BoutStateView({ bout }: BoutStateViewProps) {
   const { data: ruleset } = useSuspenseRuleset(bout);
 
   const { data: timeout } = useQuery<Timeout>({

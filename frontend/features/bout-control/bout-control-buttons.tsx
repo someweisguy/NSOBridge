@@ -10,23 +10,16 @@ import { useRedo, useUndo } from "@/hooks/use-history";
 import { timeoutQueryOptions } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
-import { BoutContext } from "@/utils/contexts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useContext } from "react";
 import TimeoutButtons from "./timeout-buttons";
 
 interface MainControlProps {
   bout: Bout;
 }
 
-export default function BoutControlButtons() {
-  const bout = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("AddTripButtons must be inside a Bout context");
-  }
-
+export default function BoutControlButtons({ bout }: MainControlProps) {
   let mainControls = <></>;
   switch (bout.state) {
     case "stopped":
