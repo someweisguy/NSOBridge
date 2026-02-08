@@ -1,13 +1,13 @@
 import BoutPicker from "@/components/bout-picker";
 import BoutProvider from "@/components/bout-provider";
+import JamClock from "@/components/jam-clock";
 import JamProvider from "@/components/jam-provider";
+import PeriodClock from "@/components/period-clock";
 import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
-import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseAllBouts, useSuspenseBout } from "@/hooks/use-bout";
-import { useJam } from "@/hooks/use-jam";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
@@ -15,9 +15,12 @@ import { redo, undo } from "@/lib/history";
 import {
   AppShell,
   Burger,
+  Center,
+  Group,
   MantineProvider,
   SimpleGrid,
   Stack,
+  Text,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
@@ -91,7 +94,7 @@ function Main({ boutUuid }: { boutUuid: string }) {
   const { data: bout } = useSuspenseBout(boutUuid);
 
   // // Eagerly query the latest Jam and Timeout to avoid suspending
-  void useJam(bout, ...bout.getLatestJamNum()); // TODO remove me
+  // void useJam(bout, ...bout.getLatestJamNum()); // TODO remove me
 
   // Fetch Jam data
   const [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
@@ -112,7 +115,19 @@ function Main({ boutUuid }: { boutUuid: string }) {
         </SimpleGrid>
 
         {/* Bout State View */}
-        <BoutStateView bout={bout} />
+        <Group grow justify="center">
+          <Center>
+            <PeriodClock size="36pt" />
+          </Center>
+          <Center>
+            <Text size="36pt">
+              P{periodNum + 1} J{jamNum + 1}
+            </Text>
+          </Center>
+          <Center>
+            <JamClock size="36pt" />
+          </Center>
+        </Group>
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>

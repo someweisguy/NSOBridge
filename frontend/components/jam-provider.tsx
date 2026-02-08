@@ -16,5 +16,6 @@ export default function JamProvider({
   children,
 }: JamProviderProps) {
   const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
+
   return <JamContext value={jam}>{children}</JamContext>;
 }
