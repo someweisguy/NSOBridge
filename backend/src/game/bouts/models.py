@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
+from uuid import UUID  # noqa: TC003
 
 from core import CASCADE_CHILD, CASCADE_OTHER
 from game.clocks.models import Clock
@@ -32,8 +33,10 @@ class BaseBout(CacheableSQLModel):
 
     ruleset: ClassVar[Ruleset]
 
-    series_id: Mapped[int] = mapped_column(ForeignKey('series.id'))
-    clock_id: Mapped[int] = mapped_column(ForeignKey('clocks.id', ondelete='RESTRICT'))
+    _clock_uuid: Mapped[UUID] = mapped_column(
+        ForeignKey('clocks.uuid', ondelete='RESTRICT')
+    )
+    series_uuid: Mapped[UUID] = mapped_column(ForeignKey('series.uuid'))
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
@@ -43,11 +46,11 @@ class BaseBout(CacheableSQLModel):
     _series: Mapped[Series] = relationship(
         back_populates='bouts',
         cascade=CASCADE_OTHER,
-        foreign_keys=[series_id],
+        foreign_keys=[series_uuid],
     )
     clock: Mapped[Clock] = relationship(
         cascade=CASCADE_CHILD,
-        foreign_keys=[clock_id],
+        foreign_keys=[_clock_uuid],
         lazy='joined',
         single_parent=True,
     )
@@ -55,6 +58,7 @@ class BaseBout(CacheableSQLModel):
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
+        order_by=[column('num')],
     )
     jams: Mapped[list[BaseJam]] = relationship(
         back_populates='_bout',
@@ -66,7 +70,7 @@ class BaseBout(CacheableSQLModel):
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
-        order_by=[column('id')],
+        order_by=[column('num')],
     )
 
     __tablename__: str = 'bouts'
@@ -82,7 +86,7 @@ class BaseBout(CacheableSQLModel):
             str: a str representation of this Bout.
 
         """
-        return f'[Bout ID: {self.id}]'
+        return f'[Bout UUID: {self.uuid}]'
 
     def __init__(self, ruleset_name: str, *teams: BaseTeam) -> None:
         """Instantiate a Bout.
@@ -96,8 +100,8 @@ class BaseBout(CacheableSQLModel):
         super().__init__(clock=Clock(), ruleset_name=ruleset_name, teams=list(teams))
 
     @override
-    def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.id)
+    async def cache_key(self) -> CacheKey:
+        return (self.__tablename__, self.uuid)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
@@ -136,6 +140,15 @@ class BaseBout(CacheableSQLModel):
         else:
             return 'stopped'
 
+    def get_active_jam(self) -> BaseJam:
+        """Get the most recently started Jam or upcoming Jam.
+
+        Returns:
+            BaseJam: the active Jam.
+
+        """
+        return next((j for j in self.jams if j.is_started()), self.jams[-1])
+
     def get_running_jam(self) -> BaseJam | None:
         """Get the running Jam if there is one.
 
@@ -165,16 +178,14 @@ class BaseBout(CacheableSQLModel):
         """
         return next((t for t in self.timeouts if t.is_running()), None)
 
-    def get_upcoming_timeout(self) -> BaseTimeout | None:
-        """Get the upcoming Timeout if there is one.
-
-        The upcoming Timeout is the first Timeout that is not started.
+    def get_last_timeout(self) -> BaseTimeout | None:
+        """Get most recently complete Timeout if there is one.
 
         Returns:
-            BaseTimeout | None: the upcoming Timeout or None.
+            BaseTimeout | None: the most recently complete Timeout or None.
 
         """
-        return next((t for t in self.timeouts if not t.is_started()), None)
+        return next((t for t in reversed(self.timeouts) if not t.is_running()), None)
 
     async def begin_period(self, timestamp: datetime) -> None:
         """Begin the next Period.

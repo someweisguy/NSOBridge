@@ -7,6 +7,5 @@ from game.trip_events.schemas import TripEventSchema
 class TeamJamSchema(ServerSchema):
     """Represent a TeamJam as a JSON schema."""
 
-    jam_id: int
-    team_id: int
+    team_num: int
     events: list[TripEventSchema]

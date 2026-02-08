@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, override
+from uuid import UUID  # noqa: TC003
 
 from core import CASCADE_OTHER, BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
@@ -26,8 +27,8 @@ class TripEvent(BaseSQLModel):
     eligibility.
     """
 
-    team_jam_id: Mapped[int | None] = mapped_column(
-        ForeignKey('team_jams.id'), nullable=False
+    team_jam_uuid: Mapped[UUID | None] = mapped_column(
+        ForeignKey('team_jams.uuid'), nullable=False
     )
 
     timestamp: Mapped[datetime] = mapped_column()
@@ -37,7 +38,9 @@ class TripEvent(BaseSQLModel):
     star_pass: Mapped[bool] = mapped_column(default=False)
 
     _team_jam: Mapped[TeamJam | None] = relationship(
-        back_populates='events', cascade=CASCADE_OTHER, foreign_keys=[team_jam_id]
+        back_populates='events',
+        cascade=CASCADE_OTHER,
+        foreign_keys=[team_jam_uuid],
     )
 
     __tablename__: str = 'trip_events'

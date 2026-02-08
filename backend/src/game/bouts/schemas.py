@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
 from typing import Literal  # noqa: TC003
+from uuid import UUID  # noqa: TC003
 
 from core import ServerSchema
 from game.clocks.schemas import ClockSchema  # noqa: TC002
@@ -16,8 +17,7 @@ from pydantic import Field, computed_field
 class BoutSchema(ServerSchema):
     """Represent a Bout as a JSON schema."""
 
-    id: int
-    series_id: int
+    uuid: UUID
     ruleset_name: str
     clock: ClockSchema
     is_running: bool
@@ -30,27 +30,25 @@ class BoutSchema(ServerSchema):
 
     @computed_field
     @property
-    def jam_ids(self) -> list[list[int]]:
-        """Get a list of lists representing the IDs of this Bout's Jams.
+    def jam_counts(self) -> tuple[int, int, int]:
+        """A tuple representing the number of jams in this Bout per Period.
 
         Returns:
-            list[list[int]]: the Jam IDs of this Bout's Jams. Each list represents a
-            Period such that a specific Jam may be queried using
-            `bout.jam_ids[period_num][jam_num]`.
+            tuple[int, int, int]: the number of Jams in each Period of this Bout.
 
         """
-        jam_ids: list[list[int]] = [[], [], []]
+        counts: dict[int, int] = {}
         for jam in self.jams:
-            jam_ids[jam.period].append(jam.id)
-        return jam_ids
+            counts[jam.period] = counts.get(jam.period, 0) + 1
+        return counts.get(0, 0), counts.get(1, 0), counts.get(2, 0)
 
     @computed_field
     @property
-    def timeout_ids(self) -> list[int]:
-        """Get a list representing the IDs of this Bout's Timeouts.
+    def timeout_count(self) -> int:
+        """Get the number of Timeouts in this Bout.
 
         Returns:
-            list[int]: the Timeout IDs of this Bout's Timeouts.
+            list[int]: the number of timeouts in this Bout.
 
         """
-        return [timeout.id for timeout in self.timeouts]
+        return len(self.timeouts)

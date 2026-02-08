@@ -4,7 +4,7 @@ This file exports the core functions needed to run NSO Bridge.
 """
 
 from .database import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, DatabaseEngine
-from .dependencies import AsyncSessionDepends, EngineFactory
+from .dependencies import EngineFactory, GetAsyncSession
 from .protocols import Memento
 from .router import api_router, assets, pages_router
 from .schemas import APIResponseClass, ClientSchema, ServerSchema
@@ -21,7 +21,6 @@ __all__ = (
     'api_router',
     'APIResponseClass',
     'assets',
-    'AsyncSessionDepends',
     'BaseSQLModel',
     'CASCADE_CHILD',
     'CASCADE_OTHER',
@@ -33,6 +32,7 @@ __all__ = (
     'get_default_route',
     'get_resource_path',
     'get_server',
+    'GetAsyncSession',
     'Memento',
     'pages_router',
     'ServerSchema',

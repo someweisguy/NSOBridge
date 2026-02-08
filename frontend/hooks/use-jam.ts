@@ -4,32 +4,32 @@ import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useSuspenseJam = (bout: Bout, periodNum: number, jamNum: number) =>
   useSuspenseQuery<Jam>({
-    queryKey: Jam.generateKey(bout.id, periodNum, jamNum),
-    queryFn: () => getJam(bout.jamIds[periodNum][jamNum]),
+    queryKey: Jam.generateKey(bout.uuid, periodNum, jamNum),
+    queryFn: () => getJam(bout.uuid, periodNum, jamNum),
   });
 
 export const useJam = (bout: Bout, periodNum: number, jamNum: number) =>
   useQuery<Jam>({
-    queryKey: Jam.generateKey(bout.id, periodNum, jamNum),
-    queryFn: () => getJam(bout.jamIds[periodNum][jamNum]),
+    queryKey: Jam.generateKey(bout.uuid, periodNum, jamNum),
+    queryFn: () => getJam(bout.uuid, periodNum, jamNum),
   });
 
-export const useAddTrip = (teamJam: TeamJam) =>
+export const useAddTrip = (jam: Jam, teamJam: TeamJam) =>
   useMutation({
-    mutationFn: (passes: number) => teamJam.addTrip(passes),
+    mutationFn: (passes: number) => jam.addTrip(teamJam, passes),
   });
 
-export const useSetLead = (teamJam: TeamJam) =>
+export const useSetLead = (jam: Jam, teamJam: TeamJam) =>
   useMutation({
-    mutationFn: (lead: boolean) => teamJam.setLead(lead),
+    mutationFn: (lead: boolean) => jam.setLead(teamJam, lead),
   });
 
-export const useSetLost = (teamJam: TeamJam) =>
+export const useSetLost = (jam: Jam, teamJam: TeamJam) =>
   useMutation({
-    mutationFn: (lost: boolean) => teamJam.setLost(lost),
+    mutationFn: (lost: boolean) => jam.setLost(teamJam, lost),
   });
 
-export const useSetStarPass = (teamJam: TeamJam) =>
+export const useSetStarPass = (jam: Jam, teamJam: TeamJam) =>
   useMutation({
-    mutationFn: (starPass: boolean) => teamJam.setStarPass(starPass),
+    mutationFn: (starPass: boolean) => jam.setStarPass(teamJam, starPass),
   });

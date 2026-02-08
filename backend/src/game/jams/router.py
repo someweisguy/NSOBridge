@@ -3,9 +3,10 @@
 from datetime import datetime
 from typing import Annotated, Final
 
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body
+from game.teams.dependencies import GetTeam
 
-from .dependencies import GetJamByID, _get_jam
+from .dependencies import GetJam, _get_jam
 from .schemas import JamSchema
 
 JAMS_TAG = 'Jams'
@@ -16,39 +17,39 @@ router.add_api_route('', _get_jam, response_model=JamSchema | None, tags=[JAMS_T
 
 @router.post('/addTrip', tags=[JAMS_TAG])
 async def add_trip(
-    jam: GetJamByID,
-    team_id: Annotated[int, Query(alias='teamId')],
+    jam: GetJam,
+    team: GetTeam,
     passes: Annotated[int, Body()],
 ) -> None:
     """Add a Trip for the specified Team of the specified Jam."""
-    await jam.add_trip(team_id, datetime.now(), passes)
+    await jam.add_trip(team, datetime.now(), passes)
 
 
 @router.post('/setLead', tags=[JAMS_TAG])
 async def set_lead(
-    jam: GetJamByID,
-    team_id: Annotated[int, Query(alias='teamId')],
+    jam: GetJam,
+    team: GetTeam,
     lead: Annotated[bool, Body()],
 ) -> None:
     """Set Lead for the specified Team of the specified Jam."""
-    await jam.set_lead(team_id, datetime.now(), lead)
+    await jam.set_lead(team, datetime.now(), lead)
 
 
 @router.post('/setLost', tags=[JAMS_TAG])
 async def set_lost(
-    jam: GetJamByID,
-    team_id: Annotated[int, Query(alias='teamId')],
+    jam: GetJam,
+    team: GetTeam,
     lost: Annotated[bool, Body()],
 ) -> None:
     """Set Lost for the specified Team of the specified Jam."""
-    await jam.set_lost(team_id, datetime.now(), lost)
+    await jam.set_lost(team, datetime.now(), lost)
 
 
 @router.post('/setStarPass', tags=[JAMS_TAG])
 async def set_star_pass(
-    jam: GetJamByID,
-    team_id: Annotated[int, Query(alias='teamId')],
-    star_pass: Annotated[bool, Body()],
+    jam: GetJam,
+    team: GetTeam,
+    star_pass: Annotated[bool, Body(alias='starPass')],
 ) -> None:
     """Set a Star Pass for the specified Team of the specified Jam."""
-    await jam.set_star_pass(team_id, datetime.now(), star_pass)
+    await jam.set_star_pass(team, datetime.now(), star_pass)

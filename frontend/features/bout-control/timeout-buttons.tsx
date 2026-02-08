@@ -40,8 +40,8 @@ export default function TimeoutButtons({
         <SegmentedControl
           data={[
             // TODO: labels should display Roster name/mnemonic
-            { value: String(teams[0].id), label: "Home" },
-            { value: String(teams[1].id), label: "Away" },
+            { value: String(teams[0].num), label: "Home" },
+            { value: String(teams[1].num), label: "Away" },
             {
               value: String(NaN),
               label: "Official",
@@ -49,14 +49,14 @@ export default function TimeoutButtons({
             },
           ]}
           value={
-            timeout.teamId == null
+            timeout.teamNum == null
               ? timeout.teamIsOfficials
                 ? String(NaN)
                 : ""
-              : String(timeout.teamId)
+              : String(timeout.teamNum)
           }
-          onChange={(teamId) =>
-            setTeam.mutate(teamId == String(NaN) ? null : Number(teamId))
+          onChange={(teamNum) =>
+            setTeam.mutate(teamNum == String(NaN) ? null : Number(teamNum))
           }
         />
       </div>

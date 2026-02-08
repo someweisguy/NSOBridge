@@ -10,7 +10,7 @@ export default function IntermissionState({
   bout,
   ...props
 }: IntermissionStateViewProps) {
-  const [periodNum] = bout.getActiveOrLatestJamIndex();
+  const [periodNum] = bout.getActiveOrLatestJamNum();
 
   let copy = "Starting Soon";
   if (bout.isFinal) {

@@ -21,7 +21,6 @@ class Series(CacheableSQLModel):
 
     """
 
-    rowid: Mapped[int] = mapped_column(system=True)
     name: Mapped[str] = mapped_column(default='')
 
     bouts: Mapped[list[BaseBout]] = relationship(
@@ -32,10 +31,19 @@ class Series(CacheableSQLModel):
 
     __tablename__: str = 'series'
 
+    def __init__(self, name: str = '') -> None:
+        """Initialize a Series.
+
+        Args:
+            name (str, optional): the name of the Series. Defaults to ''.
+
+        """
+        super().__init__(name=name)
+
     @override
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
-        return (self.__tablename__, self.id)
+        return (self.__tablename__, self.uuid)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

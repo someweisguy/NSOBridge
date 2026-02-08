@@ -1,29 +1,26 @@
-import BoutControlButtons from "@/components/bout-control-buttons";
-import BoutStateView from "@/components/bout-state-view";
-import TeamJamView from "@/components/team-jam-view";
+import BoutPicker from "@/components/bout-picker";
+import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
+import BoutStateView from "@/features/bout-state-view/bout-state-view";
+import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
-import { useSuspenseBout } from "@/hooks/use-bout";
+import { useSuspenseAllBouts, useSuspenseBout } from "@/hooks/use-bout";
 import { useJam, useSuspenseJam } from "@/hooks/use-jam";
-import { useSuspenseRuleset } from "@/hooks/use-ruleset";
-import { useSuspenseSeries } from "@/hooks/use-series";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
-import { useSuspenseTimeout, useTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
-import { BoutContext, JamContext, RulesetContext } from "@/utils/contexts";
+import { BoutContext } from "@/utils/contexts";
 import {
   AppShell,
   Burger,
-  Container,
-  Grid,
   MantineProvider,
+  SimpleGrid,
   Stack,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode, Suspense } from "react";
+import { StrictMode, Suspense, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 
@@ -43,6 +40,10 @@ createRoot(root).render(<App />);
 
 export default function App() {
   const [opened, { toggle }] = useDisclosure();
+
+  const { data: bouts } = useSuspenseAllBouts();
+  const [boutUuid, setBoutUuid] = useState(bouts[bouts.length - 1].uuid);
+
   return (
     <StrictMode>
       <MantineProvider>
@@ -65,11 +66,14 @@ export default function App() {
               />
             </AppShell.Header>
 
-            <AppShell.Navbar>{/* TODO: Navbar */}</AppShell.Navbar>
+            <AppShell.Navbar>
+              <BoutPicker onChange={(uuid: string) => setBoutUuid(uuid)} />
+              {/* TODO: Navbar */}
+            </AppShell.Navbar>
 
             <AppShell.Main>
               <Suspense fallback={"Loading..."}>
-                <Main />
+                <Main boutUuid={boutUuid} />
               </Suspense>
             </AppShell.Main>
           </AppShell>
@@ -79,59 +83,34 @@ export default function App() {
   );
 }
 
-function Main() {
+function Main({ boutUuid }: { boutUuid: string }) {
   usePrefetchServerTime();
 
-  const { data: series } = useSuspenseSeries(0);
-  const { data: bout } = useSuspenseBout(series);
+  const { data: bout } = useSuspenseBout(boutUuid);
 
   // Eagerly query the latest Jam and Timeout to avoid suspending
-  void useJam(bout, ...bout.getLatestJamIndex());
-  void useTimeout(bout, bout.getLatestTimeoutIndex());
-
-  const { data: ruleset } = useSuspenseRuleset(bout);
+  void useJam(bout, ...bout.getLatestJamNum());
 
   // Fetch Jam data
-  const jamIndex = bout.getActiveOrLatestJamIndex();
-  const [periodNum, jamNum] = jamIndex;
+  const [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
   const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
-
-  // Fetch Timeout data
-  const timeoutIndex = bout.getActiveOrLatestTimeoutIndex();
-  const { data: timeout } = useSuspenseTimeout(bout, timeoutIndex);
 
   return (
     <BoutContext value={bout}>
-      <RulesetContext value={ruleset}>
-        <Container>
-          <Stack>
-            <BoutControlButtons bout={bout} />
-            <Grid columns={bout.teams.length} align="center">
-              <JamContext value={jam}>
-                {bout.teams.map((team: Team, i: number) => (
-                  <Grid.Col key={i} span={1}>
-                    <Stack>
-                      <TeamView
-                        bout={bout}
-                        team={team}
-                        timeout={timeout}
-                        ruleset={ruleset}
-                      />
-                      <TeamJamView jam={jam} team={team} />
-                    </Stack>
-                  </Grid.Col>
-                ))}
-              </JamContext>
-            </Grid>
-            <BoutStateView
-              bout={bout}
-              activeOrLatestJam={jam}
-              activeTimeout={timeout}
-              ruleset={ruleset}
-            />
-          </Stack>
-        </Container>
-      </RulesetContext>
+      <Stack align="stretch" justify="flex-start">
+        <BoutControlButtons />
+        <SimpleGrid cols={bout.teams.length}>
+          {bout.teams.map((team: Team, i: number) => (
+            <TeamView key={i} team={team} />
+          ))}
+        </SimpleGrid>
+        <BoutStateView />
+        <SimpleGrid cols={bout.teams.length}>
+          {bout.teams.map((team: Team, i: number) => (
+            <TeamJamView key={i} jam={jam} team={team} />
+          ))}
+        </SimpleGrid>
+      </Stack>
     </BoutContext>
   );
 }

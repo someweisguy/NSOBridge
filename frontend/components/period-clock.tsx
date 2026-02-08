@@ -8,7 +8,7 @@ interface PeriodClockProps extends TextProps {
 }
 
 export default function PeriodClock({ bout, ...props }: PeriodClockProps) {
-  const showClock = bout.jamIds[2].length == 0;
+  const showClock = bout.jamCounts[2] == 0;
 
   const overtimeText = "OT";
 

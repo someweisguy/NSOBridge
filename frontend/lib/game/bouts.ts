@@ -2,9 +2,16 @@ import { localAPI } from "@/lib/requests";
 import { CacheKey } from "@/types/ws";
 import Clock from "./timeouts";
 
-export async function getBout(boutId: number): Promise<Bout> {
-  const data = await localAPI.get<Partial<Bout>>("bout", { query: { boutId } });
+export async function getBout(boutUuid: string): Promise<Bout> {
+  const data = await localAPI.get<Partial<Bout>>("bout", {
+    query: { boutUuid },
+  });
   return Object.assign(new Bout(), data);
+}
+
+export async function getAllBouts(): Promise<Bout[]> {
+  const data = await localAPI.get<Partial<Bout>[]>("bout/allBouts");
+  return data.map((bout: Partial<Bout>) => Object.assign(new Bout(), bout));
 }
 
 export async function createBout(
@@ -19,9 +26,9 @@ export async function createBout(
 }
 
 export class Bout {
-  id: number;
-  seriesId: number;
-  ruleset_name: string;
+  uuid: string;
+  seriesUuid: string;
+  rulesetName: string;
 
   startCountdown: Date | null;
   clock: Clock;
@@ -30,101 +37,109 @@ export class Bout {
   isRunning: boolean;
   isFinal: boolean;
   teams: Team[];
-  jamIds: number[][];
-  timeoutIds: number[];
+  jamCounts: [number, number, number];
+  timeoutCount: number;
 
-  static generateKey(boutId: number): CacheKey {
-    return ["bouts", boutId];
+  static generateKey(boutUuid?: string): CacheKey {
+    if (boutUuid == undefined) {
+      return ["bouts"];
+    }
+    return ["bouts", boutUuid];
   }
 
   async beginPeriod(): Promise<void> {
-    await localAPI.post("bout/beginPeriod", { query: { boutId: this.id } });
+    await localAPI.post("bout/beginPeriod", { query: { boutUuid: this.uuid } });
   }
 
   async endPeriod(): Promise<void> {
-    await localAPI.post("bout/endPeriod", { query: { boutId: this.id } });
+    await localAPI.post("bout/endPeriod", { query: { boutUuid: this.uuid } });
   }
 
   async startJam(): Promise<void> {
-    await localAPI.post("bout/startJam", { query: { boutId: this.id } });
+    await localAPI.post("bout/startJam", { query: { boutUuid: this.uuid } });
   }
 
   async stopJam(): Promise<void> {
-    await localAPI.post("bout/stopJam", { query: { boutId: this.id } });
+    await localAPI.post("bout/stopJam", { query: { boutUuid: this.uuid } });
   }
 
   async startTimeout(): Promise<void> {
-    await localAPI.post("bout/startTimeout", { query: { boutId: this.id } });
+    await localAPI.post("bout/startTimeout", {
+      query: { boutUuid: this.uuid },
+    });
   }
 
   async stopTimeout(): Promise<void> {
-    await localAPI.post("bout/stopTimeout", { query: { boutId: this.id } });
+    await localAPI.post("bout/stopTimeout", { query: { boutUuid: this.uuid } });
   }
 
-  getLatestJamIndex(): [number, number] {
+  getLatestJamNum(): [number, number] {
     // Get the latest Period number that contains Jams
     let periodNum = 0;
-    for (let i = this.jamIds.length - 1; i >= 0; --i) {
-      if (this.jamIds[i].length > 0) {
+    for (let i = this.jamCounts.length - 1; i >= 0; --i) {
+      if (this.jamCounts[i] > 0) {
         periodNum = i;
         break;
       }
     }
 
     // Get the latest Jam number in the active Period
-    const jamNum = this.jamIds[periodNum].length - 1;
+    const jamNum = this.jamCounts[periodNum] - 1;
 
     return [periodNum, jamNum];
   }
 
-  getActiveJamIndex(): [number, number] | null {
+  getActiveJamNum(): [number, number] | null {
     // Get the latest Period number that contains Jams
     let periodNum = 0;
-    for (let i = this.jamIds.length - 1; i >= 0; --i) {
-      if (this.jamIds[i].length > 0) {
+    for (let i = this.jamCounts.length - 1; i >= 0; --i) {
+      if (this.jamCounts[i] > 0) {
         periodNum = i;
         break;
       }
     }
 
     // Get the active Jam number in the active Period
-    if (this.jamIds[periodNum].length < 2) {
+    if (this.jamCounts[periodNum] < 2) {
       return null; // There is no active Jam
     }
-    const jamNum = this.jamIds[periodNum].length - 2;
+    const jamNum = this.jamCounts[periodNum] - 2;
 
     return [periodNum, jamNum];
   }
 
-  getActiveOrLatestJamIndex(): [number, number] {
-    return this.getActiveJamIndex() ?? this.getLatestJamIndex();
+  getActiveOrLatestJamNum(): [number, number] {
+    return this.getActiveJamNum() ?? this.getLatestJamNum();
   }
 
-  getLatestTimeoutIndex(): number {
-    let timeoutIndex = this.timeoutIds.length - 1;
+  getLatestTimeoutNum(): number {
+    let timeoutIndex = this.timeoutCount - 1;
     if (timeoutIndex < 0) {
       timeoutIndex = 0;
     }
     return timeoutIndex;
   }
 
-  getActiveTimeoutIndex(): number | null {
-    if (this.timeoutIds.length < 2) {
+  getActiveTimeoutNum(): number | null {
+    if (this.timeoutCount < 2) {
       return null; // There is no active Timeout
     }
 
-    return this.timeoutIds.length - 2;
+    return this.timeoutCount - 2;
   }
 
   getActiveOrLatestTimeoutIndex(): number {
-    return this.getActiveTimeoutIndex() ?? this.getLatestTimeoutIndex();
+    return this.getActiveTimeoutNum() ?? this.getLatestTimeoutNum();
   }
 }
 
 export interface Team {
-  id: number;
-  rosterId: number;
-  boutId: number;
+  num: number;
+
+  name: string;
+  league: string;
+  mnemonic: string;
+
   boutScore: number;
   jamScore: number;
   timeoutsRemaining: number;

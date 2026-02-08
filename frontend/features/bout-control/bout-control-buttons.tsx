@@ -1,6 +1,5 @@
 import {
   useBeginPeriod,
-  useCreateBout,
   useEndPeriod,
   useStartJam,
   useStartTimeout,
@@ -8,21 +7,26 @@ import {
   useStopTimeout,
 } from "@/hooks/use-bout";
 import { useRedo, useUndo } from "@/hooks/use-history";
-import { useSuspenseTimeout } from "@/hooks/use-timeout";
-import { Bout, Team } from "@/lib/game/bouts";
+import { timeoutQueryOptions } from "@/hooks/use-timeout";
+import { Bout } from "@/lib/game/bouts";
+import { Timeout } from "@/lib/game/timeouts";
+import { BoutContext } from "@/utils/contexts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
+import { useContext } from "react";
 import TimeoutButtons from "./timeout-buttons";
 
 interface MainControlProps {
   bout: Bout;
 }
 
-interface BoutControlButtonsProps {
-  bout: Bout;
-}
+export default function BoutControlButtons() {
+  const bout = useContext(BoutContext);
+  if (bout == null) {
+    throw new Error("AddTripButtons must be inside a Bout context");
+  }
 
-export default function BoutControlButtons({ bout }: BoutControlButtonsProps) {
   let mainControls = <></>;
   switch (bout.state) {
     case "stopped":
@@ -77,17 +81,17 @@ function StoppedButtons({ bout }: MainControlProps) {
 
   let beginPeriodButtonDisabled = false;
   let beginPeriodText = "Begin Period";
-  if (bout.jamIds[2].length > 1) {
+  if (bout.jamCounts[2] > 1) {
     beginPeriodButtonDisabled = true;
     endPeriodButtonText = "End Bout";
-  } else if (bout.jamIds[2].length == 1) {
+  } else if (bout.jamCounts[2] == 1) {
     beginPeriodText = "Begin OT";
     endPeriodButtonText = "End Bout";
     startJamText = "Start OT Jam";
-  } else if (bout.jamIds[1].length == 1) {
+  } else if (bout.jamCounts[1] == 1) {
     endPeriodButtonDisabled = true;
     beginPeriodText = "Begin P2";
-  } else if (bout.jamIds[0].length == 1) {
+  } else if (bout.jamCounts[0] == 1) {
     endPeriodButtonDisabled = true;
     beginPeriodText = "Begin P1";
   }
@@ -144,27 +148,26 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
   const stopTimeout = useStopTimeout(bout);
   const startJam = useStartJam(bout);
 
-  // FIXME: Remove this hook?
-  const { data } = useSuspenseTimeout(bout, bout.getActiveTimeoutIndex()!);
+  const { data } = useQuery<Timeout>({
+    ...timeoutQueryOptions(bout, bout.timeoutCount - 1),
+    enabled: bout.timeoutCount > 0,
+    placeholderData: new Timeout(),
+  });
 
   return (
     <>
       <Button onClick={() => stopTimeout.mutate()}>End Timeout</Button>
       <Button onClick={() => startJam.mutate()}>Start Jam</Button>
       <Divider orientation="vertical" />
-      <TimeoutButtons timeout={data} teams={bout.teams} />
+      <TimeoutButtons timeout={data!} teams={bout.teams} />
     </>
   );
 }
 
 function FinalControlButtons({ bout }: MainControlProps) {
-  const createBout = useCreateBout();
-
-  const rosterIds = bout.teams.map((team: Team) => team.rosterId);
-
   return (
     <>
-      <Button onClick={() => createBout.mutate(rosterIds)}>New Bout</Button>
+      <Button>New Bout{bout.uuid}</Button>
     </>
   );
 }

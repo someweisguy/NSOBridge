@@ -27,7 +27,7 @@ class CacheableSQLModel(BaseSQLModel):
 
     __abstract__: bool = True
 
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         """Get the cache key of this model.
 
         Return a unique cache key for this model which can be used by clients to cache

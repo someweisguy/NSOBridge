@@ -1,16 +1,17 @@
 import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
-export async function getTimeout(timeoutId: number): Promise<Timeout> {
+export async function getTimeout(
+  boutUuid: string,
+  num: number,
+): Promise<Timeout> {
   const data = await localAPI.get<Partial<Timeout>>("timeout", {
-    query: { timeoutId },
+    query: { boutUuid, num },
   });
   return Object.assign(new Timeout(), data);
 }
 
 export default class Clock {
-  id: number;
-
   startTimestamp: Date | null;
   elapsed: number;
   alarm: number;
@@ -21,24 +22,24 @@ export default class Clock {
 }
 
 export class Timeout {
-  id: number;
+  uuid: string;
 
-  boutId: number;
+  boutUuid: string;
   num: number;
-  teamId: number | null;
-  jamId: number | null;
+
   startTimestamp: Date | null;
   stopTimestamp: Date | null;
   clockElapsed: number;
 
+  teamNum: number | null;
   teamIsOfficials: boolean;
   isReview: boolean;
   details: string;
   result: string;
   retained: boolean;
 
-  static generateKey(boutId: number, timeoutId: number): CacheKey {
-    return ["timeouts", boutId, timeoutId];
+  static generateKey(boutUuid: string, timeoutId: number): CacheKey {
+    return ["timeouts", boutUuid, timeoutId];
   }
 
   hasStarted(): boolean {
@@ -51,21 +52,21 @@ export class Timeout {
 
   async setType(type: "timeout" | "review"): Promise<void> {
     await localAPI.post("timeout/type", {
-      query: { timeoutId: this.id },
+      query: { boutUuid: this.boutUuid, num: this.num },
       body: JSON.stringify(type),
     });
   }
 
-  async setTeam(team: number | null): Promise<void> {
+  async setTeam(teamNum: number | null): Promise<void> {
     await localAPI.post("timeout/team", {
-      query: { timeoutId: this.id },
-      body: team,
+      query: { boutUuid: this.boutUuid, num: this.num },
+      body: teamNum,
     });
   }
 
   async setRetained(isRetained: boolean): Promise<void> {
     await localAPI.post("timeout/retained", {
-      query: { timeoutId: this.id },
+      query: { boutUuid: this.boutUuid, num: this.num },
       body: isRetained,
     });
   }

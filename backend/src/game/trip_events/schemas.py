@@ -8,7 +8,6 @@ from core import ServerSchema
 class TripEventSchema(ServerSchema):
     """Represent a TripEvent as a JSON schema."""
 
-    id: int
     timestamp: datetime
     lead: bool
     lost: bool

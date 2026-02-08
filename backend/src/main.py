@@ -14,7 +14,7 @@ import ws
 from core import APIResponseClass, DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from game import Roster, Series, wftda_2025
+from game import Series, wftda_2025
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
 from update import GithubReleaseSchema
@@ -80,16 +80,12 @@ async def lifespan(app: FastAPI):
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
         if results.scalar_one_or_none() is None:
             logging.info('Instantiating the initial Bout model')
+            bout: wftda_2025.Bout = wftda_2025.Bout('Home', 'Away')
             series: Series = Series()
-            series.bouts.append(
-                wftda_2025.Bout(
-                    Roster('Home', 'Default League'),
-                    Roster('Away', 'Default League'),
-                )
-            )
+            series.bouts.append(bout)
             session.add(series)
             await session.commit()
-            logging.debug('The Bout model was inserted into the database')
+            logging.debug(f'{bout} was inserted into the database')
         else:
             logging.debug('Model data was found in the database')
 

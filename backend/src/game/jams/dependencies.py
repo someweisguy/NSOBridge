@@ -1,34 +1,28 @@
 """The FastAPI dependencies methods for Jams."""
 
-from typing import TYPE_CHECKING, Annotated, TypeAlias
+from typing import Annotated, TypeAlias
 
-from core import AsyncSessionDepends
 from core.exceptions import ModelLookupError
 from fastapi import Depends, Query, Request
-from sqlalchemy import select
-from sqlalchemy.exc import NoResultFound
+from game.bouts.dependencies import GetBout
 from user import GetUser
 
 from .models import BaseJam
-
-if TYPE_CHECKING:
-    from sqlalchemy.engine.result import Result
-    from sqlalchemy.sql.selectable import Select
 
 
 async def _get_jam(
     request: Request,
     user: GetUser,
-    session: AsyncSessionDepends,
-    jam_id: Annotated[int, Query(alias='jamId')],
+    bout: GetBout,
+    period: Annotated[int, Query()],
+    num: Annotated[int, Query()],
 ) -> BaseJam:
-    statement: Select[tuple[BaseJam]] = select(BaseJam).where(BaseJam.id == jam_id)
-    results: Result[tuple[BaseJam]] = await session.execute(statement)
-
     try:
-        jam: BaseJam = results.scalar_one()
-    except NoResultFound as e:
-        raise ModelLookupError(f'Could not find Jam with ID {jam_id}') from e
+        jam: BaseJam = next(
+            jam for jam in bout.jams if jam.period == period and jam.num == num
+        )
+    except StopIteration as e:
+        raise ModelLookupError(f'Could not find Jam ({bout=} {period=} {num=})') from e
 
     if request.method != 'GET':
         user.stage(jam.get_memento())
@@ -36,4 +30,4 @@ async def _get_jam(
     return jam
 
 
-GetJamByID: TypeAlias = Annotated[BaseJam, Depends(_get_jam)]
+GetJam: TypeAlias = Annotated[BaseJam, Depends(_get_jam)]

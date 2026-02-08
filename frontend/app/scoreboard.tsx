@@ -1,13 +1,12 @@
-import BoutStateView from "@/components/bout-state-view";
+import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseBout } from "@/hooks/use-bout";
-import { useJam, useSuspenseJam } from "@/hooks/use-jam";
-import { useSuspenseRuleset } from "@/hooks/use-ruleset";
-import { useSuspenseSeries } from "@/hooks/use-series";
+import { useJam } from "@/hooks/use-jam";
+import { useSuspenseAllSeries } from "@/hooks/use-series";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
-import { useSuspenseTimeout, useTimeout } from "@/hooks/use-timeout";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
+import { Series } from "@/lib/game/series";
 import FitScreen from "@fit-screen/react";
 import { Center, Grid, MantineProvider, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -38,46 +37,28 @@ export default function App() {
 function Scoreboard() {
   usePrefetchServerTime();
 
-  const { data: series } = useSuspenseSeries(0);
-  const { data: bout } = useSuspenseBout(series);
+  const { data: allSeries } = useSuspenseAllSeries();
+
+  const series: Series = allSeries[0];
+  const { data: bout } = useSuspenseBout(
+    series.boutUuids[series.activeBoutIndex ?? series.boutUuids.length - 1],
+  );
 
   // Eagerly query the latest Jam and Timeout to avoid suspending
-  void useJam(bout, ...bout.getLatestJamIndex());
-  void useTimeout(bout, bout.getLatestTimeoutIndex());
-
-  const { data: ruleset } = useSuspenseRuleset(bout);
-
-  // Fetch Jam data
-  const jamIndex = bout.getActiveOrLatestJamIndex();
-  const [periodNum, jamNum] = jamIndex;
-  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
-
-  // Fetch Timeout data
-  const timeoutIndex = bout.getActiveOrLatestTimeoutIndex();
-  const { data: timeout } = useSuspenseTimeout(bout, timeoutIndex);
+  void useJam(bout, ...bout.getLatestJamNum());
 
   return (
     <Stack>
       <Grid columns={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
           <Grid.Col key={i} span={1}>
-            <TeamView
-              bout={bout}
-              timeout={timeout}
-              ruleset={ruleset}
-              team={team}
-            />
+            <TeamView team={team} />
           </Grid.Col>
         ))}
       </Grid>
       {/* TODO: Lead Jam Status */}
       <Center>
-        <BoutStateView
-          bout={bout}
-          activeOrLatestJam={jam}
-          activeTimeout={timeout}
-          ruleset={ruleset}
-        />
+        <BoutStateView />
       </Center>
     </Stack>
   );

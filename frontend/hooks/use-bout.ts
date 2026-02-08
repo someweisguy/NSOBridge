@@ -1,49 +1,33 @@
-import { Bout, createBout, getBout } from "@/lib/game/bouts";
-import { Series } from "@/lib/game/series";
+import queryClient from "@/lib/cache";
+import { Bout, createBout, getAllBouts, getBout } from "@/lib/game/bouts";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 
-export const useSuspenseBout = (series: Series, index?: number) => {
-  const [boutId, setBoutId] = useState(
-    index == undefined
-      ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
-      : series.boutIds[index],
+export const useSuspenseAllBouts = () =>
+  useSuspenseQuery(
+    {
+      queryKey: Bout.generateKey(),
+      queryFn: () =>
+        getAllBouts().then((bouts: Bout[]) => {
+          for (const bout of bouts) {
+            queryClient.setQueryData(Bout.generateKey(bout.uuid), bout);
+          }
+          return bouts;
+        }),
+    },
+    queryClient,
   );
 
-  useEffect(() => {
-    setBoutId(
-      index == undefined
-        ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
-        : series.boutIds[index],
-    );
-  }, [series, index]);
-
-  return useSuspenseQuery<Bout>({
-    queryKey: Bout.generateKey(boutId),
-    queryFn: () => getBout(boutId),
+export const useBout = (uuid: string) =>
+  useQuery({
+    queryKey: Bout.generateKey(uuid),
+    queryFn: () => getBout(uuid),
   });
-};
 
-export const useBout = (series: Series, index?: number) => {
-  const [boutId, setBoutId] = useState(
-    index == undefined
-      ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
-      : series.boutIds[index],
-  );
-
-  useEffect(() => {
-    setBoutId(
-      index == undefined
-        ? (series.activeBoutId ?? series.boutIds[series.boutIds.length - 1])
-        : series.boutIds[index],
-    );
-  }, [series, index]);
-
-  return useQuery<Bout>({
-    queryKey: Bout.generateKey(boutId),
-    queryFn: () => getBout(boutId),
+export const useSuspenseBout = (uuid: string) =>
+  useSuspenseQuery({
+    queryKey: Bout.generateKey(uuid),
+    queryFn: () => getBout(uuid),
   });
-};
 
 // TODO: add ruleset parameter to this hook
 export const useCreateBout = () =>

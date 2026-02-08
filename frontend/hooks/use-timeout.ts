@@ -1,18 +1,24 @@
 import { Bout } from "@/lib/game/bouts";
 import { getTimeout, Timeout } from "@/lib/game/timeouts";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
-export const useTimeout = (bout: Bout, index: number) =>
-  useQuery<Timeout>({
-    queryKey: Timeout.generateKey(bout.id, index),
-    queryFn: () => getTimeout(bout.timeoutIds[index]),
+export function timeoutQueryOptions(bout: Bout, num: number) {
+  return queryOptions<Timeout>({
+    queryKey: Timeout.generateKey(bout.uuid, num),
+    queryFn: () => getTimeout(bout.uuid, num),
   });
+}
 
-export const useSuspenseTimeout = (bout: Bout, index: number) =>
-  useSuspenseQuery<Timeout>({
-    queryKey: Timeout.generateKey(bout.id, index),
-    queryFn: () => getTimeout(bout.timeoutIds[index]),
-  });
+export const useTimeout = (bout: Bout, num: number) =>
+  useQuery(timeoutQueryOptions(bout, num));
+
+export const useSuspenseTimeout = (bout: Bout, num: number) =>
+  useSuspenseQuery(timeoutQueryOptions(bout, num));
 
 export const useSetType = (timeout: Timeout) =>
   useMutation({
@@ -21,7 +27,7 @@ export const useSetType = (timeout: Timeout) =>
 
 export const useSetTeam = (timeout: Timeout) =>
   useMutation({
-    mutationFn: (teamId: number | null) => timeout.setTeam(teamId),
+    mutationFn: (teamNum: number | null) => timeout.setTeam(teamNum),
   });
 
 export const useSetRetained = (timeout: Timeout) =>

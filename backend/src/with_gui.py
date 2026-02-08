@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """The injection point of the program."""
 
 from __future__ import annotations

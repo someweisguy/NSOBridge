@@ -1,14 +1,14 @@
-import { Team } from "@/lib/game/bouts";
-import { Ruleset } from "@/lib/game/ruleset";
-import { Timeout } from "@/lib/game/timeouts";
 import { Card, Center, Divider } from "@mantine/core";
 import { IconCircleFilled } from "@tabler/icons-react";
 import { twMerge } from "tailwind-merge";
 
 interface TimeoutBarProps {
-  team: Team;
-  activeTimeout?: Timeout | null;
-  ruleset: Ruleset;
+  numTimeouts: number;
+  timeoutsRemaining: number;
+  numReviews: number;
+  reviewsRemaining: number;
+  timeoutIsActive: boolean;
+  isReview: boolean;
   size: number;
 }
 
@@ -36,28 +36,24 @@ function TimeoutPip({
 }
 
 export default function TimeoutBar({
-  team,
-  activeTimeout,
-  ruleset,
+  numTimeouts,
+  numReviews,
+  timeoutsRemaining,
+  reviewsRemaining,
+  timeoutIsActive,
+  isReview,
   size = 30,
 }: TimeoutBarProps) {
-  if (!activeTimeout?.isRunning()) {
-    // There is no active Timeout
-    activeTimeout = null;
-  }
-
   return (
     <Card withBorder w={size} radius="md">
-      {Array.from({ length: ruleset.numTimeouts }, (_, i) => (
+      {Array.from({ length: numTimeouts }, (_, i) => (
         <Card.Section key={i}>
           <Center>
             <TimeoutPip
               size={size}
-              invisible={i >= team.timeoutsRemaining}
+              invisible={i >= timeoutsRemaining}
               active={
-                i == team.timeoutsRemaining - 1 &&
-                activeTimeout?.teamId == team.id &&
-                !activeTimeout?.isReview
+                i == timeoutsRemaining - 1 && timeoutIsActive && !isReview
               }
             />
           </Center>
@@ -66,17 +62,13 @@ export default function TimeoutBar({
       <Card.Section>
         <Divider mx={4} my={2} />
       </Card.Section>
-      {Array.from({ length: ruleset.numReviews }, (_, i) => (
+      {Array.from({ length: numReviews }, (_, i) => (
         <Card.Section key={i}>
           <Center>
             <TimeoutPip
               size={size}
-              invisible={i >= team.reviewsRemaining}
-              active={
-                i == team.reviewsRemaining - 1 &&
-                activeTimeout?.teamId == team.id &&
-                activeTimeout?.isReview
-              }
+              invisible={i >= reviewsRemaining}
+              active={i == reviewsRemaining - 1 && timeoutIsActive && isReview}
             />
           </Center>
         </Card.Section>

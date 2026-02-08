@@ -1,32 +1,47 @@
 import TimeoutBar from "@/components/timeout-bar";
-import { useSuspenseRoster } from "@/hooks/use-roster";
+import { useSuspenseRuleset } from "@/hooks/use-ruleset";
+import { timeoutQueryOptions } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
-import { Ruleset } from "@/lib/game/ruleset";
 import { Timeout } from "@/lib/game/timeouts";
+import { BoutContext } from "@/utils/contexts";
 import { Center, Grid, Group, Stack, Text, Title } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
+import { useContext } from "react";
 
 interface TeamsViewProps {
-  bout: Bout;
   team: Team;
-  timeout: Timeout;
-  ruleset: Ruleset;
 }
 
-export default function TeamView({ team, timeout, ruleset }: TeamsViewProps) {
-  const { data: roster } = useSuspenseRoster(team.rosterId);
+export default function TeamView({ team }: TeamsViewProps) {
+  const bout: Bout | null = useContext(BoutContext);
+  if (bout == null) {
+    throw new Error("TeamView can only be used in a BoutContext");
+  }
+  const { data: ruleset } = useSuspenseRuleset(bout);
+
+  const { data: timeout } = useQuery<Timeout>({
+    ...timeoutQueryOptions(bout, bout.timeoutCount - 1),
+    enabled: bout.timeoutCount > 0,
+    placeholderData: undefined,
+  });
 
   return (
     <Stack>
       <Center>
         <Title order={1} size={56}>
-          <b>{roster.name}</b>
+          <b>{team.name}</b>
         </Title>
       </Center>
       <Group justify="center">
         <TimeoutBar
-          team={team}
-          activeTimeout={timeout}
-          ruleset={ruleset}
+          numTimeouts={ruleset.numTimeouts}
+          timeoutsRemaining={team.timeoutsRemaining}
+          numReviews={ruleset.numReviews}
+          reviewsRemaining={team.reviewsRemaining}
+          timeoutIsActive={
+            (timeout?.isRunning() && timeout?.teamNum == team.num) ?? false
+          }
+          isReview={timeout?.isReview ?? false}
           size={30}
         />
 
