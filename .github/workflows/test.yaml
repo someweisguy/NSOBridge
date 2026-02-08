@@ -83,20 +83,16 @@ jobs:
           activate-environment: true
           enable-cache: true
       - run: uv sync
-      - uses: actions/cache@v5
-        with:
-          path: .venv
-          key: ${{ inputs.runs-on }}-.venv
   lint_backend:
     name: Lint Backend
     needs: setup_backend
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/cache@v5
+      - uses: astral-sh/setup-uv@v7
         with:
-          path: .venv
-          key: ${{ inputs.runs-on }}-.venv
+          activate-environment: true
+          enable-cache: true
       - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
@@ -111,10 +107,10 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/cache@v5
+      - uses: astral-sh/setup-uv@v7
         with:
-          path: .venv
-          key: ${{ inputs.runs-on }}-.venv
+          activate-environment: true
+          enable-cache: true
       - uses: actions/cache@v5
         with:
           path: www
@@ -137,11 +133,10 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/cache@v5
+      - uses: astral-sh/setup-uv@v7
         with:
-          path: .venv
-          key: ${{ inputs.runs-on }}-.venv
-          fail-on-cache-miss: true
+          activate-environment: true
+          enable-cache: true
       - uses: actions/cache@v5
         with:
           path: www
