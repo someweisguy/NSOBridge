@@ -58,7 +58,7 @@ function Scoreboard() {
       </Grid>
       {/* TODO: Lead Jam Status */}
       <Center>
-        <BoutStateView />
+        <BoutStateView bout={bout} />
       </Center>
     </Stack>
   );
