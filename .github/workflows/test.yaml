@@ -72,7 +72,6 @@ jobs:
 
   lint_backend:
     name: Lint Backend
-    needs: setup_backend
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
@@ -85,7 +84,7 @@ jobs:
       - run: ty check
   test_backend:
     name: Test Backend
-    needs: [setup_backend, build_frontend]
+    needs: build_frontend
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
@@ -105,7 +104,7 @@ jobs:
         if: ${{ !inputs.test-release }}
   build_backend:
     name: Build backend
-    needs: [setup_backend, build_frontend]
+    needs: build_frontend
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
