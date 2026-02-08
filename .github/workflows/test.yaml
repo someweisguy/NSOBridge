@@ -96,11 +96,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
-
-      - uses: astral-sh/setup-uv@v7
-        with:
-          activate-environment: true
-          enable-cache: true
+      - run: ruff check
+      - run: ty check
   test_backend:
     name: Test Backend
     needs: [setup_backend, build_frontend]
