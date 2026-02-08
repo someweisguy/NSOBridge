@@ -69,7 +69,7 @@ function Scoreboard() {
             <JamNumber size="36pt" />
           </Center>
           <Center>
-            <JamClock />
+            <JamClock size="36pt" />
           </Center>
         </Group>
       </Center>
