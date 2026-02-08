@@ -1,12 +1,13 @@
 import BoutPicker from "@/components/bout-picker";
+import BoutProvider from "@/components/bout-provider";
 import JamProvider from "@/components/jam-provider";
-import RulesetProvider from "@/components/ruleset-provider";
 import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseAllBouts, useSuspenseBout } from "@/hooks/use-bout";
+import { useJam } from "@/hooks/use-jam";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
@@ -90,15 +91,18 @@ function Main({ boutUuid }: { boutUuid: string }) {
   const { data: bout } = useSuspenseBout(boutUuid);
 
   // // Eagerly query the latest Jam and Timeout to avoid suspending
-  // void useJam(bout, ...bout.getLatestJamNum());
+  void useJam(bout, ...bout.getLatestJamNum()); // TODO remove me
 
   // Fetch Jam data
   const [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
 
   return (
-    <RulesetProvider bout={bout}>
+    <BoutProvider bout={bout}>
       <Stack align="stretch" justify="flex-start">
+        {/* Bout State control */}
         <BoutControlButtons bout={bout} />
+
+        {/* Team information */}
         <SimpleGrid cols={bout.teams.length}>
           {bout.teams.map((team: Team, i: number) => (
             <TeamProvider key={i} team={team}>
@@ -106,15 +110,24 @@ function Main({ boutUuid }: { boutUuid: string }) {
             </TeamProvider>
           ))}
         </SimpleGrid>
+
+        {/* Bout State View */}
         <BoutStateView bout={bout} />
-        <JamProvider bout={bout} periodNum={periodNum} jamNum={jamNum}>
-          <SimpleGrid cols={bout.teams.length}>
-            {bout.teams.map((team: Team, i: number) => (
-              <TeamJamView key={i} bout={bout} team={team} />
-            ))}
-          </SimpleGrid>
-        </JamProvider>
+
+        {/* TeamJam score editors */}
+        <Suspense fallback={"Loading..."}>
+          <JamProvider bout={bout} periodNum={periodNum} jamNum={jamNum}>
+            <SimpleGrid cols={bout.teams.length}>
+              {bout.teams.map((team: Team, i: number) => (
+                <TeamJamView key={i} bout={bout} team={team} />
+              ))}
+            </SimpleGrid>
+          </JamProvider>
+        </Suspense>
+
+        {/* Lineup editors */}
+        {/* TODO */}
       </Stack>
-    </RulesetProvider>
+    </BoutProvider>
   );
 }

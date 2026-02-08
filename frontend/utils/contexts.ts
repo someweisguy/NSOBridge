@@ -1,7 +1,9 @@
-import { Team } from "@/lib/game/bouts";
+import { Bout, Team } from "@/lib/game/bouts";
 import { Jam } from "@/lib/game/jams";
 import { Ruleset } from "@/lib/game/ruleset";
 import { createContext } from "react";
+
+export const BoutContext = createContext<Bout | null>(null);
 
 export const RulesetContext = createContext<Ruleset | null>(null);
 
