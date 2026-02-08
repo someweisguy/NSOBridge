@@ -1,3 +1,4 @@
+import TeamProvider from "@/components/team-provider";
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseBout } from "@/hooks/use-bout";
@@ -51,9 +52,9 @@ function Scoreboard() {
     <Stack>
       <Grid columns={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
-          <Grid.Col key={i} span={1}>
-            <TeamView team={team} />
-          </Grid.Col>
+          <TeamProvider key={i} team={team}>
+            <TeamView bout={bout} />
+          </TeamProvider>
         ))}
       </Grid>
       {/* TODO: Lead Jam Status */}

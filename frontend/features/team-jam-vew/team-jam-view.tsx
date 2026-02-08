@@ -1,5 +1,5 @@
 import TeamJamTrips from "@/features/team-jam-vew/team-jam-trips";
-import { Team } from "@/lib/game/bouts";
+import { Bout, Team } from "@/lib/game/bouts";
 import { Jam, TeamJam } from "@/lib/game/jams";
 import { JamContext } from "@/utils/contexts";
 import { Stack } from "@mantine/core";
@@ -8,6 +8,7 @@ import AddTripButtons from "./add-trip-buttons";
 import TeamJamJammerState from "./team-jam-jammer-state";
 
 interface TeamJamViewProps {
+  bout: Bout;
   team: Team;
 }
 

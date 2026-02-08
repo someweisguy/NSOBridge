@@ -3,19 +3,19 @@ import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { timeoutQueryOptions } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
-import { BoutContext } from "@/utils/contexts";
+import { TeamContext } from "@/utils/contexts";
 import { Center, Grid, Group, Stack, Text, Title } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 
 interface TeamsViewProps {
-  team: Team;
+  bout: Bout;
 }
 
-export default function TeamView({ team }: TeamsViewProps) {
-  const bout: Bout | null = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("TeamView can only be used in a BoutContext");
+export default function TeamView({ bout }: TeamsViewProps) {
+  const team: Team | null = useContext(TeamContext);
+  if (team == null) {
+    throw new Error("TeamView must be used within a TeamProvider");
   }
   const { data: ruleset } = useSuspenseRuleset(bout);
 

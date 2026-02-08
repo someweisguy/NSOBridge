@@ -1,8 +1,7 @@
 import { useAddTrip } from "@/hooks/use-jam";
-import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { Team } from "@/lib/game/bouts";
 import { Jam, TeamJam } from "@/lib/game/jams";
-import { BoutContext } from "@/utils/contexts";
+import { RulesetContext } from "@/utils/contexts";
 import { Button, Group, Stack } from "@mantine/core";
 import { useContext } from "react";
 
@@ -18,11 +17,10 @@ export default function AddTripButtons({ jam, team }: AddTripButtonsProps) {
   if (teamJam == undefined) {
     throw new Error("team jam not found");
   }
-  const bout = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("AddTripButtons must be inside a Bout context");
+  const ruleset = useContext(RulesetContext);
+  if (ruleset == null) {
+    throw new Error("AddTripButtons must be inside a RulesetProvider");
   }
-  const { data: ruleset } = useSuspenseRuleset(bout);
   const addTrip = useAddTrip(jam, teamJam);
 
   const addTripButtons =

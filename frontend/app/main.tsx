@@ -1,5 +1,7 @@
 import BoutPicker from "@/components/bout-picker";
 import JamProvider from "@/components/jam-provider";
+import RulesetProvider from "@/components/ruleset-provider";
+import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
 import BoutStateView from "@/features/bout-state-view/bout-state-view";
 import TeamJamView from "@/features/team-jam-vew/team-jam-view";
@@ -19,13 +21,7 @@ import {
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { QueryClientProvider } from "@tanstack/react-query";
-import {
-  createContext,
-  PropsWithChildren,
-  StrictMode,
-  Suspense,
-  useState,
-} from "react";
+import { StrictMode, Suspense, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 
@@ -88,16 +84,6 @@ export default function App() {
   );
 }
 
-const TeamContext = createContext<Team | null>(null);
-
-interface TeamProviderProps extends PropsWithChildren {
-  team: Team;
-}
-
-function TeamProvider({ team, children }: TeamProviderProps) {
-  return <TeamContext value={team}>{children}</TeamContext>;
-}
-
 function Main({ boutUuid }: { boutUuid: string }) {
   usePrefetchServerTime();
 
@@ -110,23 +96,25 @@ function Main({ boutUuid }: { boutUuid: string }) {
   const [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
 
   return (
-    <Stack align="stretch" justify="flex-start">
-      <BoutControlButtons bout={bout} />
-      <SimpleGrid cols={bout.teams.length}>
-        {bout.teams.map((team: Team, i: number) => (
-          <TeamProvider key={i} team={team}>
-            <TeamView key={i} team={team} />
-          </TeamProvider>
-        ))}
-      </SimpleGrid>
-      <BoutStateView bout={bout} />
-      <JamProvider bout={bout} periodNum={periodNum} jamNum={jamNum}>
+    <RulesetProvider bout={bout}>
+      <Stack align="stretch" justify="flex-start">
+        <BoutControlButtons bout={bout} />
         <SimpleGrid cols={bout.teams.length}>
           {bout.teams.map((team: Team, i: number) => (
-            <TeamJamView key={i} team={team} />
+            <TeamProvider key={i} team={team}>
+              <TeamView bout={bout} />
+            </TeamProvider>
           ))}
         </SimpleGrid>
-      </JamProvider>
-    </Stack>
+        <BoutStateView bout={bout} />
+        <JamProvider bout={bout} periodNum={periodNum} jamNum={jamNum}>
+          <SimpleGrid cols={bout.teams.length}>
+            {bout.teams.map((team: Team, i: number) => (
+              <TeamJamView key={i} bout={bout} team={team} />
+            ))}
+          </SimpleGrid>
+        </JamProvider>
+      </Stack>
+    </RulesetProvider>
   );
 }
