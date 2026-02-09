@@ -3,7 +3,9 @@ import BoutProvider from "@/components/bout-provider";
 import JamProvider from "@/components/jam-provider";
 import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
-import BoutStatus from "@/features/bout/components/bout-status";
+import PrimaryBoutStatus, {
+  SecondaryBoutStatus,
+} from "@/features/bout/components/bout-status";
 import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseAllBouts, useSuspenseBout } from "@/hooks/use-bout";
@@ -14,6 +16,7 @@ import { redo, undo } from "@/lib/history";
 import {
   AppShell,
   Burger,
+  Center,
   MantineProvider,
   SimpleGrid,
   Stack,
@@ -108,7 +111,12 @@ function Main({ boutUuid }: { boutUuid: string }) {
         </SimpleGrid>
 
         {/* Bout State View */}
-        <BoutStatus align="center" size="36pt" />
+        <SimpleGrid cols={1}>
+          <PrimaryBoutStatus align="center" size="36pt" />
+          <Center>
+            <SecondaryBoutStatus size="24pt" />
+          </Center>
+        </SimpleGrid>
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>

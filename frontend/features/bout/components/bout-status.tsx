@@ -6,45 +6,54 @@ import { BoutContext } from "@/utils/contexts";
 import { Center, Grid, GridProps, Text, TextProps } from "@mantine/core";
 import { ReactNode, useContext } from "react";
 
-const DefaultFinal = ({ size }: TextProps) => <Text size={size}>Final</Text>;
-const DefaultUnofficial = ({ size }: TextProps) => (
-  <Text size={size}>Unofficial</Text>
-);
-const DefaultHalftime = ({ size }: TextProps) => (
-  <Text size={size}>Halftime</Text>
-);
-const DefaultPregame = ({ size }: TextProps) => (
-  <Text size={size}>Pregame</Text>
-);
+const defaultPrimaryLabels = {
+  Pregame: ({ size }: TextProps) => <Text size={size}>Pregame</Text>,
+  Halftime: ({ size }: TextProps) => <Text size={size}>Halftime</Text>,
+  Unofficial: ({ size }: TextProps) => <Text size={size}>Unofficial</Text>,
+  Final: ({ size }: TextProps) => <Text size={size}>Final</Text>,
+};
 
-interface BoutStatusProps
+const defaultSecondaryLabels = {
+  Lineup: ({ size }: TextProps) => <Text size={size}>Lineup</Text>,
+  Timeout: ({ size }: TextProps) => <Text size={size}>Timeout</Text>,
+  postTimeout: <></>,
+};
+
+interface PrimaryBoutStatusProps
   extends Pick<GridProps, "align">,
     Pick<TextProps, "size"> {
-  labels?: {
-    pregame?: ReactNode;
-    halftime?: ReactNode;
-    unofficial?: ReactNode;
-    final?: ReactNode;
-  };
+  Labels?: typeof defaultPrimaryLabels;
 }
 
-export default function BoutStatus({ labels, align, size }: BoutStatusProps) {
+interface SecondaryBoutStatusProps
+  extends Pick<GridProps, "align">,
+    Pick<TextProps, "size"> {
+  Labels?: typeof defaultSecondaryLabels;
+}
+
+export default function PrimaryBoutStatus({
+  Labels,
+  align,
+  size,
+}: PrimaryBoutStatusProps) {
   const bout: Bout | null = useContext(BoutContext);
   if (bout == null) {
-    throw new Error("BoutStatus must be used within a BoutProvider");
+    throw new Error("PrimaryBoutStatus must be used within a BoutProvider");
   }
+
+  Labels = { ...defaultPrimaryLabels, ...Labels };
 
   // Render the Bout status in a single column if the Bout is stopped
   if (bout.state == "stopped") {
     let stoppedNode: ReactNode;
     if (bout.isFinal) {
-      stoppedNode = labels?.final ?? <DefaultFinal size={size} />;
+      stoppedNode = <Labels.Final size={size} />;
     } else if (bout.jamCounts[2] > 0) {
-      stoppedNode = labels?.unofficial ?? <DefaultUnofficial size={size} />;
+      stoppedNode = <Labels.Unofficial size={size} />;
     } else if (bout.jamCounts[1] > 0) {
-      stoppedNode = labels?.halftime ?? <DefaultHalftime size={size} />;
+      stoppedNode = <Labels.Halftime size={size} />;
     } else {
-      stoppedNode = labels?.pregame ?? <DefaultPregame size={size} />;
+      stoppedNode = <Labels.Pregame size={size} />;
     }
     return <Center>{stoppedNode}</Center>;
   }
@@ -68,4 +77,25 @@ export default function BoutStatus({ labels, align, size }: BoutStatusProps) {
       </Grid.Col>
     </Grid>
   );
+}
+
+export function SecondaryBoutStatus({
+  Labels,
+  size,
+}: SecondaryBoutStatusProps) {
+  const bout: Bout | null = useContext(BoutContext);
+  if (bout == null) {
+    throw new Error("SecondaryBoutStatus must be used within a BoutProvider");
+  }
+
+  Labels = { ...defaultSecondaryLabels, ...Labels };
+
+  switch (bout.state) {
+    case "lineup":
+      return <Labels.Lineup size={size} />;
+    case "timeout":
+      return <Labels.Timeout size={size} />;
+    default:
+      return <></>;
+  }
 }
