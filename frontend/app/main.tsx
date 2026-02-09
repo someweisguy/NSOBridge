@@ -1,11 +1,9 @@
 import BoutPicker from "@/components/bout-picker";
 import BoutProvider from "@/components/bout-provider";
-import JamClock from "@/components/jam-clock";
-import JamNumber from "@/components/jam-number";
 import JamProvider from "@/components/jam-provider";
-import PeriodClock from "@/components/period-clock";
 import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
+import BoutStatus from "@/features/bout/components/bout-status";
 import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseAllBouts, useSuspenseBout } from "@/hooks/use-bout";
@@ -16,8 +14,6 @@ import { redo, undo } from "@/lib/history";
 import {
   AppShell,
   Burger,
-  Center,
-  Grid,
   MantineProvider,
   SimpleGrid,
   Stack,
@@ -112,26 +108,7 @@ function Main({ boutUuid }: { boutUuid: string }) {
         </SimpleGrid>
 
         {/* Bout State View */}
-        <Grid grow columns={3} justify="space-around" align="flex-start">
-          <Grid.Col span={1}>
-            <Center>
-              <PeriodClock size="36pt" />
-            </Center>
-          </Grid.Col>
-          <Grid.Col span={1}>
-            <Center>
-              <JamNumber size="36pt" />
-            </Center>
-          </Grid.Col>
-          <Grid.Col span={1}>
-            <Center>
-              <JamClock size="36pt" />
-            </Center>
-          </Grid.Col>
-          <Grid.Col span={3}>
-            <Center></Center>
-          </Grid.Col>
-        </Grid>
+        <BoutStatus align="center" size="36pt" />
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>
