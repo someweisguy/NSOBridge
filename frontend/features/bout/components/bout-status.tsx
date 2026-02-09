@@ -1,6 +1,8 @@
+import Clock from "@/components/clock";
 import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import PeriodClock from "@/components/period-clock";
+import { useSuspenseJam } from "@/hooks/use-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
@@ -14,9 +16,24 @@ const defaultPrimaryLabels = {
   Final: ({ size }: TextProps) => <Text size={size}>Final</Text>,
 };
 
+interface SecondaryLabelProps extends TextProps {
+  content: string;
+  countUpTimestamp?: Date | null;
+}
+
 const defaultSecondaryLabels = {
-  Lineup: ({ size }: TextProps) => <Text size={size}>Lineup</Text>,
-  Timeout: ({ size }: TextProps) => <Text size={size}>Timeout</Text>,
+  Lineup: ({ content, countUpTimestamp, size }: SecondaryLabelProps) => (
+    <Text size={size}>
+      {content + (content.trim().length > 0 ? " " : "")}
+      <Clock startTimestamp={countUpTimestamp ?? null} />
+    </Text>
+  ),
+  Timeout: ({ content, countUpTimestamp, size }: SecondaryLabelProps) => (
+    <Text size={size}>
+      {content + (content.trim().length > 0 ? " " : "")}
+      <Clock startTimestamp={countUpTimestamp ?? null} />
+    </Text>
+  ),
   postTimeout: <></>,
 };
 
@@ -88,7 +105,12 @@ export function SecondaryBoutStatus({
   if (bout == null) {
     throw new Error("SecondaryBoutStatus must be used within a BoutProvider");
   }
-
+  const [currentPeriodNum, currentJamNum] = bout.getActiveOrLatestJamNum();
+  const { data: activeJam } = useSuspenseJam(
+    bout,
+    currentPeriodNum,
+    currentJamNum,
+  );
   const { data: latestTimeout, isPending } = useTimeout(
     bout,
     bout.timeoutCount - 1,
@@ -97,9 +119,10 @@ export function SecondaryBoutStatus({
       initialData: null,
     },
   );
-  const [currentPeriodNum, currentJamNum] = bout.getActiveOrLatestJamNum();
 
   Labels = { ...defaultSecondaryLabels, ...Labels };
+  console.log(latestTimeout);
+  console.log(currentJamNum);
 
   switch (bout.state) {
     case "lineup":
@@ -109,20 +132,61 @@ export function SecondaryBoutStatus({
         latestTimeout.jamNum == currentJamNum
       ) {
         // Timeout was just called off
-        return <Labels.Lineup size={size} />; // TODO: this should say post-TO/OR
+        return (
+          <Labels.Lineup
+            content={latestTimeout.isReview ? "Post-review" : "Post-timeout"}
+            countUpTimestamp={latestTimeout.stopTimestamp}
+            size={size}
+          />
+        );
       } else {
-        return <Labels.Lineup size={size} />;
+        return (
+          <Labels.Lineup
+            content="Lineup"
+            countUpTimestamp={activeJam.stopTimestamp}
+            size={size}
+          />
+        );
       }
     case "timeout":
       if (latestTimeout?.isReview) {
-        return <Labels.Timeout size={size} />; // TODO: Official Review
+        return (
+          <Labels.Timeout
+            content="Official Review"
+            countUpTimestamp={latestTimeout.startTimestamp}
+            size={size}
+          />
+        );
       } else {
-        if (isPending) {
-          return <Labels.Timeout size={size} />; // TODO: Generic Timeout
+        if (
+          isPending ||
+          (!latestTimeout?.teamIsOfficials && latestTimeout?.teamNum == null)
+        ) {
+          return (
+            <Labels.Timeout
+              content="Timeout"
+              countUpTimestamp={
+                isPending ? null : latestTimeout?.startTimestamp
+              }
+              size={size}
+            />
+          );
         } else if (latestTimeout?.teamIsOfficials) {
-          return <Labels.Timeout size={size} />; // TODO: Official Timeout
+          return (
+            <Labels.Timeout
+              content="Official Timeout"
+              countUpTimestamp={latestTimeout.startTimestamp}
+              size={size}
+            />
+          );
         } else {
-          return <Labels.Timeout size={size} />; // TODO: Team Timeout
+          return (
+            <Labels.Timeout
+              content="Team Timeout"
+              countUpTimestamp={latestTimeout?.startTimestamp}
+              size={size}
+            />
+          );
         }
       }
     default:
