@@ -108,76 +108,57 @@ export function SecondaryBoutStatus({ size }: SecondaryBoutStatusProps) {
     bout.timeoutCount - 1,
     {
       enabled: bout.timeoutCount > 0,
-      initialData: null,
+      initialData: undefined,
     },
   );
 
-  switch (bout.state) {
-    case "lineup":
+  if (bout.state == "lineup") {
+    let content: string;
+    let countUpTimestamp: Date | null;
+    if (
+      activeJam.stopTimestamp &&
+      latestTimeout?.startTimestamp &&
+      latestTimeout?.startTimestamp > activeJam.stopTimestamp
+    ) {
+      content = latestTimeout.isReview ? "Post-review" : "Post-timeout";
+      countUpTimestamp = latestTimeout.stopTimestamp;
+    } else {
+      content = "Lineup";
+      countUpTimestamp = activeJam.stopTimestamp;
+    }
+    return (
+      <SecondaryStatusLabel
+        content={content}
+        countUpTimestamp={countUpTimestamp}
+        size={size}
+      />
+    );
+  } else if (bout.state == "timeout") {
+    let content: string;
+    const countUpTimestamp: Date | null = latestTimeout?.startTimestamp ?? null;
+    if (latestTimeout?.isReview) {
+      content = "Official Review";
+    } else {
       if (
-        latestTimeout != null &&
-        latestTimeout.periodNum == currentPeriodNum &&
-        latestTimeout.jamNum == currentJamNum
+        isPending ||
+        (!latestTimeout?.teamIsOfficials && latestTimeout?.teamNum == null)
       ) {
-        // Timeout was just called off
-        return (
-          <SecondaryStatusLabel
-            content={latestTimeout.isReview ? "Post-review" : "Post-timeout"}
-            countUpTimestamp={latestTimeout.stopTimestamp}
-            size={size}
-          />
-        );
+        content = "Timeout";
+      } else if (latestTimeout?.teamIsOfficials) {
+        content = "Official Timeout";
       } else {
-        return (
-          <SecondaryStatusLabel
-            content="Lineup"
-            countUpTimestamp={activeJam.stopTimestamp}
-            size={size}
-          />
-        );
+        content = "Team Timeout";
       }
-    case "timeout":
-      if (latestTimeout?.isReview) {
-        return (
-          <SecondaryStatusLabel
-            content="Official Review"
-            countUpTimestamp={latestTimeout.startTimestamp}
-            size={size}
-          />
-        );
-      } else {
-        if (
-          isPending ||
-          (!latestTimeout?.teamIsOfficials && latestTimeout?.teamNum == null)
-        ) {
-          return (
-            <SecondaryStatusLabel
-              content="Timeout"
-              countUpTimestamp={
-                isPending ? null : latestTimeout?.startTimestamp
-              }
-              size={size}
-            />
-          );
-        } else if (latestTimeout?.teamIsOfficials) {
-          return (
-            <SecondaryStatusLabel
-              content="Official Timeout"
-              countUpTimestamp={latestTimeout.startTimestamp}
-              size={size}
-            />
-          );
-        } else {
-          return (
-            <SecondaryStatusLabel
-              content="Team Timeout"
-              countUpTimestamp={latestTimeout?.startTimestamp}
-              size={size}
-            />
-          );
-        }
-      }
-    default:
-      return <></>;
+    }
+
+    return (
+      <SecondaryStatusLabel
+        content={content}
+        countUpTimestamp={countUpTimestamp}
+        size={size}
+      />
+    );
   }
+
+  return <></>;
 }
