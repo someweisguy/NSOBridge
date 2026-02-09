@@ -114,7 +114,7 @@ function Main({ boutUuid }: { boutUuid: string }) {
         <SimpleGrid cols={1}>
           <PrimaryBoutStatus align="center" size="36pt" />
           <Center>
-            <SecondaryBoutStatus size="24pt" />
+            <SecondaryBoutStatus withClock size="24pt" />
           </Center>
         </SimpleGrid>
 

@@ -17,6 +17,7 @@ const defaultPrimaryLabels = {
 };
 
 interface SecondaryLabelProps extends TextProps {
+  withClock: boolean;
   content: string;
   countUpTimestamp?: Date | null;
 }
@@ -24,12 +25,13 @@ interface SecondaryLabelProps extends TextProps {
 function SecondaryStatusLabel({
   content,
   countUpTimestamp,
+  withClock,
   size,
 }: SecondaryLabelProps) {
   return (
     <Text size={size}>
-      {content + (content.trim().length > 0 ? " " : "")}
-      <Clock startTimestamp={countUpTimestamp ?? null} />
+      {content + (content.trim().length > 0 && withClock ? " " : "")}
+      {withClock && <Clock startTimestamp={countUpTimestamp ?? null} />}
     </Text>
   );
 }
@@ -42,7 +44,9 @@ interface PrimaryBoutStatusProps
 
 interface SecondaryBoutStatusProps
   extends Pick<GridProps, "align">,
-    Pick<TextProps, "size"> {}
+    Pick<TextProps, "size"> {
+  withClock?: boolean;
+}
 
 export default function PrimaryBoutStatus({
   Labels,
@@ -92,7 +96,10 @@ export default function PrimaryBoutStatus({
   );
 }
 
-export function SecondaryBoutStatus({ size }: SecondaryBoutStatusProps) {
+export function SecondaryBoutStatus({
+  withClock = false,
+  size,
+}: SecondaryBoutStatusProps) {
   const bout: Bout | null = useContext(BoutContext);
   if (bout == null) {
     throw new Error("SecondaryBoutStatus must be used within a BoutProvider");
@@ -128,6 +135,7 @@ export function SecondaryBoutStatus({ size }: SecondaryBoutStatusProps) {
     }
     return (
       <SecondaryStatusLabel
+        withClock={withClock}
         content={content}
         countUpTimestamp={countUpTimestamp}
         size={size}
@@ -153,6 +161,7 @@ export function SecondaryBoutStatus({ size }: SecondaryBoutStatusProps) {
 
     return (
       <SecondaryStatusLabel
+        withClock={withClock}
         content={content}
         countUpTimestamp={countUpTimestamp}
         size={size}
