@@ -1,6 +1,7 @@
 import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import PeriodClock from "@/components/period-clock";
+import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
 import { Center, Grid, GridProps, Text, TextProps } from "@mantine/core";
@@ -88,13 +89,42 @@ export function SecondaryBoutStatus({
     throw new Error("SecondaryBoutStatus must be used within a BoutProvider");
   }
 
+  const { data: latestTimeout, isPending } = useTimeout(
+    bout,
+    bout.timeoutCount - 1,
+    {
+      enabled: bout.timeoutCount > 0,
+      initialData: null,
+    },
+  );
+  const [currentPeriodNum, currentJamNum] = bout.getActiveOrLatestJamNum();
+
   Labels = { ...defaultSecondaryLabels, ...Labels };
 
   switch (bout.state) {
     case "lineup":
-      return <Labels.Lineup size={size} />;
+      if (
+        latestTimeout != null &&
+        latestTimeout.periodNum == currentPeriodNum &&
+        latestTimeout.jamNum == currentJamNum
+      ) {
+        // Timeout was just called off
+        return <Labels.Lineup size={size} />; // TODO: this should say post-TO/OR
+      } else {
+        return <Labels.Lineup size={size} />;
+      }
     case "timeout":
-      return <Labels.Timeout size={size} />;
+      if (latestTimeout?.isReview) {
+        return <Labels.Timeout size={size} />; // TODO: Official Review
+      } else {
+        if (isPending) {
+          return <Labels.Timeout size={size} />; // TODO: Generic Timeout
+        } else if (latestTimeout?.teamIsOfficials) {
+          return <Labels.Timeout size={size} />; // TODO: Official Timeout
+        } else {
+          return <Labels.Timeout size={size} />; // TODO: Team Timeout
+        }
+      }
     default:
       return <></>;
   }
