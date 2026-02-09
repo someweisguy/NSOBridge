@@ -21,21 +21,18 @@ interface SecondaryLabelProps extends TextProps {
   countUpTimestamp?: Date | null;
 }
 
-const defaultSecondaryLabels = {
-  Lineup: ({ content, countUpTimestamp, size }: SecondaryLabelProps) => (
+function SecondaryStatusLabel({
+  content,
+  countUpTimestamp,
+  size,
+}: SecondaryLabelProps) {
+  return (
     <Text size={size}>
       {content + (content.trim().length > 0 ? " " : "")}
       <Clock startTimestamp={countUpTimestamp ?? null} />
     </Text>
-  ),
-  Timeout: ({ content, countUpTimestamp, size }: SecondaryLabelProps) => (
-    <Text size={size}>
-      {content + (content.trim().length > 0 ? " " : "")}
-      <Clock startTimestamp={countUpTimestamp ?? null} />
-    </Text>
-  ),
-  postTimeout: <></>,
-};
+  );
+}
 
 interface PrimaryBoutStatusProps
   extends Pick<GridProps, "align">,
@@ -45,9 +42,7 @@ interface PrimaryBoutStatusProps
 
 interface SecondaryBoutStatusProps
   extends Pick<GridProps, "align">,
-    Pick<TextProps, "size"> {
-  Labels?: typeof defaultSecondaryLabels;
-}
+    Pick<TextProps, "size"> {}
 
 export default function PrimaryBoutStatus({
   Labels,
@@ -97,10 +92,7 @@ export default function PrimaryBoutStatus({
   );
 }
 
-export function SecondaryBoutStatus({
-  Labels,
-  size,
-}: SecondaryBoutStatusProps) {
+export function SecondaryBoutStatus({ size }: SecondaryBoutStatusProps) {
   const bout: Bout | null = useContext(BoutContext);
   if (bout == null) {
     throw new Error("SecondaryBoutStatus must be used within a BoutProvider");
@@ -120,10 +112,6 @@ export function SecondaryBoutStatus({
     },
   );
 
-  Labels = { ...defaultSecondaryLabels, ...Labels };
-  console.log(latestTimeout);
-  console.log(currentJamNum);
-
   switch (bout.state) {
     case "lineup":
       if (
@@ -133,7 +121,7 @@ export function SecondaryBoutStatus({
       ) {
         // Timeout was just called off
         return (
-          <Labels.Lineup
+          <SecondaryStatusLabel
             content={latestTimeout.isReview ? "Post-review" : "Post-timeout"}
             countUpTimestamp={latestTimeout.stopTimestamp}
             size={size}
@@ -141,7 +129,7 @@ export function SecondaryBoutStatus({
         );
       } else {
         return (
-          <Labels.Lineup
+          <SecondaryStatusLabel
             content="Lineup"
             countUpTimestamp={activeJam.stopTimestamp}
             size={size}
@@ -151,7 +139,7 @@ export function SecondaryBoutStatus({
     case "timeout":
       if (latestTimeout?.isReview) {
         return (
-          <Labels.Timeout
+          <SecondaryStatusLabel
             content="Official Review"
             countUpTimestamp={latestTimeout.startTimestamp}
             size={size}
@@ -163,7 +151,7 @@ export function SecondaryBoutStatus({
           (!latestTimeout?.teamIsOfficials && latestTimeout?.teamNum == null)
         ) {
           return (
-            <Labels.Timeout
+            <SecondaryStatusLabel
               content="Timeout"
               countUpTimestamp={
                 isPending ? null : latestTimeout?.startTimestamp
@@ -173,7 +161,7 @@ export function SecondaryBoutStatus({
           );
         } else if (latestTimeout?.teamIsOfficials) {
           return (
-            <Labels.Timeout
+            <SecondaryStatusLabel
               content="Official Timeout"
               countUpTimestamp={latestTimeout.startTimestamp}
               size={size}
@@ -181,7 +169,7 @@ export function SecondaryBoutStatus({
           );
         } else {
           return (
-            <Labels.Timeout
+            <SecondaryStatusLabel
               content="Team Timeout"
               countUpTimestamp={latestTimeout?.startTimestamp}
               size={size}
