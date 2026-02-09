@@ -14,7 +14,7 @@ const DefaultHalftime = ({ size }: TextProps) => (
   <Text size={size}>Halftime</Text>
 );
 const DefaultPregame = ({ size }: TextProps) => (
-  <Text size={size}>Pre-Game</Text>
+  <Text size={size}>Pregame</Text>
 );
 
 interface BoutStatusProps
