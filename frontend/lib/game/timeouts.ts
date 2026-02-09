@@ -27,6 +27,9 @@ export class Timeout {
   boutUuid: string;
   num: number;
 
+  periodNum: number;
+  jamNum: number;
+
   startTimestamp: Date | null;
   stopTimestamp: Date | null;
   clockElapsed: number;
