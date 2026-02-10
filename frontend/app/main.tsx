@@ -3,9 +3,8 @@ import BoutProvider from "@/components/bout-provider";
 import JamProvider from "@/components/jam-provider";
 import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
-import PrimaryBoutStatus, {
-  SecondaryBoutStatus,
-} from "@/features/bout/components/bout-status";
+import PrimaryBoutStatus from "@/features/bout/components/primary-bout-status";
+import { SecondaryBoutStatus } from "@/features/bout/components/secondary-bout-status";
 import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamView from "@/features/team-view/team-view";
 import { useSuspenseAllBouts, useSuspenseBout } from "@/hooks/use-bout";
