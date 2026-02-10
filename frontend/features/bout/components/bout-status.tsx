@@ -7,25 +7,31 @@ import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
 import { Center, Grid, GridProps, Text, TextProps } from "@mantine/core";
-import { ReactNode, useContext } from "react";
+import { useContext } from "react";
 
-const defaultPrimaryLabels = {
-  Pregame: ({ size }: TextProps) => <Text size={size}>Pregame</Text>,
-  Halftime: ({ size }: TextProps) => <Text size={size}>Halftime</Text>,
-  Unofficial: ({ size }: TextProps) => <Text size={size}>Unofficial</Text>,
-  Final: ({ size }: TextProps) => <Text size={size}>Final</Text>,
-};
-
+interface PrimaryLabelProps extends TextProps {
+  withClock?: boolean;
+  content: string;
+}
 interface SecondaryLabelProps extends TextProps {
-  withClock: boolean;
+  withClock?: boolean;
   content: string;
   countUpTimestamp?: Date | null;
+}
+
+function PrimaryStatusLabel({ content, withClock, size }: PrimaryLabelProps) {
+  return (
+    <Text size={size}>
+      {content + (content.trim().length > 0 && withClock ? " " : "")}
+      {withClock && <Clock startTimestamp={null} />} {/* TODO: fix clock */}
+    </Text>
+  );
 }
 
 function SecondaryStatusLabel({
   content,
   countUpTimestamp,
-  withClock,
+  withClock = false,
   size,
 }: SecondaryLabelProps) {
   return (
@@ -39,7 +45,7 @@ function SecondaryStatusLabel({
 interface PrimaryBoutStatusProps
   extends Pick<GridProps, "align">,
     Pick<TextProps, "size"> {
-  Labels?: typeof defaultPrimaryLabels;
+  withClock?: boolean;
 }
 
 interface SecondaryBoutStatusProps
@@ -49,7 +55,7 @@ interface SecondaryBoutStatusProps
 }
 
 export default function PrimaryBoutStatus({
-  Labels,
+  withClock = false,
   align,
   size,
 }: PrimaryBoutStatusProps) {
@@ -58,21 +64,32 @@ export default function PrimaryBoutStatus({
     throw new Error("PrimaryBoutStatus must be used within a BoutProvider");
   }
 
-  Labels = { ...defaultPrimaryLabels, ...Labels };
-
   // Render the Bout status in a single column if the Bout is stopped
   if (bout.state == "stopped") {
-    let stoppedNode: ReactNode;
+    let content: string;
+    let hasClock: boolean;
     if (bout.isFinal) {
-      stoppedNode = <Labels.Final size={size} />;
+      content = "Final";
+      hasClock = false;
     } else if (bout.jamCounts[2] > 0) {
-      stoppedNode = <Labels.Unofficial size={size} />;
+      content = "Unofficial";
+      hasClock = false;
     } else if (bout.jamCounts[1] > 0) {
-      stoppedNode = <Labels.Halftime size={size} />;
+      content = "Halftime";
+      hasClock = bout.startCountdown != null;
     } else {
-      stoppedNode = <Labels.Pregame size={size} />;
+      content = "Pregame";
+      hasClock = bout.startCountdown != null;
     }
-    return <Center>{stoppedNode}</Center>;
+    return (
+      <Center>
+        <PrimaryStatusLabel
+          withClock={hasClock && withClock}
+          content={content}
+          size={size}
+        />
+      </Center>
+    );
   }
 
   return (

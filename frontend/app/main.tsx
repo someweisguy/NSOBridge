@@ -112,7 +112,7 @@ function Main({ boutUuid }: { boutUuid: string }) {
 
         {/* Bout State View */}
         <SimpleGrid cols={1}>
-          <PrimaryBoutStatus align="center" size="36pt" />
+          <PrimaryBoutStatus withClock align="center" size="36pt" />
           <Center>
             <SecondaryBoutStatus withClock size="24pt" />
           </Center>
