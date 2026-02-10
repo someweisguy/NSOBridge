@@ -6,7 +6,7 @@ import { useSuspenseJam } from "@/hooks/use-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
-import { Center, Grid, GridProps, Text, TextProps } from "@mantine/core";
+import { Center, GridProps, Group, Text, TextProps } from "@mantine/core";
 import { useContext } from "react";
 
 interface PrimaryLabelProps extends TextProps {
@@ -43,21 +43,19 @@ function SecondaryStatusLabel({
 }
 
 interface PrimaryBoutStatusProps
-  extends Pick<GridProps, "align">,
+  extends Pick<GridProps, "align" | "justify">,
     Pick<TextProps, "size"> {
   withClock?: boolean;
 }
 
-interface SecondaryBoutStatusProps
-  extends Pick<GridProps, "align">,
-    Pick<TextProps, "size"> {
+interface SecondaryBoutStatusProps extends TextProps {
   withClock?: boolean;
 }
 
 export default function PrimaryBoutStatus({
   withClock = false,
   align,
-  size,
+  ...props
 }: PrimaryBoutStatusProps) {
   const bout: Bout | null = useContext(BoutContext);
   if (bout == null) {
@@ -82,40 +80,34 @@ export default function PrimaryBoutStatus({
       hasClock = bout.startCountdown != null;
     }
     return (
-      <Center>
+      <Group grow justify="center" align={align} bg="red">
         <PrimaryStatusLabel
           withClock={hasClock && withClock}
           content={content}
-          size={size}
+          {...props}
         />
-      </Center>
+      </Group>
     );
   }
 
   return (
-    <Grid grow columns={3} justify="space-around" align={align}>
-      <Grid.Col span={1}>
-        <Center>
-          <PeriodClock size={size} />
-        </Center>
-      </Grid.Col>
-      <Grid.Col span={1}>
-        <Center>
-          <JamNumber size={size} />
-        </Center>
-      </Grid.Col>
-      <Grid.Col span={1}>
-        <Center>
-          <JamClock size={size} />
-        </Center>
-      </Grid.Col>
-    </Grid>
+    <Group grow justify="center" align={align}>
+      <Center>
+        <PeriodClock {...props} />
+      </Center>
+      <Center>
+        <JamNumber {...props} />
+      </Center>
+      <Center>
+        <JamClock {...props} />
+      </Center>
+    </Group>
   );
 }
 
 export function SecondaryBoutStatus({
   withClock = false,
-  size,
+  ...props
 }: SecondaryBoutStatusProps) {
   const bout: Bout | null = useContext(BoutContext);
   if (bout == null) {
@@ -136,9 +128,13 @@ export function SecondaryBoutStatus({
     },
   );
 
+  if (bout.state != "lineup" && bout.state != "timeout") {
+    return <></>;
+  }
+
+  let content: string;
+  let countUpTimestamp: Date | null;
   if (bout.state == "lineup") {
-    let content: string;
-    let countUpTimestamp: Date | null;
     if (
       activeJam.stopTimestamp &&
       latestTimeout?.startTimestamp &&
@@ -150,17 +146,9 @@ export function SecondaryBoutStatus({
       content = "Lineup";
       countUpTimestamp = activeJam.stopTimestamp;
     }
-    return (
-      <SecondaryStatusLabel
-        withClock={withClock}
-        content={content}
-        countUpTimestamp={countUpTimestamp}
-        size={size}
-      />
-    );
-  } else if (bout.state == "timeout") {
-    let content: string;
-    const countUpTimestamp: Date | null = latestTimeout?.startTimestamp ?? null;
+  } else {
+    // Bout state is Timeout
+    countUpTimestamp = latestTimeout?.startTimestamp ?? null;
     if (latestTimeout?.isReview) {
       content = "Official Review";
     } else {
@@ -175,16 +163,14 @@ export function SecondaryBoutStatus({
         content = "Team Timeout";
       }
     }
-
-    return (
-      <SecondaryStatusLabel
-        withClock={withClock}
-        content={content}
-        countUpTimestamp={countUpTimestamp}
-        size={size}
-      />
-    );
   }
 
-  return <></>;
+  return (
+    <SecondaryStatusLabel
+      withClock={withClock}
+      content={content}
+      countUpTimestamp={countUpTimestamp}
+      {...props}
+    />
+  );
 }
