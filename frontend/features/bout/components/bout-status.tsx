@@ -19,9 +19,13 @@ interface SecondaryLabelProps extends TextProps {
   countUpTimestamp?: Date | null;
 }
 
-function PrimaryStatusLabel({ content, withClock, size }: PrimaryLabelProps) {
+function PrimaryStatusLabel({
+  content,
+  withClock,
+  ...props
+}: PrimaryLabelProps) {
   return (
-    <Text size={size}>
+    <Text {...props}>
       {content + (content.trim().length > 0 && withClock ? " " : "")}
       {withClock && <Clock startTimestamp={null} />} {/* TODO: fix clock */}
     </Text>
@@ -32,10 +36,10 @@ function SecondaryStatusLabel({
   content,
   countUpTimestamp,
   withClock = false,
-  size,
+  ...props
 }: SecondaryLabelProps) {
   return (
-    <Text size={size}>
+    <Text {...props}>
       {content + (content.trim().length > 0 && withClock ? " " : "")}
       {withClock && <Clock startTimestamp={countUpTimestamp ?? null} />}
     </Text>
@@ -80,7 +84,7 @@ export default function PrimaryBoutStatus({
       hasClock = bout.startCountdown != null;
     }
     return (
-      <Group grow justify="center" align={align} bg="red">
+      <Group justify="center" align={align}>
         <PrimaryStatusLabel
           withClock={hasClock && withClock}
           content={content}
