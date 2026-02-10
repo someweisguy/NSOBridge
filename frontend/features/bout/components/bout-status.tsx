@@ -38,6 +38,9 @@ function SecondaryStatusLabel({
   withClock = false,
   ...props
 }: SecondaryLabelProps) {
+  if (!countUpTimestamp) {
+    withClock = false;
+  }
   return (
     <Text {...props}>
       {content + (content.trim().length > 0 && withClock ? " " : "")}
