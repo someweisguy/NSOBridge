@@ -70,9 +70,11 @@ export function SecondaryBoutStatus({
     }
   }
 
+  // Don't show the clock if there is no timestamp from which to count up
   if (!countUpTimestamp) {
     withClock = false;
   }
+
   return (
     <Text {...props}>
       {content + (content.trim().length > 0 && withClock ? " " : "")}
