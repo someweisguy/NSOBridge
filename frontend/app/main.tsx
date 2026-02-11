@@ -18,7 +18,6 @@ import { redo, undo } from "@/lib/history";
 import {
   AppShell,
   Burger,
-  Center,
   Flex,
   MantineProvider,
   SimpleGrid,
@@ -131,9 +130,7 @@ function Main({ boutUuid }: { boutUuid: string }) {
             align="center"
             size="36pt"
           />
-          <Center>
-            <SecondaryBoutStatus withClock size="24pt" />
-          </Center>
+          <SecondaryBoutStatus withClock ta="center" size="24pt" />
         </SimpleGrid>
 
         {/* TeamJam score editors */}

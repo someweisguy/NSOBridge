@@ -4,7 +4,7 @@ import JamNumber from "@/components/jam-number";
 import PeriodClock from "@/components/period-clock";
 import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
-import { Center, GridProps, Group, Text, TextProps } from "@mantine/core";
+import { GridProps, Group, Text, TextProps } from "@mantine/core";
 import { useContext } from "react";
 
 interface PrimaryLabelProps extends TextProps {
@@ -59,27 +59,20 @@ export default function PrimaryBoutStatus({
       hasClock = bout.startCountdown != null;
     }
     return (
-      <Group justify="center" align={align}>
-        <PrimaryStatusLabel
-          withClock={hasClock && withClock}
-          content={content}
-          {...props}
-        />
-      </Group>
+      <PrimaryStatusLabel
+        withClock={hasClock && withClock}
+        content={content}
+        ta="center"
+        {...props}
+      />
     );
   }
 
   return (
     <Group grow justify="center" align={align}>
-      <Center>
-        <PeriodClock {...props} />
-      </Center>
-      <Center>
-        <JamNumber {...props} />
-      </Center>
-      <Center>
-        <JamClock {...props} />
-      </Center>
+      <PeriodClock ta="center" {...props} />
+      <JamNumber ta="center" {...props} />
+      <JamClock ta="center" {...props} />
     </Group>
   );
 }
