@@ -90,9 +90,7 @@ function Main({ boutUuid }: { boutUuid: string }) {
   usePrefetchServerTime();
 
   const { data: bout } = useSuspenseBout(boutUuid);
-
-  // Fetch Jam data
-  const [periodNum, jamNum] = bout.getActiveOrLatestJamNum();
+  const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
 
   return (
     <BoutProvider bout={bout}>
@@ -124,7 +122,11 @@ function Main({ boutUuid }: { boutUuid: string }) {
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>
-          <JamProvider bout={bout} periodNum={periodNum} jamNum={jamNum}>
+          <JamProvider
+            bout={bout}
+            periodNum={activePeriodNum}
+            jamNum={activeJamNum}
+          >
             <SimpleGrid cols={bout.teams.length}>
               {bout.teams.map((team: Team, i: number) => (
                 <TeamJamView key={i} bout={bout} team={team} />
