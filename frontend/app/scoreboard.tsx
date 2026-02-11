@@ -2,7 +2,10 @@ import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import PeriodClock from "@/components/period-clock";
 import TeamProvider from "@/components/team-provider";
-import TeamView from "@/features/team-view/team-view";
+import TeamBoutScore from "@/features/team/components/bout-score";
+import TeamJamScore from "@/features/team/components/jam-score";
+import TeamName from "@/features/team/components/team-name";
+import TeamTimeoutBar from "@/features/team/components/timeout-bar";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllSeries } from "@/hooks/use-series";
@@ -11,7 +14,14 @@ import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import FitScreen from "@fit-screen/react";
-import { Center, Grid, Group, MantineProvider, Stack } from "@mantine/core";
+import {
+  Center,
+  Flex,
+  Group,
+  MantineProvider,
+  SimpleGrid,
+  Stack,
+} from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -52,13 +62,27 @@ function Scoreboard() {
 
   return (
     <Stack>
-      <Grid columns={bout.teams.length}>
+      {/* Team information */}
+      <SimpleGrid cols={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
           <TeamProvider key={i} team={team}>
-            <TeamView bout={bout} />
+            <Stack justify="center">
+              <TeamName ta="center" fw="bolder" size="36pt" />
+              <Flex
+                direction={i % 2 == 0 ? "row" : "row-reverse"}
+                align="center"
+                justify="center"
+                gap="xl"
+              >
+                <TeamTimeoutBar size={24} />
+                <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
+                <TeamJamScore size="24pt" />
+              </Flex>
+            </Stack>
           </TeamProvider>
         ))}
-      </Grid>
+      </SimpleGrid>
+
       {/* TODO: Lead Jam Status */}
       <Center>
         <Group>
