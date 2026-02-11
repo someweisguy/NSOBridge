@@ -4,11 +4,11 @@ import { Text, TextProps } from "@mantine/core";
 import { useContext } from "react";
 
 interface TeamBoutScoreProps extends TextProps {
-  hideOffset: number;
+  hideOffset?: boolean;
 }
 
 export default function TeamBoutScore({
-  hideOffset,
+  hideOffset = false,
   ...props
 }: TeamBoutScoreProps) {
   const team: Team | null = useContext(TeamContext);
