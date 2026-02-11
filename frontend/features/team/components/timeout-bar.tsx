@@ -5,11 +5,11 @@ import { Ruleset } from "@/lib/game/ruleset";
 import { BoutContext, RulesetContext, TeamContext } from "@/utils/contexts";
 import { useContext } from "react";
 
-interface TimeoutBarProps {
+interface TeamTimeoutBarProps {
   size: number;
 }
 
-export default function TimeoutBar({ size }: TimeoutBarProps) {
+export default function TeamTimeoutBar({ size }: TeamTimeoutBarProps) {
   const team: Team | null = useContext(TeamContext);
   const bout: Bout | null = useContext(BoutContext);
   const ruleset: Ruleset | null = useContext(RulesetContext);
