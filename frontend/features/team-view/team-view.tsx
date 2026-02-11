@@ -1,4 +1,4 @@
-import TimeoutBar from "@/components/timeout-bar";
+import GenericTimeoutBar from "@/components/generic-timeout-bar";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { timeoutQueryOptions } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
@@ -33,7 +33,7 @@ export default function TeamView({ bout }: TeamsViewProps) {
         </Title>
       </Center>
       <Group justify="center">
-        <TimeoutBar
+        <GenericTimeoutBar
           numTimeouts={ruleset.numTimeouts}
           timeoutsRemaining={team.timeoutsRemaining}
           numReviews={ruleset.numReviews}

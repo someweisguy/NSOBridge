@@ -12,49 +12,29 @@ interface TimeoutBarProps {
   size: number;
 }
 
-interface TimeoutPipProps {
-  size: number;
-  invisible?: boolean;
-  active?: boolean;
-}
-
-function TimeoutPip({
-  size,
-  invisible = false,
-  active = false,
-}: TimeoutPipProps) {
-  return (
-    <IconCircleFilled
-      className={twMerge(
-        "icon icon-tabler icons-tabler-filled icon-tabler-circle",
-        invisible && "invisible",
-        active && !invisible && "animate-blink",
-      )}
-      size={size}
-    />
-  );
-}
-
-export default function TimeoutBar({
+export default function GenericTimeoutBar({
   numTimeouts,
   numReviews,
   timeoutsRemaining,
   reviewsRemaining,
   timeoutIsActive,
   isReview,
-  size = 30,
+  size,
 }: TimeoutBarProps) {
   return (
     <Card withBorder w={size} radius="md">
       {Array.from({ length: numTimeouts }, (_, i) => (
         <Card.Section key={i}>
           <Center>
-            <TimeoutPip
+            <IconCircleFilled
+              className={twMerge(
+                i >= timeoutsRemaining && "invisible",
+                i == timeoutsRemaining - 1 &&
+                  timeoutIsActive &&
+                  !isReview &&
+                  "animate-blink",
+              )}
               size={size}
-              invisible={i >= timeoutsRemaining}
-              active={
-                i == timeoutsRemaining - 1 && timeoutIsActive && !isReview
-              }
             />
           </Center>
         </Card.Section>
@@ -65,10 +45,15 @@ export default function TimeoutBar({
       {Array.from({ length: numReviews }, (_, i) => (
         <Card.Section key={i}>
           <Center>
-            <TimeoutPip
+            <IconCircleFilled
+              className={twMerge(
+                i >= reviewsRemaining && "invisible",
+                i == reviewsRemaining - 1 &&
+                  timeoutIsActive &&
+                  isReview &&
+                  "animate-blink",
+              )}
               size={size}
-              invisible={i >= reviewsRemaining}
-              active={i == reviewsRemaining - 1 && timeoutIsActive && isReview}
             />
           </Center>
         </Card.Section>
