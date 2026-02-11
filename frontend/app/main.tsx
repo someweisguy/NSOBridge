@@ -6,7 +6,10 @@ import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
 import PrimaryBoutStatus from "@/features/bout/components/primary-bout-status";
 import { SecondaryBoutStatus } from "@/features/bout/components/secondary-bout-status";
 import TeamJamView from "@/features/team-jam-vew/team-jam-view";
-import TeamView from "@/features/team-view/team-view";
+import TeamBoutScore from "@/features/team/components/bout-score";
+import TeamJamScore from "@/features/team/components/jam-score";
+import TeamName from "@/features/team/components/team-name";
+import TeamTimeoutBar from "@/features/team/components/timeout-bar";
 import { useSuspenseAllBouts, useSuspenseBout } from "@/hooks/use-bout";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import queryClient from "@/lib/cache";
@@ -16,6 +19,7 @@ import {
   AppShell,
   Burger,
   Center,
+  Flex,
   MantineProvider,
   SimpleGrid,
   Stack,
@@ -102,7 +106,23 @@ function Main({ boutUuid }: { boutUuid: string }) {
         <SimpleGrid cols={bout.teams.length}>
           {bout.teams.map((team: Team, i: number) => (
             <TeamProvider key={i} team={team}>
-              <TeamView bout={bout} />
+              <Stack justify="center">
+                <Center>
+                  <TeamName fw="bolder" size="36pt" />
+                </Center>
+                <Flex
+                  direction={i % 2 == 0 ? "row" : "row-reverse"}
+                  align="center"
+                  justify="center"
+                  gap="xl"
+                >
+                  <TeamTimeoutBar size={24} />
+                  <Center>
+                    <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
+                  </Center>
+                  <TeamJamScore size="24pt" />
+                </Flex>
+              </Stack>
             </TeamProvider>
           ))}
         </SimpleGrid>
