@@ -107,9 +107,7 @@ function Main({ boutUuid }: { boutUuid: string }) {
           {bout.teams.map((team: Team, i: number) => (
             <TeamProvider key={i} team={team}>
               <Stack justify="center">
-                <Center>
-                  <TeamName fw="bolder" size="36pt" />
-                </Center>
+                <TeamName ta="center" fw="bolder" size="36pt" />
                 <Flex
                   direction={i % 2 == 0 ? "row" : "row-reverse"}
                   align="center"
@@ -117,9 +115,7 @@ function Main({ boutUuid }: { boutUuid: string }) {
                   gap="xl"
                 >
                   <TeamTimeoutBar size={24} />
-                  <Center>
-                    <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
-                  </Center>
+                  <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
                   <TeamJamScore size="24pt" />
                 </Flex>
               </Stack>
