@@ -108,14 +108,18 @@ function Main({ boutUuid }: { boutUuid: string }) {
               <Stack justify="center">
                 <TeamName ta="center" fw="bolder" size="36pt" />
                 <Flex
-                  direction={i % 2 == 0 ? "row" : "row-reverse"}
+                  direction={i % 2 ? "row-reverse" : "row"}
                   align="center"
                   justify="center"
-                  gap="xl"
+                  gap="md"
                 >
                   <TeamTimeoutBar size={24} />
                   <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
-                  <TeamJamScore size="24pt" />
+                  <TeamJamScore
+                    ta={i % 2 ? "right" : "left"}
+                    size="24pt"
+                    w={50}
+                  />
                 </Flex>
               </Stack>
             </TeamProvider>
