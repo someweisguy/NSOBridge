@@ -2,6 +2,8 @@ import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import PeriodClock from "@/components/period-clock";
 import TeamProvider from "@/components/team-provider";
+import IntermissionLabel from "@/features/bout/components/intermission-label";
+import { SecondaryBoutStatus } from "@/features/bout/components/secondary-bout-status";
 import TeamBoutScore from "@/features/team/components/bout-score";
 import TeamJamScore from "@/features/team/components/jam-score";
 import TeamName from "@/features/team/components/team-name";
@@ -14,14 +16,7 @@ import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import FitScreen from "@fit-screen/react";
-import {
-  Center,
-  Flex,
-  Group,
-  MantineProvider,
-  SimpleGrid,
-  Stack,
-} from "@mantine/core";
+import { Flex, Group, MantineProvider, SimpleGrid, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode, Suspense } from "react";
@@ -84,19 +79,18 @@ function Scoreboard() {
       </SimpleGrid>
 
       {/* TODO: Lead Jam Status */}
-      <Center>
-        <Group>
-          <Center>
-            <PeriodClock size="36pt" />
-          </Center>
-          <Center>
-            <JamNumber size="36pt" />
-          </Center>
-          <Center>
-            <JamClock size="36pt" />
-          </Center>
-        </Group>
-      </Center>
+      <Stack>
+        {bout.state == "stopped" ? (
+          <IntermissionLabel ta="center" size="36pt" />
+        ) : (
+          <Group grow justify="center" align="center">
+            <PeriodClock ta="center" />
+            <JamNumber ta="center" />
+            <JamClock ta="center" />
+          </Group>
+        )}
+        <SecondaryBoutStatus withClock ta="center" size="24pt" />
+      </Stack>
     </Stack>
   );
 }

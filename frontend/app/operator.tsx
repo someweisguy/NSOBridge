@@ -1,8 +1,11 @@
 import BoutProvider from "@/components/bout-provider";
+import JamClock from "@/components/jam-clock";
+import JamNumber from "@/components/jam-number";
 import JamProvider from "@/components/jam-provider";
+import PeriodClock from "@/components/period-clock";
 import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
-import PrimaryBoutStatus from "@/features/bout/components/primary-bout-status";
+import IntermissionLabel from "@/features/bout/components/intermission-label";
 import { SecondaryBoutStatus } from "@/features/bout/components/secondary-bout-status";
 import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamBoutScore from "@/features/team/components/bout-score";
@@ -12,7 +15,7 @@ import TeamTimeoutBar from "@/features/team/components/timeout-bar";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import { Team } from "@/lib/game/bouts";
-import { Flex, SimpleGrid, Stack } from "@mantine/core";
+import { Center, Flex, Group, SimpleGrid, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense } from "react";
 
@@ -54,15 +57,20 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
         </SimpleGrid>
 
         {/* Bout State View */}
-        <SimpleGrid>
-          <PrimaryBoutStatus
-            withClock
-            justify="center"
-            align="center"
-            size="36pt"
-          />
-          <SecondaryBoutStatus withClock ta="center" size="24pt" />
-        </SimpleGrid>
+        <Stack fz="36pt" ta="center" align="stretch">
+          <Center>
+            {bout.state == "stopped" ? (
+              <IntermissionLabel inherit size="36pt" />
+            ) : (
+              <Group grow justify="center" w="75%" ta="center">
+                <PeriodClock inherit />
+                <JamNumber inherit />
+                <JamClock inherit />
+              </Group>
+            )}
+          </Center>
+          <SecondaryBoutStatus withClock inherit fz="24pt" />
+        </Stack>
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>
