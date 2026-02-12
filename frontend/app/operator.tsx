@@ -7,7 +7,7 @@ import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
 import BoutIntermissionLabel from "@/features/bout/components/intermission-label";
 import { BoutStatusLabel } from "@/features/bout/components/status-label";
-import TeamJamView from "@/features/team-jam-vew/team-jam-view";
+import TeamJamView from "@/features/team-jam/team-jam-view";
 import TeamBoutScore from "@/features/team/components/bout-score";
 import TeamJamScore from "@/features/team/components/jam-score";
 import TeamName from "@/features/team/components/team-name";
