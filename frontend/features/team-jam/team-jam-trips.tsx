@@ -1,23 +1,8 @@
 import { TeamJam } from "@/lib/game/jams";
-import {
-  Button,
-  Group,
-  ScrollArea,
-  Stack,
-  Text,
-  useMantineTheme,
-} from "@mantine/core";
+import { Button, Group, ScrollArea } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-
-interface TripEventProps {
-  tripNum: number;
-  timestamp: Date;
-  lead: boolean;
-  lost: boolean;
-  passes: number | null;
-  starPass: boolean;
-}
+import TripEvent from "./trip-event";
 
 interface TripEventViewProps {
   teamJam: TeamJam;
@@ -30,31 +15,6 @@ function scrollLeft(scrollArea: HTMLDivElement) {
 
 function scrollRight(scrollArea: HTMLDivElement) {
   scrollArea.scrollBy({ left: 50.5, behavior: "smooth" });
-}
-
-function TripEvent({
-  tripNum,
-  // timestamp,
-  // lead,
-  // lost,
-  passes,
-  // starPass,
-}: TripEventProps) {
-  // TODO: Polish this component
-  const theme = useMantineTheme();
-
-  return (
-    <Button px={0} variant="subtle" c="gray" w={50} h={60}>
-      <Stack gap={3}>
-        <Text c="dimmed" size="9pt">
-          <i>Trip {tripNum + 1}</i>
-        </Text>
-        <Text c={theme.colors.dark[9]} size="md">
-          <b>{passes}</b>
-        </Text>
-      </Stack>
-    </Button>
-  );
 }
 
 export default function TeamJamTrips({
@@ -83,7 +43,7 @@ export default function TeamJamTrips({
         pr={1}
         variant="subtle"
         c="gray"
-        h={60}
+        h="60"
         w={30}
       >
         <IconChevronLeft size="24" />
@@ -114,8 +74,8 @@ export default function TeamJamTrips({
         pl={1}
         variant="subtle"
         c="gray"
-        h={60}
-        w={30}
+        h="60"
+        w="30"
       >
         <IconChevronRight size="24" />
       </Button>

@@ -4,7 +4,7 @@ import { JamContext } from "@/utils/contexts";
 import { Stack } from "@mantine/core";
 import { useContext } from "react";
 import AddTripButtons from "./add-trip-buttons";
-import TeamJamJammerState from "./team-jam-jammer-state";
+import TeamJamJammerState from "./jammer-state";
 import TeamJamTrips from "./team-jam-trips";
 
 interface TeamJamViewProps {
