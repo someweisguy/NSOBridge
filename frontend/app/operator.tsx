@@ -3,6 +3,7 @@ import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import JamProvider from "@/components/jam-provider";
 import PeriodClock from "@/components/period-clock";
+import TeamJamProvider from "@/components/team-jam-provider";
 import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
 import BoutIntermissionLabel from "@/features/bout/components/intermission-label";
@@ -24,6 +25,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
 
   const { data: bout } = useSuspenseBout(boutUuid);
   const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
+  const [latestPeriodNum, latestJamNum] = bout.getLatestJamNum();
 
   return (
     <BoutProvider bout={bout}>
@@ -81,14 +83,24 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
           >
             <SimpleGrid cols={bout.teams.length}>
               {bout.teams.map((team: Team, i: number) => (
-                <TeamJamView key={i} bout={bout} team={team} />
+                <TeamJamProvider key={i} team={team}>
+                  <TeamJamView bout={bout} team={team} />
+                </TeamJamProvider>
               ))}
             </SimpleGrid>
           </JamProvider>
         </Suspense>
 
         {/* Lineup editors */}
-        {/* TODO */}
+        <Suspense fallback={"Loading..."}>
+          <JamProvider
+            bout={bout}
+            periodNum={latestPeriodNum}
+            jamNum={latestJamNum}
+          >
+            {/* TODO */}
+          </JamProvider>
+        </Suspense>
       </Stack>
     </BoutProvider>
   );
