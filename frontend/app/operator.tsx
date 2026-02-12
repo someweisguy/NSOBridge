@@ -92,7 +92,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
         </Suspense>
 
         {/* Lineup editors */}
-        <Suspense fallback={"Loading..."}>
+        <Suspense>
           <JamProvider
             bout={bout}
             periodNum={latestPeriodNum}
