@@ -6,14 +6,14 @@ import { BoutContext } from "@/utils/contexts";
 import { Text, TextProps } from "@mantine/core";
 import { useContext } from "react";
 
-interface SecondaryBoutStatusProps extends TextProps {
+interface BoutStatusLabelProps extends TextProps {
   withClock?: boolean;
 }
 
-export function SecondaryBoutStatus({
+export function BoutStatusLabel({
   withClock = false,
   ...props
-}: SecondaryBoutStatusProps) {
+}: BoutStatusLabelProps) {
   const bout: Bout | null = useContext(BoutContext);
   if (bout == null) {
     throw new Error("SecondaryBoutStatus must be used within a BoutProvider");

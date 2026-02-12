@@ -2,8 +2,8 @@ import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import PeriodClock from "@/components/period-clock";
 import TeamProvider from "@/components/team-provider";
-import IntermissionLabel from "@/features/bout/components/intermission-label";
-import { SecondaryBoutStatus } from "@/features/bout/components/secondary-bout-status";
+import BoutIntermissionLabel from "@/features/bout/components/intermission-label";
+import { BoutStatusLabel } from "@/features/bout/components/status-label";
 import TeamBoutScore from "@/features/team/components/bout-score";
 import TeamJamScore from "@/features/team/components/jam-score";
 import TeamName from "@/features/team/components/team-name";
@@ -81,7 +81,7 @@ function Scoreboard() {
       {/* TODO: Lead Jam Status */}
       <Stack>
         {bout.state == "stopped" ? (
-          <IntermissionLabel ta="center" size="36pt" />
+          <BoutIntermissionLabel ta="center" size="36pt" />
         ) : (
           <Group grow justify="center" align="center">
             <PeriodClock ta="center" />
@@ -89,7 +89,7 @@ function Scoreboard() {
             <JamClock ta="center" />
           </Group>
         )}
-        <SecondaryBoutStatus withClock ta="center" size="24pt" />
+        <BoutStatusLabel withClock ta="center" size="24pt" />
       </Stack>
     </Stack>
   );

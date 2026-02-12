@@ -5,8 +5,8 @@ import JamProvider from "@/components/jam-provider";
 import PeriodClock from "@/components/period-clock";
 import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
-import IntermissionLabel from "@/features/bout/components/intermission-label";
-import { SecondaryBoutStatus } from "@/features/bout/components/secondary-bout-status";
+import BoutIntermissionLabel from "@/features/bout/components/intermission-label";
+import { BoutStatusLabel } from "@/features/bout/components/status-label";
 import TeamJamView from "@/features/team-jam-vew/team-jam-view";
 import TeamBoutScore from "@/features/team/components/bout-score";
 import TeamJamScore from "@/features/team/components/jam-score";
@@ -60,7 +60,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
         <Stack fz="36pt" ta="center" align="stretch">
           <Center>
             {bout.state == "stopped" ? (
-              <IntermissionLabel inherit size="36pt" />
+              <BoutIntermissionLabel inherit size="36pt" />
             ) : (
               <Group grow justify="center" w="75%" ta="center">
                 <PeriodClock inherit />
@@ -69,7 +69,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
               </Group>
             )}
           </Center>
-          <SecondaryBoutStatus withClock inherit fz="24pt" />
+          <BoutStatusLabel withClock inherit fz="24pt" />
         </Stack>
 
         {/* TeamJam score editors */}

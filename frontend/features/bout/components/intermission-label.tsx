@@ -4,14 +4,14 @@ import { BoutContext } from "@/utils/contexts";
 import { Text, TextProps } from "@mantine/core";
 import { useContext } from "react";
 
-interface IntermissionLabel extends TextProps {
+interface BoutIntermissionLabelProps extends TextProps {
   withClock?: boolean;
 }
 
-export default function IntermissionLabel({
+export default function BoutIntermissionLabel({
   withClock = false,
   ...props
-}: IntermissionLabel) {
+}: BoutIntermissionLabelProps) {
   const bout: Bout | null = useContext(BoutContext);
   if (bout == null) {
     throw new Error("PrimaryBoutStatus must be used within a BoutProvider");
