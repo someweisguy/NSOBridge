@@ -4,17 +4,20 @@ import { QueryOptions, SuspenseQueryOptions } from "@/types/query";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useSuspenseAllBouts = (options?: SuspenseQueryOptions<Bout[]>) =>
-  useSuspenseQuery({
-    queryKey: Bout.generateKey(),
-    queryFn: () =>
-      getAllBouts().then((bouts: Bout[]) => {
-        for (const bout of bouts) {
-          queryClient.setQueryData(Bout.generateKey(bout.uuid), bout);
-        }
-        return bouts;
-      }),
-    ...options,
-  });
+  useSuspenseQuery(
+    {
+      queryKey: Bout.generateKey(),
+      queryFn: () =>
+        getAllBouts().then((bouts: Bout[]) => {
+          for (const bout of bouts) {
+            queryClient.setQueryData(Bout.generateKey(bout.uuid), bout);
+          }
+          return bouts;
+        }),
+      ...options,
+    },
+    queryClient,
+  );
 
 export const useBout = <T = null>(
   uuid: string,
