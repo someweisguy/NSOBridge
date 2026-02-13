@@ -3,9 +3,9 @@ import { SyncData } from "@/types/ws";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { getServerTime, getSyncData } from "../lib/sync";
-const REFETCH_INTERVAL = 1000 * 60 * 5;
 
 const syncQueryKey = ["useServerTimeReactHook"];
+const REFETCH_INTERVAL = 1000 * 60 * 5;
 
 export const useSuspenseServerTime = (): [Date, () => void] => {
   const {
