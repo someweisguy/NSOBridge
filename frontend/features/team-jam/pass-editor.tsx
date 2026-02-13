@@ -4,7 +4,7 @@ import { JamContext, RulesetContext, TeamJamContext } from "@/utils/contexts";
 import { Button, Group, Stack } from "@mantine/core";
 import { useContext } from "react";
 
-export default function PassEditor() {
+export default function TeamJamPassEditor() {
   const jam: Jam | null = useContext(JamContext);
   const teamJam: TeamJam | null = useContext(TeamJamContext);
   if (teamJam == null || jam == null) {

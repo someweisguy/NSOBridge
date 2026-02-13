@@ -8,7 +8,7 @@ import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
 import BoutIntermissionLabel from "@/features/bout/components/intermission-label";
 import { BoutStatusLabel } from "@/features/bout/components/status-label";
-import PassEditor from "@/features/team-jam/pass-editor";
+import TeamJamPassEditor from "@/features/team-jam/pass-editor";
 import TeamBoutScore from "@/features/team/components/bout-score";
 import TeamJamScore from "@/features/team/components/jam-score";
 import TeamName from "@/features/team/components/team-name";
@@ -85,7 +85,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
               {[...Array(2).keys()].map((i: number) => (
                 <TeamJamProvider key={i} teamJamNum={i}>
                   {/* TODO: jammer state */}
-                  <PassEditor />
+                  <TeamJamPassEditor />
                   {/* TODO: trip history */}
                 </TeamJamProvider>
               ))}

@@ -17,7 +17,7 @@ function scrollRight(scrollArea: HTMLDivElement) {
   scrollArea.scrollBy({ left: 50.5, behavior: "smooth" });
 }
 
-export default function TeamJamTrips({
+export default function TeamJamTripHistory({
   teamJam,
   scrollWidth = 200,
 }: TripEventViewProps) {

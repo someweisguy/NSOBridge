@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
 
-interface JammerStatusButtonsProps {
+interface TeamJamJammerStateProps {
   jam: Jam;
   team: Team;
 }
@@ -22,7 +22,7 @@ const checkBoxTheme = createTheme({
 export default function TeamJamJammerState({
   jam,
   team,
-}: JammerStatusButtonsProps) {
+}: TeamJamJammerStateProps) {
   const teamJam: TeamJam | undefined = jam.teamJams.find(
     (teamJam: TeamJam) => teamJam.teamNum === team.num,
   );
