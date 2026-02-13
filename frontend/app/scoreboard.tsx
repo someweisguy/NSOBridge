@@ -1,14 +1,14 @@
 import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import PeriodClock from "@/components/period-clock";
-import TeamProvider from "@/components/team-provider";
+import TeamProvider from "@/features/teams/components/team-provider";
 import BoutIntermissionLabel from "@/features/bouts/components/intermission-label";
 import { BoutStatusLabel } from "@/features/bouts/components/status-label";
 import TeamBoutScore from "@/features/teams/components/bout-score";
 import TeamJamScore from "@/features/teams/components/jam-score";
 import TeamName from "@/features/teams/components/team-name";
 import TeamTimeoutBar from "@/features/teams/components/timeout-bar";
-import { useSuspenseBout } from "@/hooks/use-bout";
+import { useSuspenseBout } from "@/features/bouts/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllSeries } from "@/hooks/use-series";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";

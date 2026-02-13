@@ -5,7 +5,7 @@ import {
   useStartTimeout,
   useStopJam,
   useStopTimeout,
-} from "@/hooks/use-bout";
+} from "@/features/bouts/hooks/use-bout";
 import { useRedo, useUndo } from "@/hooks/use-history";
 import { timeoutQueryOptions } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";

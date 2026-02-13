@@ -1,5 +1,5 @@
-import BoutPicker from "@/components/bout-picker";
-import { useSuspenseAllBouts } from "@/hooks/use-bout";
+import BoutPicker from "@/features/bouts/components/bout-picker";
+import { useSuspenseAllBouts } from "@/features/bouts/hooks/use-bout";
 import queryClient from "@/lib/cache";
 import { redo, undo } from "@/lib/history";
 import { AppShell, Burger, MantineProvider } from "@mantine/core";

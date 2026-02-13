@@ -1,4 +1,4 @@
-import { useSuspenseAllBouts } from "@/hooks/use-bout";
+import { useSuspenseAllBouts } from "@/features/bouts/hooks/use-bout";
 import { Bout } from "@/lib/game/bouts";
 import { Select } from "@mantine/core";
 import { useEffect, useState } from "react";
