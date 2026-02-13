@@ -1,7 +1,7 @@
-import { useSuspenseAllBouts } from "@/hooks/use-bout";
 import { Bout } from "@/lib/game/bouts";
 import { Select } from "@mantine/core";
 import { useEffect, useState } from "react";
+import { useSuspenseAllBouts } from "../hooks/all-bouts";
 
 interface BoutPickerProps {
   onChange: (boutUUid: string) => void;
