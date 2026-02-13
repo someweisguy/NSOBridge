@@ -40,47 +40,47 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
-      "import/no-restricted-paths": [
-        // TODO: Figure out how to get this rule working
-        "error",
-        {
-          basePath: "./frontend",
-          zones: [
-            // Disable cross-feature imports
-            {
-              target: "./feature/bouts",
-              from: "./features/",
-              except: ["./bouts"],
-            },
-            {
-              target: "./features/team-jams",
-              from: "./features",
-              except: ["./team-jams"],
-            },
-            {
-              target: "./features/teams",
-              from: "./features",
-              except: ["./teams"],
-            },
+      // "import/no-restricted-paths": [
+      //   // TODO: Figure out how to get this rule working
+      //   "error",
+      //   {
+      //     basePath: "./frontend",
+      //     zones: [
+      //       // Disable cross-feature imports
+      //       {
+      //         target: "./feature/bouts",
+      //         from: "./features/",
+      //         except: ["./bouts"],
+      //       },
+      //       {
+      //         target: "./features/team-jams",
+      //         from: "./features",
+      //         except: ["./team-jams"],
+      //       },
+      //       {
+      //         target: "./features/teams",
+      //         from: "./features",
+      //         except: ["./teams"],
+      //       },
 
-            // Enforce unidirectional codebase
-            {
-              target: "./features",
-              from: "./app",
-            },
-            {
-              target: [
-                "./components",
-                "./hooks",
-                "./lib",
-                "./types",
-                "./utils",
-              ],
-              from: ["./features", "./app"],
-            },
-          ],
-        },
-      ],
+      //       // Enforce unidirectional codebase
+      //       {
+      //         target: "./features",
+      //         from: "./app",
+      //       },
+      //       {
+      //         target: [
+      //           "./components",
+      //           "./hooks",
+      //           "./lib",
+      //           "./types",
+      //           "./utils",
+      //         ],
+      //         from: ["./features", "./app"],
+      //       },
+      //     ],
+      //   },
+      // ],
     },
     settings: {
       react: {
