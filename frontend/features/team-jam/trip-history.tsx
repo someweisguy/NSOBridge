@@ -1,11 +1,11 @@
 import { TeamJam } from "@/lib/game/jams";
 import { Button, Group, ScrollArea } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import TripEvent from "./trip-event";
+import { TeamJamContext } from "@/utils/contexts";
 
 interface TripEventViewProps {
-  teamJam: TeamJam;
   scrollWidth?: number;
 }
 
@@ -18,9 +18,13 @@ function scrollRight(scrollArea: HTMLDivElement) {
 }
 
 export default function TeamJamTripHistory({
-  teamJam,
   scrollWidth = 200,
 }: TripEventViewProps) {
+  const teamJam: TeamJam | null = useContext(TeamJamContext);
+  if (teamJam == null) {
+    throw new Error("TeamJamTripHistory must be used within a TeamJamProvider");
+  }
+
   const viewport = useRef<HTMLDivElement>(null);
   const isHydrated = useRef<boolean>(false);
   const [scrollPosition, onScrollPositionChange] = useState({ x: 0, y: 0 });

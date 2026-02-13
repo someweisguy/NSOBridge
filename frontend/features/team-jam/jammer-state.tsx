@@ -1,6 +1,6 @@
 import { useSetLead, useSetLost, useSetStarPass } from "@/hooks/use-jam";
-import { Team } from "@/lib/game/bouts";
 import { Jam, TeamJam } from "@/lib/game/jams";
+import { JamContext, TeamJamContext } from "@/utils/contexts";
 import {
   Checkbox,
   createTheme,
@@ -9,26 +9,19 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
-
-interface TeamJamJammerStateProps {
-  jam: Jam;
-  team: Team;
-}
+import { useContext } from "react";
 
 const checkBoxTheme = createTheme({
   cursorType: "pointer",
 });
 
-export default function TeamJamJammerState({
-  jam,
-  team,
-}: TeamJamJammerStateProps) {
-  const teamJam: TeamJam | undefined = jam.teamJams.find(
-    (teamJam: TeamJam) => teamJam.teamNum === team.num,
-  );
-  if (teamJam == undefined) {
-    throw new Error("team jam not found");
+export default function TeamJamJammerState() {
+  const jam: Jam | null = useContext(JamContext);
+  const teamJam: TeamJam | null = useContext(TeamJamContext);
+  if (jam == null || teamJam == null) {
+    throw new Error("TeamJamJammerState must be used within a TeamJamProvider");
   }
+
   const setLead = useSetLead(jam, teamJam);
   const setLost = useSetLost(jam, teamJam);
   const setStarPass = useSetStarPass(jam, teamJam);

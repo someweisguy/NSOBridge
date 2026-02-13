@@ -8,7 +8,9 @@ import TeamProvider from "@/components/team-provider";
 import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
 import BoutIntermissionLabel from "@/features/bout/components/intermission-label";
 import { BoutStatusLabel } from "@/features/bout/components/status-label";
+import TeamJamJammerState from "@/features/team-jam/jammer-state";
 import TeamJamPassEditor from "@/features/team-jam/pass-editor";
+import TeamJamTripHistory from "@/features/team-jam/trip-history";
 import TeamBoutScore from "@/features/team/components/bout-score";
 import TeamJamScore from "@/features/team/components/jam-score";
 import TeamName from "@/features/team/components/team-name";
@@ -84,9 +86,11 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
             <SimpleGrid cols={bout.teams.length}>
               {[...Array(2).keys()].map((i: number) => (
                 <TeamJamProvider key={i} teamJamNum={i}>
-                  {/* TODO: jammer state */}
-                  <TeamJamPassEditor />
-                  {/* TODO: trip history */}
+                  <Stack>
+                    <TeamJamJammerState />
+                    <TeamJamPassEditor />
+                    <TeamJamTripHistory />
+                  </Stack>
                 </TeamJamProvider>
               ))}
             </SimpleGrid>
