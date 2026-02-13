@@ -43,38 +43,39 @@ export default tseslint.config(
       "import/no-restricted-paths": [
         "error",
         {
+          basePath: "./frontend",
           zones: [
             // Disable cross-feature imports
             {
-              target: "./frontend/features/bouts",
-              from: "./frontend/features",
+              target: "./feature/bouts",
+              from: "./features/",
               except: ["./bouts"],
             },
             {
-              target: "./frontend/features/team-jams",
-              from: "./frontend/features",
+              target: "./features/team-jams",
+              from: "./features",
               except: ["./team-jams"],
             },
             {
-              target: "./frontend/features/teams",
-              from: "./frontend/features",
+              target: "./features/teams",
+              from: "./features",
               except: ["./teams"],
             },
 
             // Enforce unidirectional codebase
             {
-              target: "./frontend/features",
-              from: "./frontend/app",
+              target: "./features",
+              from: "./app",
             },
             {
               target: [
-                "./frontend/components",
-                "./frontend/hooks",
-                "./frontend/lib",
-                "./frontend/types",
-                "./frontend/utils",
+                "./components",
+                "./hooks",
+                "./lib",
+                "./types",
+                "./utils",
               ],
-              from: ["./frontend/features", "./frontend/app"],
+              from: ["./features", "./app"],
             },
           ],
         },
