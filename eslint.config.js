@@ -41,6 +41,7 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "import/no-restricted-paths": [
+        // TODO: Figure out how to get this rule working
         "error",
         {
           basePath: "./frontend",
