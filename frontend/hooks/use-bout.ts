@@ -1,6 +1,6 @@
 import queryClient from "@/lib/cache";
-import { Bout, createBout, getAllBouts, getBout } from "@/lib/game/bouts";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { Bout, getAllBouts, getBout } from "@/lib/game/bouts";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useSuspenseAllBouts = () =>
   useSuspenseQuery(
@@ -27,10 +27,4 @@ export const useSuspenseBout = (uuid: string) =>
   useSuspenseQuery({
     queryKey: Bout.generateKey(uuid),
     queryFn: () => getBout(uuid),
-  });
-
-// TODO: add ruleset parameter to this hook
-export const useCreateBout = () =>
-  useMutation({
-    mutationFn: (rosterIds: number[]) => createBout(rosterIds),
   });
