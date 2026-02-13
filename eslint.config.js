@@ -38,6 +38,29 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
+      "import/no-restricted-paths": [
+        // Disable cross-feature imports
+        "error",
+        {
+          zones: [
+            {
+              target: "./frontend/features/bouts",
+              from: "./src/features",
+              except: ["./bouts"],
+            },
+            {
+              target: "./src/features/team-jams",
+              from: "./src/features",
+              except: ["./team-jams"],
+            },
+            {
+              target: "./src/features/teams",
+              from: "./src/features",
+              except: ["./teams"],
+            },
+          ],
+        },
+      ],
     },
     settings: {
       react: {
