@@ -1,6 +1,6 @@
 import { Bout } from "@/lib/game/bouts";
 import { getRuleset, Ruleset } from "@/lib/game/ruleset";
-import { QueryOptions, SuspenseQueryOptions } from "@/types/hooks";
+import { QueryOptions, SuspenseQueryOptions } from "@/types/query";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useSuspenseRuleset = (
