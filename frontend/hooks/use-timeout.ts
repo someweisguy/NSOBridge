@@ -5,6 +5,7 @@ import {
   useQuery,
   UseQueryOptions,
   useSuspenseQuery,
+  UseSuspenseQueryOptions,
 } from "@tanstack/react-query";
 
 export function timeoutQueryOptions(bout: Bout, num: number) {
@@ -25,5 +26,8 @@ export const useTimeout = <T = null>(
     ...options,
   });
 
-export const useSuspenseTimeout = (bout: Bout, num: number) =>
-  useSuspenseQuery(timeoutQueryOptions(bout, num));
+export const useSuspenseTimeout = <T = null>(
+  bout: Bout,
+  num: number,
+  options?: Omit<UseSuspenseQueryOptions<Timeout | T>, "queryKey" | "queryFn">,
+) => useSuspenseQuery({ ...timeoutQueryOptions(bout, num), ...options });
