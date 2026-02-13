@@ -1,21 +1,14 @@
 import { useAddTrip } from "@/hooks/use-jam";
-import { Team } from "@/lib/game/bouts";
 import { Jam, TeamJam } from "@/lib/game/jams";
-import { RulesetContext } from "@/utils/contexts";
+import { JamContext, RulesetContext, TeamJamContext } from "@/utils/contexts";
 import { Button, Group, Stack } from "@mantine/core";
 import { useContext } from "react";
 
-interface AddTripButtonsProps {
-  jam: Jam;
-  team: Team;
-}
-
-export default function AddTripButtons({ jam, team }: AddTripButtonsProps) {
-  const teamJam: TeamJam | undefined = jam.teamJams.find(
-    (teamJam: TeamJam) => teamJam.teamNum === team.num,
-  );
-  if (teamJam == undefined) {
-    throw new Error("team jam not found");
+export default function PassEditor() {
+  const jam: Jam | null = useContext(JamContext);
+  const teamJam: TeamJam | null = useContext(TeamJamContext);
+  if (teamJam == null || jam == null) {
+    throw new Error("AddTripButtons must be in a TeamJamProvider");
   }
   const ruleset = useContext(RulesetContext);
   if (ruleset == null) {
