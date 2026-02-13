@@ -41,24 +41,40 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "import/no-restricted-paths": [
-        // Disable cross-feature imports
         "error",
         {
           zones: [
+            // Disable cross-feature imports
             {
               target: "./frontend/features/bouts",
-              from: "./src/features",
+              from: "./frontend/features",
               except: ["./bouts"],
             },
             {
-              target: "./src/features/team-jams",
-              from: "./src/features",
+              target: "./frontend/features/team-jams",
+              from: "./frontend/features",
               except: ["./team-jams"],
             },
             {
-              target: "./src/features/teams",
-              from: "./src/features",
+              target: "./frontend/features/teams",
+              from: "./frontend/features",
               except: ["./teams"],
+            },
+
+            // Enforce unidirectional codebase
+            {
+              target: "./frontend/features",
+              from: "./frontend/app",
+            },
+            {
+              target: [
+                "./frontend/components",
+                "./frontend/hooks",
+                "./frontend/lib",
+                "./frontend/types",
+                "./frontend/utils",
+              ],
+              from: ["./frontend/features", "./frontend/app"],
             },
           ],
         },
