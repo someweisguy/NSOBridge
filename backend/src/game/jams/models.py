@@ -8,7 +8,7 @@ from uuid import UUID
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
-from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, column, select
+from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
     MappedSQLExpression,
@@ -48,7 +48,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         back_populates='jam',
         cascade=CASCADE_CHILD,
         lazy='selectin',
-        order_by=[column('team_num')],
+        order_by='TeamJam.team_num',
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
