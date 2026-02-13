@@ -1,5 +1,6 @@
-import { useRedo, useUndo } from "@/hooks/use-history";
+import { useRedo } from "@/hooks/use-redo";
 import { useTimeout } from "@/hooks/use-timeout";
+import { useUndo } from "@/hooks/use-undo";
 import { Bout } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
