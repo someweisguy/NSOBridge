@@ -1,11 +1,3 @@
-import {
-  useBeginPeriod,
-  useEndPeriod,
-  useStartJam,
-  useStartTimeout,
-  useStopJam,
-  useStopTimeout,
-} from "@/features/bouts/hooks/use-bout";
 import { useRedo, useUndo } from "@/hooks/use-history";
 import { timeoutQueryOptions } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
@@ -13,6 +5,12 @@ import { Timeout } from "@/lib/game/timeouts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { useBeginPeriod } from "../bouts/hooks/begin-period";
+import { useEndPeriod } from "../bouts/hooks/end-period";
+import { useStartJam } from "../bouts/hooks/start-jam";
+import { useStartTimeout } from "../bouts/hooks/start-timeout";
+import { useStopJam } from "../bouts/hooks/stop-jam";
+import { useStopTimeout } from "../bouts/hooks/stop-timeout";
 import TimeoutButtons from "./timeout-buttons";
 
 interface MainControlProps {
@@ -64,7 +62,7 @@ export default function BoutControlButtons({ bout }: MainControlProps) {
 function StoppedButtons({ bout }: MainControlProps) {
   const beginPeriod = useBeginPeriod(bout);
   const startJam = useStartJam(bout);
-  const endPeriod = useStartJam(bout);
+  const endPeriod = useEndPeriod(bout);
 
   const startJamButtonDisabled = false;
   let startJamText = "Start Jam";

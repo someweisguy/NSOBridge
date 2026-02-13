@@ -15,7 +15,7 @@ import TeamBoutScore from "@/features/teams/components/bout-score";
 import TeamJamScore from "@/features/teams/components/jam-score";
 import TeamName from "@/features/teams/components/team-name";
 import TeamTimeoutBar from "@/features/teams/components/timeout-bar";
-import { useSuspenseBout } from "@/features/bouts/hooks/use-bout";
+import { useSuspenseBout } from "@/hooks/use-bout";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import { Team } from "@/lib/game/bouts";
 import { Center, Flex, Group, SimpleGrid, Stack } from "@mantine/core";

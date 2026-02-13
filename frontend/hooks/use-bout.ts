@@ -34,33 +34,3 @@ export const useCreateBout = () =>
   useMutation({
     mutationFn: (rosterIds: number[]) => createBout(rosterIds),
   });
-
-export const useBeginPeriod = (bout: Bout) =>
-  useMutation({
-    mutationFn: () => bout.beginPeriod(),
-  });
-
-export const useEndPeriod = (bout: Bout) =>
-  useMutation({
-    mutationFn: () => bout.endPeriod(),
-  });
-
-export const useStartJam = (bout: Bout) =>
-  useMutation({
-    mutationFn: () => bout.startJam(),
-  });
-
-export const useStopJam = (bout: Bout) =>
-  useMutation({
-    mutationFn: () => bout.stopJam(),
-  });
-
-export const useStartTimeout = (bout: Bout) =>
-  useMutation({
-    mutationFn: () => bout.startTimeout(),
-  });
-
-export const useStopTimeout = (bout: Bout) =>
-  useMutation({
-    mutationFn: () => bout.stopTimeout(),
-  });

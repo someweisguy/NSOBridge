@@ -8,7 +8,7 @@ import TeamBoutScore from "@/features/teams/components/bout-score";
 import TeamJamScore from "@/features/teams/components/jam-score";
 import TeamName from "@/features/teams/components/team-name";
 import TeamTimeoutBar from "@/features/teams/components/timeout-bar";
-import { useSuspenseBout } from "@/features/bouts/hooks/use-bout";
+import { useSuspenseBout } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllSeries } from "@/hooks/use-series";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
