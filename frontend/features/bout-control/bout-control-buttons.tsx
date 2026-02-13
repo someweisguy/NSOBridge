@@ -1,10 +1,9 @@
 import { useRedo, useUndo } from "@/hooks/use-history";
-import { timeoutQueryOptions } from "@/hooks/use-timeout";
+import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
 import { ActionIcon, Button, Divider, Grid, Group } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
 import { useBeginPeriod } from "../bouts/hooks/begin-period";
 import { useEndPeriod } from "../bouts/hooks/end-period";
 import { useStartJam } from "../bouts/hooks/start-jam";
@@ -139,8 +138,7 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
   const stopTimeout = useStopTimeout(bout);
   const startJam = useStartJam(bout);
 
-  const { data } = useQuery<Timeout>({
-    ...timeoutQueryOptions(bout, bout.timeoutCount - 1),
+  const { data: timeout } = useTimeout(bout, bout.timeoutCount - 1, {
     enabled: bout.timeoutCount > 0,
     placeholderData: new Timeout(),
   });
@@ -150,7 +148,7 @@ function TimeoutControlButtons({ bout }: MainControlProps) {
       <Button onClick={() => stopTimeout.mutate()}>End Timeout</Button>
       <Button onClick={() => startJam.mutate()}>Start Jam</Button>
       <Divider orientation="vertical" />
-      <TimeoutButtons timeout={data!} teams={bout.teams} />
+      <TimeoutButtons timeout={timeout!} teams={bout.teams} />
     </>
   );
 }

@@ -1,7 +1,9 @@
-import { useSetRetained, useSetTeam, useSetType } from "@/hooks/use-timeout";
 import { Team } from "@/lib/game/bouts";
 import { Timeout } from "@/lib/game/timeouts";
 import { SegmentedControl, Switch, Text } from "@mantine/core";
+import { useSetRetained } from "../timeouts/hooks/set-retained";
+import { useSetTeam } from "../timeouts/hooks/set-team";
+import { useSetType } from "../timeouts/hooks/set-type";
 
 interface TimeoutButtonsProps {
   timeout: Timeout;

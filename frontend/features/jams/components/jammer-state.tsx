@@ -1,4 +1,3 @@
-import { useSetLead, useSetLost, useSetStarPass } from "@/hooks/use-jam";
 import { Jam, TeamJam } from "@/lib/game/jams";
 import { JamContext, TeamJamContext } from "@/utils/contexts";
 import {
@@ -10,6 +9,9 @@ import {
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
 import { useContext } from "react";
+import { useSetLead } from "../hooks/set-lead";
+import { useSetLost } from "../hooks/set-lost";
+import { useSetStarPass } from "../hooks/set-star-pass";
 
 const checkBoxTheme = createTheme({
   cursorType: "pointer",
