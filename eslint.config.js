@@ -1,11 +1,11 @@
 import eslint from "@eslint/js";
 import importPlugin from "eslint-plugin-import";
 import reactPlugin from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import reactHooks from "eslint-plugin-react-hooks";
 
 export default defineConfig([
   globalIgnores(["vite.config.ts", "**/*.js", "**/*.cjs", "**/*.mjs"]),
@@ -16,8 +16,8 @@ export default defineConfig([
   reactPlugin.configs.flat["jsx-runtime"],
   importPlugin.flatConfigs.typescript,
   importPlugin.flatConfigs.react,
+  reactHooks.configs.flat.recommended,
   reactRefresh.configs.vite,
-  // reactHooks.configs.flat.recommended,  // TODO: add back in
   {
     languageOptions: {
       ecmaVersion: 2020,
