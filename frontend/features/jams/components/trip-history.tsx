@@ -1,9 +1,9 @@
+import TripEvent from "@/features/jams/components/trip-event";
 import { TeamJam } from "@/lib/game/jams";
+import { TeamJamContext } from "@/utils/contexts";
 import { Button, Group, ScrollArea } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useContext, useEffect, useRef, useState } from "react";
-import TripEvent from "./trip-event";
-import { TeamJamContext } from "@/utils/contexts";
 
 interface TripEventViewProps {
   scrollWidth?: number;

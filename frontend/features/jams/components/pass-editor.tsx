@@ -1,8 +1,8 @@
+import { useAddTrip } from "@/features/jams/hooks/add-trip";
 import { Jam, TeamJam } from "@/lib/game/jams";
 import { JamContext, RulesetContext, TeamJamContext } from "@/utils/contexts";
 import { Button, Group, Stack } from "@mantine/core";
 import { useContext } from "react";
-import { useAddTrip } from "../hooks/add-trip";
 
 export default function TeamJamPassEditor() {
   const jam: Jam | null = useContext(JamContext);
