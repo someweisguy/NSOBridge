@@ -68,11 +68,12 @@ export default function TeamJamTripHistory({
         </Group>
       </ScrollArea.Autosize>
       <Button
-        disabled={
-          viewport.current == null ||
-          viewport.current.scrollWidth <= scrollWidth ||
-          scrollPosition.x >= viewport.current.scrollWidth - scrollWidth
-        }
+        // FIXME
+        // disabled={
+        //   viewport.current == null ||
+        //   viewport.current.scrollWidth <= scrollWidth ||
+        //   scrollPosition.x >= viewport.current.scrollWidth - scrollWidth
+        // }
         onClick={() => scrollRight(viewport.current!)}
         p={0}
         pl={1}
