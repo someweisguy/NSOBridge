@@ -1,91 +1,92 @@
-import js from "@eslint/js";
-// import importPlugin from "eslint-plugin-import";
-import react from "eslint-plugin-react";
-import reactHooks from "eslint-plugin-react-hooks";
+import eslint from "@eslint/js";
+import importPlugin from "eslint-plugin-import";
+import reactPlugin from "eslint-plugin-react";
 import reactRefresh from "eslint-plugin-react-refresh";
+import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import reactHooks from "eslint-plugin-react-hooks";
 
-export default tseslint.config(
-  { ignores: [".venv", "dist", "www"] },
+export default defineConfig([
+  globalIgnores(["vite.config.ts", "**/*.js", "**/*.cjs", "**/*.mjs"]),
+  eslint.configs.recommended,
+  tseslint.configs.recommendedTypeChecked,
+  tseslint.configs.stylisticTypeChecked,
+  reactPlugin.configs.flat.recommended,
+  reactPlugin.configs.flat["jsx-runtime"],
+  importPlugin.flatConfigs.typescript,
+  importPlugin.flatConfigs.react,
+  reactRefresh.configs.vite,
+  // reactHooks.configs.flat.recommended,  // TODO: add back in
   {
-    extends: [
-      js.configs.recommended,
-      ...tseslint.configs.recommendedTypeChecked,
-      ...tseslint.configs.stylisticTypeChecked,
-    ],
-    files: ["**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
-        project: [
-          "./frontend/tsconfig.node.json",
-          "./frontend/tsconfig.app.json",
-        ],
+        project: ["./frontend/tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
-    },
-    plugins: {
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
-      // import: importPlugin,
-      react: react,
-    },
-    rules: {
-      ...react.configs.recommended.rules,
-      ...react.configs["jsx-runtime"].rules,
-      ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
-      // "import/no-restricted-paths": [
-      //   // TODO: Figure out how to get this rule working
-      //   "error",
-      //   {
-      //     basePath: "./frontend",
-      //     zones: [
-      //       // Disable cross-feature imports
-      //       {
-      //         target: "./feature/bouts",
-      //         from: "./features/",
-      //         except: ["./bouts"],
-      //       },
-      //       {
-      //         target: "./features/team-jams",
-      //         from: "./features",
-      //         except: ["./team-jams"],
-      //       },
-      //       {
-      //         target: "./features/teams",
-      //         from: "./features",
-      //         except: ["./teams"],
-      //       },
-
-      //       // Enforce unidirectional codebase
-      //       {
-      //         target: "./features",
-      //         from: "./app",
-      //       },
-      //       {
-      //         target: [
-      //           "./components",
-      //           "./hooks",
-      //           "./lib",
-      //           "./types",
-      //           "./utils",
-      //         ],
-      //         from: ["./features", "./app"],
-      //       },
-      //     ],
-      //   },
-      // ],
     },
     settings: {
       react: {
         version: "detect",
       },
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+        },
+      },
+    },
+    rules: {
+      "import/no-restricted-paths": [
+        "error",
+        {
+          basePath: "./frontend",
+          zones: [
+            // Disable cross-feature imports
+            {
+              target: "./features/bouts",
+              from: "./features",
+              except: ["./bouts"],
+            },
+            {
+              target: "./features/jams",
+              from: "./features",
+              except: ["./jams"],
+            },
+            {
+              target: "./features/series",
+              from: "./features",
+              except: ["./series"],
+            },
+            {
+              target: "./features/teams",
+              from: "./features",
+              except: ["./teams"],
+            },
+            {
+              target: "./features/timeouts",
+              from: "./features",
+              except: ["./timeouts"],
+            },
+            // Enforce unidirectional codebase
+            {
+              target: "./features",
+              from: "./app",
+            },
+            {
+              target: [
+                "./components",
+                "./hooks",
+                "./lib",
+                "./types",
+                "./utils",
+              ],
+              from: ["./features", "./app"],
+            },
+          ],
+        },
+      ],
     },
   },
-);
+]);
