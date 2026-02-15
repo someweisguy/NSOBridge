@@ -24,7 +24,7 @@ export default function TeamJamTripHistory({ w = 200 }: TripEventViewProps) {
   }
 
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
-  const [disableScrollRight, setDisableScrollRight] = useState(false);
+  const [disableScrollRight, setDisableScrollRight] = useState(true);
   const viewportRef = useRef<HTMLDivElement>(null);
   const groupRef = useRef<HTMLDivElement>(null);
 
