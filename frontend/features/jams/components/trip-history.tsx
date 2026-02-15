@@ -16,6 +16,7 @@ export default function TeamJamTripHistory({ w = 200 }: TripEventViewProps) {
   }
 
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
+  const [disableScrollRight, setDisableScrollRight] = useState(false);
   const viewportRef = useRef<HTMLDivElement>(null);
   const groupRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +69,12 @@ export default function TeamJamTripHistory({ w = 200 }: TripEventViewProps) {
       </Button>
       <ScrollArea.Autosize
         type="never"
-        onScrollPositionChange={setScrollPosition}
+        onScrollPositionChange={(newPosition) => {
+          setScrollPosition(newPosition);
+          setDisableScrollRight(
+            Math.round(newPosition.x) + w == groupRef.current?.scrollWidth,
+          );
+        }}
         viewportRef={viewportRef}
         h={60}
         w={w}
@@ -82,12 +88,7 @@ export default function TeamJamTripHistory({ w = 200 }: TripEventViewProps) {
         </Group>
       </ScrollArea.Autosize>
       <Button
-        // FIXME
-        // disabled={
-        //   viewport.current == null ||
-        //   viewport.current.scrollWidth <= scrollWidth ||
-        //   scrollPosition.x >= viewport.current.scrollWidth - scrollWidth
-        // }
+        disabled={disableScrollRight}
         onClick={() => scrollByOneChild("right")}
         p={0}
         pl={1}
