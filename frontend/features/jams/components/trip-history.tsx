@@ -88,7 +88,7 @@ export default function TeamJamTripHistory({
   );
 
   return (
-    <Group gap={0} justify="center" wrap="nowrap">
+    <Group gap="5px" justify="center" wrap="nowrap">
       <Button
         disabled={scrollPosition.x == 0}
         onClick={() => scrollByOneChild("left")}
