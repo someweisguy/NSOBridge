@@ -1,13 +1,15 @@
 import TripEvent from "@/features/jams/components/trip-event";
 import { TeamJam } from "@/lib/game/jams";
 import { TeamJamContext } from "@/utils/contexts";
-import { Button, ButtonProps, Group, ScrollArea } from "@mantine/core";
+import {
+  Button,
+  ButtonProps,
+  Group,
+  ScrollArea,
+  ScrollAreaAutosizeProps,
+} from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-
-interface TripEventViewProps {
-  w?: number;
-}
 
 const arrowButtonStyle: ButtonProps = {
   p: 0,
@@ -17,7 +19,10 @@ const arrowButtonStyle: ButtonProps = {
   w: 30,
 };
 
-export default function TeamJamTripHistory({ w = 200 }: TripEventViewProps) {
+export default function TeamJamTripHistory({
+  w = 200,
+  ...props
+}: ScrollAreaAutosizeProps) {
   const teamJam: TeamJam | null = useContext(TeamJamContext);
   if (teamJam == null) {
     throw new Error("TeamJamTripHistory must be used within a TeamJamProvider");
@@ -76,12 +81,14 @@ export default function TeamJamTripHistory({ w = 200 }: TripEventViewProps) {
         onScrollPositionChange={(newPosition) => {
           setScrollPosition(newPosition);
           setDisableScrollRight(
-            Math.round(newPosition.x) + w == groupRef.current?.scrollWidth,
+            Math.round(newPosition.x) +
+              (viewportRef.current?.offsetWidth ?? 0) ==
+              groupRef.current?.scrollWidth,
           );
         }}
         viewportRef={viewportRef}
-        h={60}
         w={w}
+        {...props}
       >
         <Group ref={groupRef} mx={0} px={0} gap={0} wrap="nowrap">
           {teamJam.events
