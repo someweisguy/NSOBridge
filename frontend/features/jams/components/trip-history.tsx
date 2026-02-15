@@ -1,13 +1,21 @@
 import TripEvent from "@/features/jams/components/trip-event";
 import { TeamJam } from "@/lib/game/jams";
 import { TeamJamContext } from "@/utils/contexts";
-import { Button, Group, ScrollArea } from "@mantine/core";
+import { Button, ButtonProps, Group, ScrollArea } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 interface TripEventViewProps {
   w?: number;
 }
+
+const arrowButtonStyle: ButtonProps = {
+  p: 0,
+  variant: "subtle",
+  c: "gray",
+  h: "full",
+  w: 30,
+};
 
 export default function TeamJamTripHistory({ w = 200 }: TripEventViewProps) {
   const teamJam: TeamJam | null = useContext(TeamJamContext);
@@ -58,12 +66,8 @@ export default function TeamJamTripHistory({ w = 200 }: TripEventViewProps) {
       <Button
         disabled={scrollPosition.x == 0}
         onClick={() => scrollByOneChild("left")}
-        p={0}
+        {...arrowButtonStyle}
         pr={1}
-        variant="subtle"
-        c="gray"
-        h="60"
-        w={30}
       >
         <IconChevronLeft size="24" />
       </Button>
@@ -90,12 +94,8 @@ export default function TeamJamTripHistory({ w = 200 }: TripEventViewProps) {
       <Button
         disabled={disableScrollRight}
         onClick={() => scrollByOneChild("right")}
-        p={0}
+        {...arrowButtonStyle}
         pl={1}
-        variant="subtle"
-        c="gray"
-        h="60"
-        w="30"
       >
         <IconChevronRight size="24" />
       </Button>
