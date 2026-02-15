@@ -1,4 +1,3 @@
-import TripEvent from "@/features/jams/components/trip-event";
 import { TeamJam } from "@/lib/game/jams";
 import { TeamJamContext } from "@/utils/contexts";
 import {
@@ -7,6 +6,8 @@ import {
   Group,
   ScrollArea,
   ScrollAreaAutosizeProps,
+  Stack,
+  Text,
 } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -18,6 +19,26 @@ const arrowButtonStyle: ButtonProps = {
   h: "full",
   w: 30,
 };
+
+interface TripEventProps {
+  tripNum: number;
+  passes: number | null;
+}
+
+function TripEvent({ tripNum, passes }: TripEventProps) {
+  return (
+    <Button px={0} variant="subtle" c="gray" w="50" h="60">
+      <Stack gap={3}>
+        <Text fs="italic" c="dimmed" size="8pt">
+          Trip {tripNum + 1}
+        </Text>
+        <Text c="dark" fw="bold" size="md">
+          {passes}
+        </Text>
+      </Stack>
+    </Button>
+  );
+}
 
 export default function TeamJamTripHistory({
   w = 200,
