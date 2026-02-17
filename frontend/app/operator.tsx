@@ -72,7 +72,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
               </Group>
             )}
           </Center>
-          <BoutStatusLabel withClock inherit fz="24pt" />
+          <BoutStatusLabel withClock inherit fz="24pt" mih="50" />
         </Stack>
 
         {/* Bout State control */}
