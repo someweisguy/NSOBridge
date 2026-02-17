@@ -3,7 +3,7 @@ import { useSuspenseJam } from "@/hooks/use-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
-import { Text, TextProps } from "@mantine/core";
+import { Box, Text, TextProps } from "@mantine/core";
 import { useContext } from "react";
 
 interface BoutStatusLabelProps extends TextProps {
@@ -34,7 +34,7 @@ export function BoutStatusLabel({
   );
 
   if (bout.state != "lineup" && bout.state != "timeout") {
-    return <></>;
+    return <Box {...props}></Box>;
   }
 
   let content: string;
