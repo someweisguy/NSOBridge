@@ -1,7 +1,7 @@
 import { useAddTrip } from "@/features/jams/hooks/add-trip";
 import { Jam, TeamJam } from "@/lib/game/jams";
 import { JamContext, RulesetContext, TeamJamContext } from "@/utils/contexts";
-import { Button, Group, Stack } from "@mantine/core";
+import { Button, Group } from "@mantine/core";
 import { useContext } from "react";
 
 export default function TeamJamPassEditor() {
@@ -16,35 +16,35 @@ export default function TeamJamPassEditor() {
   }
   const addTrip = useAddTrip(jam, teamJam);
 
-  const addTripButtons =
-    teamJam.events.length == 0 ? (
-      <>
+  // Get the number of Trips
+  const numTrips = teamJam.events.filter(
+    (tripEvent) => tripEvent.passes != null,
+  ).length;
+
+  if (numTrips == 0) {
+    return (
+      <Group justify="center" gap="md">
         <Button variant="light" onClick={() => addTrip.mutate(0)}>
           No Pass
         </Button>
         <Button variant="filled" onClick={() => addTrip.mutate(4)}>
           Initial
         </Button>
-      </>
-    ) : (
-      <>
-        {Array.from({ length: ruleset.pointsPerTrip + 1 }, (_, i) => (
-          <Button
-            key={i}
-            variant={i == ruleset.pointsPerTrip ? "filled" : "light"}
-            onClick={() => addTrip.mutate(i)}
-          >
-            {i}
-          </Button>
-        ))}
-      </>
+      </Group>
     );
+  }
 
   return (
-    <Stack justify="center" align="center">
-      <Group justify="center" gap="md">
-        {addTripButtons}
-      </Group>
-    </Stack>
+    <Group justify="center" gap="md">
+      {Array.from({ length: ruleset.pointsPerTrip + 1 }, (_, i) => (
+        <Button
+          key={i}
+          variant={i == ruleset.pointsPerTrip ? "filled" : "light"}
+          onClick={() => addTrip.mutate(i)}
+        >
+          {i}
+        </Button>
+      ))}
+    </Group>
   );
 }
