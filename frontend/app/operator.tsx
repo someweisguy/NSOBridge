@@ -1,19 +1,21 @@
-import BoutProvider from "@/features/bouts/components/bout-provider";
 import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import JamProvider from "@/components/jam-provider";
 import PeriodClock from "@/components/period-clock";
-import TeamJamProvider from "@/features/jams/components/team-jam-provider";
-import TeamProvider from "@/features/teams/components/team-provider";
-import BoutControlButtons from "@/features/bout-control/bout-control-buttons";
+import BoutProvider from "@/features/bouts/components/bout-provider";
 import BoutIntermissionLabel from "@/features/bouts/components/intermission-label";
+import JamControl from "@/features/bouts/components/jam-control";
+import PeriodControl from "@/features/bouts/components/period-control";
 import { BoutStatusLabel } from "@/features/bouts/components/status-label";
+import TimeoutControl from "@/features/bouts/components/timeout-control";
 import TeamJamJammerState from "@/features/jams/components/jammer-state";
 import TeamJamPassEditor from "@/features/jams/components/pass-editor";
+import TeamJamProvider from "@/features/jams/components/team-jam-provider";
 import TeamJamTripHistory from "@/features/jams/components/trip-history";
 import TeamBoutScore from "@/features/teams/components/bout-score";
 import TeamJamScore from "@/features/teams/components/jam-score";
 import TeamName from "@/features/teams/components/team-name";
+import TeamProvider from "@/features/teams/components/team-provider";
 import TeamTimeoutBar from "@/features/teams/components/timeout-bar";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
@@ -32,9 +34,6 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
   return (
     <BoutProvider bout={bout}>
       <Stack align="stretch" justify="flex-start">
-        {/* Bout State control */}
-        <BoutControlButtons bout={bout} />
-
         {/* Team information */}
         <SimpleGrid cols={bout.teams.length}>
           {bout.teams.map((team: Team, i: number) => (
@@ -75,6 +74,13 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
           </Center>
           <BoutStatusLabel withClock inherit fz="24pt" />
         </Stack>
+
+        {/* Bout State control */}
+        <Group justify="center">
+          <JamControl />
+          <TimeoutControl />
+          <PeriodControl />
+        </Group>
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>
