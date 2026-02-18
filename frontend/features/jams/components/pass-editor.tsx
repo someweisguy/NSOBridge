@@ -24,10 +24,10 @@ export default function TeamJamPassEditor() {
   if (numTrips == 0) {
     return (
       <Group justify="center" gap="md">
-        <Button variant="light" onClick={() => addTrip.mutate(0)}>
+        <Button variant="subtle" onClick={() => addTrip.mutate(0)}>
           No Pass
         </Button>
-        <Button variant="filled" onClick={() => addTrip.mutate(4)}>
+        <Button variant="outline" onClick={() => addTrip.mutate(4)}>
           Initial
         </Button>
       </Group>
@@ -39,7 +39,7 @@ export default function TeamJamPassEditor() {
       {Array.from({ length: ruleset.pointsPerTrip + 1 }, (_, i) => (
         <Button
           key={i}
-          variant={i == ruleset.pointsPerTrip ? "filled" : "light"}
+          variant={i == ruleset.pointsPerTrip ? "outline" : "subtle"}
           onClick={() => addTrip.mutate(i)}
         >
           {i}
