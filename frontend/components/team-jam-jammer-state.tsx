@@ -9,9 +9,9 @@ import {
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
 import { useContext } from "react";
-import { useSetLead } from "../hooks/set-lead";
-import { useSetLost } from "../hooks/set-lost";
-import { useSetStarPass } from "../hooks/set-star-pass";
+import { useSetLead } from "../hooks/use-set-lead";
+import { useSetLost } from "../hooks/use-set-lost";
+import { useSetStarPass } from "../hooks/use-set-star-pass";
 
 const checkBoxTheme = createTheme({
   cursorType: "pointer",

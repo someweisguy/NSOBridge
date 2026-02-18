@@ -2,7 +2,7 @@ import { getAllSeries, Series } from "@/lib/game/series";
 import { SuspenseQueryOptions } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-export const useSuspenseAllSeries = (
+export const useSuspenseGetAllSeries = (
   options?: SuspenseQueryOptions<Series[]>,
 ) =>
   useSuspenseQuery<Series[]>({

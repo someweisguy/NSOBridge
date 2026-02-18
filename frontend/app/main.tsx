@@ -1,5 +1,5 @@
-import BoutPicker from "@/features/bouts/components/bout-picker";
-import { useSuspenseAllBouts } from "@/features/bouts/hooks/all-bouts";
+import BoutPicker from "@/components/bout-picker";
+import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
 import queryClient from "@/lib/cache";
 import { redo, undo } from "@/lib/history";
 import { AppShell, Burger, MantineProvider } from "@mantine/core";
@@ -29,7 +29,7 @@ createRoot(root).render(<App />);
 export function App() {
   const [opened, { toggle }] = useDisclosure();
 
-  const { data: bouts } = useSuspenseAllBouts();
+  const { data: bouts } = useSuspenseGetAllBouts();
   const [boutUuid, setBoutUuid] = useState(bouts[bouts.length - 1].uuid);
 
   return (

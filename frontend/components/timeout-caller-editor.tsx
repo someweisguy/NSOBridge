@@ -8,7 +8,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useContext, useDeferredValue } from "react";
-import { useSetTeam } from "../hooks/set-team";
+import { useSetTimeoutTeam } from "../hooks/use-set-timeout-team";
 
 export default function TimeoutCallerEditor({
   ...props
@@ -27,7 +27,7 @@ export default function TimeoutCallerEditor({
     timeout.teamNum == null && !timeout.teamIsOfficials,
   );
 
-  const setTeam = useSetTeam(timeout);
+  const setTeam = useSetTimeoutTeam(timeout);
 
   return (
     <Stack gap="0">

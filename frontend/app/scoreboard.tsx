@@ -1,14 +1,14 @@
 import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import BoutClock from "@/components/bout-clock";
-import BoutIntermissionLabel from "@/features/bouts/components/bout-intermission-label";
-import { BoutStatusLabel } from "@/features/bouts/components/bout-status-label";
-import { useSuspenseAllSeries } from "@/features/series/hooks/all-series";
-import TeamBoutScore from "@/features/teams/components/team-bout-score";
-import TeamJamScore from "@/features/teams/components/team-jam-score";
-import TeamName from "@/features/teams/components/team-name";
-import TeamProvider from "@/features/teams/components/team-provider";
-import TeamTimeoutsLeft from "@/features/teams/components/team-timeouts-left";
+import BoutIntermissionLabel from "@/components/bout-intermission-label";
+import { BoutStatusLabel } from "@/components/bout-status-label";
+import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
+import TeamBoutScore from "@/components/team-bout-score";
+import TeamJamScore from "@/components/team-jam-score";
+import TeamName from "@/components/team-name";
+import TeamProvider from "@/components/team-provider";
+import TeamTimeoutsLeft from "@/components/team-timeouts-left";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
@@ -45,7 +45,7 @@ export default function App() {
 function Scoreboard() {
   usePrefetchServerTime();
 
-  const { data: allSeries } = useSuspenseAllSeries();
+  const { data: allSeries } = useSuspenseGetAllSeries();
 
   const series: Series = allSeries[0];
   const { data: bout } = useSuspenseBout(

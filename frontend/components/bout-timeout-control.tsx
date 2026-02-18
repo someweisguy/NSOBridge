@@ -2,8 +2,8 @@ import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
 import { Button, ButtonProps } from "@mantine/core";
 import { useContext } from "react";
-import { useStartTimeout } from "../hooks/start-timeout";
-import { useStopTimeout } from "../hooks/stop-timeout";
+import { useStartTimeout } from "../hooks/use-start-timeout";
+import { useStopTimeout } from "../hooks/use-stop-timeout";
 
 export default function BoutTimeoutControl({
   ...props

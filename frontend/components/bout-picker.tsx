@@ -1,14 +1,14 @@
 import { Bout } from "@/lib/game/bouts";
 import { Select } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { useSuspenseAllBouts } from "../hooks/all-bouts";
+import { useSuspenseGetAllBouts } from "../hooks/use-suspense-get-all-bouts";
 
 interface BoutPickerProps {
   onChange: (boutUUid: string) => void;
 }
 
 export default function BoutPicker({ onChange }: BoutPickerProps) {
-  const { data: bouts } = useSuspenseAllBouts();
+  const { data: bouts } = useSuspenseGetAllBouts();
 
   const selectableData = bouts.map((bout: Bout) => ({
     value: bout.uuid,

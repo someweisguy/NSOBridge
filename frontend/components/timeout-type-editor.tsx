@@ -7,7 +7,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useContext } from "react";
-import { useSetType } from "../hooks/set-type";
+import { useSetTimeoutType } from "../hooks/use-set-timeout-type";
 
 export default function TimeoutTypeEditor({
   ...props
@@ -17,7 +17,7 @@ export default function TimeoutTypeEditor({
     throw new Error("TimeoutTypeEditor must be used within a TimeoutProvider");
   }
 
-  const setType = useSetType(timeout);
+  const setType = useSetTimeoutType(timeout);
 
   return (
     <Stack gap="0">

@@ -2,8 +2,8 @@ import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
 import { Button, ButtonProps } from "@mantine/core";
 import { useContext } from "react";
-import { useStartJam } from "../hooks/start-jam";
-import { useStopJam } from "../hooks/stop-jam";
+import { useStartJam } from "../hooks/use-start-jam";
+import { useStopJam } from "../hooks/use-stop-jam";
 
 export default function BoutJamControl({
   ...props

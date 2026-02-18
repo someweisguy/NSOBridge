@@ -3,7 +3,9 @@ import { Bout, getAllBouts } from "@/lib/game/bouts";
 import { SuspenseQueryOptions } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-export const useSuspenseAllBouts = (options?: SuspenseQueryOptions<Bout[]>) =>
+export const useSuspenseGetAllBouts = (
+  options?: SuspenseQueryOptions<Bout[]>,
+) =>
   useSuspenseQuery(
     {
       queryKey: Bout.generateKey(),

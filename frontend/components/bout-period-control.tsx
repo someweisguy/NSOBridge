@@ -2,8 +2,8 @@ import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
 import { Button, ButtonProps } from "@mantine/core";
 import { useContext } from "react";
-import { useBeginPeriod } from "../hooks/begin-period";
-import { useEndPeriod } from "../hooks/end-period";
+import { useBeginPeriod } from "../hooks/use-begin-period";
+import { useEndPeriod } from "../hooks/use-end-period";
 
 export default function BoutPeriodControl({
   ...props
