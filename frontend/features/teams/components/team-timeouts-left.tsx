@@ -1,15 +1,15 @@
-import GenericTimeoutBar from "@/components/generic-timeout-bar";
+import PlainTimeoutsLeft from "@/components/plain-timeouts-left";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
 import { Ruleset } from "@/lib/game/ruleset";
 import { BoutContext, RulesetContext, TeamContext } from "@/utils/contexts";
 import { useContext } from "react";
 
-interface TeamTimeoutBarProps {
+interface TeamTimeoutsLeftProps {
   size: number;
 }
 
-export default function TeamTimeoutBar({ size }: TeamTimeoutBarProps) {
+export default function TeamTimeoutsLeft({ size }: TeamTimeoutsLeftProps) {
   const team: Team | null = useContext(TeamContext);
   const bout: Bout | null = useContext(BoutContext);
   const ruleset: Ruleset | null = useContext(RulesetContext);
@@ -38,7 +38,7 @@ export default function TeamTimeoutBar({ size }: TeamTimeoutBarProps) {
     !isPending && isEnabled && (latestTimeout?.isReview ?? false);
 
   return (
-    <GenericTimeoutBar
+    <PlainTimeoutsLeft
       numTimeouts={ruleset.numTimeouts}
       numReviews={ruleset.numReviews}
       timeoutsRemaining={team.timeoutsRemaining}

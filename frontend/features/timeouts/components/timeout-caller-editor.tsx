@@ -10,7 +10,7 @@ import {
 import { useContext, useDeferredValue } from "react";
 import { useSetTeam } from "../hooks/set-team";
 
-export default function TimeoutCallingTeamEditor({
+export default function TimeoutCallerEditor({
   ...props
 }: Omit<SegmentedControlProps, "data" | "value" | "onChange">) {
   const bout: Bout | null = useContext(BoutContext);

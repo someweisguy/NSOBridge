@@ -5,14 +5,14 @@ import { periodTimeStringFormatter } from "@/utils/time-string-formatters";
 import { Text, TextProps } from "@mantine/core";
 import { useContext } from "react";
 
-interface PeriodClockProps extends TextProps {
+interface BoutClockProps extends TextProps {
   overtimeText?: string;
 }
 
-export default function PeriodClock({
+export default function BoutClock({
   overtimeText = "OT",
   ...props
-}: PeriodClockProps) {
+}: BoutClockProps) {
   const bout: Bout | null = useContext(BoutContext);
   if (bout == null) {
     throw new Error("PeriodClock must be used in a BoutProvider");

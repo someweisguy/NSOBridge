@@ -2,7 +2,7 @@ import { Card, Center, Divider } from "@mantine/core";
 import { IconCircleFilled } from "@tabler/icons-react";
 import { twMerge } from "tailwind-merge";
 
-interface GenericTimeoutBarProps {
+interface PlainTimeoutsLeftProps {
   numTimeouts: number;
   timeoutsRemaining: number;
   numReviews: number;
@@ -12,7 +12,7 @@ interface GenericTimeoutBarProps {
   size: number;
 }
 
-export default function GenericTimeoutBar({
+export default function PlainTimeoutsLeft({
   numTimeouts,
   numReviews,
   timeoutsRemaining,
@@ -20,7 +20,7 @@ export default function GenericTimeoutBar({
   timeoutIsActive,
   isReview,
   size,
-}: GenericTimeoutBarProps) {
+}: PlainTimeoutsLeftProps) {
   return (
     <Card withBorder w={size} radius="md">
       {Array.from({ length: numTimeouts }, (_, i) => (

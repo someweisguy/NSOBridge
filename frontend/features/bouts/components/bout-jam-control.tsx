@@ -5,7 +5,9 @@ import { useContext } from "react";
 import { useStartJam } from "../hooks/start-jam";
 import { useStopJam } from "../hooks/stop-jam";
 
-export default function JamControl({ ...props }: Omit<ButtonProps, "onClick">) {
+export default function BoutJamControl({
+  ...props
+}: Omit<ButtonProps, "onClick">) {
   const bout: Bout | null = useContext(BoutContext);
   if (bout == null) {
     throw new Error("JamControl must be used within a BoutProvider");

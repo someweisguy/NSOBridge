@@ -5,7 +5,7 @@ import { useContext } from "react";
 import { useBeginPeriod } from "../hooks/begin-period";
 import { useEndPeriod } from "../hooks/end-period";
 
-export default function PeriodControl({
+export default function BoutPeriodControl({
   ...props
 }: Omit<ButtonProps, "onClick">) {
   const bout: Bout | null = useContext(BoutContext);

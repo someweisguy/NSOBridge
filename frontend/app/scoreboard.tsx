@@ -1,14 +1,14 @@
 import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
-import PeriodClock from "@/components/period-clock";
-import BoutIntermissionLabel from "@/features/bouts/components/intermission-label";
-import { BoutStatusLabel } from "@/features/bouts/components/status-label";
+import BoutClock from "@/components/bout-clock";
+import BoutIntermissionLabel from "@/features/bouts/components/bout-intermission-label";
+import { BoutStatusLabel } from "@/features/bouts/components/bout-status-label";
 import { useSuspenseAllSeries } from "@/features/series/hooks/all-series";
-import TeamBoutScore from "@/features/teams/components/bout-score";
-import TeamJamScore from "@/features/teams/components/jam-score";
+import TeamBoutScore from "@/features/teams/components/team-bout-score";
+import TeamJamScore from "@/features/teams/components/team-jam-score";
 import TeamName from "@/features/teams/components/team-name";
 import TeamProvider from "@/features/teams/components/team-provider";
-import TeamTimeoutBar from "@/features/teams/components/timeout-bar";
+import TeamTimeoutsLeft from "@/features/teams/components/team-timeouts-left";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
@@ -69,7 +69,7 @@ function Scoreboard() {
                 justify="center"
                 gap="xl"
               >
-                <TeamTimeoutBar size={24} />
+                <TeamTimeoutsLeft size={24} />
                 <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
                 <TeamJamScore size="24pt" />
               </Flex>
@@ -84,7 +84,7 @@ function Scoreboard() {
           <BoutIntermissionLabel ta="center" size="36pt" />
         ) : (
           <Group grow justify="center" align="center">
-            <PeriodClock ta="center" />
+            <BoutClock ta="center" />
             <JamNumber ta="center" />
             <JamClock ta="center" />
           </Group>

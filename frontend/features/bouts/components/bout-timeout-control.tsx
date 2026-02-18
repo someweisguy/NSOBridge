@@ -5,7 +5,7 @@ import { useContext } from "react";
 import { useStartTimeout } from "../hooks/start-timeout";
 import { useStopTimeout } from "../hooks/stop-timeout";
 
-export default function TimeoutControl({
+export default function BoutTimeoutControl({
   ...props
 }: Omit<ButtonProps, "onClick">) {
   const bout: Bout | null = useContext(BoutContext);

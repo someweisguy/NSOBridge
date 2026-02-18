@@ -1,26 +1,26 @@
 import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import JamProvider from "@/components/jam-provider";
-import PeriodClock from "@/components/period-clock";
+import BoutClock from "@/components/bout-clock";
 import TimeoutProvider from "@/components/timeout-provider";
 import BoutProvider from "@/features/bouts/components/bout-provider";
-import BoutIntermissionLabel from "@/features/bouts/components/intermission-label";
-import JamControl from "@/features/bouts/components/jam-control";
-import PeriodControl from "@/features/bouts/components/period-control";
-import { BoutStatusLabel } from "@/features/bouts/components/status-label";
-import TimeoutControl from "@/features/bouts/components/timeout-control";
-import TeamJamJammerState from "@/features/jams/components/jammer-state";
-import TeamJamPassEditor from "@/features/jams/components/pass-editor";
+import BoutIntermissionLabel from "@/features/bouts/components/bout-intermission-label";
+import BoutJamControl from "@/features/bouts/components/bout-jam-control";
+import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
+import { BoutStatusLabel } from "@/features/bouts/components/bout-status-label";
+import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
+import TeamJamJammerState from "@/features/jams/components/team-jam-jammer-state";
+import TeamJamPassEditor from "@/features/jams/components/team-jam-pass-editor";
 import TeamJamProvider from "@/features/jams/components/team-jam-provider";
-import TeamJamTripHistory from "@/features/jams/components/trip-history";
-import TeamBoutScore from "@/features/teams/components/bout-score";
-import TeamJamScore from "@/features/teams/components/jam-score";
+import TeamJamTripHistory from "@/features/jams/components/team-jam-trip-history";
+import TeamBoutScore from "@/features/teams/components/team-bout-score";
+import TeamJamScore from "@/features/teams/components/team-jam-score";
 import TeamName from "@/features/teams/components/team-name";
 import TeamProvider from "@/features/teams/components/team-provider";
-import TeamTimeoutBar from "@/features/teams/components/timeout-bar";
-import TimeoutCallingTeamEditor from "@/features/timeouts/components/calling-team-editor";
-import TimeoutRetainedEditor from "@/features/timeouts/components/retained-editor";
-import TimeoutTypeEditor from "@/features/timeouts/components/type-editor";
+import TeamTimeoutsLeft from "@/features/teams/components/team-timeouts-left";
+import TimeoutCallerEditor from "@/features/timeouts/components/timeout-caller-editor";
+import TimeoutRetainedEditor from "@/features/timeouts/components/timeout-retained-editor";
+import TimeoutTypeEditor from "@/features/timeouts/components/timeout-type-editor";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import { Team } from "@/lib/game/bouts";
@@ -50,7 +50,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
                   justify="center"
                   gap="md"
                 >
-                  <TeamTimeoutBar size={24} />
+                  <TeamTimeoutsLeft size={24} />
                   <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
                   <TeamJamScore
                     ta={i % 2 ? "right" : "left"}
@@ -70,7 +70,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
               <BoutIntermissionLabel inherit size="36pt" />
             ) : (
               <Group grow justify="center" w="75%" ta="center">
-                <PeriodClock inherit />
+                <BoutClock inherit />
                 <JamNumber inherit />
                 <JamClock inherit />
               </Group>
@@ -81,14 +81,14 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
 
         {/* Bout State control */}
         <Group justify="center" mih="75">
-          <JamControl />
-          <TimeoutControl variant="subtle" />
-          <PeriodControl variant="subtle" />
+          <BoutJamControl />
+          <BoutTimeoutControl variant="subtle" />
+          <BoutPeriodControl variant="subtle" />
           {bout.state == "timeout" && (
             <Suspense>
               <TimeoutProvider bout={bout} timeoutNum={bout.timeoutCount - 1}>
                 <TimeoutTypeEditor />
-                <TimeoutCallingTeamEditor />
+                <TimeoutCallerEditor />
                 <TimeoutRetainedEditor variant="outline" />
               </TimeoutProvider>
             </Suspense>
