@@ -82,8 +82,8 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
         {/* Bout State control */}
         <Group justify="center" mih="75">
           <JamControl />
-          <TimeoutControl />
-          <PeriodControl />
+          <TimeoutControl variant="subtle" />
+          <PeriodControl variant="subtle" />
           {bout.state == "timeout" && (
             <Suspense>
               <TimeoutProvider bout={bout} timeoutNum={bout.timeoutCount - 1}>
