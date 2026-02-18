@@ -40,7 +40,7 @@ export function App() {
             padding="md"
             header={{ height: 60 }}
             navbar={{
-              width: 300,
+              width: 200,
               breakpoint: "sm",
               collapsed: { mobile: !opened },
             }}
@@ -54,7 +54,7 @@ export function App() {
               />
             </AppShell.Header>
 
-            <AppShell.Navbar>
+            <AppShell.Navbar m="md">
               <BoutPicker onChange={(uuid: string) => setBoutUuid(uuid)} />
               {/* TODO: Navbar */}
             </AppShell.Navbar>
