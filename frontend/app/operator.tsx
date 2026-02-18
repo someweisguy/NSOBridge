@@ -19,6 +19,7 @@ import TeamName from "@/features/teams/components/team-name";
 import TeamProvider from "@/features/teams/components/team-provider";
 import TeamTimeoutBar from "@/features/teams/components/timeout-bar";
 import TimeoutCallingTeamEditor from "@/features/timeouts/components/calling-team-editor";
+import TimeoutRetainedEditor from "@/features/timeouts/components/retained-editor";
 import TimeoutTypeEditor from "@/features/timeouts/components/type-editor";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
@@ -88,6 +89,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
               <TimeoutProvider bout={bout} timeoutNum={bout.timeoutCount - 1}>
                 <TimeoutTypeEditor />
                 <TimeoutCallingTeamEditor />
+                <TimeoutRetainedEditor variant="outline" />
               </TimeoutProvider>
             </Suspense>
           )}
