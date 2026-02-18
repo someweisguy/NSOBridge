@@ -76,7 +76,7 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
         </Stack>
 
         {/* Bout State control */}
-        <Group justify="center">
+        <Group justify="center" mih="75">
           <JamControl />
           <TimeoutControl />
           <PeriodControl />
