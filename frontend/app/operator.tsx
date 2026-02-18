@@ -2,6 +2,7 @@ import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import JamProvider from "@/components/jam-provider";
 import PeriodClock from "@/components/period-clock";
+import TimeoutProvider from "@/components/timeout-provider";
 import BoutProvider from "@/features/bouts/components/bout-provider";
 import BoutIntermissionLabel from "@/features/bouts/components/intermission-label";
 import JamControl from "@/features/bouts/components/jam-control";
@@ -17,6 +18,8 @@ import TeamJamScore from "@/features/teams/components/jam-score";
 import TeamName from "@/features/teams/components/team-name";
 import TeamProvider from "@/features/teams/components/team-provider";
 import TeamTimeoutBar from "@/features/teams/components/timeout-bar";
+import TimeoutCallingTeamEditor from "@/features/timeouts/components/calling-team-editor";
+import TimeoutTypeEditor from "@/features/timeouts/components/type-editor";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import { Team } from "@/lib/game/bouts";
@@ -80,6 +83,23 @@ export default function Operator({ boutUuid }: { boutUuid: string }) {
           <JamControl />
           <TimeoutControl />
           <PeriodControl />
+          {bout.state == "timeout" && (
+            <Suspense>
+              <TimeoutProvider bout={bout} timeoutNum={bout.timeoutCount - 1}>
+                <TimeoutTypeEditor />
+                <TimeoutCallingTeamEditor />
+              </TimeoutProvider>
+            </Suspense>
+          )}
+          {bout.state == "lineup" && bout.jamCounts[activePeriodNum] > 1 && (
+            <JamProvider
+              bout={bout}
+              periodNum={activePeriodNum}
+              jamNum={activeJamNum}
+            >
+              {/* TODO: call reason controls */}
+            </JamProvider>
+          )}
         </Group>
 
         {/* TeamJam score editors */}
