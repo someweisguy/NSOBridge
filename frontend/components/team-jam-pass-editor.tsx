@@ -1,4 +1,4 @@
-import { useAddTrip } from "@/hooks/use-add-trip";
+import { useTeamJamAddTrip } from "@/hooks/use-team-jam-add-trip";
 import { Jam, TeamJam } from "@/lib/game/jams";
 import { JamContext, RulesetContext, TeamJamContext } from "@/utils/contexts";
 import { Button, Group } from "@mantine/core";
@@ -14,7 +14,7 @@ export default function TeamJamPassEditor() {
   if (ruleset == null) {
     throw new Error("AddTripButtons must be inside a RulesetProvider");
   }
-  const addTrip = useAddTrip(jam, teamJam);
+  const addTrip = useTeamJamAddTrip(jam, teamJam);
 
   // Get the number of Trips
   const numTrips = teamJam.events.filter(

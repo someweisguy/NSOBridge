@@ -2,7 +2,7 @@ import { Timeout } from "@/lib/game/timeouts";
 import { TimeoutContext } from "@/utils/contexts";
 import { Checkbox, CheckboxProps } from "@mantine/core";
 import { useContext } from "react";
-import { useSetTimeoutRetained } from "../hooks/use-set-retained";
+import { useSetTimeoutRetained } from "../hooks/use-set-timeout-retained";
 
 export default function TimeoutRetainedEditor({
   label = "Review is Retained?",

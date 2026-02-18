@@ -9,9 +9,9 @@ import {
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
 import { useContext } from "react";
-import { useSetLead } from "../hooks/use-set-lead";
-import { useSetLost } from "../hooks/use-set-lost";
-import { useSetStarPass } from "../hooks/use-set-star-pass";
+import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
+import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
+import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
 
 const checkBoxTheme = createTheme({
   cursorType: "pointer",
@@ -24,9 +24,9 @@ export default function TeamJamJammerState() {
     throw new Error("TeamJamJammerState must be used within a TeamJamProvider");
   }
 
-  const setLead = useSetLead(jam, teamJam);
-  const setLost = useSetLost(jam, teamJam);
-  const setStarPass = useSetStarPass(jam, teamJam);
+  const setLead = useTeamJamAddLead(jam, teamJam);
+  const setLost = useTeamJamAddLost(jam, teamJam);
+  const setStarPass = useTeamJamAddStarPass(jam, teamJam);
 
   const lead = teamJam.events.some((tripEvent) => tripEvent.lead);
   const lost = teamJam.events.some((tripEvent) => tripEvent.lost);
