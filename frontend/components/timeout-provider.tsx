@@ -8,7 +8,7 @@ interface TimeoutProviderProps extends PropsWithChildren {
   timeoutNum: number;
 }
 
-export default function JamProvider({
+export default function TimeoutProvider({
   bout,
   timeoutNum,
   children,
