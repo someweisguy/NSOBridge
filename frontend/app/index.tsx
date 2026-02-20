@@ -5,6 +5,7 @@ import { BoutStatusLabel } from "@/components/bout-status-label";
 import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import JamProvider from "@/components/jam-provider";
+import JamStopReason from "@/components/jam-stop-reason";
 import TeamBoutScore from "@/components/team-bout-score";
 import TeamJamProvider from "@/components/team-jam-provider";
 import TeamJamScore from "@/components/team-jam-score";
@@ -93,11 +94,21 @@ export default function Operator() {
           {bout.state == "stopped" ? (
             <BoutIntermissionLabel inherit size="36pt" />
           ) : (
-            <Group grow justify="center" w="75%" ta="center">
-              <BoutClock inherit />
-              <JamNumber inherit />
-              <JamClock inherit />
-            </Group>
+            <JamProvider
+              bout={bout}
+              periodNum={activePeriodNum}
+              jamNum={activeJamNum}
+            >
+              <Group grow justify="center" w="75%" ta="center">
+                <BoutClock inherit />
+                <JamNumber inherit />
+                {bout.state == "jam" || bout.jamCounts[activePeriodNum] == 1 ? (
+                  <JamClock inherit />
+                ) : (
+                  <JamStopReason inherit />
+                )}
+              </Group>
+            </JamProvider>
           )}
         </Center>
         <BoutStatusLabel withClock inherit fz="24pt" mih="50" />

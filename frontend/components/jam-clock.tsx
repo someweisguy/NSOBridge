@@ -28,35 +28,14 @@ export default function JamClock({
   jamNum ??= activeJamNum;
 
   const { data: jam } = useJam(bout, periodNum, jamNum);
-  const showClock = !jam?.hasStarted() || jam?.isRunning();
-
-  // Render the stop reason when the Jam has ended
-  let stopReasonText = "-";
-  if (!showClock) {
-    switch (jam?.stopReason) {
-      case "called":
-        stopReasonText = "Called";
-        break;
-      case "elapsed":
-        stopReasonText = "Time";
-        break;
-      case "injury":
-        stopReasonText = "Injury";
-        break;
-    }
-  }
 
   return (
     <Text {...props}>
-      {showClock ? (
-        <Clock
-          startTimestamp={jam?.startTimestamp ?? null}
-          alarm={ruleset.jamDuration}
-          formatter={jamTimeStringFormatter}
-        />
-      ) : (
-        stopReasonText
-      )}
+      <Clock
+        startTimestamp={jam?.startTimestamp ?? null}
+        alarm={ruleset.jamDuration}
+        formatter={jamTimeStringFormatter}
+      />
     </Text>
   );
 }
