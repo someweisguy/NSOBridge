@@ -17,6 +17,7 @@ import TimeoutProvider from "@/components/timeout-provider";
 import BoutJamControl from "@/features/operator/components/bout-jam-control";
 import BoutPeriodControl from "@/features/operator/components/bout-period-control";
 import BoutTimeoutControl from "@/features/operator/components/bout-timeout-control";
+import JamStopReasonControl from "@/features/operator/components/jam-stop-reason-control";
 import TeamJamJammerState from "@/features/operator/components/team-jam-jammer-state";
 import TeamJamPassEditor from "@/features/operator/components/team-jam-pass-editor";
 import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
@@ -134,7 +135,7 @@ export default function Operator() {
             periodNum={activePeriodNum}
             jamNum={activeJamNum}
           >
-            {/* TODO: call reason controls */}
+            <JamStopReasonControl />
           </JamProvider>
         )}
       </Group>
