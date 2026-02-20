@@ -30,9 +30,14 @@ async def _render_index() -> FileResponse:
     return FileResponse(frontend_dir / page_path_name)
 
 
-@pages_router.get('/{file_name}')
 @pages_router.get('/sb', tags=[PAGES_TAG], name='Render Scoreboard page')
-async def _render_generic_asset(file_name: str, request: Request) -> FileResponse:
+async def _render_scoreboard(request: Request) -> FileResponse:
+    logging.info('Serving "/sb"')
+    return FileResponse(frontend_dir / 'sb.html')
+
+
+@pages_router.get('/{file_name}', tags=[PAGES_TAG], name='Render generic page')
+async def _render_generic_asset(request: Request, file_name: str) -> FileResponse:
     # Render generic HTML files found in the frontend directory
     # Don't forget to register new pages with the FastAPI pages router!
     if not Path(file_name).suffix:
