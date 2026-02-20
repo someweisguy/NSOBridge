@@ -1,3 +1,4 @@
+import { AppProvider } from "@/components/app-provider";
 import BoutClock from "@/components/bout-clock";
 import BoutIntermissionLabel from "@/components/bout-intermission-label";
 import { BoutStatusLabel } from "@/components/bout-status-label";
@@ -12,37 +13,24 @@ import { useSuspenseBout } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
 import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
-import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import FitScreen from "@fit-screen/react";
-import { Flex, Group, MantineProvider, SimpleGrid, Stack } from "@mantine/core";
+import { Flex, Group, SimpleGrid, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 
 const root: HTMLElement = document.getElementById("root")!;
-createRoot(root).render(<App />);
+createRoot(root).render(
+  <AppProvider>
+    <FitScreen waitTime={25} mode="fit">
+      <Scoreboard />
+    </FitScreen>
+  </AppProvider>,
+);
 
-export function App() {
-  return (
-    <StrictMode>
-      <MantineProvider>
-        <QueryClientProvider client={queryClient}>
-          <Suspense fallback={"Loading..."}>
-            <FitScreen waitTime={25} mode="fit">
-              <Scoreboard />
-            </FitScreen>
-          </Suspense>
-        </QueryClientProvider>
-      </MantineProvider>
-    </StrictMode>
-  );
-}
-
-function Scoreboard() {
+export function Scoreboard() {
   usePrefetchServerTime();
 
   const { data: allSeries } = useSuspenseGetAllSeries();
