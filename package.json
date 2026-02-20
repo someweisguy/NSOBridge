@@ -1,5 +1,7 @@
 {
   "name": "nso-bridge",
+  "version": "0.1.0",
+  "packageManager": "npm@11.10.1",
   "private": true,
   "type": "module",
   "scripts": {

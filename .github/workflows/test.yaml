@@ -27,8 +27,8 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v4
-      - run: npm install
+      - uses: actions/setup-node@v6
+      - run: npm ci
       - uses: actions/cache@v5
         with:
           path: node_modules
@@ -39,11 +39,7 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/cache@v5
-        with:
-          path: node_modules
-          key: ${{ inputs.runs-on }}-node_modules
-          fail-on-cache-miss: true
+      - uses: actions/setup-node@v6
       - run: npm run lint
   test_frontend:
     name: Test Frontend
@@ -59,11 +55,7 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/cache@v5
-        with:
-          path: node_modules
-          key: ${{ inputs.runs-on }}-node_modules
-          fail-on-cache-miss: true
+      - uses: actions/setup-node@v6
       - run: npm run build
       - uses: actions/cache@v5
         with:
