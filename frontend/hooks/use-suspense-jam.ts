@@ -1,15 +1,15 @@
 import { Bout } from "@/lib/game/bouts";
 import { getJam, Jam } from "@/lib/game/jams";
-import { QueryOptions } from "@/types/query";
-import { useQuery } from "@tanstack/react-query";
+import { SuspenseQueryOptions } from "@/types/query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
-export const useJam = <T = null>(
+export const useSuspenseJam = (
   bout: Bout,
   periodNum: number,
   jamNum: number,
-  options?: Omit<QueryOptions<Jam | T>, "queryKey" | "queryFn">,
+  options?: SuspenseQueryOptions<Jam>,
 ) =>
-  useQuery<Jam | T>({
+  useSuspenseQuery<Jam>({
     queryKey: Jam.generateKey(bout.uuid, periodNum, jamNum),
     queryFn: () => getJam(bout.uuid, periodNum, jamNum),
     ...options,
