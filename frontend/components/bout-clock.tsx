@@ -1,4 +1,4 @@
-import Clock from "@/components/clock";
+import PlainClock from "@/components/plain-clock";
 import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
 import { periodTimeStringFormatter } from "@/utils/time-string-formatters";
@@ -23,7 +23,7 @@ export default function BoutClock({
   return (
     <Text {...props}>
       {showClock ? (
-        <Clock {...bout.clock} formatter={periodTimeStringFormatter} />
+        <PlainClock {...bout.clock} formatter={periodTimeStringFormatter} />
       ) : (
         overtimeText
       )}

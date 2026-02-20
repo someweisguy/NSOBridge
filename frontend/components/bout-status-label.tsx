@@ -1,4 +1,4 @@
-import Clock from "@/components/clock";
+import PlainClock from "@/components/plain-clock";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
@@ -78,7 +78,7 @@ export default function BoutStatusLabel({
   return (
     <Text {...props}>
       {content + (content.trim().length > 0 && withClock ? " " : "")}
-      {withClock && <Clock startTimestamp={countUpTimestamp ?? null} />}
+      {withClock && <PlainClock startTimestamp={countUpTimestamp ?? null} />}
     </Text>
   );
 }

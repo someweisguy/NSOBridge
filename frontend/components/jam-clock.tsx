@@ -1,4 +1,4 @@
-import Clock from "@/components/clock";
+import PlainClock from "@/components/plain-clock";
 import { useJam } from "@/hooks/use-jam";
 import { Bout } from "@/lib/game/bouts";
 import { Ruleset } from "@/lib/game/ruleset";
@@ -31,7 +31,7 @@ export default function JamClock({
 
   return (
     <Text {...props}>
-      <Clock
+      <PlainClock
         startTimestamp={jam?.startTimestamp ?? null}
         alarm={ruleset.jamDuration}
         formatter={jamTimeStringFormatter}

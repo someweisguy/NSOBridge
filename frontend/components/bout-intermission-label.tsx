@@ -1,4 +1,4 @@
-import Clock from "@/components/clock";
+import PlainClock from "@/components/plain-clock";
 import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";
 import { Text, TextProps } from "@mantine/core";
@@ -42,7 +42,8 @@ export default function BoutIntermissionLabel({
   return (
     <Text {...props}>
       {content + (content.trim().length > 0 && withClock ? " " : "")}
-      {withClock && <Clock startTimestamp={null} />} {/* TODO: fix clock */}
+      {withClock && <PlainClock startTimestamp={null} />}{" "}
+      {/* TODO: fix clock */}
     </Text>
   );
 }

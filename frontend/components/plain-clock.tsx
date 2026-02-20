@@ -13,7 +13,7 @@ interface ClockProps {
   formatter?: (milliseconds: number, alarm?: number) => string;
 }
 
-export default function Clock({
+export default function PlainClock({
   startTimestamp,
   stopTimestamp,
   elapsed = 0,
