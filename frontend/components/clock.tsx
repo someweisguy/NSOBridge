@@ -1,6 +1,8 @@
+import { useSuspenseServerTime } from "@/hooks/use-suspense-server-time";
 import { useEffect } from "react";
-import { useSuspenseServerTime } from "../hooks/use-server-time";
 import defaultTimeStringFormatter from "../utils/time-string-formatters";
+
+const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate
 
 interface ClockProps {
   startTimestamp: Date | null;
@@ -27,8 +29,7 @@ export default function Clock({
       return;
     }
 
-    // Refresh the component every 16ms (60Hz)
-    const intervalId = setInterval(refreshServerTime, 16);
+    const intervalId = setInterval(refreshServerTime, CLOCK_REFRESH_RATE);
     return () => clearInterval(intervalId);
   }, [startTimestamp, alarm, freeze, refreshServerTime]);
 

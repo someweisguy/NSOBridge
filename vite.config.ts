@@ -8,7 +8,7 @@ import { createMpaPlugin } from "vite-plugin-virtual-mpa";
 export default defineConfig({
   build: {
     cssMinify: true,
-    minify: false, // TODO: Enable minification
+    minify: true,
     outDir: "www",
   },
   plugins: [
@@ -21,10 +21,10 @@ export default defineConfig({
         {
           name: "Main",
           filename: "index.html",
-          entry: "/frontend/app/main.tsx",
+          entry: "/frontend/app/index.tsx",
           data: {
             templateTitle: "NSO Bridge",
-            scriptPath: "frontend/app/main.tsx",
+            scriptPath: "frontend/app/index.tsx",
           },
         },
         {

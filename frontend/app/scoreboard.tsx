@@ -1,43 +1,39 @@
-import BoutStateView from "@/features/bout-state-view/bout-state-view";
-import TeamView from "@/features/team-view/team-view";
-import { useSuspenseBout } from "@/hooks/use-bout";
+import AppProvider from "@/components/app-provider";
+import BoutClock from "@/components/bout-clock";
+import BoutIntermissionLabel from "@/components/bout-intermission-label";
+import BoutStatusLabel from "@/components/bout-status-label";
+import JamClock from "@/components/jam-clock";
+import JamNumber from "@/components/jam-number";
+import TeamBoutScore from "@/components/team-bout-score";
+import TeamJamScore from "@/components/team-jam-score";
+import TeamName from "@/components/team-name";
+import TeamProvider from "@/components/team-provider";
+import TeamTimeoutsLeft from "@/components/team-timeouts-left";
 import { useJam } from "@/hooks/use-jam";
-import { useSuspenseAllSeries } from "@/hooks/use-series";
-import { usePrefetchServerTime } from "@/hooks/use-server-time";
-import queryClient from "@/lib/cache";
+import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
+import { useSuspenseBout } from "@/hooks/use-suspense-bout";
+import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
 import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import FitScreen from "@fit-screen/react";
-import { Center, Grid, MantineProvider, Stack } from "@mantine/core";
+import { Flex, Group, SimpleGrid, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 
 const root: HTMLElement = document.getElementById("root")!;
-createRoot(root).render(<App />);
+createRoot(root).render(
+  <AppProvider>
+    <FitScreen waitTime={25} mode="fit">
+      <Scoreboard />
+    </FitScreen>
+  </AppProvider>,
+);
 
-export default function App() {
-  return (
-    <StrictMode>
-      <MantineProvider>
-        <QueryClientProvider client={queryClient}>
-          <Suspense fallback={"Loading..."}>
-            <FitScreen waitTime={25} mode="fit">
-              <Scoreboard />
-            </FitScreen>
-          </Suspense>
-        </QueryClientProvider>
-      </MantineProvider>
-    </StrictMode>
-  );
-}
-
-function Scoreboard() {
+export function Scoreboard() {
   usePrefetchServerTime();
 
-  const { data: allSeries } = useSuspenseAllSeries();
+  const { data: allSeries } = useSuspenseGetAllSeries();
 
   const series: Series = allSeries[0];
   const { data: bout } = useSuspenseBout(
@@ -49,17 +45,40 @@ function Scoreboard() {
 
   return (
     <Stack>
-      <Grid columns={bout.teams.length}>
+      {/* Team information */}
+      <SimpleGrid cols={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
-          <Grid.Col key={i} span={1}>
-            <TeamView team={team} />
-          </Grid.Col>
+          <TeamProvider key={i} team={team}>
+            <Stack justify="center">
+              <TeamName ta="center" fw="bolder" size="36pt" />
+              <Flex
+                direction={i % 2 == 0 ? "row" : "row-reverse"}
+                align="center"
+                justify="center"
+                gap="xl"
+              >
+                <TeamTimeoutsLeft size={24} />
+                <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
+                <TeamJamScore size="24pt" />
+              </Flex>
+            </Stack>
+          </TeamProvider>
         ))}
-      </Grid>
+      </SimpleGrid>
+
       {/* TODO: Lead Jam Status */}
-      <Center>
-        <BoutStateView />
-      </Center>
+      <Stack>
+        {bout.state == "stopped" ? (
+          <BoutIntermissionLabel ta="center" size="36pt" />
+        ) : (
+          <Group grow justify="center" align="center">
+            <BoutClock ta="center" />
+            <JamNumber ta="center" />
+            <JamClock ta="center" />
+          </Group>
+        )}
+        <BoutStatusLabel withClock ta="center" size="24pt" />
+      </Stack>
     </Stack>
   );
 }

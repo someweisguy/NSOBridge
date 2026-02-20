@@ -2,6 +2,7 @@ import { ServerData, SyncData } from "@/types/ws";
 import Socket, { localSocket } from "./ws";
 
 const NUM_SYNC_SAMPLES = 5;
+export const serverTimeCacheKey = "serverTimeCacheKey";
 
 export async function getSyncData(
   socket: Socket = localSocket,

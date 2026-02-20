@@ -1,15 +1,14 @@
 import { Bout } from "@/lib/game/bouts";
 import { getRuleset, Ruleset } from "@/lib/game/ruleset";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { QueryOptions } from "@/types/query";
+import { useQuery } from "@tanstack/react-query";
 
-export const useSuspenseRuleset = (bout: Bout) =>
-  useSuspenseQuery<Ruleset>({
+export const useRuleset = <T = null>(
+  bout: Bout,
+  options?: Omit<QueryOptions<Ruleset | T>, "queryKey" | "queryFn">,
+) =>
+  useQuery<Ruleset | T>({
     queryKey: Ruleset.generateKey(bout.rulesetName),
     queryFn: () => getRuleset(bout.uuid),
-  });
-
-export const useRuleset = (bout: Bout) =>
-  useQuery<Ruleset>({
-    queryKey: Ruleset.generateKey(bout.rulesetName),
-    queryFn: () => getRuleset(bout.uuid),
+    ...options,
   });

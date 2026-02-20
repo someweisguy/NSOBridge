@@ -1,20 +1,13 @@
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { getAllSeries, getSeries, Series } from "@/lib/game/series";
+import { getSeries, Series } from "@/lib/game/series";
+import { QueryOptions } from "@/types/query";
+import { useQuery } from "@tanstack/react-query";
 
-export const useSuspenseAllSeries = () =>
-  useSuspenseQuery<Series[]>({
-    queryKey: Series.generateKey(),
-    queryFn: () => getAllSeries(),
-  });
-
-export const useSuspenseSeries = (uuid: string) =>
-  useSuspenseQuery<Series>({
+export const useSeries = <T = null>(
+  uuid: string,
+  options?: Omit<QueryOptions<Series | T>, "queryKey" | "queryFn">,
+) =>
+  useQuery({
     queryKey: Series.generateKey(uuid),
     queryFn: () => getSeries(uuid),
-  });
-
-export const useSeries = (uuid: string) =>
-  useQuery<Series>({
-    queryKey: Series.generateKey(uuid),
-    queryFn: () => getSeries(uuid),
+    ...options,
   });

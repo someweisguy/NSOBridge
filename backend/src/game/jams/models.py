@@ -48,6 +48,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         back_populates='jam',
         cascade=CASCADE_CHILD,
         lazy='selectin',
+        order_by='TeamJam.team_num',
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
