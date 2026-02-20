@@ -1,5 +1,5 @@
+import { useSuspenseServerTime } from "@/hooks/use-suspense-server-time";
 import { useEffect } from "react";
-import { useSuspenseServerTime } from "../hooks/use-server-time";
 import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
 const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate

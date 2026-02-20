@@ -10,7 +10,7 @@ import TeamName from "@/components/team-name";
 import TeamProvider from "@/components/team-provider";
 import TeamTimeoutsLeft from "@/components/team-timeouts-left";
 import { useJam } from "@/hooks/use-jam";
-import { usePrefetchServerTime } from "@/hooks/use-server-time";
+import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
 import { Team } from "@/lib/game/bouts";

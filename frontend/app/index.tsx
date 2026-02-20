@@ -23,7 +23,7 @@ import TeamJamPassEditor from "@/features/operator/components/team-jam-pass-edit
 import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
 import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
 import TimeoutTypeEditor from "@/features/operator/components/timeout-type-editor";
-import { usePrefetchServerTime } from "@/hooks/use-server-time";
+import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
 import { Bout, Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { BoutContext } from "@/utils/contexts";
