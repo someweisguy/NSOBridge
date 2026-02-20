@@ -1,4 +1,4 @@
-import { useTeamJamAddTrip } from "@/hooks/use-team-jam-add-trip";
+import { useTeamJamAddTrip } from "@/features/operator/hooks/use-team-jam-add-trip";
 import { Jam, TeamJam } from "@/lib/game/jams";
 import { JamContext, RulesetContext, TeamJamContext } from "@/utils/contexts";
 import { Button, Group } from "@mantine/core";
