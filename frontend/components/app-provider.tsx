@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 import BoutProvider from "./bout-provider";
+import OpenScoreboardButton from "./open-scoreboard-button";
 
 const urlParams = new URLSearchParams(window.location.search);
 const boutUuidParamName = "boutUuid";
@@ -80,7 +81,7 @@ export default function AppProvider({
                   <BoutPicker
                     onChange={(uuid: string | null) => setBoutUuid(uuid)}
                   />
-                  {/* TODO: Navbar */}
+                  <OpenScoreboardButton />
                 </AppShell.Navbar>
 
                 <AppShell.Main>
