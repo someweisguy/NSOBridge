@@ -3,9 +3,10 @@ import { getRuleset, Ruleset } from "@/lib/game/ruleset";
 import { QueryOptions, SuspenseQueryOptions } from "@/types/query";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
+// TODO: extract to separate file
 export const useSuspenseRuleset = (
   bout: Bout,
-  options?: SuspenseQueryOptions<Ruleset>,
+  options?: Omit<SuspenseQueryOptions<Ruleset>, "queryKey" | "queryFn">,
 ) =>
   useSuspenseQuery<Ruleset>({
     queryKey: Ruleset.generateKey(bout.rulesetName),
@@ -15,7 +16,7 @@ export const useSuspenseRuleset = (
 
 export const useRuleset = <T = null>(
   bout: Bout,
-  options?: QueryOptions<Ruleset | T>,
+  options?: Omit<QueryOptions<Ruleset | T>, "queryKey" | "queryFn">,
 ) =>
   useQuery<Ruleset | T>({
     queryKey: Ruleset.generateKey(bout.rulesetName),

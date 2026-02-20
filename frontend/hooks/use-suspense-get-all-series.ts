@@ -3,7 +3,7 @@ import { SuspenseQueryOptions } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const useSuspenseGetAllSeries = (
-  options?: SuspenseQueryOptions<Series[]>,
+  options?: Omit<SuspenseQueryOptions<Series[]>, "queryKey" | "queryFn">,
 ) =>
   useSuspenseQuery<Series[]>({
     queryKey: Series.generateKey(),

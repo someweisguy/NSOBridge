@@ -2,9 +2,10 @@ import { Bout, getBout } from "@/lib/game/bouts";
 import { QueryOptions, SuspenseQueryOptions } from "@/types/query";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
+// TODO: extract to separate file
 export const useSuspenseBout = (
   uuid: string,
-  options?: SuspenseQueryOptions<Bout>,
+  options?: Omit<SuspenseQueryOptions<Bout>, "queryKey" | "queryFn">,
 ) =>
   useSuspenseQuery({
     queryKey: Bout.generateKey(uuid),
@@ -14,7 +15,7 @@ export const useSuspenseBout = (
 
 export const useBout = <T = null>(
   uuid: string,
-  options?: QueryOptions<Bout | T>,
+  options?: Omit<QueryOptions<Bout | T>, "queryKey" | "queryFn">,
 ) =>
   useQuery({
     queryKey: Bout.generateKey(uuid),

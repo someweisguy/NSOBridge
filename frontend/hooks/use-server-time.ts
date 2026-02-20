@@ -26,6 +26,7 @@ export const useSuspenseServerTime = (): [Date, () => void] => {
   return [serverTime, refreshServerTime];
 };
 
+// TODO: extract to separate file
 export const usePrefetchServerTime = () =>
   void queryClient.prefetchQuery({
     queryKey: syncQueryKey,

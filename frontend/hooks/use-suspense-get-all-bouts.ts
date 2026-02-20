@@ -4,7 +4,7 @@ import { SuspenseQueryOptions } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const useSuspenseGetAllBouts = (
-  options?: SuspenseQueryOptions<Bout[]>,
+  options?: Omit<SuspenseQueryOptions<Bout[]>, "queryKey" | "queryFn">,
 ) =>
   useSuspenseQuery(
     {

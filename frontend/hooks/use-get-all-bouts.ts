@@ -3,7 +3,9 @@ import { Bout, getAllBouts } from "@/lib/game/bouts";
 import { QueryOptions } from "@/types/query";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetAllBouts = (options?: QueryOptions<Bout[]>) =>
+export const useGetAllBouts = (
+  options?: Omit<QueryOptions<Bout[]>, "queryKey" | "queryFn">,
+) =>
   useQuery(
     {
       queryKey: Bout.generateKey(),

@@ -3,10 +3,11 @@ import { getTimeout, Timeout } from "@/lib/game/timeouts";
 import { QueryOptions, SuspenseQueryOptions } from "@/types/query";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
+// TODO: extract to separate file
 export const useSuspenseTimeout = (
   bout: Bout,
   num: number,
-  options?: SuspenseQueryOptions<Timeout>,
+  options?: Omit<SuspenseQueryOptions<Timeout>, "queryKey" | "queryFn">,
 ) =>
   useSuspenseQuery({
     queryKey: Timeout.generateKey(bout.uuid, num),
@@ -17,7 +18,7 @@ export const useSuspenseTimeout = (
 export const useTimeout = <T = null>(
   bout: Bout,
   num: number,
-  options?: QueryOptions<Timeout | T>,
+  options?: Omit<QueryOptions<Timeout | T>, "queryKey" | "queryFn">,
 ) =>
   useQuery({
     queryKey: Timeout.generateKey(bout.uuid, num),
