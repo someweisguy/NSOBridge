@@ -1,5 +1,5 @@
-import { useSuspenseBout } from "@/hooks/use-bout";
-import { useSuspenseRuleset } from "@/hooks/use-ruleset";
+import { useSuspenseBout } from "@/hooks/use-suspense-bout";
+import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { BoutContext, RulesetContext } from "@/utils/contexts";
 import { PropsWithChildren } from "react";
 

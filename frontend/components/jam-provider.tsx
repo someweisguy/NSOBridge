@@ -1,4 +1,4 @@
-import { useSuspenseJam } from "@/hooks/use-jam";
+import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { Bout } from "@/lib/game/bouts";
 import { JamContext } from "@/utils/contexts";
 import { PropsWithChildren } from "react";

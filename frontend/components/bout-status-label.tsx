@@ -1,5 +1,5 @@
 import Clock from "@/components/clock";
-import { useSuspenseJam } from "@/hooks/use-jam";
+import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { BoutContext } from "@/utils/contexts";

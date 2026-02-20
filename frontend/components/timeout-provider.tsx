@@ -1,4 +1,4 @@
-import { useSuspenseTimeout } from "@/hooks/use-timeout";
+import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { TimeoutContext } from "@/utils/contexts";
 import { PropsWithChildren } from "react";
