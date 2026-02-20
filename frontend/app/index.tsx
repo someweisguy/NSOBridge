@@ -1,7 +1,7 @@
-import { AppProvider } from "@/components/app-provider";
+import AppProvider from "@/components/app-provider";
 import BoutClock from "@/components/bout-clock";
 import BoutIntermissionLabel from "@/components/bout-intermission-label";
-import { BoutStatusLabel } from "@/components/bout-status-label";
+import BoutStatusLabel from "@/components/bout-status-label";
 import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
 import JamProvider from "@/components/jam-provider";

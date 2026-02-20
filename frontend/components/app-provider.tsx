@@ -20,7 +20,10 @@ interface AppProviderProps extends PropsWithChildren {
   useShell?: boolean;
 }
 
-export function AppProvider({ useShell = false, children }: AppProviderProps) {
+export default function AppProvider({
+  useShell = false,
+  children,
+}: AppProviderProps) {
   const [opened, { toggle }] = useDisclosure();
 
   const {

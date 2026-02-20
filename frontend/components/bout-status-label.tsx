@@ -10,7 +10,7 @@ interface BoutStatusLabelProps extends TextProps {
   withClock?: boolean;
 }
 
-export function BoutStatusLabel({
+export default function BoutStatusLabel({
   withClock = false,
   ...props
 }: BoutStatusLabelProps) {
