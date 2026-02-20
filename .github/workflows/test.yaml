@@ -40,6 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
+      - run: npm ci
       - run: npm run lint
   test_frontend:
     name: Test Frontend
@@ -48,6 +49,8 @@ jobs:
     if: false
     steps:
       - uses: actions/checkout@v6
+      - run: npm ci
+      - run: npm run lint
       # TODO: Figure out testing for frontend
   build_frontend:
     name: Build Frontend
@@ -56,6 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
+      - run: npm ci
       - run: npm run build
       - uses: actions/cache@v5
         with:
