@@ -36,3 +36,5 @@ __pycache__
 .ruff_cache
 .venv
 .pytest_cache
+*storybook.log
+storybook-static
