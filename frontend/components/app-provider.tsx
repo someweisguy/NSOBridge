@@ -77,7 +77,9 @@ export default function AppProvider({
                 </AppShell.Header>
 
                 <AppShell.Navbar m="md">
-                  <BoutPicker onChange={(uuid: string) => setBoutUuid(uuid)} />
+                  <BoutPicker
+                    onChange={(uuid: string | null) => setBoutUuid(uuid)}
+                  />
                   {/* TODO: Navbar */}
                 </AppShell.Navbar>
 
