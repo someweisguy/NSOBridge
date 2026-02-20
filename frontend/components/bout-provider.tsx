@@ -1,13 +1,17 @@
+import { useSuspenseBout } from "@/hooks/use-bout";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
-import { Bout } from "@/lib/game/bouts";
 import { BoutContext, RulesetContext } from "@/utils/contexts";
 import { PropsWithChildren } from "react";
 
 interface BoutProviderProps extends PropsWithChildren {
-  bout: Bout;
+  boutUuid: string;
 }
 
-export default function BoutProvider({ bout, children }: BoutProviderProps) {
+export default function BoutProvider({
+  boutUuid,
+  children,
+}: BoutProviderProps) {
+  const { data: bout } = useSuspenseBout(boutUuid);
   const { data: ruleset } = useSuspenseRuleset(bout);
   return (
     <BoutContext value={bout}>

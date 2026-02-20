@@ -1,9 +1,8 @@
-import JamClock from "@/components/jam-clock";
-import JamNumber from "@/components/jam-number";
 import BoutClock from "@/components/bout-clock";
 import BoutIntermissionLabel from "@/components/bout-intermission-label";
 import { BoutStatusLabel } from "@/components/bout-status-label";
-import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
+import JamClock from "@/components/jam-clock";
+import JamNumber from "@/components/jam-number";
 import TeamBoutScore from "@/components/team-bout-score";
 import TeamJamScore from "@/components/team-jam-score";
 import TeamName from "@/components/team-name";
@@ -12,6 +11,7 @@ import TeamTimeoutsLeft from "@/components/team-timeouts-left";
 import { useSuspenseBout } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
 import { usePrefetchServerTime } from "@/hooks/use-server-time";
+import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
 import queryClient from "@/lib/cache";
 import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
@@ -26,7 +26,7 @@ import "./global.css";
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(<App />);
 
-export default function App() {
+export function App() {
   return (
     <StrictMode>
       <MantineProvider>
