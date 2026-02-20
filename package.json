@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
+    "build no-minify": "tsc -b && vite build --minify false",
     "watch": "tsc -b && vite build --watch",
     "lint": "eslint .",
     "prepare": "husky"
