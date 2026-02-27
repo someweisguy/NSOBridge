@@ -141,15 +141,21 @@ export default function Operator() {
         {bout.state == "timeout" && (
           <Suspense>
             <TimeoutTypeEditorContainer
-              bout={bout}
+              boutUuid={bout.uuid}
               timeoutNum={bout.timeoutCount - 1}
             />
             <TimeoutCallerEditorContainer
-              bout={bout}
+              boutUuid={bout.uuid}
               timeoutNum={bout.timeoutCount - 1}
+              data={bout.teams.map((team: Team) => {
+                return {
+                  value: String(team.num),
+                  label: team.name,
+                };
+              })}
             />
             <TimeoutRetainedEditorContainer
-              bout={bout}
+              boutUuid={bout.uuid}
               timeoutNum={bout.timeoutCount - 1}
               variant="outline"
             />

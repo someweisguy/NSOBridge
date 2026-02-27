@@ -4,7 +4,7 @@ import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 
 interface TimeoutsLeftContainerProps {
-  bout: Bout;
+  bout: Bout; // TODO: remove this from props
   num: number;
   timeoutsRemaining: number;
   reviewsRemaining: number;

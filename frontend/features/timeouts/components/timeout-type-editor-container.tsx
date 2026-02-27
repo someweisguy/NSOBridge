@@ -1,5 +1,4 @@
 import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
-import { Bout } from "@/lib/game/bouts";
 import {
   SegmentedControl,
   SegmentedControlProps,
@@ -12,17 +11,17 @@ interface TimeoutTypeEditorContainerProps extends Omit<
   SegmentedControlProps,
   "data" | "value" | "onChange"
 > {
-  bout: Bout;
+  boutUuid: string;
   timeoutNum: number;
 }
 
 export default function TimeoutTypeEditorContainer({
-  bout,
+  boutUuid,
   timeoutNum,
   ...props
 }: TimeoutTypeEditorContainerProps) {
-  const { data: timeout } = useSuspenseTimeout(bout.uuid, timeoutNum);
-  const setType = useSetTimeoutType(timeout);
+  const { data: timeout } = useSuspenseTimeout(boutUuid, timeoutNum);
+  const setType = useSetTimeoutType(boutUuid, timeoutNum);
 
   return (
     <Stack gap="0">

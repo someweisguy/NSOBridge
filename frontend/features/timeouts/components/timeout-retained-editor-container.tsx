@@ -1,5 +1,4 @@
 import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
-import { Bout } from "@/lib/game/bouts";
 import { Checkbox, CheckboxProps } from "@mantine/core";
 import { useSetTimeoutRetained } from "../hooks/use-set-timeout-retained";
 
@@ -7,18 +6,18 @@ interface TimeoutRetainedEditorContainerProps extends Omit<
   CheckboxProps,
   "onChange"
 > {
-  bout: Bout;
+  boutUuid: string;
   timeoutNum: number;
 }
 
 export default function TimeoutRetainedEditorContainer({
-  bout,
+  boutUuid,
   timeoutNum,
   label = "Review is Retained?",
 }: TimeoutRetainedEditorContainerProps) {
-  const { data: timeout } = useSuspenseTimeout(bout.uuid, timeoutNum);
+  const { data: timeout } = useSuspenseTimeout(boutUuid, timeoutNum);
 
-  const setRetained = useSetTimeoutRetained(timeout);
+  const setRetained = useSetTimeoutRetained(boutUuid, timeoutNum);
   return (
     <Checkbox
       label={label}

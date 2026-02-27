@@ -1,5 +1,4 @@
 import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
-import { Bout, Team } from "@/lib/game/bouts";
 import {
   SegmentedControl,
   SegmentedControlProps,
@@ -11,18 +10,19 @@ import { useSetTimeoutTeam } from "../hooks/use-set-timeout-team";
 
 interface TimeoutCallerEditorContainerProps extends Omit<
   SegmentedControlProps,
-  "data" | "value" | "onChange"
+  "value" | "onChange"
 > {
-  bout: Bout;
+  boutUuid: string;
   timeoutNum: number;
 }
 
 export default function TimeoutCallerEditorContainer({
-  bout,
+  boutUuid,
+  data,
   timeoutNum,
   ...props
 }: TimeoutCallerEditorContainerProps) {
-  const { data: timeout } = useSuspenseTimeout(bout.uuid, timeoutNum);
+  const { data: timeout } = useSuspenseTimeout(boutUuid, timeoutNum);
 
   // Used to solve a minor UI glitch that occurs when selecting the initial value of a
   // SegmentedControl component
@@ -30,7 +30,7 @@ export default function TimeoutCallerEditorContainer({
     timeout.teamNum == null && !timeout.teamIsOfficials,
   );
 
-  const setTeam = useSetTimeoutTeam(timeout);
+  const setTeam = useSetTimeoutTeam(boutUuid, timeoutNum);
 
   return (
     <Stack gap="0">
@@ -39,12 +39,7 @@ export default function TimeoutCallerEditorContainer({
       </Text>
       <SegmentedControl
         data={[
-          ...bout.teams.map((team: Team) => {
-            return {
-              value: String(team.num),
-              label: team.name,
-            };
-          }),
+          ...data,
           {
             value: String(NaN),
             label: "Official",

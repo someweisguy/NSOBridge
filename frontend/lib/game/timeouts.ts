@@ -52,25 +52,37 @@ export class Timeout {
   isRunning(): boolean {
     return this.hasStarted() && this.stopTimestamp == null;
   }
+}
 
-  async setType(type: "timeout" | "review"): Promise<void> {
-    await localAPI.post("timeout/type", {
-      query: { boutUuid: this.boutUuid, num: this.num },
-      body: JSON.stringify(type),
-    });
-  }
+export async function setType(
+  boutUuid: string,
+  timeoutNum: number,
+  type: "timeout" | "review",
+): Promise<void> {
+  await localAPI.post("timeout/type", {
+    query: { boutUuid, num: timeoutNum },
+    body: JSON.stringify(type),
+  });
+}
 
-  async setTeam(teamNum: number | null): Promise<void> {
-    await localAPI.post("timeout/team", {
-      query: { boutUuid: this.boutUuid, num: this.num },
-      body: teamNum,
-    });
-  }
+export async function setTeam(
+  boutUuid: string,
+  timeoutNum: number,
+  teamNum: number | null,
+): Promise<void> {
+  await localAPI.post("timeout/team", {
+    query: { boutUuid, num: timeoutNum },
+    body: teamNum,
+  });
+}
 
-  async setRetained(isRetained: boolean): Promise<void> {
-    await localAPI.post("timeout/retained", {
-      query: { boutUuid: this.boutUuid, num: this.num },
-      body: isRetained,
-    });
-  }
+export async function setRetained(
+  boutUuid: string,
+  timeoutNum: number,
+  isRetained: boolean,
+): Promise<void> {
+  await localAPI.post("timeout/retained", {
+    query: { boutUuid, num: timeoutNum },
+    body: isRetained,
+  });
 }
