@@ -1,8 +1,8 @@
 import AppProvider from "@/components/app-provider";
-import BoutStatus from "@/features/bouts/components/bout-status";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
+import BoutStatus from "@/features/bouts/components/bout-status";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import TeamBoutScore from "@/features/bouts/components/team-bout-score";
 import TeamJamScore from "@/features/bouts/components/team-jam-score";
@@ -18,6 +18,7 @@ import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-t
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
+import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { BoutUuidContext } from "@/utils/contexts";
@@ -27,7 +28,6 @@ import { Suspense, useContext } from "react";
 import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
-import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
@@ -63,7 +63,7 @@ export default function Operator() {
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
-  void useJam(bout, ...bout.getLatestJamNum());
+  void useJam(bout.uuid, ...bout.getLatestJamNum());
 
   return (
     <Stack align="stretch" justify="flex-start">

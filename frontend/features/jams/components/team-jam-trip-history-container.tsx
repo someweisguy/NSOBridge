@@ -17,7 +17,7 @@ export default function TeamJamTripHistoryContainer({
   jamNum,
   teamJamNum,
 }: TeamJamTripHistoryContainerProps) {
-  const { data: teamJam } = useSuspenseJam(bout, periodNum, jamNum, {
+  const { data: teamJam } = useSuspenseJam(bout.uuid, periodNum, jamNum, {
     select: (jam: Jam) => jam.teamJams[teamJamNum],
   });
 

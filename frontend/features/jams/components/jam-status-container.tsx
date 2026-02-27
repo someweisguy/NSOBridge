@@ -19,7 +19,7 @@ export default function JamStatusContainer({
   ...props
 }: JamStatusContainerProps) {
   const { data: ruleset } = useSuspenseRuleset(bout);
-  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
+  const { data: jam } = useSuspenseJam(bout.uuid, periodNum, jamNum);
 
   return (
     <JamStatus

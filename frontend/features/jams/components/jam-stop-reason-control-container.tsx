@@ -22,7 +22,7 @@ export default function JamStopReasonControlContainer({
   jamNum,
   ...props
 }: JamStopReasonControlProps) {
-  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
+  const { data: jam } = useSuspenseJam(bout.uuid, periodNum, jamNum);
 
   return (
     <Stack gap="0">

@@ -1,6 +1,6 @@
 import AppProvider from "@/components/app-provider";
-import BoutStatus from "@/features/bouts/components/bout-status";
 import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
+import BoutStatus from "@/features/bouts/components/bout-status";
 import TeamBoutScore from "@/features/bouts/components/team-bout-score";
 import TeamJamScore from "@/features/bouts/components/team-jam-score";
 import JamNumber from "@/features/jams/components/jam-number";
@@ -38,7 +38,7 @@ export function Scoreboard() {
   const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
 
   // Eagerly query the latest Jam and Timeout to avoid suspending
-  void useJam(bout, ...bout.getLatestJamNum());
+  void useJam(bout.uuid, ...bout.getLatestJamNum());
 
   return (
     <Stack>

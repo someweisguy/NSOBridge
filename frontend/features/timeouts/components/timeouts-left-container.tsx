@@ -24,7 +24,7 @@ export default function TimeoutsLeftContainer({
     data: latestTimeout,
     isPending,
     isEnabled,
-  } = useTimeout(bout, bout.timeoutCount - 1, {
+  } = useTimeout(bout.uuid, bout.timeoutCount - 1, {
     enabled: bout.timeoutCount > 0,
   });
 

@@ -30,7 +30,7 @@ export default function TeamJamJammerStateEditorContainer({
   jamNum,
   teamJamNum,
 }: TeamJamJammerStateEditorContainerProps) {
-  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
+  const { data: jam } = useSuspenseJam(bout.uuid, periodNum, jamNum);
   const teamJam: TeamJam = jam.teamJams[teamJamNum];
 
   const setLead = useTeamJamAddLead(jam, teamJam);

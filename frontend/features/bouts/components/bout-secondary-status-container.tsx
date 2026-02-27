@@ -14,11 +14,11 @@ export default function BoutSecondaryStatusContainer({
   ...props
 }: BoutSecondaryStatusContainerProps) {
   const { data: activeJam } = useSuspenseJam(
-    bout,
+    bout.uuid,
     ...bout.getActiveOrLatestJamNum(),
   );
   const { data: latestTimeout, isPending } = useTimeout(
-    bout,
+    bout.uuid,
     bout.timeoutCount - 1,
     {
       enabled: bout.timeoutCount > 0,
