@@ -4,8 +4,8 @@ import {
   UseSuspenseQueryOptions,
 } from "@tanstack/react-query";
 
-export type SuspenseQueryOptions<T> = Omit<
-  UseSuspenseQueryOptions<T>,
+export type SuspenseQueryOptions<T = unknown, E = Error, D = T> = Omit<
+  UseSuspenseQueryOptions<T, E, D>,
   "queryKey" | "queryFn"
 >;
 

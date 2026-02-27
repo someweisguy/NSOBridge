@@ -1,7 +1,6 @@
 import AppProvider from "@/components/app-provider";
 import JamProvider from "@/components/jam-provider";
 import TeamJamProvider from "@/components/team-jam-provider";
-import TeamJamTripHistory from "@/components/team-jam-trip-history";
 import TimeoutProvider from "@/components/timeout-provider";
 import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
@@ -15,6 +14,7 @@ import BoutTimeoutControl from "@/features/operator/components/bout-timeout-cont
 import JamStopReasonControl from "@/features/operator/components/jam-stop-reason-control";
 import TeamJamJammerState from "@/features/operator/components/team-jam-jammer-state";
 import TeamJamPassEditor from "@/features/operator/components/team-jam-pass-editor";
+import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
 import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
 import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
 import TimeoutTypeEditor from "@/features/operator/components/timeout-type-editor";
@@ -167,7 +167,12 @@ export default function Operator() {
                 <Stack>
                   <TeamJamJammerState />
                   <TeamJamPassEditor />
-                  <TeamJamTripHistory />
+                  <TeamJamTripHistoryContainer
+                    bout={bout}
+                    periodNum={activePeriodNum}
+                    jamNum={activeJamNum}
+                    teamJamNum={i}
+                  />
                 </Stack>
               </TeamJamProvider>
             ))}
