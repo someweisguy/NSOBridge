@@ -38,13 +38,17 @@ export default function Clock({
   }, [startTimestamp, freeze]);
 
   // Calculate the number of milliseconds that have elapsed since the last update
-  let milliseconds = elapsed + serverOffset;
+  let milliseconds = elapsed;
   if (startTimestamp != null && stopTimestamp == null) {
     // Clock is running
     milliseconds += currentTimestamp.getTime() - startTimestamp.getTime();
   } else if (startTimestamp != null && stopTimestamp != null) {
     // Clock is stopped but add the additional elapsed time to the accumulator
     milliseconds += stopTimestamp.getTime() - startTimestamp.getTime();
+  }
+
+  if (startTimestamp != null) {
+    milliseconds += serverOffset;
   }
 
   return <span className="tabular-nums">{formatter(milliseconds, alarm)}</span>;
