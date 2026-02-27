@@ -1,5 +1,4 @@
 import AppProvider from "@/components/app-provider";
-import JamProvider from "@/components/jam-provider";
 import TimeoutProvider from "@/components/timeout-provider";
 import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
@@ -13,7 +12,7 @@ import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-tri
 import BoutJamControl from "@/features/operator/components/bout-jam-control";
 import BoutPeriodControl from "@/features/operator/components/bout-period-control";
 import BoutTimeoutControl from "@/features/operator/components/bout-timeout-control";
-import JamStopReasonControl from "@/features/operator/components/jam-stop-reason-control";
+import JamStopReasonControlContainer from "@/features/operator/components/jam-stop-reason-control-container";
 import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
 import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
 import TimeoutTypeEditor from "@/features/operator/components/timeout-type-editor";
@@ -142,48 +141,40 @@ export default function Operator() {
           </Suspense>
         )}
         {bout.state == "lineup" && bout.jamCounts[activePeriodNum] > 1 && (
-          <JamProvider
+          <JamStopReasonControlContainer
             bout={bout}
             periodNum={activePeriodNum}
             jamNum={activeJamNum}
-          >
-            <JamStopReasonControl />
-          </JamProvider>
+          />
         )}
       </Group>
 
       {/* TeamJam score editors */}
       <Suspense fallback={"Loading..."}>
-        <JamProvider
-          bout={bout}
-          periodNum={activePeriodNum}
-          jamNum={activeJamNum}
-        >
-          <SimpleGrid cols={bout.teams.length}>
-            {[...Array(2).keys()].map((i: number) => (
-              <Stack key={i}>
-                <TeamJamJammerStateEditorContainer
-                  bout={bout}
-                  periodNum={activePeriodNum}
-                  jamNum={activeJamNum}
-                  teamJamNum={i}
-                />
-                <TeamJamPassEditorContainer
-                  bout={bout}
-                  periodNum={activePeriodNum}
-                  jamNum={activeJamNum}
-                  teamJamNum={i}
-                />
-                <TeamJamTripHistoryContainer
-                  bout={bout}
-                  periodNum={activePeriodNum}
-                  jamNum={activeJamNum}
-                  teamJamNum={i}
-                />
-              </Stack>
-            ))}
-          </SimpleGrid>
-        </JamProvider>
+        <SimpleGrid cols={bout.teams.length}>
+          {[...Array(2).keys()].map((i: number) => (
+            <Stack key={i}>
+              <TeamJamJammerStateEditorContainer
+                bout={bout}
+                periodNum={activePeriodNum}
+                jamNum={activeJamNum}
+                teamJamNum={i}
+              />
+              <TeamJamPassEditorContainer
+                bout={bout}
+                periodNum={activePeriodNum}
+                jamNum={activeJamNum}
+                teamJamNum={i}
+              />
+              <TeamJamTripHistoryContainer
+                bout={bout}
+                periodNum={activePeriodNum}
+                jamNum={activeJamNum}
+                teamJamNum={i}
+              />
+            </Stack>
+          ))}
+        </SimpleGrid>
       </Suspense>
 
       {/* TODO: Lineup editors */}

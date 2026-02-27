@@ -1,20 +1,28 @@
-import { Jam } from "@/lib/game/jams";
-import { JamContext } from "@/utils/contexts";
+import { useSuspenseJam } from "@/hooks/use-suspense-jam";
+import { Bout } from "@/lib/game/bouts";
 import {
   SegmentedControl,
   SegmentedControlProps,
   Stack,
   Text,
 } from "@mantine/core";
-import { useContext } from "react";
 
-export default function JamStopReasonControl({
+interface JamStopReasonControlProps extends Omit<
+  SegmentedControlProps,
+  "data" | "value" | "onChange"
+> {
+  bout: Bout;
+  periodNum: number;
+  jamNum: number;
+}
+
+export default function JamStopReasonControlContainer({
+  bout,
+  periodNum,
+  jamNum,
   ...props
-}: Omit<SegmentedControlProps, "data" | "value" | "onChange">) {
-  const jam: Jam | null = useContext(JamContext);
-  if (jam == null) {
-    throw new Error("JamStopReasonControl must be used within a JamProvider");
-  }
+}: JamStopReasonControlProps) {
+  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
 
   return (
     <Stack gap="0">
