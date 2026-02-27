@@ -6,6 +6,7 @@ import { BoutStatus } from "./bout-status";
 
 interface BoutStatusContainerProps extends TextProps {
   bout: Bout;
+  serverOffset?: number;
 }
 
 export default function BoutStatusContainer({

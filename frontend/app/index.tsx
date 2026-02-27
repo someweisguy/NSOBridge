@@ -17,7 +17,6 @@ import TimeoutRetainedEditorContainer from "@/features/timeouts/components/timeo
 import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-type-editor-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
-import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
@@ -28,6 +27,7 @@ import { Suspense, useContext } from "react";
 import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
+import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
@@ -55,7 +55,8 @@ export default function Operator() {
       "Operator page must be used within a BoutUuidContext provider",
     );
   }
-  usePrefetchServerTime();
+
+  const { data: syncData } = useSuspenseGetSyncData();
 
   const { data: bout } = useSuspenseBout(boutUuid);
   const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
@@ -105,6 +106,7 @@ export default function Operator() {
             <BoutClock
               isOvertime={bout.isOvertime()}
               overtimeText="OT"
+              serverOffset={syncData.offset}
               {...bout.clock}
               inherit
             />
@@ -117,6 +119,7 @@ export default function Operator() {
               bout={bout}
               periodNum={activePeriodNum}
               jamNum={activeJamNum}
+              serverOffset={syncData.offset}
               inherit
             />
           </Group>
@@ -124,6 +127,7 @@ export default function Operator() {
         <BoutStatusContainer
           className={twMerge(bout.state == "jam" && "invisible")}
           bout={bout}
+          serverOffset={syncData.offset}
           inherit
           fz="24pt"
         />

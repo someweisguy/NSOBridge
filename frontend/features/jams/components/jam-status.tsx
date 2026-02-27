@@ -2,7 +2,7 @@ import { StopReasonString } from "@/lib/game/jams";
 import { Text, TextProps } from "@mantine/core";
 import Clock, { ClockProps } from "../../../components/clock";
 
-interface PlainJamStatusProps extends ClockProps, TextProps {
+interface JamStatusProps extends ClockProps, TextProps {
   stopReason: StopReasonString | null;
   stopReasonText?: Record<StopReasonString, string>;
 }
@@ -16,7 +16,7 @@ export function JamStatus({
     other: "-",
   },
   ...props
-}: PlainJamStatusProps) {
+}: JamStatusProps) {
   if (stopReason != null) {
     return <Text {...props}>{stopReasonText[stopReason]}</Text>;
   }

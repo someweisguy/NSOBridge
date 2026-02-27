@@ -1,5 +1,4 @@
-import { useSuspenseServerTime } from "@/hooks/use-suspense-server-time";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
 const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate
@@ -9,6 +8,7 @@ export interface ClockProps {
   stopTimestamp?: Date | null;
   elapsed?: number;
   alarm?: number;
+  serverOffset?: number;
   freeze?: boolean;
   formatter?: (milliseconds: number, alarm?: number) => string;
 }
@@ -18,29 +18,32 @@ export default function Clock({
   stopTimestamp,
   elapsed = 0,
   alarm,
+  serverOffset = 0, // TODO: don't set default value
   freeze = false,
   formatter = defaultTimeStringFormatter,
 }: ClockProps) {
-  const [serverTime, refreshServerTime] = useSuspenseServerTime();
+  const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
 
   useEffect(() => {
     if (freeze || startTimestamp == null) {
-      // Do not update component if manually frozen or stopped
-      return;
+      return; // Clock is stopped or manually frozen
     }
 
-    const intervalId = setInterval(refreshServerTime, CLOCK_REFRESH_RATE);
+    const intervalId = setInterval(
+      () => setCurrentTimestamp(new Date()),
+      CLOCK_REFRESH_RATE,
+    );
     return () => clearInterval(intervalId);
-  }, [startTimestamp, alarm, freeze, refreshServerTime]);
+  }, [startTimestamp, freeze]);
 
-  // Calculate the number of milliseconds that have elapsed
-  let milliseconds = elapsed;
-  if (startTimestamp !== null) {
-    if (stopTimestamp != null) {
-      milliseconds += stopTimestamp.getTime() - startTimestamp.getTime();
-    } else {
-      milliseconds += serverTime.getTime() - startTimestamp.getTime();
-    }
+  // Calculate the number of milliseconds that have elapsed since the last update
+  let milliseconds = elapsed + serverOffset;
+  if (startTimestamp != null && stopTimestamp == null) {
+    // Clock is running
+    milliseconds += currentTimestamp.getTime() - startTimestamp.getTime();
+  } else if (startTimestamp != null && stopTimestamp != null) {
+    // Clock is stopped but add the additional elapsed time to the accumulator
+    milliseconds += stopTimestamp.getTime() - startTimestamp.getTime();
   }
 
   return <span className="tabular-nums">{formatter(milliseconds, alarm)}</span>;

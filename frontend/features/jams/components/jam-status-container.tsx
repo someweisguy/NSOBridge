@@ -5,10 +5,11 @@ import { TextProps } from "@mantine/core";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { JamStatus } from "./jam-status";
 
-interface JamStatusProps extends TextProps {
+interface JamStatusContainerProps extends TextProps {
   bout: Bout;
   periodNum: number;
   jamNum: number;
+  serverOffset?: number;
 }
 
 export default function JamStatusContainer({
@@ -16,7 +17,7 @@ export default function JamStatusContainer({
   periodNum,
   jamNum,
   ...props
-}: JamStatusProps) {
+}: JamStatusContainerProps) {
   const { data: ruleset } = useSuspenseRuleset(bout);
   const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
 
