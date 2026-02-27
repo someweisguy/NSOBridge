@@ -1,9 +1,9 @@
 import AppProvider from "@/components/app-provider";
-import BoutClock from "@/features/bouts/components/bout-clock";
 import JamProvider from "@/components/jam-provider";
 import TeamJamProvider from "@/components/team-jam-provider";
 import TeamJamTripHistory from "@/components/team-jam-trip-history";
 import TimeoutProvider from "@/components/timeout-provider";
+import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
 import TeamBoutScore from "@/features/bouts/components/team-bout-score";
 import TeamJamScore from "@/features/bouts/components/team-jam-score";
@@ -19,6 +19,7 @@ import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-e
 import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
 import TimeoutTypeEditor from "@/features/operator/components/timeout-type-editor";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
+import { useJam } from "@/hooks/use-jam";
 import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
 import { Bout, Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
@@ -57,7 +58,10 @@ export default function Operator() {
   usePrefetchServerTime();
 
   const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
-  const [latestPeriodNum, latestJamNum] = bout.getLatestJamNum();
+
+  // Prefetch latest Jam to avoid UI blinking
+  // TODO: Remove this line when implementing Lineup Editors
+  void useJam(bout, ...bout.getLatestJamNum());
 
   return (
     <Stack align="stretch" justify="flex-start">
@@ -171,16 +175,7 @@ export default function Operator() {
         </JamProvider>
       </Suspense>
 
-      {/* Lineup editors */}
-      <Suspense>
-        <JamProvider
-          bout={bout}
-          periodNum={latestPeriodNum}
-          jamNum={latestJamNum}
-        >
-          {/* TODO */}
-        </JamProvider>
-      </Suspense>
+      {/* TODO: Lineup editors */}
     </Stack>
   );
 }
