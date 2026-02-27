@@ -7,7 +7,6 @@ import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
-import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
 import { Team } from "@/lib/game/bouts";
@@ -30,8 +29,6 @@ createRoot(root).render(
 );
 
 export function Scoreboard() {
-  usePrefetchServerTime();
-
   const { data: allSeries } = useSuspenseGetAllSeries();
 
   const series: Series = allSeries[0];
