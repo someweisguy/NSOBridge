@@ -2,29 +2,6 @@ import { localAPI } from "@/lib/requests";
 import { CacheKey } from "@/types/ws";
 import Clock from "./timeouts";
 
-export async function getBout(boutUuid: string): Promise<Bout> {
-  const data = await localAPI.get<Partial<Bout>>("bout", {
-    query: { boutUuid },
-  });
-  return Object.assign(new Bout(), data);
-}
-
-export async function getAllBouts(): Promise<Bout[]> {
-  const data = await localAPI.get<Partial<Bout>[]>("bout/allBouts");
-  return data.map((bout: Partial<Bout>) => Object.assign(new Bout(), bout));
-}
-
-export async function createBout(
-  rosterIds: number[],
-  seriesIndex = 1,
-  order = 0,
-): Promise<void> {
-  await localAPI.post("bout/wftda2025", {
-    query: { seriesIndex },
-    body: { rosterIds, order },
-  });
-}
-
 export class Bout {
   uuid: string;
   seriesUuid: string;
@@ -45,28 +22,6 @@ export class Bout {
       return ["bouts"];
     }
     return ["bouts", boutUuid];
-  }
-
-  async beginPeriod(): Promise<void> {
-    await localAPI.post("bout/beginPeriod", { query: { boutUuid: this.uuid } });
-  }
-
-  async endPeriod(): Promise<void> {
-    await localAPI.post("bout/endPeriod", { query: { boutUuid: this.uuid } });
-  }
-
-  async startJam(): Promise<void> {
-    await localAPI.post("bout/startJam", { query: { boutUuid: this.uuid } });
-  }
-
-  async stopJam(): Promise<void> {
-    await localAPI.post("bout/stopJam", { query: { boutUuid: this.uuid } });
-  }
-
-  async startTimeout(): Promise<void> {
-    await localAPI.post("bout/startTimeout", {
-      query: { boutUuid: this.uuid },
-    });
   }
 
   async stopTimeout(): Promise<void> {
@@ -149,4 +104,55 @@ export interface Team {
   timeoutsRemaining: number;
   reviewsRemaining: number;
   scoreOffset: number;
+}
+
+export async function getBout(boutUuid: string): Promise<Bout> {
+  const data = await localAPI.get<Partial<Bout>>("bout", {
+    query: { boutUuid },
+  });
+  return Object.assign(new Bout(), data);
+}
+
+export async function getAllBouts(): Promise<Bout[]> {
+  const data = await localAPI.get<Partial<Bout>[]>("bout/allBouts");
+  return data.map((bout: Partial<Bout>) => Object.assign(new Bout(), bout));
+}
+
+export async function createBout(
+  rosterIds: number[],
+  seriesIndex = 1,
+  order = 0,
+): Promise<void> {
+  await localAPI.post("bout/wftda2025", {
+    query: { seriesIndex },
+    body: { rosterIds, order },
+  });
+}
+
+export async function beginPeriod(boutUuid: string): Promise<void> {
+  await localAPI.post("bout/beginPeriod", { query: { boutUuid } });
+}
+
+export async function endPeriod(boutUuid: string): Promise<void> {
+  await localAPI.post("bout/endPeriod", { query: { boutUuid } });
+}
+
+export async function startJam(boutUuid: string): Promise<void> {
+  await localAPI.post("bout/startJam", { query: { boutUuid } });
+}
+
+export async function stopJam(boutUuid: string): Promise<void> {
+  await localAPI.post("bout/stopJam", { query: { boutUuid } });
+}
+
+export async function startTimeout(boutUuid: string): Promise<void> {
+  await localAPI.post("bout/startTimeout", {
+    query: { boutUuid },
+  });
+}
+
+export async function stopTimeout(boutUuid: string): Promise<void> {
+  await localAPI.post("bout/stopTimeout", {
+    query: { boutUuid },
+  });
 }

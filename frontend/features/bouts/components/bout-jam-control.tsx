@@ -11,8 +11,8 @@ export default function BoutJamControl({
   bout,
   ...props
 }: BoutJamControlProps) {
-  const startJam = useStartJam(bout);
-  const stopJam = useStopJam(bout);
+  const startJam = useStartJam(bout.uuid);
+  const stopJam = useStopJam(bout.uuid);
 
   const content = bout.state == "jam" ? "Stop Jam" : "Start Jam";
   const command = bout.state == "jam" ? stopJam : startJam;

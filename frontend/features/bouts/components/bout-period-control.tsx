@@ -11,8 +11,8 @@ export default function BoutPeriodControl({
   bout,
   ...props
 }: BoutPeriodControlProps) {
-  const beginPeriod = useBeginPeriod(bout);
-  const endPeriod = useEndPeriod(bout);
+  const beginPeriod = useBeginPeriod(bout.uuid);
+  const endPeriod = useEndPeriod(bout.uuid);
 
   const content = bout.state == "stopped" ? "Start Period" : "Stop Period";
   const disabled = bout.state == "jam" || bout.state == "timeout";

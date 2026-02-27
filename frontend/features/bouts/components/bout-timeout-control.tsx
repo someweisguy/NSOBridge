@@ -11,8 +11,8 @@ export default function BoutTimeoutControl({
   bout,
   ...props
 }: BoutTimeoutControlProps) {
-  const startTimeout = useStartTimeout(bout);
-  const stopTimeout = useStopTimeout(bout);
+  const startTimeout = useStartTimeout(bout.uuid);
+  const stopTimeout = useStopTimeout(bout.uuid);
 
   const content = bout.state == "timeout" ? "End Timeout" : "Call Timeout";
   const command = bout.state == "timeout" ? stopTimeout : startTimeout;

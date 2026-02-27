@@ -1,9 +1,12 @@
-import { Bout } from "@/lib/game/bouts";
+import { beginPeriod } from "@/lib/game/bouts";
 import { MutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export const useBeginPeriod = (bout: Bout, options?: MutationOptions<void>) =>
+export const useBeginPeriod = (
+  boutUuid: string,
+  options?: MutationOptions<void>,
+) =>
   useMutation({
-    mutationFn: () => bout.beginPeriod(),
+    mutationFn: () => beginPeriod(boutUuid),
     ...options,
   });
