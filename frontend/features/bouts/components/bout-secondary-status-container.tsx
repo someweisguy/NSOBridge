@@ -5,7 +5,7 @@ import { TextProps } from "@mantine/core";
 import { BoutSecondaryStatus } from "./bout-secondary-status";
 
 interface BoutSecondaryStatusContainerProps extends TextProps {
-  bout: Bout;
+  bout: Bout; // TODO: remove Bout from props
   serverOffset?: number;
 }
 
