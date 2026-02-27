@@ -1,6 +1,7 @@
 import BoutPicker from "@/components/bout-picker";
 import { useGetAllBouts } from "@/hooks/use-get-all-bouts";
 import queryClient from "@/lib/cache";
+import { Bout } from "@/lib/game/bouts";
 import { BoutUuidContext } from "@/utils/contexts";
 import { AppShell, Burger, MantineProvider } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -34,6 +35,7 @@ export default function AppProvider({
   } = useGetAllBouts({
     enabled: !urlParams.has(boutUuidParamName) || useShell,
   });
+
   const [boutUuid, setBoutUuid] = useState<string | null>(
     urlParams.get(boutUuidParamName),
   );
@@ -79,6 +81,10 @@ export default function AppProvider({
 
                 <AppShell.Navbar m="md">
                   <BoutPicker
+                    data={bouts!.map((bout: Bout) => ({
+                      value: bout.uuid,
+                      label: `${bout.teams[0].name} vs. ${bout.teams[1].name}`,
+                    }))}
                     onChange={(uuid: string | null) => setBoutUuid(uuid)}
                   />
                   <OpenScoreboardButton boutUuid={boutUuid} />
