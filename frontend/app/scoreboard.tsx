@@ -1,7 +1,5 @@
 import AppProvider from "@/components/app-provider";
 import BoutClock from "@/features/bouts/components/bout-clock";
-import TeamName from "@/components/team-name";
-import TeamProvider from "@/components/team-provider";
 import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
 import TeamBoutScore from "@/features/bouts/components/team-bout-score";
 import TeamJamScore from "@/features/bouts/components/team-jam-score";
@@ -15,7 +13,7 @@ import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
 import { Team } from "@/lib/game/bouts";
 import { Series } from "@/lib/game/series";
 import FitScreen from "@fit-screen/react";
-import { Flex, Group, SimpleGrid, Stack } from "@mantine/core";
+import { Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
@@ -50,32 +48,32 @@ export function Scoreboard() {
       {/* Team information */}
       <SimpleGrid cols={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
-          <TeamProvider key={i} team={team}>
-            <Stack justify="center">
-              <TeamName ta="center" fw="bolder" size="36pt" />
-              <Flex
-                direction={i % 2 == 0 ? "row" : "row-reverse"}
-                align="center"
-                justify="center"
-                gap="xl"
-              >
-                <TimeoutsLeftContainer bout={bout} {...team} size={24} />
-                <TeamBoutScore
-                  {...team}
-                  fw="bold"
-                  w={150}
-                  ta="center"
-                  size="48pt"
-                />
-                <TeamJamScore
-                  {...team}
-                  ta={i % 2 ? "right" : "left"}
-                  size="24pt"
-                  w={50}
-                />
-              </Flex>
-            </Stack>
-          </TeamProvider>
+          <Stack key={i} justify="center">
+            <Text ta="center" fw="bolder" size="36pt">
+              {team.name}
+            </Text>
+            <Flex
+              direction={i % 2 ? "row-reverse" : "row"}
+              align="center"
+              justify="center"
+              gap="md"
+            >
+              <TimeoutsLeftContainer bout={bout} {...team} size={24} />
+              <TeamBoutScore
+                {...team}
+                fw="bold"
+                w={150}
+                ta="center"
+                size="48pt"
+              />
+              <TeamJamScore
+                {...team}
+                ta={i % 2 ? "right" : "left"}
+                size="24pt"
+                w={50}
+              />
+            </Flex>
+          </Stack>
         ))}
       </SimpleGrid>
 
