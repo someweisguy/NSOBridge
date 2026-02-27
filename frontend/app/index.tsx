@@ -1,8 +1,8 @@
 import AppProvider from "@/components/app-provider";
-import BoutClock from "@/features/bouts/components/bout-clock";
+import BoutStatus from "@/features/bouts/components/bout-status";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
-import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
+import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import TeamBoutScore from "@/features/bouts/components/team-bout-score";
 import TeamJamScore from "@/features/bouts/components/team-jam-score";
@@ -103,7 +103,7 @@ export default function Operator() {
       <Stack fz="36pt" ta="center" align="stretch">
         <Center>
           <Group grow justify="center" w="75%" ta="center">
-            <BoutClock
+            <BoutStatus
               isOvertime={bout.isOvertime()}
               overtimeText="OT"
               serverOffset={syncData.offset}
@@ -124,7 +124,7 @@ export default function Operator() {
             />
           </Group>
         </Center>
-        <BoutStatusContainer
+        <BoutSecondaryStatusContainer
           className={twMerge(bout.state == "jam" && "invisible")}
           bout={bout}
           serverOffset={syncData.offset}

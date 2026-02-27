@@ -1,24 +1,24 @@
-import Clock from "@/components/clock";
+import Clock, { ClockProps } from "@/components/clock";
+import { periodTimeStringFormatter } from "@/utils/time-string-formatters";
 import { Text, TextProps } from "@mantine/core";
 
-interface BoutStatusProps extends TextProps {
-  stateText: string;
-  since?: Date | null;
+interface BoutStatusProps extends ClockProps, TextProps {
+  isOvertime?: boolean;
+  overtimeText?: string;
 }
 
-export function BoutStatus({
-  since = null,
-  stateText,
+export default function BoutStatus({
+  isOvertime = false,
+  overtimeText = "OT",
   ...props
 }: BoutStatusProps) {
-  const showClock = since != null;
-  const showSpace = stateText?.length > 0 && showClock;
-
   return (
     <Text {...props}>
-      {stateText}
-      {showSpace && " "}
-      {showClock && <Clock startTimestamp={since} />}
+      {isOvertime ? (
+        overtimeText
+      ) : (
+        <Clock {...props} formatter={periodTimeStringFormatter} />
+      )}
     </Text>
   );
 }

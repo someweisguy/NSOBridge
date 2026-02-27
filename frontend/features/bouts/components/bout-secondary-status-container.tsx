@@ -2,17 +2,17 @@ import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
 import { TextProps } from "@mantine/core";
-import { BoutStatus } from "./bout-status";
+import { BoutSecondaryStatus } from "./bout-secondary-status";
 
-interface BoutStatusContainerProps extends TextProps {
+interface BoutSecondaryStatusContainerProps extends TextProps {
   bout: Bout;
   serverOffset?: number;
 }
 
-export default function BoutStatusContainer({
+export default function BoutSecondaryStatusContainer({
   bout,
   ...props
-}: BoutStatusContainerProps) {
+}: BoutSecondaryStatusContainerProps) {
   const { data: activeJam } = useSuspenseJam(
     bout,
     ...bout.getActiveOrLatestJamNum(),
@@ -79,5 +79,11 @@ export default function BoutStatusContainer({
     }
   }
 
-  return <BoutStatus stateText={content} since={countUpTimestamp} {...props} />;
+  return (
+    <BoutSecondaryStatus
+      stateText={content}
+      since={countUpTimestamp}
+      {...props}
+    />
+  );
 }

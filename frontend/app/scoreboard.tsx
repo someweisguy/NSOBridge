@@ -1,6 +1,6 @@
 import AppProvider from "@/components/app-provider";
-import BoutClock from "@/features/bouts/components/bout-clock";
-import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
+import BoutStatus from "@/features/bouts/components/bout-status";
+import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
 import TeamBoutScore from "@/features/bouts/components/team-bout-score";
 import TeamJamScore from "@/features/bouts/components/team-jam-score";
 import JamNumber from "@/features/jams/components/jam-number";
@@ -77,7 +77,7 @@ export function Scoreboard() {
       {/* TODO: Lead Jam Status */}
       <Stack>
         <Group grow justify="center" align="center">
-          <BoutClock
+          <BoutStatus
             isOvertime={bout.isOvertime()}
             overtimeText="OT"
             {...bout.clock}
@@ -97,7 +97,7 @@ export function Scoreboard() {
             />
           </Suspense>
         </Group>
-        <BoutStatusContainer
+        <BoutSecondaryStatusContainer
           className={twMerge(bout.state == "jam" && "invisible")}
           bout={bout}
           ta="center"
