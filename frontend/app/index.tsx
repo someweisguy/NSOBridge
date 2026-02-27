@@ -18,9 +18,10 @@ import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-t
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
-import { Bout, Team } from "@/lib/game/bouts";
+import { useSuspenseBout } from "@/hooks/use-suspense-bout";
+import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
-import { BoutContext } from "@/utils/contexts";
+import { BoutUuidContext } from "@/utils/contexts";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense, useContext } from "react";
@@ -48,12 +49,15 @@ createRoot(root).render(
 );
 
 export default function Operator() {
-  const bout: Bout | null = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("Operator must be used within a BoutProvider");
+  const boutUuid: string | null = useContext(BoutUuidContext);
+  if (boutUuid == null) {
+    throw new Error(
+      "Operator page must be used within a BoutUuidContext provider",
+    );
   }
   usePrefetchServerTime();
 
+  const { data: bout } = useSuspenseBout(boutUuid);
   const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
 
   // Prefetch latest Jam to avoid UI blinking

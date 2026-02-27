@@ -1,6 +1,7 @@
 import BoutPicker from "@/components/bout-picker";
 import { useGetAllBouts } from "@/hooks/use-get-all-bouts";
 import queryClient from "@/lib/cache";
+import { BoutUuidContext } from "@/utils/contexts";
 import { AppShell, Burger, MantineProvider } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -11,7 +12,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import BoutProvider from "./bout-provider";
 import OpenScoreboardButton from "./open-scoreboard-button";
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -57,7 +57,7 @@ export default function AppProvider({
     <StrictMode>
       <MantineProvider>
         <QueryClientProvider client={queryClient}>
-          <BoutProvider boutUuid={boutUuid}>
+          <BoutUuidContext value={boutUuid}>
             {useShell ? (
               <AppShell
                 padding="md"
@@ -81,7 +81,7 @@ export default function AppProvider({
                   <BoutPicker
                     onChange={(uuid: string | null) => setBoutUuid(uuid)}
                   />
-                  <OpenScoreboardButton />
+                  <OpenScoreboardButton boutUuid={boutUuid} />
                 </AppShell.Navbar>
 
                 <AppShell.Main>
@@ -91,7 +91,7 @@ export default function AppProvider({
             ) : (
               children
             )}
-          </BoutProvider>
+          </BoutUuidContext>
         </QueryClientProvider>
       </MantineProvider>
     </StrictMode>
