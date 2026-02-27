@@ -1,5 +1,4 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
-import { Bout } from "@/lib/game/bouts";
 import { TeamJam } from "@/lib/game/jams";
 import {
   Checkbox,
@@ -18,19 +17,19 @@ const checkBoxTheme = createTheme({
 });
 
 interface TeamJamJammerStateEditorContainerProps {
-  bout: Bout;
+  boutUuid: string;
   periodNum: number;
   jamNum: number;
   teamJamNum: number;
 }
 
 export default function TeamJamJammerStateEditorContainer({
-  bout,
+  boutUuid,
   periodNum,
   jamNum,
   teamJamNum,
 }: TeamJamJammerStateEditorContainerProps) {
-  const { data: jam } = useSuspenseJam(bout.uuid, periodNum, jamNum);
+  const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
   const teamJam: TeamJam = jam.teamJams[teamJamNum];
 
   const setLead = useTeamJamAddLead(jam, teamJam);

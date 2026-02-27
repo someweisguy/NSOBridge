@@ -116,7 +116,7 @@ export default function Operator() {
               inherit
             />
             <JamStatusContainer
-              bout={bout}
+              boutUuid={bout.uuid}
               periodNum={activePeriodNum}
               jamNum={activeJamNum}
               serverOffset={syncData.offset}
@@ -157,7 +157,7 @@ export default function Operator() {
         )}
         {bout.state == "lineup" && bout.jamCounts[activePeriodNum] > 1 && (
           <JamStopReasonControlContainer
-            uuid={bout.uuid}
+            boutUuid={bout.uuid}
             periodNum={activePeriodNum}
             jamNum={activeJamNum}
           />
@@ -170,19 +170,19 @@ export default function Operator() {
           {[...Array(2).keys()].map((i: number) => (
             <Stack key={i}>
               <TeamJamJammerStateEditorContainer
-                bout={bout}
+                boutUuid={bout.uuid}
                 periodNum={activePeriodNum}
                 jamNum={activeJamNum}
                 teamJamNum={i}
               />
               <TeamJamPassEditorContainer
-                bout={bout}
+                boutUuid={bout.uuid}
                 periodNum={activePeriodNum}
                 jamNum={activeJamNum}
                 teamJamNum={i}
               />
               <TeamJamTripHistoryContainer
-                bout={bout}
+                boutUuid={bout.uuid}
                 periodNum={activePeriodNum}
                 jamNum={activeJamNum}
                 teamJamNum={i}

@@ -10,18 +10,18 @@ interface JamStopReasonControlProps extends Omit<
   SegmentedControlProps,
   "data" | "value" | "onChange"
 > {
-  uuid: string;
+  boutUuid: string;
   periodNum: number;
   jamNum: number;
 }
 
 export default function JamStopReasonControlContainer({
-  uuid,
+  boutUuid,
   periodNum,
   jamNum,
   ...props
 }: JamStopReasonControlProps) {
-  const { data: jam } = useSuspenseJam(uuid, periodNum, jamNum);
+  const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
 
   return (
     <Stack gap="0">

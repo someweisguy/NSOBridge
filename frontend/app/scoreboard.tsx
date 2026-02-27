@@ -90,7 +90,7 @@ export function Scoreboard() {
           />
           <Suspense>
             <JamStatusContainer
-              bout={bout}
+              boutUuid={bout.uuid}
               periodNum={activePeriodNum}
               jamNum={activeJamNum}
               inherit

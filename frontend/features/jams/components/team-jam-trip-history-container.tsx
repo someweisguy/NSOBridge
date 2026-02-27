@@ -1,23 +1,22 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
-import { Bout } from "@/lib/game/bouts";
 import { Jam } from "@/lib/game/jams";
 import { ScrollAreaAutosizeProps } from "@mantine/core";
 import TeamJamTripHistory from "./team-jam-trip-history";
 
 interface TeamJamTripHistoryContainerProps extends ScrollAreaAutosizeProps {
-  bout: Bout;
+  boutUuid: string;
   periodNum: number;
   jamNum: number;
   teamJamNum: number;
 }
 
 export default function TeamJamTripHistoryContainer({
-  bout,
+  boutUuid,
   periodNum,
   jamNum,
   teamJamNum,
 }: TeamJamTripHistoryContainerProps) {
-  const { data: teamJam } = useSuspenseJam(bout.uuid, periodNum, jamNum, {
+  const { data: teamJam } = useSuspenseJam(boutUuid, periodNum, jamNum, {
     select: (jam: Jam) => jam.teamJams[teamJamNum],
   });
 

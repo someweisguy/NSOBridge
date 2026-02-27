@@ -1,25 +1,24 @@
 import { useTeamJamAddTrip } from "@/features/jams/hooks/use-team-jam-add-trip";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
-import { Bout } from "@/lib/game/bouts";
 import { TeamJam } from "@/lib/game/jams";
 import { Button, Group } from "@mantine/core";
 
 interface TeamJamPassEditorProps {
-  bout: Bout;
+  boutUuid: string;
   periodNum: number;
   jamNum: number;
   teamJamNum: number;
 }
 
 export default function TeamJamPassEditorContainer({
-  bout,
+  boutUuid,
   periodNum,
   jamNum,
   teamJamNum,
 }: TeamJamPassEditorProps) {
-  const { data: ruleset } = useSuspenseRuleset(bout.uuid);
-  const { data: jam } = useSuspenseJam(bout.uuid, periodNum, jamNum);
+  const { data: ruleset } = useSuspenseRuleset(boutUuid);
+  const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
   const teamJam: TeamJam = jam.teamJams[teamJamNum];
 
   const addTrip = useTeamJamAddTrip(jam, teamJam);
