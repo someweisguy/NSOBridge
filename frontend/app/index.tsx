@@ -124,7 +124,6 @@ export default function Operator() {
           bout={bout}
           inherit
           fz="24pt"
-          mih="50"
         />
       </Stack>
 
@@ -165,13 +164,13 @@ export default function Operator() {
               <Stack key={i}>
                 <TeamJamJammerStateEditorContainer
                   bout={bout}
-                  periodNum={activeJamNum}
+                  periodNum={activePeriodNum}
                   jamNum={activeJamNum}
                   teamJamNum={i}
                 />
                 <TeamJamPassEditorContainer
                   bout={bout}
-                  periodNum={activeJamNum}
+                  periodNum={activePeriodNum}
                   jamNum={activeJamNum}
                   teamJamNum={i}
                 />
