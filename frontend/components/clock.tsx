@@ -29,6 +29,7 @@ export default function Clock({
       return; // Clock is stopped or manually frozen
     }
 
+    setCurrentTimestamp(new Date());
     const intervalId = setInterval(
       () => setCurrentTimestamp(new Date()),
       CLOCK_REFRESH_RATE,
