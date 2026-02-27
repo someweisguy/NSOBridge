@@ -21,5 +21,12 @@ export default function JamStatusContainer({
   const { data: ruleset } = useSuspenseRuleset(bout);
   const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
 
-  return <JamStatus alarm={ruleset.jamDuration} {...jam} {...props} />;
+  return (
+    <JamStatus
+      alarm={ruleset.jamDuration}
+      isStopped={jam.stopTimestamp != null}
+      {...jam}
+      {...props}
+    />
+  );
 }
