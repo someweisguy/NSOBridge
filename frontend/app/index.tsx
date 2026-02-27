@@ -12,7 +12,7 @@ import JamStatusContainer from "@/features/jams/components/jam-status-container"
 import TeamJamJammerStateEditorContainer from "@/features/jams/components/team-jam-jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/team-jam-pass-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
-import JamStopReasonControlContainer from "@/features/operator/components/jam-stop-reason-control-container";
+import JamStopReasonControlContainer from "@/features/jams/components/jam-stop-reason-control-container";
 import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
 import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
 import TimeoutTypeEditor from "@/features/operator/components/timeout-type-editor";
