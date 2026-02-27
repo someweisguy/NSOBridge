@@ -2,6 +2,13 @@ import { localAPI } from "@/lib/requests";
 import { CacheKey } from "@/types/ws";
 import Clock from "./timeouts";
 
+export type BoutStateString =
+  | "final"
+  | "jam"
+  | "lineup"
+  | "stopped"
+  | "timeout";
+
 export class Bout {
   uuid: string;
   seriesUuid: string;
@@ -10,7 +17,7 @@ export class Bout {
   startCountdown: Date | null;
   clock: Clock;
 
-  state: "final" | "jam" | "lineup" | "stopped" | "timeout";
+  state: BoutStateString;
   isRunning: boolean;
   isFinal: boolean;
   teams: Team[];

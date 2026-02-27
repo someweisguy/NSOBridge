@@ -1,21 +1,23 @@
-import { Bout } from "@/lib/game/bouts";
+import { BoutStateString } from "@/lib/game/bouts";
 import { Button, ButtonProps } from "@mantine/core";
 import { useStartJam } from "../hooks/use-start-jam";
 import { useStopJam } from "../hooks/use-stop-jam";
 
 interface BoutJamControlProps extends Omit<ButtonProps, "onClick"> {
-  bout: Bout;
+  uuid: string;
+  state: BoutStateString;
 }
 
 export default function BoutJamControl({
-  bout,
+  uuid,
+  state,
   ...props
 }: BoutJamControlProps) {
-  const startJam = useStartJam(bout.uuid);
-  const stopJam = useStopJam(bout.uuid);
+  const startJam = useStartJam(uuid);
+  const stopJam = useStopJam(uuid);
 
-  const content = bout.state == "jam" ? "Stop Jam" : "Start Jam";
-  const command = bout.state == "jam" ? stopJam : startJam;
+  const content = state == "jam" ? "Stop Jam" : "Start Jam";
+  const command = state == "jam" ? stopJam : startJam;
 
   return (
     <Button onClick={() => command.mutate()} {...props}>
