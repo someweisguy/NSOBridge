@@ -1,18 +1,16 @@
 import { Bout } from "@/lib/game/bouts";
-import { BoutContext } from "@/utils/contexts";
 import { Button, ButtonProps } from "@mantine/core";
-import { useContext } from "react";
 import { useBeginPeriod } from "../hooks/use-begin-period";
 import { useEndPeriod } from "../hooks/use-end-period";
 
-export default function BoutPeriodControl({
-  ...props
-}: Omit<ButtonProps, "onClick">) {
-  const bout: Bout | null = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("PeriodControl must be used within a BoutProvider");
-  }
+interface BoutPeriodControlProps extends Omit<ButtonProps, "onClick"> {
+  bout: Bout;
+}
 
+export default function BoutPeriodControl({
+  bout,
+  ...props
+}: BoutPeriodControlProps) {
   const beginPeriod = useBeginPeriod(bout);
   const endPeriod = useEndPeriod(bout);
 

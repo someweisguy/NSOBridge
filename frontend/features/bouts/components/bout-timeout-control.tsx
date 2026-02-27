@@ -1,18 +1,16 @@
 import { Bout } from "@/lib/game/bouts";
-import { BoutContext } from "@/utils/contexts";
 import { Button, ButtonProps } from "@mantine/core";
-import { useContext } from "react";
 import { useStartTimeout } from "../hooks/use-start-timeout";
 import { useStopTimeout } from "../hooks/use-stop-timeout";
 
-export default function BoutTimeoutControl({
-  ...props
-}: Omit<ButtonProps, "onClick">) {
-  const bout: Bout | null = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("TimeoutControl must be used within a BoutProvider");
-  }
+interface BoutTimeoutControlProps extends Omit<ButtonProps, "onClick"> {
+  bout: Bout;
+}
 
+export default function BoutTimeoutControl({
+  bout,
+  ...props
+}: BoutTimeoutControlProps) {
   const startTimeout = useStartTimeout(bout);
   const stopTimeout = useStopTimeout(bout);
 

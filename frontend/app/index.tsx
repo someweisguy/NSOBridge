@@ -1,7 +1,10 @@
 import AppProvider from "@/components/app-provider";
 import TimeoutProvider from "@/components/timeout-provider";
 import BoutClock from "@/features/bouts/components/bout-clock";
+import BoutJamControl from "@/features/bouts/components/bout-jam-control";
+import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
+import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import TeamBoutScore from "@/features/bouts/components/team-bout-score";
 import TeamJamScore from "@/features/bouts/components/team-jam-score";
 import JamNumber from "@/features/jams/components/jam-number";
@@ -9,9 +12,6 @@ import JamStatusContainer from "@/features/jams/components/jam-status-container"
 import TeamJamJammerStateEditorContainer from "@/features/jams/components/team-jam-jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/team-jam-pass-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
-import BoutJamControl from "@/features/operator/components/bout-jam-control";
-import BoutPeriodControl from "@/features/operator/components/bout-period-control";
-import BoutTimeoutControl from "@/features/operator/components/bout-timeout-control";
 import JamStopReasonControlContainer from "@/features/operator/components/jam-stop-reason-control-container";
 import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
 import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
@@ -128,9 +128,9 @@ export default function Operator() {
 
       {/* Bout State control */}
       <Group justify="center" mih="75">
-        <BoutJamControl />
-        <BoutTimeoutControl variant="subtle" />
-        <BoutPeriodControl variant="subtle" />
+        <BoutJamControl bout={bout} />
+        <BoutTimeoutControl bout={bout} variant="subtle" />
+        <BoutPeriodControl bout={bout} variant="subtle" />
         {bout.state == "timeout" && (
           <Suspense>
             <TimeoutProvider bout={bout} timeoutNum={bout.timeoutCount - 1}>

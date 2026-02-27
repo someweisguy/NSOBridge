@@ -1,18 +1,16 @@
 import { Bout } from "@/lib/game/bouts";
-import { BoutContext } from "@/utils/contexts";
 import { Button, ButtonProps } from "@mantine/core";
-import { useContext } from "react";
 import { useStartJam } from "../hooks/use-start-jam";
 import { useStopJam } from "../hooks/use-stop-jam";
 
-export default function BoutJamControl({
-  ...props
-}: Omit<ButtonProps, "onClick">) {
-  const bout: Bout | null = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("JamControl must be used within a BoutProvider");
-  }
+interface BoutJamControlProps extends Omit<ButtonProps, "onClick"> {
+  bout: Bout;
+}
 
+export default function BoutJamControl({
+  bout,
+  ...props
+}: BoutJamControlProps) {
   const startJam = useStartJam(bout);
   const stopJam = useStopJam(bout);
 
