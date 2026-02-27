@@ -1,5 +1,4 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
-import { Bout } from "@/lib/game/bouts";
 import {
   SegmentedControl,
   SegmentedControlProps,
@@ -11,18 +10,18 @@ interface JamStopReasonControlProps extends Omit<
   SegmentedControlProps,
   "data" | "value" | "onChange"
 > {
-  bout: Bout;
+  uuid: string;
   periodNum: number;
   jamNum: number;
 }
 
 export default function JamStopReasonControlContainer({
-  bout,
+  uuid,
   periodNum,
   jamNum,
   ...props
 }: JamStopReasonControlProps) {
-  const { data: jam } = useSuspenseJam(bout.uuid, periodNum, jamNum);
+  const { data: jam } = useSuspenseJam(uuid, periodNum, jamNum);
 
   return (
     <Stack gap="0">

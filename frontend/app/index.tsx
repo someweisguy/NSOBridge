@@ -157,7 +157,7 @@ export default function Operator() {
         )}
         {bout.state == "lineup" && bout.jamCounts[activePeriodNum] > 1 && (
           <JamStopReasonControlContainer
-            bout={bout}
+            uuid={bout.uuid}
             periodNum={activePeriodNum}
             jamNum={activeJamNum}
           />
