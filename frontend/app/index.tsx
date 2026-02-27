@@ -1,19 +1,14 @@
 import AppProvider from "@/components/app-provider";
-import BoutClock from "@/components/bout-clock";
-import BoutIntermissionLabel from "@/components/bout-intermission-label";
-import BoutStatusLabel from "@/components/bout-status-label";
-import JamClock from "@/components/jam-clock";
-import JamNumber from "@/components/jam-number";
+import BoutClock from "@/features/bouts/components/bout-clock";
 import JamProvider from "@/components/jam-provider";
-import JamStopReason from "@/components/jam-stop-reason";
-import TeamBoutScore from "@/components/team-bout-score";
 import TeamJamProvider from "@/components/team-jam-provider";
-import TeamJamScore from "@/components/team-jam-score";
 import TeamJamTripHistory from "@/components/team-jam-trip-history";
-import TeamName from "@/components/team-name";
-import TeamProvider from "@/components/team-provider";
-import TeamTimeoutsLeft from "@/components/team-timeouts-left";
 import TimeoutProvider from "@/components/timeout-provider";
+import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
+import TeamBoutScore from "@/features/bouts/components/team-bout-score";
+import TeamJamScore from "@/features/bouts/components/team-jam-score";
+import JamNumber from "@/features/jams/components/jam-number";
+import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import BoutJamControl from "@/features/operator/components/bout-jam-control";
 import BoutPeriodControl from "@/features/operator/components/bout-period-control";
 import BoutTimeoutControl from "@/features/operator/components/bout-timeout-control";
@@ -23,14 +18,16 @@ import TeamJamPassEditor from "@/features/operator/components/team-jam-pass-edit
 import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
 import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
 import TimeoutTypeEditor from "@/features/operator/components/timeout-type-editor";
+import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
 import { Bout, Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { BoutContext } from "@/utils/contexts";
-import { Center, Flex, Group, SimpleGrid, Stack } from "@mantine/core";
+import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense, useContext } from "react";
 import { createRoot } from "react-dom/client";
+import { twMerge } from "tailwind-merge";
 import "./global.css";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
@@ -67,52 +64,65 @@ export default function Operator() {
       {/* Team information */}
       <SimpleGrid cols={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
-          <TeamProvider key={i} team={team}>
-            <Stack justify="center">
-              <TeamName ta="center" fw="bolder" size="36pt" />
-              <Flex
-                direction={i % 2 ? "row-reverse" : "row"}
-                align="center"
-                justify="center"
-                gap="md"
-              >
-                <TeamTimeoutsLeft size={24} />
-                <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
-                <TeamJamScore
-                  ta={i % 2 ? "right" : "left"}
-                  size="24pt"
-                  w={50}
-                />
-              </Flex>
-            </Stack>
-          </TeamProvider>
+          <Stack key={i} justify="center">
+            <Text ta="center" fw="bolder" size="36pt">
+              {team.name}
+            </Text>
+            <Flex
+              direction={i % 2 ? "row-reverse" : "row"}
+              align="center"
+              justify="center"
+              gap="md"
+            >
+              <TimeoutsLeftContainer bout={bout} {...team} size={24} />
+              <TeamBoutScore
+                {...team}
+                fw="bold"
+                w={150}
+                ta="center"
+                size="48pt"
+              />
+              <TeamJamScore
+                {...team}
+                ta={i % 2 ? "right" : "left"}
+                size="24pt"
+                w={50}
+              />
+            </Flex>
+          </Stack>
         ))}
       </SimpleGrid>
 
       {/* Bout State View */}
       <Stack fz="36pt" ta="center" align="stretch">
         <Center>
-          {bout.state == "stopped" ? (
-            <BoutIntermissionLabel inherit size="36pt" />
-          ) : (
-            <JamProvider
+          <Group grow justify="center" w="75%" ta="center">
+            <BoutClock
+              isOvertime={bout.isOvertime()}
+              overtimeText="OT"
+              {...bout.clock}
+              inherit
+            />
+            <JamNumber
+              periodNum={activePeriodNum}
+              jamNum={activeJamNum}
+              inherit
+            />
+            <JamStatusContainer
               bout={bout}
               periodNum={activePeriodNum}
               jamNum={activeJamNum}
-            >
-              <Group grow justify="center" w="75%" ta="center">
-                <BoutClock inherit />
-                <JamNumber inherit />
-                {bout.state == "jam" || bout.jamCounts[activePeriodNum] == 1 ? (
-                  <JamClock inherit />
-                ) : (
-                  <JamStopReason inherit />
-                )}
-              </Group>
-            </JamProvider>
-          )}
+              inherit
+            />
+          </Group>
         </Center>
-        <BoutStatusLabel withClock inherit fz="24pt" mih="50" />
+        <BoutStatusContainer
+          className={twMerge(bout.state == "jam" && "invisible")}
+          bout={bout}
+          inherit
+          fz="24pt"
+          mih="50"
+        />
       </Stack>
 
       {/* Bout State control */}

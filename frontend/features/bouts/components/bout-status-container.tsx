@@ -1,28 +1,20 @@
-import PlainClock from "@/components/plain-clock";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout } from "@/lib/game/bouts";
-import { BoutContext } from "@/utils/contexts";
-import { Box, Text, TextProps } from "@mantine/core";
-import { useContext } from "react";
+import { TextProps } from "@mantine/core";
+import { BoutStatus } from "./bout-status";
 
-interface BoutStatusLabelProps extends TextProps {
-  withClock?: boolean;
+interface BoutStatusContainerProps extends TextProps {
+  bout: Bout;
 }
 
-export default function BoutStatusLabel({
-  withClock = false,
+export default function BoutStatusContainer({
+  bout,
   ...props
-}: BoutStatusLabelProps) {
-  const bout: Bout | null = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("SecondaryBoutStatus must be used within a BoutProvider");
-  }
-  const [currentPeriodNum, currentJamNum] = bout.getActiveOrLatestJamNum();
+}: BoutStatusContainerProps) {
   const { data: activeJam } = useSuspenseJam(
     bout,
-    currentPeriodNum,
-    currentJamNum,
+    ...bout.getActiveOrLatestJamNum(),
   );
   const { data: latestTimeout, isPending } = useTimeout(
     bout,
@@ -33,13 +25,29 @@ export default function BoutStatusLabel({
     },
   );
 
-  if (bout.state != "lineup" && bout.state != "timeout") {
-    return <Box {...props}></Box>;
-  }
-
   let content: string;
   let countUpTimestamp: Date | null;
-  if (bout.state == "lineup") {
+  if (bout.state == "stopped") {
+    if (bout.isFinal) {
+      content = "Final";
+      countUpTimestamp = null;
+    } else if (bout.jamCounts[2] > 0) {
+      content = "Unofficial";
+      countUpTimestamp = null;
+    } else if (bout.jamCounts[1] > 0) {
+      content = "Halftime";
+      countUpTimestamp = bout.startCountdown;
+    } else {
+      content = "Pregame";
+      countUpTimestamp = bout.startCountdown;
+    }
+  } else if (bout.state == "final") {
+    content = "Final";
+    countUpTimestamp = null;
+  } else if (bout.state == "jam") {
+    content = "Jam";
+    countUpTimestamp = null;
+  } else if (bout.state == "lineup") {
     if (
       activeJam.stopTimestamp &&
       latestTimeout?.startTimestamp &&
@@ -70,15 +78,5 @@ export default function BoutStatusLabel({
     }
   }
 
-  // Don't show the clock if there is no timestamp from which to count up
-  if (!countUpTimestamp) {
-    withClock = false;
-  }
-
-  return (
-    <Text {...props}>
-      {content + (content.trim().length > 0 && withClock ? " " : "")}
-      {withClock && <PlainClock startTimestamp={countUpTimestamp ?? null} />}
-    </Text>
-  );
+  return <BoutStatus stateText={content} since={countUpTimestamp} {...props} />;
 }

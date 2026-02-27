@@ -4,7 +4,7 @@ import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
 const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate
 
-interface ClockProps {
+export interface ClockProps {
   startTimestamp: Date | null;
   stopTimestamp?: Date | null;
   elapsed?: number;
@@ -13,7 +13,7 @@ interface ClockProps {
   formatter?: (milliseconds: number, alarm?: number) => string;
 }
 
-export default function PlainClock({
+export default function Clock({
   startTimestamp,
   stopTimestamp,
   elapsed = 0,

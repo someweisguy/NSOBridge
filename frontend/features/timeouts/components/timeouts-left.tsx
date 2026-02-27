@@ -12,7 +12,7 @@ interface PlainTimeoutsLeftProps {
   size: number;
 }
 
-export default function PlainTimeoutsLeft({
+export default function TimeoutsLeft({
   numTimeouts,
   numReviews,
   timeoutsRemaining,

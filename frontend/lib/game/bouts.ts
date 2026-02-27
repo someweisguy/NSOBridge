@@ -131,6 +131,10 @@ export class Bout {
   getActiveOrLatestTimeoutIndex(): number {
     return this.getActiveTimeoutNum() ?? this.getLatestTimeoutNum();
   }
+
+  isOvertime(): boolean {
+    return this.jamCounts[2] > 0;
+  }
 }
 
 export interface Team {
