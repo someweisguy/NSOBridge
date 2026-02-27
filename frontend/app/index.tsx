@@ -1,6 +1,5 @@
 import AppProvider from "@/components/app-provider";
 import JamProvider from "@/components/jam-provider";
-import TeamJamProvider from "@/components/team-jam-provider";
 import TimeoutProvider from "@/components/timeout-provider";
 import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
@@ -8,13 +7,13 @@ import TeamBoutScore from "@/features/bouts/components/team-bout-score";
 import TeamJamScore from "@/features/bouts/components/team-jam-score";
 import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
+import TeamJamJammerStateEditorContainer from "@/features/jams/components/team-jam-jammer-state-container";
+import TeamJamPassEditorContainer from "@/features/jams/components/team-jam-pass-editor-container";
+import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
 import BoutJamControl from "@/features/operator/components/bout-jam-control";
 import BoutPeriodControl from "@/features/operator/components/bout-period-control";
 import BoutTimeoutControl from "@/features/operator/components/bout-timeout-control";
 import JamStopReasonControl from "@/features/operator/components/jam-stop-reason-control";
-import TeamJamJammerState from "@/features/operator/components/team-jam-jammer-state";
-import TeamJamPassEditor from "@/features/operator/components/team-jam-pass-editor";
-import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
 import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
 import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
 import TimeoutTypeEditor from "@/features/operator/components/timeout-type-editor";
@@ -163,18 +162,26 @@ export default function Operator() {
         >
           <SimpleGrid cols={bout.teams.length}>
             {[...Array(2).keys()].map((i: number) => (
-              <TeamJamProvider key={i} teamJamNum={i}>
-                <Stack>
-                  <TeamJamJammerState />
-                  <TeamJamPassEditor />
-                  <TeamJamTripHistoryContainer
-                    bout={bout}
-                    periodNum={activePeriodNum}
-                    jamNum={activeJamNum}
-                    teamJamNum={i}
-                  />
-                </Stack>
-              </TeamJamProvider>
+              <Stack key={i}>
+                <TeamJamJammerStateEditorContainer
+                  bout={bout}
+                  periodNum={activeJamNum}
+                  jamNum={activeJamNum}
+                  teamJamNum={i}
+                />
+                <TeamJamPassEditorContainer
+                  bout={bout}
+                  periodNum={activeJamNum}
+                  jamNum={activeJamNum}
+                  teamJamNum={i}
+                />
+                <TeamJamTripHistoryContainer
+                  bout={bout}
+                  periodNum={activePeriodNum}
+                  jamNum={activeJamNum}
+                  teamJamNum={i}
+                />
+              </Stack>
             ))}
           </SimpleGrid>
         </JamProvider>

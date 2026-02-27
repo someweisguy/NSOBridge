@@ -1,19 +1,27 @@
-import { useTeamJamAddTrip } from "@/features/operator/hooks/use-team-jam-add-trip";
-import { Jam, TeamJam } from "@/lib/game/jams";
-import { JamContext, RulesetContext, TeamJamContext } from "@/utils/contexts";
+import { useTeamJamAddTrip } from "@/features/jams/hooks/use-team-jam-add-trip";
+import { useSuspenseJam } from "@/hooks/use-suspense-jam";
+import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
+import { Bout } from "@/lib/game/bouts";
+import { TeamJam } from "@/lib/game/jams";
 import { Button, Group } from "@mantine/core";
-import { useContext } from "react";
 
-export default function TeamJamPassEditor() {
-  const jam: Jam | null = useContext(JamContext);
-  const teamJam: TeamJam | null = useContext(TeamJamContext);
-  if (teamJam == null || jam == null) {
-    throw new Error("AddTripButtons must be in a TeamJamProvider");
-  }
-  const ruleset = useContext(RulesetContext);
-  if (ruleset == null) {
-    throw new Error("AddTripButtons must be inside a RulesetProvider");
-  }
+interface TeamJamPassEditorProps {
+  bout: Bout;
+  periodNum: number;
+  jamNum: number;
+  teamJamNum: number;
+}
+
+export default function TeamJamPassEditorContainer({
+  bout,
+  periodNum,
+  jamNum,
+  teamJamNum,
+}: TeamJamPassEditorProps) {
+  const { data: ruleset } = useSuspenseRuleset(bout);
+  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
+  const teamJam: TeamJam = jam.teamJams[teamJamNum];
+
   const addTrip = useTeamJamAddTrip(jam, teamJam);
 
   // Get the number of Trips

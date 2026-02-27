@@ -1,5 +1,6 @@
-import { Jam, TeamJam } from "@/lib/game/jams";
-import { JamContext, TeamJamContext } from "@/utils/contexts";
+import { useSuspenseJam } from "@/hooks/use-suspense-jam";
+import { Bout } from "@/lib/game/bouts";
+import { TeamJam } from "@/lib/game/jams";
 import {
   Checkbox,
   createTheme,
@@ -8,7 +9,6 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
-import { useContext } from "react";
 import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
 import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
 import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
@@ -17,12 +17,21 @@ const checkBoxTheme = createTheme({
   cursorType: "pointer",
 });
 
-export default function TeamJamJammerState() {
-  const jam: Jam | null = useContext(JamContext);
-  const teamJam: TeamJam | null = useContext(TeamJamContext);
-  if (jam == null || teamJam == null) {
-    throw new Error("TeamJamJammerState must be used within a TeamJamProvider");
-  }
+interface TeamJamJammerStateEditorContainerProps {
+  bout: Bout;
+  periodNum: number;
+  jamNum: number;
+  teamJamNum: number;
+}
+
+export default function TeamJamJammerStateEditorContainer({
+  bout,
+  periodNum,
+  jamNum,
+  teamJamNum,
+}: TeamJamJammerStateEditorContainerProps) {
+  const { data: jam } = useSuspenseJam(bout, periodNum, jamNum);
+  const teamJam: TeamJam = jam.teamJams[teamJamNum];
 
   const setLead = useTeamJamAddLead(jam, teamJam);
   const setLost = useTeamJamAddLost(jam, teamJam);
