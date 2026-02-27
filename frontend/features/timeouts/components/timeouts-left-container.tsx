@@ -18,7 +18,7 @@ export default function TimeoutsLeftContainer({
   reviewsRemaining,
   size,
 }: TimeoutsLeftContainerProps) {
-  const { data: ruleset } = useSuspenseRuleset(bout);
+  const { data: ruleset } = useSuspenseRuleset(bout.uuid);
 
   const {
     data: latestTimeout,
