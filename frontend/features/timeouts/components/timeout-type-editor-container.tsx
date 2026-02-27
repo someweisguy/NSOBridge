@@ -1,22 +1,27 @@
-import { Timeout } from "@/lib/game/timeouts";
-import { TimeoutContext } from "@/utils/contexts";
+import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
+import { Bout } from "@/lib/game/bouts";
 import {
   SegmentedControl,
   SegmentedControlProps,
   Stack,
   Text,
 } from "@mantine/core";
-import { useContext } from "react";
 import { useSetTimeoutType } from "../hooks/use-set-timeout-type";
 
-export default function TimeoutTypeEditor({
-  ...props
-}: Omit<SegmentedControlProps, "data" | "value" | "onChange">) {
-  const timeout: Timeout | null = useContext(TimeoutContext);
-  if (timeout == null) {
-    throw new Error("TimeoutTypeEditor must be used within a TimeoutProvider");
-  }
+interface TimeoutTypeEditorContainerProps extends Omit<
+  SegmentedControlProps,
+  "data" | "value" | "onChange"
+> {
+  bout: Bout;
+  timeoutNum: number;
+}
 
+export default function TimeoutTypeEditorContainer({
+  bout,
+  timeoutNum,
+  ...props
+}: TimeoutTypeEditorContainerProps) {
+  const { data: timeout } = useSuspenseTimeout(bout, timeoutNum);
   const setType = useSetTimeoutType(timeout);
 
   return (

@@ -1,5 +1,4 @@
 import AppProvider from "@/components/app-provider";
-import TimeoutProvider from "@/components/timeout-provider";
 import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
@@ -9,13 +8,13 @@ import TeamBoutScore from "@/features/bouts/components/team-bout-score";
 import TeamJamScore from "@/features/bouts/components/team-jam-score";
 import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
+import JamStopReasonControlContainer from "@/features/jams/components/jam-stop-reason-control-container";
 import TeamJamJammerStateEditorContainer from "@/features/jams/components/team-jam-jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/team-jam-pass-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
-import JamStopReasonControlContainer from "@/features/jams/components/jam-stop-reason-control-container";
-import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
-import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
-import TimeoutTypeEditor from "@/features/operator/components/timeout-type-editor";
+import TimeoutCallerEditorContainer from "@/features/timeouts/components/timeout-caller-editor-container";
+import TimeoutRetainedEditorContainer from "@/features/timeouts/components/timeout-retained-editor-container";
+import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-type-editor-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
@@ -133,11 +132,19 @@ export default function Operator() {
         <BoutPeriodControl bout={bout} variant="subtle" />
         {bout.state == "timeout" && (
           <Suspense>
-            <TimeoutProvider bout={bout} timeoutNum={bout.timeoutCount - 1}>
-              <TimeoutTypeEditor />
-              <TimeoutCallerEditor />
-              <TimeoutRetainedEditor variant="outline" />
-            </TimeoutProvider>
+            <TimeoutTypeEditorContainer
+              bout={bout}
+              timeoutNum={bout.timeoutCount - 1}
+            />
+            <TimeoutCallerEditorContainer
+              bout={bout}
+              timeoutNum={bout.timeoutCount - 1}
+            />
+            <TimeoutRetainedEditorContainer
+              bout={bout}
+              timeoutNum={bout.timeoutCount - 1}
+              variant="outline"
+            />
           </Suspense>
         )}
         {bout.state == "lineup" && bout.jamCounts[activePeriodNum] > 1 && (

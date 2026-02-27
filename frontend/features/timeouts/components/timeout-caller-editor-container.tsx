@@ -1,25 +1,28 @@
+import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
 import { Bout, Team } from "@/lib/game/bouts";
-import { Timeout } from "@/lib/game/timeouts";
-import { BoutContext, TimeoutContext } from "@/utils/contexts";
 import {
   SegmentedControl,
   SegmentedControlProps,
   Stack,
   Text,
 } from "@mantine/core";
-import { useContext, useDeferredValue } from "react";
+import { useDeferredValue } from "react";
 import { useSetTimeoutTeam } from "../hooks/use-set-timeout-team";
 
-export default function TimeoutCallerEditor({
+interface TimeoutCallerEditorContainerProps extends Omit<
+  SegmentedControlProps,
+  "data" | "value" | "onChange"
+> {
+  bout: Bout;
+  timeoutNum: number;
+}
+
+export default function TimeoutCallerEditorContainer({
+  bout,
+  timeoutNum,
   ...props
-}: Omit<SegmentedControlProps, "data" | "value" | "onChange">) {
-  const bout: Bout | null = useContext(BoutContext);
-  const timeout: Timeout | null = useContext(TimeoutContext);
-  if (bout == null || timeout == null) {
-    throw new Error(
-      "TimeoutCallingTeamEditor must be used within a TimeoutProvider",
-    );
-  }
+}: TimeoutCallerEditorContainerProps) {
+  const { data: timeout } = useSuspenseTimeout(bout, timeoutNum);
 
   // Used to solve a minor UI glitch that occurs when selecting the initial value of a
   // SegmentedControl component
