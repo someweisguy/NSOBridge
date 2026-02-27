@@ -21,7 +21,7 @@ export default function TimeoutTypeEditorContainer({
   timeoutNum,
   ...props
 }: TimeoutTypeEditorContainerProps) {
-  const { data: timeout } = useSuspenseTimeout(bout, timeoutNum);
+  const { data: timeout } = useSuspenseTimeout(bout.uuid, timeoutNum);
   const setType = useSetTimeoutType(timeout);
 
   return (

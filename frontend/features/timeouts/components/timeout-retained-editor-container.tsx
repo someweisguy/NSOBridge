@@ -16,7 +16,7 @@ export default function TimeoutRetainedEditorContainer({
   timeoutNum,
   label = "Review is Retained?",
 }: TimeoutRetainedEditorContainerProps) {
-  const { data: timeout } = useSuspenseTimeout(bout, timeoutNum);
+  const { data: timeout } = useSuspenseTimeout(bout.uuid, timeoutNum);
 
   const setRetained = useSetTimeoutRetained(timeout);
   return (

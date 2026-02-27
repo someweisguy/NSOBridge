@@ -22,7 +22,7 @@ export default function TimeoutCallerEditorContainer({
   timeoutNum,
   ...props
 }: TimeoutCallerEditorContainerProps) {
-  const { data: timeout } = useSuspenseTimeout(bout, timeoutNum);
+  const { data: timeout } = useSuspenseTimeout(bout.uuid, timeoutNum);
 
   // Used to solve a minor UI glitch that occurs when selecting the initial value of a
   // SegmentedControl component
