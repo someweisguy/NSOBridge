@@ -1,6 +1,15 @@
+import { MantineProvider } from "@mantine/core";
 import type { Preview } from "@storybook/react-vite";
+import "@mantine/core/styles.css";
 
 const preview: Preview = {
+  decorators: [
+    (Story) => (
+      <MantineProvider>
+        <Story />
+      </MantineProvider>
+    ),
+  ],
   parameters: {
     controls: {
       matchers: {
