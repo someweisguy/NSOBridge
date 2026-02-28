@@ -3,14 +3,45 @@ import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
 const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate
 
+const timeFormatters = {
+  bout: defaultTimeStringFormatter,
+  jam: defaultTimeStringFormatter,
+  lineup: defaultTimeStringFormatter,
+  timeout: defaultTimeStringFormatter,
+  countUp: defaultTimeStringFormatter,
+};
+
 export interface ClockProps {
+  /**
+   * The timestamp at which this Clock was started or `null` if it isn't running.
+   */
   startTimestamp: Date | null;
+  /**
+   * The timestamp at which this Clock was stopped or `null` if it is running.
+   */
   stopTimestamp?: Date | null;
+  /**
+   * The number of milliseconds that have elapsed on this clock already.
+   */
   elapsed?: number;
+  /**
+   * The number of milliseconds on this Clock's alarm. Setting this parameter to a
+   * number turns this Clock into a count-down.
+   */
   alarm?: number;
+  /**
+   * The difference in milliseconds between the host and the server. Allows for visual
+   * synchronization between multiple clients.
+   */
   serverOffset?: number;
+  /**
+   * True to freeze the clock at it current time.
+   */
   freeze?: boolean;
-  formatter?: (milliseconds: number, alarm?: number) => string;
+  /**
+   * The format to use when formatting this Clock.
+   */
+  formatter?: keyof typeof timeFormatters;
 }
 
 export default function Clock({
@@ -20,7 +51,7 @@ export default function Clock({
   alarm,
   serverOffset = 0, // TODO: don't set default value
   freeze = false,
-  formatter = defaultTimeStringFormatter,
+  formatter = "countUp",
 }: ClockProps) {
   const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
 
@@ -51,5 +82,9 @@ export default function Clock({
     milliseconds += serverOffset;
   }
 
-  return <span className="tabular-nums">{formatter(milliseconds, alarm)}</span>;
+  return (
+    <span className="tabular-nums">
+      {timeFormatters[formatter](milliseconds, alarm)}
+    </span>
+  );
 }
