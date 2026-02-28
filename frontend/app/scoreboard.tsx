@@ -8,13 +8,13 @@ import JamStatusContainer from "@/features/jams/components/jam-status-container"
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
-import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
+import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import { Team } from "@/lib/game/bouts";
-import { Series } from "@/lib/game/series";
+import { BoutUuidContext } from "@/utils/contexts";
 import FitScreen from "@fit-screen/react";
-import { Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
+import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { Suspense } from "react";
+import { useContext } from "react";
 import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
@@ -29,19 +29,24 @@ createRoot(root).render(
 );
 
 export function Scoreboard() {
-  const { data: allSeries } = useSuspenseGetAllSeries();
+  const boutUuid: string | null = useContext(BoutUuidContext);
+  if (boutUuid == null) {
+    throw new Error(
+      "Operator page must be used within a BoutUuidContext provider",
+    );
+  }
 
-  const series: Series = allSeries[0];
-  const { data: bout } = useSuspenseBout(
-    series.boutUuids[series.activeBoutIndex ?? series.boutUuids.length - 1],
-  );
+  const { data: syncData } = useSuspenseGetSyncData();
+
+  const { data: bout } = useSuspenseBout(boutUuid);
   const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
 
-  // Eagerly query the latest Jam and Timeout to avoid suspending
+  // Prefetch latest Jam to avoid UI blinking
+  // TODO: Remove this line when implementing Lineup Editors
   void useJam(bout.uuid, ...bout.getLatestJamNum());
 
   return (
-    <Stack>
+    <Stack align="stretch" justify="flex-start">
       {/* Team information */}
       <SimpleGrid cols={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
@@ -80,34 +85,37 @@ export function Scoreboard() {
         ))}
       </SimpleGrid>
 
-      {/* TODO: Lead Jam Status */}
-      <Stack>
-        <Group grow justify="center" align="center">
-          <BoutStatus
-            isOvertime={bout.isOvertime()}
-            overtimeText="OT"
-            {...bout.clock}
-            inherit
-          />
-          <JamNumber
-            periodNum={activePeriodNum}
-            jamNum={activeJamNum}
-            inherit
-          />
-          <Suspense>
-            <JamStatusContainer
-              boutUuid={bout.uuid}
+      {/* Bout State View */}
+      <Stack fz="36pt" ta="center" align="stretch">
+        <Center>
+          <Group grow justify="center" w="75%" ta="center">
+            <BoutStatus
+              isOvertime={bout.isOvertime()}
+              overtimeText="OT"
+              serverOffset={syncData.offset}
+              {...bout.clock}
+              inherit
+            />
+            <JamNumber
               periodNum={activePeriodNum}
               jamNum={activeJamNum}
               inherit
             />
-          </Suspense>
-        </Group>
+            <JamStatusContainer
+              boutUuid={bout.uuid}
+              periodNum={activePeriodNum}
+              jamNum={activeJamNum}
+              serverOffset={syncData.offset}
+              inherit
+            />
+          </Group>
+        </Center>
         <BoutSecondaryStatusContainer
           {...bout}
           className={twMerge(bout.state == "jam" && "invisible")}
-          ta="center"
-          size="24pt"
+          serverOffset={syncData.offset}
+          inherit
+          fz="24pt"
         />
       </Stack>
     </Stack>
