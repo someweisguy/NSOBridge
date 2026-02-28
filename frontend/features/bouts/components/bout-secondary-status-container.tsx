@@ -5,12 +5,33 @@ import { TextProps } from "@mantine/core";
 import { BoutSecondaryStatus } from "./bout-secondary-status";
 
 interface BoutSecondaryStatusContainerProps extends TextProps {
+  /**
+   * The UUID of the desired Bout.
+   */
   uuid: string;
+  /**
+   * The state of the desired Bout.
+   */
   state: BoutStateString;
+  /**
+   * The timestamp of when the Bout will begin, if it is set.
+   */
   startCountdown: Date | null;
+  /**
+   * The number of Jams in each Period.
+   */
   jamCounts: [number, number, number];
+  /**
+   * True if the Bout is final.
+   */
   isFinal: boolean;
+  /**
+   * The number of Timeouts in the Bout.
+   */
   timeoutCount: number;
+  /**
+   * The offset in time between the host and the server in milliseconds.
+   */
   serverOffset?: number;
 }
 
