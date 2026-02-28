@@ -51,7 +51,7 @@ export function Scoreboard() {
       <SimpleGrid cols={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
           <Stack key={i} justify="center">
-            <Text ta="center" fw="bolder" size="36pt">
+            <Text ta="center" fw="bolder" size="64pt">
               {team.name}
             </Text>
             <Flex
@@ -65,19 +65,19 @@ export function Scoreboard() {
                 teamNum={team.num}
                 timeoutCount={bout.timeoutCount}
                 {...team}
-                size={24}
+                size={36}
               />
               <TeamBoutScore
                 {...team}
                 fw="bold"
                 w={150}
                 ta="center"
-                size="48pt"
+                size="72pt"
               />
               <TeamJamScore
                 {...team}
                 ta={i % 2 ? "right" : "left"}
-                size="24pt"
+                size="48pt"
                 w={50}
               />
             </Flex>
@@ -86,7 +86,7 @@ export function Scoreboard() {
       </SimpleGrid>
 
       {/* Bout State View */}
-      <Stack fz="36pt" ta="center" align="stretch">
+      <Stack fz="72pt" ta="center" align="stretch">
         <Center>
           <Group grow justify="center" w="75%" ta="center">
             <BoutStatus
@@ -115,7 +115,7 @@ export function Scoreboard() {
           className={twMerge(bout.state == "jam" && "invisible")}
           serverOffset={syncData.offset}
           inherit
-          fz="24pt"
+          fz="48pt"
         />
       </Stack>
     </Stack>
