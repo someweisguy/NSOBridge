@@ -1,5 +1,4 @@
 import Clock, { ClockProps } from "@/components/clock";
-import { periodTimeStringFormatter } from "@/utils/time-string-formatters";
 import { Text, TextProps } from "@mantine/core";
 
 interface BoutStatusProps extends ClockProps, TextProps {
@@ -14,11 +13,7 @@ export default function BoutStatus({
 }: BoutStatusProps) {
   return (
     <Text {...props}>
-      {isOvertime ? (
-        overtimeText
-      ) : (
-        <Clock {...props} formatter={periodTimeStringFormatter} />
-      )}
+      {isOvertime ? overtimeText : <Clock {...props} formatter="bout" />}
     </Text>
   );
 }
