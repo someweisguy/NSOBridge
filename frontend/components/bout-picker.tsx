@@ -4,9 +4,15 @@ interface BoutPickerProps extends Omit<
   SelectProps,
   "allowDeselect" | "defaultValue"
 > {
+  /**
+   * The Bout data that is available to be selected.
+   */
   data: { value: string; label: string }[];
 }
 
+/**
+ * A dropdown that allows the user to select a Bout.
+ */
 export default function BoutPicker({ data, onChange }: BoutPickerProps) {
   return (
     <Select
