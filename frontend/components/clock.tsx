@@ -44,6 +44,10 @@ export interface ClockProps {
   formatter?: keyof typeof timeFormatters;
 }
 
+/**
+ * A basic Clock component. It can be used to display any of the several clocks that are
+ * used in Roller Derby.
+ */
 export default function Clock({
   startTimestamp,
   stopTimestamp,
