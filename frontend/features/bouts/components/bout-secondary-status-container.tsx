@@ -1,54 +1,73 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
-import { Bout } from "@/lib/game/bouts";
+import { BoutStateString } from "@/lib/game/bouts";
 import { TextProps } from "@mantine/core";
 import { BoutSecondaryStatus } from "./bout-secondary-status";
 
 interface BoutSecondaryStatusContainerProps extends TextProps {
-  bout: Bout; // TODO: remove Bout from props
+  uuid: string;
+  state: BoutStateString;
+  startCountdown: Date | null;
+  jamCounts: [number, number, number];
+  isFinal: boolean;
+  timeoutCount: number;
   serverOffset?: number;
 }
 
 export default function BoutSecondaryStatusContainer({
-  bout,
+  uuid,
+  state,
+  startCountdown,
+  jamCounts,
+  isFinal,
+  timeoutCount,
   ...props
 }: BoutSecondaryStatusContainerProps) {
-  const { data: activeJam } = useSuspenseJam(
-    bout.uuid,
-    ...bout.getActiveOrLatestJamNum(),
-  );
+  // Get the latest Period number that contains Jams
+  let periodNum = 0;
+  for (let i = jamCounts.length - 1; i >= 0; --i) {
+    if (jamCounts[i] > 0) {
+      periodNum = i;
+      break;
+    }
+  }
+
+  // Get the latest Jam number in the active Period
+  const jamNum = jamCounts[periodNum] - 1;
+
+  const { data: activeJam } = useSuspenseJam(uuid, periodNum, jamNum);
   const { data: latestTimeout, isPending } = useTimeout(
-    bout.uuid,
-    bout.timeoutCount - 1,
+    uuid,
+    timeoutCount - 1,
     {
-      enabled: bout.timeoutCount > 0,
+      enabled: timeoutCount > 0,
       initialData: undefined,
     },
   );
 
   let content: string;
   let countUpTimestamp: Date | null;
-  if (bout.state == "stopped") {
-    if (bout.isFinal) {
+  if (state == "stopped") {
+    if (isFinal) {
       content = "Final";
       countUpTimestamp = null;
-    } else if (bout.jamCounts[2] > 0) {
+    } else if (jamCounts[2] > 0) {
       content = "Unofficial";
       countUpTimestamp = null;
-    } else if (bout.jamCounts[1] > 0) {
+    } else if (jamCounts[1] > 0) {
       content = "Halftime";
-      countUpTimestamp = bout.startCountdown;
+      countUpTimestamp = startCountdown;
     } else {
       content = "Pregame";
-      countUpTimestamp = bout.startCountdown;
+      countUpTimestamp = startCountdown;
     }
-  } else if (bout.state == "final") {
+  } else if (state == "final") {
     content = "Final";
     countUpTimestamp = null;
-  } else if (bout.state == "jam") {
+  } else if (state == "jam") {
     content = "Jam";
     countUpTimestamp = null;
-  } else if (bout.state == "lineup") {
+  } else if (state == "lineup") {
     if (
       activeJam.stopTimestamp &&
       latestTimeout?.startTimestamp &&

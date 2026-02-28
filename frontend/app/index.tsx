@@ -131,8 +131,8 @@ export default function Operator() {
           </Group>
         </Center>
         <BoutSecondaryStatusContainer
+          {...bout}
           className={twMerge(bout.state == "jam" && "invisible")}
-          bout={bout}
           serverOffset={syncData.offset}
           inherit
           fz="24pt"

@@ -104,8 +104,8 @@ export function Scoreboard() {
           </Suspense>
         </Group>
         <BoutSecondaryStatusContainer
+          {...bout}
           className={twMerge(bout.state == "jam" && "invisible")}
-          bout={bout}
           ta="center"
           size="24pt"
         />
