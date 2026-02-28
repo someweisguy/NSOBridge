@@ -55,7 +55,13 @@ export function Scoreboard() {
               justify="center"
               gap="md"
             >
-              <TimeoutsLeftContainer bout={bout} {...team} size={24} />
+              <TimeoutsLeftContainer
+                boutUuid={bout.uuid}
+                teamNum={team.num}
+                timeoutCount={bout.timeoutCount}
+                {...team}
+                size={24}
+              />
               <TeamBoutScore
                 {...team}
                 fw="bold"

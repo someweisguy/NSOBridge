@@ -1,37 +1,38 @@
 import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
-import { Bout } from "@/lib/game/bouts";
 
 interface TimeoutsLeftContainerProps {
-  bout: Bout; // TODO: remove this from props
-  num: number;
+  boutUuid: string;
+  teamNum: number;
+  timeoutCount: number;
   timeoutsRemaining: number;
   reviewsRemaining: number;
   size: number;
 }
 
 export default function TimeoutsLeftContainer({
-  bout,
-  num,
+  boutUuid,
+  teamNum,
+  timeoutCount,
   timeoutsRemaining,
   reviewsRemaining,
   size,
 }: TimeoutsLeftContainerProps) {
-  const { data: ruleset } = useSuspenseRuleset(bout.uuid);
+  const { data: ruleset } = useSuspenseRuleset(boutUuid);
 
   const {
     data: latestTimeout,
     isPending,
     isEnabled,
-  } = useTimeout(bout.uuid, bout.timeoutCount - 1, {
-    enabled: bout.timeoutCount > 0,
+  } = useTimeout(boutUuid, timeoutCount - 1, {
+    enabled: timeoutCount > 0,
   });
 
   const timeoutIsActive =
     !isPending &&
     isEnabled &&
-    latestTimeout?.teamNum == num &&
+    latestTimeout?.teamNum == teamNum &&
     latestTimeout?.isRunning();
 
   const isReview =
