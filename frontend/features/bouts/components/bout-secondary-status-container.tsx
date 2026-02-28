@@ -33,7 +33,8 @@ export default function BoutSecondaryStatusContainer({
   }
 
   // Get the latest Jam number in the active Period
-  const jamNum = jamCounts[periodNum] - 1;
+  const jamNum =
+    jamCounts[periodNum] - (state == "lineup" || state == "stopped" ? 1 : 2);
 
   const { data: activeJam } = useSuspenseJam(uuid, periodNum, jamNum);
   const { data: latestTimeout, isPending } = useTimeout(
