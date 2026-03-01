@@ -86,9 +86,5 @@ export default function Clock({
     milliseconds += serverOffset;
   }
 
-  return (
-    <span className="tabular-nums">
-      {timeFormatters[formatter](milliseconds, alarm)}
-    </span>
-  );
+  return <>{timeFormatters[formatter](milliseconds, alarm)}</>;
 }
