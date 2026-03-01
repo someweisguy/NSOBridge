@@ -1,7 +1,7 @@
 import BoutPicker from "@/components/bout-picker";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-const meta: Meta<typeof BoutPicker> = {
+const meta: Meta = {
   component: BoutPicker,
   title: "Bout Picker",
 };

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import JamNumber from "../components/jam-number";
 
-const meta: Meta<typeof JamNumber> = {
+const meta: Meta = {
   component: JamNumber,
   title: "jams/Jam Number",
 };

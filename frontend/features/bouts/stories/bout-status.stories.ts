@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import BoutStatus from "../components/bout-status";
 
-const meta: Meta<typeof BoutStatus> = {
+const meta: Meta = {
   component: BoutStatus,
   title: "bouts/Bout Status",
 };

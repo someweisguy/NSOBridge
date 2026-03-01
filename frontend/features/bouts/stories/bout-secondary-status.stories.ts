@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { BoutSecondaryStatus } from "../components/bout-secondary-status";
 
-const meta: Meta<typeof BoutSecondaryStatus> = {
+const meta: Meta = {
   component: BoutSecondaryStatus,
   title: "bouts/Bout Secondary Status",
   argTypes: {

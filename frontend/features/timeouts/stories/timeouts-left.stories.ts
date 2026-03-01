@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import TimeoutsLeft from "../components/timeouts-left";
 
-const meta: Meta<typeof TimeoutsLeft> = {
+const meta: Meta = {
   component: TimeoutsLeft,
   title: "timeouts/Timeouts Left",
 };
