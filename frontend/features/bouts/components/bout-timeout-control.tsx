@@ -4,10 +4,20 @@ import { useStartTimeout } from "../hooks/use-start-timeout";
 import { useStopTimeout } from "../hooks/use-stop-timeout";
 
 interface BoutTimeoutControlProps extends Omit<ButtonProps, "onClick"> {
+  /**
+   * The UUID of the desired Bout.
+   */
   uuid: string;
+  /**
+   * The current state of the Bout.
+   */
   state: BoutStateString;
 }
 
+/**
+ * Control the Timeout state of the desired Bout. This button starts and stops the
+ * latest Timeout of the Bout.
+ */
 export default function BoutTimeoutControl({
   uuid,
   state,

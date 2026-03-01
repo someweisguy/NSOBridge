@@ -6,7 +6,9 @@ interface BoutStatusProps extends ClockProps, TextProps {
    * True if the Bout is in overtime.
    */
   isOvertime?: boolean;
-  /** The text to display instead of the Clock when the Bout is in overtime. */
+  /**
+   * The text to display instead of the Clock when the Bout is in overtime.
+   */
   overtimeText?: string;
 }
 
