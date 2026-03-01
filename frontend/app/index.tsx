@@ -4,8 +4,6 @@ import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
 import BoutStatus from "@/features/bouts/components/bout-status";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
-import TeamBoutScore from "@/features/bouts/components/team-bout-score";
-import TeamJamScore from "@/features/bouts/components/team-jam-score";
 import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import JamStopReasonControlContainer from "@/features/jams/components/jam-stop-reason-control-container";
@@ -87,19 +85,12 @@ export default function Operator() {
                 {...team}
                 size={24}
               />
-              <TeamBoutScore
-                {...team}
-                fw="bold"
-                w={150}
-                ta="center"
-                size="48pt"
-              />
-              <TeamJamScore
-                {...team}
-                ta={i % 2 ? "right" : "left"}
-                size="24pt"
-                w={50}
-              />
+              <Text fw="bold" w={150} ta="center" size="48pt">
+                {team.boutScore + team.scoreOffset}
+              </Text>
+              <Text {...team} ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
+                {team.jamScore}
+              </Text>
             </Flex>
           </Stack>
         ))}

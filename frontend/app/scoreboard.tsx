@@ -1,8 +1,6 @@
 import AppProvider from "@/components/app-provider";
 import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
 import BoutStatus from "@/features/bouts/components/bout-status";
-import TeamBoutScore from "@/features/bouts/components/team-bout-score";
-import TeamJamScore from "@/features/bouts/components/team-jam-score";
 import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
@@ -67,19 +65,12 @@ export function Scoreboard() {
                 {...team}
                 size={36}
               />
-              <TeamBoutScore
-                {...team}
-                fw="bold"
-                w={150}
-                ta="center"
-                size="72pt"
-              />
-              <TeamJamScore
-                {...team}
-                ta={i % 2 ? "right" : "left"}
-                size="48pt"
-                w={50}
-              />
+              <Text fw="bold" w={150} ta="center" size="48pt">
+                {team.boutScore + team.scoreOffset}
+              </Text>
+              <Text {...team} ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
+                {team.jamScore}
+              </Text>
             </Flex>
           </Stack>
         ))}
