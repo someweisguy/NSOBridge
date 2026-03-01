@@ -10,6 +10,22 @@ const boutData = [
     value: "",
     label: "Home vs. Away",
   },
+  {
+    value: "",
+    label: "Salt vs. Pepper",
+  },
+  {
+    value: "",
+    label: "Sun vs. Moon",
+  },
+  {
+    value: "",
+    label: "Alpha vs. Omega",
+  },
+  {
+    value: "",
+    label: "Spaces vs. Tabs",
+  },
 ];
 
 type Story = StoryObj<typeof meta>;
