@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
       - run: npm ci
-      # TODO: Figure out testing for frontend
+      - run: npm run test-storybook
   build_frontend:
     name: Build Frontend
     needs: setup_frontend
