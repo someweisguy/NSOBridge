@@ -7,23 +7,23 @@ const meta: Meta<typeof BoutPicker> = {
 
 const boutData = [
   {
-    value: "",
+    value: "0",
     label: "Home vs. Away",
   },
   {
-    value: "",
+    value: "1",
     label: "Salt vs. Pepper",
   },
   {
-    value: "",
+    value: "2",
     label: "Sun vs. Moon",
   },
   {
-    value: "",
+    value: "3",
     label: "Alpha vs. Omega",
   },
   {
-    value: "",
+    value: "4",
     label: "Spaces vs. Tabs",
   },
 ];
