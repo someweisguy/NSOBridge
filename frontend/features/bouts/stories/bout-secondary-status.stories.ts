@@ -3,6 +3,7 @@ import { BoutSecondaryStatus } from "../components/bout-secondary-status";
 
 const meta: Meta<typeof BoutSecondaryStatus> = {
   component: BoutSecondaryStatus,
+  title: "bouts/Bout Secondary Status",
   argTypes: {
     since: {
       control: "date",

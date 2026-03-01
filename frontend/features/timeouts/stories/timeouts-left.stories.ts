@@ -3,6 +3,7 @@ import TimeoutsLeft from "../components/timeouts-left";
 
 const meta: Meta<typeof TimeoutsLeft> = {
   component: TimeoutsLeft,
+  title: "timeouts/Timeouts Left",
 };
 
 type Story = StoryObj<typeof meta>;

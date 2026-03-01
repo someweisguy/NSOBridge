@@ -3,6 +3,7 @@ import { JamStatus } from "../components/jam-status";
 
 const meta: Meta<typeof JamStatus> = {
   component: JamStatus,
+  title: "jams/Jam Status",
 };
 
 type Story = StoryObj<typeof meta>;

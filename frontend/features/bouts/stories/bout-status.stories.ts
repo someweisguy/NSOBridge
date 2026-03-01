@@ -3,6 +3,7 @@ import BoutStatus from "../components/bout-status";
 
 const meta: Meta<typeof BoutStatus> = {
   component: BoutStatus,
+  title: "bouts/Bout Status",
 };
 
 type Story = StoryObj<typeof meta>;
