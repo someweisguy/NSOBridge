@@ -1,7 +1,9 @@
 import { MantineProvider } from "@mantine/core";
-import type { Preview } from "@storybook/react-vite";
 import "@mantine/core/styles.css";
+import type { Preview } from "@storybook/react-vite";
+import { QueryClientProvider } from "@tanstack/react-query";
 import "../frontend/app/global.css";
+import queryClient from "../frontend/lib/cache";
 
 const preview: Preview = {
   decorators: [
@@ -9,6 +11,11 @@ const preview: Preview = {
       <MantineProvider>
         <Story />
       </MantineProvider>
+    ),
+    (Story) => (
+      <QueryClientProvider client={queryClient}>
+        <Story />
+      </QueryClientProvider>
     ),
   ],
   parameters: {
