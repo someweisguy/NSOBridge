@@ -22,9 +22,7 @@ export function JamStatus({
   stopReasonText = "-",
   ...props
 }: JamStatusProps) {
-  if (isStopped) {
-    return <Text {...props}>{stopReasonText}</Text>;
-  }
-
-  return <Clock {...props} />;
+  return (
+    <Text {...props}>{isStopped ? stopReasonText : <Clock {...props} />}</Text>
+  );
 }

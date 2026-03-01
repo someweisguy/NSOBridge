@@ -46,7 +46,8 @@ export interface ClockProps {
 
 /**
  * A basic Clock component. It can be used to display any of the several clocks that are
- * used in Roller Derby.
+ * used in Roller Derby. This component is completely unstyled. It should be wrapped in
+ * a text component or similar before being rendered.
  */
 export default function Clock({
   startTimestamp,
