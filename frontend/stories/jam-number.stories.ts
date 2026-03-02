@@ -3,7 +3,7 @@ import JamNumber from "../components/jam-number";
 
 const meta: Meta = {
   component: JamNumber,
-  title: "jams/Jam Number",
+  title: "Jam Number",
 };
 
 type Story = StoryObj<typeof meta>;

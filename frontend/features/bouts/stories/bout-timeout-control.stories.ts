@@ -1,5 +1,5 @@
+import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import BoutTimeoutControl from "../components/bout-timeout-control";
 
 const meta: Meta = {
   component: BoutTimeoutControl,

@@ -3,7 +3,7 @@ import TeamJamTripHistory from "../components/team-jam-trip-history";
 
 const meta: Meta<typeof TeamJamTripHistory> = {
   component: TeamJamTripHistory,
-  title: "jams/Trip History",
+  title: "Trip History",
   argTypes: {
     w: {
       control: { type: "number" },

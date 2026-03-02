@@ -3,7 +3,7 @@ import PassEditor from "../components/pass-editor";
 
 const meta: Meta<typeof PassEditor> = {
   component: PassEditor,
-  title: "jams/Pass Editor",
+  title: "Pass Editor",
 };
 
 type Story = StoryObj<typeof meta>;

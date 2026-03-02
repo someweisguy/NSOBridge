@@ -4,7 +4,7 @@ import { GroupProps } from "@mantine/core";
 import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
 import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
 import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
-import JammerState from "./jammer-state";
+import JammerState from "../../../components/jammer-state";
 
 interface JammerStateEditorContainerProps extends GroupProps {
   boutUuid: string;

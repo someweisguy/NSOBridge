@@ -1,7 +1,7 @@
 import AppProvider from "@/components/app-provider";
 import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
-import BoutStatus from "@/features/bouts/components/bout-status";
-import JamNumber from "@/features/jams/components/jam-number";
+import BoutStatus from "@/components/bout-status";
+import JamNumber from "@/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";

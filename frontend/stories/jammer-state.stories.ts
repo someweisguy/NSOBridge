@@ -3,7 +3,7 @@ import JammerState from "../components/jammer-state";
 
 const meta: Meta<typeof JammerState> = {
   component: JammerState,
-  title: "jams/Jammer State",
+  title: "Jammer State",
 };
 
 type Story = StoryObj<typeof meta>;

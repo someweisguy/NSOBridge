@@ -1,9 +1,9 @@
+import BoutStatus from "@/components/bout-status";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import BoutStatus from "../components/bout-status";
 
 const meta: Meta = {
   component: BoutStatus,
-  title: "bouts/Bout Status",
+  title: "Bout Status",
 };
 
 type Story = StoryObj<typeof meta>;

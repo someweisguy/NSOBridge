@@ -1,7 +1,7 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { Jam } from "@/lib/game/jams";
 import { ScrollAreaAutosizeProps } from "@mantine/core";
-import TeamJamTripHistory from "./team-jam-trip-history";
+import TeamJamTripHistory from "../../../components/team-jam-trip-history";
 
 interface TeamJamTripHistoryContainerProps extends ScrollAreaAutosizeProps {
   boutUuid: string;

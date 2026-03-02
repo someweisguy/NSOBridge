@@ -3,7 +3,7 @@ import TripEventButton from "../components/trip-event-button";
 
 const meta: Meta<typeof TripEventButton> = {
   component: TripEventButton,
-  title: "jams/Trip Event Button",
+  title: "Trip Event Button",
 };
 
 type Story = StoryObj<typeof meta>;

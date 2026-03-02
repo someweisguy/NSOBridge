@@ -2,7 +2,7 @@ import TitledSegmentedControl from "@/components/titled-segmented-control";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { SegmentedControlProps } from "@mantine/core";
 
-interface JamStopReasonControlProps extends Omit<
+interface JamStopReasonEditorProps extends Omit<
   SegmentedControlProps,
   "data" | "value" | "onChange"
 > {
@@ -11,12 +11,12 @@ interface JamStopReasonControlProps extends Omit<
   jamNum: number;
 }
 
-export default function JamStopReasonControlContainer({
+export default function JamStopReasonEditorContainer({
   boutUuid,
   periodNum,
   jamNum,
   ...props
-}: JamStopReasonControlProps) {
+}: JamStopReasonEditorProps) {
   const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
 
   return (

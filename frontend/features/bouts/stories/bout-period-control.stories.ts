@@ -1,5 +1,5 @@
+import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import BoutPeriodControl from "../components/bout-period-control";
 
 const meta: Meta = {
   component: BoutPeriodControl,

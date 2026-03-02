@@ -2,7 +2,7 @@ import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { BoutStateString } from "@/lib/game/bouts";
 import { TextProps } from "@mantine/core";
-import { BoutSecondaryStatus } from "./bout-secondary-status";
+import { BoutSecondaryStatus } from "../../../components/bout-secondary-status";
 
 interface BoutSecondaryStatusContainerProps extends TextProps {
   /**

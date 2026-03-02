@@ -1,5 +1,5 @@
+import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import BoutJamControl from "../components/bout-jam-control";
 
 const meta: Meta = {
   component: BoutJamControl,

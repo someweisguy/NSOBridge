@@ -2,11 +2,11 @@ import AppProvider from "@/components/app-provider";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
-import BoutStatus from "@/features/bouts/components/bout-status";
+import BoutStatus from "@/components/bout-status";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
-import JamNumber from "@/features/jams/components/jam-number";
+import JamNumber from "@/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
-import JamStopReasonControlContainer from "@/features/jams/components/stop-reason-editor-container";
+import JamStopReasonEditorContainer from "@/features/jams/components/stop-reason-editor-container";
 import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
@@ -159,7 +159,7 @@ export default function Operator() {
           </Suspense>
         )}
         {bout.state == "lineup" && bout.jamCounts[activePeriodNum] > 1 && (
-          <JamStopReasonControlContainer
+          <JamStopReasonEditorContainer
             boutUuid={bout.uuid}
             periodNum={activePeriodNum}
             jamNum={activeJamNum}
