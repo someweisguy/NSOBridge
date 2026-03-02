@@ -16,6 +16,11 @@ interface PassEditorProps {
   addPassOnClick?: UseMutationResult<void, unknown, number, unknown>;
 }
 
+/**
+ * Edits the number of passes in a desired Trip. This component has a special mode when
+ * `showInitial` is true. In this mode, an "initial pass" button and a "no pass" button
+ * are rendered.
+ */
 export default function PassEditor({
   showInitial = false,
   numPasses,
