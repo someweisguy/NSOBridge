@@ -3,7 +3,7 @@ import { TextProps } from "@mantine/core";
 
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { StopReasonString } from "@/lib/game/jams";
-import { JamStatus } from "../../../components/jam-status";
+import { JamClock } from "../../../components/jam-clock";
 
 interface JamStatusContainerProps extends TextProps {
   /**
@@ -49,7 +49,7 @@ export default function JamStatusContainer({
   const stopReason = jam.stopReason ?? "other";
 
   return (
-    <JamStatus
+    <JamClock
       alarm={ruleset.jamDuration}
       isStopped={jam.stopTimestamp != null}
       stopReasonText={stopReasonTexts[stopReason]}

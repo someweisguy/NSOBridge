@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { JamStatus } from "../components/jam-status";
+import { JamClock } from "../components/jam-clock";
 
 const meta: Meta = {
-  component: JamStatus,
-  title: "Jam Status",
+  component: JamClock,
+  title: "Jam Clock",
 };
 
 type Story = StoryObj<typeof meta>;

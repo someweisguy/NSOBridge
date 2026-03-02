@@ -1,6 +1,6 @@
 import AppProvider from "@/components/app-provider";
 import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
-import BoutStatus from "@/components/bout-status";
+import BoutClock from "@/components/bout-clock";
 import JamNumber from "@/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
@@ -80,7 +80,7 @@ export function Scoreboard() {
       <Stack fz="72pt" ta="center" align="stretch">
         <Center>
           <Group grow justify="center" w="75%" ta="center">
-            <BoutStatus
+            <BoutClock
               isOvertime={bout.isOvertime()}
               overtimeText="OT"
               serverOffset={syncData.offset}

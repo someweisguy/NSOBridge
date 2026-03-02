@@ -2,7 +2,7 @@ import AppProvider from "@/components/app-provider";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
-import BoutStatus from "@/components/bout-status";
+import BoutClock from "@/components/bout-clock";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import JamNumber from "@/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
@@ -100,7 +100,7 @@ export default function Operator() {
       <Stack fz="36pt" ta="center" align="stretch">
         <Center>
           <Group grow justify="center" w="75%" ta="center">
-            <BoutStatus
+            <BoutClock
               isOvertime={bout.isOvertime()}
               overtimeText="OT"
               serverOffset={syncData.offset}

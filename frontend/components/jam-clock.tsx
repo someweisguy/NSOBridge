@@ -1,7 +1,7 @@
 import Clock, { ClockProps } from "@/components/clock";
 import { Text, TextProps } from "@mantine/core";
 
-interface JamStatusProps extends ClockProps, TextProps {
+interface JamClockProps extends ClockProps, TextProps {
   /**
    * True if the desired Jam is stopped.
    */
@@ -17,11 +17,11 @@ interface JamStatusProps extends ClockProps, TextProps {
  * displayed. When the Jam has stopped, the reason that the Jam was stopped is
  * displayed.
  */
-export function JamStatus({
+export function JamClock({
   isStopped,
   stopReasonText = "-",
   ...props
-}: JamStatusProps) {
+}: JamClockProps) {
   return (
     <Text {...props}>{isStopped ? stopReasonText : <Clock {...props} />}</Text>
   );

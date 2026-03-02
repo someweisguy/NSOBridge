@@ -1,7 +1,7 @@
 import Clock, { ClockProps } from "@/components/clock";
 import { Text, TextProps } from "@mantine/core";
 
-interface BoutStatusProps extends ClockProps, TextProps {
+interface BoutClockProps extends ClockProps, TextProps {
   /**
    * True if the Bout is in overtime.
    */
@@ -17,11 +17,11 @@ interface BoutStatusProps extends ClockProps, TextProps {
  * is running normally. When the Bout goes into overtime, an overtime label is
  * displayed.
  */
-export default function BoutStatus({
+export default function BoutClock({
   isOvertime = false,
   overtimeText = "OT",
   ...props
-}: BoutStatusProps) {
+}: BoutClockProps) {
   return (
     <Text {...props}>
       {isOvertime ? overtimeText : <Clock {...props} formatter="bout" />}
