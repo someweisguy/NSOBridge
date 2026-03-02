@@ -1,10 +1,6 @@
+import TitledSegmentedControl from "@/components/titled-segmented-control";
 import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
-import {
-  SegmentedControl,
-  SegmentedControlProps,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { SegmentedControlProps } from "@mantine/core";
 import { useDeferredValue } from "react";
 import { useSetTimeoutTeam } from "../hooks/use-set-timeout-team";
 
@@ -33,32 +29,28 @@ export default function TimeoutCallerEditorContainer({
   const setTeam = useSetTimeoutTeam(boutUuid, timeoutNum);
 
   return (
-    <Stack gap="0">
-      <Text size="sm" fw="300">
-        Calling Team
-      </Text>
-      <SegmentedControl
-        data={[
-          ...data,
-          {
-            value: String(NaN),
-            label: "Official",
-            disabled: timeout.isReview,
-          },
-        ]}
-        value={
-          timeout.teamNum == null
-            ? timeout.teamIsOfficials
-              ? String(NaN)
-              : "" // Nothing selected
-            : String(timeout.teamNum)
-        }
-        transitionDuration={isInitialSelection ? 0 : 200}
-        onChange={(teamNum) =>
-          setTeam.mutate(teamNum == String(NaN) ? null : Number(teamNum))
-        }
-        {...props}
-      />
-    </Stack>
+    <TitledSegmentedControl
+      title="Calling Team"
+      data={[
+        ...data,
+        {
+          value: String(NaN),
+          label: "Official",
+          disabled: timeout.isReview,
+        },
+      ]}
+      value={
+        timeout.teamNum == null
+          ? timeout.teamIsOfficials
+            ? String(NaN)
+            : "" // Nothing selected
+          : String(timeout.teamNum)
+      }
+      transitionDuration={isInitialSelection ? 0 : 200}
+      onChange={(teamNum) =>
+        setTeam.mutate(teamNum == String(NaN) ? null : Number(teamNum))
+      }
+      {...props}
+    />
   );
 }
