@@ -1,41 +1,28 @@
-import Clock from "@/components/clock";
-import { useJam } from "@/hooks/use-jam";
-import { Bout } from "@/lib/game/bouts";
-import { Ruleset } from "@/lib/game/ruleset";
-import { BoutContext, RulesetContext } from "@/utils/contexts";
-import { jamTimeStringFormatter } from "@/utils/time-string-formatters";
+import Clock, { ClockProps } from "@/components/clock";
 import { Text, TextProps } from "@mantine/core";
-import { useContext } from "react";
 
-interface JamClockProps extends TextProps {
-  periodNum?: number;
-  jamNum?: number;
+interface JamClockProps extends ClockProps, TextProps {
+  /**
+   * True if the desired Jam is stopped.
+   */
+  isStopped: boolean;
+  /**
+   * Text which displays the reason that the Jam was stopped.
+   */
+  stopReasonText?: string;
 }
 
-export default function JamClock({
-  periodNum,
-  jamNum,
+/**
+ * Display the status of the desired Jam. When the Jam is running the Jam clock is
+ * displayed. When the Jam has stopped, the reason that the Jam was stopped is
+ * displayed.
+ */
+export function JamClock({
+  isStopped,
+  stopReasonText = "-",
   ...props
 }: JamClockProps) {
-  const bout: Bout | null = useContext(BoutContext);
-  const ruleset: Ruleset | null = useContext(RulesetContext);
-  if (bout == null || ruleset == null) {
-    throw new Error("JamClock must only be used in a BoutProvider");
-  }
-
-  const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
-  periodNum ??= activePeriodNum;
-  jamNum ??= activeJamNum;
-
-  const { data: jam } = useJam(bout, periodNum, jamNum);
-
   return (
-    <Text {...props}>
-      <Clock
-        startTimestamp={jam?.startTimestamp ?? null}
-        alarm={ruleset.jamDuration}
-        formatter={jamTimeStringFormatter}
-      />
-    </Text>
+    <Text {...props}>{isStopped ? stopReasonText : <Clock {...props} />}</Text>
   );
 }

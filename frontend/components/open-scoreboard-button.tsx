@@ -1,18 +1,23 @@
-import { Bout } from "@/lib/game/bouts";
-import { BoutContext } from "@/utils/contexts";
 import { Button, ButtonProps } from "@mantine/core";
-import { useContext } from "react";
 
+interface OpenScoreboardButtonProps extends Omit<ButtonProps, "onClick"> {
+  /**
+   * The UUID of the Bout which should be displayed on the Scoreboard.
+   */
+  boutUuid: string;
+}
+
+/**
+ * Open a new tab of the Scoreboard page. The Bout that is displayed should be the Bout
+ * as specified by the Bout UUID.
+ */
 export default function OpenScoreboardButton({
+  boutUuid,
   ...props
-}: Omit<ButtonProps, "onClick">) {
-  const bout: Bout | null = useContext(BoutContext);
-  if (bout == null) {
-    throw new Error("OpenScoreboardButton must be used within a BoutProvider");
-  }
+}: OpenScoreboardButtonProps) {
   return (
     <Button
-      onClick={() => window.open("sb?boutUuid=" + bout.uuid, "_blank")}
+      onClick={() => window.open("sb?boutUuid=" + boutUuid, "_blank")}
       {...props}
     >
       Open Scoreboard

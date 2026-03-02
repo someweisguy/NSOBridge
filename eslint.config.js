@@ -1,3 +1,6 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
+
 import eslint from "@eslint/js";
 import importPlugin from "eslint-plugin-import";
 import reactPlugin from "eslint-plugin-react";
@@ -8,7 +11,14 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["vite.config.ts", "**/*.js", "**/*.cjs", "**/*.mjs"]),
+  globalIgnores([
+    "vite.config.ts",
+    "vitest.shims.d.ts",
+    ".storybook/",
+    "**/*.js",
+    "**/*.cjs",
+    "**/*.mjs",
+  ]),
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -18,6 +28,7 @@ export default defineConfig([
   importPlugin.flatConfigs.react,
   reactHooks.configs.flat.recommended,
   reactRefresh.configs.vite,
+  storybook.configs["flat/recommended"],
   {
     languageOptions: {
       ecmaVersion: 2020,

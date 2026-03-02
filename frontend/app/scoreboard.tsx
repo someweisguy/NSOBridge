@@ -1,24 +1,20 @@
 import AppProvider from "@/components/app-provider";
+import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
 import BoutClock from "@/components/bout-clock";
-import BoutIntermissionLabel from "@/components/bout-intermission-label";
-import BoutStatusLabel from "@/components/bout-status-label";
-import JamClock from "@/components/jam-clock";
 import JamNumber from "@/components/jam-number";
-import TeamBoutScore from "@/components/team-bout-score";
-import TeamJamScore from "@/components/team-jam-score";
-import TeamName from "@/components/team-name";
-import TeamProvider from "@/components/team-provider";
-import TeamTimeoutsLeft from "@/components/team-timeouts-left";
+import JamStatusContainer from "@/features/jams/components/jam-status-container";
+import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
-import { usePrefetchServerTime } from "@/hooks/use-prefetch-server-time";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
-import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
+import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import { Team } from "@/lib/game/bouts";
-import { Series } from "@/lib/game/series";
+import { BoutUuidContext } from "@/utils/contexts";
 import FitScreen from "@fit-screen/react";
-import { Flex, Group, SimpleGrid, Stack } from "@mantine/core";
+import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
+import { useContext } from "react";
 import { createRoot } from "react-dom/client";
+import { twMerge } from "tailwind-merge";
 import "./global.css";
 
 const root: HTMLElement = document.getElementById("root")!;
@@ -31,53 +27,87 @@ createRoot(root).render(
 );
 
 export function Scoreboard() {
-  usePrefetchServerTime();
+  const boutUuid: string | null = useContext(BoutUuidContext);
+  if (boutUuid == null) {
+    throw new Error(
+      "Operator page must be used within a BoutUuidContext provider",
+    );
+  }
 
-  const { data: allSeries } = useSuspenseGetAllSeries();
+  const { data: syncData } = useSuspenseGetSyncData();
 
-  const series: Series = allSeries[0];
-  const { data: bout } = useSuspenseBout(
-    series.boutUuids[series.activeBoutIndex ?? series.boutUuids.length - 1],
-  );
+  const { data: bout } = useSuspenseBout(boutUuid);
+  const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
 
-  // Eagerly query the latest Jam and Timeout to avoid suspending
-  void useJam(bout, ...bout.getLatestJamNum());
+  // Prefetch latest Jam to avoid UI blinking
+  // TODO: Remove this line when implementing Lineup Editors
+  void useJam(bout.uuid, ...bout.getLatestJamNum());
 
   return (
-    <Stack>
+    <Stack align="stretch" justify="flex-start">
       {/* Team information */}
       <SimpleGrid cols={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
-          <TeamProvider key={i} team={team}>
-            <Stack justify="center">
-              <TeamName ta="center" fw="bolder" size="36pt" />
-              <Flex
-                direction={i % 2 == 0 ? "row" : "row-reverse"}
-                align="center"
-                justify="center"
-                gap="xl"
-              >
-                <TeamTimeoutsLeft size={24} />
-                <TeamBoutScore fw="bold" w={150} ta="center" size="48pt" />
-                <TeamJamScore size="24pt" />
-              </Flex>
-            </Stack>
-          </TeamProvider>
+          <Stack key={i} justify="center">
+            <Text ta="center" fw="bolder" size="64pt">
+              {team.name}
+            </Text>
+            <Flex
+              direction={i % 2 ? "row-reverse" : "row"}
+              align="center"
+              justify="center"
+              gap="md"
+            >
+              <TimeoutsLeftContainer
+                boutUuid={bout.uuid}
+                teamNum={team.num}
+                timeoutCount={bout.timeoutCount}
+                {...team}
+                size={36}
+              />
+              <Text fw="bold" w={150} ta="center" size="48pt">
+                {team.boutScore + team.scoreOffset}
+              </Text>
+              <Text {...team} ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
+                {team.jamScore}
+              </Text>
+            </Flex>
+          </Stack>
         ))}
       </SimpleGrid>
 
-      {/* TODO: Lead Jam Status */}
-      <Stack>
-        {bout.state == "stopped" ? (
-          <BoutIntermissionLabel ta="center" size="36pt" />
-        ) : (
-          <Group grow justify="center" align="center">
-            <BoutClock ta="center" />
-            <JamNumber ta="center" />
-            <JamClock ta="center" />
+      {/* Bout State View */}
+      <Stack fz="72pt" ta="center" align="stretch">
+        <Center>
+          <Group grow justify="center" w="75%" ta="center">
+            <BoutClock
+              isOvertime={bout.isOvertime()}
+              overtimeText="OT"
+              serverOffset={syncData.offset}
+              {...bout.clock}
+              inherit
+            />
+            <JamNumber
+              periodNum={activePeriodNum}
+              jamNum={activeJamNum}
+              inherit
+            />
+            <JamStatusContainer
+              boutUuid={bout.uuid}
+              periodNum={activePeriodNum}
+              jamNum={activeJamNum}
+              serverOffset={syncData.offset}
+              inherit
+            />
           </Group>
-        )}
-        <BoutStatusLabel withClock ta="center" size="24pt" />
+        </Center>
+        <BoutStatusContainer
+          {...bout}
+          className={twMerge(bout.state == "jam" && "invisible")}
+          serverOffset={syncData.offset}
+          inherit
+          fz="48pt"
+        />
       </Stack>
     </Stack>
   );

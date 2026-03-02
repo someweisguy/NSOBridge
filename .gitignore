@@ -18,9 +18,6 @@ www
 *.db
 
 # Editor directories and files
-.vscode
-!.vscode/launch.json
-!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
@@ -32,7 +29,10 @@ www
 # Python
 __pycache__
 *.egg-info/
-.mypy_cache
 .ruff_cache
 .venv
 .pytest_cache
+
+# Node
+*storybook.log
+storybook-static

@@ -1,16 +1,14 @@
-import { TeamJam } from "@/lib/game/jams";
-import { TeamJamContext } from "@/utils/contexts";
+import TripEventButton from "@/components/trip-event-button";
+import { TripEvent } from "@/lib/game/jams";
 import {
   Button,
   ButtonProps,
   Group,
   ScrollArea,
   ScrollAreaAutosizeProps,
-  Stack,
-  Text,
 } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const arrowButtonStyle: ButtonProps = {
   p: 0,
@@ -20,35 +18,15 @@ const arrowButtonStyle: ButtonProps = {
   w: 30,
 };
 
-interface TripEventProps {
-  tripNum: number;
-  passes: number | null;
-}
-
-function TripEvent({ tripNum, passes }: TripEventProps) {
-  return (
-    <Button px={0} variant="subtle" c="gray" w="50" h="60">
-      <Stack gap={3}>
-        <Text fs="italic" c="dimmed" size="8pt">
-          Trip {tripNum + 1}
-        </Text>
-        <Text c="dark" fw="bold" size="md">
-          {passes}
-        </Text>
-      </Stack>
-    </Button>
-  );
+interface TeamJamTripHistoryProps extends ScrollAreaAutosizeProps {
+  events: TripEvent[];
 }
 
 export default function TeamJamTripHistory({
   w = 200,
+  events,
   ...props
-}: ScrollAreaAutosizeProps) {
-  const teamJam: TeamJam | null = useContext(TeamJamContext);
-  if (teamJam == null) {
-    throw new Error("TeamJamTripHistory must be used within a TeamJamProvider");
-  }
-
+}: TeamJamTripHistoryProps) {
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
   const [disableScrollRight, setDisableScrollRight] = useState(true);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -60,7 +38,7 @@ export default function TeamJamTripHistory({
       behavior: "smooth",
       left: viewportRef.current.scrollWidth,
     });
-  }, [teamJam.events.length]);
+  }, [events.length]);
 
   const scrollByOneChild = useCallback(
     (direction: "left" | "right") => {
@@ -112,10 +90,10 @@ export default function TeamJamTripHistory({
         {...props}
       >
         <Group ref={groupRef} mx={0} px={0} gap={0} wrap="nowrap">
-          {teamJam.events
+          {events
             .filter((event) => event.passes != null)
             .map((teamJam, i) => (
-              <TripEvent key={i} tripNum={i} {...teamJam} />
+              <TripEventButton key={i} tripNum={i} {...teamJam} />
             ))}
         </Group>
       </ScrollArea.Autosize>

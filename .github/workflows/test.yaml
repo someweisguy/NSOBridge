@@ -46,12 +46,12 @@ jobs:
     name: Test Frontend
     needs: setup_frontend
     runs-on: ${{ inputs.runs-on }}
-    if: false
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
       - run: npm ci
-      # TODO: Figure out testing for frontend
+      - run: npx playwright install  
+      - run: npm run test-storybook
   build_frontend:
     name: Build Frontend
     needs: setup_frontend

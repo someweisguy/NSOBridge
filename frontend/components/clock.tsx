@@ -1,47 +1,91 @@
-import { useSuspenseServerTime } from "@/hooks/use-suspense-server-time";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
 const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate
 
-interface ClockProps {
+const timeFormatters = {
+  bout: defaultTimeStringFormatter,
+  jam: defaultTimeStringFormatter,
+  lineup: defaultTimeStringFormatter,
+  timeout: defaultTimeStringFormatter,
+  default: defaultTimeStringFormatter,
+};
+
+export interface ClockProps {
+  /**
+   * The timestamp at which this Clock was started or `null` if it isn't running.
+   */
   startTimestamp: Date | null;
+  /**
+   * The timestamp at which this Clock was stopped or `null` if it is running.
+   */
   stopTimestamp?: Date | null;
+  /**
+   * The number of milliseconds that have elapsed on this clock already.
+   */
   elapsed?: number;
+  /**
+   * The number of milliseconds on this Clock's alarm. Setting this parameter to a
+   * number turns this Clock into a count-down.
+   */
   alarm?: number;
+  /**
+   * The difference in milliseconds between the host and the server. Allows for visual
+   * synchronization between multiple clients.
+   */
+  serverOffset?: number;
+  /**
+   * True to freeze the clock at it current time.
+   */
   freeze?: boolean;
-  formatter?: (milliseconds: number, alarm?: number) => string;
+  /**
+   * The format to use when formatting this Clock.
+   */
+  formatter?: keyof typeof timeFormatters;
 }
 
+/**
+ * A basic Clock component. It can be used to display any of the several clocks that are
+ * used in Roller Derby. This component is completely unstyled. It should be wrapped in
+ * a text component or similar before being rendered.
+ */
 export default function Clock({
   startTimestamp,
   stopTimestamp,
   elapsed = 0,
   alarm,
+  serverOffset = 0, // TODO: don't set default value
   freeze = false,
-  formatter = defaultTimeStringFormatter,
+  formatter = "default",
 }: ClockProps) {
-  const [serverTime, refreshServerTime] = useSuspenseServerTime();
+  const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
 
   useEffect(() => {
     if (freeze || startTimestamp == null) {
-      // Do not update component if manually frozen or stopped
-      return;
+      return; // Clock is stopped or manually frozen
     }
 
-    const intervalId = setInterval(refreshServerTime, CLOCK_REFRESH_RATE);
+    setCurrentTimestamp(new Date());
+    const intervalId = setInterval(
+      () => setCurrentTimestamp(new Date()),
+      CLOCK_REFRESH_RATE,
+    );
     return () => clearInterval(intervalId);
-  }, [startTimestamp, alarm, freeze, refreshServerTime]);
+  }, [startTimestamp, freeze]);
 
-  // Calculate the number of milliseconds that have elapsed
+  // Calculate the number of milliseconds that have elapsed since the last update
   let milliseconds = elapsed;
-  if (startTimestamp !== null) {
-    if (stopTimestamp != null) {
-      milliseconds += stopTimestamp.getTime() - startTimestamp.getTime();
-    } else {
-      milliseconds += serverTime.getTime() - startTimestamp.getTime();
-    }
+  if (startTimestamp != null && stopTimestamp == null) {
+    // Clock is running
+    milliseconds += currentTimestamp.getTime() - startTimestamp.getTime();
+  } else if (startTimestamp != null && stopTimestamp != null) {
+    // Clock is stopped but add the additional elapsed time to the accumulator
+    milliseconds += stopTimestamp.getTime() - startTimestamp.getTime();
   }
 
-  return <span className="tabular-nums">{formatter(milliseconds, alarm)}</span>;
+  if (startTimestamp != null) {
+    milliseconds += serverOffset;
+  }
+
+  return <>{timeFormatters[formatter](milliseconds, alarm)}</>;
 }

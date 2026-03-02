@@ -14,7 +14,7 @@ export class Ruleset {
   numTimeouts: number;
   numReviews: number;
 
-  static generateKey(rulesetName: string): CacheKey {
-    return ["ruleset", rulesetName];
+  static generateKey(boutUuid: string): CacheKey {
+    return ["ruleset", boutUuid];
   }
 }
