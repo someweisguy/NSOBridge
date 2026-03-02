@@ -8,7 +8,7 @@ const timeFormatters = {
   jam: defaultTimeStringFormatter,
   lineup: defaultTimeStringFormatter,
   timeout: defaultTimeStringFormatter,
-  countUp: defaultTimeStringFormatter,
+  default: defaultTimeStringFormatter,
 };
 
 export interface ClockProps {
@@ -56,7 +56,7 @@ export default function Clock({
   alarm,
   serverOffset = 0, // TODO: don't set default value
   freeze = false,
-  formatter = "countUp",
+  formatter = "default",
 }: ClockProps) {
   const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
 
