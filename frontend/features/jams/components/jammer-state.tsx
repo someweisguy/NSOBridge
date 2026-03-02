@@ -65,7 +65,7 @@ export default function JammerState({
         <Checkbox
           label="Lead"
           checked={lead}
-          disabled={lost || !isLeadEligible}
+          disabled={!isLeadEligible}
           onClick={leadOnClick}
           variant="outline"
           icon={({ ...others }) => <IconStarFilled {...others} />}

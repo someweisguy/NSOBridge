@@ -55,7 +55,7 @@ export default function JammerStateEditorContainer({
       lead={lead}
       lost={lost}
       starPass={starPass}
-      isLeadEligible={isLeadEligible}
+      isLeadEligible={!lost && isLeadEligible}
       leadOnClick={() => setLead.mutate(!lead)}
       lostOnClick={() => setLost.mutate(!lost)}
       starPassOnClick={() => setStarPass.mutate(!starPass)}
