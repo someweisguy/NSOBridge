@@ -63,11 +63,9 @@ export class Bout {
     return { boutUuid: this.uuid, periodNum, jamNum };
   }
 
-  getLatestTimeoutUri(): TimeoutUri | null {
-    if (this.timeoutCount == 0) {
-      return null;
-    }
-    return { boutUuid: this.uuid, timeoutNum: this.timeoutCount - 1 };
+  getLatestTimeoutUri(): TimeoutUri {
+    const timeoutNum = this.timeoutCount > 0 ? this.timeoutCount - 1 : null;
+    return { boutUuid: this.uuid, timeoutNum };
   }
 
   isOvertime(): boolean {
