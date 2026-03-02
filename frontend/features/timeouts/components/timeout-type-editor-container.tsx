@@ -1,10 +1,6 @@
+import TitledSegmentedControl from "@/components/titled-segmented-control";
 import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
-import {
-  SegmentedControl,
-  SegmentedControlProps,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { SegmentedControlProps } from "@mantine/core";
 import { useSetTimeoutType } from "../hooks/use-set-timeout-type";
 
 interface TimeoutTypeEditorContainerProps extends Omit<
@@ -24,24 +20,20 @@ export default function TimeoutTypeEditorContainer({
   const setType = useSetTimeoutType(boutUuid, timeoutNum);
 
   return (
-    <Stack gap="0">
-      <Text size="sm" fw="300">
-        Timeout Type
-      </Text>
-      <SegmentedControl
-        data={[
-          { value: "timeout", label: "Timeout" },
-          { value: "review", label: "Official Review" },
-        ]}
-        value={timeout.isReview ? "review" : "timeout"}
-        onChange={(type: string) => {
-          if (type != "review" && type != "timeout") {
-            throw new Error("TimeoutTypeEditor is incorrectly configured");
-          }
-          setType.mutate(type);
-        }}
-        {...props}
-      />
-    </Stack>
+    <TitledSegmentedControl
+      title="Timeout Type"
+      data={[
+        { value: "timeout", label: "Timeout" },
+        { value: "review", label: "Official Review" },
+      ]}
+      value={timeout.isReview ? "review" : "timeout"}
+      onChange={(type: string) => {
+        if (type != "review" && type != "timeout") {
+          throw new Error("TimeoutTypeEditor is incorrectly configured");
+        }
+        setType.mutate(type);
+      }}
+      {...props}
+    />
   );
 }
