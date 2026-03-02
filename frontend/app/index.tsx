@@ -177,6 +177,8 @@ export default function Operator() {
                 periodNum={activePeriodNum}
                 jamNum={activeJamNum}
                 teamJamNum={i}
+                justify="center"
+                gap="md"
               />
               <TeamJamPassEditorContainer
                 boutUuid={bout.uuid}

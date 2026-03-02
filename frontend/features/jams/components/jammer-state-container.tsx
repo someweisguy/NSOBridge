@@ -4,8 +4,9 @@ import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
 import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
 import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
 import JammerState from "./jammer-state";
+import { GroupProps } from "@mantine/core";
 
-interface JammerStateEditorContainerProps {
+interface JammerStateEditorContainerProps extends GroupProps {
   boutUuid: string;
   periodNum: number;
   jamNum: number;
@@ -17,6 +18,7 @@ export default function JammerStateEditorContainer({
   periodNum,
   jamNum,
   teamJamNum,
+  ...props
 }: JammerStateEditorContainerProps) {
   const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
   const teamJam: TeamJam = jam.teamJams[teamJamNum];
@@ -57,6 +59,7 @@ export default function JammerStateEditorContainer({
       leadOnClick={() => setLead.mutate(!lead)}
       lostOnClick={() => setLost.mutate(!lost)}
       starPassOnClick={() => setStarPass.mutate(!starPass)}
+      {...props}
     />
   );
 }
