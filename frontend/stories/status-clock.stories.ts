@@ -1,9 +1,9 @@
-import { BoutSecondaryStatus } from "@/components/bout-secondary-status";
+import { StatusClock } from "@/components/status-clock";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta: Meta = {
-  component: BoutSecondaryStatus,
-  title: "Bout Secondary Status",
+  component: StatusClock,
+  title: "Status Clock",
   argTypes: {
     since: {
       control: "date",

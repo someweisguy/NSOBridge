@@ -2,9 +2,9 @@ import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { BoutStateString } from "@/lib/game/bouts";
 import { TextProps } from "@mantine/core";
-import { BoutSecondaryStatus } from "../../../components/bout-secondary-status";
+import { StatusClock } from "../../../components/status-clock";
 
-interface BoutSecondaryStatusContainerProps extends TextProps {
+interface BoutStatusContainerProps extends TextProps {
   /**
    * The UUID of the desired Bout.
    */
@@ -35,7 +35,7 @@ interface BoutSecondaryStatusContainerProps extends TextProps {
   serverOffset?: number;
 }
 
-export default function BoutSecondaryStatusContainer({
+export default function BoutStatusContainer({
   uuid,
   state,
   startCountdown,
@@ -43,7 +43,7 @@ export default function BoutSecondaryStatusContainer({
   isFinal,
   timeoutCount,
   ...props
-}: BoutSecondaryStatusContainerProps) {
+}: BoutStatusContainerProps) {
   // Get the latest Period number that contains Jams
   let periodNum = 0;
   for (let i = jamCounts.length - 1; i >= 0; --i) {
@@ -121,9 +121,9 @@ export default function BoutSecondaryStatusContainer({
   }
 
   return (
-    <BoutSecondaryStatus
+    <StatusClock
       stateText={content}
-      since={countUpTimestamp}
+      startTimestamp={countUpTimestamp}
       {...props}
     />
   );

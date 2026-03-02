@@ -1,5 +1,5 @@
 import AppProvider from "@/components/app-provider";
-import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
+import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
 import BoutClock from "@/components/bout-clock";
 import JamNumber from "@/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
@@ -101,7 +101,7 @@ export function Scoreboard() {
             />
           </Group>
         </Center>
-        <BoutSecondaryStatusContainer
+        <BoutStatusContainer
           {...bout}
           className={twMerge(bout.state == "jam" && "invisible")}
           serverOffset={syncData.offset}

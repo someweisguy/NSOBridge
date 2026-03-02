@@ -1,7 +1,7 @@
 import AppProvider from "@/components/app-provider";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
-import BoutSecondaryStatusContainer from "@/features/bouts/components/bout-secondary-status-container";
+import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
 import BoutClock from "@/components/bout-clock";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import JamNumber from "@/components/jam-number";
@@ -121,7 +121,7 @@ export default function Operator() {
             />
           </Group>
         </Center>
-        <BoutSecondaryStatusContainer
+        <BoutStatusContainer
           {...bout}
           className={twMerge(bout.state == "jam" && "invisible")}
           serverOffset={syncData.offset}

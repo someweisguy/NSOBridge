@@ -1,7 +1,7 @@
 import Clock from "@/components/clock";
 import { Text, TextProps } from "@mantine/core";
 
-interface BoutSecondaryStatusProps extends TextProps {
+interface StatusClockProps extends TextProps {
   /**
    * The state text to display.
    */
@@ -9,18 +9,18 @@ interface BoutSecondaryStatusProps extends TextProps {
   /**
    * The optional timestamp that marks the beginning of the current Bout state.
    */
-  since?: Date | null;
+  startTimestamp?: Date | null;
 }
 
 /**
  * Display the secondary status of a Bout. This is typically used to display non-Jam
  * states.
  */
-export function BoutSecondaryStatus({
-  since = null,
+export function StatusClock({
+  startTimestamp: since = null,
   stateText,
   ...props
-}: BoutSecondaryStatusProps) {
+}: StatusClockProps) {
   const showClock = since != null;
   const showSpace = stateText?.length > 0 && showClock;
 
