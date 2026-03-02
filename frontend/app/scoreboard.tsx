@@ -1,12 +1,11 @@
 import AppProvider from "@/components/app-provider";
-import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
 import BoutClock from "@/components/bout-clock";
 import JamNumber from "@/components/jam-number";
+import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
-import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import { Team } from "@/lib/game/bouts";
 import { BoutUuidContext } from "@/utils/contexts";
 import FitScreen from "@fit-screen/react";
@@ -33,8 +32,6 @@ export function Scoreboard() {
       "Operator page must be used within a BoutUuidContext provider",
     );
   }
-
-  const { data: syncData } = useSuspenseGetSyncData();
 
   const { data: bout } = useSuspenseBout(boutUuid);
   const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
@@ -83,7 +80,6 @@ export function Scoreboard() {
             <BoutClock
               isOvertime={bout.isOvertime()}
               overtimeText="OT"
-              serverOffset={syncData.offset}
               {...bout.clock}
               inherit
             />
@@ -96,7 +92,6 @@ export function Scoreboard() {
               boutUuid={bout.uuid}
               periodNum={activePeriodNum}
               jamNum={activeJamNum}
-              serverOffset={syncData.offset}
               inherit
             />
           </Group>
@@ -104,7 +99,6 @@ export function Scoreboard() {
         <BoutStatusContainer
           {...bout}
           className={twMerge(bout.state == "jam" && "invisible")}
-          serverOffset={syncData.offset}
           inherit
           fz="48pt"
         />
