@@ -8,10 +8,6 @@ const meta: Meta = {
 
 const boutData = [
   {
-    value: "0",
-    label: "Home vs. Away",
-  },
-  {
     value: "1",
     label: "Salt vs. Pepper",
   },
@@ -26,6 +22,14 @@ const boutData = [
   {
     value: "4",
     label: "Spaces vs. Tabs",
+  },
+  {
+    value: "5",
+    label: "Emacs vs. Vim",
+  },
+  {
+    value: "0",
+    label: "Home vs. Away",
   },
 ];
 
