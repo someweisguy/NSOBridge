@@ -1,8 +1,9 @@
 import BoutPicker from "@/components/bout-picker";
 import { useGetAllBouts } from "@/hooks/use-get-all-bouts";
+import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import queryClient from "@/lib/cache";
 import { Bout } from "@/lib/game/bouts";
-import { BoutUuidContext } from "@/utils/contexts";
+import { BoutUuidContext, ServerOffsetContext } from "@/utils/contexts";
 import { AppShell, Burger, MantineProvider } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -40,6 +41,8 @@ export default function AppProvider({
     urlParams.get(boutUuidParamName),
   );
 
+  const { data: syncData } = useSuspenseGetSyncData();
+
   useEffect(() => {
     if (
       isEnabled &&
@@ -59,45 +62,47 @@ export default function AppProvider({
     <StrictMode>
       <MantineProvider>
         <QueryClientProvider client={queryClient}>
-          <BoutUuidContext value={boutUuid}>
-            {useShell ? (
-              <AppShell
-                padding="md"
-                header={{ height: 60 }}
-                navbar={{
-                  width: 200,
-                  breakpoint: "sm",
-                  collapsed: { mobile: !opened },
-                }}
-              >
-                <AppShell.Header>
-                  <Burger
-                    opened={opened}
-                    onClick={toggle}
-                    hiddenFrom="sm"
-                    size="sm"
-                  />
-                </AppShell.Header>
+          <ServerOffsetContext value={syncData.offset}>
+            <BoutUuidContext value={boutUuid}>
+              {useShell ? (
+                <AppShell
+                  padding="md"
+                  header={{ height: 60 }}
+                  navbar={{
+                    width: 200,
+                    breakpoint: "sm",
+                    collapsed: { mobile: !opened },
+                  }}
+                >
+                  <AppShell.Header>
+                    <Burger
+                      opened={opened}
+                      onClick={toggle}
+                      hiddenFrom="sm"
+                      size="sm"
+                    />
+                  </AppShell.Header>
 
-                <AppShell.Navbar m="md">
-                  <BoutPicker
-                    data={bouts!.map((bout: Bout) => ({
-                      value: bout.uuid,
-                      label: `${bout.teams[0].name} vs. ${bout.teams[1].name}`,
-                    }))}
-                    onChange={(uuid: string | null) => setBoutUuid(uuid)}
-                  />
-                  <OpenScoreboardButton boutUuid={boutUuid} />
-                </AppShell.Navbar>
+                  <AppShell.Navbar m="md">
+                    <BoutPicker
+                      data={bouts!.map((bout: Bout) => ({
+                        value: bout.uuid,
+                        label: `${bout.teams[0].name} vs. ${bout.teams[1].name}`,
+                      }))}
+                      onChange={(uuid: string | null) => setBoutUuid(uuid)}
+                    />
+                    <OpenScoreboardButton boutUuid={boutUuid} />
+                  </AppShell.Navbar>
 
-                <AppShell.Main>
-                  <Suspense fallback={"Loading..."}>{children}</Suspense>
-                </AppShell.Main>
-              </AppShell>
-            ) : (
-              children
-            )}
-          </BoutUuidContext>
+                  <AppShell.Main>
+                    <Suspense fallback={"Loading..."}>{children}</Suspense>
+                  </AppShell.Main>
+                </AppShell>
+              ) : (
+                children
+              )}
+            </BoutUuidContext>
+          </ServerOffsetContext>
         </QueryClientProvider>
       </MantineProvider>
     </StrictMode>

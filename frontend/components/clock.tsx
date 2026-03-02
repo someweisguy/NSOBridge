@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { ServerOffsetContext } from "@/utils/contexts";
+import { useContext, useEffect, useState } from "react";
 import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
 const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate
@@ -31,7 +32,8 @@ export interface ClockProps {
   alarm?: number;
   /**
    * The difference in milliseconds between the host and the server. Allows for visual
-   * synchronization between multiple clients.
+   * synchronization between multiple clients. This value is automatically provided when
+   * used inside a ServerOffsetContext.
    */
   serverOffset?: number;
   /**
@@ -54,11 +56,12 @@ export default function Clock({
   stopTimestamp,
   elapsed = 0,
   alarm,
-  serverOffset = 0, // TODO: don't set default value
+  serverOffset,
   freeze = false,
   formatter = "default",
 }: ClockProps) {
   const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
+  const serverOffsetContext = useContext(ServerOffsetContext);
 
   useEffect(() => {
     if (freeze || startTimestamp == null) {
@@ -84,7 +87,7 @@ export default function Clock({
   }
 
   if (startTimestamp != null) {
-    milliseconds += serverOffset;
+    milliseconds += serverOffset ?? serverOffsetContext;
   }
 
   return <>{timeFormatters[formatter](milliseconds, alarm)}</>;

@@ -1,14 +1,14 @@
 import AppProvider from "@/components/app-provider";
+import BoutClock from "@/components/bout-clock";
+import JamNumber from "@/components/jam-number";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
-import BoutClock from "@/components/bout-clock";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
-import JamNumber from "@/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
-import JamStopReasonEditorContainer from "@/features/jams/components/stop-reason-editor-container";
 import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-container";
+import JamStopReasonEditorContainer from "@/features/jams/components/stop-reason-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
 import TimeoutCallerEditorContainer from "@/features/timeouts/components/timeout-caller-editor-container";
 import TimeoutRetainedEditorContainer from "@/features/timeouts/components/timeout-retained-editor-container";
@@ -16,7 +16,6 @@ import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-t
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
-import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
 import { BoutUuidContext } from "@/utils/contexts";
@@ -53,8 +52,6 @@ export default function Operator() {
       "Operator page must be used within a BoutUuidContext provider",
     );
   }
-
-  const { data: syncData } = useSuspenseGetSyncData();
 
   const { data: bout } = useSuspenseBout(boutUuid);
   const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
@@ -103,7 +100,6 @@ export default function Operator() {
             <BoutClock
               isOvertime={bout.isOvertime()}
               overtimeText="OT"
-              serverOffset={syncData.offset}
               {...bout.clock}
               inherit
             />
@@ -116,7 +112,6 @@ export default function Operator() {
               boutUuid={bout.uuid}
               periodNum={activePeriodNum}
               jamNum={activeJamNum}
-              serverOffset={syncData.offset}
               inherit
             />
           </Group>
@@ -124,7 +119,6 @@ export default function Operator() {
         <BoutStatusContainer
           {...bout}
           className={twMerge(bout.state == "jam" && "invisible")}
-          serverOffset={syncData.offset}
           inherit
           fz="24pt"
         />
