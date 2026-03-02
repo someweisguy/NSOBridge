@@ -17,3 +17,20 @@ export type MutationOptions<
   TVariables = void,
   TContext = unknown,
 > = Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutateFn">;
+
+export interface BoutUri {
+  boutUuid: string;
+}
+
+export interface JamUri extends BoutUri {
+  periodNum: number;
+  jamNum: number;
+}
+
+export interface TimeoutUri extends BoutUri {
+  timeoutNum: number;
+}
+
+export interface TeamJamUri extends JamUri {
+  teamJamNum: number;
+}
