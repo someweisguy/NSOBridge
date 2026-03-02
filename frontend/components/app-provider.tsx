@@ -23,6 +23,8 @@ interface AppProviderProps extends PropsWithChildren {
   useShell?: boolean;
 }
 
+// TODO: make testable
+
 export default function AppProvider({
   useShell = false,
   children,
