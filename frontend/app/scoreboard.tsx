@@ -37,6 +37,7 @@ export function Scoreboard() {
 
   const { periodNum: activePeriodNum, jamNum: activeJamNum } =
     bout.getActiveJamUri() ?? bout.getLatestJamUri();
+  const latestTimeoutUri = bout.getLatestTimeoutUri();
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
@@ -60,9 +61,8 @@ export function Scoreboard() {
               gap="md"
             >
               <TimeoutsLeftContainer
-                boutUuid={bout.uuid}
                 teamNum={team.num}
-                timeoutCount={bout.timeoutCount}
+                {...latestTimeoutUri}
                 {...team}
                 size={36}
               />

@@ -54,14 +54,14 @@ export default function Operator() {
   }
 
   const { data: bout } = useSuspenseBout(boutUuid);
-  const { periodNum: activePeriodNum, jamNum: activeJamNum } =
-    bout.getActiveJamUri() ?? bout.getLatestJamUri();
+  const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
+  const latestTimeoutUri = bout.getLatestTimeoutUri();
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
   const { periodNum: latestPeriodNum, jamNum: latestJamNum } =
     bout.getLatestJamUri();
-  void useJam(bout.uuid, latestPeriodNum, latestJamNum);
+  void useJam(bout.uuid, latestPeriodNum, latestJamNum); // TODO: hooks should pass URIs
 
   return (
     <Stack align="stretch" justify="flex-start">
@@ -79,9 +79,8 @@ export default function Operator() {
               gap="md"
             >
               <TimeoutsLeftContainer
-                boutUuid={bout.uuid}
                 teamNum={team.num}
-                timeoutCount={bout.timeoutCount}
+                {...latestTimeoutUri}
                 {...team}
                 size={24}
               />
@@ -106,17 +105,8 @@ export default function Operator() {
               {...bout.clock}
               inherit
             />
-            <JamNumber
-              periodNum={activePeriodNum}
-              jamNum={activeJamNum}
-              inherit
-            />
-            <JamStatusContainer
-              boutUuid={bout.uuid}
-              periodNum={activePeriodNum}
-              jamNum={activeJamNum}
-              inherit
-            />
+            <JamNumber {...activeJamUri} inherit />
+            <JamStatusContainer {...activeJamUri} inherit />
           </Group>
         </Center>
         <BoutStatusContainer
@@ -155,12 +145,8 @@ export default function Operator() {
             />
           </Suspense>
         )}
-        {bout.state == "lineup" && bout.jamCounts[activePeriodNum] > 1 && (
-          <JamStopReasonEditorContainer
-            boutUuid={bout.uuid}
-            periodNum={activePeriodNum}
-            jamNum={activeJamNum}
-          />
+        {bout.state == "lineup" && activeJamUri.jamNum > 0 && (
+          <JamStopReasonEditorContainer {...activeJamUri} />
         )}
       </Group>
 
@@ -170,25 +156,13 @@ export default function Operator() {
           {[...Array(2).keys()].map((i: number) => (
             <Stack key={i}>
               <JammerStateEditorContainer
-                boutUuid={bout.uuid}
-                periodNum={activePeriodNum}
-                jamNum={activeJamNum}
+                {...activeJamUri}
                 teamJamNum={i}
                 justify="center"
                 gap="md"
               />
-              <TeamJamPassEditorContainer
-                boutUuid={bout.uuid}
-                periodNum={activePeriodNum}
-                jamNum={activeJamNum}
-                teamJamNum={i}
-              />
-              <TeamJamTripHistoryContainer
-                boutUuid={bout.uuid}
-                periodNum={activePeriodNum}
-                jamNum={activeJamNum}
-                teamJamNum={i}
-              />
+              <TeamJamPassEditorContainer {...activeJamUri} teamJamNum={i} />
+              <TeamJamTripHistoryContainer {...activeJamUri} teamJamNum={i} />
             </Stack>
           ))}
         </SimpleGrid>
