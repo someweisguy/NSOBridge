@@ -7,6 +7,7 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
+import { UseMutationResult } from "@tanstack/react-query";
 
 const checkBoxTheme = createTheme({
   cursorType: "pointer",
@@ -33,15 +34,15 @@ interface JammerStateProps extends GroupProps {
   /**
    * The event handler which fires when clicking the lead checkbox.
    */
-  leadOnClick?: () => void;
+  leadOnClick?: UseMutationResult<void, unknown, boolean, unknown>;
   /**
    * The event handler which fires when clicking the lost checkbox.
    */
-  lostOnClick?: () => void;
+  lostOnClick?: UseMutationResult<void, unknown, boolean, unknown>;
   /**
    * The event handler which fires when clicking the star pass checkbox.
    */
-  starPassOnClick?: () => void;
+  starPassOnClick?: UseMutationResult<void, unknown, boolean, unknown>;
 }
 
 /**
@@ -66,7 +67,7 @@ export default function JammerState({
           label="Lead"
           checked={lead}
           disabled={!isLeadEligible}
-          onClick={leadOnClick}
+          onClick={() => leadOnClick?.mutate(!lead)}
           variant="outline"
           icon={({ ...others }) => <IconStarFilled {...others} />}
         />
@@ -74,14 +75,14 @@ export default function JammerState({
         <Checkbox
           label="Lost"
           checked={lost}
-          onClick={lostOnClick}
+          onClick={() => lostOnClick?.mutate(!lost)}
           variant="outline"
         />
         <Divider orientation="vertical" />
         <Checkbox
           label="Star Pass"
           checked={starPass}
-          onClick={starPassOnClick}
+          onClick={() => starPassOnClick?.mutate(!starPass)}
           variant="outline"
         />
       </Group>
