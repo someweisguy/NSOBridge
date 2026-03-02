@@ -6,7 +6,7 @@ import BoutStatus from "@/features/bouts/components/bout-status";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
-import JamStopReasonControlContainer from "@/features/jams/components/jam-stop-reason-control-container";
+import JamStopReasonControlContainer from "@/features/jams/components/stop-reason-editor-container";
 import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
