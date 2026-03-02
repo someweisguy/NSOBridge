@@ -41,10 +41,10 @@ export default function PassEditor({
 
   return (
     <Group justify="center" gap="md">
-      {Array.from({ length: numPasses }, (_, i) => (
+      {Array.from({ length: numPasses + 1 }, (_, i) => (
         <Button
           key={i}
-          variant={i < numPasses - 1 ? "subtle" : "outline"}
+          variant={i < numPasses ? "subtle" : "outline"}
           onClick={() => addPassOnClick?.mutate(i)}
         >
           {i}
