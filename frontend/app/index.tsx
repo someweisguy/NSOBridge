@@ -122,14 +122,14 @@ export default function Operator() {
         <BoutJamControl {...bout} />
         <BoutTimeoutControl {...bout} variant="subtle" />
         <BoutPeriodControl {...bout} variant="subtle" />
-        {bout.state == "timeout" && (
+        {bout.state == "timeout" && latestTimeoutUri.timeoutNum != null && (
           <Suspense>
             <TimeoutTypeEditorContainer
-              boutUuid={bout.uuid}
+              {...latestTimeoutUri}
               timeoutNum={bout.timeoutCount - 1}
             />
             <TimeoutCallerEditorContainer
-              boutUuid={bout.uuid}
+              {...latestTimeoutUri}
               timeoutNum={bout.timeoutCount - 1}
               data={bout.teams.map((team: Team) => {
                 return {
@@ -139,7 +139,7 @@ export default function Operator() {
               })}
             />
             <TimeoutRetainedEditorContainer
-              boutUuid={bout.uuid}
+              {...latestTimeoutUri}
               timeoutNum={bout.timeoutCount - 1}
               variant="outline"
             />
