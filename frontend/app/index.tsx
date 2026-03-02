@@ -7,7 +7,7 @@ import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control
 import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import JamStopReasonControlContainer from "@/features/jams/components/jam-stop-reason-control-container";
-import TeamJamJammerStateEditorContainer from "@/features/jams/components/team-jam-jammer-state-container";
+import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/team-jam-pass-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
 import TimeoutCallerEditorContainer from "@/features/timeouts/components/timeout-caller-editor-container";
@@ -172,7 +172,7 @@ export default function Operator() {
         <SimpleGrid cols={bout.teams.length}>
           {[...Array(2).keys()].map((i: number) => (
             <Stack key={i}>
-              <TeamJamJammerStateEditorContainer
+              <JammerStateEditorContainer
                 boutUuid={bout.uuid}
                 periodNum={activePeriodNum}
                 jamNum={activeJamNum}

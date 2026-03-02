@@ -1,34 +1,23 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { TeamJam } from "@/lib/game/jams";
-import {
-  Checkbox,
-  createTheme,
-  Divider,
-  Group,
-  MantineProvider,
-} from "@mantine/core";
-import { IconStarFilled } from "@tabler/icons-react";
 import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
 import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
 import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
+import JammerState from "./jammer-state";
 
-const checkBoxTheme = createTheme({
-  cursorType: "pointer",
-});
-
-interface TeamJamJammerStateEditorContainerProps {
+interface JammerStateEditorContainerProps {
   boutUuid: string;
   periodNum: number;
   jamNum: number;
   teamJamNum: number;
 }
 
-export default function TeamJamJammerStateEditorContainer({
+export default function JammerStateEditorContainer({
   boutUuid,
   periodNum,
   jamNum,
   teamJamNum,
-}: TeamJamJammerStateEditorContainerProps) {
+}: JammerStateEditorContainerProps) {
   const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
   const teamJam: TeamJam = jam.teamJams[teamJamNum];
 
@@ -60,31 +49,14 @@ export default function TeamJamJammerStateEditorContainer({
   }
 
   return (
-    <Group justify="center" gap="md">
-      <MantineProvider theme={checkBoxTheme}>
-        <Checkbox
-          label="Lead"
-          checked={lead}
-          disabled={lost || !isLeadEligible}
-          onClick={() => setLead.mutate(!lead)}
-          variant="outline"
-          icon={({ ...others }) => <IconStarFilled {...others} />}
-        />
-        <Divider orientation="vertical" />
-        <Checkbox
-          label="Lost"
-          checked={lost}
-          onClick={() => setLost.mutate(!lost)}
-          variant="outline"
-        />
-        <Divider orientation="vertical" />
-        <Checkbox
-          label="Star Pass"
-          checked={starPass}
-          onClick={() => setStarPass.mutate(!starPass)}
-          variant="outline"
-        />
-      </MantineProvider>
-    </Group>
+    <JammerState
+      lead={lead}
+      lost={lost}
+      starPass={starPass}
+      isLeadEligible={isLeadEligible}
+      leadOnClick={() => setLead.mutate(!lead)}
+      lostOnClick={() => setLost.mutate(!lost)}
+      starPassOnClick={() => setStarPass.mutate(!starPass)}
+    />
   );
 }
