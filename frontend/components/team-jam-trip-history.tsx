@@ -32,14 +32,8 @@ export default function TeamJamTripHistory({
   const viewportRef = useRef<HTMLDivElement>(null);
   const groupRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Scroll to end
-    viewportRef.current?.scrollTo({
-      behavior: "smooth",
-      left: viewportRef.current.scrollWidth,
-    });
-  }, [events.length]);
-
+  // It is required to recompute a scroll amount each time the X position changes
+  // because smooth scrolling does not always perfectly scroll to the desired location
   const scrollByOneChild = useCallback(
     (direction: "left" | "right") => {
       if (groupRef.current == null) {
@@ -64,6 +58,14 @@ export default function TeamJamTripHistory({
     },
     [scrollPosition.x],
   );
+
+  // Scroll to end when an item is added or removed or when the page initially loads
+  useEffect(() => {
+    viewportRef.current?.scrollTo({
+      behavior: "smooth",
+      left: viewportRef.current.scrollWidth,
+    });
+  }, [events.length]);
 
   return (
     <Group gap="5px" justify="center" wrap="nowrap">
