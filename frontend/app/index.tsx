@@ -111,7 +111,7 @@ export default function Operator() {
           </Group>
         </Center>
         <BoutStatusContainer
-          {...bout}
+          boutUuid={bout.uuid}
           className={twMerge(bout.state == "jam" && "invisible")}
           inherit
           fz="24pt"

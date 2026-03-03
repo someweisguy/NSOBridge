@@ -102,7 +102,7 @@ export function Scoreboard() {
           </Group>
         </Center>
         <BoutStatusContainer
-          {...bout}
+          boutUuid={bout.uuid}
           className={twMerge(bout.state == "jam" && "invisible")}
           inherit
           fz="48pt"
