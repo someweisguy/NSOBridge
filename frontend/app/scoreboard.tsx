@@ -35,8 +35,7 @@ export function Scoreboard() {
 
   const { data: bout } = useSuspenseBout({ boutUuid });
 
-  const { periodNum: activePeriodNum, jamNum: activeJamNum } =
-    bout.getActiveJamUri() ?? bout.getLatestJamUri();
+  const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
   const latestTimeoutUri = bout.getLatestTimeoutUri() ?? {
     boutUuid: bout.uuid,
     timeoutNum: null,
@@ -88,17 +87,8 @@ export function Scoreboard() {
               {...bout.clock}
               inherit
             />
-            <JamNumber
-              periodNum={activePeriodNum}
-              jamNum={activeJamNum}
-              inherit
-            />
-            <JamStatusContainer
-              boutUuid={bout.uuid}
-              periodNum={activePeriodNum}
-              jamNum={activeJamNum}
-              inherit
-            />
+            <JamNumber {...activeJamUri} inherit />
+            <JamStatusContainer {...activeJamUri} inherit />
           </Group>
         </Center>
         <BoutStatusContainer
