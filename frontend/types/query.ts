@@ -28,7 +28,7 @@ export interface JamUri extends BoutUri {
 }
 
 export interface TimeoutUri extends BoutUri {
-  timeoutNum: number | null;
+  timeoutNum: number;
 }
 
 export interface TeamJamUri extends JamUri {

@@ -19,13 +19,15 @@ export default function TimeoutsLeftContainer({
   reviewsRemaining,
   size,
 }: TimeoutsLeftContainerProps) {
-  const { data: ruleset } = useSuspenseRuleset(boutUuid);
+  const { data: ruleset } = useSuspenseRuleset({ boutUuid });
 
   const {
     data: latestTimeout,
     isPending,
     isEnabled,
-  } = useTimeout(boutUuid, timeoutNum ?? 0, {
+  } = useTimeout({
+    boutUuid,
+    timeoutNum: timeoutNum ?? 0,
     enabled: timeoutNum != null && timeoutNum > 0,
   });
 

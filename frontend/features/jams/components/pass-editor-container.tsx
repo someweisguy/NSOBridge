@@ -17,8 +17,8 @@ export default function TeamJamPassEditorContainer({
   jamNum,
   teamJamNum,
 }: TeamJamPassEditorProps) {
-  const { data: ruleset } = useSuspenseRuleset(boutUuid);
-  const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
+  const { data: ruleset } = useSuspenseRuleset({ boutUuid });
+  const { data: jam } = useSuspenseJam({ boutUuid, periodNum, jamNum });
   const teamJam: TeamJam = jam.teamJams[teamJamNum];
 
   const addTrip = useTeamJamAddTrip(jam, teamJam);

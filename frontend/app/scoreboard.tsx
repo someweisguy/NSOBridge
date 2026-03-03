@@ -33,7 +33,7 @@ export function Scoreboard() {
     );
   }
 
-  const { data: bout } = useSuspenseBout(boutUuid);
+  const { data: bout } = useSuspenseBout({ boutUuid });
 
   const { periodNum: activePeriodNum, jamNum: activeJamNum } =
     bout.getActiveJamUri() ?? bout.getLatestJamUri();
@@ -41,9 +41,7 @@ export function Scoreboard() {
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
-  const { periodNum: latestPeriodNum, jamNum: latestJamNum } =
-    bout.getLatestJamUri();
-  void useJam(bout.uuid, latestPeriodNum, latestJamNum);
+  void useJam({ ...bout.getLatestJamUri() });
 
   return (
     <Stack align="stretch" justify="flex-start">
@@ -62,7 +60,10 @@ export function Scoreboard() {
             >
               <TimeoutsLeftContainer
                 teamNum={team.num}
-                {...latestTimeoutUri}
+                {...(latestTimeoutUri ?? {
+                  boutUuid: bout.uuid,
+                  timeoutNum: null,
+                })}
                 {...team}
                 size={36}
               />

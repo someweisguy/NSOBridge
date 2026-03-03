@@ -57,15 +57,17 @@ export default function BoutStatusContainer({
   const jamNum =
     jamCounts[periodNum] - (state == "lineup" || state == "stopped" ? 1 : 2);
 
-  const { data: activeJam } = useSuspenseJam(uuid, periodNum, jamNum);
-  const { data: latestTimeout, isPending } = useTimeout(
-    uuid,
-    timeoutCount - 1,
-    {
-      enabled: timeoutCount > 0,
-      initialData: undefined,
-    },
-  );
+  const { data: activeJam } = useSuspenseJam({
+    boutUuid: uuid,
+    periodNum,
+    jamNum,
+  });
+  const { data: latestTimeout, isPending } = useTimeout({
+    boutUuid: uuid,
+    timeoutNum: timeoutCount - 1,
+    enabled: timeoutCount > 0,
+    initialData: undefined,
+  });
 
   let content: string;
   let countUpTimestamp: Date | null;

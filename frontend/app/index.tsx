@@ -53,15 +53,13 @@ export default function Operator() {
     );
   }
 
-  const { data: bout } = useSuspenseBout(boutUuid);
+  const { data: bout } = useSuspenseBout({ boutUuid });
   const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
   const latestTimeoutUri = bout.getLatestTimeoutUri();
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
-  const { periodNum: latestPeriodNum, jamNum: latestJamNum } =
-    bout.getLatestJamUri();
-  void useJam(bout.uuid, latestPeriodNum, latestJamNum); // TODO: hooks should pass URIs
+  void useJam({ ...bout.getLatestJamUri() });
 
   return (
     <Stack align="stretch" justify="flex-start">
@@ -80,7 +78,10 @@ export default function Operator() {
             >
               <TimeoutsLeftContainer
                 teamNum={team.num}
-                {...latestTimeoutUri}
+                {...(latestTimeoutUri ?? {
+                  boutUuid: bout.uuid,
+                  timeoutNum: null,
+                })}
                 {...team}
                 size={24}
               />
@@ -122,7 +123,7 @@ export default function Operator() {
         <BoutJamControl {...bout} />
         <BoutTimeoutControl {...bout} variant="subtle" />
         <BoutPeriodControl {...bout} variant="subtle" />
-        {bout.state == "timeout" && latestTimeoutUri.timeoutNum != null && (
+        {bout.state == "timeout" && latestTimeoutUri != null && (
           <Suspense>
             <TimeoutTypeEditorContainer
               {...latestTimeoutUri}
