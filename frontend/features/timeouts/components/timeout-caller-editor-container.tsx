@@ -14,8 +14,8 @@ interface TimeoutCallerEditorContainerProps extends Omit<
 
 export default function TimeoutCallerEditorContainer({
   boutUuid,
-  data,
   timeoutNum,
+  data,
   ...props
 }: TimeoutCallerEditorContainerProps) {
   const { data: timeout } = useSuspenseTimeout({ boutUuid, timeoutNum });
