@@ -21,7 +21,9 @@ export default function BoutStatusContainer({
 }: BoutStatusContainerProps) {
   const { data: bout } = useSuspenseBout({ boutUuid });
 
-  const { data: activeJam } = useSuspenseJam({ ...bout.getLatestJamUri() });
+  const { data: activeJam } = useSuspenseJam({
+    ...(bout.getActiveJamUri() ?? bout.getLatestJamUri()),
+  });
   const { data: latestTimeout, isPending } = useTimeout({
     ...bout.getLatestTimeoutUri()!,
     enabled: bout.timeoutCount > 0,
