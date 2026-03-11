@@ -1,11 +1,16 @@
 import { startJam } from "@/lib/game/bouts";
-import { MutationOptions } from "@/types/query";
+import { BoutUri, MutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export const useStartJam = (
-  boutUuid: string,
-  options?: MutationOptions<void>,
-) =>
+/**
+ * Used to start the latest Jam of the desired Bout.
+ *
+ * @returns A Tanstack Mutation object which can fire the StartJam mutator.
+ */
+export const useStartJam = ({
+  boutUuid,
+  ...options
+}: BoutUri & Omit<MutationOptions<void>, "mutationFn">) =>
   useMutation({
     mutationFn: () => startJam(boutUuid),
     ...options,

@@ -7,7 +7,7 @@ interface BoutJamControlProps extends Omit<ButtonProps, "onClick"> {
   /**
    * The UUID of the desired Bout.
    */
-  uuid: string;
+  boutUuid: string;
   /**
    * The current state of the desired Bout.
    */
@@ -19,12 +19,12 @@ interface BoutJamControlProps extends Omit<ButtonProps, "onClick"> {
  * Jam of the Bout.
  */
 export default function BoutJamControl({
-  uuid,
+  boutUuid,
   state,
   ...props
 }: BoutJamControlProps) {
-  const startJam = useStartJam(uuid);
-  const stopJam = useStopJam(uuid);
+  const startJam = useStartJam({ boutUuid });
+  const stopJam = useStopJam({ boutUuid });
 
   const content = state == "jam" ? "Stop Jam" : "Start Jam";
   const command = state == "jam" ? stopJam : startJam;

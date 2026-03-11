@@ -120,9 +120,9 @@ export default function Operator() {
 
       {/* Bout State control */}
       <Group justify="center" mih="75">
-        <BoutJamControl {...bout} />
-        <BoutTimeoutControl {...bout} variant="subtle" />
-        <BoutPeriodControl {...bout} variant="subtle" />
+        <BoutJamControl boutUuid={bout.uuid} {...bout} />
+        <BoutTimeoutControl boutUuid={bout.uuid} {...bout} variant="subtle" />
+        <BoutPeriodControl boutUuid={bout.uuid} {...bout} variant="subtle" />
         {bout.state == "timeout" && latestTimeoutUri != null && (
           <Suspense>
             <TimeoutTypeEditorContainer

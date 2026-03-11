@@ -7,7 +7,7 @@ interface BoutTimeoutControlProps extends Omit<ButtonProps, "onClick"> {
   /**
    * The UUID of the desired Bout.
    */
-  uuid: string;
+  boutUuid: string;
   /**
    * The current state of the Bout.
    */
@@ -19,12 +19,12 @@ interface BoutTimeoutControlProps extends Omit<ButtonProps, "onClick"> {
  * latest Timeout of the Bout.
  */
 export default function BoutTimeoutControl({
-  uuid,
+  boutUuid,
   state,
   ...props
 }: BoutTimeoutControlProps) {
-  const startTimeout = useStartTimeout(uuid);
-  const stopTimeout = useStopTimeout(uuid);
+  const startTimeout = useStartTimeout({ boutUuid });
+  const stopTimeout = useStopTimeout({ boutUuid });
 
   const content = state == "timeout" ? "End Timeout" : "Call Timeout";
   const command = state == "timeout" ? stopTimeout : startTimeout;
