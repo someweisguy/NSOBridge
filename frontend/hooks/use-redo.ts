@@ -9,7 +9,7 @@ import { useMutation } from "@tanstack/react-query";
  *
  * @returns A Tanstack Mutation object which can fire the Redo mutator.
  */
-export const useRedo = (options?: Omit<MutationOptions<void>, "mutationFn">) =>
+export const useRedo = (options?: MutationOptions<void>) =>
   useMutation({
     mutationFn: () => redo(),
     ...options,

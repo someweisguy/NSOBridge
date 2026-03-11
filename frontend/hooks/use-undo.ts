@@ -9,7 +9,7 @@ import { useMutation } from "@tanstack/react-query";
  *
  * @returns A Tanstack Mutation object which can fire the Undo mutator.
  */
-export const useUndo = (options?: Omit<MutationOptions<void>, "mutationFn">) =>
+export const useUndo = (options?: MutationOptions<void>) =>
   useMutation({
     mutationFn: () => undo(),
     ...options,
