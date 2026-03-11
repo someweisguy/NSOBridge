@@ -54,7 +54,7 @@ export async function getTimeout(
   return Object.assign(new Timeout(), data);
 }
 
-export async function setType(
+export async function setTimeoutType(
   boutUuid: string,
   timeoutNum: number,
   type: "timeout" | "review",
@@ -65,7 +65,7 @@ export async function setType(
   });
 }
 
-export async function setTeam(
+export async function setTimeoutTeam(
   boutUuid: string,
   timeoutNum: number,
   teamNum: number | null,
@@ -76,7 +76,7 @@ export async function setTeam(
   });
 }
 
-export async function setRetained(
+export async function setTimeoutRetained(
   boutUuid: string,
   timeoutNum: number,
   isRetained: boolean,

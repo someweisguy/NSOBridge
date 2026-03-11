@@ -1,11 +1,11 @@
-import { setStarPass } from "@/lib/game/jams";
+import { addJamStarPass } from "@/lib/game/jams";
 import { AppMutationOptions, TeamJamUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
  * Adds a star pass to the jammer of this TeamJam.
  *
- * @returns A Tanstack Mutation object which can fire the setStarPass mutator.
+ * @returns A Tanstack Mutation object which can fire the addJamStarPass mutator.
  */
 export const useTeamJamAddStarPass = ({
   boutUuid,
@@ -16,6 +16,6 @@ export const useTeamJamAddStarPass = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (starPass: boolean) =>
-      setStarPass(boutUuid, periodNum, jamNum, teamNum, starPass),
+      addJamStarPass(boutUuid, periodNum, jamNum, teamNum, starPass),
     ...options,
   });

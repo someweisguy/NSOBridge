@@ -1,11 +1,11 @@
-import { addTrip } from "@/lib/game/jams";
+import { addJamTrip } from "@/lib/game/jams";
 import { AppMutationOptions, TeamJamUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
  * Adds a jam trip to the TeamJam.
  *
- * @returns A Tanstack Mutation object which can fire the addTrip mutator.
+ * @returns A Tanstack Mutation object which can fire the addJamTrip mutator.
  */
 export const useTeamJamAddTrip = ({
   boutUuid,
@@ -16,6 +16,6 @@ export const useTeamJamAddTrip = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, number>) =>
   useMutation({
     mutationFn: (passes: number) =>
-      addTrip(boutUuid, periodNum, jamNum, teamNum, passes),
+      addJamTrip(boutUuid, periodNum, jamNum, teamNum, passes),
     ...options,
   });

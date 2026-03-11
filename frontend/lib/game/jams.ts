@@ -55,7 +55,7 @@ export async function getJam(
   return Object.assign(new Jam(), data);
 }
 
-export async function addTrip(
+export async function addJamTrip(
   boutUuid: string,
   periodNum: number,
   jamNum: number,
@@ -73,7 +73,7 @@ export async function addTrip(
   });
 }
 
-export async function setLead(
+export async function addJamLead(
   boutUuid: string,
   periodNum: number,
   jamNum: number,
@@ -91,7 +91,7 @@ export async function setLead(
   });
 }
 
-export async function setLost(
+export async function addJamLost(
   boutUuid: string,
   periodNum: number,
   jamNum: number,
@@ -109,7 +109,7 @@ export async function setLost(
   });
 }
 
-export async function setStarPass(
+export async function addJamStarPass(
   boutUuid: string,
   periodNum: number,
   jamNum: number,

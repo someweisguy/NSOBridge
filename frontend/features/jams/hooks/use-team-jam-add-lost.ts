@@ -1,11 +1,11 @@
-import { setLost } from "@/lib/game/jams";
+import { addJamLost } from "@/lib/game/jams";
 import { AppMutationOptions, TeamJamUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
  * Sets the lost lead Jam status of this TeamJam.
  *
- * @returns A Tanstack Mutation object which can fire the setLost mutator.
+ * @returns A Tanstack Mutation object which can fire the addJamLost mutator.
  */
 export const useTeamJamAddLost = ({
   boutUuid,
@@ -16,6 +16,6 @@ export const useTeamJamAddLost = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (lost: boolean) =>
-      setLost(boutUuid, periodNum, jamNum, teamNum, lost),
+      addJamLost(boutUuid, periodNum, jamNum, teamNum, lost),
     ...options,
   });

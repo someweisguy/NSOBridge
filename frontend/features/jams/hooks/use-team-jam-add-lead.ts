@@ -1,11 +1,11 @@
-import { setLead } from "@/lib/game/jams";
+import { addJamLead } from "@/lib/game/jams";
 import { AppMutationOptions, TeamJamUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
  * Sets the lead Jam status of this TeamJam.
  *
- * @returns A Tanstack Mutation object which can fire the setLead mutator.
+ * @returns A Tanstack Mutation object which can fire the addJamLead mutator.
  */
 export const useTeamJamAddLead = ({
   boutUuid,
@@ -16,6 +16,6 @@ export const useTeamJamAddLead = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (lead: boolean) =>
-      setLead(boutUuid, periodNum, jamNum, teamNum, lead),
+      addJamLead(boutUuid, periodNum, jamNum, teamNum, lead),
     ...options,
   });
