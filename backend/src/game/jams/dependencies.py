@@ -14,15 +14,17 @@ async def _get_jam(
     request: Request,
     user: GetUser,
     bout: GetBout,
-    period: Annotated[int, Query()],
-    num: Annotated[int, Query()],
+    period_num: Annotated[int, Query(alias='periodNum')],
+    jam_num: Annotated[int, Query(alias='jamNum')],
 ) -> BaseJam:
     try:
         jam: BaseJam = next(
-            jam for jam in bout.jams if jam.period == period and jam.num == num
+            jam for jam in bout.jams if jam.period == period_num and jam.num == jam_num
         )
     except StopIteration as e:
-        raise ModelLookupError(f'Could not find Jam ({bout=} {period=} {num=})') from e
+        raise ModelLookupError(
+            f'Could not find Jam ({bout=} {period_num=} {jam_num=})'
+        ) from e
 
     if request.method != 'GET':
         user.stage(jam.get_memento())
