@@ -26,7 +26,7 @@ export default function TimeoutCallerEditorContainer({
     timeout.teamNum == null && !timeout.teamIsOfficials,
   );
 
-  const setTeam = useSetTimeoutTeam(boutUuid, timeoutNum);
+  const setTeam = useSetTimeoutTeam({ boutUuid, timeoutNum });
 
   return (
     <TitledSegmentedControl

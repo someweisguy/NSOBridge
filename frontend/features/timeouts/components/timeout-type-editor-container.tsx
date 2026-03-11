@@ -17,7 +17,7 @@ export default function TimeoutTypeEditorContainer({
   ...props
 }: TimeoutTypeEditorContainerProps) {
   const { data: timeout } = useSuspenseTimeout({ boutUuid, timeoutNum });
-  const setType = useSetTimeoutType(boutUuid, timeoutNum);
+  const setType = useSetTimeoutType({ boutUuid, timeoutNum });
 
   return (
     <TitledSegmentedControl
