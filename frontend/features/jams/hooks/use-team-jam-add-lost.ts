@@ -1,5 +1,5 @@
 import { setLost } from "@/lib/game/jams";
-import { MutationOptions, TeamJamUri } from "@/types/query";
+import { AppMutationOptions, TeamJamUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
@@ -13,7 +13,7 @@ export const useTeamJamAddLost = ({
   jamNum,
   teamNum,
   ...options
-}: TeamJamUri & MutationOptions<void, unknown, boolean>) =>
+}: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (lost: boolean) =>
       setLost(boutUuid, periodNum, jamNum, teamNum, lost),

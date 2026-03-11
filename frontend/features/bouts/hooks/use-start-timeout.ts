@@ -1,5 +1,5 @@
 import { startTimeout } from "@/lib/game/bouts";
-import { BoutUri, MutationOptions } from "@/types/query";
+import { BoutUri, AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
@@ -10,7 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 export const useStartTimeout = ({
   boutUuid,
   ...options
-}: BoutUri & MutationOptions<void>) =>
+}: BoutUri & AppMutationOptions<void>) =>
   useMutation({
     mutationFn: () => startTimeout(boutUuid),
     ...options,

@@ -1,6 +1,6 @@
 import queryClient from "@/lib/cache";
 import { Bout, getAllBouts } from "@/lib/game/bouts";
-import { SuspenseQueryOptions } from "@/types/query";
+import { AppSuspenseQueryOptions } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -11,7 +11,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
  * @returns a Tanstack useSuspenseQuery object containing an array of all Bouts.
  */
 export const useSuspenseGetAllBouts = (
-  options?: Omit<SuspenseQueryOptions<Bout[]>, "queryKey" | "queryFn">,
+  options?: AppSuspenseQueryOptions<Bout[]>,
 ) =>
   useSuspenseQuery(
     {

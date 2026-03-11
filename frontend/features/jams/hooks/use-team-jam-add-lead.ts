@@ -1,5 +1,5 @@
 import { setLead } from "@/lib/game/jams";
-import { MutationOptions, TeamJamUri } from "@/types/query";
+import { AppMutationOptions, TeamJamUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
@@ -13,7 +13,7 @@ export const useTeamJamAddLead = ({
   jamNum,
   teamNum,
   ...options
-}: TeamJamUri & MutationOptions<void, unknown, boolean>) =>
+}: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (lead: boolean) =>
       setLead(boutUuid, periodNum, jamNum, teamNum, lead),

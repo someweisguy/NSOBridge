@@ -1,5 +1,5 @@
 import { Bout, getBout } from "@/lib/game/bouts";
-import { BoutUri, SuspenseQueryOptions } from "@/types/query";
+import { BoutUri, AppSuspenseQueryOptions } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -11,7 +11,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 export const useSuspenseBout = ({
   boutUuid,
   ...options
-}: BoutUri & Omit<SuspenseQueryOptions<Bout>, "queryKey" | "queryFn">) =>
+}: BoutUri & AppSuspenseQueryOptions<Bout>) =>
   useSuspenseQuery({
     queryKey: Bout.generateKey(boutUuid),
     queryFn: () => getBout(boutUuid),

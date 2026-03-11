@@ -4,14 +4,17 @@ import {
   UseSuspenseQueryOptions,
 } from "@tanstack/react-query";
 
-export type SuspenseQueryOptions<T = unknown, E = Error, D = T> = Omit<
+export type AppSuspenseQueryOptions<T = unknown, E = Error, D = T> = Omit<
   UseSuspenseQueryOptions<T, E, D>,
   "queryKey" | "queryFn"
 >;
 
-export type QueryOptions<T> = Omit<UseQueryOptions<T>, "queryKey" | "queryFn">;
+export type AppQueryOptions<T> = Omit<
+  UseQueryOptions<T>,
+  "queryKey" | "queryFn"
+>;
 
-export type MutationOptions<
+export type AppMutationOptions<
   TData = unknown,
   TError = Error,
   TVariables = void,

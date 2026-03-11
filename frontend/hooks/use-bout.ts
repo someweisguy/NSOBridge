@@ -1,5 +1,5 @@
 import { Bout, getBout } from "@/lib/game/bouts";
-import { BoutUri, QueryOptions } from "@/types/query";
+import { BoutUri, AppQueryOptions } from "@/types/query";
 import { useQuery } from "@tanstack/react-query";
 
 /**
@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 export const useBout = <T = null>({
   boutUuid,
   ...options
-}: BoutUri & Omit<QueryOptions<Bout | T>, "queryKey" | "queryFn">) =>
+}: BoutUri & AppQueryOptions<Bout | T>) =>
   useQuery({
     queryKey: Bout.generateKey(boutUuid),
     queryFn: () => getBout(boutUuid),

@@ -1,5 +1,5 @@
 import { setTeam } from "@/lib/game/timeouts";
-import { MutationOptions, TimeoutUri } from "@/types/query";
+import { AppMutationOptions, TimeoutUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
@@ -12,7 +12,7 @@ export const useSetTimeoutTeam = ({
   boutUuid,
   timeoutNum,
   ...options
-}: TimeoutUri & MutationOptions<void, Error, number | null>) =>
+}: TimeoutUri & AppMutationOptions<void, Error, number | null>) =>
   useMutation({
     mutationFn: (teamNum: number | null) =>
       setTeam(boutUuid, timeoutNum, teamNum),

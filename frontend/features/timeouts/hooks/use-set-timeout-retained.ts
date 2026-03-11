@@ -1,5 +1,5 @@
 import { setRetained } from "@/lib/game/timeouts";
-import { MutationOptions, TimeoutUri } from "@/types/query";
+import { AppMutationOptions, TimeoutUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
@@ -11,7 +11,7 @@ export const useSetTimeoutRetained = ({
   boutUuid,
   timeoutNum,
   ...options
-}: TimeoutUri & MutationOptions<void, Error, boolean>) =>
+}: TimeoutUri & AppMutationOptions<void, Error, boolean>) =>
   useMutation({
     mutationFn: (retained: boolean) =>
       setRetained(boutUuid, timeoutNum, retained),

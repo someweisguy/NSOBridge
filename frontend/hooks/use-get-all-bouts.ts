@@ -1,6 +1,6 @@
 import queryClient from "@/lib/cache";
 import { Bout, getAllBouts } from "@/lib/game/bouts";
-import { QueryOptions } from "@/types/query";
+import { AppQueryOptions } from "@/types/query";
 import { useQuery } from "@tanstack/react-query";
 
 /**
@@ -10,9 +10,7 @@ import { useQuery } from "@tanstack/react-query";
  *
  * @returns a Tanstack useQuery object containing an array of all Bouts.
  */
-export const useGetAllBouts = (
-  options?: Omit<QueryOptions<Bout[]>, "queryKey" | "queryFn">,
-) =>
+export const useGetAllBouts = (options?: AppQueryOptions<Bout[]>) =>
   useQuery(
     {
       queryKey: Bout.generateKey(),

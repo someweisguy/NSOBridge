@@ -1,5 +1,5 @@
 import { redo } from "@/lib/history";
-import { MutationOptions } from "@/types/query";
+import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
@@ -9,7 +9,7 @@ import { useMutation } from "@tanstack/react-query";
  *
  * @returns A Tanstack Mutation object which can fire the Redo mutator.
  */
-export const useRedo = (options?: MutationOptions<void>) =>
+export const useRedo = (options?: AppMutationOptions<void>) =>
   useMutation({
     mutationFn: () => redo(),
     ...options,

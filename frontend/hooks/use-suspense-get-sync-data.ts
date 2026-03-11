@@ -1,5 +1,5 @@
 import queryClient from "@/lib/cache";
-import { SuspenseQueryOptions } from "@/types/query";
+import { AppSuspenseQueryOptions } from "@/types/query";
 import { SyncData } from "@/types/ws";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getSyncData, serverTimeCacheKey } from "../lib/sync";
@@ -14,7 +14,7 @@ const REFETCH_INTERVAL = 1000 * 60 * 5;
  * @returns a Tanstack useSuspenseQuery object containing an array of all Bouts.
  */
 export const useSuspenseGetSyncData = (
-  options?: Omit<SuspenseQueryOptions<SyncData>, "queryKey" | "queryFn">,
+  options?: AppSuspenseQueryOptions<SyncData>,
 ) =>
   useSuspenseQuery<SyncData>(
     {

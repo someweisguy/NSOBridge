@@ -1,6 +1,6 @@
 import queryClient from "@/lib/cache";
 import { getAllSeries, Series } from "@/lib/game/series";
-import { SuspenseQueryOptions } from "@/types/query";
+import { AppSuspenseQueryOptions } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -11,7 +11,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
  * @returns a Tanstack useSuspenseQuery object containing an array of all Series.
  */
 export const useSuspenseGetAllSeries = (
-  options?: Omit<SuspenseQueryOptions<Series[]>, "queryKey" | "queryFn">,
+  options?: AppSuspenseQueryOptions<Series[]>,
 ) =>
   useSuspenseQuery<Series[]>({
     queryKey: Series.generateKey(),
