@@ -158,11 +158,11 @@ export default function Operator() {
             <Stack key={i}>
               <JammerStateEditorContainer
                 {...activeJamUri}
-                teamJamNum={i}
+                teamNum={bout.teams[i].num}
                 justify="center"
                 gap="md"
               />
-              <TeamJamPassEditorContainer {...activeJamUri} teamJamNum={i} />
+              <TeamJamPassEditorContainer {...activeJamUri} teamNum={i} />
               <TeamJamTripHistoryContainer {...activeJamUri} teamJamNum={i} />
             </Stack>
           ))}
