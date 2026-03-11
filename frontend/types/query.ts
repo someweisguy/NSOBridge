@@ -57,7 +57,7 @@ export interface TimeoutUri extends BoutUri {
  */
 export interface TeamJamUri extends JamUri {
   /**
-   * The TeamJam number.
+   * The Team number.
    */
-  teamJamNum: number;
+  teamNum: number;
 }
