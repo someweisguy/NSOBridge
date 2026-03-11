@@ -1,12 +1,6 @@
 import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
-export async function getRuleset(boutUuid: string): Promise<Ruleset> {
-  return localAPI.get<Ruleset>("bout/ruleset", {
-    query: { boutUuid },
-  });
-}
-
 export class Ruleset {
   jamDuration: number;
   lineupDuration: number;
@@ -17,4 +11,10 @@ export class Ruleset {
   static generateKey(boutUuid: string): CacheKey {
     return ["ruleset", boutUuid];
   }
+}
+
+export async function getRuleset(boutUuid: string): Promise<Ruleset> {
+  return localAPI.get<Ruleset>("bout/ruleset", {
+    query: { boutUuid },
+  });
 }

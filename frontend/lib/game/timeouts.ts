@@ -1,16 +1,6 @@
 import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
-export async function getTimeout(
-  boutUuid: string,
-  num: number,
-): Promise<Timeout> {
-  const data = await localAPI.get<Partial<Timeout>>("timeout", {
-    query: { boutUuid, num },
-  });
-  return Object.assign(new Timeout(), data);
-}
-
 export default class Clock {
   startTimestamp: Date | null;
   elapsed: number;
@@ -52,6 +42,16 @@ export class Timeout {
   isRunning(): boolean {
     return this.hasStarted() && this.stopTimestamp == null;
   }
+}
+
+export async function getTimeout(
+  boutUuid: string,
+  num: number,
+): Promise<Timeout> {
+  const data = await localAPI.get<Partial<Timeout>>("timeout", {
+    query: { boutUuid, num },
+  });
+  return Object.assign(new Timeout(), data);
 }
 
 export async function setType(

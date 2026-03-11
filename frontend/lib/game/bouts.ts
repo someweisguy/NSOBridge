@@ -10,6 +10,19 @@ export type BoutStateString =
   | "stopped"
   | "timeout";
 
+export interface Team {
+  num: number;
+
+  name: string;
+  league: string;
+  mnemonic: string;
+
+  boutScore: number;
+  jamScore: number;
+  timeoutsRemaining: number;
+  reviewsRemaining: number;
+  scoreOffset: number;
+}
 export class Bout {
   uuid: string;
   seriesUuid: string;
@@ -73,20 +86,6 @@ export class Bout {
   isOvertime(): boolean {
     return this.jamCounts[2] > 0;
   }
-}
-
-export interface Team {
-  num: number;
-
-  name: string;
-  league: string;
-  mnemonic: string;
-
-  boutScore: number;
-  jamScore: number;
-  timeoutsRemaining: number;
-  reviewsRemaining: number;
-  scoreOffset: number;
 }
 
 export async function getBout(boutUuid: string): Promise<Bout> {

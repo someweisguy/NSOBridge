@@ -1,20 +1,15 @@
 import { localAPI } from "@/lib/requests";
 import { CacheKey } from "@/types/ws";
 
-export async function getJam(
-  boutUuid: string,
-  periodNum: number,
-  jamNum: number,
-): Promise<Jam> {
-  const data = await localAPI.get<Partial<Jam>>("jam", {
-    query: { boutUuid, periodNum, jamNum },
-  });
-  data.teamJams = data.teamJams?.map((tj) => Object.assign(new TeamJam(), tj));
-  return Object.assign(new Jam(), data);
-}
-
 export type StopReasonString = "called" | "elapsed" | "injury" | "other";
 
+export interface TripEvent {
+  timestamp: Date;
+  lead: boolean;
+  lost: boolean;
+  passes: number | null;
+  starPass: boolean;
+}
 export class Jam {
   boutUuid: string;
   period: number;
@@ -48,12 +43,16 @@ export class TeamJam {
   events: TripEvent[];
 }
 
-export interface TripEvent {
-  timestamp: Date;
-  lead: boolean;
-  lost: boolean;
-  passes: number | null;
-  starPass: boolean;
+export async function getJam(
+  boutUuid: string,
+  periodNum: number,
+  jamNum: number,
+): Promise<Jam> {
+  const data = await localAPI.get<Partial<Jam>>("jam", {
+    query: { boutUuid, periodNum, jamNum },
+  });
+  data.teamJams = data.teamJams?.map((tj) => Object.assign(new TeamJam(), tj));
+  return Object.assign(new Jam(), data);
 }
 
 export async function addTrip(
