@@ -60,7 +60,8 @@ export interface TimeoutUri extends BoutUri {
  */
 export interface TeamJamUri extends JamUri {
   /**
-   * The Team number.
+   * The Team number. In game types with more than two teams it should be ensured that
+   * the specified Team is in the desired TeamJam.
    */
   teamNum: number;
 }
