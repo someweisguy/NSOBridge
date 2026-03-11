@@ -1,13 +1,16 @@
-import { Jam, TeamJam } from "@/lib/game/jams";
-import { MutationOptions } from "@/types/query";
+import { setStarPass } from "@/lib/game/jams";
+import { MutationOptions, TeamJamUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export const useTeamJamAddStarPass = (
-  jam: Jam,
-  teamJam: TeamJam,
-  options?: MutationOptions<void, unknown, boolean>,
-) =>
+export const useTeamJamAddStarPass = ({
+  boutUuid,
+  periodNum,
+  jamNum,
+  teamNum,
+  ...options
+}: TeamJamUri & MutationOptions<void, unknown, boolean>) =>
   useMutation({
-    mutationFn: (starPass: boolean) => jam.setStarPass(teamJam, starPass),
+    mutationFn: (starPass: boolean) =>
+      setStarPass(boutUuid, periodNum, jamNum, teamNum, starPass),
     ...options,
   });
