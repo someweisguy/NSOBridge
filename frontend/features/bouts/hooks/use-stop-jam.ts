@@ -10,7 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 export const useStopJam = ({
   boutUuid,
   ...options
-}: BoutUri & Omit<MutationOptions<void>, "mutationFn">) =>
+}: BoutUri & MutationOptions<void>) =>
   useMutation({
     mutationFn: () => stopJam(boutUuid),
     ...options,
