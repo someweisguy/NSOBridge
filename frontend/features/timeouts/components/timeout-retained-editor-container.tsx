@@ -15,9 +15,9 @@ export default function TimeoutRetainedEditorContainer({
   timeoutNum,
   label = "Review is Retained?",
 }: TimeoutRetainedEditorContainerProps) {
-  const { data: timeout } = useSuspenseTimeout(boutUuid, timeoutNum);
+  const { data: timeout } = useSuspenseTimeout({ boutUuid, timeoutNum });
 
-  const setRetained = useSetTimeoutRetained(boutUuid, timeoutNum);
+  const setRetained = useSetTimeoutRetained({ boutUuid, timeoutNum });
   return (
     <Checkbox
       label={label}

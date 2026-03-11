@@ -1,4 +1,5 @@
 import { localAPI } from "@/lib/requests";
+import { JamUri, TimeoutUri } from "@/types/query";
 import { CacheKey } from "@/types/ws";
 import Clock from "./timeouts";
 
@@ -31,67 +32,42 @@ export class Bout {
     return ["bouts", boutUuid];
   }
 
-  async stopTimeout(): Promise<void> {
-    await localAPI.post("bout/stopTimeout", { query: { boutUuid: this.uuid } });
-  }
-
-  getLatestJamNum(): [number, number] {
-    // Get the latest Period number that contains Jams
+  getLatestJamUri(): JamUri {
     let periodNum = 0;
     for (let i = this.jamCounts.length - 1; i >= 0; --i) {
+      // Get the latest Period number that contains Jams
       if (this.jamCounts[i] > 0) {
         periodNum = i;
         break;
       }
     }
-
-    // Get the latest Jam number in the active Period
     const jamNum = this.jamCounts[periodNum] - 1;
 
-    return [periodNum, jamNum];
+    return { boutUuid: this.uuid, periodNum, jamNum };
   }
 
-  getActiveJamNum(): [number, number] | null {
-    // Get the latest Period number that contains Jams
+  getActiveJamUri(): JamUri | null {
     let periodNum = 0;
     for (let i = this.jamCounts.length - 1; i >= 0; --i) {
+      // Get the latest Period number that contains Jams
       if (this.jamCounts[i] > 0) {
         periodNum = i;
         break;
       }
     }
-
-    // Get the active Jam number in the active Period
     if (this.jamCounts[periodNum] < 2) {
       return null; // There is no active Jam
     }
     const jamNum = this.jamCounts[periodNum] - 2;
 
-    return [periodNum, jamNum];
+    return { boutUuid: this.uuid, periodNum, jamNum };
   }
 
-  getActiveOrLatestJamNum(): [number, number] {
-    return this.getActiveJamNum() ?? this.getLatestJamNum();
-  }
-
-  getLatestTimeoutNum(): number {
-    let timeoutIndex = this.timeoutCount - 1;
-    if (timeoutIndex < 0) {
-      timeoutIndex = 0;
+  getLatestTimeoutUri(): TimeoutUri | null {
+    if (this.timeoutCount == 0) {
+      return null;
     }
-    return timeoutIndex;
-  }
-
-  getActiveTimeoutNum(): number | null {
-    if (this.timeoutCount < 2) {
-      return null; // There is no active Timeout
-    }
-
-    return this.timeoutCount - 2;
-  }
-
-  getActiveOrLatestTimeoutIndex(): number {
-    return this.getActiveTimeoutNum() ?? this.getLatestTimeoutNum();
+    return { boutUuid: this.uuid, timeoutNum: this.timeoutCount - 1 };
   }
 
   isOvertime(): boolean {

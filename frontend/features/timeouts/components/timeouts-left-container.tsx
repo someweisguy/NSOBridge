@@ -4,8 +4,8 @@ import { useTimeout } from "@/hooks/use-timeout";
 
 interface TimeoutsLeftContainerProps {
   boutUuid: string;
+  timeoutNum: number | null;
   teamNum: number;
-  timeoutCount: number;
   timeoutsRemaining: number;
   reviewsRemaining: number;
   size: number;
@@ -14,19 +14,21 @@ interface TimeoutsLeftContainerProps {
 export default function TimeoutsLeftContainer({
   boutUuid,
   teamNum,
-  timeoutCount,
+  timeoutNum,
   timeoutsRemaining,
   reviewsRemaining,
   size,
 }: TimeoutsLeftContainerProps) {
-  const { data: ruleset } = useSuspenseRuleset(boutUuid);
+  const { data: ruleset } = useSuspenseRuleset({ boutUuid });
 
   const {
     data: latestTimeout,
     isPending,
     isEnabled,
-  } = useTimeout(boutUuid, timeoutCount - 1, {
-    enabled: timeoutCount > 0,
+  } = useTimeout({
+    boutUuid,
+    timeoutNum: timeoutNum ?? 0,
+    enabled: timeoutNum != null && timeoutNum > 0,
   });
 
   const timeoutIsActive =

@@ -53,12 +53,16 @@ export default function Operator() {
     );
   }
 
-  const { data: bout } = useSuspenseBout(boutUuid);
-  const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
+  const { data: bout } = useSuspenseBout({ boutUuid });
+  const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
+  const latestTimeoutUri = bout.getLatestTimeoutUri() ?? {
+    boutUuid: bout.uuid,
+    timeoutNum: null,
+  };
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
-  void useJam(bout.uuid, ...bout.getLatestJamNum());
+  void useJam({ ...bout.getLatestJamUri() });
 
   return (
     <Stack align="stretch" justify="flex-start">
@@ -76,16 +80,15 @@ export default function Operator() {
               gap="md"
             >
               <TimeoutsLeftContainer
-                boutUuid={bout.uuid}
                 teamNum={team.num}
-                timeoutCount={bout.timeoutCount}
+                {...latestTimeoutUri}
                 {...team}
                 size={24}
               />
               <Text fw="bold" w={150} ta="center" size="48pt">
                 {team.boutScore + team.scoreOffset}
               </Text>
-              <Text {...team} ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
+              <Text ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
                 {team.jamScore}
               </Text>
             </Flex>
@@ -103,21 +106,12 @@ export default function Operator() {
               {...bout.clock}
               inherit
             />
-            <JamNumber
-              periodNum={activePeriodNum}
-              jamNum={activeJamNum}
-              inherit
-            />
-            <JamStatusContainer
-              boutUuid={bout.uuid}
-              periodNum={activePeriodNum}
-              jamNum={activeJamNum}
-              inherit
-            />
+            <JamNumber {...activeJamUri} inherit />
+            <JamStatusContainer {...activeJamUri} inherit />
           </Group>
         </Center>
         <BoutStatusContainer
-          {...bout}
+          boutUuid={bout.uuid}
           className={twMerge(bout.state == "jam" && "invisible")}
           inherit
           fz="24pt"
@@ -126,17 +120,17 @@ export default function Operator() {
 
       {/* Bout State control */}
       <Group justify="center" mih="75">
-        <BoutJamControl {...bout} />
-        <BoutTimeoutControl {...bout} variant="subtle" />
-        <BoutPeriodControl {...bout} variant="subtle" />
-        {bout.state == "timeout" && (
+        <BoutJamControl boutUuid={bout.uuid} {...bout} />
+        <BoutTimeoutControl boutUuid={bout.uuid} {...bout} variant="subtle" />
+        <BoutPeriodControl boutUuid={bout.uuid} {...bout} variant="subtle" />
+        {bout.state == "timeout" && latestTimeoutUri != null && (
           <Suspense>
             <TimeoutTypeEditorContainer
-              boutUuid={bout.uuid}
+              {...latestTimeoutUri}
               timeoutNum={bout.timeoutCount - 1}
             />
             <TimeoutCallerEditorContainer
-              boutUuid={bout.uuid}
+              {...latestTimeoutUri}
               timeoutNum={bout.timeoutCount - 1}
               data={bout.teams.map((team: Team) => {
                 return {
@@ -146,18 +140,14 @@ export default function Operator() {
               })}
             />
             <TimeoutRetainedEditorContainer
-              boutUuid={bout.uuid}
+              {...latestTimeoutUri}
               timeoutNum={bout.timeoutCount - 1}
               variant="outline"
             />
           </Suspense>
         )}
-        {bout.state == "lineup" && bout.jamCounts[activePeriodNum] > 1 && (
-          <JamStopReasonEditorContainer
-            boutUuid={bout.uuid}
-            periodNum={activePeriodNum}
-            jamNum={activeJamNum}
-          />
+        {bout.state == "lineup" && activeJamUri.jamNum > 0 && (
+          <JamStopReasonEditorContainer {...activeJamUri} />
         )}
       </Group>
 
@@ -167,25 +157,13 @@ export default function Operator() {
           {[...Array(2).keys()].map((i: number) => (
             <Stack key={i}>
               <JammerStateEditorContainer
-                boutUuid={bout.uuid}
-                periodNum={activePeriodNum}
-                jamNum={activeJamNum}
-                teamJamNum={i}
+                {...activeJamUri}
+                teamNum={bout.teams[i].num}
                 justify="center"
                 gap="md"
               />
-              <TeamJamPassEditorContainer
-                boutUuid={bout.uuid}
-                periodNum={activePeriodNum}
-                jamNum={activeJamNum}
-                teamJamNum={i}
-              />
-              <TeamJamTripHistoryContainer
-                boutUuid={bout.uuid}
-                periodNum={activePeriodNum}
-                jamNum={activeJamNum}
-                teamJamNum={i}
-              />
+              <TeamJamPassEditorContainer {...activeJamUri} teamNum={i} />
+              <TeamJamTripHistoryContainer {...activeJamUri} teamJamNum={i} />
             </Stack>
           ))}
         </SimpleGrid>

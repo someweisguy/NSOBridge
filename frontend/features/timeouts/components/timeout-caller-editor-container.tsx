@@ -14,11 +14,11 @@ interface TimeoutCallerEditorContainerProps extends Omit<
 
 export default function TimeoutCallerEditorContainer({
   boutUuid,
-  data,
   timeoutNum,
+  data,
   ...props
 }: TimeoutCallerEditorContainerProps) {
-  const { data: timeout } = useSuspenseTimeout(boutUuid, timeoutNum);
+  const { data: timeout } = useSuspenseTimeout({ boutUuid, timeoutNum });
 
   // Used to solve a minor UI glitch that occurs when selecting the initial value of a
   // SegmentedControl component
@@ -26,7 +26,7 @@ export default function TimeoutCallerEditorContainer({
     timeout.teamNum == null && !timeout.teamIsOfficials,
   );
 
-  const setTeam = useSetTimeoutTeam(boutUuid, timeoutNum);
+  const setTeam = useSetTimeoutTeam({ boutUuid, timeoutNum });
 
   return (
     <TitledSegmentedControl

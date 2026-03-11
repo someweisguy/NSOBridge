@@ -17,7 +17,7 @@ export default function JamStopReasonEditorContainer({
   jamNum,
   ...props
 }: JamStopReasonEditorProps) {
-  const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
+  const { data: jam } = useSuspenseJam({ boutUuid, periodNum, jamNum });
 
   return (
     <TitledSegmentedControl

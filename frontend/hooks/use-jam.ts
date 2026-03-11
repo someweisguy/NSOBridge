@@ -1,13 +1,19 @@
 import { getJam, Jam } from "@/lib/game/jams";
-import { QueryOptions } from "@/types/query";
+import { JamUri, AppQueryOptions } from "@/types/query";
 import { useQuery } from "@tanstack/react-query";
 
-export const useJam = <T = null>(
-  boutUuid: string,
-  periodNum: number,
-  jamNum: number,
-  options?: Omit<QueryOptions<Jam | T>, "queryKey" | "queryFn">,
-) =>
+/**
+ * Fetches the desired Jam from the server. This hook is a wrapper for call to TanStack
+ * Query's `useQuery` function.
+ *
+ * @returns a Tanstack useQuery object containing the desired Jam.
+ */
+export const useJam = <T = null>({
+  boutUuid,
+  periodNum,
+  jamNum,
+  ...options
+}: JamUri & AppQueryOptions<Jam | T>) =>
   useQuery<Jam | T>({
     queryKey: Jam.generateKey(boutUuid, periodNum, jamNum),
     queryFn: () => getJam(boutUuid, periodNum, jamNum),

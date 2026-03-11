@@ -1,34 +1,14 @@
+import { StatusClock } from "@/components/status-clock";
+import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
-import { BoutStateString } from "@/lib/game/bouts";
 import { TextProps } from "@mantine/core";
-import { StatusClock } from "../../../components/status-clock";
 
 interface BoutStatusContainerProps extends TextProps {
   /**
    * The UUID of the desired Bout.
    */
-  uuid: string;
-  /**
-   * The state of the desired Bout.
-   */
-  state: BoutStateString;
-  /**
-   * The timestamp of when the Bout will begin, if it is set.
-   */
-  startCountdown: Date | null;
-  /**
-   * The number of Jams in each Period.
-   */
-  jamCounts: [number, number, number];
-  /**
-   * True if the Bout is final.
-   */
-  isFinal: boolean;
-  /**
-   * The number of Timeouts in the Bout.
-   */
-  timeoutCount: number;
+  boutUuid: string;
   /**
    * The offset in time between the host and the server in milliseconds.
    */
@@ -36,60 +16,43 @@ interface BoutStatusContainerProps extends TextProps {
 }
 
 export default function BoutStatusContainer({
-  uuid,
-  state,
-  startCountdown,
-  jamCounts,
-  isFinal,
-  timeoutCount,
+  boutUuid,
   ...props
 }: BoutStatusContainerProps) {
-  // Get the latest Period number that contains Jams
-  let periodNum = 0;
-  for (let i = jamCounts.length - 1; i >= 0; --i) {
-    if (jamCounts[i] > 0) {
-      periodNum = i;
-      break;
-    }
-  }
+  const { data: bout } = useSuspenseBout({ boutUuid });
 
-  // Get the latest Jam number in the active Period
-  const jamNum =
-    jamCounts[periodNum] - (state == "lineup" || state == "stopped" ? 1 : 2);
-
-  const { data: activeJam } = useSuspenseJam(uuid, periodNum, jamNum);
-  const { data: latestTimeout, isPending } = useTimeout(
-    uuid,
-    timeoutCount - 1,
-    {
-      enabled: timeoutCount > 0,
-      initialData: undefined,
-    },
-  );
+  const { data: activeJam } = useSuspenseJam({
+    ...(bout.getActiveJamUri() ?? bout.getLatestJamUri()),
+  });
+  const { data: latestTimeout, isPending } = useTimeout({
+    ...bout.getLatestTimeoutUri()!,
+    enabled: bout.timeoutCount > 0,
+    initialData: undefined,
+  });
 
   let content: string;
   let countUpTimestamp: Date | null;
-  if (state == "stopped") {
-    if (isFinal) {
+  if (bout.state == "stopped") {
+    if (bout.isFinal) {
       content = "Final";
       countUpTimestamp = null;
-    } else if (jamCounts[2] > 0) {
+    } else if (bout.jamCounts[2] > 0) {
       content = "Unofficial";
       countUpTimestamp = null;
-    } else if (jamCounts[1] > 0) {
+    } else if (bout.jamCounts[1] > 0) {
       content = "Halftime";
-      countUpTimestamp = startCountdown;
+      countUpTimestamp = bout.startCountdown;
     } else {
       content = "Pregame";
-      countUpTimestamp = startCountdown;
+      countUpTimestamp = bout.startCountdown;
     }
-  } else if (state == "final") {
+  } else if (bout.state == "final") {
     content = "Final";
     countUpTimestamp = null;
-  } else if (state == "jam") {
+  } else if (bout.state == "jam") {
     content = "Jam";
     countUpTimestamp = null;
-  } else if (state == "lineup") {
+  } else if (bout.state == "lineup") {
     if (
       activeJam.stopTimestamp &&
       latestTimeout?.startTimestamp &&

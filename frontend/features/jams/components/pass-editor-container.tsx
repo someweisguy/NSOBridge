@@ -8,20 +8,30 @@ interface TeamJamPassEditorProps {
   boutUuid: string;
   periodNum: number;
   jamNum: number;
-  teamJamNum: number;
+  teamNum: number;
 }
 
 export default function TeamJamPassEditorContainer({
   boutUuid,
   periodNum,
   jamNum,
-  teamJamNum,
+  teamNum,
 }: TeamJamPassEditorProps) {
-  const { data: ruleset } = useSuspenseRuleset(boutUuid);
-  const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
-  const teamJam: TeamJam = jam.teamJams[teamJamNum];
+  const { data: ruleset } = useSuspenseRuleset({ boutUuid });
+  const { data: jam } = useSuspenseJam({ boutUuid, periodNum, jamNum });
+  const teamJam: TeamJam | undefined = jam.teamJams.find(
+    (tj) => tj.teamNum == teamNum,
+  );
+  if (teamJam == null) {
+    throw new Error("Could not find this team in the Jam");
+  }
 
-  const addTrip = useTeamJamAddTrip(jam, teamJam);
+  const addTrip = useTeamJamAddTrip({
+    boutUuid,
+    periodNum,
+    jamNum,
+    teamNum,
+  });
 
   // TODO: don't show Initial during overtime
   const showInitial =

@@ -43,8 +43,8 @@ export default function JamStatusContainer({
   },
   ...props
 }: JamStatusContainerProps) {
-  const { data: ruleset } = useSuspenseRuleset(boutUuid);
-  const { data: jam } = useSuspenseJam(boutUuid, periodNum, jamNum);
+  const { data: ruleset } = useSuspenseRuleset({ boutUuid });
+  const { data: jam } = useSuspenseJam({ boutUuid, periodNum, jamNum });
 
   const stopReason = jam.stopReason ?? "other";
 

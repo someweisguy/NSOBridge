@@ -1,11 +1,16 @@
 import { stopTimeout } from "@/lib/game/bouts";
-import { MutationOptions } from "@/types/query";
+import { BoutUri, AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export const useStopTimeout = (
-  boutUuid: string,
-  options?: MutationOptions<void>,
-) =>
+/**
+ * Used to stop the current Timeout of the desired Bout.
+ *
+ * @returns A Tanstack Mutation object which can fire the StopTimeout mutator.
+ */
+export const useStopTimeout = ({
+  boutUuid,
+  ...options
+}: BoutUri & AppMutationOptions<void>) =>
   useMutation({
     mutationFn: () => stopTimeout(boutUuid),
     ...options,

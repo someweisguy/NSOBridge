@@ -7,7 +7,7 @@ interface BoutPeriodControlProps extends Omit<ButtonProps, "onClick"> {
   /**
    * The UUID of the desired Bout.
    */
-  uuid: string;
+  boutUuid: string;
   /**
    * The current state of the Bout.
    */
@@ -20,12 +20,12 @@ interface BoutPeriodControlProps extends Omit<ButtonProps, "onClick"> {
  * does affect the Bout state. The updated Bout state is reflected on scoreboard pages.
  */
 export default function BoutPeriodControl({
-  uuid,
+  boutUuid,
   state,
   ...props
 }: BoutPeriodControlProps) {
-  const beginPeriod = useBeginPeriod(uuid);
-  const endPeriod = useEndPeriod(uuid);
+  const beginPeriod = useBeginPeriod({ boutUuid });
+  const endPeriod = useEndPeriod({ boutUuid });
 
   const content = state == "stopped" ? "Start Period" : "Stop Period";
   const disabled = state == "jam" || state == "timeout";

@@ -33,12 +33,17 @@ export function Scoreboard() {
     );
   }
 
-  const { data: bout } = useSuspenseBout(boutUuid);
-  const [activePeriodNum, activeJamNum] = bout.getActiveOrLatestJamNum();
+  const { data: bout } = useSuspenseBout({ boutUuid });
+
+  const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
+  const latestTimeoutUri = bout.getLatestTimeoutUri() ?? {
+    boutUuid: bout.uuid,
+    timeoutNum: null,
+  };
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
-  void useJam(bout.uuid, ...bout.getLatestJamNum());
+  void useJam({ ...bout.getLatestJamUri() });
 
   return (
     <Stack align="stretch" justify="flex-start">
@@ -56,16 +61,15 @@ export function Scoreboard() {
               gap="md"
             >
               <TimeoutsLeftContainer
-                boutUuid={bout.uuid}
                 teamNum={team.num}
-                timeoutCount={bout.timeoutCount}
+                {...latestTimeoutUri}
                 {...team}
                 size={36}
               />
               <Text fw="bold" w={150} ta="center" size="48pt">
                 {team.boutScore + team.scoreOffset}
               </Text>
-              <Text {...team} ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
+              <Text ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
                 {team.jamScore}
               </Text>
             </Flex>
@@ -83,21 +87,12 @@ export function Scoreboard() {
               {...bout.clock}
               inherit
             />
-            <JamNumber
-              periodNum={activePeriodNum}
-              jamNum={activeJamNum}
-              inherit
-            />
-            <JamStatusContainer
-              boutUuid={bout.uuid}
-              periodNum={activePeriodNum}
-              jamNum={activeJamNum}
-              inherit
-            />
+            <JamNumber {...activeJamUri} inherit />
+            <JamStatusContainer {...activeJamUri} inherit />
           </Group>
         </Center>
         <BoutStatusContainer
-          {...bout}
+          boutUuid={bout.uuid}
           className={twMerge(bout.state == "jam" && "invisible")}
           inherit
           fz="48pt"

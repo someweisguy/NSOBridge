@@ -1,8 +1,16 @@
 import { stopJam } from "@/lib/game/bouts";
-import { MutationOptions } from "@/types/query";
+import { BoutUri, AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export const useStopJam = (boutUuid: string, options?: MutationOptions<void>) =>
+/**
+ * Used to stop the latest Jam of the desired Bout.
+ *
+ * @returns A Tanstack Mutation object which can fire the StopJam mutator.
+ */
+export const useStopJam = ({
+  boutUuid,
+  ...options
+}: BoutUri & AppMutationOptions<void>) =>
   useMutation({
     mutationFn: () => stopJam(boutUuid),
     ...options,

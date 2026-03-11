@@ -3,11 +3,11 @@ import { CacheKey } from "@/types/ws";
 
 export async function getJam(
   boutUuid: string,
-  period: number,
-  num: number,
+  periodNum: number,
+  jamNum: number,
 ): Promise<Jam> {
   const data = await localAPI.get<Partial<Jam>>("jam", {
-    query: { boutUuid, period, num },
+    query: { boutUuid, periodNum, jamNum },
   });
   data.teamJams = data.teamJams?.map((tj) => Object.assign(new TeamJam(), tj));
   return Object.assign(new Jam(), data);
@@ -41,54 +41,6 @@ export class Jam {
   isRunning(): boolean {
     return this.hasStarted() && this.stopTimestamp == null;
   }
-
-  async addTrip(teamJam: TeamJam, passes: number) {
-    await localAPI.post("jam/addTrip", {
-      query: {
-        boutUuid: this.boutUuid,
-        period: this.period,
-        num: this.num,
-        teamNum: teamJam.teamNum,
-      },
-      body: passes,
-    });
-  }
-
-  async setLead(teamJam: TeamJam, lead: boolean) {
-    await localAPI.post("jam/setLead", {
-      query: {
-        boutUuid: this.boutUuid,
-        period: this.period,
-        num: this.num,
-        teamNum: teamJam.teamNum,
-      },
-      body: lead,
-    });
-  }
-
-  async setLost(teamJam: TeamJam, lost: boolean) {
-    await localAPI.post("jam/setLost", {
-      query: {
-        boutUuid: this.boutUuid,
-        period: this.period,
-        num: this.num,
-        teamNum: teamJam.teamNum,
-      },
-      body: lost,
-    });
-  }
-
-  async setStarPass(teamJam: TeamJam, starPass: boolean) {
-    await localAPI.post("jam/setStarPass", {
-      query: {
-        boutUuid: this.boutUuid,
-        period: this.period,
-        num: this.num,
-        teamNum: teamJam.teamNum,
-      },
-      body: starPass,
-    });
-  }
 }
 
 export class TeamJam {
@@ -102,4 +54,76 @@ export interface TripEvent {
   lost: boolean;
   passes: number | null;
   starPass: boolean;
+}
+
+export async function addTrip(
+  boutUuid: string,
+  periodNum: number,
+  jamNum: number,
+  teamNum: number,
+  passes: number,
+) {
+  await localAPI.post("jam/addTrip", {
+    query: {
+      boutUuid,
+      periodNum,
+      jamNum,
+      teamNum,
+    },
+    body: passes,
+  });
+}
+
+export async function setLead(
+  boutUuid: string,
+  periodNum: number,
+  jamNum: number,
+  teamNum: number,
+  lead: boolean,
+) {
+  await localAPI.post("jam/setLead", {
+    query: {
+      boutUuid,
+      periodNum,
+      jamNum,
+      teamNum,
+    },
+    body: lead,
+  });
+}
+
+export async function setLost(
+  boutUuid: string,
+  periodNum: number,
+  jamNum: number,
+  teamNum: number,
+  lost: boolean,
+) {
+  await localAPI.post("jam/setLost", {
+    query: {
+      boutUuid,
+      periodNum,
+      jamNum,
+      teamNum,
+    },
+    body: lost,
+  });
+}
+
+export async function setStarPass(
+  boutUuid: string,
+  periodNum: number,
+  jamNum: number,
+  teamNum: number,
+  starPass: boolean,
+) {
+  await localAPI.post("jam/setStarPass", {
+    query: {
+      boutUuid,
+      periodNum,
+      jamNum,
+      teamNum,
+    },
+    body: starPass,
+  });
 }
