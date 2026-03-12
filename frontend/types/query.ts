@@ -4,16 +4,31 @@ import {
   UseSuspenseQueryOptions,
 } from "@tanstack/react-query";
 
+/**
+ * Suspense query options used in hooks throughout this app. This type is based on
+ * Tanstack Query's useSuspenseQuery object. The query key and query function are
+ * provided in built-in hooks so they are omitted from this type.
+ */
 export type AppSuspenseQueryOptions<T = unknown, E = Error, D = T> = Omit<
   UseSuspenseQueryOptions<T, E, D>,
   "queryKey" | "queryFn"
 >;
 
+/**
+ * Query options used in hooks throughout this app. This type is based on Tanstack
+ * Query's useQuery object. The query key and query function are provided in built-in
+ * hooks so they are omitted from this type.
+ */
 export type AppQueryOptions<T> = Omit<
   UseQueryOptions<T>,
   "queryKey" | "queryFn"
 >;
 
+/**
+ * Mutation options used in hooks throughout this app. This type is based on Tanstack
+ * Query's useMutation object. The mutation function are provided in built-in hooks so
+ * it is omitted from this type.
+ */
 export type AppMutationOptions<
   TData = unknown,
   TError = Error,
