@@ -6,7 +6,7 @@ import { ServerOffsetContext } from "@/utils/contexts";
 import { MantineProvider } from "@mantine/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren, StrictMode, useEffect, useState } from "react";
-import { BoutUriContext } from "../hooks/bout-uri-consumer";
+import { BoutUriProvider } from "../hooks/bout-uri-consumer";
 import PageView from "./page-view";
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -62,7 +62,7 @@ export default function PageContainer({
         >
           <QueryClientProvider client={queryClient}>
             <ServerOffsetContext value={syncData.offset}>
-              <BoutUriContext value={{ boutUuid }}>{children}</BoutUriContext>
+              <BoutUriProvider value={{ boutUuid }}>{children}</BoutUriProvider>
             </ServerOffsetContext>
           </QueryClientProvider>
         </PageView>
