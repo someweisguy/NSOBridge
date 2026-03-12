@@ -1,4 +1,4 @@
-import { StatusClock } from "@/features/bouts/components/status-clock";
+import { StatusClock } from "@/components/status-clock";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta: Meta = {

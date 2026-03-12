@@ -1,4 +1,4 @@
-import { StatusClock } from "@/features/bouts/components/status-clock";
+import { StatusClock } from "@/components/status-clock";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
