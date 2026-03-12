@@ -1,9 +1,9 @@
 import AppProvider from "@/components/app-provider";
 import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
-import BoutJamControl from "@/features/bouts/components/bout-jam-control";
-import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
+import BoutJamControlContainer from "@/features/bouts/components/bout-jam-control-container";
+import BoutPeriodControlContainer from "@/features/bouts/components/bout-period-control-container";
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
-import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
+import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control-container";
 import JamNumberContainer from "@/features/jams/components/jam-number-container";
 import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
@@ -111,9 +111,13 @@ export default function Operator() {
 
       {/* Bout State control */}
       <Group justify="center" mih="75">
-        <BoutJamControl boutUuid={bout.uuid} {...bout} />
+        <BoutJamControlContainer boutUuid={bout.uuid} {...bout} />
         <BoutTimeoutControl boutUuid={bout.uuid} {...bout} variant="subtle" />
-        <BoutPeriodControl boutUuid={bout.uuid} {...bout} variant="subtle" />
+        <BoutPeriodControlContainer
+          boutUuid={bout.uuid}
+          {...bout}
+          variant="subtle"
+        />
         {bout.state == "timeout" && (
           <Suspense>
             <TimeoutTypeEditorContainer {...latestTimeoutUri} />
