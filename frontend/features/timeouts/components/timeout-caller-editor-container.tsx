@@ -1,23 +1,19 @@
 import TitledSegmentedControl from "@/components/titled-segmented-control";
 import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
+import { TimeoutUri } from "@/types/query";
 import { SegmentedControlProps } from "@mantine/core";
 import { useDeferredValue } from "react";
 import { useSetTimeoutTeam } from "../hooks/use-set-timeout-team";
 
-interface TimeoutCallerEditorContainerProps extends Omit<
-  SegmentedControlProps,
-  "value" | "onChange"
-> {
-  boutUuid: string;
-  timeoutNum: number;
-}
-
+/**
+ * Display a control which allows users to edit the calling team of the desired Timeout.
+ */
 export default function TimeoutCallerEditorContainer({
   boutUuid,
   timeoutNum,
   data,
   ...props
-}: TimeoutCallerEditorContainerProps) {
+}: TimeoutUri & Omit<SegmentedControlProps, "value" | "onChange">) {
   const { data: timeout } = useSuspenseTimeout({ boutUuid, timeoutNum });
 
   // Used to solve a minor UI glitch that occurs when selecting the initial value of a
