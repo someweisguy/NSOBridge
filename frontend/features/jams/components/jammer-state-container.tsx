@@ -1,25 +1,24 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { TeamJam } from "@/lib/game/jams";
+import { TeamJamUri } from "@/types/query";
 import { GroupProps } from "@mantine/core";
-import JammerState from "./jammer-state";
 import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
 import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
 import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
+import JammerState from "./jammer-state";
 
-interface JammerStateEditorContainerProps extends GroupProps {
-  boutUuid: string;
-  periodNum: number;
-  jamNum: number;
-  teamNum: number;
-}
-
+/**
+ * Display a control which allows users to set the state of the Jammer. This allows
+ * users to set whether the Jammer is lead, has lost lead, or has completed a
+ * successful star pass.
+ */
 export default function JammerStateEditorContainer({
   boutUuid,
   periodNum,
   jamNum,
   teamNum,
   ...props
-}: JammerStateEditorContainerProps) {
+}: TeamJamUri & GroupProps) {
   const { data: jam } = useSuspenseJam({ boutUuid, periodNum, jamNum });
   const teamJam: TeamJam | undefined = jam.teamJams.find(
     (tj) => tj.teamNum == teamNum,
