@@ -1,21 +1,18 @@
 import TitledSegmentedControl from "@/components/titled-segmented-control";
 import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
+import { TimeoutUri } from "@/types/query";
 import { SegmentedControlProps } from "@mantine/core";
 import { useSetTimeoutType } from "../hooks/use-set-timeout-type";
 
-interface TimeoutTypeEditorContainerProps extends Omit<
-  SegmentedControlProps,
-  "data" | "value" | "onChange"
-> {
-  boutUuid: string;
-  timeoutNum: number;
-}
-
+/**
+ * Display a control which allows users to edit the type of the Timeout - either a
+ * "Timeout" or an "Official Review."
+ */
 export default function TimeoutTypeEditorContainer({
   boutUuid,
   timeoutNum,
   ...props
-}: TimeoutTypeEditorContainerProps) {
+}: TimeoutUri & Omit<SegmentedControlProps, "data" | "value" | "onChange">) {
   const { data: timeout } = useSuspenseTimeout({ boutUuid, timeoutNum });
   const setType = useSetTimeoutType({ boutUuid, timeoutNum });
 
