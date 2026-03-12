@@ -149,7 +149,7 @@ export default function Operator() {
                 gap="md"
               />
               <TeamJamPassEditorContainer {...activeJamUri} teamNum={i} />
-              <TeamJamTripHistoryContainer {...activeJamUri} teamJamNum={i} />
+              <TeamJamTripHistoryContainer {...activeJamUri} teamNum={i} />
             </Stack>
           ))}
         </SimpleGrid>
