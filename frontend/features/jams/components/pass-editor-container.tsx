@@ -2,7 +2,7 @@ import { useTeamJamAddTrip } from "@/features/jams/hooks/use-team-jam-add-trip";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { TeamJam } from "@/lib/game/jams";
-import PassEditor from "../../../components/pass-editor";
+import PassEditor from "./pass-editor";
 
 interface TeamJamPassEditorProps {
   boutUuid: string;

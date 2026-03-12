@@ -1,4 +1,4 @@
-import TripEventButton from "@/components/trip-event-button";
+import TripEventButton from "@/features/jams/components/trip-event-button";
 import { TripEvent } from "@/lib/game/jams";
 import {
   Button,

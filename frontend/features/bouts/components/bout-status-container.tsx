@@ -1,4 +1,4 @@
-import { StatusClock } from "@/components/status-clock";
+import { StatusClock } from "@/features/bouts/components/status-clock";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
@@ -25,7 +25,7 @@ export default function BoutStatusContainer({
     ...(bout.getActiveJamUri() ?? bout.getLatestJamUri()),
   });
   const { data: latestTimeout, isPending } = useTimeout({
-    ...bout.getLatestTimeoutUri()!,
+    ...bout.getLatestTimeoutUri(),
     enabled: bout.timeoutCount > 0,
     initialData: undefined,
   });

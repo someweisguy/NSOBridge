@@ -3,7 +3,7 @@ import { TextProps } from "@mantine/core";
 
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { StopReasonString } from "@/lib/game/jams";
-import { JamClock } from "../../../components/jam-clock";
+import { JamClock } from "./jam-clock";
 
 interface JamStatusContainerProps extends TextProps {
   /**

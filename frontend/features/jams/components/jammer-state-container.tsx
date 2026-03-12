@@ -1,7 +1,7 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { TeamJam } from "@/lib/game/jams";
 import { GroupProps } from "@mantine/core";
-import JammerState from "../../../components/jammer-state";
+import JammerState from "./jammer-state";
 import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
 import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
 import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";

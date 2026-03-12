@@ -1,4 +1,4 @@
-import TimeoutsLeft from "@/components/timeouts-left";
+import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
 
