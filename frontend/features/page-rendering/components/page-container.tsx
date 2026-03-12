@@ -16,7 +16,7 @@ interface PageContainerProps extends PropsWithChildren {
    * True to use the app shell. The shell should typically be used except on pages such
    * as the scoreboard or the broadcast overlay.
    */
-  useShell?: boolean;
+  withShell?: boolean;
 }
 
 /**
@@ -24,7 +24,7 @@ interface PageContainerProps extends PropsWithChildren {
  * words, every page should be wrapped with this component.
  */
 export default function PageContainer({
-  useShell = false,
+  withShell: useShell = false,
   children,
 }: PageContainerProps) {
   const [boutUuid, setBoutUuid] = useState<string | null>(boutUuidParam);

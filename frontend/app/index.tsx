@@ -40,7 +40,7 @@ document.addEventListener("keydown", (event) => {
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(
-  <PageContainer useShell>
+  <PageContainer withShell>
     <Operator />
   </PageContainer>,
 );
