@@ -3,15 +3,14 @@ import StatusClockContainer from "@/features/bouts/components/bout-status-contai
 import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import JamNumberContainer from "@/features/jams/components/jam-number-container";
 import PageContainer from "@/features/page-rendering/components/page-container";
+import { useBoutUriContext } from "@/features/page-rendering/hooks/bout-uri-consumer";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { Team } from "@/lib/game/bouts";
-import { BoutUuidContext } from "@/utils/contexts";
 import FitScreen from "@fit-screen/react";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { useContext } from "react";
 import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
@@ -26,15 +25,8 @@ createRoot(root).render(
 );
 
 export function Scoreboard() {
-  const boutUuid: string | null = useContext(BoutUuidContext);
-  if (boutUuid == null) {
-    throw new Error(
-      "Operator page must be used within a BoutUuidContext provider",
-    );
-  }
-
-  const { data: bout } = useSuspenseBout({ boutUuid });
-
+  const boutUri = useBoutUriContext();
+  const { data: bout } = useSuspenseBout(boutUri);
   const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
 
   // Prefetch latest Jam to avoid UI blinking

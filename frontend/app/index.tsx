@@ -1,15 +1,16 @@
-import PageContainer from "@/features/page-rendering/components/page-container";
 import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
 import BoutJamControlContainer from "@/features/bouts/components/bout-jam-control-container";
 import BoutPeriodControlContainer from "@/features/bouts/components/bout-period-control-container";
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control-container";
-import JamNumberContainer from "@/features/jams/components/jam-number-container";
 import JamClockContainer from "@/features/jams/components/jam-clock-container";
+import JamNumberContainer from "@/features/jams/components/jam-number-container";
 import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-container";
 import JamStopReasonEditorContainer from "@/features/jams/components/stop-reason-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
+import PageContainer from "@/features/page-rendering/components/page-container";
+import { useBoutUriContext } from "@/features/page-rendering/hooks/bout-uri-consumer";
 import TimeoutCallerEditorContainer from "@/features/timeouts/components/timeout-caller-editor-container";
 import TimeoutRetainedEditorContainer from "@/features/timeouts/components/timeout-retained-editor-container";
 import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-type-editor-container";
@@ -18,10 +19,9 @@ import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
-import { BoutUuidContext } from "@/utils/contexts";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { Suspense, useContext } from "react";
+import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
@@ -46,14 +46,8 @@ createRoot(root).render(
 );
 
 export default function Operator() {
-  const boutUuid: string | null = useContext(BoutUuidContext);
-  if (boutUuid == null) {
-    throw new Error(
-      "Operator page must be used within a BoutUuidContext provider",
-    );
-  }
-
-  const { data: bout } = useSuspenseBout({ boutUuid });
+  const boutUri = useBoutUriContext();
+  const { data: bout } = useSuspenseBout(boutUri);
   const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
   const latestTimeoutUri = bout.getLatestTimeoutUri();
 

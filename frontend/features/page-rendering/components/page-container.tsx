@@ -2,10 +2,11 @@ import { useGetAllBouts } from "@/hooks/use-get-all-bouts";
 import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import queryClient from "@/lib/cache";
 import { Bout } from "@/lib/game/bouts";
-import { BoutUuidContext, ServerOffsetContext } from "@/utils/contexts";
+import { ServerOffsetContext } from "@/utils/contexts";
 import { MantineProvider } from "@mantine/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren, StrictMode, useEffect, useState } from "react";
+import { BoutUriContext } from "../hooks/bout-uri-consumer";
 import PageView from "./page-view";
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -61,7 +62,7 @@ export default function PageContainer({
         >
           <QueryClientProvider client={queryClient}>
             <ServerOffsetContext value={syncData.offset}>
-              <BoutUuidContext value={boutUuid}>{children}</BoutUuidContext>
+              <BoutUriContext value={{ boutUuid }}>{children}</BoutUriContext>
             </ServerOffsetContext>
           </QueryClientProvider>
         </PageView>
