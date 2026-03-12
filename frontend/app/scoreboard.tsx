@@ -3,7 +3,7 @@ import StatusClockContainer from "@/features/bouts/components/bout-status-contai
 import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import JamNumberContainer from "@/features/jams/components/jam-number-container";
 import PageContainer from "@/features/page-rendering/components/page-container";
-import { useBoutUriContext } from "@/features/page-rendering/hooks/bout-uri-consumer";
+import { useBoutUriContext } from "@/features/page-rendering/hooks/bout-uri-context";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
