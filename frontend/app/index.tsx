@@ -1,10 +1,10 @@
 import AppProvider from "@/components/app-provider";
-import BoutClock from "@/features/bouts/components/bout-clock";
-import JamNumber from "@/features/jams/components/jam-number";
+import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
+import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-container";
@@ -97,12 +97,7 @@ export default function Operator() {
       <Stack fz="36pt" ta="center" align="stretch">
         <Center>
           <Group grow justify="center" w="75%" ta="center">
-            <BoutClock
-              isOvertime={bout.isOvertime()}
-              overtimeText="OT"
-              {...bout.clock}
-              inherit
-            />
+            <BoutClockContainer boutUuid={bout.uuid} inherit />
             <JamNumber {...activeJamUri} inherit />
             <JamStatusContainer {...activeJamUri} inherit />
           </Group>

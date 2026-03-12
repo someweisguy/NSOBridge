@@ -1,7 +1,7 @@
 import AppProvider from "@/components/app-provider";
-import BoutClock from "@/features/bouts/components/bout-clock";
-import JamNumber from "@/features/jams/components/jam-number";
+import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
 import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
+import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
@@ -78,12 +78,7 @@ export function Scoreboard() {
       <Stack fz="72pt" ta="center" align="stretch">
         <Center>
           <Group grow justify="center" w="75%" ta="center">
-            <BoutClock
-              isOvertime={bout.isOvertime()}
-              overtimeText="OT"
-              {...bout.clock}
-              inherit
-            />
+            <BoutClockContainer boutUuid={bout.uuid} inherit />
             <JamNumber {...activeJamUri} inherit />
             <JamStatusContainer {...activeJamUri} inherit />
           </Group>
