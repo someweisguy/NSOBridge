@@ -4,7 +4,7 @@ import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import queryClient from "@/lib/cache";
 import { Bout } from "@/lib/game/bouts";
 import { BoutUuidContext, ServerOffsetContext } from "@/utils/contexts";
-import { AppShell, Burger, MantineProvider } from "@mantine/core";
+import { AppShell, Burger, Button, MantineProvider } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -14,7 +14,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import OpenScoreboardButton from "./open-scoreboard-button";
 
 const urlParams = new URLSearchParams(window.location.search);
 const boutUuidParamName = "boutUuid";
@@ -93,7 +92,13 @@ export default function AppProvider({
                       }))}
                       onChange={(uuid: string | null) => setBoutUuid(uuid)}
                     />
-                    <OpenScoreboardButton boutUuid={boutUuid} />
+                    <Button
+                      onClick={() =>
+                        window.open("sb?boutUuid=" + boutUuid, "_blank")
+                      }
+                    >
+                      Open Scoreboard
+                    </Button>
                   </AppShell.Navbar>
 
                   <AppShell.Main>
