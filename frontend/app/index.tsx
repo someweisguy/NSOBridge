@@ -77,9 +77,8 @@ export default function Operator() {
               gap="md"
             >
               <TimeoutsLeftContainer
+                boutUuid={bout.uuid}
                 teamNum={team.num}
-                {...latestTimeoutUri}
-                {...team}
                 size={24}
               />
               <Text fw="bold" w={150} ta="center" size="48pt">
