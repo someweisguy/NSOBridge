@@ -10,7 +10,7 @@ import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-c
 import JamStopReasonEditorContainer from "@/features/jams/components/stop-reason-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
 import PageContainer from "@/features/page-rendering/components/page-container";
-import { useBoutUriContext } from "@/features/page-rendering/hooks/bout-uri-context";
+import { useBoutUriContext } from "@/features/page-rendering/hooks/use-bout-uri-context";
 import TimeoutCallerEditorContainer from "@/features/timeouts/components/timeout-caller-editor-container";
 import TimeoutRetainedEditorContainer from "@/features/timeouts/components/timeout-retained-editor-container";
 import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-type-editor-container";

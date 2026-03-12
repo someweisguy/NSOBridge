@@ -6,7 +6,7 @@ import { ServerOffsetContext } from "@/utils/contexts";
 import { MantineProvider } from "@mantine/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren, StrictMode, useEffect, useState } from "react";
-import { BoutUriProvider } from "../hooks/bout-uri-context";
+import { BoutUriProvider } from "../hooks/use-bout-uri-context";
 import PageView from "./page-view";
 
 const urlParams = new URLSearchParams(window.location.search);
