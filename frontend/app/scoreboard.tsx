@@ -2,7 +2,7 @@ import AppProvider from "@/components/app-provider";
 import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
 import JamNumberContainer from "@/features/jams/components/jam-number-container";
-import JamStatusContainer from "@/features/jams/components/jam-status-container";
+import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
@@ -78,7 +78,7 @@ export function Scoreboard() {
           <Group grow justify="center" w="75%" ta="center">
             <BoutClockContainer boutUuid={bout.uuid} inherit />
             <JamNumberContainer {...activeJamUri} inherit />
-            <JamStatusContainer {...activeJamUri} inherit />
+            <JamClockContainer {...activeJamUri} inherit />
           </Group>
         </Center>
         <StatusClockContainer

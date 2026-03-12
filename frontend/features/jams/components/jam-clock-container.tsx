@@ -18,7 +18,7 @@ const stopReasonTexts = {
  * started or if the Jam is running a clock is displayed. If the Jam has ended, a string
  * representing the reason that the Jam was stopped is displayed.
  */
-export default function JamStatusContainer({
+export default function JamClockContainer({
   boutUuid,
   periodNum,
   jamNum,

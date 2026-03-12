@@ -5,7 +5,7 @@ import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import JamNumberContainer from "@/features/jams/components/jam-number-container";
-import JamStatusContainer from "@/features/jams/components/jam-status-container";
+import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-container";
 import JamStopReasonEditorContainer from "@/features/jams/components/stop-reason-editor-container";
@@ -98,7 +98,7 @@ export default function Operator() {
           <Group grow justify="center" w="75%" ta="center">
             <BoutClockContainer boutUuid={bout.uuid} inherit />
             <JamNumberContainer {...activeJamUri} inherit />
-            <JamStatusContainer {...activeJamUri} inherit />
+            <JamClockContainer {...activeJamUri} inherit />
           </Group>
         </Center>
         <StatusClockContainer
