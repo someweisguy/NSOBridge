@@ -3,6 +3,10 @@ import { BoutUri } from "@/types/query";
 import { TextProps } from "@mantine/core";
 import BoutClock from "./bout-clock";
 
+/**
+ * Display the Period clock for the desired Bout. When the Bout is in overtime, overtime
+ * text is displayed instead of a clock.
+ */
 export default function BoutClockContainer({
   boutUuid,
   ...props
