@@ -1,8 +1,8 @@
-import AppProvider from "@/components/app-provider";
 import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
-import JamNumberContainer from "@/features/jams/components/jam-number-container";
 import JamClockContainer from "@/features/jams/components/jam-clock-container";
+import JamNumberContainer from "@/features/jams/components/jam-number-container";
+import PageContainer from "@/features/page-rendering/components/page-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
@@ -18,11 +18,11 @@ import "./global.css";
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(
-  <AppProvider>
+  <PageContainer>
     <FitScreen waitTime={25} mode="fit">
       <Scoreboard />
     </FitScreen>
-  </AppProvider>,
+  </PageContainer>,
 );
 
 export function Scoreboard() {

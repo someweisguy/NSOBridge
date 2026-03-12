@@ -1,9 +1,9 @@
-import BoutPicker from "@/components/bout-picker";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import PageView from "../components/page-view";
 
-const meta: Meta = {
-  component: BoutPicker,
-  title: "Bout Picker",
+const meta: Meta<typeof PageView> = {
+  component: PageView,
+  title: "Page View",
 };
 
 const boutData = [
@@ -35,9 +35,10 @@ const boutData = [
 
 type Story = StoryObj<typeof meta>;
 
-export const Bout: Story = {
+export const Default: Story = {
   args: {
-    data: boutData,
+    boutData,
+    children: "Page data goes here.",
   },
 };
 

@@ -1,4 +1,4 @@
-import AppProvider from "@/components/app-provider";
+import PageContainer from "@/features/page-rendering/components/page-container";
 import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
 import BoutJamControlContainer from "@/features/bouts/components/bout-jam-control-container";
 import BoutPeriodControlContainer from "@/features/bouts/components/bout-period-control-container";
@@ -40,9 +40,9 @@ document.addEventListener("keydown", (event) => {
 
 const root: HTMLElement = document.getElementById("root")!;
 createRoot(root).render(
-  <AppProvider useShell>
+  <PageContainer useShell>
     <Operator />
-  </AppProvider>,
+  </PageContainer>,
 );
 
 export default function Operator() {
