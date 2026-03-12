@@ -1,34 +1,32 @@
 import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
+import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
+import { TeamUri } from "@/types/query";
 
-interface TimeoutsLeftContainerProps {
-  boutUuid: string;
-  timeoutNum: number;
-  teamNum: number;
-  timeoutsRemaining: number;
-  reviewsRemaining: number;
-  size: number;
-}
-
+/**
+ * Display the number of Timeouts and Reviews that a Team has remaining in a vertical,
+ * stoplight-style graph.
+ */
 export default function TimeoutsLeftContainer({
   boutUuid,
   teamNum,
-  timeoutNum,
-  timeoutsRemaining,
-  reviewsRemaining,
   size,
-}: TimeoutsLeftContainerProps) {
+}: TeamUri & { size: number }) {
+  const { data: bout } = useSuspenseBout({ boutUuid });
   const { data: ruleset } = useSuspenseRuleset({ boutUuid });
+  const team = bout.teams.find((t) => t.num == teamNum);
+  if (team == null) {
+    throw new Error("Invalid Team number");
+  }
 
   const {
     data: latestTimeout,
     isPending,
     isEnabled,
   } = useTimeout({
-    boutUuid,
-    timeoutNum: timeoutNum ?? 0,
-    enabled: timeoutNum > 0,
+    ...bout.getLatestTimeoutUri(),
+    enabled: bout.timeoutCount > 0,
   });
 
   const timeoutIsActive =
@@ -44,8 +42,8 @@ export default function TimeoutsLeftContainer({
     <TimeoutsLeft
       numTimeouts={ruleset.numTimeouts}
       numReviews={ruleset.numReviews}
-      timeoutsRemaining={timeoutsRemaining}
-      reviewsRemaining={reviewsRemaining}
+      timeoutsRemaining={team.timeoutsRemaining}
+      reviewsRemaining={team.reviewsRemaining}
       timeoutIsActive={timeoutIsActive}
       isReview={isReview}
       size={size}

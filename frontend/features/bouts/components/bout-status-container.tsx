@@ -1,24 +1,20 @@
-import { StatusClock } from "@/features/bouts/components/status-clock";
+import { StatusClock } from "@/components/status-clock";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useTimeout } from "@/hooks/use-timeout";
+import { BoutUri } from "@/types/query";
 import { TextProps } from "@mantine/core";
 
-interface BoutStatusContainerProps extends TextProps {
-  /**
-   * The UUID of the desired Bout.
-   */
-  boutUuid: string;
-  /**
-   * The offset in time between the host and the server in milliseconds.
-   */
-  serverOffset?: number;
-}
-
-export default function BoutStatusContainer({
+/**
+ * Displays the Bout status of the desired Bout. This is typically a status string
+ * followed by the time that has elapsed since this status has begun or a countdown
+ * until the status will end. For example, this component displays the time since a
+ * Timeout was called or the time until Halftime is finished.
+ */
+export default function StatusClockContainer({
   boutUuid,
   ...props
-}: BoutStatusContainerProps) {
+}: BoutUri & TextProps) {
   const { data: bout } = useSuspenseBout({ boutUuid });
 
   const { data: activeJam } = useSuspenseJam({

@@ -1,7 +1,7 @@
 import Clock, { ClockProps } from "@/components/clock";
 import { Text, TextProps } from "@mantine/core";
 
-interface BoutClockProps extends ClockProps, TextProps {
+export interface BoutClockProps extends ClockProps, TextProps {
   /**
    * True if the Bout is in overtime.
    */

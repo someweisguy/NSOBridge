@@ -32,6 +32,16 @@ export interface BoutUri {
 }
 
 /**
+ * A URI which uniquely identifies a Team within a Bout.
+ */
+export interface TeamUri extends BoutUri {
+  /**
+   * The unique Team identifier.
+   */
+  teamNum: number;
+}
+
+/**
  * A URI which uniquely identifies a Jam.
  */
 export interface JamUri extends BoutUri {

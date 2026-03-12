@@ -1,8 +1,8 @@
 import AppProvider from "@/components/app-provider";
-import BoutClock from "@/features/bouts/components/bout-clock";
-import JamNumber from "@/features/jams/components/jam-number";
-import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
-import JamStatusContainer from "@/features/jams/components/jam-status-container";
+import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
+import StatusClockContainer from "@/features/bouts/components/bout-status-container";
+import JamNumberContainer from "@/features/jams/components/jam-number-container";
+import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
@@ -36,7 +36,6 @@ export function Scoreboard() {
   const { data: bout } = useSuspenseBout({ boutUuid });
 
   const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
-  const latestTimeoutUri = bout.getLatestTimeoutUri();
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
@@ -58,9 +57,8 @@ export function Scoreboard() {
               gap="md"
             >
               <TimeoutsLeftContainer
+                boutUuid={bout.uuid}
                 teamNum={team.num}
-                {...latestTimeoutUri}
-                {...team}
                 size={36}
               />
               <Text fw="bold" w={150} ta="center" size="48pt">
@@ -78,17 +76,12 @@ export function Scoreboard() {
       <Stack fz="72pt" ta="center" align="stretch">
         <Center>
           <Group grow justify="center" w="75%" ta="center">
-            <BoutClock
-              isOvertime={bout.isOvertime()}
-              overtimeText="OT"
-              {...bout.clock}
-              inherit
-            />
-            <JamNumber {...activeJamUri} inherit />
-            <JamStatusContainer {...activeJamUri} inherit />
+            <BoutClockContainer boutUuid={bout.uuid} inherit />
+            <JamNumberContainer {...activeJamUri} inherit />
+            <JamClockContainer {...activeJamUri} inherit />
           </Group>
         </Center>
-        <BoutStatusContainer
+        <StatusClockContainer
           boutUuid={bout.uuid}
           className={twMerge(bout.state == "jam" && "invisible")}
           inherit

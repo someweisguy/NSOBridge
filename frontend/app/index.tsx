@@ -1,11 +1,11 @@
 import AppProvider from "@/components/app-provider";
-import BoutClock from "@/features/bouts/components/bout-clock";
-import JamNumber from "@/features/jams/components/jam-number";
-import BoutJamControl from "@/features/bouts/components/bout-jam-control";
-import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
-import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
-import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
-import JamStatusContainer from "@/features/jams/components/jam-status-container";
+import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
+import BoutJamControlContainer from "@/features/bouts/components/bout-jam-control-container";
+import BoutPeriodControlContainer from "@/features/bouts/components/bout-period-control-container";
+import StatusClockContainer from "@/features/bouts/components/bout-status-container";
+import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control-container";
+import JamNumberContainer from "@/features/jams/components/jam-number-container";
+import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
 import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-container";
 import JamStopReasonEditorContainer from "@/features/jams/components/stop-reason-editor-container";
@@ -77,9 +77,8 @@ export default function Operator() {
               gap="md"
             >
               <TimeoutsLeftContainer
+                boutUuid={bout.uuid}
                 teamNum={team.num}
-                {...latestTimeoutUri}
-                {...team}
                 size={24}
               />
               <Text fw="bold" w={150} ta="center" size="48pt">
@@ -97,17 +96,12 @@ export default function Operator() {
       <Stack fz="36pt" ta="center" align="stretch">
         <Center>
           <Group grow justify="center" w="75%" ta="center">
-            <BoutClock
-              isOvertime={bout.isOvertime()}
-              overtimeText="OT"
-              {...bout.clock}
-              inherit
-            />
-            <JamNumber {...activeJamUri} inherit />
-            <JamStatusContainer {...activeJamUri} inherit />
+            <BoutClockContainer boutUuid={bout.uuid} inherit />
+            <JamNumberContainer {...activeJamUri} inherit />
+            <JamClockContainer {...activeJamUri} inherit />
           </Group>
         </Center>
-        <BoutStatusContainer
+        <StatusClockContainer
           boutUuid={bout.uuid}
           className={twMerge(bout.state == "jam" && "invisible")}
           inherit
@@ -117,9 +111,13 @@ export default function Operator() {
 
       {/* Bout State control */}
       <Group justify="center" mih="75">
-        <BoutJamControl boutUuid={bout.uuid} {...bout} />
+        <BoutJamControlContainer boutUuid={bout.uuid} {...bout} />
         <BoutTimeoutControl boutUuid={bout.uuid} {...bout} variant="subtle" />
-        <BoutPeriodControl boutUuid={bout.uuid} {...bout} variant="subtle" />
+        <BoutPeriodControlContainer
+          boutUuid={bout.uuid}
+          {...bout}
+          variant="subtle"
+        />
         {bout.state == "timeout" && (
           <Suspense>
             <TimeoutTypeEditorContainer {...latestTimeoutUri} />
@@ -155,7 +153,7 @@ export default function Operator() {
                 gap="md"
               />
               <TeamJamPassEditorContainer {...activeJamUri} teamNum={i} />
-              <TeamJamTripHistoryContainer {...activeJamUri} teamJamNum={i} />
+              <TeamJamTripHistoryContainer {...activeJamUri} teamNum={i} />
             </Stack>
           ))}
         </SimpleGrid>
