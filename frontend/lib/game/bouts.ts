@@ -76,10 +76,7 @@ export class Bout {
     return { boutUuid: this.uuid, periodNum, jamNum };
   }
 
-  getLatestTimeoutUri(): TimeoutUri | null {
-    if (this.timeoutCount == 0) {
-      return null;
-    }
+  getLatestTimeoutUri(): TimeoutUri {
     return { boutUuid: this.uuid, timeoutNum: this.timeoutCount - 1 };
   }
 

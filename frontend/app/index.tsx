@@ -55,10 +55,7 @@ export default function Operator() {
 
   const { data: bout } = useSuspenseBout({ boutUuid });
   const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
-  const latestTimeoutUri = bout.getLatestTimeoutUri() ?? {
-    boutUuid: bout.uuid,
-    timeoutNum: null,
-  };
+  const latestTimeoutUri = bout.getLatestTimeoutUri();
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
@@ -123,15 +120,11 @@ export default function Operator() {
         <BoutJamControl boutUuid={bout.uuid} {...bout} />
         <BoutTimeoutControl boutUuid={bout.uuid} {...bout} variant="subtle" />
         <BoutPeriodControl boutUuid={bout.uuid} {...bout} variant="subtle" />
-        {bout.state == "timeout" && latestTimeoutUri != null && (
+        {bout.state == "timeout" && (
           <Suspense>
-            <TimeoutTypeEditorContainer
-              {...latestTimeoutUri}
-              timeoutNum={bout.timeoutCount - 1}
-            />
+            <TimeoutTypeEditorContainer {...latestTimeoutUri} />
             <TimeoutCallerEditorContainer
               {...latestTimeoutUri}
-              timeoutNum={bout.timeoutCount - 1}
               data={bout.teams.map((team: Team) => {
                 return {
                   value: String(team.num),
@@ -141,7 +134,6 @@ export default function Operator() {
             />
             <TimeoutRetainedEditorContainer
               {...latestTimeoutUri}
-              timeoutNum={bout.timeoutCount - 1}
               variant="outline"
             />
           </Suspense>

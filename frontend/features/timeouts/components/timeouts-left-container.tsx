@@ -4,7 +4,7 @@ import { useTimeout } from "@/hooks/use-timeout";
 
 interface TimeoutsLeftContainerProps {
   boutUuid: string;
-  timeoutNum: number | null;
+  timeoutNum: number;
   teamNum: number;
   timeoutsRemaining: number;
   reviewsRemaining: number;
@@ -28,7 +28,7 @@ export default function TimeoutsLeftContainer({
   } = useTimeout({
     boutUuid,
     timeoutNum: timeoutNum ?? 0,
-    enabled: timeoutNum != null && timeoutNum > 0,
+    enabled: timeoutNum > 0,
   });
 
   const timeoutIsActive =
