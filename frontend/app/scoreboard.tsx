@@ -1,6 +1,6 @@
 import AppProvider from "@/components/app-provider";
 import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
-import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
+import StatusClockContainer from "@/features/bouts/components/bout-status-container";
 import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
@@ -83,7 +83,7 @@ export function Scoreboard() {
             <JamStatusContainer {...activeJamUri} inherit />
           </Group>
         </Center>
-        <BoutStatusContainer
+        <StatusClockContainer
           boutUuid={bout.uuid}
           className={twMerge(bout.state == "jam" && "invisible")}
           inherit

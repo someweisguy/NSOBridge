@@ -2,7 +2,7 @@ import AppProvider from "@/components/app-provider";
 import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
-import BoutStatusContainer from "@/features/bouts/components/bout-status-container";
+import StatusClockContainer from "@/features/bouts/components/bout-status-container";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import JamNumber from "@/features/jams/components/jam-number";
 import JamStatusContainer from "@/features/jams/components/jam-status-container";
@@ -102,7 +102,7 @@ export default function Operator() {
             <JamStatusContainer {...activeJamUri} inherit />
           </Group>
         </Center>
-        <BoutStatusContainer
+        <StatusClockContainer
           boutUuid={bout.uuid}
           className={twMerge(bout.state == "jam" && "invisible")}
           inherit
