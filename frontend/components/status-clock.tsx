@@ -17,18 +17,18 @@ interface StatusClockProps extends TextProps {
  * states.
  */
 export function StatusClock({
-  startTimestamp: since = null,
+  startTimestamp = null,
   stateText,
   ...props
 }: StatusClockProps) {
-  const showClock = since != null;
+  const showClock = startTimestamp != null;
   const showSpace = stateText?.length > 0 && showClock;
 
   return (
     <Text {...props}>
       {stateText}
       {showSpace && " "}
-      {showClock && <Clock startTimestamp={since} />}
+      {showClock && <Clock startTimestamp={startTimestamp} />}
     </Text>
   );
 }
