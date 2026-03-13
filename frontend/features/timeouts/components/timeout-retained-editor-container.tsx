@@ -23,6 +23,6 @@ export default function TimeoutRetainedEditorContainer({
       checked={timeout.retained && timeout.isReview}
       disabled={!timeout.isReview}
       onChange={(event) => setRetained.mutate(event.currentTarget.checked)}
-    ></Checkbox>
+    />
   );
 }
