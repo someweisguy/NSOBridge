@@ -27,7 +27,6 @@ export function Scoreboard() {
   const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
 
   // Prefetch latest Jam to avoid UI blinking
-  // TODO: Remove this line when implementing Lineup Editors
   void useJam({ ...bout.getLatestJamUri() });
 
   return (
