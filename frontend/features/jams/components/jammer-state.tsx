@@ -10,6 +10,7 @@ import { IconStarFilled } from "@tabler/icons-react";
 import { UseMutationResult } from "@tanstack/react-query";
 
 const checkBoxTheme = createTheme({
+  // Hovering over checkbox should change cursor
   cursorType: "pointer",
 });
 
