@@ -6,9 +6,9 @@ import { defineConfig } from "vite";
 import { createMpaPlugin } from "vite-plugin-virtual-mpa";
 
 // https://vite.dev/config/
-import { fileURLToPath } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
+import { fileURLToPath } from "node:url";
 const dirname =
   typeof __dirname !== "undefined"
     ? __dirname
@@ -31,10 +31,9 @@ export default defineConfig({
         {
           name: "Main",
           filename: "index.html",
-          entry: "/frontend/app/index.tsx",
+          entry: "/frontend/app/operator.tsx",
           data: {
-            templateTitle: "NSO Bridge",
-            scriptPath: "frontend/app/index.tsx",
+            scriptPath: "frontend/app/operator.tsx",
           },
         },
         {
@@ -42,7 +41,6 @@ export default defineConfig({
           filename: "sb.html",
           entry: "/frontend/app/scoreboard.tsx",
           data: {
-            templateTitle: "Scoreboard",
             scriptPath: "frontend/app/scoreboard.tsx",
           },
         },

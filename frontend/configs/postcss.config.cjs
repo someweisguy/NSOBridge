@@ -1,3 +1,4 @@
+// Required exports for Mantine
 module.exports = {
   plugins: {
     "postcss-preset-mantine": {},

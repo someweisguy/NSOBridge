@@ -9,8 +9,7 @@ import JammerStateEditorContainer from "@/features/jams/components/jammer-state-
 import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-container";
 import JamStopReasonEditorContainer from "@/features/jams/components/stop-reason-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
-import PageContainer from "@/features/page-rendering/components/page-container";
-import { useBoutUriContext } from "@/features/page-rendering/hooks/use-bout-uri-context";
+
 import TimeoutCallerEditorContainer from "@/features/timeouts/components/timeout-caller-editor-container";
 import TimeoutRetainedEditorContainer from "@/features/timeouts/components/timeout-retained-editor-container";
 import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-type-editor-container";
@@ -22,9 +21,10 @@ import { redo, undo } from "@/lib/history";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense } from "react";
-import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
+import { useBoutUriContext } from "./provider/use-bout-uri-context";
+import renderPage from "./provider/renderPage";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
@@ -39,15 +39,8 @@ document.addEventListener("keydown", (event) => {
 });
 
 // Create the React DOM
-const root: HTMLElement | null = document.getElementById("root");
-if (root == null) {
-  throw new Error("Root HTML Node was not found.");
-}
-createRoot(root).render(
-  <PageContainer withShell>
-    <Operator />
-  </PageContainer>,
-);
+const withShell = true;
+renderPage("NSO Bridge", Operator, withShell);
 
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the

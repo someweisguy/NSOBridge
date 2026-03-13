@@ -6,8 +6,8 @@ import { Bout } from "@/lib/game/bouts";
 import { MantineProvider } from "@mantine/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren, StrictMode, useEffect, useState } from "react";
-import { BoutUriProvider } from "../hooks/use-bout-uri-context";
 import PageView from "./page-view";
+import { BoutUriProvider } from "./use-bout-uri-context";
 
 const urlParams = new URLSearchParams(window.location.search);
 const boutUuidParam = urlParams.get("boutUuid");

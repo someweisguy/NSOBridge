@@ -2,8 +2,6 @@ import BoutClockContainer from "@/features/bouts/components/bout-clock-container
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
 import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import JamNumberContainer from "@/features/jams/components/jam-number-container";
-import PageContainer from "@/features/page-rendering/components/page-container";
-import { useBoutUriContext } from "@/features/page-rendering/hooks/use-bout-uri-context";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
@@ -11,19 +9,14 @@ import { Team } from "@/lib/game/bouts";
 import FitScreen from "@fit-screen/react";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
+import { useBoutUriContext } from "./provider/use-bout-uri-context";
+import renderPage from "./provider/renderPage";
 
-const root: HTMLElement | null = document.getElementById("root");
-if (root == null) {
-  throw new Error("Root HTML Node was not found.");
-}
-createRoot(root).render(
-  <PageContainer>
-    <Scoreboard />
-  </PageContainer>,
-);
+// Create the React DOM
+const withShell = false;
+renderPage("Scoreboard", Scoreboard, withShell);
 
 /**
  * Display the audience-facing scoreboard. This has at-a-glance information about the
@@ -35,7 +28,6 @@ export function Scoreboard() {
   const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
 
   // Prefetch latest Jam to avoid UI blinking
-  // TODO: Remove this line when implementing Lineup Editors
   void useJam({ ...bout.getLatestJamUri() });
 
   return (
