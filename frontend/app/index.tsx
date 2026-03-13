@@ -38,6 +38,7 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+// Create the React DOM
 const root: HTMLElement | null = document.getElementById("root");
 if (root == null) {
   throw new Error("Root HTML Node was not found.");
@@ -48,6 +49,11 @@ createRoot(root).render(
   </PageContainer>,
 );
 
+/**
+ * Display the main scoreboard operator page. This page is used to enter data into the
+ * server to run the majority of the game. It serves controls to start and stop the Bout
+ * edit the score, call Timeouts, and edit Lineups.
+ */
 export default function Operator() {
   const boutUri = useBoutUriContext();
   const { data: bout } = useSuspenseBout(boutUri);
