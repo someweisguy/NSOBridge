@@ -26,8 +26,6 @@ export class Clock {
  * officials for any reason.
  */
 export class Timeout {
-  uuid: string;
-
   boutUuid: string;
   num: number;
 
@@ -77,7 +75,7 @@ export class Timeout {
 
 export async function getTimeout(
   boutUuid: string,
-  num: number,
+  num: number
 ): Promise<Timeout> {
   const data = await localAPI.get<Partial<Timeout>>("timeout", {
     query: { boutUuid, num },
@@ -88,7 +86,7 @@ export async function getTimeout(
 export async function setTimeoutType(
   boutUuid: string,
   timeoutNum: number,
-  type: "timeout" | "review",
+  type: "timeout" | "review"
 ): Promise<void> {
   await localAPI.post("timeout/type", {
     query: { boutUuid, num: timeoutNum },
@@ -99,7 +97,7 @@ export async function setTimeoutType(
 export async function setTimeoutTeam(
   boutUuid: string,
   timeoutNum: number,
-  teamNum: number | null,
+  teamNum: number | null
 ): Promise<void> {
   await localAPI.post("timeout/team", {
     query: { boutUuid, num: timeoutNum },
@@ -110,7 +108,7 @@ export async function setTimeoutTeam(
 export async function setTimeoutRetained(
   boutUuid: string,
   timeoutNum: number,
-  isRetained: boolean,
+  isRetained: boolean
 ): Promise<void> {
   await localAPI.post("timeout/retained", {
     query: { boutUuid, num: timeoutNum },
