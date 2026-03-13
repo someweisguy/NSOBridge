@@ -1,16 +1,30 @@
 import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
+/**
+ * Represent a Clock in Roller Derby. A clock may be started and stopped multiple times
+ * whereas a one-shot (such as a Jam or Timeout) can only be started and stopped once.
+ */
 export class Clock {
   startTimestamp: Date | null;
   elapsed: number;
   alarm: number;
 
+  /**
+   * Determine if this Clock is running.
+   *
+   * @returns true if this Clock is running.
+   */
   isRunning(): boolean {
     return this.startTimestamp !== null;
   }
 }
 
+/**
+ * Represent a Timeout within a Bout. A Timeout is called to stop the flow of the game.
+ * This may be done by any Team with a sufficient number of Timeouts remaining or by the
+ * officials for any reason.
+ */
 export class Timeout {
   uuid: string;
 
@@ -42,10 +56,20 @@ export class Timeout {
     return ["timeouts", boutUuid, timeoutNum];
   }
 
+  /**
+   * Determine if this Timeout has been started.
+   *
+   * @returns true if this Timeout has started.
+   */
   hasStarted(): boolean {
     return this.startTimestamp != null;
   }
 
+  /**
+   * Determine if this Timeout is currently running.
+   *
+   * @returns true if this Timeout is currently running.
+   */
   isRunning(): boolean {
     return this.hasStarted() && this.stopTimestamp == null;
   }
