@@ -15,7 +15,10 @@ import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
 
-const root: HTMLElement = document.getElementById("root")!;
+const root: HTMLElement | null = document.getElementById("root");
+if (root == null) {
+  throw new Error("Root HTML Node was not found.");
+}
 createRoot(root).render(
   <PageContainer>
     <FitScreen waitTime={25} mode="fit">

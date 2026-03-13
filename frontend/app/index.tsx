@@ -38,7 +38,10 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-const root: HTMLElement = document.getElementById("root")!;
+const root: HTMLElement | null = document.getElementById("root");
+if (root == null) {
+  throw new Error("Root HTML Node was not found.");
+}
 createRoot(root).render(
   <PageContainer withShell>
     <Operator />
