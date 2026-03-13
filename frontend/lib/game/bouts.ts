@@ -126,6 +126,12 @@ export interface Team {
   scoreOffset: number;
 }
 
+/**
+ * Get a Bout object from the server.
+ *
+ * @param boutUuid the UUID of the desired bout.
+ * @returns the desired Bout.
+ */
 export async function getBout(boutUuid: string): Promise<Bout> {
   const data = await localAPI.get<Partial<Bout>>("bout", {
     query: { boutUuid },
@@ -133,45 +139,88 @@ export async function getBout(boutUuid: string): Promise<Bout> {
   return Object.assign(new Bout(), data);
 }
 
+/**
+ * Get all Bout objects from the server.
+ *
+ * @returns an array of all Bouts in the server.
+ */
 export async function getAllBouts(): Promise<Bout[]> {
   const data = await localAPI.get<Partial<Bout>[]>("bout/allBouts");
   return data.map((bout: Partial<Bout>) => Object.assign(new Bout(), bout));
 }
 
+/**
+ * Create a new Bout.
+ *
+ * // TODO: this function has not been tested and does not work
+ *
+ * @param rosterIds
+ * @param seriesIndex
+ * @param order
+ */
 export async function createBout(
   rosterIds: number[],
   seriesIndex = 1,
   order = 0,
 ): Promise<void> {
-  // TODO: this function has not been tested and is likely does not work
   await localAPI.post("bout/wftda2025", {
     query: { seriesIndex },
     body: { rosterIds, order },
   });
 }
 
+/**
+ * Begin the Period of the desired Bout.
+ *
+ * @param boutUuid the UUID of the desired Bout.
+ */
 export async function beginPeriod(boutUuid: string): Promise<void> {
   await localAPI.post("bout/beginPeriod", { query: { boutUuid } });
 }
 
+/**
+ * End the Period of the desired Bout.
+ *
+ * @param boutUuid the UUID of the desired Bout.
+ */
 export async function endPeriod(boutUuid: string): Promise<void> {
   await localAPI.post("bout/endPeriod", { query: { boutUuid } });
 }
 
+/**
+ * Start the latest Jam of the desired Bout.
+ *
+ * @param boutUuid the UUID of the desired Bout.
+ */
 export async function startJam(boutUuid: string): Promise<void> {
   await localAPI.post("bout/startJam", { query: { boutUuid } });
 }
 
+/**
+ * Stop the active Jam of the desired Bout.
+ *
+ * @param boutUuid the UUID of the desired Bout.
+ */
 export async function stopJam(boutUuid: string): Promise<void> {
   await localAPI.post("bout/stopJam", { query: { boutUuid } });
 }
 
+/**
+ * Create and start a new Timeout in the desired Bout.
+ *
+ * @param boutUuid the UUID of the desired Bout.
+ */
 export async function startTimeout(boutUuid: string): Promise<void> {
   await localAPI.post("bout/startTimeout", {
     query: { boutUuid },
   });
 }
 
+/**
+ * Stop the latest Timeout in the desired Bout.
+ *
+ * @param boutUuid the UUID of the desired Bout.
+ */
 export async function stopTimeout(boutUuid: string): Promise<void> {
   await localAPI.post("bout/stopTimeout", {
     query: { boutUuid },
