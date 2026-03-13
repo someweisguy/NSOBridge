@@ -1,5 +1,6 @@
-import { CacheKey, ServerData, SyncData } from "../types/ws";
-import { dateReviver } from "../utils/revivers";
+import { CacheKey } from "@/types/query";
+import { ServerData, SyncData } from "@/types/ws";
+import { dateReviver } from "@/utils/revivers";
 
 type CallbackType<T = unknown> = (data: T) => void;
 
