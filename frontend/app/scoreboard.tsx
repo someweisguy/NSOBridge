@@ -2,8 +2,6 @@ import BoutClockContainer from "@/features/bouts/components/bout-clock-container
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
 import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import JamNumberContainer from "@/features/jams/components/jam-number-container";
-import { useBoutUriContext } from "@/features/page-rendering/hooks/use-bout-uri-context";
-import renderPage from "@/features/page-rendering/utils/renderPage";
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
@@ -12,6 +10,9 @@ import FitScreen from "@fit-screen/react";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { twMerge } from "tailwind-merge";
+import "./global.css";
+import { useBoutUriContext } from "./provider/use-bout-uri-context";
+import renderPage from "./provider/renderPage";
 
 // Create the React DOM
 const withShell = false;

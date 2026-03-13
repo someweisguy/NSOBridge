@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import PageView from "../components/page-view";
+import PageView from "./page-view";
 
 const meta: Meta<typeof PageView> = {
   component: PageView,

@@ -9,8 +9,7 @@ import JammerStateEditorContainer from "@/features/jams/components/jammer-state-
 import TeamJamPassEditorContainer from "@/features/jams/components/pass-editor-container";
 import JamStopReasonEditorContainer from "@/features/jams/components/stop-reason-editor-container";
 import TeamJamTripHistoryContainer from "@/features/jams/components/team-jam-trip-history-container";
-import { useBoutUriContext } from "@/features/page-rendering/hooks/use-bout-uri-context";
-import renderPage from "@/features/page-rendering/utils/renderPage";
+
 import TimeoutCallerEditorContainer from "@/features/timeouts/components/timeout-caller-editor-container";
 import TimeoutRetainedEditorContainer from "@/features/timeouts/components/timeout-retained-editor-container";
 import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-type-editor-container";
@@ -24,6 +23,8 @@ import "@mantine/core/styles.css";
 import { Suspense } from "react";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
+import { useBoutUriContext } from "./provider/use-bout-uri-context";
+import renderPage from "./provider/renderPage";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
