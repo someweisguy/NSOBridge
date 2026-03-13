@@ -3,6 +3,9 @@ import { JamUri, TimeoutUri } from "@/types/query";
 import { CacheKey } from "@/types/ws";
 import Clock from "./timeouts";
 
+/**
+ * A type containing the various state values in which a Bout could be.
+ */
 export type BoutStateString =
   | "final"
   | "jam"
@@ -10,19 +13,9 @@ export type BoutStateString =
   | "stopped"
   | "timeout";
 
-export interface Team {
-  num: number;
-
-  name: string;
-  league: string;
-  mnemonic: string;
-
-  boutScore: number;
-  jamScore: number;
-  timeoutsRemaining: number;
-  reviewsRemaining: number;
-  scoreOffset: number;
-}
+/**
+ * Represents a roller derby Bout - the game unit within this app.
+ */
 export class Bout {
   uuid: string;
   seriesUuid: string;
@@ -51,6 +44,12 @@ export class Bout {
     return ["bouts", boutUuid];
   }
 
+  /**
+   * Get a URI which identifies the latest Jam in this Bout. The latest Jam is the first
+   * Jam that has not started.
+   *
+   * @returns a URI to the latest Jam.
+   */
   getLatestJamUri(): JamUri {
     let periodNum = 0;
     for (let i = this.jamCounts.length - 1; i >= 0; --i) {
@@ -65,6 +64,13 @@ export class Bout {
     return { boutUuid: this.uuid, periodNum, jamNum };
   }
 
+  /**
+   * Get a URI which identifies thea active Jam in this Bout. The active Jam is the last
+   * Jam which is running or has ended. If no Jam meets this condition, null is
+   * returned.
+   *
+   * @returns a URI to the active Jam or null if none exists.
+   */
   getActiveJamUri(): JamUri | null {
     let periodNum = 0;
     for (let i = this.jamCounts.length - 1; i >= 0; --i) {
@@ -89,6 +95,23 @@ export class Bout {
   isOvertime(): boolean {
     return this.jamCounts[2] > 0;
   }
+}
+
+/**
+ * An object representing a roller derby Team.
+ */
+export interface Team {
+  num: number;
+
+  name: string;
+  league: string;
+  mnemonic: string;
+
+  boutScore: number;
+  jamScore: number;
+  timeoutsRemaining: number;
+  reviewsRemaining: number;
+  scoreOffset: number;
 }
 
 export async function getBout(boutUuid: string): Promise<Bout> {
