@@ -3,7 +3,7 @@ import { dateReviver } from "../utils/revivers";
 
 type CallbackType<T = unknown> = (data: T) => void;
 
-export const serverTimeCacheKey = ["serverTimeCacheKey"];
+export const serverTimeCacheKey: CacheKey = ["serverTimeCacheKey"];
 
 /**
  * The number of samples to use when synchronizing time with the server.
