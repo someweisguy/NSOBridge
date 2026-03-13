@@ -16,6 +16,10 @@ interface APIResponse<T = unknown> {
   timestamp: string;
 }
 
+/**
+ * The API handler class. This class is used to send HTTP requests to the desired
+ * destination.
+ */
 export default class API {
   readonly host: string;
 
@@ -60,6 +64,14 @@ export default class API {
     return payload;
   }
 
+  /**
+   * Send an HTTP GET request.
+   *
+   * @param endpoint the HTTP endpoint to query.
+   * @param params the URL parameters to attach to this query. GET requests are not
+   * allowed to have a body.
+   * @returns the server response data.
+   */
   async get<T = unknown>(
     endpoint: string,
     params?: Omit<URLParameters, "body">,
@@ -72,6 +84,14 @@ export default class API {
     return response.data;
   }
 
+  /**
+   * Send an HTTP HEAD request.
+   *
+   * @param endpoint the HTTP endpoint to query.
+   * @param params the URL parameters to attach to this query. HEAD requests are not
+   * allowed to have a body.
+   * @returns the server response data.
+   */
   async head<T = unknown>(
     endpoint: string,
     params?: Omit<URLParameters, "body">,
@@ -84,6 +104,13 @@ export default class API {
     return response.data;
   }
 
+  /**
+   * Send an HTTP POST request.
+   *
+   * @param endpoint the HTTP endpoint to query.
+   * @param params the URL parameters to attach to this query.
+   * @returns the server response data.
+   */
   async post<T = unknown>(
     endpoint: string,
     params?: URLParameters,
@@ -96,6 +123,13 @@ export default class API {
     return response.data;
   }
 
+  /**
+   * Send an HTTP PUT request.
+   *
+   * @param endpoint the HTTP endpoint to query.
+   * @param params the URL parameters to attach to this query.
+   * @returns the server response data.
+   */
   async put<T = unknown>(endpoint: string, params?: URLParameters): Promise<T> {
     const response: APIResponse<T> = await this.sendRequest(
       endpoint,
@@ -105,6 +139,13 @@ export default class API {
     return response.data;
   }
 
+  /**
+   * Send an HTTP DELETE request.
+   *
+   * @param endpoint the HTTP endpoint to query.
+   * @param params the URL parameters to attach to this query.
+   * @returns the server response data.
+   */
   async delete<T = unknown>(
     endpoint: string,
     params?: URLParameters,
