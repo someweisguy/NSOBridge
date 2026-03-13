@@ -31,9 +31,9 @@ export default defineConfig({
         {
           name: "Main",
           filename: "index.html",
-          entry: "/frontend/app/index.tsx",
+          entry: "/frontend/app/operator.tsx",
           data: {
-            scriptPath: "frontend/app/index.tsx",
+            scriptPath: "frontend/app/operator.tsx",
           },
         },
         {
