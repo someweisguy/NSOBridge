@@ -11,6 +11,10 @@ const queryClient = new QueryClient({
   },
 });
 
+/**
+ * Handle condition in which WebSockets connects to the server. All queries should be
+ * invalidated when disconnected.
+ */
 localSocket.addCallback("connect", (connected: boolean) => {
   onlineManager.setOnline(connected);
 
@@ -20,6 +24,9 @@ localSocket.addCallback("connect", (connected: boolean) => {
   }
 });
 
+/**
+ * Handle cache invalidation packets received from the server.
+ */
 localSocket.addCallback("cache", (keys: CacheKey[]) => {
   for (const key of keys) {
     for (let i = key.length; i > 0; --i) {
