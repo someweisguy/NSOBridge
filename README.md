@@ -20,9 +20,11 @@ This app also allows for roller derby statistics as a use-case. In addition to [
 
 ## Information for the Nerds
 
-This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React], the popular Javascript web-development framework. [Tanstack Query][Tanstack Query] is used for data caching and [Mantine][Mantine] is used as a UI framework. WebSockets are used for bidirectional, client-server communication.
+This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI server backend. Saved data is stored using [SQLAlchemy][SQLAlchemy] as an ORM framework and data is serialized using [Pydantic][Pydantic] models. The Typescript frontend uses [React][React] and [Vite][Vite], the popular Javascript web-development frameworks. [Tanstack Query][Tanstack Query] is used for data caching. The [Mantine][Mantine] library is used for UI design with assistance from [Tailwind CSS][Tailwind CSS]. WebSockets are used for bidirectional, client-server communication.
 
 The backend server is provided a GUI written in [PySide6][PySide6]. This app is distributed using the Python bundler [PyInstaller][PyInstaller] so that users may easily run this app. Additional frontend documentation and frontend testing is provided by [Storybook][Storybook].
+
+Everything in this app was created by a human being. The code is heavily documented to ensure that it is maintainable and easy to contribute to. If you'd like to contribute to this app, more information and guides can be found in the [NSO Bridge wiki](https://github.com/someweisguy/NSOBridge/wiki).
 
 ### Contributing
 
@@ -36,15 +38,15 @@ To install this application [npm][Node.js and npm Installation] and [Python 3.13
 
 After all the required packages have been installed and the frontend has been built, the application can be served on all interfaces. Run the application with `python backend/src/main.py 0.0.0.0`. For more information on how to use the command-line interface, run `python backend/src/main.py --help`.
 
-If you'd like to contribute to this app, more information can be found in the [NSO Bridge wiki](https://github.com/someweisguy/NSOBridge/wiki).
-
 [WFTDA statsbook]: https://static.wftda.com/stats/wftda-statsbook-manual.pdf
 [FastAPI]: https://fastapi.tiangolo.com/
 [SQLAlchemy]: https://www.sqlalchemy.org/
 [Pydantic]: https://docs.pydantic.dev/latest/
 [React]: https://react.dev/
+[Vite]: https://vite.dev/
 [Tanstack Query]: https://tanstack.com/query/latest
 [Mantine]: https://mantine.dev/
+[Tailwind CSS]: https://tailwindcss.com/
 [Node.js and npm Installation]: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 [Python Installation]: https://www.python.org/downloads/
 [uv Installation]: https://docs.astral.sh/uv/getting-started/installation/
