@@ -24,7 +24,7 @@ This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI serv
 
 The backend server is provided a GUI written in [PySide6][PySide6]. This app is distributed using the Python bundler [PyInstaller][PyInstaller] so that users may easily run this app. Additional frontend documentation and frontend testing is provided by [Storybook][Storybook].
 
-Everything in this app was created by a human being. The code is heavily documented to ensure that it is maintainable and easy to contribute to. If you'd like to contribute to this app, more information and guides can be found in the [NSO Bridge wiki](https://github.com/someweisguy/NSOBridge/wiki).
+Everything in this app was created by a human being. The code is heavily documented to ensure that it is maintainable and easy to make contributions. If you'd like to contribute to this app, more information and guides can be found in the [NSO Bridge wiki](https://github.com/someweisguy/NSOBridge/wiki).
 
 ### Contributing
 
