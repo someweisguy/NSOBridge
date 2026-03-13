@@ -11,8 +11,8 @@ import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
-import { useBoutUriContext } from "./provider/use-bout-uri-context";
 import renderPage from "./provider/renderPage";
+import { useBoutUriContext } from "./provider/use-bout-uri-context";
 
 // Create the React DOM
 const withShell = false;
@@ -25,7 +25,7 @@ renderPage("Scoreboard", Scoreboard, withShell);
 export function Scoreboard() {
   const boutUri = useBoutUriContext();
   const { data: bout } = useSuspenseBout(boutUri);
-  const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
+  const activeJamUri = bout.getActiveJamUri();
 
   // Prefetch latest Jam to avoid UI blinking
   void useJam({ ...bout.getLatestJamUri() });

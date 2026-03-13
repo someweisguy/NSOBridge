@@ -50,7 +50,7 @@ renderPage("NSO Bridge", Operator, withShell);
 export default function Operator() {
   const boutUri = useBoutUriContext();
   const { data: bout } = useSuspenseBout(boutUri);
-  const activeJamUri = bout.getActiveJamUri() ?? bout.getLatestJamUri();
+  const activeJamUri = bout.getActiveJamUri();
   const latestTimeoutUri = bout.getLatestTimeoutUri();
 
   // Prefetch latest Jam to avoid UI blinking

@@ -66,12 +66,12 @@ export class Bout {
 
   /**
    * Get a URI which identifies thea active Jam in this Bout. The active Jam is the last
-   * Jam which is running or has ended. If no Jam meets this condition, null is
-   * returned.
+   * Jam which is running or has ended. If no Jam meets this condition, the latest Jam
+   * is returned.
    *
-   * @returns a URI to the active Jam or null if none exists.
+   * @returns a URI to the active Jam.
    */
-  getActiveJamUri(): JamUri | null {
+  getActiveJamUri(): JamUri {
     let periodNum = 0;
     for (let i = this.jamCounts.length - 1; i >= 0; --i) {
       // Get the latest Period number that contains Jams
@@ -81,7 +81,7 @@ export class Bout {
       }
     }
     if (this.jamCounts[periodNum] < 2) {
-      return null; // There is no active Jam
+      return this.getLatestJamUri(); // There is no active Jam
     }
     const jamNum = this.jamCounts[periodNum] - 2;
 
