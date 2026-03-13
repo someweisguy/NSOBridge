@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
+/* Set default font family */
 @font-face {
+  /* Regular */
   font-family: "Rubik";
   src:
     url("/frontend/public/font/Rubik/Rubik-VariableFont_wght.woff2")
@@ -11,8 +13,8 @@
   font-style: normal;
   font-weight: 300 900;
 }
-
 @font-face {
+  /* Italic */
   font-family: "Rubik";
   src:
     url("/frontend/public/font/Rubik/Rubik-Italic-VariableFont_wght.woff2")
@@ -24,14 +26,13 @@
   font-style: italic;
   font-weight: 300 900;
 }
-
 @theme {
   --default-font-family: "Rubik";
 }
 
+/* Utility class used to blink the active Timeout in the TimeoutsLeft component */
 @theme {
   --animate-blink: blink 1s linear infinite;
-
   @keyframes blink {
     0%,
     64% {
