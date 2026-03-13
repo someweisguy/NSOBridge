@@ -1,7 +1,7 @@
 import { CacheKey } from "@/types/ws";
 import { localAPI } from "../requests";
 
-export default class Clock {
+export class Clock {
   startTimestamp: Date | null;
   elapsed: number;
   alarm: number;

@@ -1,7 +1,7 @@
 import { localAPI } from "@/lib/requests";
 import { JamUri, TimeoutUri } from "@/types/query";
 import { CacheKey } from "@/types/ws";
-import Clock from "./timeouts";
+import { Clock } from "./timeouts";
 
 /**
  * A type containing the various state values in which a Bout could be.
