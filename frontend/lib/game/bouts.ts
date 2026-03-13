@@ -65,7 +65,7 @@ export class Bout {
   }
 
   /**
-   * Get a URI which identifies thea active Jam in this Bout. The active Jam is the last
+   * Get a URI which identifies the active Jam in this Bout. The active Jam is the last
    * Jam which is running or has ended. If no Jam meets this condition, the latest Jam
    * is returned.
    *
@@ -88,10 +88,22 @@ export class Bout {
     return { boutUuid: this.uuid, periodNum, jamNum };
   }
 
+  /**
+   * Get a URI which identifies the latest Timeout. The latest Timeout is the timeout
+   * which was most recently called. If no Timeouts have been called, the timeoutNum
+   * parameter is -1.
+   *
+   * @returns a URI to the latest Timeout.
+   */
   getLatestTimeoutUri(): TimeoutUri {
     return { boutUuid: this.uuid, timeoutNum: this.timeoutCount - 1 };
   }
 
+  /**
+   * Return true if this Bout is in overtime.
+   *
+   * @returns true if this Bout is in overtime.
+   */
   isOvertime(): boolean {
     return this.jamCounts[2] > 0;
   }
@@ -131,6 +143,7 @@ export async function createBout(
   seriesIndex = 1,
   order = 0,
 ): Promise<void> {
+  // TODO: this function has not been tested and is likely does not work
   await localAPI.post("bout/wftda2025", {
     query: { seriesIndex },
     body: { rosterIds, order },
