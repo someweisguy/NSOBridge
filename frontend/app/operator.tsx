@@ -154,7 +154,7 @@ export default function Operator() {
         </SimpleGrid>
       </Suspense>
 
-      {/* TODO: Lineup editors */}
+      {/* TODO: Add lineup editors */}
     </Stack>
   );
 }

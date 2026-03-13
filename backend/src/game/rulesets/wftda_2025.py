@@ -121,7 +121,7 @@ class Bout(_WFTDAModel, BaseBout):
         # Get the first Jam that has not started
         jam: BaseJam | None = self.get_upcoming_jam()
         if jam is None:
-            raise NotImplementedError()  # FIXME: push a new Jam if this is None
+            raise NotImplementedError()  # TODO: push a new Jam if this is None
         if len(jam.team_jams) != REQUIRED_NUM_TEAMS:
             raise RuntimeError(f'each Jam requires {REQUIRED_NUM_TEAMS} TeamJams')
 

@@ -36,7 +36,7 @@ export default function JamStopReasonEditorContainer({
         },
       ]}
       value={jam.stopReason ?? "other"}
-      onChange={() => null} // FIXME: add mutator
+      onChange={() => null} // TODO: add mutator
       {...props}
     />
   );
