@@ -31,8 +31,15 @@ export class Timeout {
   result: string;
   retained: boolean;
 
-  static generateKey(boutUuid: string, timeoutId: number): CacheKey {
-    return ["timeouts", boutUuid, timeoutId];
+  /**
+   * Generate a cache key for the desired Timeout.
+   *
+   * @param boutUuid the UUID of the Bout associated with the desired Timeout.
+   * @param timeoutNum the number of the desired Timeout.
+   * @returns a cache key for the desired Timeout.
+   */
+  static generateKey(boutUuid: string, timeoutNum: number): CacheKey {
+    return ["timeouts", boutUuid, timeoutNum];
   }
 
   hasStarted(): boolean {

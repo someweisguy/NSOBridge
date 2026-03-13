@@ -7,10 +7,16 @@ export class Series {
   boutUuids: string[];
   activeBoutIndex: number | null;
 
-  static generateKey(uuid?: string): CacheKey {
+  /**
+   * Generate a cache key for the desired Series.
+   *
+   * @param seriesUuid the UUID of the Series.
+   * @returns a cache key for the desired Series.
+   */
+  static generateKey(seriesUuid?: string): CacheKey {
     const key: CacheKey = ["series"];
-    if (uuid != undefined) {
-      key.push(uuid);
+    if (seriesUuid != undefined) {
+      key.push(seriesUuid);
     }
     return key;
   }

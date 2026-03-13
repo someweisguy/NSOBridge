@@ -21,6 +21,14 @@ export class Jam {
 
   teamJams: TeamJam[];
 
+  /**
+   * Generate a cache key for the desired Jam.
+   *
+   * @param boutUuid the UUID of the Bout associated with the desired Jam.
+   * @param periodNum the Period number of the desired Jam.
+   * @param jamNum the Jam number of the desired Jam.
+   * @returns a cache key for the desired Jam.
+   */
   static generateKey(
     boutUuid?: string,
     periodNum?: number,

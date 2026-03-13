@@ -38,6 +38,12 @@ export class Bout {
   jamCounts: [number, number, number];
   timeoutCount: number;
 
+  /**
+   * Generate a cache key for the desired Bout.
+   *
+   * @param boutUuid the UUID of the desired Bout.
+   * @returns a cache key for the desired Bout.
+   */
   static generateKey(boutUuid?: string): CacheKey {
     if (boutUuid == undefined) {
       return ["bouts"];
