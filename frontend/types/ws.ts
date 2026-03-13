@@ -1,12 +1,4 @@
 /**
- * The cache key type. When a cached object should be invalidated, the server sends its
- * cache key to all clients via a WebSockets packet. Cache keys are arrays which begin
- * with its database table name, followed by identifiers which can uniquely identify the
- * object.
- */
-export type CacheKey = [string, ...unknown[]];
-
-/**
  * The server data that is returned when sending a WebSockets message to the server.
  * This payload can be used to check the server API version as well as to synchronize
  * the client time with the server time. Clock synchronization is important to ensure

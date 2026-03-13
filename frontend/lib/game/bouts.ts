@@ -1,6 +1,5 @@
 import { localAPI } from "@/lib/requests";
-import { JamUri, TimeoutUri } from "@/types/query";
-import { CacheKey } from "@/types/ws";
+import { CacheKey, JamUri, TimeoutUri } from "@/types/query";
 import { Clock } from "./timeouts";
 
 /**

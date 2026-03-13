@@ -1,4 +1,4 @@
-import { CacheKey } from "@/types/ws";
+import { CacheKey } from "@/types/query";
 import { localAPI } from "../requests";
 
 /**

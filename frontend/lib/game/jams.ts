@@ -1,5 +1,5 @@
 import { localAPI } from "@/lib/requests";
-import { CacheKey } from "@/types/ws";
+import { CacheKey } from "@/types/query";
 
 /**
  * A type which represents all of the possible reason a Jam may be stopped.
