@@ -1,7 +1,14 @@
-import { CacheKey, ServerData } from "../types/ws";
+import { CacheKey, ServerData, SyncData } from "../types/ws";
 import { dateReviver } from "../utils/revivers";
 
 type CallbackType<T = unknown> = (data: T) => void;
+
+export const serverTimeCacheKey = ["serverTimeCacheKey"];
+
+/**
+ * The number of samples to use when synchronizing time with the server.
+ */
+const NUM_SYNC_SAMPLES = 5;
 
 interface API {
   cache: CacheKey[];
@@ -78,6 +85,34 @@ export default class Socket {
 
     this.ws.send(JSON.stringify({ process: new Date() }));
     return this.receiveData("about");
+  }
+
+  async getSyncData(): Promise<SyncData> {
+    // Collect a number of round-trip time samples
+    let clientNow: Date;
+    let lastSyncPacket: ServerData;
+    const syncSamples: number[] = [];
+    do {
+      const info: ServerData = await this.getServerInfo();
+      clientNow = new Date();
+      lastSyncPacket = info;
+      if (info.process == null) {
+        throw new Error(
+          "something went wrong when trying to synchronize the server time",
+        );
+      }
+      syncSamples.push(clientNow.getTime() - info.process.getTime());
+    } while (syncSamples.length < NUM_SYNC_SAMPLES);
+
+    // Calculate the average round-trip time
+    const rtt =
+      syncSamples.reduce((acc, val) => acc + val) / syncSamples.length;
+    const serverTime = lastSyncPacket.server.getTime() + rtt / 2;
+
+    return {
+      offset: serverTime - clientNow.getTime(),
+      error: rtt / 2,
+    };
   }
 }
 

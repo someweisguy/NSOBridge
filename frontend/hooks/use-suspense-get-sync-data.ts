@@ -1,8 +1,8 @@
 import queryClient from "@/lib/cache";
+import { localSocket, serverTimeCacheKey } from "@/lib/ws";
 import { AppSuspenseQueryOptions } from "@/types/query";
 import { SyncData } from "@/types/ws";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getSyncData, serverTimeCacheKey } from "../lib/sync";
 
 // The interval in milliseconds at which the sync data is refreshed.
 const REFETCH_INTERVAL = 1000 * 60 * 5;
@@ -19,8 +19,8 @@ export const useSuspenseGetSyncData = (
 ) =>
   useSuspenseQuery<SyncData>(
     {
-      queryKey: [serverTimeCacheKey],
-      queryFn: () => getSyncData(),
+      queryKey: serverTimeCacheKey,
+      queryFn: () => localSocket.getSyncData(),
       refetchInterval: REFETCH_INTERVAL,
       ...options,
     },
