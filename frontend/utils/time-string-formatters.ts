@@ -1,4 +1,11 @@
-
+/**
+ * Format a number of milliseconds and an optional alarm value into a time string. This
+ * is used for count-up and count-down timer displays.
+ *
+ * @param milliseconds the number of milliseconds to convert.
+ * @param alarm the number of milliseconds that must be reached for the alarm to fire.
+ * @returns a formatted time string.
+ */
 export default function defaultTimeStringFormatter(
   milliseconds: number,
   alarm?: number,
@@ -40,6 +47,14 @@ export default function defaultTimeStringFormatter(
   return output;
 }
 
+/**
+ * Format a number of milliseconds and an optional alarm value into a Period time
+ * string. This is used for count-up and count-down timer displays.
+ *
+ * @param milliseconds the number of milliseconds to convert.
+ * @param alarm the number of milliseconds that must be reached for the alarm to fire.
+ * @returns a formatted time string.
+ */
 export function periodTimeStringFormatter(
   milliseconds: number,
   alarm?: number,
@@ -48,6 +63,14 @@ export function periodTimeStringFormatter(
   return defaultTimeStringFormatter(milliseconds, alarm);
 }
 
+/**
+ * Format a number of milliseconds and an optional alarm value into a Lineup time
+ * string. This is used for count-up and count-down timer displays.
+ *
+ * @param milliseconds the number of milliseconds to convert.
+ * @param alarm the number of milliseconds that must be reached for the alarm to fire.
+ * @returns a formatted time string.
+ */
 export function lineupTimeStringFormatter(
   milliseconds: number,
   alarm?: number,
@@ -56,6 +79,14 @@ export function lineupTimeStringFormatter(
   return defaultTimeStringFormatter(milliseconds, alarm);
 }
 
+/**
+ * Format a number of milliseconds and an optional alarm value into a Jam time string.
+ * This is used for count-up and count-down timer displays.
+ *
+ * @param milliseconds the number of milliseconds to convert.
+ * @param alarm the number of milliseconds that must be reached for the alarm to fire.
+ * @returns a formatted time string.
+ */
 export function jamTimeStringFormatter(
   milliseconds: number,
   alarm?: number,
@@ -64,6 +95,14 @@ export function jamTimeStringFormatter(
   return defaultTimeStringFormatter(milliseconds, alarm);
 }
 
+/**
+ * Format a number of milliseconds and an optional alarm value into a Timeout time
+ * string. This is used for count-up and count-down timer displays.
+ *
+ * @param milliseconds the number of milliseconds to convert.
+ * @param alarm the number of milliseconds that must be reached for the alarm to fire.
+ * @returns a formatted time string.
+ */
 export function timeoutTimeStringFormatter(
   milliseconds: number,
   alarm?: number,
