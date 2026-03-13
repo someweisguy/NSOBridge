@@ -1,13 +1,16 @@
 {
-  "cSpell.words": [
-    "cacheables",
+  "cSpell.words": ["IGRF", "nsobridge", "wftda"],
+  "cSpell.ignoreWords": [
     "Cristian",
-    "pycache",
+    "cacheables",
     "sessionmaker",
-    "Timeable",
-    "wftda"
+    "ASGI",
+    "pycache",
+    "Pydantic",
+    "onedir",
+    "softprops",
+    "tabler"
   ],
-  "cSpell.ignoreWords": ["nsobridge", "onedir", "softprops", "tabler"],
   "python.testing.pytestArgs": ["backend"],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
