@@ -4,6 +4,7 @@ import { SyncData } from "@/types/ws";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getSyncData, serverTimeCacheKey } from "../lib/sync";
 
+// The interval in milliseconds at which the sync data is refreshed.
 const REFETCH_INTERVAL = 1000 * 60 * 5;
 
 /**
