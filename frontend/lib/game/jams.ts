@@ -79,6 +79,14 @@ export interface TripEvent {
   starPass: boolean;
 }
 
+/**
+ * Get a Jam from the server.
+ *
+ * @param boutUuid the Bout UUID of the desired Jam.
+ * @param periodNum the Period number of the desired Jam.
+ * @param jamNum the Jam number of the desired Jam.
+ * @returns the desired Jam.
+ */
 export async function getJam(
   boutUuid: string,
   periodNum: number,
@@ -91,6 +99,16 @@ export async function getJam(
   return Object.assign(new Jam(), data);
 }
 
+/**
+ * Add a Trip to the desired TeamJam.
+ *
+ * @param boutUuid the UUID of the desired Jam.
+ * @param boutUuid the Bout UUID of the desired Jam.
+ * @param periodNum the Period number of the desired Jam.
+ * @param jamNum the Jam number of the desired Jam.
+ * @param teamNum the unique Team number of the Team to which to add a Trip.
+ * @param passes the number of passes to add to the Trip.
+ */
 export async function addJamTrip(
   boutUuid: string,
   periodNum: number,
@@ -109,6 +127,16 @@ export async function addJamTrip(
   });
 }
 
+/**
+ * Add a Lead event to the desired TeamJam.
+ *
+ * @param boutUuid the UUID of the desired Jam.
+ * @param boutUuid the Bout UUID of the desired Jam.
+ * @param periodNum the Period number of the desired Jam.
+ * @param jamNum the Jam number of the desired Jam.
+ * @param teamNum the unique Team number of the Team to which to add a Trip.
+ * @param lead
+ */
 export async function addJamLead(
   boutUuid: string,
   periodNum: number,
@@ -127,6 +155,16 @@ export async function addJamLead(
   });
 }
 
+/**
+ * Add a Lost event to the desired TeamJam.
+ *
+ * @param boutUuid the UUID of the desired Jam.
+ * @param boutUuid the Bout UUID of the desired Jam.
+ * @param periodNum the Period number of the desired Jam.
+ * @param jamNum the Jam number of the desired Jam.
+ * @param teamNum the unique Team number of the Team to which to add a Trip.
+ * @param lost
+ */
 export async function addJamLost(
   boutUuid: string,
   periodNum: number,
@@ -145,6 +183,16 @@ export async function addJamLost(
   });
 }
 
+/**
+ * Add a Star Pass event to the desired TeamJam.
+ *
+ * @param boutUuid the UUID of the desired Jam.
+ * @param boutUuid the Bout UUID of the desired Jam.
+ * @param periodNum the Period number of the desired Jam.
+ * @param jamNum the Jam number of the desired Jam.
+ * @param teamNum the unique Team number of the Team to which to add a Trip.
+ * @param starPass
+ */
 export async function addJamStarPass(
   boutUuid: string,
   periodNum: number,
