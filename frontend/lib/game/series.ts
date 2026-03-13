@@ -7,9 +7,21 @@ import { localAPI } from "../requests";
  * of team wins/losses during a tournament Series.
  */
 export class Series {
+  /**
+   * The unique identifier of this Series.
+   */
   uuid: string;
+  /**
+   * The name of the Series.
+   */
   name: string;
+  /**
+   * The UUIDs of the Bouts associated with this Series.
+   */
   boutUuids: string[];
+  /**
+   * The index of the active Bout in this Series or null if no Bout is active.
+   */
   activeBoutIndex: number | null;
 
   /**

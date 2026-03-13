@@ -11,14 +11,33 @@ export type StopReasonString = "called" | "elapsed" | "injury" | "other";
  * during the run of the Bout.
  */
 export class Jam {
+  /**
+   * The UUID of the Bout associated with this Jam.
+   */
   boutUuid: string;
+  /**
+   * The Period number of this Jam.
+   */
   period: number;
+  /**
+   * The Jam number of this Jam.
+   */
   num: number;
-
+  /**
+   * The timestamp at which this Jam started or null if it hasn't been started.
+   */
   startTimestamp: Date | null;
+  /**
+   * The timestamp at which this Jam was stopped or null if it hasn't been stopped.
+   */
   stopTimestamp: Date | null;
+  /**
+   * The reason that this Jam was stopped or null if it hasn't been stopped.
+   */
   stopReason: StopReasonString | null;
-
+  /**
+   * The TeamJams associated with this Jam.
+   */
   teamJams: TeamJam[];
 
   /**
@@ -61,7 +80,13 @@ export class Jam {
  * team within a Jam. Such data may include the Jammer's trips or lineup data.
  */
 export class TeamJam {
+  /**
+   * The unique number of the Team with which this TeamJam is associated.
+   */
   teamNum: number;
+  /**
+   * An array of Jammer Trip events that have occurred during this Jam.
+   */
   events: TripEvent[];
 }
 
@@ -72,10 +97,26 @@ export class TeamJam {
  * during the previous Trip.
  */
 export interface TripEvent {
+  /**
+   * The timestamp at which this event occurred.
+   */
   timestamp: Date;
+  /**
+   * True if the Jammer was awarded Lead.
+   */
   lead: boolean;
+  /**
+   * True if the Jammer lost lead Jammer eligibility;
+   */
   lost: boolean;
+  /**
+   * The number of passes that this Jammer was awarded during the Trip. Setting this
+   * value to a non-null number ends the current Trip and begins the next.
+   */
   passes: number | null;
+  /**
+   * True if the Jammer successfully completed a star pass.
+   */
   starPass: boolean;
 }
 

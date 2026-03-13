@@ -6,8 +6,17 @@ import { localAPI } from "../requests";
  * whereas a one-shot (such as a Jam or Timeout) can only be started and stopped once.
  */
 export class Clock {
+  /**
+   * The timestamp at which this Clock was started or null if it hasn't been started.
+   */
   startTimestamp: Date | null;
+  /**
+   * The number of milliseconds that have already elapsed on this Clock.
+   */
   elapsed: number;
+  /**
+   * The number of milliseconds that must elapse for the alarm on this Clock to trigger.
+   */
   alarm: number;
 
   /**
@@ -21,26 +30,67 @@ export class Clock {
 }
 
 /**
- * Represent a Timeout within a Bout. A Timeout is called to stop the flow of the game.
- * This may be done by any Team with a sufficient number of Timeouts remaining or by the
- * officials for any reason.
+ * Represent a Timeout or Official Review within a Bout. A Timeout is called to stop the
+ * flow of the game. This may be done by any Team with a sufficient number of Timeouts
+ * remaining or by the officials for any reason.
  */
 export class Timeout {
+  /**
+   * The UUID of the Bout associated with this Timeout.
+   */
   boutUuid: string;
+  /**
+   * The unique number identifying this Timeout within its Bout.
+   */
   num: number;
-
+  /**
+   * The Period number in which this Timeout was called.
+   */
   periodNum: number;
+  /**
+   * The Jam number in which this Timeout was called. The Jam number of a Timeout is
+   * always the Jam number of the Jam that has just ended.
+   */
   jamNum: number;
-
-  startTimestamp: Date | null;
+  /**
+   * The timestamp at which this Timeout was called.
+   */
+  startTimestamp: Date | null; // TODO: can this be null?
+  /**
+   * The timestamp at which this Timeout was ended.
+   */
   stopTimestamp: Date | null;
+  /**
+   * The amount of milliseconds that have elapsed on the Period clock when this Timeout
+   * was called.
+   */
   clockElapsed: number;
-
+  /**
+   * The Team number of the Team which called this timeout or null if the calling team
+   * has not yet been determined.
+   */
   teamNum: number | null;
+  /**
+   * True if this Timeout was called by the officials.
+   */
   teamIsOfficials: boolean;
+  /**
+   * True if this Timeout is an Official Review.
+   */
   isReview: boolean;
+  /**
+   * Any important details or context about this Timeout. This value is typically used
+   * only for Official Reviews.
+   */
   details: string;
+  /**
+   * The result of this Timeout. This value is typically used only for Official Reviews.
+   */
   result: string;
+  /**
+   * True if this Timeout was retained. This value is typically used only for Official
+   * Reviews.
+   */
   retained: boolean;
 
   /**
@@ -85,7 +135,7 @@ export async function getTimeout(
   timeoutNum: number,
 ): Promise<Timeout> {
   const data = await localAPI.get<Partial<Timeout>>("timeout", {
-    query: { boutUuid, num: timeoutNum },
+    query: { boutUuid, num: timeoutNum }, // TODO: fix alias
   });
   return Object.assign(new Timeout(), data);
 }
