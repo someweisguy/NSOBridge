@@ -21,6 +21,10 @@ interface WebSocketSchema<K extends keyof API> {
   data: API[K];
 }
 
+/**
+ * The WebSocket handler class. This class is used to send and receive WebSocket packets
+ * to the desired destination.
+ */
 export default class Socket {
   private ws: WebSocket;
   private allCallbacks = new Map<string, CallbackType[]>();
@@ -46,6 +50,11 @@ export default class Socket {
     });
   }
 
+  /**
+   * Connect to the desired WebSocket host.
+   *
+   * @param url the URL of the host.
+   */
   private connect(url: string) {
     this.ws = new WebSocket(url);
     this.ws.onopen = () => this.handleEvent("connect", true);
@@ -67,6 +76,12 @@ export default class Socket {
     this.connect(url);
   }
 
+  /**
+   * Add a callback which is fired when receiving the desired WebSocket API packet type.
+   *
+   * @param type the packet type for which to register a callback.
+   * @param cb the callback which gets fired when received the desired packet type.
+   */
   addCallback<T extends keyof API>(type: T, cb: CallbackType<API[T]>): void {
     const callbacks: CallbackType[] = this.allCallbacks.get(type) ?? [];
     callbacks.push(cb as unknown as CallbackType);
@@ -74,6 +89,11 @@ export default class Socket {
     this.allCallbacks.set(type, callbacks);
   }
 
+  /**
+   * Get information about the server from the WebSocket endpoint.
+   *
+   * @returns a ServerData object.
+   */
   async getServerInfo(): Promise<ServerData> {
     // Wait until the WebSocket is connected
     if (this.ws.readyState !== WebSocket.OPEN) {
@@ -87,6 +107,14 @@ export default class Socket {
     return this.receiveData("about");
   }
 
+  /**
+   * Calculate the difference between the server time and client time. This can be used
+   * to ensure that time displayed in clocks is synchronized if the network connection
+   * has particularly high latency, if the client and server are not in the same
+   * time-zone, or have otherwise misaligned time-of-day clocks.
+   *
+   * @returns a SyncData object which contains the server time offset and error.
+   */
   async getSyncData(): Promise<SyncData> {
     // Collect a number of round-trip time samples
     let clientNow: Date;
