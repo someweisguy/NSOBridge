@@ -1,15 +1,15 @@
 import { localAPI } from "@/lib/requests";
 import { CacheKey } from "@/types/ws";
 
+/**
+ * A type which represents all of the possible reason a Jam may be stopped.
+ */
 export type StopReasonString = "called" | "elapsed" | "injury" | "other";
 
-export interface TripEvent {
-  timestamp: Date;
-  lead: boolean;
-  lost: boolean;
-  passes: number | null;
-  starPass: boolean;
-}
+/**
+ * A unit of gameplay within a Bout. These are typically two-minute rounds of action
+ * during the run of the Bout.
+ */
 export class Jam {
   boutUuid: string;
   period: number;
@@ -37,18 +37,46 @@ export class Jam {
     return ["jams", boutUuid, periodNum, jamNum];
   }
 
+  /**
+   * Determine if this Jam has started.
+   *
+   * @returns true if this Jam has started.
+   */
   hasStarted(): boolean {
     return this.startTimestamp != null;
   }
 
+  /**
+   * Determine if this Jam is currently running.
+   *
+   * @returns true if this Jam is currently running.
+   */
   isRunning(): boolean {
     return this.hasStarted() && this.stopTimestamp == null;
   }
 }
 
+/**
+ * Represent a TeamJam within a Jam. A TeamJam is data which pertains to a particular
+ * team within a Jam. Such data may include the Jammer's trips or lineup data.
+ */
 export class TeamJam {
   teamNum: number;
   events: TripEvent[];
+}
+
+/**
+ * Represent a Trip event object. A Trip event is any event which may occur during a
+ * Trip. When Trip passes are non-null, a trip is considered to have been completed. Any
+ * TripEvent which has null passes is an event which is considered to have occurred
+ * during the previous Trip.
+ */
+export interface TripEvent {
+  timestamp: Date;
+  lead: boolean;
+  lost: boolean;
+  passes: number | null;
+  starPass: boolean;
 }
 
 export async function getJam(
