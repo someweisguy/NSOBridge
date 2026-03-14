@@ -11,7 +11,7 @@ from http import HTTPStatus
 from logging import Handler, StreamHandler
 from pathlib import Path
 from socket import AF_INET, SOCK_DGRAM, socket
-from typing import TYPE_CHECKING, Any, Callable, Final, LiteralString
+from typing import TYPE_CHECKING, Callable, Final, LiteralString
 
 import colorlog
 from fastapi.exceptions import RequestValidationError
@@ -55,7 +55,7 @@ async def _validation_error_handler(
     return APIResponseClass(error, status_code=HTTPStatus.BAD_REQUEST)
 
 
-error_handlers: Final[dict[type[Exception], Callable[[Request, ...], Any]]] = {
+error_handlers: Final[dict[type[Exception], Callable]] = {
     Exception: _generic_error_handler,
     ClientError: _generic_error_handler,
     RequestValidationError: _validation_error_handler,

@@ -86,7 +86,7 @@ class DatabaseEngine:
 
     """
 
-    _DRIVER: ClassVar[Final[str]] = 'sqlite+aiosqlite'
+    _DRIVER: ClassVar[str] = 'sqlite+aiosqlite'
 
     def __init__(
         self, db_schema: type[DeclarativeBase], db_path: str | Path = ''

@@ -1,13 +1,11 @@
 """Pydantic Ruleset schemas."""
 
-from dataclasses import dataclass
 from datetime import timedelta
 from typing import Annotated
 
 from core import ServerSchema, timedelta_serializer
 
 
-@dataclass(frozen=True)
 class Ruleset(ServerSchema):
     """Represent a Ruleset as a JSON schema.
 
