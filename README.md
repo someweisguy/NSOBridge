@@ -4,11 +4,11 @@ This is a scoreboard application designed for the Women's Flat Track Derby Assoc
 
 ## How to Install
 
-NSO Bridge can run on Windows 10/11, MacOS, and Linux.
+Click your operating system below to download NSO Bridge:
 
-To download this app, go to the [latest release page](https://github.com/someweisguy/NSOBridge/releases/latest) and download the appropriate version - `nsobridge-Windows` if you are using Windows, `nsobridge-macOS` if you are using MacOS, or `nsobridge-Linux` if you are using Linux.
-
-Unzip the release. On Windows or Linux, `NSO Bridge` can be found within the `NSO Bridge` folder. Double-click the executable file to start NSO Bridge. On MacOS, double-click the unzipped `NSO Bridge.app` bundle to start NSO Bridge.
+- **[Windows](https://github.com/someweisguy/NSOBridge/releases/latest/download/nsobridge-windows-latest.zip)**
+- **[macOS (Apple)](https://github.com/someweisguy/NSOBridge/releases/latest/download/nsobridge-macos-26.zip)**
+- **[macOS (Intel)](https://github.com/someweisguy/NSOBridge/releases/latest/download/nsobridge-macos-26-intel.zip)**
 
 If you would prefer to run the server from the command-line, see the [command-line interface section](#command-line-interface) below.
 
@@ -24,17 +24,15 @@ This project uses the Python framework, [FastAPI][FastAPI], to host an ASGI serv
 
 The backend server is provided a GUI written in [PySide6][PySide6]. This app is distributed using the Python bundler [PyInstaller][PyInstaller] so that users may easily run this app. Additional frontend documentation and frontend testing is provided by [Storybook][Storybook].
 
-Everything in this app was created by a human being. The code is heavily documented to ensure that it is maintainable and easy to make contributions. If you'd like to contribute to this app, more information and guides can be found in the [NSO Bridge wiki](https://github.com/someweisguy/NSOBridge/wiki).
-
 ### Contributing
 
-A key goal of NSO Bridge is to make it easy to contribute! A contribution guide will be published after the NSO Bridge beta version is released.
+Everything in this app was created and reviewed by a human being. The code is heavily documented to ensure that it is maintainable and easy to make contributions. If you'd like to contribute to this app, more information and guides can be found in the [NSO Bridge wiki](https://github.com/someweisguy/NSOBridge/wiki).
 
 ### Command-Line Interface
 
 This application offers a command-line interface for advanced users.
 
-To install this application [npm][Node.js and npm Installation] and [Python 3.13][Python Installation] are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a Python package manager. Create a Python virtual environment with `uv venv`. Source the newly created Python environment with `.venv/Scripts/activate` on Windows or `source .venv/bin/activate` on Linux or MacOS and then call `uv sync` to download the required Python dependencies. The Node.js dependencies can be installed by running `npm install`. Finally, the frontend can be compiled by running`npm run build`.
+To install this application [npm][Node.js and npm Installation] and [Python 3.12][Python Installation] are needed. Clone this repository to a directory on your device. It is recommended to install [Astral uv][uv Installation] as a Python package manager. Create a Python virtual environment with `uv venv`. Source the newly created Python environment with `.venv/Scripts/activate` on Windows or `source .venv/bin/activate` on Linux or MacOS and then call `uv sync` to download the required Python dependencies. The Node.js dependencies can be installed by running `npm install`. Finally, the frontend can be compiled by running`npm run build`.
 
 After all the required packages have been installed and the frontend has been built, the application can be served on all interfaces. Run the application with `python backend/src/main.py 0.0.0.0`. For more information on how to use the command-line interface, run `python backend/src/main.py --help`.
 
