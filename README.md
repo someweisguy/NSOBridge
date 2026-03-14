@@ -1,6 +1,8 @@
 # NSO Bridge
 
-This is a scoreboard application designed for the Women's Flat Track Derby Association roller derby ruleset. This project is in its early infancy and still has a ways to go before it will be ready for scrimmages or sanctioned bouts. This is a free, open-source project which means users will never need to pay to use it, and anyone from the wonderful roller derby community (or anyone from _any_ community) may contribute to its success!
+This is a scoreboard application designed for the Women's Flat Track Derby Association roller derby ruleset. This is a free, open-source project which means users will never need to pay to use it, and anyone from the wonderful roller derby community (or anyone from _any_ community) may contribute to its success!
+
+**This app is alpha software. It still has many bugs that could seriously impact your game. Use this app at your own risk!**
 
 ## How to Install
 
