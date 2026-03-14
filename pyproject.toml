@@ -14,7 +14,7 @@ dependencies = [
 ]
 dynamic = ["version"]
 name = "nso-bridge"
-requires-python = "==3.13.*"
+requires-python = "==3.14.*"
 
 [dependency-groups]
 dev = [
