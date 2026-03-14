@@ -118,10 +118,8 @@ jobs:
         with:
           python-version-file: pyproject.toml
       - run: pyinstaller onedir.spec
-      - run: rm -rf "dist/NSO Bridge"
-        if: ${{ inputs.runs-on == 'macos-latest' }}
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.create-artifact }}
         with:
-          name: nsobridge-${{ runner.os }}
+          name: nsobridge-${{ inputs.runs-on }}
           path: dist
