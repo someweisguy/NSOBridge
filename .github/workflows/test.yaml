@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
       - run: npm ci
-      - run: npx playwright install  
+      - run: npx playwright install
       - run: npm run test-storybook
   build_frontend:
     name: Build Frontend
@@ -118,8 +118,10 @@ jobs:
         with:
           python-version-file: pyproject.toml
       - run: pyinstaller onedir.spec
+      - run: rm -rf "dist/NSO Bridge"; chmod -R +x "dist/NSO Bridge.app"
+        if: ${{ runner.os == 'macOS' }}
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.create-artifact }}
         with:
-          name: nsobridge-${{ inputs.runs-on }}
+          name: nsobridge-${{inputs.runs-on }}
           path: dist
