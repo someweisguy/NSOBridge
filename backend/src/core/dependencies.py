@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Annotated, AsyncGenerator, ClassVar, TypeAlias
 
-from fastapi import Depends, Request
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from .database import BaseSQLModel, DatabaseEngine
@@ -55,9 +55,7 @@ class EngineFactory:
         return DatabaseEngine(BaseSQLModel, db_path)
 
     @classmethod
-    async def yield_async_session(
-        cls, request: Request
-    ) -> AsyncGenerator[AsyncSession, None]:
+    async def yield_async_session(cls) -> AsyncGenerator[AsyncSession, None]:
         """Yield a session which automatically commits.
 
         This method is useful for FastAPI dependency injection.
