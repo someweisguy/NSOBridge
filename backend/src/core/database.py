@@ -16,6 +16,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncSession,
+    async_object_session,
     async_sessionmaker,
     create_async_engine,
 )
@@ -76,6 +77,21 @@ class BaseSQLModel(AsyncAttrs, DeclarativeBase):
             if isinstance(parent, BaseSQLModel):
                 recursive_parents.extend(await parent.get_recursive_parents())
         return tuple(recursive_parents)
+
+    def get_session(self) -> AsyncSession:
+        """Get the session from the SQLAlchemy object.
+
+        Raises:
+            TypeError: if this object is not associated with a SQLAlchemy session.
+
+        Returns:
+            AsyncSession: the session with which this object is associated.
+
+        """
+        session: AsyncSession | None = async_object_session(self)
+        if session is None:
+            raise TypeError('This object is not associated with a SQL session')
+        return session
 
 
 class DatabaseEngine:
