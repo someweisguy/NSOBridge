@@ -11,7 +11,12 @@ import game
 import update
 import user
 import ws
-from core import APIResponseClass, DatabaseEngine, EngineFactory
+from core import (
+    APIResponseClass,
+    DatabaseEngine,
+    EngineFactory,
+    endpoint_profiling_middleware,
+)
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Series, wftda_2025
@@ -204,6 +209,11 @@ if __name__ == '__main__':
             logging.warning('Unable to check for releases at this time')
     else:
         logging.info('Skipping release check')
+
+    # Configure debugging
+    if app.debug:
+        # Add a debug endpoint profile middleware - looks funky but it works!
+        app.middleware('http')(endpoint_profiling_middleware)
 
     # Run the application
     try:

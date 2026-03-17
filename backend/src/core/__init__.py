@@ -15,7 +15,11 @@ from .service import (
     get_server,
     shutdown,
 )
-from .utils import get_resource_path, timedelta_serializer
+from .utils import (
+    endpoint_profiling_middleware,
+    get_resource_path,
+    timedelta_serializer,
+)
 
 __all__ = (
     'api_router',
@@ -27,6 +31,7 @@ __all__ = (
     'ClientSchema',
     'configure_logging',
     'DatabaseEngine',
+    'endpoint_profiling_middleware',
     'EngineFactory',
     'error_handlers',
     'get_default_route',
