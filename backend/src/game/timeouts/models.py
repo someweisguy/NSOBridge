@@ -19,6 +19,8 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 
+from .schemas import TimeoutSchema
+
 if TYPE_CHECKING:
     from game.jams.models import BaseJam
     from game.teams.models import BaseTeam
@@ -100,6 +102,10 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     @override
     async def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_uuid, self.num)
+
+    @override
+    def serialize(self) -> TimeoutSchema:
+        return TimeoutSchema.model_validate(self)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

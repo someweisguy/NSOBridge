@@ -17,6 +17,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from .schemas import JamSchema
 from .types import StopReasonStr  # noqa: TC001
 
 if TYPE_CHECKING:
@@ -89,6 +90,10 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     @override
     async def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_uuid, self.period, self.num)
+
+    @override
+    def serialize(self) -> JamSchema:
+        return JamSchema.model_validate(self)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

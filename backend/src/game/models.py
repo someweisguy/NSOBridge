@@ -7,7 +7,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import Any, override
 
-from core import BaseSQLModel
+from core import BaseSQLModel, ServerSchema
 from sqlalchemy import CheckConstraint, Constraint
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -27,6 +27,17 @@ class CacheableSQLModel(BaseSQLModel):
 
     __abstract__: bool = True
 
+    def get_memento(self) -> DatabaseMemento:
+        """Get a memento of the current state of this model and all its children.
+
+        Returns:
+            DatabaseMemento: a Memento of this model's state.
+
+        """
+        copy: CacheableSQLModel = deepcopy(self)
+        return DatabaseMemento(copy)
+
+    @abstractmethod
     async def cache_key(self) -> CacheKey:
         """Get the cache key of this model.
 
@@ -38,17 +49,17 @@ class CacheableSQLModel(BaseSQLModel):
             CacheKey: the unique cache key of this model.
 
         """
-        raise NotImplementedError('cache_key() is not implemented in this model')
+        ...
 
-    def get_memento(self) -> DatabaseMemento:
-        """Get a memento of the current state of this model and all its children.
+    @abstractmethod
+    def serialize(self) -> ServerSchema:
+        """Serialize the model using the model's associated Pydantic schema.
 
         Returns:
-            DatabaseMemento: a Memento of this model's state.
+            ServerSchema: the model's associated Pydantic schema.
 
         """
-        copy: CacheableSQLModel = deepcopy(self)
-        return DatabaseMemento(copy)
+        ...
 
 
 class TimeableModel(BaseSQLModel):

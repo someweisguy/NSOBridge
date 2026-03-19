@@ -10,12 +10,9 @@ from core import CASCADE_CHILD, CASCADE_OTHER
 from game.clocks.models import Clock
 from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, column
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from .schemas import BoutSchema
 from .types import BoutStateStr  # noqa: TC001
 
 if TYPE_CHECKING:
@@ -104,6 +101,10 @@ class BaseBout(CacheableSQLModel):
     @override
     async def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.uuid)
+
+    @override
+    def serialize(self) -> BoutSchema:
+        return BoutSchema.model_validate(self)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
