@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
+from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 from uuid import UUID  # noqa: TC003
 
 from core import CASCADE_CHILD, CASCADE_OTHER
@@ -15,6 +15,8 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+
+from .types import BoutStateStr  # noqa: TC001
 
 if TYPE_CHECKING:
     from core import BaseSQLModel
@@ -118,7 +120,7 @@ class BaseBout(CacheableSQLModel):
 
     @final
     @property
-    def state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
+    def state(self) -> BoutStateStr:
         """Get the current state of the Bout.
 
         Returns:
