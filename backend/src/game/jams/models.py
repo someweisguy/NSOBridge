@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, override
+from typing import TYPE_CHECKING, Any, override
 from uuid import UUID
 
 from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
@@ -17,14 +17,13 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from .types import StopReasonStr  # noqa: TC001
+
 if TYPE_CHECKING:
     from datetime import datetime
 
     from game.team_jams.models import TeamJam
     from game.teams.models import BaseTeam
-
-
-type StopReasonStr = Literal['called', 'elapsed', 'injury', 'other']
 
 
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
