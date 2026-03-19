@@ -4,8 +4,7 @@ from abc import ABC
 from datetime import datetime
 from typing import Any, Sequence
 
-from core import ClientSchema, ServerSchema
-from game import CacheKey
+from core import CacheKey, ClientSchema, ServerSchema
 from pydantic import Field, field_serializer
 
 type CacheServerSchema = Sequence[CacheKey]

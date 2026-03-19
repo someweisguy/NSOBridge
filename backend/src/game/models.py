@@ -3,63 +3,12 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import Any, override
+from typing import override
 
-from core import BaseSQLModel, ServerSchema
+from core import BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint
 from sqlalchemy.orm import Mapped, mapped_column
-
-from .utils import DatabaseMemento
-
-type CacheKey = tuple[Any, ...]
-
-
-class CacheableSQLModel(BaseSQLModel):
-    """A database model which can be cached by clients.
-
-    Cacheable SQL models are the 'primary' models of the database. Clients are able to
-    query cacheable models only. Non-cacheable models should not be queried. Cacheable
-    models have cache keys which are unique keys used by clients to cache data to
-    prevent query duplication.
-    """
-
-    __abstract__: bool = True
-
-    def get_memento(self) -> DatabaseMemento:
-        """Get a memento of the current state of this model and all its children.
-
-        Returns:
-            DatabaseMemento: a Memento of this model's state.
-
-        """
-        copy: CacheableSQLModel = deepcopy(self)
-        return DatabaseMemento(copy)
-
-    @abstractmethod
-    async def cache_key(self) -> CacheKey:
-        """Get the cache key of this model.
-
-        Return a unique cache key for this model which can be used by clients to cache
-        model data. Cache keys should be serializable by Pydantic and should generally
-        not be used in any business logic.
-
-        Returns:
-            CacheKey: the unique cache key of this model.
-
-        """
-        ...
-
-    @abstractmethod
-    def serialize(self) -> ServerSchema:
-        """Serialize the model using the model's associated Pydantic schema.
-
-        Returns:
-            ServerSchema: the model's associated Pydantic schema.
-
-        """
-        ...
 
 
 class TimeableModel(BaseSQLModel):

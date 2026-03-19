@@ -3,6 +3,7 @@
 This file exports the core functions needed to run NSO Bridge.
 """
 
+from .cache import CacheableSQLModel, CacheKey
 from .database import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, DatabaseEngine
 from .dependencies import EngineFactory, GetAsyncSession
 from .protocols import Memento
@@ -26,6 +27,8 @@ __all__ = (
     'APIResponseClass',
     'assets',
     'BaseSQLModel',
+    'CacheableSQLModel',
+    'CacheKey',
     'CASCADE_CHILD',
     'CASCADE_OTHER',
     'ClientSchema',

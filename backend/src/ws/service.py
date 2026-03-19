@@ -4,9 +4,8 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Final, Iterable
 
-from core import BaseSQLModel, EngineFactory
+from core import BaseSQLModel, CacheableSQLModel, EngineFactory
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from game import CacheableSQLModel
 from pydantic import ValidationError
 from sqlalchemy import event
 from sqlalchemy.orm import Session
@@ -20,8 +19,7 @@ from .schemas import (
 )
 
 if TYPE_CHECKING:
-    from core import DatabaseEngine
-    from game import CacheKey
+    from core import CacheKey, DatabaseEngine
 
 
 _clients: set[WebSocket] = set()

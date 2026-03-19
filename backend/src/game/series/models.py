@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from core import CASCADE_CHILD, BaseSQLModel
-from game.models import CacheableSQLModel, CacheKey
+from core import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel, CacheKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .schemas import SeriesSchema

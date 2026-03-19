@@ -25,7 +25,6 @@ from fastapi import APIRouter
 
 from .bouts.router import router as bout_router
 from .jams.router import router as jam_router
-from .models import CacheableSQLModel, CacheKey
 from .rulesets import wftda_2025
 from .series.models import Series
 from .series.router import router as series_router
@@ -42,8 +41,6 @@ routers: Final[tuple[APIRouter, ...]] = (
 
 
 __all__ = (
-    'CacheKey',
-    'CacheableSQLModel',
     'routers',
     'Series',  # Non-rule-bound objects can be exported
     'wftda_2025',

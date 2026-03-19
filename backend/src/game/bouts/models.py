@@ -6,9 +6,8 @@ from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_CHILD, CASCADE_OTHER
+from core import CASCADE_CHILD, CASCADE_OTHER, CacheableSQLModel, CacheKey
 from game.clocks.models import Clock
-from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

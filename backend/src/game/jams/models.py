@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 from uuid import UUID
 
-from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
+from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel, CacheKey
 from game.bouts.models import BaseBout
-from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
+from game.models import AbstractOneShotModel
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
