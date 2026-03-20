@@ -100,7 +100,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         super().__init__(jam=jam, num=num)
 
     @override
-    async def cache_key(self) -> CacheKey:
+    def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_uuid, self.num)
 
     @override

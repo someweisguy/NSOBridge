@@ -98,7 +98,7 @@ class BaseBout(CacheableSQLModel):
         super().__init__(clock=Clock(), ruleset_name=ruleset_name, teams=list(teams))
 
     @override
-    async def cache_key(self) -> CacheKey:
+    def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.uuid)
 
     @override

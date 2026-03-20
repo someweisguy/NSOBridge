@@ -110,7 +110,7 @@ async def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
                 if isinstance(parent, CacheableSQLModel)
             }
         cache_keys: list[CacheKey] = [
-            await cacheable.cache_key()
+            cacheable.cache_key()
             for cacheable in cacheables
             if cacheable.uuid is not None
         ]

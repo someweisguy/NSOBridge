@@ -42,7 +42,7 @@ class CacheableSQLModel(BaseSQLModel):
         return DatabaseMemento(copy)
 
     @abstractmethod
-    async def cache_key(self) -> CacheKey:
+    def cache_key(self) -> CacheKey:
         """Get the cache key of this model.
 
         Return a unique cache key for this model which can be used by clients to cache
@@ -132,7 +132,7 @@ async def get_updated_cache_items(
         }
 
     items = [
-        CacheItemSchema(key=await cacheable.cache_key(), data=cacheable.serialize())
+        CacheItemSchema(key=cacheable.cache_key(), data=cacheable.serialize())
         for cacheable in cacheables
     ]
     return items

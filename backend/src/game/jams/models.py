@@ -88,7 +88,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         super().__init__(period=period_num, num=jam_num, team_jams=list(team_jams))
 
     @override
-    async def cache_key(self) -> CacheKey:
+    def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_uuid, self.period, self.num)
 
     @override
