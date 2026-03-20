@@ -37,7 +37,7 @@ class TripEvent(BaseSQLModel):
     passes: Mapped[int | None] = mapped_column(default=None)
     star_pass: Mapped[bool] = mapped_column(default=False)
 
-    _team_jam: Mapped[TeamJam | None] = relationship(
+    _team_jam: Mapped[TeamJam] = relationship(
         back_populates='events',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -84,8 +84,8 @@ class TripEvent(BaseSQLModel):
         )
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_team_jam(),)
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self._team_jam,)
 
     async def get_team_jam(self) -> TeamJam:
         """Get the TeamJam to which this TripEvent belongs.

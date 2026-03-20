@@ -51,5 +51,5 @@ class Series(CacheableSQLModel):
         return SeriesSchema.model_validate(self)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()

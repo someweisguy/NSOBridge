@@ -107,7 +107,7 @@ class BaseBout(CacheableSQLModel):
         return BoutSchema.model_validate(self)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
 
     async def get_series(self) -> Series:

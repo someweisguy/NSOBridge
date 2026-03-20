@@ -47,7 +47,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    _bout: Mapped[BaseBout | None] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -109,10 +109,10 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         return TimeoutSchema.model_validate(self)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
         if self.team is None:
-            return (await self.get_bout(),)
-        return (await self.get_bout(), self.team)
+            return (self._bout,)
+        return (self._bout, self.team)
 
     async def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Timeout.

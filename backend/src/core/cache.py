@@ -99,7 +99,7 @@ class DatabaseMemento(Memento):
             return current_state.get_memento()
 
 
-async def get_updated_cache_items(
+def get_updated_cache_items(
     session: AsyncSession | Session,
 ) -> list[CacheItemSchema]:
     """Get a list of the cacheables which have been modified in the desired session.
@@ -127,7 +127,7 @@ async def get_updated_cache_items(
     for model in models:
         cacheables |= {
             parent
-            for parent in await model.get_recursive_parents()
+            for parent in model.get_recursive_parents()
             if isinstance(parent, CacheableSQLModel)
         }
 

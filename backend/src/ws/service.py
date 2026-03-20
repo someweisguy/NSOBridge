@@ -106,7 +106,7 @@ async def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
         for model in models:
             cacheables |= {
                 parent
-                for parent in await model.get_recursive_parents()
+                for parent in model.get_recursive_parents()
                 if isinstance(parent, CacheableSQLModel)
             }
         cache_keys: list[CacheKey] = [

@@ -38,7 +38,7 @@ class TeamJam(BaseSQLModel):
     )
     team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
 
-    _team: Mapped[BaseTeam | None] = relationship(
+    _team: Mapped[BaseTeam] = relationship(
         back_populates='team_jams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -88,8 +88,8 @@ class TeamJam(BaseSQLModel):
         super().__init__(_team=team)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_team(), self.jam)
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self._team, self.jam)
 
     async def get_team(self) -> BaseTeam:
         """Get the Team that owns this TeamJam.

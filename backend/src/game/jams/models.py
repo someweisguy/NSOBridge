@@ -39,7 +39,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
-    _bout: Mapped[BaseBout | None] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -97,8 +97,8 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         return JamSchema.model_validate(self)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_bout(),)
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self._bout,)
 
     async def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Jam.

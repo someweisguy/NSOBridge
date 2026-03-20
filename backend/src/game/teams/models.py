@@ -46,7 +46,7 @@ class BaseTeam(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
-    _bout: Mapped[BaseBout | None] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -119,8 +119,8 @@ class BaseTeam(BaseSQLModel):
         super().__init__(name=name, num=team_num)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_bout(),)
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self._bout,)
 
     async def get_bout(self) -> BaseBout:
         """Get the Bout to which this Team belongs.
