@@ -110,14 +110,14 @@ class BaseBout(CacheableSQLModel):
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
 
-    async def get_series(self) -> Series:
+    def get_series(self) -> Series:
         """Get the Series that owns this Bout.
 
         Returns:
             Series: the Series that owns this Bout.
 
         """
-        return await self.awaitable_attrs._series
+        return self._series
 
     @final
     @property

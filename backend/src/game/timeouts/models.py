@@ -114,14 +114,14 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             return (self._bout,)
         return (self._bout, self.team)
 
-    async def get_bout(self) -> BaseBout:
+    def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Timeout.
 
         Returns:
             BaseBout: the Bout that Owns this Timeout.
 
         """
-        return await self.awaitable_attrs._bout
+        return self._bout
 
     def set_type(self, is_review: bool) -> None:
         """Set whether this Timeout is a timeout or an official review.

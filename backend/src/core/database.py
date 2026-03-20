@@ -14,7 +14,6 @@ from uuid import UUID, uuid4
 
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import (
-    AsyncAttrs,
     AsyncSession,
     async_object_session,
     async_sessionmaker,
@@ -39,7 +38,7 @@ SQLALCHEMY_DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {
 }
 
 
-class BaseSQLModel(AsyncAttrs, DeclarativeBase):
+class BaseSQLModel(DeclarativeBase):
     """The base model for all models in the database.
 
     This model has a standard SQL `id` field. It also includes a type annotation map to

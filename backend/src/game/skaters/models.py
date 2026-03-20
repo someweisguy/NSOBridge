@@ -53,11 +53,11 @@ class Skater(CacheableSQLModel):
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (self._team,)
 
-    async def get_team(self) -> BaseTeam:
+    def get_team(self) -> BaseTeam:
         """Get the Team to which this Skater belongs.
 
         Returns:
             BaseTeam: the Team to which this Skater belongs.
 
         """
-        return await self.awaitable_attrs._team
+        return self._team

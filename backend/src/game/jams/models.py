@@ -100,14 +100,14 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (self._bout,)
 
-    async def get_bout(self) -> BaseBout:
+    def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Jam.
 
         Returns:
             BaseBout: the Bout that owns this Jam.
 
         """
-        return await self.awaitable_attrs._bout
+        return self._bout
 
     def get_team_jam(self, team: BaseTeam | UUID) -> TeamJam:
         """Get the TeamJam associated with the desired Team.

@@ -122,14 +122,14 @@ class BaseTeam(BaseSQLModel):
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (self._bout,)
 
-    async def get_bout(self) -> BaseBout:
+    def get_bout(self) -> BaseBout:
         """Get the Bout to which this Team belongs.
 
         Returns:
             BaseBout: the Bout to which this Team belongs.
 
         """
-        return await self.awaitable_attrs._bout
+        return self._bout
 
     @property
     def bout_score(self) -> int:

@@ -91,11 +91,11 @@ class TeamJam(BaseSQLModel):
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (self._team, self.jam)
 
-    async def get_team(self) -> BaseTeam:
+    def get_team(self) -> BaseTeam:
         """Get the Team that owns this TeamJam.
 
         Returns:
             BaseTeam: the Team that owns this TeamJam.
 
         """
-        return await self.awaitable_attrs._team
+        return self._team
