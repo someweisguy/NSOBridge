@@ -10,7 +10,7 @@ from game.clocks.schemas import ClockSchema  # noqa: TC002
 from game.jams.schemas import JamSchema  # noqa: TC002
 from game.teams.schemas import TeamSchema  # noqa: TC002
 from game.timeouts.schemas import TimeoutSchema  # noqa: TC002
-from pydantic import Field, computed_field
+from pydantic import Field, SkipValidation, computed_field
 
 from .types import BoutStateStr  # noqa: TC001
 
@@ -26,8 +26,8 @@ class BoutSchema(ServerSchema):
     is_final: bool
     state: BoutStateStr
     teams: list[TeamSchema]
-    jams: list[JamSchema] = Field(exclude=True)
-    timeouts: list[TimeoutSchema] = Field(exclude=True)
+    jams: list[SkipValidation[JamSchema]] = Field(exclude=True)
+    timeouts: list[SkipValidation[TimeoutSchema]] = Field(exclude=True)
 
     @computed_field
     @property
