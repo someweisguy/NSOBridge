@@ -4,31 +4,20 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from copy import deepcopy
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, override
 
 from sqlalchemy import Result, Select, select
 
 from .database import BaseSQLModel, DatabaseEngine
 from .dependencies import EngineFactory
 from .protocols import Memento
+from .schemas import CacheItemSchema, CacheKey
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
     from sqlalchemy.orm import Session
 
     from .schemas import ServerSchema
-
-
-type CacheKey = tuple[Any, ...]
-
-
-@dataclass
-class CacheItem:
-    """A utility class to associate a cache key with model data in JSON."""
-
-    key: CacheKey
-    data: ServerSchema
 
 
 class CacheableSQLModel(BaseSQLModel):
@@ -110,7 +99,9 @@ class DatabaseMemento(Memento):
             return current_state.get_memento()
 
 
-async def get_updated_cache_items(session: AsyncSession | Session) -> list[CacheItem]:
+async def get_updated_cache_items(
+    session: AsyncSession | Session,
+) -> list[CacheItemSchema]:
     """Get a list of the cacheables which have been modified in the desired session.
 
     Args:
@@ -140,7 +131,8 @@ async def get_updated_cache_items(session: AsyncSession | Session) -> list[Cache
             if isinstance(parent, CacheableSQLModel)
         }
 
-    return [
-        CacheItem(await cacheable.cache_key(), cacheable.serialize())
+    items = [
+        CacheItemSchema(key=await cacheable.cache_key(), data=cacheable.serialize())
         for cacheable in cacheables
     ]
+    return items
