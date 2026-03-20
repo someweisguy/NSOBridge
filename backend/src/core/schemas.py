@@ -22,6 +22,9 @@ if TYPE_CHECKING:
     from starlette.background import BackgroundTask
 
 
+type CacheKey = tuple[Any, ...]
+
+
 class ServerSchema(BaseModel):
     """The base schema for schemas which originate from this server.
 
@@ -56,11 +59,21 @@ class ClientSchema(BaseModel):
     )
 
 
+class CacheItemSchema(ServerSchema):
+    """A utility class to associate a cache key with model data in JSON."""
+
+    key: CacheKey
+    data: Any
+
+
 class APISchema(ServerSchema):
     """The default schema for returning API requests."""
 
     status_code: int
     data: Any = None
+    cache: list[CacheItemSchema] | None = Field(
+        default=None, exclude_if=lambda c: c is None
+    )
     error: ErrorSchema | None = Field(default=None, exclude_if=lambda e: e is None)
     timestamp: datetime = Field(default_factory=datetime.now, init=False)
 
@@ -88,6 +101,7 @@ class APIResponseClass(JSONResponse):
     def __init__(
         self,
         content: Any,
+        cache: list[CacheItemSchema] | None = None,
         status_code: int = HTTPStatus.OK,
         headers: Mapping[str, str] | None = None,
         media_type: str | None = None,
@@ -101,6 +115,7 @@ class APIResponseClass(JSONResponse):
                 status_code=status_code,
                 error=content if error_occurred else None,
                 data=content if not error_occurred else None,
+                cache=cache,
             ).model_dump(),
             status_code,
             headers,
