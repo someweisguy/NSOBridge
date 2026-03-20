@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Final
 
-from core import BaseSQLModel, CacheableSQLModel
+from core import get_updated_cache_items
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 from sqlalchemy import event
@@ -67,28 +67,7 @@ async def _handle_socket(websocket: WebSocket) -> None:
 
 @event.listens_for(Session, 'before_commit')
 def _handle_dirty_session(session: Session) -> None:
-    # Add each dirty or deleted model to a set for updates
-    models: set[BaseSQLModel] = {
-        model
-        for identity_map in [session.dirty, session.deleted]
-        for model in identity_map
-        if isinstance(model, BaseSQLModel)
-    }
-    if len(models) == 0:
-        return
-
-    cacheables: set[CacheableSQLModel] = {
-        model for model in models if isinstance(model, CacheableSQLModel)
-    }
-    for model in models:
-        cacheables |= {
-            parent
-            for parent in model.get_recursive_parents()
-            if isinstance(parent, CacheableSQLModel)
-        }
-    cache_keys: list[CacheKey] = [
-        cacheable.cache_key() for cacheable in cacheables if cacheable.uuid is not None
-    ]
+    cache_keys: list[CacheKey] = [item.key for item in get_updated_cache_items(session)]
     if len(cache_keys) == 0:
         return
 
