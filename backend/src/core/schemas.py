@@ -18,7 +18,11 @@ from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 from pydantic.fields import Field
 
+from .cache import get_updated_cache_items
+
 if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from sqlalchemy.orm import Session
     from starlette.background import BackgroundTask
 
 
@@ -101,7 +105,7 @@ class APIResponseClass(JSONResponse):
     def __init__(
         self,
         content: Any,
-        cache: list[CacheItemSchema] | None = None,
+        session: AsyncSession | Session | None = None,
         status_code: int = HTTPStatus.OK,
         headers: Mapping[str, str] | None = None,
         media_type: str | None = None,
@@ -109,6 +113,14 @@ class APIResponseClass(JSONResponse):
     ) -> None:
         error_occurred: bool = status_code not in range(
             HTTPStatus.OK, HTTPStatus.MULTIPLE_CHOICES
+        )
+        cache: list[CacheItemSchema] | None = (
+            [
+                CacheItemSchema(key=model.cache_key(), data=model.serialize())
+                for model in get_updated_cache_items(session)
+            ]
+            if session is not None
+            else None
         )
         super().__init__(
             APISchema(

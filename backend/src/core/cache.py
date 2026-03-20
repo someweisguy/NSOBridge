@@ -11,13 +11,12 @@ from sqlalchemy import Result, Select, select
 from .database import BaseSQLModel, DatabaseEngine
 from .dependencies import EngineFactory
 from .protocols import Memento
-from .schemas import CacheItemSchema, CacheKey
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
     from sqlalchemy.orm import Session
 
-    from .schemas import ServerSchema
+    from .schemas import CacheKey, ServerSchema
 
 
 class CacheableSQLModel(BaseSQLModel):
@@ -101,7 +100,7 @@ class DatabaseMemento(Memento):
 
 def get_updated_cache_items(
     session: AsyncSession | Session,
-) -> list[CacheItemSchema]:
+) -> list[CacheableSQLModel]:
     """Get a list of the cacheables which have been modified in the desired session.
 
     Args:
@@ -131,8 +130,4 @@ def get_updated_cache_items(
             if isinstance(parent, CacheableSQLModel)
         }
 
-    cache_items: list[CacheItemSchema] = [
-        CacheItemSchema(key=cacheable.cache_key(), data=cacheable.serialize())
-        for cacheable in cacheables
-    ]
-    return cache_items
+    return list(cacheables)

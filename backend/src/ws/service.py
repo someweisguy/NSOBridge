@@ -67,7 +67,9 @@ async def _handle_socket(websocket: WebSocket) -> None:
 
 @event.listens_for(Session, 'before_commit')
 def _handle_dirty_session(session: Session) -> None:
-    cache_keys: list[CacheKey] = [item.key for item in get_updated_cache_items(session)]
+    cache_keys: list[CacheKey] = [
+        model.cache_key() for model in get_updated_cache_items(session)
+    ]
     if len(cache_keys) == 0:
         return
 
