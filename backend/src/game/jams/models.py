@@ -42,6 +42,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     _bout: Mapped[BaseBout | None] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[bout_uuid],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(

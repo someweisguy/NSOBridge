@@ -40,6 +40,7 @@ class TripEvent(BaseSQLModel):
     _team_jam: Mapped[TeamJam | None] = relationship(
         back_populates='events',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[team_jam_uuid],
     )
 

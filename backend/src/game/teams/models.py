@@ -49,6 +49,7 @@ class BaseTeam(BaseSQLModel):
     _bout: Mapped[BaseBout | None] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[bout_uuid],
     )
     skaters: Mapped[list[Skater]] = relationship(

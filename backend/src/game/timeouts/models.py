@@ -50,18 +50,19 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     _bout: Mapped[BaseBout | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[bout_uuid],
     )
     jam: Mapped[BaseJam] = relationship(
         cascade=CASCADE_OTHER,
         foreign_keys=[_jam_uuid],
-        lazy='selectin',  # Eagerly fetch despite being a parent relationship
+        lazy='selectin',
     )
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[_team_uuid],
-        lazy='selectin',  # Eagerly fetch despite being a parent relationship
+        lazy='selectin',
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(

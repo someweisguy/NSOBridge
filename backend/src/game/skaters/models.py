@@ -24,6 +24,7 @@ class Skater(CacheableSQLModel):
 
     _team: Mapped[BaseTeam] = relationship(
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[team_uuid],
     )
 
@@ -45,9 +46,8 @@ class Skater(CacheableSQLModel):
         super().__init__(name=name, number=number)
 
     @override
-    async def cache_key(self) -> CacheKey:
-        team: BaseTeam = await self.get_team()
-        return (self.__tablename__, team.bout_uuid, team.num, self.num)
+    def cache_key(self) -> CacheKey:
+        return (self.__tablename__, self._team.bout_uuid, self._team.num, self.num)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:

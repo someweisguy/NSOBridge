@@ -44,6 +44,7 @@ class BaseBout(CacheableSQLModel):
     _series: Mapped[Series] = relationship(
         back_populates='bouts',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[series_uuid],
     )
     clock: Mapped[Clock] = relationship(
