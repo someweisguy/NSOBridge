@@ -131,8 +131,8 @@ def get_updated_cache_items(
             if isinstance(parent, CacheableSQLModel)
         }
 
-    items = [
+    cache_items: list[CacheItemSchema] = [
         CacheItemSchema(key=cacheable.cache_key(), data=cacheable.serialize())
         for cacheable in cacheables
     ]
-    return items
+    return cache_items
