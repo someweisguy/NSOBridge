@@ -18,10 +18,9 @@ order to keep code complexity to a minimum, this module shall be made only to me
 minimum project requirements.
 """
 
-from .service import app, disconnect_all, invalidate_queries
+from .service import app, disconnect_all
 
 __all__ = (
     'app',
-    'invalidate_queries',
     'disconnect_all',
 )

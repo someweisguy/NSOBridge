@@ -2,9 +2,9 @@
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Final, Iterable
+from typing import TYPE_CHECKING, Final
 
-from core import BaseSQLModel, CacheableSQLModel, EngineFactory
+from core import BaseSQLModel, CacheableSQLModel
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 from sqlalchemy import event
@@ -19,7 +19,7 @@ from .schemas import (
 )
 
 if TYPE_CHECKING:
-    from core import CacheKey, DatabaseEngine
+    from core import CacheKey
 
 
 _clients: set[WebSocket] = set()
@@ -77,43 +77,18 @@ def _handle_dirty_session(session: Session) -> None:
     if len(models) == 0:
         return
 
-    # SQLAlchemy events do not support async methods so a task is needed
-    task: asyncio.Task[None] = asyncio.create_task(invalidate_queries(models))
-    task.add_done_callback(_background_tasks.discard)
-    _background_tasks.add(task)
-
-
-async def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
-    """Invalidate client queries pertaining to the provided models.
-
-    This method is typically only used handle a list of models which have just been
-    updated. The parent of each model is fetched and added to this list. The list is
-    then deduplicated and each model's cache key is sent to each client. This allows
-    clients to refetch new data and update their cache.
-
-    Args:
-        models (Iterable[BaseSQLModel]): a list of models which should be invalided.
-
-    """
-    db: DatabaseEngine = EngineFactory.get_default_engine()
-    async with db.get_async_session() as new_session:
-        # Merge the models with the current session
-        models = [await new_session.merge(model) for model in models]
-        # Get a set of the cacheable models from all the updated models
-        cacheables: set[CacheableSQLModel] = {
-            model for model in models if isinstance(model, CacheableSQLModel)
+    cacheables: set[CacheableSQLModel] = {
+        model for model in models if isinstance(model, CacheableSQLModel)
+    }
+    for model in models:
+        cacheables |= {
+            parent
+            for parent in model.get_recursive_parents()
+            if isinstance(parent, CacheableSQLModel)
         }
-        for model in models:
-            cacheables |= {
-                parent
-                for parent in model.get_recursive_parents()
-                if isinstance(parent, CacheableSQLModel)
-            }
-        cache_keys: list[CacheKey] = [
-            cacheable.cache_key()
-            for cacheable in cacheables
-            if cacheable.uuid is not None
-        ]
+    cache_keys: list[CacheKey] = [
+        cacheable.cache_key() for cacheable in cacheables if cacheable.uuid is not None
+    ]
     if len(cache_keys) == 0:
         return
 
@@ -121,7 +96,10 @@ async def invalidate_queries(models: Iterable[BaseSQLModel]) -> None:
     logging.debug(f'Invalidating cache keys: {str(cache_keys)}')
     payload: str = CacheWebsocketServerSchema(cache_keys).model_dump_json()
     for client in _clients:
-        await client.send_text(payload)
+        # SQLAlchemy events do not support async methods so a task is needed
+        task: asyncio.Task[None] = asyncio.create_task(client.send_text(payload))
+        task.add_done_callback(_background_tasks.discard)
+        _background_tasks.add(task)
 
 
 async def disconnect_all(code: int, reason: str) -> None:
