@@ -2,13 +2,11 @@
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Final
+from typing import Final
 
-from core import get_updated_cache_items
+from core import CacheKey
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
-from sqlalchemy import event
-from sqlalchemy.orm import Session
 from websockets import CloseCode
 
 from .schemas import (
@@ -17,10 +15,6 @@ from .schemas import (
     CacheWebsocketServerSchema,
     WebSocketServerSchema,
 )
-
-if TYPE_CHECKING:
-    from core import CacheKey
-
 
 _clients: set[WebSocket] = set()
 _background_tasks: set[asyncio.Task[None]] = set()
@@ -65,24 +59,6 @@ async def _handle_socket(websocket: WebSocket) -> None:
         _clients.discard(websocket)
 
 
-@event.listens_for(Session, 'before_commit')
-def _handle_dirty_session(session: Session) -> None:
-    cache_keys: list[CacheKey] = [
-        model.cache_key() for model in get_updated_cache_items(session)
-    ]
-    if len(cache_keys) == 0:
-        return
-
-    # Generate and send the payload to all clients
-    logging.debug(f'Invalidating cache keys: {str(cache_keys)}')
-    payload: str = CacheWebsocketServerSchema(cache_keys).model_dump_json()
-    for client in _clients:
-        # SQLAlchemy events do not support async methods so a task is needed
-        task: asyncio.Task[None] = asyncio.create_task(client.send_text(payload))
-        task.add_done_callback(_background_tasks.discard)
-        _background_tasks.add(task)
-
-
 async def disconnect_all(code: int, reason: str) -> None:
     """Disconnect all the WebSocket clients.
 
@@ -93,3 +69,15 @@ async def disconnect_all(code: int, reason: str) -> None:
     """
     for client in _clients:
         await client.close(code=code, reason=reason)
+
+
+async def invalidate_queries(keys: list[CacheKey]) -> None:
+    """Invalidate the client queries of the desired models.
+
+    Args:
+        keys (list[CacheKey]): the keys of the models which should be invalidated.
+
+    """
+    payload: str = CacheWebsocketServerSchema(keys).model_dump_json()
+    for client in _clients:
+        await client.send_text(payload)
