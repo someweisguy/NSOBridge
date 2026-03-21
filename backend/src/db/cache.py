@@ -40,7 +40,7 @@ class CacheableSQLModel(BaseSQLModel):
         return _DatabaseMemento(copy)
 
     @abstractmethod
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         """Get the cache key of this model.
 
         Return a unique cache key for this model which can be used by clients to cache
@@ -98,7 +98,7 @@ class _DatabaseMemento(Memento):
             return current_state.get_memento()
 
 
-def get_mutated_cache_models(
+async def get_mutated_cache_models(
     session: AsyncSession | Session,
 ) -> list[CacheableSQLModel]:
     """Get a list of the cacheables which have been modified in the desired session.
@@ -114,7 +114,7 @@ def get_mutated_cache_models(
     # Add each dirty or deleted model to a set for updates
     models: set[BaseSQLModel] = {
         model
-        for identity_map in [session.dirty, session.deleted]
+        for identity_map in [session.dirty]
         for model in identity_map
         if isinstance(model, BaseSQLModel)
     }
@@ -126,7 +126,7 @@ def get_mutated_cache_models(
     for model in models:
         cacheables |= {
             parent
-            for parent in model.get_recursive_parents()
+            for parent in await model.get_recursive_parents()
             if isinstance(parent, CacheableSQLModel)
         }
 

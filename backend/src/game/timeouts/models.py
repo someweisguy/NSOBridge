@@ -102,7 +102,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         super().__init__(jam=jam, num=num)
 
     @override
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_uuid, self.num)
 
     @override
@@ -110,10 +110,10 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         return TimeoutSchema.model_validate(self)
 
     @override
-    def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        if self.team is None:
-            return (self._bout,)
-        return (self._bout, self.team)
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        if self._team_uuid is None:
+            return (await self.awaitable_attrs._bout,)
+        return (await self.awaitable_attrs._bout, await self.awaitable_attrs.team)
 
     def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Timeout.

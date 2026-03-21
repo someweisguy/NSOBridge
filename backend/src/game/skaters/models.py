@@ -47,12 +47,12 @@ class Skater(CacheableSQLModel):
         super().__init__(name=name, number=number)
 
     @override
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         return (self.__tablename__, self._team.bout_uuid, self._team.num, self.num)
 
     @override
-    def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self._team,)
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs._team,)
 
     def get_team(self) -> BaseTeam:
         """Get the Team to which this Skater belongs.

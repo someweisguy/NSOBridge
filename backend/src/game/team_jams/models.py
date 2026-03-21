@@ -88,8 +88,8 @@ class TeamJam(BaseSQLModel):
         super().__init__(_team=team)
 
     @override
-    def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self._team, self.jam)
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs._team, self.jam)
 
     def get_team(self) -> BaseTeam:
         """Get the Team that owns this TeamJam.

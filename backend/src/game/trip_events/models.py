@@ -84,8 +84,8 @@ class TripEvent(BaseSQLModel):
         )
 
     @override
-    def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self._team_jam,)
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs._team_jam,)
 
     def get_team_jam(self) -> TeamJam:
         """Get the TeamJam to which this TripEvent belongs.

@@ -90,7 +90,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         super().__init__(period=period_num, num=jam_num, team_jams=list(team_jams))
 
     @override
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_uuid, self.period, self.num)
 
     @override
@@ -98,8 +98,8 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         return JamSchema.model_validate(self)
 
     @override
-    def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self._bout,)
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs._bout,)
 
     def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Jam.

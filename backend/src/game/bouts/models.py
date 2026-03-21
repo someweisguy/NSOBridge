@@ -100,7 +100,7 @@ class BaseBout(CacheableSQLModel):
         super().__init__(clock=Clock(), ruleset_name=ruleset_name, teams=list(teams))
 
     @override
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.uuid)
 
     @override
@@ -108,7 +108,7 @@ class BaseBout(CacheableSQLModel):
         return BoutSchema.model_validate(self)
 
     @override
-    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
 
     def get_series(self) -> Series:

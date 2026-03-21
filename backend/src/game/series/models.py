@@ -43,7 +43,7 @@ class Series(CacheableSQLModel):
         super().__init__(name=name)
 
     @override
-    def cache_key(self) -> CacheKey:
+    async def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
         return (self.__tablename__, self.uuid)
 
@@ -52,5 +52,5 @@ class Series(CacheableSQLModel):
         return SeriesSchema.model_validate(self)
 
     @override
-    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
