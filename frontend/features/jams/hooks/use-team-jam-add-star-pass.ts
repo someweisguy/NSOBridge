@@ -1,4 +1,4 @@
-import { addJamStarPass } from "@/lib/game/jams";
+import { localAPI } from "@/lib/requests";
 import { AppMutationOptions, TeamJamUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
@@ -16,6 +16,14 @@ export const useTeamJamAddStarPass = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (starPass: boolean) =>
-      addJamStarPass(boutUuid, periodNum, jamNum, teamNum, starPass),
+      localAPI.post<void>("jam/setStarPass", {
+        query: {
+          boutUuid,
+          periodNum,
+          jamNum,
+          teamNum,
+        },
+        body: starPass,
+      }),
     ...options,
   });

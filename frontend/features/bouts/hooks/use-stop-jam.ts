@@ -1,5 +1,5 @@
-import { stopJam } from "@/lib/game/bouts";
-import { BoutUri, AppMutationOptions } from "@/types/query";
+import { localAPI } from "@/lib/requests";
+import { AppMutationOptions, BoutUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
@@ -12,6 +12,7 @@ export const useStopJam = ({
   ...options
 }: BoutUri & AppMutationOptions<void>) =>
   useMutation({
-    mutationFn: () => stopJam(boutUuid),
+    mutationFn: () =>
+      localAPI.post<void>("bout/stopJam", { query: { boutUuid } }),
     ...options,
   });

@@ -1,4 +1,4 @@
-import { setTimeoutType } from "@/lib/game/timeouts";
+import { localAPI } from "@/lib/requests";
 import { AppMutationOptions, TimeoutUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
@@ -14,6 +14,9 @@ export const useSetTimeoutType = ({
 }: TimeoutUri & AppMutationOptions<void, Error, "timeout" | "review">) =>
   useMutation({
     mutationFn: (type: "timeout" | "review") =>
-      setTimeoutType(boutUuid, timeoutNum, type),
+      localAPI.post<void>("timeout/type", {
+        query: { boutUuid, num: timeoutNum },
+        body: JSON.stringify(type),
+      }),
     ...options,
   });
