@@ -5,7 +5,7 @@ import JamNumberContainer from "@/features/jams/components/jam-number-container"
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
-import { Team } from "@/lib/game/bouts";
+import { Team } from "@/types/bout";
 import FitScreen from "@fit-screen/react";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";

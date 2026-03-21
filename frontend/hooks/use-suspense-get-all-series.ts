@@ -1,6 +1,7 @@
 import queryClient from "@/lib/cache";
-import { getAllSeries, Series } from "@/lib/game/series";
+import { getAllSeries } from "@/lib/game/series";
 import { AppSuspenseQueryOptions } from "@/types/query";
+import { Series } from "@/types/series";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**

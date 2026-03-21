@@ -1,6 +1,6 @@
-import { Timeout } from "@/lib/game/timeouts";
 import { localAPI } from "@/lib/requests";
 import { AppSuspenseQueryOptions, TimeoutUri } from "@/types/query";
+import { Timeout } from "@/types/timeout";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**

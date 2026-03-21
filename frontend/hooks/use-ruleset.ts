@@ -1,5 +1,6 @@
-import { getRuleset, Ruleset } from "@/lib/game/ruleset";
-import { BoutUri, AppQueryOptions } from "@/types/query";
+import { getRuleset } from "@/lib/game/ruleset";
+import { AppQueryOptions, BoutUri } from "@/types/query";
+import { Ruleset } from "@/types/ruleset";
 import { useQuery } from "@tanstack/react-query";
 
 /**

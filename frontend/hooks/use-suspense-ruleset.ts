@@ -1,5 +1,6 @@
-import { getRuleset, Ruleset } from "@/lib/game/ruleset";
-import { BoutUri, AppSuspenseQueryOptions } from "@/types/query";
+import { getRuleset } from "@/lib/game/ruleset";
+import { AppSuspenseQueryOptions, BoutUri } from "@/types/query";
+import { Ruleset } from "@/types/ruleset";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**

@@ -1,7 +1,7 @@
 import { useTeamJamAddTrip } from "@/features/jams/hooks/use-team-jam-add-trip";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
-import { TeamJam } from "@/lib/game/jams";
+import { TeamJam } from "@/types/jam";
 import { TeamJamUri } from "@/types/query";
 import PassEditor from "./pass-editor";
 

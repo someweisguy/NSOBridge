@@ -15,8 +15,8 @@ import TimeoutTypeEditorContainer from "@/features/timeouts/components/timeout-t
 import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
-import { Team } from "@/lib/game/bouts";
 import { redo, undo } from "@/lib/history";
+import { Team } from "@/types/bout";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense } from "react";

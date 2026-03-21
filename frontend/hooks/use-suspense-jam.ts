@@ -1,5 +1,5 @@
-import { Jam, TeamJam } from "@/lib/game/jams";
 import { localAPI } from "@/lib/requests";
+import { Jam, TeamJam } from "@/types/jam";
 import { AppSuspenseQueryOptions, JamUri } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 

@@ -1,5 +1,5 @@
 import queryClient from "@/lib/cache";
-import { Bout } from "@/lib/game/bouts";
+import { Bout } from "@/types/bout";
 import { localAPI } from "@/lib/requests";
 import { AppSuspenseQueryOptions } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";

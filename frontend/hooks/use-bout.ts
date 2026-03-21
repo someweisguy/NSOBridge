@@ -1,5 +1,5 @@
-import { Bout } from "@/lib/game/bouts";
 import { localAPI } from "@/lib/requests";
+import { Bout } from "@/types/bout";
 import { AppQueryOptions, BoutUri } from "@/types/query";
 import { useQuery } from "@tanstack/react-query";
 
