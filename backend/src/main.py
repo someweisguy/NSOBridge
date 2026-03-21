@@ -10,7 +10,6 @@ import core
 import game
 import update
 import user
-import ws
 from core import (
     APIResponseClass,
     DatabaseEngine,
@@ -53,7 +52,7 @@ async def lifespan(app: FastAPI):
     for router in [core.api_router, *game.routers, *user.routers]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.assets)
-    app.mount('/ws', ws.app)
+    app.mount('/ws', core.ws)
 
     # Load the pages router without a path prefix
     app.include_router(core.pages_router)
@@ -99,7 +98,7 @@ async def lifespan(app: FastAPI):
     logging.debug('App lifespan has resumed execution')
 
     logging.info('Disconnecting all WebSockets')
-    await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
+    await core.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
     logging.debug('WebSockets disconnected')
 
 

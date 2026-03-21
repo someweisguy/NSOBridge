@@ -4,7 +4,6 @@ import asyncio
 import logging
 from typing import Final
 
-from core import CacheKey
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 from websockets import CloseCode
@@ -12,6 +11,7 @@ from websockets import CloseCode
 from .schemas import (
     AboutDataClientSchema,
     AboutWebsocketServerSchema,
+    CacheKey,
     CacheWebsocketServerSchema,
     WebSocketServerSchema,
 )
@@ -20,10 +20,10 @@ _clients: set[WebSocket] = set()
 _background_tasks: set[asyncio.Task[None]] = set()
 
 
-app: Final[FastAPI] = FastAPI()
+ws: Final[FastAPI] = FastAPI()
 
 
-@app.websocket('/')
+@ws.websocket('/')
 async def _handle_socket(websocket: WebSocket) -> None:
     """Handle all connecting WebSockets.
 

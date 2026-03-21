@@ -21,6 +21,7 @@ from .utils import (
     get_resource_path,
     timedelta_serializer,
 )
+from .ws import disconnect_all, invalidate_queries, ws
 
 __all__ = (
     'get_updated_cache_items',
@@ -35,6 +36,7 @@ __all__ = (
     'ClientSchema',
     'configure_logging',
     'DatabaseEngine',
+    'disconnect_all',
     'endpoint_profiling_middleware',
     'EngineFactory',
     'error_handlers',
@@ -42,9 +44,11 @@ __all__ = (
     'get_resource_path',
     'get_server',
     'GetAsyncSession',
+    'invalidate_queries',
     'Memento',
     'pages_router',
     'ServerSchema',
     'shutdown',
     'timedelta_serializer',
+    'ws',
 )
