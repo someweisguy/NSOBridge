@@ -124,23 +124,6 @@ export class Timeout {
 }
 
 /**
- * Get a Timeout from the server.
- *
- * @param boutUuid the Bout UUID associated with the desired Timeout.
- * @param timeoutNum the unique Timeout number.
- * @returns the desired Timeout.
- */
-export async function getTimeout(
-  boutUuid: string,
-  timeoutNum: number,
-): Promise<Timeout> {
-  const data = await localAPI.get<Partial<Timeout>>("timeout", {
-    query: { boutUuid, num: timeoutNum }, // TODO: fix alias
-  });
-  return Object.assign(new Timeout(), data);
-}
-
-/**
  * Set the desired Timeout to the specified timeout type.
  *
  * @param boutUuid the Bout UUID associated with the desired Timeout.

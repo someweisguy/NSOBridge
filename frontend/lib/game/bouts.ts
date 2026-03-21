@@ -193,29 +193,6 @@ export interface Team {
 }
 
 /**
- * Get a Bout object from the server.
- *
- * @param boutUuid the UUID of the desired bout.
- * @returns the desired Bout.
- */
-export async function getBout(boutUuid: string): Promise<Bout> {
-  const data = await localAPI.get<Partial<Bout>>("bout", {
-    query: { boutUuid },
-  });
-  return Object.assign(new Bout(), data);
-}
-
-/**
- * Get all Bout objects from the server.
- *
- * @returns an array of all Bouts in the server.
- */
-export async function getAllBouts(): Promise<Bout[]> {
-  const data = await localAPI.get<Partial<Bout>[]>("bout/allBouts");
-  return data.map((bout: Partial<Bout>) => Object.assign(new Bout(), bout));
-}
-
-/**
  * Create a new Bout.
  *
  * // TODO: this function has not been tested and does not work

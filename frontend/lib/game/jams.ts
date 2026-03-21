@@ -121,26 +121,6 @@ export interface TripEvent {
 }
 
 /**
- * Get a Jam from the server.
- *
- * @param boutUuid the Bout UUID of the desired Jam.
- * @param periodNum the Period number of the desired Jam.
- * @param jamNum the Jam number of the desired Jam.
- * @returns the desired Jam.
- */
-export async function getJam(
-  boutUuid: string,
-  periodNum: number,
-  jamNum: number,
-): Promise<Jam> {
-  const data = await localAPI.get<Partial<Jam>>("jam", {
-    query: { boutUuid, periodNum, jamNum },
-  });
-  data.teamJams = data.teamJams?.map((tj) => Object.assign(new TeamJam(), tj));
-  return Object.assign(new Jam(), data);
-}
-
-/**
  * Add a Trip to the desired TeamJam.
  *
  * @param boutUuid the UUID of the desired Jam.
