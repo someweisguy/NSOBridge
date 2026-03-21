@@ -3,6 +3,7 @@ import { Bout } from "@/lib/game/bouts";
 import { localAPI } from "@/lib/requests";
 import { AppQueryOptions } from "@/types/query";
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 /**
  * Gets all the Bouts from the server. Each individual Bout is automatically cached
@@ -16,15 +17,17 @@ export const useGetAllBouts = (options?: AppQueryOptions<Partial<Bout>[]>) =>
     {
       queryKey: Bout.generateKey(),
       queryFn: () =>
-        localAPI
-          .get<Partial<Bout>[]>("bout/allBouts")
-          .then((bouts: Partial<Bout>[]) => {
-            for (const bout of bouts) {
-              queryClient.setQueryData(Bout.generateKey(bout.uuid), bout);
-            }
-            return bouts;
-          }),
-      // select: (data) => data.map((bout) => Object.assign(new Bout(), bout)), // FIXME
+        localAPI.get<Partial<Bout>[]>("bout/allBouts").then((bouts) => {
+          for (const bout of bouts) {
+            queryClient.setQueryData(Bout.generateKey(bout.uuid), bout);
+          }
+          return bouts;
+        }),
+      select: useCallback(
+        (data: Partial<Bout>[]) =>
+          data.map((bout) => Object.assign(new Bout(), bout)),
+        [],
+      ),
       ...options,
     },
     queryClient,

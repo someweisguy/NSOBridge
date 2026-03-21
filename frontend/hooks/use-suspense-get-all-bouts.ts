@@ -3,6 +3,7 @@ import { Bout } from "@/lib/game/bouts";
 import { localAPI } from "@/lib/requests";
 import { AppSuspenseQueryOptions } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 /**
  * Gets all the Bouts from the server. Each individual Bout is automatically cached
@@ -26,7 +27,11 @@ export const useSuspenseGetAllBouts = (
             }
             return bouts;
           }),
-      // select: (data) => data.map((bout) => Object.assign(new Bout(), bout)), // FIXME
+      select: useCallback(
+        (data: Partial<Bout>[]) =>
+          data.map((bout) => Object.assign(new Bout(), bout)),
+        [],
+      ),
       ...options,
     },
     queryClient,
