@@ -9,6 +9,7 @@ from .memento import Memento
 from .router import api_router, assets, pages_router
 from .schemas.api import APIResponseClass, APISchema
 from .schemas.base import ClientSchema, ServerSchema
+from .schemas.cache import CacheItemSchema
 from .types import CacheKey
 from .utils import (
     endpoint_profiling_middleware,
@@ -27,6 +28,7 @@ __all__ = (
     'APISchema',
     'APIResponseClass',
     'assets',
+    'CacheItemSchema',
     'CacheKey',
     'ClientSchema',
     'configure_logging',

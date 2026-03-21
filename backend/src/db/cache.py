@@ -6,7 +6,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from typing import TYPE_CHECKING, override
 
-from core import Memento
+from core import CacheItemSchema, Memento
 from sqlalchemy import Result, Select, select
 
 if TYPE_CHECKING:
@@ -28,6 +28,20 @@ class CacheableSQLModel(BaseSQLModel):
     """
 
     __abstract__: bool = True
+
+    async def get_updates(self) -> list[CacheItemSchema]:
+        """Get the updates from the session that this model is in.
+
+        Returns:
+            list[CacheItemSchema]: a mapping of cache keys to their model data.
+
+        """
+        session: AsyncSession = self.get_session()
+        models: list[CacheableSQLModel] = await get_mutated_cache_models(session)
+        return [
+            CacheItemSchema(key=model.cache_key(), data=model.serialize())
+            for model in models
+        ]
 
     def get_memento(self) -> _DatabaseMemento:
         """Get a memento of the current state of this model and all its children.
