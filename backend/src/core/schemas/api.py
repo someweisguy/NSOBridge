@@ -20,11 +20,11 @@ if TYPE_CHECKING:
 class APISchema(ServerSchema):
     """The default schema for returning API requests."""
 
-    status_code: int
-    data: Any = None
-    cache: list[CacheItemSchema] | None = Field(
-        default=None, exclude_if=lambda c: c is None
+    data: Any
+    cache: list[CacheItemSchema] = Field(
+        default_factory=list, exclude_if=lambda c: len(c) == 0
     )
+    status_code: int = Field(default=200, kw_only=True)
     error: ErrorSchema | None = Field(default=None, exclude_if=lambda e: e is None)
     timestamp: datetime = Field(default_factory=datetime.now, init=False)
 
@@ -61,6 +61,7 @@ class APIResponseClass(JSONResponse):
         error_occurred: bool = status_code not in range(
             HTTPStatus.OK, HTTPStatus.MULTIPLE_CHOICES
         )
+        cache = [] if cache is None else cache
         super().__init__(
             APISchema(
                 status_code=status_code,
