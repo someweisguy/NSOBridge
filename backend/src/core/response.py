@@ -25,7 +25,7 @@ class APIResponse(JSONResponse):
     @override
     def __init__(
         self,
-        content: Any,
+        data: Any,
         cache: list[CacheItemSchema] | None = None,
         status_code: int = HTTPStatus.OK,
         headers: Mapping[str, str] | None = None,
@@ -39,8 +39,8 @@ class APIResponse(JSONResponse):
         super().__init__(
             APISchema(
                 status_code=status_code,
-                error=content if error_occurred else None,
-                data=content if not error_occurred else None,
+                error=data if error_occurred else None,
+                data=data if not error_occurred else None,
                 cache=cache,
             ).model_dump(),
             status_code,
