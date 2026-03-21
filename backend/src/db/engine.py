@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from sqlalchemy.ext.asyncio import AsyncEngine
-    from sqlalchemy.orm import DeclarativeBase
 
 
 SQLALCHEMY_DEBUG: bool = os.environ.get('SQLALCHEMY_DEBUG', '').lower() in {
@@ -46,7 +45,7 @@ class DatabaseEngine:
 
         """
         if cls._database is None:
-            cls._database = DatabaseEngine(BaseSQLModel)
+            cls._database = DatabaseEngine()
         return cls._database
 
     @classmethod
@@ -60,12 +59,10 @@ class DatabaseEngine:
             DatabaseEngine: the newly created database engine.
 
         """
-        _database = DatabaseEngine(BaseSQLModel, db_path)
+        _database = DatabaseEngine(db_path)
         return _database
 
-    def __init__(
-        self, db_schema: type[DeclarativeBase], db_path: str | Path = ''
-    ) -> None:
+    def __init__(self, db_path: str | Path = '') -> None:
         """Create a database engine without connecting to the database.
 
         Args:
@@ -83,7 +80,6 @@ class DatabaseEngine:
             logging.error('invalid database pathname')
             raise ValueError('db path is invalid')
         db_path = str(db_path)
-        self._db_schema: type[DeclarativeBase] = db_schema
         self._session_factory: async_sessionmaker[AsyncSession] | None = None
         self.path: Final[str] = db_path if db_path != '' else ':memory:'
 
@@ -106,7 +102,7 @@ class DatabaseEngine:
         # Create the database tables
         logging.debug('Creating metadata in synchronous context')
         async with engine.connect() as session:
-            await session.run_sync(self._db_schema.metadata.create_all)
+            await session.run_sync(BaseSQLModel.metadata.create_all)
         logging.debug('Initializing asynchronous session factory')
         self._session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
             bind=engine, expire_on_commit=False
