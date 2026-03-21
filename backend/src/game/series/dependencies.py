@@ -3,8 +3,8 @@
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 from uuid import UUID
 
-from core import GetAsyncSession
 from core.exceptions import ModelLookupError
+from db import GetAsyncSession
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound

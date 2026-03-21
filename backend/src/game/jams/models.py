@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 from uuid import UUID
 
-from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel, CacheKey
+from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
@@ -23,6 +23,7 @@ from .types import StopReasonStr  # noqa: TC001
 if TYPE_CHECKING:
     from datetime import datetime
 
+    from core import CacheKey
     from game.team_jams.models import TeamJam
     from game.teams.models import BaseTeam
 

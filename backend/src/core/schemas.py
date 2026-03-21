@@ -19,15 +19,12 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pydantic.alias_generators import to_camel
 
-from .cache import get_updated_cache_items
-
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
-    from sqlalchemy.orm import Session
     from starlette.background import BackgroundTask
 
 
 type CacheKey = tuple[Any, ...]
+type CacheServerSchema = Sequence[CacheKey]
 
 
 class ServerSchema(BaseModel):
@@ -50,7 +47,7 @@ class ClientSchema(BaseModel):
     """The base schema for schemas which originate from outside of this server.
 
     This is the base schema for all schemas which are generated from outside of this
-    server. It automatically converst all camelCase attributes, the Javascript and
+    server. It automatically converts all camelCase attributes, the Javascript and
     Typescript standard, to snake_case, the Python standard. This schema also forbids
     extra arguments, raising exceptions when additional fields are provided.
 
@@ -106,7 +103,7 @@ class APIResponseClass(JSONResponse):
     def __init__(
         self,
         content: Any,
-        session: AsyncSession | Session | None = None,
+        cache: list[CacheItemSchema] | None = None,
         status_code: int = HTTPStatus.OK,
         headers: Mapping[str, str] | None = None,
         media_type: str | None = None,
@@ -114,14 +111,6 @@ class APIResponseClass(JSONResponse):
     ) -> None:
         error_occurred: bool = status_code not in range(
             HTTPStatus.OK, HTTPStatus.MULTIPLE_CHOICES
-        )
-        cache: list[CacheItemSchema] | None = (
-            [
-                CacheItemSchema(key=model.cache_key(), data=model.serialize())
-                for model in get_updated_cache_items(session)
-            ]
-            if session is not None
-            else None
         )
         super().__init__(
             APISchema(
@@ -146,9 +135,6 @@ class APIResponseClass(JSONResponse):
             separators=(',', ':'),
             default=(str),  # Serialize datetime objects
         ).encode('utf-8')
-
-
-type CacheServerSchema = Sequence[CacheKey]
 
 
 class AboutDataClientSchema(ClientSchema):

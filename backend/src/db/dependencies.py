@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING, Annotated, AsyncGenerator, ClassVar, TypeAlias
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from .database import BaseSQLModel, DatabaseEngine
+from .base_model import BaseSQLModel
+from .engine import DatabaseEngine
 
 if TYPE_CHECKING:
     from pathlib import Path

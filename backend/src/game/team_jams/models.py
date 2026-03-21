@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
+from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.jams.models import BaseJam
 from game.trip_events.models import TripEvent
 from sqlalchemy import ForeignKey, column, select, table

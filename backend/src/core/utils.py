@@ -10,17 +10,14 @@ import logging
 import os
 import sys
 import time
-from datetime import timedelta
 from math import floor
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, override
+from typing import TYPE_CHECKING, Awaitable, Callable
 
 from pydantic import PlainSerializer
-from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
 if TYPE_CHECKING:
     from fastapi import Request, Response
-    from sqlalchemy import Dialect
 
 
 timedelta_serializer = PlainSerializer(lambda td: floor(td.total_seconds() * 1000))
@@ -55,30 +52,6 @@ tags_metadata: list[dict[str, str]] = [
         'description': 'Endpoints that render HTML.',
     },
 ]
-
-
-class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):
-    """Converts integer number of milliseconds to a Python timedelta object.
-
-    This class is used for converting values to and from the model database.
-    """
-
-    impl: TypeEngine[Any] | type[TypeEngine[Any]] = Integer
-    cache_ok: bool | None = True
-
-    @override
-    def process_bind_param(self, value: Any | None, dialect: Dialect) -> Any:
-        if value is not None:
-            if not isinstance(value, timedelta):
-                raise TypeError()
-            return floor(value.total_seconds() * 1000)
-        return value
-
-    @override
-    def process_result_value(self, value: Any | None, dialect: Dialect) -> Any | None:
-        if not isinstance(value, (float, int)):
-            raise TypeError()
-        return timedelta(milliseconds=value)
 
 
 def get_resource_path(relative_path: str) -> Path:

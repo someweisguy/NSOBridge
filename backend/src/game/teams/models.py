@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Final, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
+from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.jams.models import BaseJam
 from game.skaters.models import Skater

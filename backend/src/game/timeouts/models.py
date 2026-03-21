@@ -6,7 +6,7 @@ from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel, CacheKey
+from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel
 from sqlalchemy import ForeignKey, select
@@ -22,6 +22,7 @@ from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 from .schemas import TimeoutSchema
 
 if TYPE_CHECKING:
+    from core import CacheKey
     from game.jams.models import BaseJam
     from game.teams.models import BaseTeam
 

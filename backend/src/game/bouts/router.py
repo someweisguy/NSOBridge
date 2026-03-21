@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
-from core import GetAsyncSession
+from db import GetAsyncSession
 from fastapi import APIRouter, Body
 from game.rulesets.schemas import Ruleset
 from sqlalchemy import Result, Select, select

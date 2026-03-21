@@ -6,17 +6,17 @@ from abc import abstractmethod
 from copy import deepcopy
 from typing import TYPE_CHECKING, override
 
+from core import Memento
 from sqlalchemy import Result, Select, select
 
-from .database import BaseSQLModel, DatabaseEngine
+from .base_model import BaseSQLModel
 from .dependencies import EngineFactory
-from .protocols import Memento
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-    from sqlalchemy.orm import Session
+    from core import CacheKey, ServerSchema
+    from sqlalchemy.ext.asyncio import async_sessionmaker
 
-    from .schemas import CacheKey, ServerSchema
+    from .engine import DatabaseEngine
 
 
 class CacheableSQLModel(BaseSQLModel):
@@ -30,7 +30,7 @@ class CacheableSQLModel(BaseSQLModel):
 
     __abstract__: bool = True
 
-    def get_memento(self) -> DatabaseMemento:
+    def get_memento(self) -> _DatabaseMemento:
         """Get a memento of the current state of this model and all its children.
 
         Returns:
@@ -38,7 +38,7 @@ class CacheableSQLModel(BaseSQLModel):
 
         """
         copy: CacheableSQLModel = deepcopy(self)
-        return DatabaseMemento(copy)
+        return _DatabaseMemento(copy)
 
     @abstractmethod
     def cache_key(self) -> CacheKey:
@@ -65,7 +65,7 @@ class CacheableSQLModel(BaseSQLModel):
         ...
 
 
-class DatabaseMemento(Memento):
+class _DatabaseMemento(Memento):
     """A Memento sub-class for models in the database."""
 
     def __init__(self, state: CacheableSQLModel) -> None:
@@ -96,38 +96,3 @@ class DatabaseMemento(Memento):
             await session.commit()
 
             return current_state.get_memento()
-
-
-def get_updated_cache_items(
-    session: AsyncSession | Session,
-) -> list[CacheableSQLModel]:
-    """Get a list of the cacheables which have been modified in the desired session.
-
-    Args:
-        session (AsyncSession | Session): the session which to check.
-
-    Returns:
-        list[CacheItem]: a list of all the cacheable models which have been modified
-        and their cache keys.
-
-    """
-    # Add each dirty or deleted model to a set for updates
-    models: set[BaseSQLModel] = {
-        model
-        for identity_map in [session.dirty, session.deleted]
-        for model in identity_map
-        if isinstance(model, BaseSQLModel)
-    }
-
-    # Extract the cacheable models from the session
-    cacheables: set[CacheableSQLModel] = {
-        model for model in models if isinstance(model, CacheableSQLModel)
-    }
-    for model in models:
-        cacheables |= {
-            parent
-            for parent in model.get_recursive_parents()
-            if isinstance(parent, CacheableSQLModel)
-        }
-
-    return list(cacheables)

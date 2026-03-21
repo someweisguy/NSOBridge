@@ -10,12 +10,8 @@ import core
 import game
 import update
 import user
-from core import (
-    APIResponseClass,
-    DatabaseEngine,
-    EngineFactory,
-    endpoint_profiling_middleware,
-)
+from core import APIResponseClass, endpoint_profiling_middleware
+from db import DatabaseEngine, EngineFactory
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Series, wftda_2025

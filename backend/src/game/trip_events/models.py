@@ -6,7 +6,7 @@ from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_OTHER, BaseSQLModel
+from db import CASCADE_OTHER, BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
