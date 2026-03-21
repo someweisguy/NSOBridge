@@ -40,7 +40,7 @@ class CacheableSQLModel(BaseSQLModel):
         return _DatabaseMemento(copy)
 
     @abstractmethod
-    async def cache_key(self) -> CacheKey:
+    def cache_key(self) -> CacheKey:
         """Get the cache key of this model.
 
         Return a unique cache key for this model which can be used by clients to cache

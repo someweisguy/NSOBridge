@@ -47,7 +47,7 @@ class Skater(CacheableSQLModel):
         super().__init__(name=name, number=number)
 
     @override
-    async def cache_key(self) -> CacheKey:
+    def cache_key(self) -> CacheKey:
         return (self.__tablename__, self._team.bout_uuid, self._team.num, self.num)
 
     @override
