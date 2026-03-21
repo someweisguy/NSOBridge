@@ -11,7 +11,7 @@ import game
 import update
 import user
 from core import APIResponseClass, endpoint_profiling_middleware
-from db import DatabaseEngine, EngineFactory
+from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Series, wftda_2025
@@ -54,7 +54,7 @@ async def lifespan(app: FastAPI):
     app.include_router(core.pages_router)
 
     # Connect to the desired database
-    db: DatabaseEngine = EngineFactory.get_default_engine()
+
     db_pathname: str | None = app.extra.get('db_pathname', None)
     if db_pathname is None:
         logging.error('No database pathname was found')
@@ -64,17 +64,19 @@ async def lifespan(app: FastAPI):
     else:
         logging.info(f'Connecting to database: {db_pathname}')
         try:
-            db = EngineFactory.create_engine(db_pathname)
-            EngineFactory.set_default_engine(db)
+            DatabaseEngine.create_engine(db_pathname)
         except ValueError:
             logging.critical('Database pathname is invalid')
             return
     logging.debug('Creating database schema')
-    await db.create_all()
+    engine: DatabaseEngine = DatabaseEngine.get_engine()
+    await engine.create_all()
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
-    session_factory: async_sessionmaker[AsyncSession] = db.get_async_session_factory()
+    session_factory: async_sessionmaker[AsyncSession] = (
+        engine.get_async_session_factory()
+    )
     async with session_factory() as session:
         statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)

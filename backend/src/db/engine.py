@@ -1,4 +1,4 @@
-"""Base models for use in the other modules."""
+"""The database engine used throughout the app."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, ClassVar, Final
 
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+from .model import BaseSQLModel
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -32,6 +34,34 @@ class DatabaseEngine:
     """
 
     _DRIVER: ClassVar[str] = 'sqlite+aiosqlite'
+
+    _database: ClassVar[DatabaseEngine | None] = None
+
+    @classmethod
+    def get_engine(cls) -> DatabaseEngine:
+        """Get the current database engine. If one does not exist, one will be created.
+
+        Returns:
+            DatabaseEngine: the current database engine.
+
+        """
+        if cls._database is None:
+            cls._database = DatabaseEngine(BaseSQLModel)
+        return cls._database
+
+    @classmethod
+    def create_engine(cls, db_path: str) -> DatabaseEngine:
+        """Create a new database engine with a connection to the desired path.
+
+        Args:
+            db_path (str): the path at which to connect the engine.
+
+        Returns:
+            DatabaseEngine: the newly created database engine.
+
+        """
+        _database = DatabaseEngine(BaseSQLModel, db_path)
+        return _database
 
     def __init__(
         self, db_schema: type[DeclarativeBase], db_path: str | Path = ''
