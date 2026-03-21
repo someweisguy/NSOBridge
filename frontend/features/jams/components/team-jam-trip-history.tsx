@@ -1,5 +1,5 @@
 import TripEventButton from "@/features/jams/components/trip-event-button";
-import { TripEvent } from "@/lib/game/jams";
+import { TripEvent } from "@/types/jam";
 import {
   Button,
   ButtonProps,

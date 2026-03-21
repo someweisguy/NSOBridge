@@ -4,8 +4,9 @@ from datetime import datetime
 from uuid import UUID
 
 from core import ServerSchema
-from game.jams.models import StopReasonStr
 from game.team_jams.schemas import TeamJamSchema
+
+from .types import StopReasonStr
 
 
 class JamSchema(ServerSchema):

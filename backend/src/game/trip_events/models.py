@@ -6,7 +6,7 @@ from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_OTHER, BaseSQLModel
+from db import CASCADE_OTHER, BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -37,9 +37,10 @@ class TripEvent(BaseSQLModel):
     passes: Mapped[int | None] = mapped_column(default=None)
     star_pass: Mapped[bool] = mapped_column(default=False)
 
-    _team_jam: Mapped[TeamJam | None] = relationship(
+    _team_jam: Mapped[TeamJam] = relationship(
         back_populates='events',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[team_jam_uuid],
     )
 
@@ -84,16 +85,16 @@ class TripEvent(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_team_jam(),)
+        return (await self.awaitable_attrs._team_jam,)
 
-    async def get_team_jam(self) -> TeamJam:
+    def get_team_jam(self) -> TeamJam:
         """Get the TeamJam to which this TripEvent belongs.
 
         Returns:
             TeamJam: the TeamJam to which this TripEvent belongs.
 
         """
-        return await self.awaitable_attrs._team_jam
+        return self._team_jam
 
     def is_empty(self) -> bool:
         """Return True if this TripEvent is empty.

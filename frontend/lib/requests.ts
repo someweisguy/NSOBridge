@@ -1,4 +1,5 @@
 import { dateReviver } from "@/utils/revivers";
+import queryClient from "./cache";
 
 interface URLParameters {
   query?: URLSearchParams | Record<string, unknown>;
@@ -8,6 +9,7 @@ interface URLParameters {
 interface APIResponse<T = unknown> {
   statusCode: number;
   data: T;
+  cache?: { key: unknown[]; data: object }[];
   error?: {
     type: string;
     message: string;
@@ -61,6 +63,14 @@ export default class API {
     // Get the response and revive any Date values
     const text: string = await response.text();
     const payload = JSON.parse(text, dateReviver) as APIResponse<T>;
+
+    // TODO: Update the the cache
+    if (payload.cache != null) {
+      for (const { key, data } of payload.cache) {
+        queryClient.setQueryData(key, data);
+      }
+    }
+
     return payload;
   }
 

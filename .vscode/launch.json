@@ -6,14 +6,11 @@
       "type": "debugpy",
       "request": "launch",
       "program": "backend/src/main.py",
-      "args": [
-        "0.0.0.0",
-        "-d"
-      ],
+      "args": ["0.0.0.0", "-d", "-f data.db"],
       "console": "integratedTerminal",
       "env": {
-        "SQLALCHEMY_DEBUG": "false",
+        "SQLALCHEMY_DEBUG": "false"
       }
-    },
+    }
   ]
 }

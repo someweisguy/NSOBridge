@@ -2,6 +2,7 @@
 
 from typing import TYPE_CHECKING, Annotated, Final, Literal
 
+from core import APIResponse
 from fastapi import APIRouter, Body
 
 from .dependencies import GetTimeout, _get_timeout
@@ -22,34 +23,44 @@ router.add_api_route(
 async def set_type(
     timeout: GetTimeout,
     is_review: Annotated[Literal['timeout', 'review'], Body()],
-) -> None:
+) -> APIResponse:
     """Set the type of the specified Timeout."""
     timeout.set_type(is_review == 'review')
+    return APIResponse(None, await timeout.get_updates())
 
 
 @router.post('/team', tags=[TIMEOUTS_TAG])
 async def set_team(
     timeout: GetTimeout, team_num: Annotated[int | None, Body()] = None
-) -> None:
+) -> APIResponse:
     """Set the calling Team of the specified Timeout."""
-    bout: BaseBout = await timeout.get_bout()
+    bout: BaseBout = timeout.get_bout()
     timeout.set_team(bout.teams[team_num] if team_num is not None else None)
-    pass
+    return APIResponse(None, await timeout.get_updates())
 
 
 @router.post('/retained', tags=[TIMEOUTS_TAG])
-async def set_retained(timeout: GetTimeout, retained: Annotated[bool, Body()]) -> None:
+async def set_retained(
+    timeout: GetTimeout, retained: Annotated[bool, Body()]
+) -> APIResponse:
     """Set whether or not the Timeout is retained."""
     timeout.set_retained(retained)
+    return APIResponse(None, await timeout.get_updates())
 
 
 @router.put('/details', tags=[TIMEOUTS_TAG])
-async def set_details(timeout: GetTimeout, details: Annotated[str, Body()]) -> None:
+async def set_details(
+    timeout: GetTimeout, details: Annotated[str, Body()]
+) -> APIResponse:
     """Add details about the specified Timeout."""
     timeout.details = details
+    return APIResponse(None, await timeout.get_updates())
 
 
 @router.put('/result', tags=[TIMEOUTS_TAG])
-async def set_result(timeout: GetTimeout, result: Annotated[str, Body()]) -> None:
+async def set_result(
+    timeout: GetTimeout, result: Annotated[str, Body()]
+) -> APIResponse:
     """Add results about the specified Timeout."""
     timeout.result = result
+    return APIResponse(None, await timeout.get_updates())

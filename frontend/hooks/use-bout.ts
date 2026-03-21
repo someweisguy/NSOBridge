@@ -1,5 +1,6 @@
-import { Bout, getBout } from "@/lib/game/bouts";
-import { BoutUri, AppQueryOptions } from "@/types/query";
+import { localAPI } from "@/lib/requests";
+import { Bout } from "@/types/bout";
+import { AppQueryOptions, BoutUri } from "@/types/query";
 import { useQuery } from "@tanstack/react-query";
 
 /**
@@ -8,12 +9,13 @@ import { useQuery } from "@tanstack/react-query";
  *
  * @returns a Tanstack useQuery object containing the desired Bout.
  */
-export const useBout = <T = null>({
+export const useBout = ({
   boutUuid,
   ...options
-}: BoutUri & AppQueryOptions<Bout | T>) =>
-  useQuery({
+}: BoutUri & AppQueryOptions<Partial<Bout>>) =>
+  useQuery<Partial<Bout>, Error, Bout>({
     queryKey: Bout.generateKey(boutUuid),
-    queryFn: () => getBout(boutUuid),
+    queryFn: () => localAPI.get("bout", { query: { boutUuid } }),
+    select: (data) => Object.assign(new Bout(), data),
     ...options,
   });

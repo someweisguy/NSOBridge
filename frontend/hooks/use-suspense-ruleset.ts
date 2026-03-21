@@ -1,5 +1,6 @@
-import { getRuleset, Ruleset } from "@/lib/game/ruleset";
-import { BoutUri, AppSuspenseQueryOptions } from "@/types/query";
+import { localAPI } from "@/lib/requests";
+import { AppSuspenseQueryOptions, BoutUri } from "@/types/query";
+import { Ruleset } from "@/types/ruleset";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -14,6 +15,9 @@ export const useSuspenseRuleset = ({
 }: BoutUri & AppSuspenseQueryOptions<Ruleset>) =>
   useSuspenseQuery<Ruleset>({
     queryKey: Ruleset.generateKey(boutUuid),
-    queryFn: () => getRuleset(boutUuid),
+    queryFn: () =>
+      localAPI.get<Ruleset>("bout/ruleset", {
+        query: { boutUuid },
+      }),
     ...options,
   });

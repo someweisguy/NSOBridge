@@ -1,5 +1,4 @@
 import { CacheKey } from "@/types/query";
-import { localAPI } from "../requests";
 
 /**
  * An object that contains various configuration values that determine how the Bout is
@@ -37,16 +36,4 @@ export class Ruleset {
   static generateKey(boutUuid: string): CacheKey {
     return ["ruleset", boutUuid];
   }
-}
-
-/**
- * Get the roller derby ruleset associated with the desired Bout.
- *
- * @param boutUuid the UUID of the Bout whose Ruleset should be fetched.
- * @returns a Ruleset associated with the desired Bout.
- */
-export async function getRuleset(boutUuid: string): Promise<Ruleset> {
-  return localAPI.get<Ruleset>("bout/ruleset", {
-    query: { boutUuid },
-  });
 }

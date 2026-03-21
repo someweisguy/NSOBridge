@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_OTHER, BaseSQLModel
-from game.models import CacheableSQLModel, CacheKey
+from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
+    from core import CacheKey
     from game.teams.models import BaseTeam
 
 
@@ -25,6 +25,7 @@ class Skater(CacheableSQLModel):
 
     _team: Mapped[BaseTeam] = relationship(
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[team_uuid],
     )
 
@@ -46,19 +47,18 @@ class Skater(CacheableSQLModel):
         super().__init__(name=name, number=number)
 
     @override
-    async def cache_key(self) -> CacheKey:
-        team: BaseTeam = await self.get_team()
-        return (self.__tablename__, team.bout_uuid, team.num, self.num)
+    def cache_key(self) -> CacheKey:
+        return (self.__tablename__, self._team.bout_uuid, self._team.num, self.num)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_team(),)
+        return (await self.awaitable_attrs._team,)
 
-    async def get_team(self) -> BaseTeam:
+    def get_team(self) -> BaseTeam:
         """Get the Team to which this Skater belongs.
 
         Returns:
             BaseTeam: the Team to which this Skater belongs.
 
         """
-        return await self.awaitable_attrs._team
+        return self._team

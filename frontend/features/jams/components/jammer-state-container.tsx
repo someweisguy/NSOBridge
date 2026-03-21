@@ -1,5 +1,5 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
-import { TeamJam } from "@/lib/game/jams";
+import { TeamJam } from "@/types/jam";
 import { TeamJamUri } from "@/types/query";
 import { GroupProps } from "@mantine/core";
 import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";

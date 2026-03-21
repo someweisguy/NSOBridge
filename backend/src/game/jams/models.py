@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, override
+from typing import TYPE_CHECKING, Any, override
 from uuid import UUID
 
-from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
+from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.bouts.models import BaseBout
-from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
+from game.models import AbstractOneShotModel
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
@@ -17,14 +17,15 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from .schemas import JamSchema
+from .types import StopReasonStr  # noqa: TC001
+
 if TYPE_CHECKING:
     from datetime import datetime
 
+    from core import CacheKey
     from game.team_jams.models import TeamJam
     from game.teams.models import BaseTeam
-
-
-type StopReasonStr = Literal['called', 'elapsed', 'injury', 'other']
 
 
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
@@ -39,9 +40,10 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
-    _bout: Mapped[BaseBout | None] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[bout_uuid],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
@@ -88,21 +90,25 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         super().__init__(period=period_num, num=jam_num, team_jams=list(team_jams))
 
     @override
-    async def cache_key(self) -> CacheKey:
+    def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_uuid, self.period, self.num)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_bout(),)
+    def serialize(self) -> JamSchema:
+        return JamSchema.model_validate(self)
 
-    async def get_bout(self) -> BaseBout:
+    @override
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (await self.awaitable_attrs._bout,)
+
+    def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Jam.
 
         Returns:
             BaseBout: the Bout that owns this Jam.
 
         """
-        return await self.awaitable_attrs._bout
+        return self._bout
 
     def get_team_jam(self, team: BaseTeam | UUID) -> TeamJam:
         """Get the TeamJam associated with the desired Team.

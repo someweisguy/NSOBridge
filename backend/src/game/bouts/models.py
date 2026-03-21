@@ -3,21 +3,20 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, final, override
+from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_CHILD, CASCADE_OTHER
+from db import CASCADE_CHILD, CASCADE_OTHER, CacheableSQLModel
 from game.clocks.models import Clock
-from game.models import CacheableSQLModel, CacheKey
 from sqlalchemy import ForeignKey, column
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from .schemas import BoutSchema
+from .types import BoutStateStr  # noqa: TC001
 
 if TYPE_CHECKING:
-    from core import BaseSQLModel
+    from core import CacheKey
+    from db import BaseSQLModel
     from game.jams.models import BaseJam
     from game.rulesets.schemas import Ruleset
     from game.series.models import Series
@@ -46,6 +45,7 @@ class BaseBout(CacheableSQLModel):
     _series: Mapped[Series] = relationship(
         back_populates='bouts',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[series_uuid],
     )
     clock: Mapped[Clock] = relationship(
@@ -100,25 +100,29 @@ class BaseBout(CacheableSQLModel):
         super().__init__(clock=Clock(), ruleset_name=ruleset_name, teams=list(teams))
 
     @override
-    async def cache_key(self) -> CacheKey:
+    def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.uuid)
+
+    @override
+    def serialize(self) -> BoutSchema:
+        return BoutSchema.model_validate(self)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
 
-    async def get_series(self) -> Series:
+    def get_series(self) -> Series:
         """Get the Series that owns this Bout.
 
         Returns:
             Series: the Series that owns this Bout.
 
         """
-        return await self.awaitable_attrs._series
+        return self._series
 
     @final
     @property
-    def state(self) -> Literal['final', 'jam', 'lineup', 'stopped', 'timeout']:
+    def state(self) -> BoutStateStr:
         """Get the current state of the Bout.
 
         Returns:

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
+from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.jams.models import BaseJam
 from game.trip_events.models import TripEvent
 from sqlalchemy import ForeignKey, column, select, table
@@ -38,9 +38,10 @@ class TeamJam(BaseSQLModel):
     )
     team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
 
-    _team: Mapped[BaseTeam | None] = relationship(
+    _team: Mapped[BaseTeam] = relationship(
         back_populates='team_jams',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[team_uuid],
     )
     jam: Mapped[BaseJam] = relationship(
@@ -88,13 +89,13 @@ class TeamJam(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_team(), self.jam)
+        return (await self.awaitable_attrs._team, self.jam)
 
-    async def get_team(self) -> BaseTeam:
+    def get_team(self) -> BaseTeam:
         """Get the Team that owns this TeamJam.
 
         Returns:
             BaseTeam: the Team that owns this TeamJam.
 
         """
-        return await self.awaitable_attrs._team
+        return self._team

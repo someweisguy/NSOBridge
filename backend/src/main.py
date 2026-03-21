@@ -10,8 +10,8 @@ import core
 import game
 import update
 import user
-import ws
-from core import APIResponseClass, DatabaseEngine, EngineFactory
+from core import APIResponse, endpoint_profiling_middleware
+from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Series, wftda_2025
@@ -48,13 +48,13 @@ async def lifespan(app: FastAPI):
     for router in [core.api_router, *game.routers, *user.routers]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.assets)
-    app.mount('/ws', ws.app)
+    app.mount('/ws', core.ws)
 
     # Load the pages router without a path prefix
     app.include_router(core.pages_router)
 
     # Connect to the desired database
-    db: DatabaseEngine = EngineFactory.get_default_engine()
+
     db_pathname: str | None = app.extra.get('db_pathname', None)
     if db_pathname is None:
         logging.error('No database pathname was found')
@@ -64,17 +64,19 @@ async def lifespan(app: FastAPI):
     else:
         logging.info(f'Connecting to database: {db_pathname}')
         try:
-            db = EngineFactory.create_engine(db_pathname)
-            EngineFactory.set_default_engine(db)
+            DatabaseEngine.create_engine(db_pathname)
         except ValueError:
             logging.critical('Database pathname is invalid')
             return
     logging.debug('Creating database schema')
-    await db.create_all()
+    engine: DatabaseEngine = DatabaseEngine.get_engine()
+    await engine.create_all()
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
-    session_factory: async_sessionmaker[AsyncSession] = db.get_async_session_factory()
+    session_factory: async_sessionmaker[AsyncSession] = (
+        engine.get_async_session_factory()
+    )
     async with session_factory() as session:
         statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
         results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
@@ -94,13 +96,13 @@ async def lifespan(app: FastAPI):
     logging.debug('App lifespan has resumed execution')
 
     logging.info('Disconnecting all WebSockets')
-    await ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
+    await core.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
     logging.debug('WebSockets disconnected')
 
 
 app: Final[FastAPI] = FastAPI(
     db_pathname='',  # Require default empty string
-    default_response_class=APIResponseClass,
+    default_response_class=APIResponse,
     lifespan=lifespan,
     title='NSO Bridge',
     summary='A scoreboard and statistics server for roller derby.',
@@ -204,6 +206,11 @@ if __name__ == '__main__':
             logging.warning('Unable to check for releases at this time')
     else:
         logging.info('Skipping release check')
+
+    # Configure debugging
+    if app.debug:
+        # Add a debug endpoint profile middleware - looks funky but it works!
+        app.middleware('http')(endpoint_profiling_middleware)
 
     # Run the application
     try:

@@ -6,9 +6,9 @@ from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Any, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_OTHER, BaseSQLModel
+from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.bouts.models import BaseBout
-from game.models import AbstractOneShotModel, CacheableSQLModel, CacheKey
+from game.models import AbstractOneShotModel
 from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import (
     Mapped,
@@ -19,7 +19,10 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 
+from .schemas import TimeoutSchema
+
 if TYPE_CHECKING:
+    from core import CacheKey
     from game.jams.models import BaseJam
     from game.teams.models import BaseTeam
 
@@ -45,21 +48,22 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    _bout: Mapped[BaseBout | None] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[bout_uuid],
     )
     jam: Mapped[BaseJam] = relationship(
         cascade=CASCADE_OTHER,
         foreign_keys=[_jam_uuid],
-        lazy='selectin',  # Eagerly fetch despite being a parent relationship
+        lazy='selectin',
     )
     team: Mapped[BaseTeam | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[_team_uuid],
-        lazy='selectin',  # Eagerly fetch despite being a parent relationship
+        lazy='selectin',
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
@@ -98,23 +102,27 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         super().__init__(jam=jam, num=num)
 
     @override
-    async def cache_key(self) -> CacheKey:
+    def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_uuid, self.num)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        if self.team is None:
-            return (await self.get_bout(),)
-        return (await self.get_bout(), self.team)
+    def serialize(self) -> TimeoutSchema:
+        return TimeoutSchema.model_validate(self)
 
-    async def get_bout(self) -> BaseBout:
+    @override
+    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        if self._team_uuid is None:
+            return (await self.awaitable_attrs._bout,)
+        return (await self.awaitable_attrs._bout, await self.awaitable_attrs.team)
+
+    def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Timeout.
 
         Returns:
             BaseBout: the Bout that Owns this Timeout.
 
         """
-        return await self.awaitable_attrs._bout
+        return self._bout
 
     def set_type(self, is_review: bool) -> None:
         """Set whether this Timeout is a timeout or an official review.

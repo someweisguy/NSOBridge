@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Final, override
 from uuid import UUID  # noqa: TC003
 
-from core import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
+from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
 from game.bouts.models import BaseBout
 from game.jams.models import BaseJam
 from game.skaters.models import Skater
@@ -46,9 +46,10 @@ class BaseTeam(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column()
     reviews_remaining: Mapped[int] = mapped_column()
 
-    _bout: Mapped[BaseBout | None] = relationship(
+    _bout: Mapped[BaseBout] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
+        lazy='selectin',
         foreign_keys=[bout_uuid],
     )
     skaters: Mapped[list[Skater]] = relationship(
@@ -119,16 +120,16 @@ class BaseTeam(BaseSQLModel):
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.get_bout(),)
+        return (await self.awaitable_attrs._bout,)
 
-    async def get_bout(self) -> BaseBout:
+    def get_bout(self) -> BaseBout:
         """Get the Bout to which this Team belongs.
 
         Returns:
             BaseBout: the Bout to which this Team belongs.
 
         """
-        return await self.awaitable_attrs._bout
+        return self._bout
 
     @property
     def bout_score(self) -> int:

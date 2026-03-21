@@ -1,5 +1,5 @@
-import { beginPeriod } from "@/lib/game/bouts";
-import { BoutUri, AppMutationOptions } from "@/types/query";
+import { localAPI } from "@/lib/requests";
+import { AppMutationOptions, BoutUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 /**
@@ -12,6 +12,7 @@ export const useBeginPeriod = ({
   ...options
 }: BoutUri & AppMutationOptions<void>) =>
   useMutation({
-    mutationFn: () => beginPeriod(boutUuid),
+    mutationFn: () =>
+      localAPI.post<void>("bout/beginPeriod", { query: { boutUuid } }),
     ...options,
   });

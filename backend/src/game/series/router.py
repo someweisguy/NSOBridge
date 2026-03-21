@@ -2,7 +2,7 @@
 
 from typing import Final, Sequence
 
-from core import GetAsyncSession
+from db import GetAsyncSession
 from fastapi import APIRouter
 from sqlalchemy import Result, Select, select
 

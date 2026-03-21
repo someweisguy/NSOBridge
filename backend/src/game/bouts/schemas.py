@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import Literal  # noqa: TC003
 from uuid import UUID  # noqa: TC003
 
 from core import ServerSchema
@@ -11,7 +10,9 @@ from game.clocks.schemas import ClockSchema  # noqa: TC002
 from game.jams.schemas import JamSchema  # noqa: TC002
 from game.teams.schemas import TeamSchema  # noqa: TC002
 from game.timeouts.schemas import TimeoutSchema  # noqa: TC002
-from pydantic import Field, computed_field
+from pydantic import Field, SkipValidation, computed_field
+
+from .types import BoutStateStr  # noqa: TC001
 
 
 class BoutSchema(ServerSchema):
@@ -23,10 +24,10 @@ class BoutSchema(ServerSchema):
     is_running: bool
     start_countdown: datetime | None
     is_final: bool
-    state: Literal['final', 'jam', 'lineup', 'stopped', 'timeout']
+    state: BoutStateStr
     teams: list[TeamSchema]
-    jams: list[JamSchema] = Field(exclude=True)
-    timeouts: list[TimeoutSchema] = Field(exclude=True)
+    jams: list[SkipValidation[JamSchema]] = Field(exclude=True)
+    timeouts: list[SkipValidation[TimeoutSchema]] = Field(exclude=True)
 
     @computed_field
     @property

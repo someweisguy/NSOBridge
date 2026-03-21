@@ -1,4 +1,4 @@
-import { addJamLost } from "@/lib/game/jams";
+import { localAPI } from "@/lib/requests";
 import { AppMutationOptions, TeamJamUri } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
@@ -16,6 +16,14 @@ export const useTeamJamAddLost = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (lost: boolean) =>
-      addJamLost(boutUuid, periodNum, jamNum, teamNum, lost),
+      localAPI.post<void>("jam/setLost", {
+        query: {
+          boutUuid,
+          periodNum,
+          jamNum,
+          teamNum,
+        },
+        body: lost,
+      }),
     ...options,
   });

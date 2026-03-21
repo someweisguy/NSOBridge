@@ -1,8 +1,10 @@
 /**
  * A regex which matches against Date strings using the ISO 8601 standard.
+ *
+ * Also matches against Python's approximation of the ISO 8601 standard.
  */
 const dateTimeExpression = new RegExp(
-  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3,6}[Z]?/,
+  /\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}.\d{3,6}[Z]?/,
 );
 
 /**
