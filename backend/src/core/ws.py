@@ -78,6 +78,7 @@ async def invalidate_queries(keys: list[CacheKey]) -> None:
         keys (list[CacheKey]): the keys of the models which should be invalidated.
 
     """
+    logging.debug(f'Invalidating queries: {keys}')
     payload: str = CacheWebsocketServerSchema(keys).model_dump_json()
     for client in _clients:
         await client.send_text(payload)
