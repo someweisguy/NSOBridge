@@ -3,22 +3,22 @@
 This file exports the core functions needed to run NSO Bridge.
 """
 
+from .error_handlers import error_handlers
+from .logging import configure_logging
 from .memento import Memento
 from .router import api_router, assets, pages_router
 from .schemas.api import APIResponseClass
 from .schemas.base import ClientSchema, ServerSchema
-from .service import (
-    configure_logging,
-    error_handlers,
-    get_default_route,
-    get_server,
-    shutdown,
-)
 from .types import CacheKey
 from .utils import (
     endpoint_profiling_middleware,
     get_resource_path,
     timedelta_serializer,
+)
+from .uvicorn import (
+    get_default_route,
+    get_server,
+    shutdown,
 )
 from .ws import disconnect_all, invalidate_queries, ws
 
