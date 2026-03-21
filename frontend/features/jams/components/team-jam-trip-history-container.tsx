@@ -1,5 +1,4 @@
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
-import { Jam } from "@/lib/game/jams";
 import { TeamJamUri } from "@/types/query";
 import TeamJamTripHistory from "./team-jam-trip-history";
 
@@ -12,12 +11,12 @@ export default function TeamJamTripHistoryContainer({
   jamNum,
   teamNum,
 }: TeamJamUri) {
-  const { data: teamJam } = useSuspenseJam({
+  const { data: jam } = useSuspenseJam({
     boutUuid,
     periodNum,
     jamNum,
-    select: (jam: Jam) => jam.teamJams.find((tj) => tj.teamNum == teamNum),
   });
+  const teamJam = jam.teamJams.find((tj) => tj.teamNum == teamNum);
   if (teamJam == null) {
     throw new Error("Unable to find TeamJam");
   }
