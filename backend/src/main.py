@@ -10,7 +10,7 @@ import core
 import game
 import update
 import user
-from core import APIResponseClass, endpoint_profiling_middleware
+from core import APIResponse, endpoint_profiling_middleware
 from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
@@ -102,7 +102,7 @@ async def lifespan(app: FastAPI):
 
 app: Final[FastAPI] = FastAPI(
     db_pathname='',  # Require default empty string
-    default_response_class=APIResponseClass,
+    default_response_class=APIResponse,
     lifespan=lifespan,
     title='NSO Bridge',
     summary='A scoreboard and statistics server for roller derby.',

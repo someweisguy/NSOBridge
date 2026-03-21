@@ -42,7 +42,7 @@ class VersionSchema(ServerSchema):
     version: str
 
 
-class APIResponseClass(JSONResponse):
+class APIResponse(JSONResponse):
     """Used to wrap all API responses in a common JSON interface.
 
     See `core.schemas.APISchema`.

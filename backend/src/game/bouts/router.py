@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
-from core import APISchema
+from core import APIResponse
 from db import GetAsyncSession
 from fastapi import APIRouter, Body
 from game.rulesets.schemas import Ruleset
@@ -52,7 +52,7 @@ async def end_period(bout: GetBout) -> None:
 async def start_jam(bout: GetBout):
     """Start the next Jam of the specified Bout."""
     await bout.start_jam(datetime.now())
-    return APISchema(data=None)
+    return APIResponse(None, cache=await bout.get_updates())
 
 
 @router.post('/stopJam')

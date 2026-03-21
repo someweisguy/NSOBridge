@@ -7,7 +7,7 @@ from .error_handlers import error_handlers
 from .logging import configure_logging
 from .memento import Memento
 from .router import api_router, assets, pages_router
-from .schemas.api import APIResponseClass, APISchema
+from .schemas.api import APIResponse, APISchema
 from .schemas.base import ClientSchema, ServerSchema
 from .schemas.cache import CacheItemSchema
 from .types import CacheKey
@@ -26,7 +26,7 @@ from .ws import disconnect_all, invalidate_queries, ws
 __all__ = (
     'api_router',
     'APISchema',
-    'APIResponseClass',
+    'APIResponse',
     'assets',
     'CacheItemSchema',
     'CacheKey',
