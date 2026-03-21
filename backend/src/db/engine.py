@@ -59,8 +59,8 @@ class DatabaseEngine:
             DatabaseEngine: the newly created database engine.
 
         """
-        _database = DatabaseEngine(db_path)
-        return _database
+        cls._database = DatabaseEngine(db_path.strip())
+        return cls._database
 
     def __init__(self, db_path: str | Path = '') -> None:
         """Create a database engine without connecting to the database.
