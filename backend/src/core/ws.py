@@ -8,13 +8,13 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 from websockets import CloseCode
 
-from .schemas import (
+from .schemas.ws import (
     AboutDataClientSchema,
     AboutWebsocketServerSchema,
-    CacheKey,
     CacheWebsocketServerSchema,
     WebSocketServerSchema,
 )
+from .types import CacheKey
 
 _clients: set[WebSocket] = set()
 _background_tasks: set[asyncio.Task[None]] = set()

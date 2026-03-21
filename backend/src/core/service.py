@@ -18,7 +18,7 @@ from fastapi.exceptions import RequestValidationError
 from uvicorn import Config, Server
 
 from .exceptions import ClientError, ModelLookupError
-from .schemas import APIResponseClass, ErrorSchema
+from .schemas.api import APIResponseClass, ErrorSchema
 
 if TYPE_CHECKING:
     from fastapi import FastAPI, Request
