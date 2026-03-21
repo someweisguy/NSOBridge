@@ -49,7 +49,7 @@ class DatabaseEngine:
         return cls._database
 
     @classmethod
-    def create_engine(cls, db_path: str) -> DatabaseEngine:
+    def create_engine(cls, db_path: str | Path) -> DatabaseEngine:
         """Create a new database engine with a connection to the desired path.
 
         Args:
@@ -59,7 +59,10 @@ class DatabaseEngine:
             DatabaseEngine: the newly created database engine.
 
         """
-        cls._database = DatabaseEngine(db_path.strip())
+        if isinstance(db_path, str):
+            db_path = db_path.strip()
+        cls._database = DatabaseEngine(db_path)
+        logging.debug('Created database')
         return cls._database
 
     def __init__(self, db_path: str | Path = '') -> None:
