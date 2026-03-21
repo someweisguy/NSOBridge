@@ -6,8 +6,8 @@ This file exports the core functions needed to run NSO Bridge.
 from .error_handlers import error_handlers
 from .logging import configure_logging
 from .memento import Memento
+from .response import APIResponse
 from .router import api_router, assets, pages_router
-from .schemas.api import APIResponse
 from .schemas.base import ClientSchema, ServerSchema
 from .schemas.cache import CacheItemSchema
 from .types import CacheKey

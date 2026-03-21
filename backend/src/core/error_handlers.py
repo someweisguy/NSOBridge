@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, Callable, Final
 from fastapi.exceptions import RequestValidationError
 
 from .exceptions import ClientError, ModelLookupError
-from .schemas.api import APIResponse, ErrorSchema
+from .response import APIResponse
+from .schemas.api import ErrorSchema
 
 if TYPE_CHECKING:
     from fastapi import Request
