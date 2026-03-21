@@ -17,9 +17,7 @@ if TYPE_CHECKING:
     from starlette.background import BackgroundTask
 
 
-class APISchema(ServerSchema):
-    """The default schema for returning API requests."""
-
+class _APISchema(ServerSchema):
     data: Any
     cache: list[CacheItemSchema] = Field(
         default_factory=list, exclude_if=lambda c: len(c) == 0
@@ -63,7 +61,7 @@ class APIResponse(JSONResponse):
         )
         cache = [] if cache is None else cache
         super().__init__(
-            APISchema(
+            _APISchema(
                 status_code=status_code,
                 error=content if error_occurred else None,
                 data=content if not error_occurred else None,
