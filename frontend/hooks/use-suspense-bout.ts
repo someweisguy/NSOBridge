@@ -1,5 +1,6 @@
-import { Bout, getBout } from "@/lib/game/bouts";
-import { BoutUri, AppSuspenseQueryOptions } from "@/types/query";
+import { Bout } from "@/lib/game/bouts";
+import { localAPI } from "@/lib/requests";
+import { AppSuspenseQueryOptions, BoutUri } from "@/types/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -11,9 +12,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 export const useSuspenseBout = ({
   boutUuid,
   ...options
-}: BoutUri & AppSuspenseQueryOptions<Bout>) =>
-  useSuspenseQuery({
+}: BoutUri & AppSuspenseQueryOptions<Partial<Bout>>) =>
+  useSuspenseQuery<Partial<Bout>, Error, Bout>({
     queryKey: Bout.generateKey(boutUuid),
-    queryFn: () => getBout(boutUuid),
+    queryFn: () =>
+      localAPI.get<Partial<Bout>>("bout", {
+        query: { boutUuid },
+      }),
+    select: (bout) => Object.assign(new Bout(), bout),
     ...options,
   });

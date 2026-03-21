@@ -17,9 +17,9 @@ export type CacheKey = [string, ...unknown[]];
  * Tanstack Query's useSuspenseQuery object. The query key and query function are
  * provided in built-in hooks so they are omitted from this type.
  */
-export type AppSuspenseQueryOptions<T = unknown, E = Error, D = T> = Omit<
-  UseSuspenseQueryOptions<T, E, D>,
-  "queryKey" | "queryFn"
+export type AppSuspenseQueryOptions<T = unknown, D = T> = Omit<
+  UseSuspenseQueryOptions<T, Error, D>,
+  "queryKey" | "queryFn" | "select"
 >;
 
 /**
@@ -28,8 +28,8 @@ export type AppSuspenseQueryOptions<T = unknown, E = Error, D = T> = Omit<
  * hooks so they are omitted from this type.
  */
 export type AppQueryOptions<T> = Omit<
-  UseQueryOptions<T>,
-  "queryKey" | "queryFn"
+  UseQueryOptions<T, Error, T>,
+  "queryKey" | "queryFn" | "select"
 >;
 
 /**

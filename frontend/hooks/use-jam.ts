@@ -1,5 +1,6 @@
-import { getJam, Jam } from "@/lib/game/jams";
-import { JamUri, AppQueryOptions } from "@/types/query";
+import { Jam, TeamJam } from "@/lib/game/jams";
+import { localAPI } from "@/lib/requests";
+import { AppQueryOptions, JamUri } from "@/types/query";
 import { useQuery } from "@tanstack/react-query";
 
 /**
@@ -8,14 +9,23 @@ import { useQuery } from "@tanstack/react-query";
  *
  * @returns a Tanstack useQuery object containing the desired Jam.
  */
-export const useJam = <T = null>({
+export const useJam = ({
   boutUuid,
   periodNum,
   jamNum,
   ...options
-}: JamUri & AppQueryOptions<Jam | T>) =>
-  useQuery<Jam | T>({
+}: JamUri & AppQueryOptions<Partial<Jam>>) =>
+  useQuery({
     queryKey: Jam.generateKey(boutUuid, periodNum, jamNum),
-    queryFn: () => getJam(boutUuid, periodNum, jamNum),
+    queryFn: () =>
+      localAPI.get<Partial<Jam>>("jam", {
+        query: { boutUuid, periodNum, jamNum },
+      }),
+    select: (jam) => {
+      jam.teamJams = jam.teamJams!.map((tj) =>
+        Object.assign(new TeamJam(), tj),
+      );
+      return Object.assign(new Jam(), jam);
+    },
     ...options,
   });
