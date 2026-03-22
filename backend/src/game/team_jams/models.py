@@ -99,3 +99,12 @@ class TeamJam(BaseSQLModel):
 
         """
         return self._team
+
+    def get_num_trips(self) -> int:
+        """Get the number of trips that this TeamJam's Jammer has completed.
+
+        Returns:
+            int: the number of trips completed.
+
+        """
+        return sum([event.passes is not None for event in self.events])
