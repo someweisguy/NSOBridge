@@ -1,5 +1,6 @@
 import Clock, { ClockProps } from "@/components/clock";
-import { Text, TextProps } from "@mantine/core";
+import { Button, Modal, Text, TextProps } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 
 export interface BoutClockProps extends ClockProps, TextProps {
   /**
@@ -22,9 +23,18 @@ export default function BoutClock({
   overtimeText = "OT",
   ...props
 }: BoutClockProps) {
+  const [opened, { open, close }] = useDisclosure(false);
+
   return (
-    <Text {...props}>
-      {isOvertime ? overtimeText : <Clock {...props} formatter="bout" />}
-    </Text>
+    <>
+      <Text {...props}>
+        <Button onClick={open} variant="subtle" c="default" size="xl">
+          {isOvertime ? overtimeText : <Clock {...props} formatter="bout" />}
+        </Button>
+      </Text>
+      <Modal title="Edit Period Clock" opened={opened} onClose={close} centered>
+        Edit Period Clock
+      </Modal>
+    </>
   );
 }
