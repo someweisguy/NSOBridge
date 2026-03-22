@@ -1,4 +1,5 @@
 import { useTeamJamAddTrip } from "@/features/jams/hooks/use-team-jam-add-trip";
+import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { TeamJam } from "@/types/jam";
@@ -16,6 +17,7 @@ export default function TeamJamPassEditorContainer({
   jamNum,
   teamNum,
 }: TeamJamUri) {
+  const { data: bout } = useSuspenseBout({ boutUuid });
   const { data: ruleset } = useSuspenseRuleset({ boutUuid });
   const { data: jam } = useSuspenseJam({ boutUuid, periodNum, jamNum });
   const teamJam: TeamJam | undefined = jam.teamJams.find(
@@ -32,8 +34,7 @@ export default function TeamJamPassEditorContainer({
     teamNum,
   });
 
-  // TODO: don't show Initial during overtime
-  const showInitial = teamJam.getNumTrips() == 0;
+  const showInitial = teamJam.getNumTrips() == 0 && !bout.isOvertime();
 
   return (
     <PassEditor
