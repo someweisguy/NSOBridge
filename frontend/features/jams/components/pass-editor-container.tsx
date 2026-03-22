@@ -33,8 +33,7 @@ export default function TeamJamPassEditorContainer({
   });
 
   // TODO: don't show Initial during overtime
-  const showInitial =
-    teamJam.events.filter((tripEvent) => tripEvent.passes != null).length == 0;
+  const showInitial = teamJam.getNumTrips() == 0;
 
   return (
     <PassEditor

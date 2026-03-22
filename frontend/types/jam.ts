@@ -87,6 +87,15 @@ export class TeamJam {
    * An array of Jammer Trip events that have occurred during this Jam.
    */
   events: TripEvent[];
+
+  /**
+   * Get the number of passes that this TeamJam's jammer has completed.
+   *
+   * @returns the number of passes that the Jammer has completed.
+   */
+  getNumTrips(): number {
+    return this.events.filter((tripEvent) => tripEvent.passes != null).length;
+  }
 }
 
 /**
