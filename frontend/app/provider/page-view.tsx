@@ -43,7 +43,7 @@ export default function PageView({
       <MantineProvider>
         <AppShell
           padding="md"
-          header={{ height: 60 }}
+          header={{ height: 40 }}
           navbar={{
             width: 300,
             breakpoint: "sm",
@@ -66,7 +66,7 @@ export default function PageView({
             />
           </AppShell.Header>
 
-          <AppShell.Navbar m="md">
+          <AppShell.Navbar>
             <Select
               allowDeselect={false}
               data={boutData}
