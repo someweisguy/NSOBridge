@@ -141,13 +141,13 @@ export default function Operator() {
         <SimpleGrid cols={bout.teams.length}>
           {[...Array(2).keys()].map((i: number) => (
             <Stack key={i}>
+              <TeamJamPassEditorContainer {...activeJamUri} teamNum={i} />
               <JammerStateEditorContainer
                 {...activeJamUri}
                 teamNum={bout.teams[i].num}
                 justify="center"
                 gap="md"
               />
-              <TeamJamPassEditorContainer {...activeJamUri} teamNum={i} />
               <TeamJamTripHistoryContainer {...activeJamUri} teamNum={i} />
             </Stack>
           ))}
