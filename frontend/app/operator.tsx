@@ -50,6 +50,7 @@ export default function Operator() {
   const boutUri = useBoutUriContext();
   const { data: bout } = useSuspenseBout(boutUri);
   const activeJamUri = bout.getActiveJamUri();
+  const latestJamUri = bout.getLatestJamUri();
   const latestTimeoutUri = bout.getLatestTimeoutUri();
 
   // Prefetch latest Jam to avoid UI blinking
@@ -131,7 +132,7 @@ export default function Operator() {
             />
           </Suspense>
         )}
-        {bout.state == "lineup" && activeJamUri.jamNum > 0 && (
+        {bout.state == "lineup" && latestJamUri.jamNum > 0 && (
           <JamStopReasonEditorContainer {...activeJamUri} />
         )}
       </Group>
