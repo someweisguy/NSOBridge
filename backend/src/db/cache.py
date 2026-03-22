@@ -6,7 +6,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from typing import TYPE_CHECKING, override
 
-from core import CacheItemSchema, Memento
+from core import CacheItemSchema, Memento, invalidate_queries
 from sqlalchemy import Result, Select, select
 
 if TYPE_CHECKING:
@@ -107,9 +107,17 @@ class _DatabaseMemento(Memento):
 
             # Merge the desired state with the database
             _ = await session.merge(self._detached_state_to_restore)
+
+            # Get a list of query keys to invalidate before committing the session
+            models: list[CacheableSQLModel] = await get_mutated_cache_models(session)
+            query_keys: list[CacheKey] = [model.cache_key() for model in models]
+
             await session.commit()
 
-            return current_state.get_memento()
+        if len(query_keys) > 0:
+            await invalidate_queries(query_keys)
+
+        return current_state.get_memento()
 
 
 async def get_mutated_cache_models(
