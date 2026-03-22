@@ -1,4 +1,4 @@
-import { Button, Group } from "@mantine/core";
+import { Button, Group, GroupProps } from "@mantine/core";
 import { UseMutationResult } from "@tanstack/react-query";
 
 interface PassEditorProps {
@@ -25,10 +25,11 @@ export default function PassEditor({
   showInitial = false,
   numPasses,
   addPassOnClick,
-}: PassEditorProps) {
+  ...props
+}: PassEditorProps & GroupProps) {
   if (showInitial) {
     return (
-      <Group justify="center" gap="md">
+      <Group justify="center" gap="md" {...props}>
         <Button variant="subtle" onClick={() => addPassOnClick?.mutate(0)}>
           No Pass
         </Button>
@@ -40,7 +41,7 @@ export default function PassEditor({
   }
 
   return (
-    <Group justify="center" gap="md">
+    <Group justify="center" gap="md" {...props}>
       {Array.from({ length: numPasses + 1 }, (_, i) => (
         <Button
           key={i}

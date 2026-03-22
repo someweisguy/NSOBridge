@@ -89,6 +89,7 @@ export default function TeamJamTripHistory({
         }}
         viewportRef={viewportRef}
         w={w}
+        mih={60}
         {...props}
       >
         <Group ref={groupRef} mx={0} px={0} gap={0} wrap="nowrap">

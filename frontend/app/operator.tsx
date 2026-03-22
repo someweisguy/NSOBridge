@@ -50,6 +50,7 @@ export default function Operator() {
   const boutUri = useBoutUriContext();
   const { data: bout } = useSuspenseBout(boutUri);
   const activeJamUri = bout.getActiveJamUri();
+  const latestJamUri = bout.getLatestJamUri();
   const latestTimeoutUri = bout.getLatestTimeoutUri();
 
   // Prefetch latest Jam to avoid UI blinking
@@ -131,7 +132,7 @@ export default function Operator() {
             />
           </Suspense>
         )}
-        {bout.state == "lineup" && activeJamUri.jamNum > 0 && (
+        {bout.state == "lineup" && latestJamUri.jamNum > 0 && (
           <JamStopReasonEditorContainer {...activeJamUri} />
         )}
       </Group>
@@ -141,13 +142,13 @@ export default function Operator() {
         <SimpleGrid cols={bout.teams.length}>
           {[...Array(2).keys()].map((i: number) => (
             <Stack key={i}>
+              <TeamJamPassEditorContainer {...activeJamUri} teamNum={i} />
               <JammerStateEditorContainer
                 {...activeJamUri}
                 teamNum={bout.teams[i].num}
                 justify="center"
                 gap="md"
               />
-              <TeamJamPassEditorContainer {...activeJamUri} teamNum={i} />
               <TeamJamTripHistoryContainer {...activeJamUri} teamNum={i} />
             </Stack>
           ))}

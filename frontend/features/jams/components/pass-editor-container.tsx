@@ -4,6 +4,7 @@ import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { TeamJam } from "@/types/jam";
 import { TeamJamUri } from "@/types/query";
+import { GroupProps } from "@mantine/core";
 import PassEditor from "./pass-editor";
 
 /**
@@ -16,7 +17,8 @@ export default function TeamJamPassEditorContainer({
   periodNum,
   jamNum,
   teamNum,
-}: TeamJamUri) {
+  ...props
+}: TeamJamUri & GroupProps) {
   const { data: bout } = useSuspenseBout({ boutUuid });
   const { data: ruleset } = useSuspenseRuleset({ boutUuid });
   const { data: jam } = useSuspenseJam({ boutUuid, periodNum, jamNum });
@@ -41,6 +43,7 @@ export default function TeamJamPassEditorContainer({
       numPasses={ruleset.pointsPerTrip}
       showInitial={showInitial}
       addPassOnClick={addTrip}
+      {...props}
     />
   );
 }

@@ -36,6 +36,7 @@ export default function JamStopReasonEditorContainer({
         },
       ]}
       value={jam.stopReason ?? "other"}
+      disabled={true} // TODO: remove when mutator is added
       onChange={() => null} // TODO: add mutator
       {...props}
     />
