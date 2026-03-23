@@ -6,7 +6,7 @@ import {
   Text,
   useMantineTheme,
 } from "@mantine/core";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function TimerPicker() {
   const [minutes, setMinutes] = useState("");
@@ -18,12 +18,16 @@ export default function TimerPicker() {
 
   const theme = useMantineTheme();
 
+  useEffect(() => {
+    // TODO
+  }, [minutes, seconds]);
+
   return (
     <Stack>
       <Card
         withBorder
         padding="0"
-        w="contain"
+        w="contain" // TODO
         m="0"
         ref={cardRef}
         style={{ cursor: "text", borderColor: theme.colors.gray[4] }}
@@ -55,6 +59,7 @@ export default function TimerPicker() {
               setMinutes(minutes.padStart(2, "0"));
               cardRef.current!.style.borderColor = theme.colors.gray[4];
             }}
+            clampBehavior="strict"
             allowNegative={false}
             allowDecimal={false}
             placeholder="--"
@@ -84,6 +89,7 @@ export default function TimerPicker() {
               setSeconds(seconds.slice(-2));
               cardRef.current!.style.borderColor = theme.colors.gray[4];
             }}
+            clampBehavior="strict"
             allowNegative={false}
             allowDecimal={false}
             placeholder="--"
