@@ -1,6 +1,7 @@
 import {
   Card,
   Group,
+  MantineRadius,
   MantineSize,
   NumberInput,
   Stack,
@@ -14,6 +15,7 @@ interface DurationPickerProps {
   description: string;
   onChange?: (value: string) => void;
   size?: (string & {}) | MantineSize | undefined;
+  radius?: MantineRadius | undefined;
 }
 
 export default function DurationPicker({
@@ -21,6 +23,7 @@ export default function DurationPicker({
   description,
   onChange,
   size = "sm",
+  radius = "md",
 }: DurationPickerProps) {
   const theme = useMantineTheme();
   const [minutes, setMinutes] = useState("");
@@ -45,6 +48,7 @@ export default function DurationPicker({
         {description}
       </Text>
       <Card
+        radius={radius}
         withBorder
         padding="0"
         m="0"
