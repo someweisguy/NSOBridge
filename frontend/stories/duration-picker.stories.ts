@@ -15,7 +15,7 @@ export const Default: Story = {
     description: "Description",
     onChange: fn(),
     size: "sm",
-    radius: "md",
+    radius: "sm",
     disabled: false,
   },
 };
