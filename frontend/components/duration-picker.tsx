@@ -8,7 +8,15 @@ import {
 } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 
-export default function DurationPicker() {
+interface DurationPickerProps {
+  label: string;
+  description: string;
+}
+
+export default function DurationPicker({
+  label,
+  description,
+}: DurationPickerProps) {
   const theme = useMantineTheme();
   const [minutes, setMinutes] = useState("");
   const [seconds, setSeconds] = useState("");
@@ -21,11 +29,18 @@ export default function DurationPicker() {
   }, [minutes, seconds]);
 
   return (
-    <Stack>
+    <Stack gap="1">
+      <Text span lh="1.4" py="2" size="sm" fw="500" w="fit-content">
+        {label}
+      </Text>
+      <Text p="0" my="0" lh="1" size="xs" c="dimmed">
+        {description}
+      </Text>
       <Card
         withBorder
         padding="0"
         m="0"
+        mt="4"
         ref={cardRef}
         style={{ cursor: "text", borderColor: theme.colors.gray[4] }}
       >
