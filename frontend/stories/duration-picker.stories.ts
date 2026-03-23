@@ -9,7 +9,10 @@ const meta: Meta<typeof DurationPicker> = {
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    label: "Label",
+    description: "Description",
+  },
 };
 
 export default meta;
