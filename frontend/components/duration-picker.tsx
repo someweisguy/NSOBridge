@@ -11,11 +11,13 @@ import { useEffect, useRef, useState } from "react";
 interface DurationPickerProps {
   label: string;
   description: string;
+  onChange?: (value: string) => void;
 }
 
 export default function DurationPicker({
   label,
   description,
+  onChange,
 }: DurationPickerProps) {
   const theme = useMantineTheme();
   const [minutes, setMinutes] = useState("");
@@ -25,8 +27,11 @@ export default function DurationPicker({
   const secondsRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // TODO
-  }, [minutes, seconds]);
+    if (onChange != undefined) {
+      const value = `${minutes.padStart(2, "0")}:${seconds.padStart(2, "0")}`;
+      onChange(value);
+    }
+  }, [minutes, seconds, onChange]);
 
   return (
     <Stack gap="1">
