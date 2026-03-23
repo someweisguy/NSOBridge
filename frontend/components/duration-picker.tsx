@@ -86,6 +86,7 @@ export default function DurationPicker({
             }
             pb="2"
             m="0"
+            w="fit-content"
             ta="center"
           >
             :
