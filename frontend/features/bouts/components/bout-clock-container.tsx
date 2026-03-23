@@ -1,6 +1,8 @@
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { BoutUri } from "@/types/query";
 import { TextProps } from "@mantine/core";
+import { useSetBoutClockElapsed } from "../hooks/use-set-bout-clock-elapsed";
+import { useSetBoutClockIsRunning } from "../hooks/use-set-bout-clock-is-running";
 import BoutClock from "./bout-clock";
 
 /**
@@ -13,7 +15,17 @@ export default function BoutClockContainer({
 }: BoutUri & TextProps) {
   const { data: bout } = useSuspenseBout({ boutUuid });
 
+  const setElapsed = useSetBoutClockElapsed({ boutUuid });
+  const setIsRunning = useSetBoutClockIsRunning({ boutUuid });
+
   return (
-    <BoutClock isOvertime={bout.isOvertime()} {...bout.clock} {...props} />
+    <BoutClock
+      isOvertime={bout.isOvertime()}
+      setElapsed={setElapsed}
+      setIsRunning={setIsRunning}
+      {...bout.clock}
+      {...props}
+      editable
+    />
   );
 }
