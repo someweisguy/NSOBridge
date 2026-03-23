@@ -104,7 +104,7 @@ export default function DurationPicker({
               (cardRef.current!.style.borderColor = theme.colors.blue[5])
             }
             onBlur={() => {
-              setSeconds(seconds.slice(-2));
+              setSeconds(seconds.slice(-2).padStart(2, "0"));
               cardRef.current!.style.borderColor = theme.colors.gray[4];
             }}
             clampBehavior="strict"
