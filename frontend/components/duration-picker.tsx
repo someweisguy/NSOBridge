@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 
-export default function TimerPicker() {
+export default function DurationPicker() {
   const theme = useMantineTheme();
   const [minutes, setMinutes] = useState("");
   const [seconds, setSeconds] = useState("");

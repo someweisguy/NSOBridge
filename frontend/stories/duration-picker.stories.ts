@@ -1,9 +1,9 @@
-import TimerPicker from "@/components/timer-picker";
+import DurationPicker from "@/components/duration-picker";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-const meta: Meta<typeof TimerPicker> = {
-  component: TimerPicker,
-  title: "Timer Picker",
+const meta: Meta<typeof DurationPicker> = {
+  component: DurationPicker,
+  title: "Duration Picker",
 };
 
 type Story = StoryObj<typeof meta>;
