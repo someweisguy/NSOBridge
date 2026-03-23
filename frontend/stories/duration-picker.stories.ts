@@ -14,6 +14,7 @@ export const Default: Story = {
     label: "Label",
     description: "Description",
     onChange: fn(),
+    size: "sm",
   },
 };
 

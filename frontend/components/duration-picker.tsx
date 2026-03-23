@@ -1,6 +1,7 @@
 import {
   Card,
   Group,
+  MantineSize,
   NumberInput,
   Stack,
   Text,
@@ -12,12 +13,14 @@ interface DurationPickerProps {
   label: string;
   description: string;
   onChange?: (value: string) => void;
+  size?: (string & {}) | MantineSize | undefined;
 }
 
 export default function DurationPicker({
   label,
   description,
   onChange,
+  size = "sm",
 }: DurationPickerProps) {
   const theme = useMantineTheme();
   const [minutes, setMinutes] = useState("");
@@ -61,6 +64,7 @@ export default function DurationPicker({
           py="0"
         >
           <NumberInput
+            size={size}
             value={minutes}
             onChange={(m) => {
               if (m.toString().length >= 2) {
@@ -87,6 +91,7 @@ export default function DurationPicker({
             ref={minutesRef}
           />
           <Text
+            size={size}
             c={
               minutes.length || seconds.length ? theme.colors.dark[9] : "dimmed"
             }
@@ -98,6 +103,7 @@ export default function DurationPicker({
             :
           </Text>
           <NumberInput
+            size={size}
             value={seconds}
             onChange={(s) => setSeconds(s.toString().slice(-2))}
             max={59}
