@@ -6,12 +6,11 @@ import {
   Text,
   useMantineTheme,
 } from "@mantine/core";
-import { TimePicker } from "@mantine/dates";
 import { useRef, useState } from "react";
 
 export default function TimerPicker() {
-  const [minutes, setMinutes] = useState(0);
-  const [seconds, setSeconds] = useState(0);
+  const [minutes, setMinutes] = useState("");
+  const [seconds, setSeconds] = useState("");
 
   const cardRef = useRef<HTMLInputElement>(null);
   const minutesRef = useRef<HTMLInputElement>(null);
@@ -41,30 +40,33 @@ export default function TimerPicker() {
           }}
         >
           <NumberInput
+            value={minutes}
             onChange={(m) => {
-              if (String(m).length >= 2 || Number(m) > 5) {
+              if (m.toString().length >= 2) {
                 secondsRef.current?.focus();
               }
-              setMinutes(Number(m));
+              setMinutes(m.toString().slice(-2));
             }}
-            prefix={minutes < 10 && minutes > 0 ? "0" : ""}
-            placeholder="--"
             max={59}
-            miw="17"
-            variant="unstyled"
-            allowNegative={false}
-            allowDecimal={false}
-            hideControls
-            ref={minutesRef}
             onFocus={() =>
               (cardRef.current!.style.borderColor = theme.colors.blue[5])
             }
-            onBlur={() =>
-              (cardRef.current!.style.borderColor = theme.colors.gray[4])
-            }
+            onBlur={() => {
+              setMinutes(minutes.padStart(2, "0"));
+              cardRef.current!.style.borderColor = theme.colors.gray[4];
+            }}
+            allowNegative={false}
+            allowDecimal={false}
+            placeholder="--"
+            miw="17"
+            variant="unstyled"
+            hideControls
+            ref={minutesRef}
           />
           <Text
-            c={minutes > 0 || seconds > 0 ? theme.colors.dark[9] : "dimmed"}
+            c={
+              minutes.length || seconds.length ? theme.colors.dark[9] : "dimmed"
+            }
             pb="2"
             m="0"
             ta="center"
@@ -72,26 +74,26 @@ export default function TimerPicker() {
             :
           </Text>
           <NumberInput
-            onChange={(s) => setSeconds(Number(s))}
-            prefix={seconds < 10 && seconds > 0 ? "0" : ""}
-            placeholder="--"
+            value={seconds}
+            onChange={(s) => setSeconds(s.toString().slice(-2))}
             max={59}
-            miw="17"
-            variant="unstyled"
-            allowNegative={false}
-            allowDecimal={false}
-            hideControls
-            ref={secondsRef}
             onFocus={() =>
               (cardRef.current!.style.borderColor = theme.colors.blue[5])
             }
-            onBlur={() =>
-              (cardRef.current!.style.borderColor = theme.colors.gray[4])
-            }
+            onBlur={() => {
+              setSeconds(seconds.slice(-2));
+              cardRef.current!.style.borderColor = theme.colors.gray[4];
+            }}
+            allowNegative={false}
+            allowDecimal={false}
+            placeholder="--"
+            miw="17"
+            variant="unstyled"
+            hideControls
+            ref={secondsRef}
           />
         </Group>
       </Card>
-      <TimePicker />
     </Stack>
   );
 }
