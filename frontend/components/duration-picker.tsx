@@ -83,6 +83,7 @@ export default function DurationPicker({
             miw="17"
             variant="unstyled"
             hideControls
+            radius="none"
             ref={minutesRef}
           />
           <Text
@@ -114,6 +115,7 @@ export default function DurationPicker({
             miw="17"
             variant="unstyled"
             hideControls
+            radius="none"
             ref={secondsRef}
           />
         </Group>
