@@ -16,6 +16,7 @@ export const Default: Story = {
     onChange: fn(),
     size: "sm",
     radius: "md",
+    disabled: false,
   },
 };
 

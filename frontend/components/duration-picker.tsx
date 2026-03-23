@@ -16,6 +16,7 @@ interface DurationPickerProps {
   onChange?: (value: string) => void;
   size?: (string & {}) | MantineSize | undefined;
   radius?: MantineRadius | undefined;
+  disabled?: boolean;
 }
 
 export default function DurationPicker({
@@ -24,6 +25,7 @@ export default function DurationPicker({
   onChange,
   size = "sm",
   radius = "md",
+  disabled = false,
 }: DurationPickerProps) {
   const theme = useMantineTheme();
   const [minutes, setMinutes] = useState("");
@@ -49,6 +51,7 @@ export default function DurationPicker({
       </Text>
       <Card
         radius={radius}
+        bg={disabled ? theme.colors.gray[2] : undefined}
         withBorder
         padding="0"
         m="0"
@@ -69,6 +72,7 @@ export default function DurationPicker({
         >
           <NumberInput
             size={size}
+            disabled={disabled}
             value={minutes}
             onChange={(m) => {
               if (m.toString().length >= 2) {
@@ -107,6 +111,7 @@ export default function DurationPicker({
             :
           </Text>
           <NumberInput
+            disabled={disabled}
             size={size}
             value={seconds}
             onChange={(s) => setSeconds(s.toString().slice(-2))}
