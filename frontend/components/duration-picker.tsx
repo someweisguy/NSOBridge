@@ -11,8 +11,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 interface DurationPickerProps {
-  label: string;
-  description: string;
+  label?: string;
+  description?: string;
   onChange?: (value: string) => void;
   size?: (string & {}) | MantineSize | undefined;
   radius?: MantineRadius | undefined;
@@ -20,8 +20,8 @@ interface DurationPickerProps {
 }
 
 export default function DurationPicker({
-  label,
-  description,
+  label = "",
+  description = "",
   onChange,
   size = "sm",
   radius = "md",
@@ -43,19 +43,22 @@ export default function DurationPicker({
 
   return (
     <Stack gap="1">
-      <Text span lh="1.4" py="2" size="sm" fw="500" w="fit-content">
-        {label}
-      </Text>
-      <Text p="0" my="0" lh="1" size="xs" c="dimmed">
-        {description}
-      </Text>
+      {label && (
+        <Text span lh="1.4" py="2" size="sm" fw="500" w="fit-content">
+          {label}
+        </Text>
+      )}
+      {description && (
+        <Text p="0" mt="0" mb="4" lh="1" size="xs" c="dimmed">
+          {description}
+        </Text>
+      )}
       <Card
         radius={radius}
         bg={disabled ? theme.colors.gray[2] : undefined}
         withBorder
         padding="0"
         m="0"
-        mt="4"
         ref={cardRef}
         style={{ cursor: "text", borderColor: theme.colors.gray[4] }}
       >
