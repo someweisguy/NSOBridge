@@ -59,10 +59,8 @@ export default function BoutClock({
 
   return (
     <>
-      <Text {...props}>
-        <Button onClick={open} variant="subtle" c="black" size="xl">
-          {isOvertime ? overtimeText : <Clock {...props} formatter="bout" />}
-        </Button>
+      <Text style={{ cursor: "pointer" }} onClick={open} {...props}>
+        {isOvertime ? overtimeText : <Clock {...props} formatter="bout" />}
       </Text>
 
       {editable && (
