@@ -74,7 +74,6 @@ export default function BoutClock({
               />
               <Button
                 onClick={() => {
-                  console.log(timeValue);
                   const alarm = props.alarm ?? 0;
                   const [minutes, seconds] = timeValue
                     .split(":")
