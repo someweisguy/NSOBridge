@@ -1,5 +1,6 @@
 import {
   Card,
+  CardProps,
   Group,
   MantineRadius,
   MantineSize,
@@ -10,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 
-interface DurationPickerProps {
+interface DurationPickerProps extends CardProps {
   label?: string;
   description?: string;
   onChange?: (value: string) => void;
@@ -26,6 +27,7 @@ export default function DurationPicker({
   size = "sm",
   radius = "md",
   disabled = false,
+  w,
 }: DurationPickerProps) {
   const theme = useMantineTheme();
   const [minutes, setMinutes] = useState("");
@@ -42,7 +44,7 @@ export default function DurationPicker({
   }, [minutes, seconds, onChange]);
 
   return (
-    <Stack gap="1">
+    <Stack w={w} gap="1">
       {label && (
         <Text span lh="1.4" py="2" size="sm" fw="500" w="fit-content">
           {label}

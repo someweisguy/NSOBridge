@@ -1,6 +1,14 @@
 import Clock, { ClockProps } from "@/components/clock";
-import { Button, Group, Modal, Switch, Text, TextProps } from "@mantine/core";
-import { TimePicker } from "@mantine/dates";
+import DurationPicker from "@/components/duration-picker";
+import {
+  Button,
+  Group,
+  Modal,
+  Stack,
+  Switch,
+  Text,
+  TextProps,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
@@ -58,44 +66,37 @@ export default function BoutClock({
       </Text>
 
       {editable && (
-        <Modal
-          title="Edit Period Clock"
-          opened={opened}
-          onClose={closeModal}
-          centered
-        >
-          <Group>
-            <TimePicker
-              // FIXME: TimePicker does not work as a component
-              withSeconds
-              hoursPlaceholder="00"
-              data-autofocus
-              value={timeValue}
-              onChange={(newValue) => setTimeValue(newValue)}
+        <Modal title="Edit Clock" opened={opened} onClose={closeModal} centered>
+          <Stack w="full" justify="center" align="center">
+            <Group w="full" wrap="nowrap" align="end" justify="center">
+              <DurationPicker
+                description="Set the Period Clock."
+                w={200}
+                onChange={(newValue) => setTimeValue(newValue)}
+              />
+              <Button
+                onClick={() => {
+                  console.log(timeValue);
+                  const alarm = props.alarm ?? 0;
+                  const [minutes, seconds] = timeValue
+                    .split(":")
+                    .map((i) => Number(i));
+                  const milliseconds = (minutes * 60 + seconds) * 1000;
+                  setElapsed?.mutate(alarm - milliseconds);
+                  closeModal();
+                }}
+              >
+                Apply
+              </Button>
+            </Group>
+            <Switch
+              label="Run the Period Clock"
+              checked={props.startTimestamp != null}
+              onChange={(event) =>
+                setIsRunning?.mutate(event.currentTarget.checked)
+              }
             />
-            <Button
-              onClick={() => {
-                console.log(timeValue);
-                const alarm = props.alarm ?? 0;
-                const [hours, minutes, seconds] = timeValue
-                  .split(":")
-                  .map((i) => Number(i));
-                const milliseconds =
-                  ((hours * 60 + minutes) * 60 + seconds) * 1000;
-                setElapsed?.mutate(alarm - milliseconds);
-                closeModal();
-              }}
-            >
-              Apply
-            </Button>
-          </Group>
-          <Switch
-            label="Run the Period Clock"
-            checked={props.startTimestamp != null}
-            onChange={(event) =>
-              setIsRunning?.mutate(event.currentTarget.checked)
-            }
-          />
+          </Stack>
         </Modal>
       )}
     </>
