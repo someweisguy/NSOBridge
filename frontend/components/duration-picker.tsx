@@ -12,14 +12,39 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 interface DurationPickerProps extends CardProps {
+  /**
+   * The title label for the component.
+   */
   label?: string;
+  /**
+   * The description which appears by the component.
+   */
   description?: string;
+  /**
+   * The change handler that fires whenever the user inputs a value in this component.
+   * Output from this function is a string which is formatted "MM:SS".
+   */
   onChange?: (value: string) => void;
+  /**
+   * The component size.
+   */
   size?: (string & {}) | MantineSize | undefined;
+  /**
+   * The component radius.
+   */
   radius?: MantineRadius | undefined;
+  /**
+   * Disable the component.
+   */
   disabled?: boolean;
 }
 
+/**
+ * An input for picking durations. This component is built to look very similar to the
+ * TimePicker component. The difference between TimePicker and DurationPicker is that
+ * DurationPicker is designed for durations, not time-of-day values. This component
+ * should generally be used to manipulate timers and within this application.
+ */
 export default function DurationPicker({
   label = "",
   description = "",
