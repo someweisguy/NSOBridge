@@ -1,11 +1,35 @@
 import Clock, { ClockProps } from "@/components/clock";
-import { Text, TextProps } from "@mantine/core";
+import DurationPicker from "@/components/duration-picker";
+import {
+  Button,
+  Group,
+  Modal,
+  Stack,
+  Switch,
+  Text,
+  TextProps,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { UseMutationResult } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 
 export interface BoutClockProps extends ClockProps, TextProps {
   /**
    * True if the Bout is in overtime.
    */
   isOvertime?: boolean;
+  /**
+   * True if the user should be able to edit the Bout Clock from this component.
+   */
+  editable?: boolean;
+  /**
+   * Mutator which sets the amount of time on the Bout Clock.
+   */
+  setElapsed?: UseMutationResult<void, unknown, number>;
+  /**
+   * Mutator which pauses and starts the Bout Clock.
+   */
+  setIsRunning?: UseMutationResult<void, unknown, boolean>;
   /**
    * The text to display instead of the Clock when the Bout is in overtime.
    */
@@ -19,12 +43,59 @@ export interface BoutClockProps extends ClockProps, TextProps {
  */
 export default function BoutClock({
   isOvertime = false,
+  editable = false,
+  setElapsed,
+  setIsRunning,
   overtimeText = "OT",
   ...props
 }: BoutClockProps) {
+  const [opened, { open, close }] = useDisclosure(false);
+  const [timeValue, setTimeValue] = useState("");
+
+  const closeModal = useCallback(() => {
+    setTimeValue("");
+    close();
+  }, [close]);
+
   return (
-    <Text {...props}>
-      {isOvertime ? overtimeText : <Clock {...props} formatter="bout" />}
-    </Text>
+    <>
+      <Text style={{ cursor: "pointer" }} onClick={open} {...props}>
+        {isOvertime ? overtimeText : <Clock {...props} formatter="bout" />}
+      </Text>
+
+      {editable && (
+        <Modal title="Edit Clock" opened={opened} onClose={closeModal} centered>
+          <Stack w="full" justify="center" align="center">
+            <Group w="full" wrap="nowrap" align="end" justify="center">
+              <DurationPicker
+                description="Set the Period Clock."
+                w={200}
+                onChange={(newValue) => setTimeValue(newValue)}
+              />
+              <Button
+                onClick={() => {
+                  const alarm = props.alarm ?? 0;
+                  const [minutes, seconds] = timeValue
+                    .split(":")
+                    .map((i) => Number(i));
+                  const milliseconds = (minutes * 60 + seconds) * 1000;
+                  setElapsed?.mutate(alarm - milliseconds);
+                  closeModal();
+                }}
+              >
+                Apply
+              </Button>
+            </Group>
+            <Switch
+              label="Run the Period Clock"
+              checked={props.startTimestamp != null}
+              onChange={(event) =>
+                setIsRunning?.mutate(event.currentTarget.checked)
+              }
+            />
+          </Stack>
+        </Modal>
+      )}
+    </>
   );
 }
