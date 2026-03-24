@@ -121,7 +121,7 @@ export default function DurationPicker({
             clampBehavior="strict"
             allowNegative={false}
             allowDecimal={false}
-            placeholder="--"
+            placeholder="mm"
             miw="17"
             variant="unstyled"
             hideControls
@@ -156,7 +156,7 @@ export default function DurationPicker({
             clampBehavior="strict"
             allowNegative={false}
             allowDecimal={false}
-            placeholder="--"
+            placeholder="ss"
             miw="17"
             variant="unstyled"
             hideControls
