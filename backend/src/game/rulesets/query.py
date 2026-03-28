@@ -40,7 +40,11 @@ class RuleQuerier:
             BaseJam: the active Jam.
 
         """
-        return next((j for j in self.bout.jams if j.is_started()), self.bout.jams[-1])
+        return (
+            self.get_running_jam() or self.bout.jams[-2]
+            if len(self.bout.jams) > 1
+            else self.bout.jams[-1]
+        )
 
     def get_running_jam(self) -> Jam | None:
         """Get the running Jam if there is one.

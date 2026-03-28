@@ -16,7 +16,7 @@ export const useTeamJamAddLost = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (lost: boolean) =>
-      localAPI.post<void>("jam/setLost", {
+      localAPI.post<void>("bout/addLost", {
         query: {
           boutUuid,
           periodNum,
