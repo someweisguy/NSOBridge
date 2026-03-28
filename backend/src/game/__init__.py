@@ -23,12 +23,15 @@ from typing import Final
 
 from fastapi import APIRouter
 
+from .bouts.models import BaseBout
 from .bouts.router import router as bout_router
 from .jams.router import router as jam_router
-from .rulesets import wftda_2025
+from .rulesets.router import router as ruleset_router
+from .rulesets.wftda_2025 import WFTDA2025
 from .series.models import Series
 from .series.router import router as series_router
 from .skaters.router import router as skater_router
+from .teams.models import Team
 from .timeouts.router import router as timeout_router
 
 routers: Final[tuple[APIRouter, ...]] = (
@@ -37,11 +40,8 @@ routers: Final[tuple[APIRouter, ...]] = (
     skater_router,
     series_router,
     timeout_router,
+    ruleset_router,
 )
 
 
-__all__ = (
-    'routers',
-    'Series',  # Non-rule-bound objects can be exported
-    'wftda_2025',
-)
+__all__ = ('routers', 'BaseBout', 'Series', 'Team', 'WFTDA2025')
