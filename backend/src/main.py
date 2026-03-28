@@ -8,13 +8,15 @@ from typing import TYPE_CHECKING, Final, Iterable
 
 import core
 import game
+import rules
 import update
 import user
 from core import APIResponse, endpoint_profiling_middleware
 from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from game import WFTDA2025, Bout, Series, Team
+from game import Bout, Series
+from rules import create_bout
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
 from update import GithubReleaseSchema
@@ -45,7 +47,7 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
         app.add_exception_handler(e, handler)
-    for router in [core.api_router, *game.routers, *user.routers]:
+    for router in [core.api_router, *game.routers, rules.router, *user.routers]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.assets)
     app.mount('/ws', core.ws)
@@ -87,21 +89,18 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
         if results.scalar_one_or_none() is None:
             logging.info('Instantiating the initial Bout model')
             try:
-                bout: Bout = Bout(Team('Home', 0), Team('Away', 1))
-                ruleset = WFTDA2025(bout)
-                ruleset.init_bout()
+                series: Series = Series()
+                session.add(series)
+                await create_bout('WFTDA 2025', series, session)
             except Exception as e:
                 logging.critical(e)
                 raise e
-            series: Series = Series()
-            series.bouts.append(bout)
-            session.add(series)
             try:
                 await session.commit()
             except Exception as e:
                 logging.critical(e)
                 raise e
-            logging.debug(f'{bout} was inserted into the database')
+            logging.debug('Initial data was inserted into the database')
         else:
             logging.debug('Model data was found in the database')
 

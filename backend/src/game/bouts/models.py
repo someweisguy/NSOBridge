@@ -18,11 +18,11 @@ if TYPE_CHECKING:
     from core import CacheKey
     from db import BaseSQLModel
     from game.jams.models import Jam
-    from game.rulesets.schemas import Ruleset
     from game.series.models import Series
     from game.team_jams.models import TeamJam
     from game.teams.models import Team
     from game.timeouts.models import Timeout
+    from rules.schemas import Ruleset
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2

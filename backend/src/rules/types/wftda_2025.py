@@ -7,13 +7,11 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, override
 
 from core.exceptions import GameRulesError, GameStateError
-
 from game.jams.models import Jam
 from game.team_jams.models import TeamJam
 from game.timeouts.models import Timeout
 from game.trip_events.models import TripEvent
-
-from .mutate import RuleMutator
+from rules.mutate import RuleMutator
 
 if TYPE_CHECKING:
     from game.teams.models import Team

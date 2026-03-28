@@ -3,11 +3,10 @@
 from typing import Annotated, Final, TypeAlias
 
 from fastapi import Depends
-
 from game.bouts.dependencies import GetBout
 
 from .mutate import RuleMutator
-from .wftda_2025 import WFTDA2025
+from .types.wftda_2025 import WFTDA2025
 
 ALL_RULESETS: Final[dict[str, type[RuleMutator]]] = {
     'WFTDA 2025': WFTDA2025,

@@ -26,8 +26,6 @@ from fastapi import APIRouter
 from .bouts.models import Bout
 from .bouts.router import router as bout_router
 from .jams.router import router as jam_router
-from .rulesets.router import router as ruleset_router
-from .rulesets.wftda_2025 import WFTDA2025
 from .series.models import Series
 from .series.router import router as series_router
 from .skaters.router import router as skater_router
@@ -40,7 +38,6 @@ routers: Final[tuple[APIRouter, ...]] = (
     skater_router,
     series_router,
     timeout_router,
-    ruleset_router,
 )
 
 

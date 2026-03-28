@@ -4,11 +4,13 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Final
 
 from core import APIResponse
+from db import GetAsyncSession
 from fastapi import APIRouter, Body
-
+from game import Bout, Team
+from game.series.dependencies import GetSeries
 from game.teams.dependencies import GetTeam
 
-from .dependencies import GetRuleset
+from .dependencies import ALL_RULESETS, GetRuleset
 from .schemas import Ruleset
 
 if TYPE_CHECKING:
@@ -18,6 +20,17 @@ BOUTS_TAG = 'Bouts'
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 # router.add_api_route('', _get_bout, response_model=BoutSchema)
+
+
+@router.put('/create')
+async def create_bout(ruleset_name: str, series: GetSeries, session: GetAsyncSession):
+    bout = Bout(Team('Home', 0), Team('Away', 1))
+    series.bouts.append(bout)
+
+    ruleset = ALL_RULESETS[ruleset_name](bout)
+    ruleset.init_bout()
+
+    return APIResponse(None, cache=await ruleset.bout.get_updates())
 
 
 @router.get('/ruleset', response_model=Ruleset)
