@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from game.teams.models import Team
 
 
-class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
+class Timeout(AbstractOneShotModel, CacheableSQLModel):
     """An abstract Timeout without any associated ruleset.
 
     Timeouts models can represent either a timeout or an official review.

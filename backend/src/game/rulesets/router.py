@@ -10,7 +10,7 @@ from .dependencies import GetRuleset
 from .schemas import Ruleset
 
 if TYPE_CHECKING:
-    from game.timeouts.models import BaseTimeout
+    from game.timeouts.models import Timeout
 
 BOUTS_TAG = 'Bouts'
 
@@ -67,7 +67,7 @@ async def start_timeout(
 ) -> APIResponse:
     """Start a new Timeout in the specified Bout."""
     bout.start_timeout(datetime.now())
-    timeout: BaseTimeout | None = bout.get_last_timeout()
+    timeout: Timeout | None = bout.get_last_timeout()
     if timeout is not None:
         timeout.is_review = is_review
         if team_num is not None:

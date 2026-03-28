@@ -7,7 +7,7 @@ from fastapi import Depends, Query, Request
 from game.bouts.dependencies import GetBout
 from user import GetUser
 
-from .models import BaseTimeout
+from .models import Timeout
 
 
 async def _get_timeout(
@@ -15,9 +15,9 @@ async def _get_timeout(
     user: GetUser,
     bout: GetBout,
     num: Annotated[int, Query()],
-) -> BaseTimeout:
+) -> Timeout:
     try:
-        timeout: BaseTimeout = bout.timeouts[num]
+        timeout: Timeout = bout.timeouts[num]
     except IndexError as e:
         raise ModelLookupError(f'Could not find Timeout ({bout=} {num=})') from e
 
@@ -27,4 +27,4 @@ async def _get_timeout(
     return timeout
 
 
-GetTimeout: TypeAlias = Annotated[BaseTimeout, Depends(_get_timeout)]
+GetTimeout: TypeAlias = Annotated[Timeout, Depends(_get_timeout)]

@@ -10,7 +10,7 @@ from core.exceptions import GameRulesError, GameStateError
 
 from game.jams.models import Jam
 from game.team_jams.models import TeamJam
-from game.timeouts.models import BaseTimeout
+from game.timeouts.models import Timeout
 from game.trip_events.models import TripEvent
 
 from .mutate import RuleMutator
@@ -58,7 +58,7 @@ class WFTDA2025(RuleMutator):
     @override
     def end_period(self, timestamp: datetime) -> None:
         running_jam: Jam | None = self.get_running_jam()
-        running_timeout: BaseTimeout | None = self.get_running_timeout()
+        running_timeout: Timeout | None = self.get_running_timeout()
         if running_jam is not None or running_timeout is not None:
             raise GameRulesError('A period can only be ended during a lineup')
         if not self.bout.is_running:
@@ -89,7 +89,7 @@ class WFTDA2025(RuleMutator):
 
     @override
     def start_jam(self, timestamp: datetime) -> None:
-        running_timeout: BaseTimeout | None = self.get_running_timeout()
+        running_timeout: Timeout | None = self.get_running_timeout()
         if not self.bout.is_running:
             # Allow user to skip the initial call to begin_period()
             self.begin_period(timestamp)
@@ -141,16 +141,14 @@ class WFTDA2025(RuleMutator):
             self.stop_jam(timestamp)
             running_jam = None
 
-        running_timeout: BaseTimeout | None = self.get_running_timeout()
+        running_timeout: Timeout | None = self.get_running_timeout()
         if running_timeout is not None:
             raise GameStateError('A Timeout cannot be called while one is in progress')
 
         logging.info(f'Calling Timeout {self}')
 
         # Instantiate and start the Timeout
-        timeout: BaseTimeout = BaseTimeout(
-            self.get_active_jam(), len(self.bout.timeouts)
-        )
+        timeout: Timeout = Timeout(self.get_active_jam(), len(self.bout.timeouts))
         timeout.clock_elapsed = self.bout.clock.get_duration(timestamp)
         timeout.start(timestamp)
         self.bout.timeouts.append(timeout)
@@ -160,7 +158,7 @@ class WFTDA2025(RuleMutator):
 
     @override
     def stop_timeout(self, timestamp: datetime) -> None:
-        timeout: BaseTimeout | None = self.get_running_timeout()
+        timeout: Timeout | None = self.get_running_timeout()
         if timeout is None:
             raise GameStateError('There is no active Timeout to stop')
 

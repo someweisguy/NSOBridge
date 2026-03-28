@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from game.bouts.models import Bout
     from game.jams.models import Jam
     from game.team_jams.models import TeamJam
-    from game.timeouts.models import BaseTimeout
+    from game.timeouts.models import Timeout
 
 
 class RuleQuerier:
@@ -62,7 +62,7 @@ class RuleQuerier:
         """
         return next((j for j in self.bout.jams if not j.is_started()), None)
 
-    def get_running_timeout(self) -> BaseTimeout | None:
+    def get_running_timeout(self) -> Timeout | None:
         """Get the running Timeout if there is one.
 
         Returns:
@@ -71,7 +71,7 @@ class RuleQuerier:
         """
         return next((t for t in self.bout.timeouts if t.is_running()), None)
 
-    def get_last_timeout(self) -> BaseTimeout | None:
+    def get_last_timeout(self) -> Timeout | None:
         """Get most recently complete Timeout if there is one.
 
         Returns:

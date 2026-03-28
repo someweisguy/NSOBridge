@@ -10,7 +10,7 @@ from game.bouts.models import Bout
 from game.jams.models import Jam
 from game.skaters.models import Skater
 from game.team_jams.models import TeamJam
-from game.timeouts.models import BaseTimeout
+from game.timeouts.models import Timeout
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
     Mapped,
@@ -64,11 +64,11 @@ class Team(BaseSQLModel):
         lazy='selectin',
         order_by=[TeamJam.period_num, TeamJam.jam_num],
     )
-    timeouts: Mapped[list[BaseTimeout]] = relationship(
+    timeouts: Mapped[list[Timeout]] = relationship(
         back_populates='team',
         cascade='all',  # Exclude `delete-orphan` as Timeouts can be called by officials
         lazy='selectin',
-        order_by=[BaseTimeout.num],
+        order_by=[Timeout.num],
     )
 
     # Used to calculate the current Jam score

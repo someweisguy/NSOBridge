@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from game.series.models import Series
     from game.team_jams.models import TeamJam
     from game.teams.models import Team
-    from game.timeouts.models import BaseTimeout
+    from game.timeouts.models import Timeout
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
@@ -67,7 +67,7 @@ class Bout(CacheableSQLModel):
         lazy='selectin',
         order_by=[column('period'), column('num')],
     )
-    timeouts: Mapped[list[BaseTimeout]] = relationship(
+    timeouts: Mapped[list[Timeout]] = relationship(
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
