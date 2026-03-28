@@ -23,7 +23,7 @@ from typing import Final
 
 from fastapi import APIRouter
 
-from .bouts.models import BaseBout
+from .bouts.models import Bout
 from .bouts.router import router as bout_router
 from .jams.router import router as jam_router
 from .rulesets.router import router as ruleset_router
@@ -44,4 +44,4 @@ routers: Final[tuple[APIRouter, ...]] = (
 )
 
 
-__all__ = ('routers', 'BaseBout', 'Series', 'Team', 'WFTDA2025')
+__all__ = ('routers', 'Bout', 'Series', 'Team', 'WFTDA2025')

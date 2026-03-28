@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
-from game.bouts.models import BaseBout
+from game.bouts.models import Bout
 from game.models import AbstractOneShotModel
 from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import (
@@ -23,7 +23,7 @@ from .schemas import TimeoutSchema
 
 if TYPE_CHECKING:
     from core import CacheKey
-    from game.jams.models import BaseJam
+    from game.jams.models import Jam
     from game.teams.models import Team
 
 
@@ -48,13 +48,13 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    _bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[Bout] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         lazy='selectin',
         foreign_keys=[bout_uuid],
     )
-    jam: Mapped[BaseJam] = relationship(
+    jam: Mapped[Jam] = relationship(
         cascade=CASCADE_OTHER,
         foreign_keys=[_jam_uuid],
         lazy='selectin',
@@ -67,9 +67,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name)
-        .where(BaseBout.uuid == bout_uuid)
-        .scalar_subquery()
+        select(Bout.ruleset_name).where(Bout.uuid == bout_uuid).scalar_subquery()
     )
 
     __tablename__: str = 'timeouts'
@@ -88,7 +86,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         """
         return f'[Bout ID: {self.bout_uuid}, T{self.num}]'
 
-    def __init__(self, jam: BaseJam, num: int) -> None:
+    def __init__(self, jam: Jam, num: int) -> None:
         """Initialize a Timeout.
 
         The default state for a Timeout is a regular timeout (not an official review)
@@ -115,7 +113,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
             return (await self.awaitable_attrs._bout,)
         return (await self.awaitable_attrs._bout, await self.awaitable_attrs.team)
 
-    def get_bout(self) -> BaseBout:
+    def get_bout(self) -> Bout:
         """Get the Bout that owns this Timeout.
 
         Returns:

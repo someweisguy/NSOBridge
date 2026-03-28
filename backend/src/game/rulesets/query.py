@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from game.bouts.models import BaseBout
-    from game.jams.models import BaseJam
+    from game.bouts.models import Bout
+    from game.jams.models import Jam
     from game.team_jams.models import TeamJam
     from game.timeouts.models import BaseTimeout
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class RuleQuerier:
     """Defines how a Ruleset gets various objects in a Bout."""
 
-    def __init__(self, bout: BaseBout) -> None:
+    def __init__(self, bout: Bout) -> None:
         """Create a RuleMutator which is associated with the desired Bout.
 
         Args:
@@ -24,7 +24,7 @@ class RuleQuerier:
         self._bout = bout
 
     @property
-    def bout(self) -> BaseBout:
+    def bout(self) -> Bout:
         """The Bout associated with this RuleMutator.
 
         Returns:
@@ -33,7 +33,7 @@ class RuleQuerier:
         """
         return self._bout
 
-    def get_active_jam(self) -> BaseJam:
+    def get_active_jam(self) -> Jam:
         """Get the most recently started Jam or upcoming Jam.
 
         Returns:
@@ -42,7 +42,7 @@ class RuleQuerier:
         """
         return next((j for j in self.bout.jams if j.is_started()), self.bout.jams[-1])
 
-    def get_running_jam(self) -> BaseJam | None:
+    def get_running_jam(self) -> Jam | None:
         """Get the running Jam if there is one.
 
         Returns:
@@ -51,7 +51,7 @@ class RuleQuerier:
         """
         return next((j for j in self.bout.jams if j.is_running()), None)
 
-    def get_upcoming_jam(self) -> BaseJam | None:
+    def get_upcoming_jam(self) -> Jam | None:
         """Get the upcoming Jam if there is one.
 
         The upcoming Jam is the first Jam that is not started.

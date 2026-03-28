@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
-from game.jams.models import BaseJam
+from game.jams.models import Jam
 from game.trip_events.models import TripEvent
 from sqlalchemy import ForeignKey, column, select, table
 from sqlalchemy.orm import (
@@ -44,7 +44,7 @@ class TeamJam(BaseSQLModel):
         lazy='selectin',
         foreign_keys=[team_uuid],
     )
-    jam: Mapped[BaseJam] = relationship(
+    jam: Mapped[Jam] = relationship(
         back_populates='team_jams',
         cascade=CASCADE_OTHER,
         foreign_keys=[_jam_uuid],
@@ -58,10 +58,10 @@ class TeamJam(BaseSQLModel):
     )
 
     jam_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.num).where(BaseJam.uuid == _jam_uuid).scalar_subquery()
+        select(Jam.num).where(Jam.uuid == _jam_uuid).scalar_subquery()
     )
     period_num: MappedSQLExpression[int] = column_property(
-        select(BaseJam.period).where(BaseJam.uuid == _jam_uuid).scalar_subquery()
+        select(Jam.period).where(Jam.uuid == _jam_uuid).scalar_subquery()
     )
     team_num: MappedSQLExpression[int] = column_property(
         select(table('teams', column('num')))

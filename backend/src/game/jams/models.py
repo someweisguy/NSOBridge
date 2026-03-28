@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, override
 from uuid import UUID
 
 from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
-from game.bouts.models import BaseBout
+from game.bouts.models import Bout
 from game.models import AbstractOneShotModel
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from game.teams.models import Team
 
 
-class BaseJam(AbstractOneShotModel, CacheableSQLModel):
+class Jam(AbstractOneShotModel, CacheableSQLModel):
     """An abstract Jam without any associated ruleset."""
 
     bout_uuid: Mapped[UUID | None] = mapped_column(
@@ -40,7 +40,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
 
     stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
-    _bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[Bout] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -54,9 +54,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name)
-        .where(BaseBout.uuid == bout_uuid)
-        .scalar_subquery()
+        select(Bout.ruleset_name).where(Bout.uuid == bout_uuid).scalar_subquery()
     )
 
     __tablename__: str = 'jams'
@@ -99,7 +97,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs._bout,)
 
-    def get_bout(self) -> BaseBout:
+    def get_bout(self) -> Bout:
         """Get the Bout that owns this Jam.
 
         Returns:

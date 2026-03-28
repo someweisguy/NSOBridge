@@ -10,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from user import GetUser
 
-from .models import BaseBout
+from .models import Bout
 
 if TYPE_CHECKING:
     from sqlalchemy import Result, Select
@@ -21,14 +21,12 @@ async def _get_bout(
     user: GetUser,
     session: GetAsyncSession,
     bout_uuid: Annotated[UUID, Query(alias='boutUuid')],
-) -> BaseBout:
-    statement: Select[tuple[BaseBout]] = select(BaseBout).where(
-        BaseBout.uuid == bout_uuid
-    )
-    results: Result[tuple[BaseBout]] = await session.execute(statement)
+) -> Bout:
+    statement: Select[tuple[Bout]] = select(Bout).where(Bout.uuid == bout_uuid)
+    results: Result[tuple[Bout]] = await session.execute(statement)
 
     try:
-        bout: BaseBout = results.scalar_one()
+        bout: Bout = results.scalar_one()
     except NoResultFound as e:
         raise ModelLookupError(f'Could not find Bout ({bout_uuid=})') from e
 
@@ -38,4 +36,4 @@ async def _get_bout(
     return bout
 
 
-GetBout: TypeAlias = Annotated[BaseBout, Depends(_get_bout)]
+GetBout: TypeAlias = Annotated[Bout, Depends(_get_bout)]

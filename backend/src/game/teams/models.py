@@ -6,8 +6,8 @@ from typing import Final, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
-from game.bouts.models import BaseBout
-from game.jams.models import BaseJam
+from game.bouts.models import Bout
+from game.jams.models import Jam
 from game.skaters.models import Skater
 from game.team_jams.models import TeamJam
 from game.timeouts.models import BaseTimeout
@@ -46,7 +46,7 @@ class Team(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column(default=0)
     reviews_remaining: Mapped[int] = mapped_column(default=0)
 
-    _bout: Mapped[BaseBout] = relationship(
+    _bout: Mapped[Bout] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -74,15 +74,13 @@ class Team(BaseSQLModel):
     # Used to calculate the current Jam score
     # SQLAlchemy does not understand `is` keyword in WHERE clauses, thus ignore E711.
     _active_jam_uuid: MappedSQLExpression[UUID] = column_property(
-        select(BaseJam.uuid)
-        .where(BaseJam.start_timestamp != None)  # noqa: E711
-        .order_by(desc(BaseJam.period), desc(BaseJam.num))
+        select(Jam.uuid)
+        .where(Jam.start_timestamp != None)  # noqa: E711
+        .order_by(desc(Jam.period), desc(Jam.num))
         .scalar_subquery()
     )
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name)
-        .where(BaseBout.uuid == bout_uuid)
-        .scalar_subquery()
+        select(Bout.ruleset_name).where(Bout.uuid == bout_uuid).scalar_subquery()
     )
 
     __tablename__: str = 'teams'
@@ -103,7 +101,7 @@ class Team(BaseSQLModel):
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs._bout,)
 
-    def get_bout(self) -> BaseBout:
+    def get_bout(self) -> Bout:
         """Get the Bout to which this Team belongs.
 
         Returns:

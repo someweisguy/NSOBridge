@@ -17,7 +17,7 @@ from .types import BoutStateStr  # noqa: TC001
 if TYPE_CHECKING:
     from core import CacheKey
     from db import BaseSQLModel
-    from game.jams.models import BaseJam
+    from game.jams.models import Jam
     from game.rulesets.schemas import Ruleset
     from game.series.models import Series
     from game.team_jams.models import TeamJam
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
-class BaseBout(CacheableSQLModel):
+class Bout(CacheableSQLModel):
     """An abstract Bout without any associated ruleset."""
 
     ruleset: ClassVar[Ruleset]
@@ -61,7 +61,7 @@ class BaseBout(CacheableSQLModel):
         lazy='selectin',
         order_by=[column('num')],
     )
-    jams: Mapped[list[BaseJam]] = relationship(
+    jams: Mapped[list[Jam]] = relationship(
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',

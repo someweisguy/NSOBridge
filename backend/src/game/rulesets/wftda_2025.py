@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, override
 
 from core.exceptions import GameRulesError, GameStateError
 
-from game.jams.models import BaseJam
+from game.jams.models import Jam
 from game.team_jams.models import TeamJam
 from game.timeouts.models import BaseTimeout
 from game.trip_events.models import TripEvent
@@ -35,13 +35,11 @@ class WFTDA2025(RuleMutator):
         for team in self.bout.teams:
             team.timeouts_remaining = self.NUM_TIMEOUTS
             team.reviews_remaining = self.NUM_REVIEWS
-        self.bout.jams.append(
-            BaseJam(0, 0, *[TeamJam(team) for team in self.bout.teams])
-        )
+        self.bout.jams.append(Jam(0, 0, *[TeamJam(team) for team in self.bout.teams]))
 
     @override
     def begin_period(self, timestamp: datetime) -> None:
-        jam: BaseJam | None = self.get_upcoming_jam()
+        jam: Jam | None = self.get_upcoming_jam()
         if jam is None:
             raise GameStateError('There is no upcoming Jam in this period')
         if jam.period == self.NUM_PERIODS:
@@ -59,14 +57,14 @@ class WFTDA2025(RuleMutator):
 
     @override
     def end_period(self, timestamp: datetime) -> None:
-        running_jam: BaseJam | None = self.get_running_jam()
+        running_jam: Jam | None = self.get_running_jam()
         running_timeout: BaseTimeout | None = self.get_running_timeout()
         if running_jam is not None or running_timeout is not None:
             raise GameRulesError('A period can only be ended during a lineup')
         if not self.bout.is_running:
             raise GameStateError('There is no running period to end')
 
-        final_jam: BaseJam = self.bout.jams[-1]
+        final_jam: Jam = self.bout.jams[-1]
         logging.info(f'Ending P{final_jam.period} in {self}')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
@@ -100,12 +98,12 @@ class WFTDA2025(RuleMutator):
             self.stop_timeout(timestamp)
             running_timeout = None
 
-        running_jam: BaseJam | None = self.get_running_jam()
+        running_jam: Jam | None = self.get_running_jam()
         if running_jam is not None:
             raise GameRulesError('A Jam may only be started from lineup')
 
         # Get the first Jam that has not started
-        jam: BaseJam | None = self.get_upcoming_jam()
+        jam: Jam | None = self.get_upcoming_jam()
         if jam is None:
             raise NotImplementedError()  # TODO: push a new Jam if this is None
         if len(jam.team_jams) != self.REQUIRED_NUM_TEAMS:
@@ -120,14 +118,12 @@ class WFTDA2025(RuleMutator):
 
         # Push a new Jam to allow users to prefetch it
         self.bout.jams.append(
-            BaseJam(
-                jam.period, jam.num + 1, *[TeamJam(team) for team in self.bout.teams]
-            )
+            Jam(jam.period, jam.num + 1, *[TeamJam(team) for team in self.bout.teams])
         )
 
     @override
     def stop_jam(self, timestamp: datetime) -> None:
-        jam: BaseJam | None = self.get_running_jam()
+        jam: Jam | None = self.get_running_jam()
         if jam is None:
             raise GameStateError('There is no running Jam to stop')
 
@@ -139,7 +135,7 @@ class WFTDA2025(RuleMutator):
 
     @override
     def start_timeout(self, timestamp: datetime) -> None:
-        running_jam: BaseJam | None = self.get_running_jam()
+        running_jam: Jam | None = self.get_running_jam()
         if running_jam is not None:
             # Allow the user to end the Jam and immediately start a Timeout
             self.stop_jam(timestamp)
@@ -186,7 +182,7 @@ class WFTDA2025(RuleMutator):
 
     @override
     def add_trip(self, team: Team, timestamp: datetime, passes: int) -> None:
-        jam: BaseJam = self.get_active_jam()
+        jam: Jam = self.get_active_jam()
         team_jam: TeamJam = jam.get_team_jam(team)
 
         logging.info(f'Adding {passes} passes to {team} in {self}')
@@ -214,7 +210,7 @@ class WFTDA2025(RuleMutator):
 
     @override
     def add_lead(self, team: Team, timestamp: datetime, lead: bool) -> None:
-        jam: BaseJam = self.get_active_jam()
+        jam: Jam = self.get_active_jam()
         team_jam: TeamJam = jam.get_team_jam(team)
 
         logging.info(f'{"Setting" if lead else "Unsetting"} lead for {team} in {self}')
@@ -235,7 +231,7 @@ class WFTDA2025(RuleMutator):
 
     @override
     def add_lost(self, team: Team, timestamp: datetime, lost: bool) -> None:
-        jam: BaseJam = self.get_active_jam()
+        jam: Jam = self.get_active_jam()
         team_jam: TeamJam = jam.get_team_jam(team)
 
         logging.info(f'{"Setting" if lost else "Unsetting"} lost for {team} in {self}')
@@ -256,7 +252,7 @@ class WFTDA2025(RuleMutator):
 
     @override
     def add_star_pass(self, team: Team, timestamp: datetime, star_pass: bool) -> None:
-        jam: BaseJam = self.get_active_jam()
+        jam: Jam = self.get_active_jam()
         team_jam: TeamJam = jam.get_team_jam(team)
 
         logging.info(

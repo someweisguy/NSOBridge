@@ -10,7 +10,7 @@ from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
 from .dependencies import GetBout, _get_bout
-from .models import BaseBout
+from .models import Bout
 from .schemas import BoutSchema
 
 BOUTS_TAG = 'Bouts'
@@ -20,10 +20,10 @@ router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])
-async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
+async def get_all_bouts(session: GetAsyncSession) -> Sequence[Bout]:
     """Get all the Bouts in the database."""
-    statement: Select[tuple[BaseBout]] = select(BaseBout)
-    results: Result[tuple[BaseBout]] = await session.execute(statement)
+    statement: Select[tuple[Bout]] = select(Bout)
+    results: Result[tuple[Bout]] = await session.execute(statement)
 
     return results.scalars().all()
 
