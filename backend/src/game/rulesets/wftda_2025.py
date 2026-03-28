@@ -49,6 +49,9 @@ class Bout(_WFTDAModel, BaseBout):
             Team(away_team_name, 1),
         )
         self.clock.alarm = timedelta(minutes=30)
+        for team in self.teams:
+            team.timeouts_remaining = self.ruleset.num_timeouts
+            team.reviews_remaining = self.ruleset.num_reviews
         self.jams.append(Jam(0, 0, *[TeamJam(team) for team in self.teams]))
 
     @override

@@ -32,7 +32,7 @@ API_PREFIX: str = '/api'
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
     """Handle the app setup and teardown.
 
     Args:
@@ -70,7 +70,11 @@ async def lifespan(app: FastAPI):
             return
     logging.debug('Creating database schema')
     engine: DatabaseEngine = DatabaseEngine.get_engine()
-    await engine.create_all()
+    try:
+        await engine.create_all()
+    except Exception as e:
+        logging.critical(e)
+        raise e
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
@@ -86,7 +90,11 @@ async def lifespan(app: FastAPI):
             series: Series = Series()
             series.bouts.append(bout)
             session.add(series)
-            await session.commit()
+            try:
+                await session.commit()
+            except Exception as e:
+                logging.critical(e)
+                raise e
             logging.debug(f'{bout} was inserted into the database')
         else:
             logging.debug('Model data was found in the database')

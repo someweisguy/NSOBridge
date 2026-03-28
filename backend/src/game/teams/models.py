@@ -43,8 +43,8 @@ class Team(BaseSQLModel):
     mnemonic: Mapped[str] = mapped_column(default='')
     # TODO: Implement Team colors
     score_offset: Mapped[int] = mapped_column(default=0)
-    timeouts_remaining: Mapped[int] = mapped_column()
-    reviews_remaining: Mapped[int] = mapped_column()
+    timeouts_remaining: Mapped[int] = mapped_column(default=0)
+    reviews_remaining: Mapped[int] = mapped_column(default=0)
 
     _bout: Mapped[BaseBout] = relationship(
         back_populates='teams',
