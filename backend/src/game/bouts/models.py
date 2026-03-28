@@ -20,7 +20,8 @@ if TYPE_CHECKING:
     from game.jams.models import BaseJam
     from game.rulesets.schemas import Ruleset
     from game.series.models import Series
-    from game.teams.models import BaseTeam
+    from game.team_jams.models import TeamJam
+    from game.teams.models import Team
     from game.timeouts.models import BaseTimeout
 
 
@@ -54,7 +55,7 @@ class BaseBout(CacheableSQLModel):
         lazy='joined',
         single_parent=True,
     )
-    teams: Mapped[list[BaseTeam]] = relationship(
+    teams: Mapped[list[Team]] = relationship(
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
@@ -88,7 +89,7 @@ class BaseBout(CacheableSQLModel):
         """
         return f'[Bout UUID: {self.uuid}]'
 
-    def __init__(self, ruleset_name: str, *teams: BaseTeam) -> None:
+    def __init__(self, ruleset_name: str, *teams: Team) -> None:
         """Instantiate a Bout.
 
         Args:
@@ -256,3 +257,21 @@ class BaseBout(CacheableSQLModel):
 
         """
         raise NotImplementedError('stop_timeout() is not implemented in this model')
+
+    def get_team_jam_score(self, team_jam: TeamJam) -> int:
+        """Calculate the score in the desired TeamJam.
+
+        This method may change depending on the ruleset of the owning Bout.
+
+        Args:
+            team_jam (TeamJam): the TeamJam with which to calculate the score.
+
+        Returns:
+            int: the calculated score of the TeamJam.
+
+        """
+        jam_score: int = 0
+        for event in team_jam.events:
+            if event.passes is not None:
+                jam_score += event.passes
+        return jam_score

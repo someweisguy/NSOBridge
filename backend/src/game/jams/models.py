@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
     from core import CacheKey
     from game.team_jams.models import TeamJam
-    from game.teams.models import BaseTeam
+    from game.teams.models import Team
 
 
 class BaseJam(AbstractOneShotModel, CacheableSQLModel):
@@ -110,7 +110,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         """
         return self._bout
 
-    def get_team_jam(self, team: BaseTeam | UUID) -> TeamJam:
+    def get_team_jam(self, team: Team | UUID) -> TeamJam:
         """Get the TeamJam associated with the desired Team.
 
         Args:
@@ -151,7 +151,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
                 return True
         return False
 
-    async def add_trip(self, team: BaseTeam, timestamp: datetime, passes: int) -> None:
+    async def add_trip(self, team: Team, timestamp: datetime, passes: int) -> None:
         """Add a Jammer trip to the desired Team's TeamJam.
 
         Args:
@@ -162,7 +162,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         """
         ...
 
-    async def set_lead(self, team: BaseTeam, timestamp: datetime, lead: bool) -> None:
+    async def set_lead(self, team: Team, timestamp: datetime, lead: bool) -> None:
         """Set the lead Jammer status for the desired Team.
 
         Args:
@@ -173,7 +173,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         """
         ...
 
-    async def set_lost(self, team: BaseTeam, timestamp: datetime, lost: bool) -> None:
+    async def set_lost(self, team: Team, timestamp: datetime, lost: bool) -> None:
         """Set the lead eligibility for the desired Team.
 
         Args:
@@ -185,7 +185,7 @@ class BaseJam(AbstractOneShotModel, CacheableSQLModel):
         ...
 
     async def set_star_pass(
-        self, team: BaseTeam, timestamp: datetime, star_pass: bool
+        self, team: Team, timestamp: datetime, star_pass: bool
     ) -> None:
         """Add a star pass to the desired Team.
 

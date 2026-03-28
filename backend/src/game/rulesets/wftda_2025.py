@@ -10,7 +10,7 @@ from core.exceptions import GameRulesError, GameStateError
 from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
 from game.jams.models import BaseJam
 from game.team_jams.models import TeamJam
-from game.teams.models import BaseTeam
+from game.teams.models import Team
 from game.timeouts.models import BaseTimeout
 from game.trip_events.models import TripEvent
 
@@ -203,30 +203,11 @@ class Bout(_WFTDAModel, BaseBout):
         return timeout
 
 
-class Team(_WFTDAModel, BaseTeam):
-    """A Team model using the WFTDA 2025 ruleset."""
-
-    @override
-    def __init__(self, name: str, team_num: int) -> None:
-        super().__init__(name, team_num)
-        self.timeouts_remaining = Bout.ruleset.num_timeouts
-        self.reviews_remaining = Bout.ruleset.num_reviews
-
-    @classmethod
-    @override
-    def get_team_jam_score(cls, team_jam: TeamJam) -> int:
-        jam_score: int = 0
-        for event in team_jam.events:
-            if event.passes is not None:
-                jam_score += event.passes
-        return jam_score
-
-
 class Jam(_WFTDAModel, BaseJam):
     """A Jam model using the WFTDA 2025 ruleset."""
 
     @override
-    async def add_trip(self, team: BaseTeam, timestamp: datetime, passes: int) -> None:
+    async def add_trip(self, team: Team, timestamp: datetime, passes: int) -> None:
         team_jam: TeamJam = self.get_team_jam(team)
 
         logging.info(f'Adding {passes} passes to {team} in {self}')
@@ -253,7 +234,7 @@ class Jam(_WFTDAModel, BaseJam):
         team_jam.events.append(event)
 
     @override
-    async def set_lead(self, team: BaseTeam, timestamp: datetime, lead: bool) -> None:
+    async def set_lead(self, team: Team, timestamp: datetime, lead: bool) -> None:
         team_jam: TeamJam = self.get_team_jam(team)
 
         logging.info(f'{"Setting" if lead else "Unsetting"} lead for {team} in {self}')
@@ -273,7 +254,7 @@ class Jam(_WFTDAModel, BaseJam):
                 team_jam.events.remove(event)
 
     @override
-    async def set_lost(self, team: BaseTeam, timestamp: datetime, lost: bool) -> None:
+    async def set_lost(self, team: Team, timestamp: datetime, lost: bool) -> None:
         team_jam: TeamJam = self.get_team_jam(team)
 
         logging.info(f'{"Setting" if lost else "Unsetting"} lost for {team} in {self}')
@@ -294,7 +275,7 @@ class Jam(_WFTDAModel, BaseJam):
 
     @override
     async def set_star_pass(
-        self, team: BaseTeam, timestamp: datetime, star_pass: bool
+        self, team: Team, timestamp: datetime, star_pass: bool
     ) -> None:
         team_jam: TeamJam = self.get_team_jam(team)
 
@@ -335,7 +316,7 @@ class Timeout(_WFTDAModel, BaseTimeout):
         self.is_review = is_review
 
     @override
-    def set_team(self, team: BaseTeam | None) -> None:
+    def set_team(self, team: Team | None) -> None:
         if team is not None and team.bout_uuid != self.bout_uuid:
             raise GameStateError('Team and timeout are not part of the same Bout')
         if team is None and self.is_review:

@@ -24,7 +24,7 @@ from .schemas import TimeoutSchema
 if TYPE_CHECKING:
     from core import CacheKey
     from game.jams.models import BaseJam
-    from game.teams.models import BaseTeam
+    from game.teams.models import Team
 
 
 class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
@@ -59,7 +59,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         foreign_keys=[_jam_uuid],
         lazy='selectin',
     )
-    team: Mapped[BaseTeam | None] = relationship(
+    team: Mapped[Team | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[_team_uuid],
@@ -133,7 +133,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         """
         ...
 
-    def set_team(self, team: BaseTeam | None) -> None:
+    def set_team(self, team: Team | None) -> None:
         """Set the calling Team of this Timeout.
 
         Args:

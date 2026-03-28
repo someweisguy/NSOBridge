@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Final, override
+from typing import Final, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
@@ -24,7 +24,7 @@ from sqlalchemy.sql import desc
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
-class BaseTeam(BaseSQLModel):
+class Team(BaseSQLModel):
     """An abstract Team without any associated ruleset.
 
     A Team contains team-related information in a given Bout. Example information
@@ -87,25 +87,6 @@ class BaseTeam(BaseSQLModel):
 
     __tablename__: str = 'teams'
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
-    __mapper_args__: dict[str, Any] = {
-        'polymorphic_abstract': True,
-        'polymorphic_on': _ruleset,
-    }
-
-    @classmethod
-    def get_team_jam_score(cls, team_jam: TeamJam) -> int:
-        """Calculate the score in the desired TeamJam.
-
-        This method may change depending on the ruleset of the owning Bout.
-
-        Args:
-            team_jam (TeamJam): the TeamJam with which to calculate the score.
-
-        Returns:
-            int: the calculated score of the TeamJam.
-
-        """
-        raise NotImplementedError('BaseTeam.get_team_jam_score() must be overridden')
 
     def __init__(self, name: str, team_num: int) -> None:
         """Initialize a Team.
@@ -143,7 +124,7 @@ class BaseTeam(BaseSQLModel):
         """
         bout_score: int = 0
         for team_jam in self.team_jams:
-            bout_score += self.get_team_jam_score(team_jam)
+            bout_score += self._bout.get_team_jam_score(team_jam)
         return bout_score
 
     @property
@@ -161,4 +142,4 @@ class BaseTeam(BaseSQLModel):
         )
         if active_team_jam is None:
             return 0
-        return self.get_team_jam_score(active_team_jam)
+        return self._bout.get_team_jam_score(active_team_jam)

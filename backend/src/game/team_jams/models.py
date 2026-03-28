@@ -18,7 +18,7 @@ from sqlalchemy.orm import (
 )
 
 if TYPE_CHECKING:
-    from game.teams.models import BaseTeam
+    from game.teams.models import Team
 
 
 class TeamJam(BaseSQLModel):
@@ -38,7 +38,7 @@ class TeamJam(BaseSQLModel):
     )
     team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
 
-    _team: Mapped[BaseTeam] = relationship(
+    _team: Mapped[Team] = relationship(
         back_populates='team_jams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -74,7 +74,7 @@ class TeamJam(BaseSQLModel):
         'confirm_deleted_rows': False,  # Make best effort to delete orphaned rows
     }
 
-    def __init__(self, team: BaseTeam) -> None:
+    def __init__(self, team: Team) -> None:
         """Initialize a TeamJam.
 
         Args:
@@ -91,7 +91,7 @@ class TeamJam(BaseSQLModel):
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs._team, self.jam)
 
-    def get_team(self) -> BaseTeam:
+    def get_team(self) -> Team:
         """Get the Team that owns this TeamJam.
 
         Returns:
