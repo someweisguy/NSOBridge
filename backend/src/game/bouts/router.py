@@ -6,12 +6,14 @@ from typing import TYPE_CHECKING, Annotated, Final, Sequence
 from core import APIResponse
 from db import GetAsyncSession
 from fastapi import APIRouter, Body
+from game.series.models import Series
 from game.teams.dependencies import GetTeam
+from game.teams.models import Team
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
 from .dependencies import GetBout, _get_bout
-from .models import AbstractBout
+from .models import BaseBout
 from .schemas import BoutSchema
 
 if TYPE_CHECKING:
@@ -24,12 +26,33 @@ router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])
-async def get_all_bouts(session: GetAsyncSession) -> Sequence[AbstractBout]:
+async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
     """Get all the Bouts in the database."""
-    statement: Select[tuple[AbstractBout]] = select(AbstractBout)
-    results: Result[tuple[AbstractBout]] = await session.execute(statement)
+    statement: Select[tuple[BaseBout]] = select(BaseBout)
+    results: Result[tuple[BaseBout]] = await session.execute(statement)
 
     return results.scalars().all()
+
+
+@router.put('/createBout')
+async def create_bout(
+    session: GetAsyncSession,
+    series: Series,  # TODO: dependency injection
+    ruleset_name: str,
+    home_team_name: str,
+    away_team_name: str,
+) -> APIResponse:
+    bout = BaseBout(ruleset_name, Team(home_team_name), Team(away_team_name))
+
+    # Expunge and merge the Bout to allow the polymorphic init() call
+    await session.flush()
+    session.expunge(bout)
+    bout = await session.merge(bout)
+    bout.init()
+
+    series.bouts.append(bout)
+
+    return APIResponse(None, cache=await bout.get_updates())
 
 
 @router.post('/beginPeriod')

@@ -21,10 +21,11 @@ instantiation.
 
 from typing import Final
 
+import rules
 from fastapi import APIRouter
 
-from .bouts.models import AbstractBout
-from .bouts.router import router as bout_router
+from .bouts.models import BaseBout
+from .bouts.router import create_bout, router as bout_router
 from .jams.router import router as jam_router
 from .series.models import Series
 from .series.router import router as series_router
@@ -41,4 +42,4 @@ routers: Final[tuple[APIRouter, ...]] = (
 )
 
 
-__all__ = ('routers', 'AbstractBout', 'Series', 'Team', 'WFTDA2025')
+__all__ = ('BaseBout', 'create_bout', 'routers', 'rules', 'Series', 'Team', 'WFTDA2025')

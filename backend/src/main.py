@@ -14,8 +14,7 @@ from core import APIResponse, endpoint_profiling_middleware
 from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from game import AbstractBout, Series, Team
-from rules import wftda_2025
+from game import BaseBout, Series, create_bout
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
 from update import GithubReleaseSchema
@@ -83,18 +82,15 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
         engine.get_async_session_factory()
     )
     async with session_factory() as session:
-        statement: Select[tuple[AbstractBout]] = select(AbstractBout)
-        results: Result[tuple[AbstractBout]] = await session.execute(statement)
+        statement: Select[tuple[BaseBout]] = select(BaseBout)
+        results: Result[tuple[BaseBout]] = await session.execute(statement)
         if results.scalar_one_or_none() is None:
             logging.info('Instantiating the initial Bout model')
             try:
                 series: Series = Series()
                 session.add(series)
 
-                # TODO: Create Bout here
-                bout = wftda_2025.Bout(Team('Home'), Team('Away'))
-                series.bouts.append(bout)
-
+                await create_bout(session, series, 'WFTDA 2025', 'Home', 'Away')
             except Exception as e:
                 logging.critical(e)
                 raise e

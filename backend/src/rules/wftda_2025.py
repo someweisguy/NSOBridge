@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, final, override
 
 from core.exceptions import GameRulesError, GameStateError
-from game.bouts.models import AbstractBout
+from game.bouts.models import BaseBout
 from game.jams.models import Jam
 from game.team_jams.models import TeamJam
 from game.timeouts.models import Timeout
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @final
-class Bout(AbstractBout):
+class Bout(BaseBout):
     """The mutator which describes the WFTDA 2025 ruleset."""
 
     REQUIRED_NUM_TEAMS: int = 2
@@ -30,7 +30,8 @@ class Bout(AbstractBout):
     __mapper_args__: dict[str, Any] = {'polymorphic_identity': 'WFTDA 2025'}
 
     @override
-    def init_bout(self) -> None:
+    def init(self) -> None:
+        logging.warning('2025')  # FIXME: Remove this
         self.ruleset_name = 'WFTDA 2025'
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:

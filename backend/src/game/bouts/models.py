@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
-class AbstractBout(CacheableSQLModel, RulesetProtocol):
+class BaseBout(CacheableSQLModel, RulesetProtocol):
     """An abstract Bout without any associated ruleset."""
 
     ruleset: ClassVar[Ruleset]
@@ -77,7 +77,6 @@ class AbstractBout(CacheableSQLModel, RulesetProtocol):
 
     __tablename__: str = 'bouts'
     __mapper_args__: dict[str, Any] = {
-        'polymorphic_abstract': True,
         'polymorphic_on': ruleset_name,
     }
 
@@ -90,18 +89,19 @@ class AbstractBout(CacheableSQLModel, RulesetProtocol):
         """
         return f'[Bout UUID: {self.uuid}]'
 
-    def __init__(self, *teams: Team) -> None:
+    def __init__(self, ruleset_name: str, *teams: Team) -> None:
         """Instantiate a Bout.
 
         Args:
-            series (Series): The series to which this Bout belongs.
+            ruleset_name (str): the name of the ruleset to use. This must be one of the
+            currently implemented rulesets.
             teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout. The
             first team in the sequence is considered the home team.
 
         """
         for i, team in enumerate(teams):
             team.num = i
-        super().__init__(clock=Clock(), teams=list(teams))
+        super().__init__(ruleset_name=ruleset_name, clock=Clock(), teams=list(teams))
 
     @final
     @override

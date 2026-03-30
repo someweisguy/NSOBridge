@@ -24,7 +24,7 @@ class RulesetProtocol:
     """Handles ruleset events."""
 
     @abstractmethod
-    def init_bout(self) -> None:
+    def init(self) -> None:
         """Do Bout initialization.
 
         Args:
