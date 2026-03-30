@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Annotated, Final, Sequence
 from core import APIResponse
 from db import GetAsyncSession
 from fastapi import APIRouter, Body
-from game.series.models import Series
+from game.series.dependencies import GetSeries
 from game.teams.dependencies import GetTeam
 from game.teams.models import Team
 from sqlalchemy import Result, Select, select
@@ -37,20 +37,20 @@ async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
 @router.put('/createBout')
 async def create_bout(
     session: GetAsyncSession,
-    series: Series,  # TODO: dependency injection
+    series: GetSeries,
     ruleset_name: str,
     home_team_name: str,
     away_team_name: str,
 ) -> APIResponse:
-    bout = BaseBout(ruleset_name, Team(home_team_name), Team(away_team_name))
+    bout: BaseBout = BaseBout(ruleset_name, Team(home_team_name), Team(away_team_name))
+    session.add(bout)
+    series.bouts.append(bout)
 
-    # Expunge and merge the Bout to allow the polymorphic init() call
+    # Expunge and merge the Bout to allow the subclass to call init()
     await session.flush()
     session.expunge(bout)
     bout = await session.merge(bout)
     bout.init()
-
-    series.bouts.append(bout)
 
     return APIResponse(None, cache=await bout.get_updates())
 
