@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import TYPE_CHECKING, ClassVar, Final, final, override
+from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_CHILD, CASCADE_OTHER, CacheableSQLModel
@@ -11,6 +11,7 @@ from game.clocks.models import Clock
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from .protocol import RulesProtocol
 from .schemas import BoutSchema
 from .types import BoutStateStr  # noqa: TC001
 
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
-class Bout(CacheableSQLModel):
+class AbstractBout(CacheableSQLModel, RulesProtocol):
     """An abstract Bout without any associated ruleset."""
 
     ruleset: ClassVar[Ruleset]
@@ -75,6 +76,10 @@ class Bout(CacheableSQLModel):
     )
 
     __tablename__: str = 'bouts'
+    __mapper_args__: dict[str, Any] = {
+        'polymorphic_abstract': True,
+        'polymorphic_on': ruleset_name,
+    }
 
     def __str__(self) -> str:
         """Return a str representation of this Bout.
@@ -90,19 +95,25 @@ class Bout(CacheableSQLModel):
 
         Args:
             series (Series): The series to which this Bout belongs.
-            teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout.
+            teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout. The
+            first team in the sequence is considered the home team.
 
         """
+        for i, team in enumerate(teams):
+            team.num = i
         super().__init__(clock=Clock(), teams=list(teams))
 
+    @final
     @override
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.uuid)
 
+    @final
     @override
     def serialize(self) -> BoutSchema:
         return BoutSchema.model_validate(self)
 
+    @final
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
@@ -157,3 +168,54 @@ class Bout(CacheableSQLModel):
             if event.passes is not None:
                 jam_score += event.passes
         return jam_score
+
+    def get_active_jam(self) -> Jam:
+        """Get the most recently started Jam or upcoming Jam.
+
+        Returns:
+            BaseJam: the active Jam.
+
+        """
+        return (
+            self.get_running_jam() or self.jams[-2]
+            if len(self.jams) > 1
+            else self.jams[-1]
+        )
+
+    def get_running_jam(self) -> Jam | None:
+        """Get the running Jam if there is one.
+
+        Returns:
+            BaseJam | None: the running Jam or None.
+
+        """
+        return next((j for j in self.jams if j.is_running()), None)
+
+    def get_upcoming_jam(self) -> Jam | None:
+        """Get the upcoming Jam if there is one.
+
+        The upcoming Jam is the first Jam that is not started.
+
+        Returns:
+            BaseJam | None: the upcoming Jam or None.
+
+        """
+        return next((j for j in self.jams if not j.is_started()), None)
+
+    def get_running_timeout(self) -> Timeout | None:
+        """Get the running Timeout if there is one.
+
+        Returns:
+            BaseTimeout | None: the running Timeout or None.
+
+        """
+        return next((t for t in self.timeouts if t.is_running()), None)
+
+    def get_last_timeout(self) -> Timeout | None:
+        """Get most recently complete Timeout if there is one.
+
+        Returns:
+            BaseTimeout | None: the most recently complete Timeout or None.
+
+        """
+        return next((t for t in reversed(self.timeouts) if not t.is_running()), None)

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, override
 from uuid import UUID
 
 from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
-from game.bouts.models import Bout
+from game.bouts.models import AbstractBout
 from game.models import AbstractOneShotModel
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
 from sqlalchemy.orm import (
@@ -40,7 +40,7 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
     stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
-    _bout: Mapped[Bout] = relationship(
+    _bout: Mapped[AbstractBout] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -54,7 +54,9 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(Bout.ruleset_name).where(Bout.uuid == bout_uuid).scalar_subquery()
+        select(AbstractBout.ruleset_name)
+        .where(AbstractBout.uuid == bout_uuid)
+        .scalar_subquery()
     )
 
     __tablename__: str = 'jams'
@@ -97,7 +99,7 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs._bout,)
 
-    def get_bout(self) -> Bout:
+    def get_bout(self) -> AbstractBout:
         """Get the Bout that owns this Jam.
 
         Returns:

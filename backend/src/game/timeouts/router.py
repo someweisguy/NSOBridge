@@ -9,7 +9,7 @@ from .dependencies import GetTimeout, _get_timeout
 from .schemas import TimeoutSchema
 
 if TYPE_CHECKING:
-    from game.bouts.models import Bout
+    from game.bouts.models import AbstractBout
 
 TIMEOUTS_TAG = 'Timeouts'
 
@@ -34,7 +34,7 @@ async def set_team(
     timeout: GetTimeout, team_num: Annotated[int | None, Body()] = None
 ) -> APIResponse:
     """Set the calling Team of the specified Timeout."""
-    bout: Bout = timeout.get_bout()
+    bout: AbstractBout = timeout.get_bout()
     timeout.set_team(bout.teams[team_num] if team_num is not None else None)
     return APIResponse(None, await timeout.get_updates())
 

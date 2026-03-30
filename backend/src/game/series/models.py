@@ -11,7 +11,7 @@ from .schemas import SeriesSchema
 
 if TYPE_CHECKING:
     from core import CacheKey
-    from game.bouts.models import Bout
+    from game.bouts.models import AbstractBout
 
 
 class Series(CacheableSQLModel):
@@ -25,7 +25,7 @@ class Series(CacheableSQLModel):
 
     name: Mapped[str] = mapped_column(default='')
 
-    bouts: Mapped[list[Bout]] = relationship(
+    bouts: Mapped[list[AbstractBout]] = relationship(
         back_populates='_series',
         cascade=CASCADE_CHILD,
         lazy='selectin',

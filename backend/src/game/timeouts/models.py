@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
-from game.bouts.models import Bout
+from game.bouts.models import AbstractBout
 from game.models import AbstractOneShotModel
 from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import (
@@ -48,7 +48,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    _bout: Mapped[Bout] = relationship(
+    _bout: Mapped[AbstractBout] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -67,7 +67,9 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     )
 
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(Bout.ruleset_name).where(Bout.uuid == bout_uuid).scalar_subquery()
+        select(AbstractBout.ruleset_name)
+        .where(AbstractBout.uuid == bout_uuid)
+        .scalar_subquery()
     )
 
     __tablename__: str = 'timeouts'
@@ -113,7 +115,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
             return (await self.awaitable_attrs._bout,)
         return (await self.awaitable_attrs._bout, await self.awaitable_attrs.team)
 
-    def get_bout(self) -> Bout:
+    def get_bout(self) -> AbstractBout:
         """Get the Bout that owns this Timeout.
 
         Returns:

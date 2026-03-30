@@ -6,7 +6,7 @@ from typing import Final, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
-from game.bouts.models import Bout
+from game.bouts.models import AbstractBout
 from game.jams.models import Jam
 from game.skaters.models import Skater
 from game.team_jams.models import TeamJam
@@ -36,7 +36,7 @@ class Team(BaseSQLModel):
         ForeignKey('bouts.uuid'), nullable=False
     )
 
-    num: Mapped[int] = mapped_column()
+    num: Mapped[int] = mapped_column(default=0)
 
     name: Mapped[str] = mapped_column()
     league: Mapped[str] = mapped_column(default='')
@@ -46,7 +46,7 @@ class Team(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column(default=0)
     reviews_remaining: Mapped[int] = mapped_column(default=0)
 
-    _bout: Mapped[Bout] = relationship(
+    _bout: Mapped[AbstractBout] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -80,28 +80,28 @@ class Team(BaseSQLModel):
         .scalar_subquery()
     )
     _ruleset: MappedSQLExpression[str] = column_property(
-        select(Bout.ruleset_name).where(Bout.uuid == bout_uuid).scalar_subquery()
+        select(AbstractBout.ruleset_name)
+        .where(AbstractBout.uuid == bout_uuid)
+        .scalar_subquery()
     )
 
     __tablename__: str = 'teams'
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
 
-    def __init__(self, name: str, team_num: int) -> None:
+    def __init__(self, name: str) -> None:
         """Initialize a Team.
 
         Args:
             name (str): the name of this Team.
-            team_num (int): the Team number in the Bout. Each Team in a Bout must have
-            a unique team number. A 0 represents the home Team of a Bout.
 
         """
-        super().__init__(name=name, num=team_num)
+        super().__init__(name=name)
 
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs._bout,)
 
-    def get_bout(self) -> Bout:
+    def get_bout(self) -> AbstractBout:
         """Get the Bout to which this Team belongs.
 
         Returns:

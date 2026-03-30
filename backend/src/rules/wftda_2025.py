@@ -4,20 +4,21 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Any, final, override
 
 from core.exceptions import GameRulesError, GameStateError
+from game.bouts.models import AbstractBout
 from game.jams.models import Jam
 from game.team_jams.models import TeamJam
 from game.timeouts.models import Timeout
 from game.trip_events.models import TripEvent
-from rules.mutate import RuleMutator
 
 if TYPE_CHECKING:
     from game.teams.models import Team
 
 
-class WFTDA2025(RuleMutator):
+@final
+class Bout(AbstractBout):
     """The mutator which describes the WFTDA 2025 ruleset."""
 
     REQUIRED_NUM_TEAMS: int = 2
@@ -26,14 +27,16 @@ class WFTDA2025(RuleMutator):
     NUM_PERIODS: int = 2
     POINTS_PER_TRIP: int = 4
 
+    __mapper_args__: dict[str, Any] = {'polymorphic_identity': 'WFTDA 2025'}
+
     @override
     def init_bout(self) -> None:
-        self.bout.ruleset_name = 'WFTDA 2025'
-        self.bout.clock.alarm = timedelta(minutes=30)
-        for team in self.bout.teams:
+        self.ruleset_name = 'WFTDA 2025'
+        self.clock.alarm = timedelta(minutes=30)
+        for team in self.teams:
             team.timeouts_remaining = self.NUM_TIMEOUTS
             team.reviews_remaining = self.NUM_REVIEWS
-        self.bout.jams.append(Jam(0, 0, *[TeamJam(team) for team in self.bout.teams]))
+        self.jams.append(Jam(0, 0, *[TeamJam(team) for team in self.teams]))
 
     @override
     def begin_period(self, timestamp: datetime) -> None:
@@ -47,11 +50,11 @@ class WFTDA2025(RuleMutator):
 
         # If this Period is not in overtime reset the Clock and Official Reviews
         if jam.period < self.NUM_PERIODS:
-            self.bout.clock.reset()
-            for team in self.bout.teams:
+            self.clock.reset()
+            for team in self.teams:
                 team.reviews_remaining = 1
 
-        self.bout.is_running = True
+        self.is_running = True
 
     @override
     def end_period(self, timestamp: datetime) -> None:
@@ -59,36 +62,36 @@ class WFTDA2025(RuleMutator):
         running_timeout: Timeout | None = self.get_running_timeout()
         if running_jam is not None or running_timeout is not None:
             raise GameRulesError('A period can only be ended during a lineup')
-        if not self.bout.is_running:
+        if not self.is_running:
             raise GameStateError('There is no running period to end')
 
-        final_jam: Jam = self.bout.jams[-1]
+        final_jam: Jam = self.jams[-1]
         logging.info(f'Ending P{final_jam.period} in {self}')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
         # Or calling end_period() after OT ends the Bout
-        if not self.bout.is_running or self.bout.jams[-1].period == self.NUM_PERIODS:
-            self.bout.is_final = True
+        if not self.is_running or self.jams[-1].period == self.NUM_PERIODS:
+            self.is_final = True
 
-        if self.bout.clock.is_running():
-            self.bout.clock.stop(timestamp)
+        if self.clock.is_running():
+            self.clock.stop(timestamp)
 
         # Update the final Jam
-        if len(self.bout.jams) > 0:
-            if self.bout.is_final:
+        if len(self.jams) > 0:
+            if self.is_final:
                 # Cull the final Jam
-                self.bout.jams.remove(final_jam)
+                self.jams.remove(final_jam)
             elif final_jam.start_timestamp is None:
                 # Set the final Jam to be the first Jam in the next Period
                 final_jam.period += 1
                 final_jam.num = 0
 
-        self.bout.is_running = False
+        self.is_running = False
 
     @override
     def start_jam(self, timestamp: datetime) -> None:
         running_timeout: Timeout | None = self.get_running_timeout()
-        if not self.bout.is_running:
+        if not self.is_running:
             # Allow user to skip the initial call to begin_period()
             self.begin_period(timestamp)
         if running_timeout is not None:
@@ -110,13 +113,13 @@ class WFTDA2025(RuleMutator):
         logging.info(f'Starting {jam}')
 
         # Start the Clock if not in overtime
-        if jam.period < self.NUM_PERIODS and not self.bout.clock.is_running():
-            self.bout.clock.start(timestamp)
+        if jam.period < self.NUM_PERIODS and not self.clock.is_running():
+            self.clock.start(timestamp)
         jam.start(timestamp)
 
         # Push a new Jam to allow users to prefetch it
-        self.bout.jams.append(
-            Jam(jam.period, jam.num + 1, *[TeamJam(team) for team in self.bout.teams])
+        self.jams.append(
+            Jam(jam.period, jam.num + 1, *[TeamJam(team) for team in self.teams])
         )
 
     @override
@@ -146,13 +149,13 @@ class WFTDA2025(RuleMutator):
         logging.info(f'Calling Timeout {self}')
 
         # Instantiate and start the Timeout
-        timeout: Timeout = Timeout(self.get_active_jam(), len(self.bout.timeouts))
-        timeout.clock_elapsed = self.bout.clock.get_duration(timestamp)
+        timeout: Timeout = Timeout(self.get_active_jam(), len(self.timeouts))
+        timeout.clock_elapsed = self.clock.get_duration(timestamp)
         timeout.start(timestamp)
-        self.bout.timeouts.append(timeout)
+        self.timeouts.append(timeout)
 
-        if self.bout.clock.is_running():
-            self.bout.clock.stop(timestamp)
+        if self.clock.is_running():
+            self.clock.stop(timestamp)
 
     @override
     def stop_timeout(self, timestamp: datetime) -> None:

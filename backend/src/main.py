@@ -8,15 +8,14 @@ from typing import TYPE_CHECKING, Final, Iterable
 
 import core
 import game
-import rules
 import update
 import user
 from core import APIResponse, endpoint_profiling_middleware
 from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from game import Bout, Series
-from rules import create_bout
+from game import AbstractBout, Series, Team
+from rules import wftda_2025
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
 from update import GithubReleaseSchema
@@ -47,7 +46,7 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
         app.add_exception_handler(e, handler)
-    for router in [core.api_router, *game.routers, rules.router, *user.routers]:
+    for router in [core.api_router, *game.routers, *user.routers]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.assets)
     app.mount('/ws', core.ws)
@@ -84,14 +83,18 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
         engine.get_async_session_factory()
     )
     async with session_factory() as session:
-        statement: Select[tuple[Bout]] = select(Bout)
-        results: Result[tuple[Bout]] = await session.execute(statement)
+        statement: Select[tuple[AbstractBout]] = select(AbstractBout)
+        results: Result[tuple[AbstractBout]] = await session.execute(statement)
         if results.scalar_one_or_none() is None:
             logging.info('Instantiating the initial Bout model')
             try:
                 series: Series = Series()
                 session.add(series)
-                await create_bout('WFTDA 2025', series, session)
+
+                # TODO: Create Bout here
+                bout = wftda_2025.Bout(Team('Home'), Team('Away'))
+                series.bouts.append(bout)
+
             except Exception as e:
                 logging.critical(e)
                 raise e
