@@ -11,7 +11,7 @@ from game.clocks.models import Clock
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .protocol import RulesProtocol
+from .ruleset import RulesetProtocol
 from .schemas import BoutSchema
 from .types import BoutStateStr  # noqa: TC001
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
-class AbstractBout(CacheableSQLModel, RulesProtocol):
+class AbstractBout(CacheableSQLModel, RulesetProtocol):
     """An abstract Bout without any associated ruleset."""
 
     ruleset: ClassVar[Ruleset]

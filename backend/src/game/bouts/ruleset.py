@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from game.teams.models import Team
 
 
-class RulesProtocol:
+class RulesetProtocol:
     """Handles ruleset events."""
 
     @abstractmethod
