@@ -3,7 +3,6 @@
 from datetime import timedelta
 from typing import Final
 
-from db import GetAsyncSession
 from fastapi import APIRouter
 from game.bouts.dependencies import GetBout
 
@@ -13,7 +12,7 @@ router: Final[APIRouter] = APIRouter(prefix='/bout')
 
 
 @router.get('/ruleset')
-async def get_ruleset(bout: GetBout, session: GetAsyncSession) -> Ruleset:
+async def get_ruleset(bout: GetBout) -> Ruleset:
     # TODO: this api should be deprecated
     return Ruleset(
         name='WFTDA 2025',
