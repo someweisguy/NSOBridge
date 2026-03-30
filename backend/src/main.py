@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Final, Iterable
 
 import core
 import game
+import rules
 import update
 import user
 from core import APIResponse, endpoint_profiling_middleware
@@ -45,7 +46,7 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
         app.add_exception_handler(e, handler)
-    for router in [core.api_router, *game.routers, *user.routers]:
+    for router in [core.api_router, *game.routers, *user.routers, rules.router]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.assets)
     app.mount('/ws', core.ws)
