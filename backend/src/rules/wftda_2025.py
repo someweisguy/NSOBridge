@@ -31,7 +31,6 @@ class Bout(BaseBout):
 
     @override
     def init(self) -> None:
-        logging.warning('2025')  # FIXME: Remove this
         self.ruleset_name = 'WFTDA 2025'
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:
