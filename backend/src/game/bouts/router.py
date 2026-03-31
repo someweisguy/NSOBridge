@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING, Annotated, Final, Sequence
 from core import APIResponse
 from db import GetAsyncSession
 from fastapi import APIRouter, Body
-from game.series.dependencies import GetSeries
+from game.series.dependencies import GetOptionalSeries
+from game.series.models import Series
 from game.teams.dependencies import GetTeam
 from game.teams.models import Team
 from sqlalchemy import Result, Select, select
@@ -37,12 +38,20 @@ async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
 @router.put('/createBout')
 async def create_bout(
     session: GetAsyncSession,
-    series: GetSeries,
     ruleset_name: str,
     home_team_name: str,
     away_team_name: str,
+    series: GetOptionalSeries = None,
 ) -> APIResponse:
     bout: BaseBout = BaseBout(ruleset_name, Team(home_team_name), Team(away_team_name))
+
+    # Fetch a Series if one isn't provided
+    # This handles only the simple case where one Series exists in the database
+    if series is None:
+        statement: Select[tuple[Series]] = select(Series)
+        results: Result[tuple[Series]] = await session.execute(statement)
+        series = results.scalars().one()
+
     session.add(bout)
     series.bouts.append(bout)
 

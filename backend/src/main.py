@@ -90,7 +90,7 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
             try:
                 series: Series = Series()
                 session.add(series)
-                await create_bout(session, series, 'WFTDA 2025', 'Home', 'Away')
+                await create_bout(session, 'WFTDA 2025', 'Home', 'Away', series)
             except Exception as e:
                 logging.critical(e)
                 raise e
