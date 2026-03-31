@@ -28,7 +28,6 @@ export default function PageContainer({
   withShell: useShell = false,
   children,
 }: PageContainerProps) {
-  const [boutUuid, setBoutUuid] = useState<string | null>(boutUuidParam);
   const { data: syncData } = useSuspenseGetSyncData();
   const {
     data: bouts,
@@ -37,12 +36,20 @@ export default function PageContainer({
   } = useGetAllBouts({
     enabled: boutUuidParam == null || useShell,
   });
+  const [boutUuid, setBoutUuid] = useState<string | null>(boutUuidParam);
 
   useEffect(() => {
-    if (isEnabled && !isPending && bouts != null && boutUuidParam == null) {
+    if (
+      isEnabled &&
+      !isPending &&
+      bouts != null &&
+      boutUuidParam == null &&
+      boutUuid == null
+    ) {
+      // Only gets called once - when there is no boutUuid selected
       setBoutUuid(bouts[0].uuid);
     }
-  }, [bouts, isPending, isEnabled]);
+  }, [bouts, boutUuid, isPending, isEnabled]);
 
   if (boutUuid == null) {
     return <></>;
