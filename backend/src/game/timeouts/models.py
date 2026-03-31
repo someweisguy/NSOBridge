@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta  # noqa: TC003
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
@@ -73,10 +73,6 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     )
 
     __tablename__: str = 'timeouts'
-    __mapper_args__: dict[str, Any] = {
-        'polymorphic_abstract': True,
-        'polymorphic_on': _ruleset,
-    }
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
 
     def __str__(self) -> str:
