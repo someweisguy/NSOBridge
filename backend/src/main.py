@@ -85,7 +85,7 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
     async with session_factory() as session:
         statement: Select[tuple[BaseBout]] = select(BaseBout)
         results: Result[tuple[BaseBout]] = await session.execute(statement)
-        if results.scalar_one_or_none() is None:
+        if len(results.scalars().all()) == 0:
             logging.info('Instantiating the initial Bout model')
             try:
                 series: Series = Series()
