@@ -47,9 +47,15 @@ async def create_bout(
     series.bouts.append(bout)
 
     # Expunge and merge the Bout to allow the subclass to call init()
-    await session.flush()
-    session.expunge(bout)
-    bout = await session.merge(bout)
+    try:
+        await session.flush()
+        session.expunge(bout)
+        bout = await session.merge(bout)
+    except AssertionError as e:
+        # SQLAlchemy raises AssertionError on invalid polymorphic identity
+        raise ValueError(
+            f'Cannot create bout with unknonwn ruleset: {ruleset_name}'
+        ) from e
     bout.init()
 
     return APIResponse(None, cache=await bout.get_updates())
