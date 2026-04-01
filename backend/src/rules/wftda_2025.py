@@ -21,13 +21,15 @@ if TYPE_CHECKING:
 class Bout(BaseBout):
     """The mutator which describes the WFTDA 2025 ruleset."""
 
+    RULESET_NAME: str = 'WFTDA 2025'
+
     REQUIRED_NUM_TEAMS: int = 2
     NUM_TIMEOUTS: int = 3
     NUM_REVIEWS: int = 1
     NUM_PERIODS: int = 2
     POINTS_PER_TRIP: int = 4
 
-    __mapper_args__: dict[str, Any] = {'polymorphic_identity': 'WFTDA 2025'}
+    __mapper_args__: dict[str, Any] = {'polymorphic_identity': RULESET_NAME}
 
     @override
     def init(self) -> None:

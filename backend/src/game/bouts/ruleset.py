@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 class RulesetProtocol:
     """Handles ruleset events."""
 
+    RULESET_NAME: str
+
     @abstractmethod
     def init(self) -> None:
         """Do Bout initialization.
