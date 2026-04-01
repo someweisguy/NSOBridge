@@ -29,6 +29,11 @@ export default function CreateBoutButton() {
           allowDeselect={false}
           autoSelectOnBlur
         />
+        <Button
+        // TODO: add button hooks
+        >
+          Create
+        </Button>
       </Modal>
       <Button onClick={open}>Create New Bout</Button>
     </>
