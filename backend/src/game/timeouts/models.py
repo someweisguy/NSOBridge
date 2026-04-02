@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 
 class Timeout(AbstractOneShotModel, CacheableSQLModel):
-    """An abstract Timeout without any associated ruleset.
+    """A Timeout without any associated ruleset.
 
     Timeouts models can represent either a timeout or an official review.
     """
