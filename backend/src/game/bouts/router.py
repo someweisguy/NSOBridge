@@ -1,23 +1,30 @@
 """FastAPI routes associated with Bouts."""
 
+import random
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
 from core import APIResponse
 from db import GetAsyncSession
-from fastapi import APIRouter, Body
-from game.rulesets.schemas import Ruleset
+from fastapi import APIRouter, Body, Query
+from game.series.dependencies import GetOptionalSeries
+from game.series.models import Series
+from game.teams.dependencies import GetTeam
+from game.teams.models import Team
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
+from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, _get_bout
 from .models import BaseBout
 from .schemas import BoutSchema
 
 if TYPE_CHECKING:
-    from game.timeouts.models import BaseTimeout
+    from game.timeouts.models import Timeout
 
 BOUTS_TAG = 'Bouts'
+REQUIRED_NUM_TEAMS: Final[int] = 2
+
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
@@ -32,36 +39,74 @@ async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
     return results.scalars().all()
 
 
-@router.get('/ruleset', response_model=Ruleset)
-async def _get_ruleset(bout: GetBout) -> Ruleset:
-    return bout.ruleset
+@router.put('/createBout')
+async def create_bout(
+    session: GetAsyncSession,
+    ruleset_name: Annotated[str, Query(alias='rulesetName')],
+    team_names: Annotated[list[str] | None, Query(alias='teamName')] = None,
+    series: GetOptionalSeries = None,
+) -> APIResponse:
+    if team_names is None:
+        team_names = list(random.choice(RANDOM_TEAM_NAMES))  # noqa: S311
+
+    if len(team_names) < REQUIRED_NUM_TEAMS:
+        raise ValueError(
+            f'At least {REQUIRED_NUM_TEAMS} team are needed to create a Bout.'
+        )
+
+    home_name, away_name, *_ = team_names
+    bout: BaseBout = BaseBout(ruleset_name, Team(home_name), Team(away_name))
+
+    # Fetch a Series if one isn't provided
+    # This handles only the simple case where one Series exists in the database
+    if series is None:
+        statement: Select[tuple[Series]] = select(Series)
+        results: Result[tuple[Series]] = await session.execute(statement)
+        series = results.scalars().one()
+
+    session.add(bout)
+    series.bouts.append(bout)
+
+    # Expunge and merge the Bout to allow the subclass to call init()
+    try:
+        await session.flush()
+        session.expunge(bout)
+        bout = await session.merge(bout)
+    except AssertionError as e:
+        # SQLAlchemy raises AssertionError on invalid polymorphic identity
+        raise ValueError(
+            f'Cannot create bout with unknonwn ruleset: {ruleset_name}'
+        ) from e
+    bout.init()
+
+    return APIResponse(None, cache=await bout.get_updates())
 
 
 @router.post('/beginPeriod')
 async def begin_period(bout: GetBout) -> APIResponse:
     """Begin the period of the specified Bout."""
-    await bout.begin_period(datetime.now())
+    bout.begin_period(datetime.now())
     return APIResponse(None, cache=await bout.get_updates())
 
 
 @router.post('/endPeriod')
 async def end_period(bout: GetBout) -> APIResponse:
     """End the period of the specified Bout."""
-    await bout.end_period(datetime.now())
+    bout.end_period(datetime.now())
     return APIResponse(None, cache=await bout.get_updates())
 
 
 @router.post('/startJam')
 async def start_jam(bout: GetBout):
     """Start the next Jam of the specified Bout."""
-    await bout.start_jam(datetime.now())
+    bout.start_jam(datetime.now())
     return APIResponse(None, cache=await bout.get_updates())
 
 
 @router.post('/stopJam')
 async def stop_jam(bout: GetBout) -> APIResponse:
     """Stop the active Jam of the specified Bout."""
-    await bout.stop_jam(datetime.now())
+    bout.stop_jam(datetime.now())
     return APIResponse(None, cache=await bout.get_updates())
 
 
@@ -72,18 +117,67 @@ async def start_timeout(
     is_review: Annotated[bool, Body(alias='isReview')] = False,
 ) -> APIResponse:
     """Start a new Timeout in the specified Bout."""
-    timeout: BaseTimeout = await bout.start_timeout(datetime.now())
-    timeout.is_review = is_review
-    if team_num is not None:
-        timeout.team = bout.teams[team_num]
+    bout.start_timeout(datetime.now())
+    timeout: Timeout | None = bout.get_last_timeout()
+    if timeout is not None:
+        timeout.is_review = is_review
+        if team_num is not None:
+            timeout.team = bout.teams[team_num]
     return APIResponse(None, cache=await bout.get_updates())
 
 
 @router.post(path='/stopTimeout')
 async def stop_timeout(bout: GetBout) -> APIResponse:
     """Stop the active Timeout in the specified Bout."""
-    await bout.stop_timeout(datetime.now())
+    bout.stop_timeout(datetime.now())
     return APIResponse(None, cache=await bout.get_updates())
+
+
+@router.post('/addTrip')
+async def add_trip(
+    bout: GetBout,
+    team: GetTeam,
+    passes: Annotated[int, Body()],
+) -> APIResponse:
+    """Add a Trip for the specified Team of the specified Jam."""
+    bout.add_trip(team, datetime.now(), passes)
+    return APIResponse(None, await bout.get_updates())
+
+
+@router.post('/addLead')
+async def set_lead(
+    bout: GetBout,
+    team: GetTeam,
+    lead: Annotated[bool, Body()],
+) -> APIResponse:
+    """Set Lead for the specified Team of the specified Jam."""
+    bout.add_lead(team, datetime.now(), lead)
+    return APIResponse(None, await bout.get_updates())
+
+
+@router.post('/addLost')
+async def set_lost(
+    bout: GetBout,
+    team: GetTeam,
+    lost: Annotated[bool, Body()],
+) -> APIResponse:
+    """Set Lost for the specified Team of the specified Jam."""
+    bout.add_lost(team, datetime.now(), lost)
+    return APIResponse(None, await bout.get_updates())
+
+
+@router.post('/addStarPass')
+async def set_star_pass(
+    bout: GetBout,
+    team: GetTeam,
+    star_pass: Annotated[bool, Body(alias='starPass')],
+) -> APIResponse:
+    """Set a Star Pass for the specified Team of the specified Jam."""
+    bout.add_star_pass(team, datetime.now(), star_pass)
+    return APIResponse(None, await bout.get_updates())
+
+
+__all__ = ('router',)
 
 
 @router.post(path='/setClockElapsed')

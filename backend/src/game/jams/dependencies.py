@@ -7,7 +7,7 @@ from fastapi import Depends, Query, Request
 from game.bouts.dependencies import GetBout
 from user import GetUser
 
-from .models import BaseJam
+from .models import Jam
 
 
 async def _get_jam(
@@ -16,9 +16,9 @@ async def _get_jam(
     bout: GetBout,
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],
-) -> BaseJam:
+) -> Jam:
     try:
-        jam: BaseJam = next(
+        jam: Jam = next(
             jam for jam in bout.jams if jam.period == period_num and jam.num == jam_num
         )
     except StopIteration as e:
@@ -32,4 +32,4 @@ async def _get_jam(
     return jam
 
 
-GetJam: TypeAlias = Annotated[BaseJam, Depends(_get_jam)]
+GetJam: TypeAlias = Annotated[Jam, Depends(_get_jam)]

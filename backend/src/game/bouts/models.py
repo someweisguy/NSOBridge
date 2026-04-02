@@ -11,23 +11,25 @@ from game.clocks.models import Clock
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from .ruleset import RulesetProtocol
 from .schemas import BoutSchema
 from .types import BoutStateStr  # noqa: TC001
 
 if TYPE_CHECKING:
     from core import CacheKey
     from db import BaseSQLModel
-    from game.jams.models import BaseJam
-    from game.rulesets.schemas import Ruleset
+    from game.jams.models import Jam
     from game.series.models import Series
-    from game.teams.models import BaseTeam
-    from game.timeouts.models import BaseTimeout
+    from game.team_jams.models import TeamJam
+    from game.teams.models import Team
+    from game.timeouts.models import Timeout
+    from rules.schemas import Ruleset
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
-class BaseBout(CacheableSQLModel):
+class BaseBout(CacheableSQLModel, RulesetProtocol):
     """An abstract Bout without any associated ruleset."""
 
     ruleset: ClassVar[Ruleset]
@@ -54,19 +56,19 @@ class BaseBout(CacheableSQLModel):
         lazy='joined',
         single_parent=True,
     )
-    teams: Mapped[list[BaseTeam]] = relationship(
+    teams: Mapped[list[Team]] = relationship(
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('num')],
     )
-    jams: Mapped[list[BaseJam]] = relationship(
+    jams: Mapped[list[Jam]] = relationship(
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('period'), column('num')],
     )
-    timeouts: Mapped[list[BaseTimeout]] = relationship(
+    timeouts: Mapped[list[Timeout]] = relationship(
         back_populates='_bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
@@ -75,7 +77,6 @@ class BaseBout(CacheableSQLModel):
 
     __tablename__: str = 'bouts'
     __mapper_args__: dict[str, Any] = {
-        'polymorphic_abstract': True,
         'polymorphic_on': ruleset_name,
     }
 
@@ -88,25 +89,31 @@ class BaseBout(CacheableSQLModel):
         """
         return f'[Bout UUID: {self.uuid}]'
 
-    def __init__(self, ruleset_name: str, *teams: BaseTeam) -> None:
+    def __init__(self, ruleset_name: str, *teams: Team) -> None:
         """Instantiate a Bout.
 
         Args:
-            series (Series): The series to which this Bout belongs.
-            ruleset_name (str): The ruleset which the Bout will use.
-            teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout.
+            ruleset_name (str): the name of the ruleset to use. This must be one of the
+            currently implemented rulesets.
+            teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout. The
+            first team in the sequence is considered the home team.
 
         """
-        super().__init__(clock=Clock(), ruleset_name=ruleset_name, teams=list(teams))
+        for i, team in enumerate(teams):
+            team.num = i
+        super().__init__(ruleset_name=ruleset_name, clock=Clock(), teams=list(teams))
 
+    @final
     @override
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.uuid)
 
+    @final
     @override
     def serialize(self) -> BoutSchema:
         return BoutSchema.model_validate(self)
 
+    @final
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
@@ -144,16 +151,38 @@ class BaseBout(CacheableSQLModel):
         else:
             return 'stopped'
 
-    def get_active_jam(self) -> BaseJam:
+    def get_team_jam_score(self, team_jam: TeamJam) -> int:
+        """Calculate the score in the desired TeamJam.
+
+        This method may change depending on the ruleset of the owning Bout.
+
+        Args:
+            team_jam (TeamJam): the TeamJam with which to calculate the score.
+
+        Returns:
+            int: the calculated score of the TeamJam.
+
+        """
+        jam_score: int = 0
+        for event in team_jam.events:
+            if event.passes is not None:
+                jam_score += event.passes
+        return jam_score
+
+    def get_active_jam(self) -> Jam:
         """Get the most recently started Jam or upcoming Jam.
 
         Returns:
             BaseJam: the active Jam.
 
         """
-        return next((j for j in self.jams if j.is_started()), self.jams[-1])
+        return (
+            self.get_running_jam() or self.jams[-2]
+            if len(self.jams) > 1
+            else self.jams[-1]
+        )
 
-    def get_running_jam(self) -> BaseJam | None:
+    def get_running_jam(self) -> Jam | None:
         """Get the running Jam if there is one.
 
         Returns:
@@ -162,7 +191,7 @@ class BaseBout(CacheableSQLModel):
         """
         return next((j for j in self.jams if j.is_running()), None)
 
-    def get_upcoming_jam(self) -> BaseJam | None:
+    def get_upcoming_jam(self) -> Jam | None:
         """Get the upcoming Jam if there is one.
 
         The upcoming Jam is the first Jam that is not started.
@@ -173,7 +202,7 @@ class BaseBout(CacheableSQLModel):
         """
         return next((j for j in self.jams if not j.is_started()), None)
 
-    def get_running_timeout(self) -> BaseTimeout | None:
+    def get_running_timeout(self) -> Timeout | None:
         """Get the running Timeout if there is one.
 
         Returns:
@@ -182,7 +211,7 @@ class BaseBout(CacheableSQLModel):
         """
         return next((t for t in self.timeouts if t.is_running()), None)
 
-    def get_last_timeout(self) -> BaseTimeout | None:
+    def get_last_timeout(self) -> Timeout | None:
         """Get most recently complete Timeout if there is one.
 
         Returns:
@@ -190,69 +219,3 @@ class BaseBout(CacheableSQLModel):
 
         """
         return next((t for t in reversed(self.timeouts) if not t.is_running()), None)
-
-    async def begin_period(self, timestamp: datetime) -> None:
-        """Begin the next Period.
-
-        Args:
-            timestamp (datetime): the timestamp at which to begin the Period.
-
-        """
-        raise NotImplementedError('begin_period() is not implemented in this model')
-
-    async def end_period(self, timestamp: datetime) -> None:
-        """End the current Period.
-
-        Args:
-            timestamp (datetime): the timestamp at which to end the Period.
-
-        """
-        raise NotImplementedError('end_period() is not implemented in this model')
-
-    async def start_jam(self, timestamp: datetime) -> BaseJam:
-        """Start the next Jam.
-
-        Args:
-            timestamp (datetime): the timestamp at which to start the Jam.
-
-        Returns:
-            BaseJam: the Jam that was started.
-
-        """
-        raise NotImplementedError('start_jam() is not implemented in this model')
-
-    async def stop_jam(self, timestamp: datetime) -> BaseJam:
-        """Stop the current Jam.
-
-        Args:
-            timestamp (datetime): the timestamp at which to stop the Jam.
-
-        Returns:
-            BaseJam: the Jam that was stopped.
-
-        """
-        raise NotImplementedError('stop_jam() is not implemented in this model')
-
-    async def start_timeout(self, timestamp: datetime) -> BaseTimeout:
-        """Call a Timeout.
-
-        Args:
-            timestamp (datetime): the timestamp at which to call the Timeout.
-
-        Returns:
-            BaseTimeout: the Timeout that was called.
-
-        """
-        raise NotImplementedError('start_timeout() is not implemented in this model')
-
-    async def stop_timeout(self, timestamp: datetime) -> BaseTimeout:
-        """Stop the current Timeout.
-
-        Args:
-            timestamp (datetime): the timestamp at which to stop the Timeout.
-
-        Returns:
-            BaseTimeout: the Timeout that was stopped.
-
-        """
-        raise NotImplementedError('stop_timeout() is not implemented in this model')

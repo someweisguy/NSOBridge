@@ -16,7 +16,7 @@ export const useTeamJamAddStarPass = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (starPass: boolean) =>
-      localAPI.post<void>("jam/setStarPass", {
+      localAPI.post<void>("bout/addStarPass", {
         query: {
           boutUuid,
           periodNum,

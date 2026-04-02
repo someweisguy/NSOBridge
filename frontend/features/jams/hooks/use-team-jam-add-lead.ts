@@ -16,7 +16,7 @@ export const useTeamJamAddLead = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (lead: boolean) =>
-      localAPI.post<void>("jam/setLead", {
+      localAPI.post<void>("bout/addLead", {
         query: {
           boutUuid,
           periodNum,

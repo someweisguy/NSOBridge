@@ -8,13 +8,14 @@ from typing import TYPE_CHECKING, Final, Iterable
 
 import core
 import game
+import rules
 import update
 import user
 from core import APIResponse, endpoint_profiling_middleware
 from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from game import Series, wftda_2025
+from game import BaseBout, Series, create_bout
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
 from update import GithubReleaseSchema
@@ -32,7 +33,7 @@ API_PREFIX: str = '/api'
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
     """Handle the app setup and teardown.
 
     Args:
@@ -45,7 +46,7 @@ async def lifespan(app: FastAPI):
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
         app.add_exception_handler(e, handler)
-    for router in [core.api_router, *game.routers, *user.routers]:
+    for router in [core.api_router, *game.routers, *user.routers, rules.router]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.assets)
     app.mount('/ws', core.ws)
@@ -70,7 +71,11 @@ async def lifespan(app: FastAPI):
             return
     logging.debug('Creating database schema')
     engine: DatabaseEngine = DatabaseEngine.get_engine()
-    await engine.create_all()
+    try:
+        await engine.create_all()
+    except Exception as e:
+        logging.critical(e)
+        raise e
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
@@ -78,16 +83,23 @@ async def lifespan(app: FastAPI):
         engine.get_async_session_factory()
     )
     async with session_factory() as session:
-        statement: Select[tuple[wftda_2025.Bout]] = select(wftda_2025.Bout)
-        results: Result[tuple[wftda_2025.Bout]] = await session.execute(statement)
-        if results.scalar_one_or_none() is None:
+        statement: Select[tuple[BaseBout]] = select(BaseBout)
+        results: Result[tuple[BaseBout]] = await session.execute(statement)
+        if len(results.scalars().all()) == 0:
             logging.info('Instantiating the initial Bout model')
-            bout: wftda_2025.Bout = wftda_2025.Bout('Home', 'Away')
-            series: Series = Series()
-            series.bouts.append(bout)
-            session.add(series)
-            await session.commit()
-            logging.debug(f'{bout} was inserted into the database')
+            try:
+                series: Series = Series()
+                session.add(series)
+                await create_bout(session, 'WFTDA 2025', ['Home', 'Away'], series)
+            except Exception as e:
+                logging.critical(e)
+                raise e
+            try:
+                await session.commit()
+            except Exception as e:
+                logging.critical(e)
+                raise e
+            logging.debug('Initial data was inserted into the database')
         else:
             logging.debug('Model data was found in the database')
 

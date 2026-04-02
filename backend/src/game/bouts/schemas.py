@@ -20,6 +20,7 @@ class BoutSchema(ServerSchema):
 
     uuid: UUID
     ruleset_name: str
+    series_uuid: UUID
     clock: ClockSchema
     is_running: bool
     start_countdown: datetime | None

@@ -16,7 +16,7 @@ export const useTeamJamAddTrip = ({
 }: TeamJamUri & AppMutationOptions<void, unknown, number>) =>
   useMutation({
     mutationFn: (passes: number) =>
-      localAPI.post<void>("jam/addTrip", {
+      localAPI.post<void>("bout/addTrip", {
         query: {
           boutUuid,
           periodNum,

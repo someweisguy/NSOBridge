@@ -21,14 +21,16 @@ instantiation.
 
 from typing import Final
 
+import rules
 from fastapi import APIRouter
 
-from .bouts.router import router as bout_router
+from .bouts.models import BaseBout
+from .bouts.router import create_bout, router as bout_router
 from .jams.router import router as jam_router
-from .rulesets import wftda_2025
 from .series.models import Series
 from .series.router import router as series_router
 from .skaters.router import router as skater_router
+from .teams.models import Team
 from .timeouts.router import router as timeout_router
 
 routers: Final[tuple[APIRouter, ...]] = (
@@ -40,8 +42,4 @@ routers: Final[tuple[APIRouter, ...]] = (
 )
 
 
-__all__ = (
-    'routers',
-    'Series',  # Non-rule-bound objects can be exported
-    'wftda_2025',
-)
+__all__ = ('BaseBout', 'create_bout', 'routers', 'rules', 'Series', 'Team', 'WFTDA2025')

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     from core import CacheKey
-    from game.teams.models import BaseTeam
+    from game.teams.models import Team
 
 
 class Skater(CacheableSQLModel):
@@ -23,7 +23,7 @@ class Skater(CacheableSQLModel):
     name: Mapped[str] = mapped_column()
     pronouns: Mapped[str] = mapped_column()  # TODO: Implement pronouns
 
-    _team: Mapped[BaseTeam] = relationship(
+    _team: Mapped[Team] = relationship(
         cascade=CASCADE_OTHER,
         lazy='selectin',
         foreign_keys=[team_uuid],
@@ -54,7 +54,7 @@ class Skater(CacheableSQLModel):
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (await self.awaitable_attrs._team,)
 
-    def get_team(self) -> BaseTeam:
+    def get_team(self) -> Team:
         """Get the Team to which this Skater belongs.
 
         Returns:

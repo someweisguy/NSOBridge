@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta  # noqa: TC003
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
@@ -23,12 +23,12 @@ from .schemas import TimeoutSchema
 
 if TYPE_CHECKING:
     from core import CacheKey
-    from game.jams.models import BaseJam
-    from game.teams.models import BaseTeam
+    from game.jams.models import Jam
+    from game.teams.models import Team
 
 
-class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
-    """An abstract Timeout without any associated ruleset.
+class Timeout(AbstractOneShotModel, CacheableSQLModel):
+    """A Timeout without any associated ruleset.
 
     Timeouts models can represent either a timeout or an official review.
     """
@@ -54,12 +54,12 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         lazy='selectin',
         foreign_keys=[bout_uuid],
     )
-    jam: Mapped[BaseJam] = relationship(
+    jam: Mapped[Jam] = relationship(
         cascade=CASCADE_OTHER,
         foreign_keys=[_jam_uuid],
         lazy='selectin',
     )
-    team: Mapped[BaseTeam | None] = relationship(
+    team: Mapped[Team | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         foreign_keys=[_team_uuid],
@@ -73,10 +73,6 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
     )
 
     __tablename__: str = 'timeouts'
-    __mapper_args__: dict[str, Any] = {
-        'polymorphic_abstract': True,
-        'polymorphic_on': _ruleset,
-    }
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
 
     def __str__(self) -> str:
@@ -88,7 +84,7 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         """
         return f'[Bout ID: {self.bout_uuid}, T{self.num}]'
 
-    def __init__(self, jam: BaseJam, num: int) -> None:
+    def __init__(self, jam: Jam, num: int) -> None:
         """Initialize a Timeout.
 
         The default state for a Timeout is a regular timeout (not an official review)
@@ -124,33 +120,17 @@ class BaseTimeout(AbstractOneShotModel, CacheableSQLModel):
         """
         return self._bout
 
-    def set_type(self, is_review: bool) -> None:
-        """Set whether this Timeout is a timeout or an official review.
-
-        Args:
-            is_review (bool): True if this Timeout is an official review.
-
-        """
-        ...
-
-    def set_team(self, team: BaseTeam | None) -> None:
+    def set_team(self, team: Team | None) -> None:
         """Set the calling Team of this Timeout.
+
+        When a Timeout is initialized, it is not clear if the timeout is called by a
+        Team or by the officials. Calling this method sets the model data such that it
+        is clear who called the Timeout.
 
         Args:
             team (BaseTeam | None): the calling Team of this Timeout or None if this
             Timeout was called by the officials.
 
         """
-        ...
-
-    def set_retained(self, retained: bool) -> None:
-        """Set whether or not this Timeout was retained.
-
-        A retained Timeout is not subtracted from a Team's remaining timeouts or
-        official reviews when it is completed.
-
-        Args:
-            retained (bool): True if this timeout should be retained.
-
-        """
-        ...
+        self._team_uuid = team.uuid if team is not None else None
+        self.team_is_officials = team is None

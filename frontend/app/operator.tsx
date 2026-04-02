@@ -19,7 +19,6 @@ import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
-import "@mantine/dates/styles.css";
 import { Suspense } from "react";
 import { twMerge } from "tailwind-merge";
 import "./global.css";

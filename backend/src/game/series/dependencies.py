@@ -37,4 +37,28 @@ async def _get_series(
     return series
 
 
+async def _get_optional_series(
+    request: Request,
+    user: GetUser,
+    session: GetAsyncSession,
+    series_uuid: Annotated[UUID | None, Query(alias='seriesUuid')] = None,
+) -> Series | None:
+    if series_uuid is None:
+        return None
+
+    statement: Select[tuple[Series]] = select(Series).where(Series.uuid == series_uuid)
+    results: Result[tuple[Series]] = await session.execute(statement)
+
+    try:
+        series: Series = results.scalar_one()
+    except NoResultFound as e:
+        raise ModelLookupError(f'Could not find Series ({series_uuid=})') from e
+
+    # Optionally take a snapshot of the Bout state and return the Bout
+    if request.method != 'GET':
+        user.stage(series.get_memento())
+    return series
+
+
 GetSeries: TypeAlias = Annotated[Series, Depends(_get_series)]
+GetOptionalSeries: TypeAlias = Annotated[Series | None, Depends(_get_optional_series)]
