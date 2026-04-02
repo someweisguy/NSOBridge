@@ -1,11 +1,12 @@
 """FastAPI routes associated with Bouts."""
 
+import random
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
 from core import APIResponse
 from db import GetAsyncSession
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Query
 from game.series.dependencies import GetOptionalSeries
 from game.series.models import Series
 from game.teams.dependencies import GetTeam
@@ -13,6 +14,7 @@ from game.teams.models import Team
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
+from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, _get_bout
 from .models import BaseBout
 from .schemas import BoutSchema
@@ -21,6 +23,8 @@ if TYPE_CHECKING:
     from game.timeouts.models import Timeout
 
 BOUTS_TAG = 'Bouts'
+REQUIRED_NUM_TEAMS: Final[int] = 2
+
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
@@ -38,12 +42,20 @@ async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
 @router.put('/createBout')
 async def create_bout(
     session: GetAsyncSession,
-    ruleset_name: str,
-    home_team_name: str,
-    away_team_name: str,
+    ruleset_name: Annotated[str, Query(alias='rulesetName')],
+    team_names: Annotated[list[str] | None, Query(alias='teamName')] = None,
     series: GetOptionalSeries = None,
 ) -> APIResponse:
-    bout: BaseBout = BaseBout(ruleset_name, Team(home_team_name), Team(away_team_name))
+    if team_names is None:
+        team_names = list(random.choice(RANDOM_TEAM_NAMES))  # noqa: S311
+
+    if len(team_names) < REQUIRED_NUM_TEAMS:
+        raise ValueError(
+            f'At least {REQUIRED_NUM_TEAMS} team are needed to create a Bout.'
+        )
+
+    home_name, away_name, *_ = team_names
+    bout: BaseBout = BaseBout(ruleset_name, Team(home_name), Team(away_name))
 
     # Fetch a Series if one isn't provided
     # This handles only the simple case where one Series exists in the database

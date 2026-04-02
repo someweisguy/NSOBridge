@@ -1,4 +1,5 @@
 import { useAllRulesetNames } from "@/hooks/use-all-ruleset-names";
+import { useCreateBout } from "@/hooks/use-create-bout";
 import { Button, Modal, Select } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
@@ -9,8 +10,13 @@ export default function CreateBoutButton() {
 
   const [rulesetName, setRulesetName] = useState<string | null>(null);
 
+  const createBout = useCreateBout({
+    rulesetName: rulesetName ?? "",
+    onSuccess: close,
+  });
+
   useEffect(() => {
-    // Set the
+    // Set the default ruleset name to be displayed
     if (rulesetName == null && rulesetNames != null) {
       setRulesetName(rulesetNames[0]);
     }
@@ -30,7 +36,8 @@ export default function CreateBoutButton() {
           autoSelectOnBlur
         />
         <Button
-        // TODO: add button hooks
+          onClick={() => createBout.mutate()}
+          disabled={rulesetName == null}
         >
           Create
         </Button>
