@@ -19,14 +19,14 @@ export default function CreateBoutButton({
   rulesetNames,
 }: CreateBoutButtonProps) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [rulesetName, setRulesetName] = useState<string>(rulesetNames[0]);
+  const [rulesetName, setRulesetName] = useState<string>("");
   const createBout = useCreateBout({
     rulesetName,
     onSuccess: close,
   });
 
   useEffect(() => {
-    if (rulesetName == null && rulesetNames.length > 0) {
+    if (rulesetName == "" && rulesetNames.length > 0) {
       setRulesetName(rulesetName[0]);
     }
   }, [rulesetNames, rulesetName]);
@@ -37,11 +37,11 @@ export default function CreateBoutButton({
         <Group justify="center" align="end">
           <Select
             label="New Bout Ruleset"
-            placeholder="Derby Ruleset"
+            placeholder="Select an option..."
             data={rulesetNames}
             value={rulesetName}
             onChange={(value: string | null) => setRulesetName(value!)}
-            loading={rulesetNames == null}
+            loading={rulesetNames.length == 0}
             allowDeselect={false}
             autoSelectOnBlur
           />

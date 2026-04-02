@@ -6,7 +6,7 @@ import CreateBoutButton from "./create-bout-button";
  * to create new Bouts.
  */
 export default function CreateBoutButtonContainer() {
-  const { data: rulesetNames } = useAllRulesetNames({ initialData: [] });
+  const { data: rulesetNames } = useAllRulesetNames({ placeholderData: [] });
 
   return <CreateBoutButton rulesetNames={rulesetNames!} />;
 }
