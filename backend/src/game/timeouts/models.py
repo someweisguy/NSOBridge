@@ -123,6 +123,10 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     def set_team(self, team: Team | None) -> None:
         """Set the calling Team of this Timeout.
 
+        When a Timeout is initialized, it is not clear if the timeout is called by a
+        Team or by the officials. Calling this method sets the model data such that it
+        is clear who called the Timeout.
+
         Args:
             team (BaseTeam | None): the calling Team of this Timeout or None if this
             Timeout was called by the officials.
