@@ -120,15 +120,6 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
         """
         return self._bout
 
-    def set_type(self, is_review: bool) -> None:
-        """Set whether this Timeout is a timeout or an official review.
-
-        Args:
-            is_review (bool): True if this Timeout is an official review.
-
-        """
-        ...
-
     def set_team(self, team: Team | None) -> None:
         """Set the calling Team of this Timeout.
 
@@ -137,16 +128,5 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
             Timeout was called by the officials.
 
         """
-        ...
-
-    def set_retained(self, retained: bool) -> None:
-        """Set whether or not this Timeout was retained.
-
-        A retained Timeout is not subtracted from a Team's remaining timeouts or
-        official reviews when it is completed.
-
-        Args:
-            retained (bool): True if this timeout should be retained.
-
-        """
-        ...
+        self._team_uuid = team.uuid if team is not None else None
+        self.team_is_officials = team is None

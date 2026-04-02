@@ -22,10 +22,10 @@ router.add_api_route(
 @router.post('/type', tags=[TIMEOUTS_TAG])
 async def set_type(
     timeout: GetTimeout,
-    is_review: Annotated[Literal['timeout', 'review'], Body()],
+    timeout_type: Annotated[Literal['timeout', 'review'], Body()],
 ) -> APIResponse:
     """Set the type of the specified Timeout."""
-    timeout.set_type(is_review == 'review')
+    timeout.is_review = timeout_type == 'review'
     return APIResponse(None, await timeout.get_updates())
 
 
@@ -44,7 +44,7 @@ async def set_retained(
     timeout: GetTimeout, retained: Annotated[bool, Body()]
 ) -> APIResponse:
     """Set whether or not the Timeout is retained."""
-    timeout.set_retained(retained)
+    timeout.retained = retained
     return APIResponse(None, await timeout.get_updates())
 
 
