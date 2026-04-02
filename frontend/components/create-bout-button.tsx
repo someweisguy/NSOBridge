@@ -4,9 +4,17 @@ import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 
 interface CreateBoutButtonProps {
+  /**
+   * The ruleset names supported by the server.
+   */
   rulesetNames: string[];
 }
 
+/**
+ * Create a new Bout.
+ *
+ * Opens a modal which allows users to create Bouts.
+ */
 export default function CreateBoutButton({
   rulesetNames,
 }: CreateBoutButtonProps) {
