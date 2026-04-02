@@ -1,26 +1,27 @@
-import { useAllRulesetNames } from "@/hooks/use-all-ruleset-names";
 import { useCreateBout } from "@/hooks/use-create-bout";
 import { Button, Group, Modal, Select } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 
-export default function CreateBoutButton() {
+interface CreateBoutButtonProps {
+  rulesetNames: string[];
+}
+
+export default function CreateBoutButton({
+  rulesetNames,
+}: CreateBoutButtonProps) {
   const [opened, { open, close }] = useDisclosure(false);
-  const { data: rulesetNames } = useAllRulesetNames({ placeholderData: [] });
-
-  const [rulesetName, setRulesetName] = useState<string | null>(null);
-
+  const [rulesetName, setRulesetName] = useState<string>(rulesetNames[0]);
   const createBout = useCreateBout({
-    rulesetName: rulesetName ?? "",
+    rulesetName,
     onSuccess: close,
   });
 
   useEffect(() => {
-    // Set the default ruleset name to be displayed
-    if (rulesetName == null && rulesetNames != null) {
-      setRulesetName(rulesetNames[0]);
+    if (rulesetName == null && rulesetNames.length > 0) {
+      setRulesetName(rulesetName[0]);
     }
-  }, [rulesetName, rulesetNames]);
+  }, [rulesetNames, rulesetName]);
 
   return (
     <>
@@ -31,7 +32,7 @@ export default function CreateBoutButton() {
             placeholder="Derby Ruleset"
             data={rulesetNames}
             value={rulesetName}
-            onChange={(value: string | null) => setRulesetName(value)}
+            onChange={(value: string | null) => setRulesetName(value!)}
             loading={rulesetNames == null}
             allowDeselect={false}
             autoSelectOnBlur

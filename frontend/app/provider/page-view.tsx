@@ -1,4 +1,4 @@
-import CreateBoutButton from "@/components/create-bout-button";
+import CreateBoutButtonContainer from "@/components/create-bout-button-container";
 import {
   AppShell,
   AppShellProps,
@@ -68,7 +68,7 @@ export default function PageView({
           </AppShell.Header>
 
           <AppShell.Navbar>
-            <CreateBoutButton />
+            <CreateBoutButtonContainer />
             <Select
               allowDeselect={false}
               data={boutData}
