@@ -28,7 +28,6 @@ dev = [
 [tool.ruff]
 indent-width = 4
 line-length = 88
-exclude = ["./*.spec"]
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -62,11 +61,11 @@ combine-as-imports = true
 force-single-line = false
 
 [tool.ruff.lint.per-file-ignores]
-"backend/tests/*" = [
-  "S101", # Allow asserts
-]
 "backend/src/*" = [
   "S104", # Allow use of all-interfaces string (0.0.0.0)
+]
+"backend/tests/*" = [
+  "S101", # Allow asserts
 ]
 
 [tool.setuptools.packages.find]
