@@ -11,3 +11,7 @@ sm
 queryFn
 mutateFn
 Uuid
+vitejs
+plugin-react-swc
+vitest
+ts

@@ -5,11 +5,9 @@
   /* Regular */
   font-family: "Rubik";
   src:
-    url("/frontend/public/font/Rubik/Rubik-VariableFont_wght.woff2")
-      format("woff2"),
-    url("/frontend/public/font/Rubik/Rubik-VariableFont_wght.woff")
-      format("woff"),
-    url("/frontend/public/font/Rubik/Rubik-VariableFont_wght.ttf") format("ttf");
+    url("/fonts/Rubik/Rubik-VariableFont_wght.woff2") format("woff2"),
+    url("/fonts/Rubik/Rubik-VariableFont_wght.woff") format("woff"),
+    url("/fonts/Rubik/Rubik-VariableFont_wght.ttf") format("ttf");
   font-style: normal;
   font-weight: 300 900;
 }
@@ -17,12 +15,9 @@
   /* Italic */
   font-family: "Rubik";
   src:
-    url("/frontend/public/font/Rubik/Rubik-Italic-VariableFont_wght.woff2")
-      format("woff2"),
-    url("/frontend/public/font/Rubik/Rubik-Italic-VariableFont_wght.woff")
-      format("woff"),
-    url("/frontend/public/font/Rubik/Rubik-Italic-VariableFont_wght.ttf")
-      format("ttf");
+    url("/fonts/Rubik/Rubik-Italic-VariableFont_wght.woff2") format("woff2"),
+    url("/fonts/Rubik/Rubik-Italic-VariableFont_wght.woff") format("woff"),
+    url("/fonts/Rubik/Rubik-Italic-VariableFont_wght.ttf") format("ttf");
   font-style: italic;
   font-weight: 300 900;
 }

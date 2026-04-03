@@ -3,12 +3,12 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { defineConfig } from "vite";
-import { createMpaPlugin } from "vite-plugin-virtual-mpa";
 
 // https://vite.dev/config/
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import { fileURLToPath } from "node:url";
+
 const dirname =
   typeof __dirname !== "undefined"
     ? __dirname
@@ -16,40 +16,36 @@ const dirname =
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
+  root: path.resolve(dirname),
+  publicDir: "../public",
   build: {
     cssMinify: true,
     minify: true,
-    outDir: "www",
+    outDir: "../www",
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        index: path.resolve(dirname, "index.html"),
+        sb: path.resolve(dirname, "sb.html"),
+      },
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            // Returns the package name as the chunk name
+            return id
+              .toString()
+              .split("node_modules/")[1]
+              .split("/")[0]
+              .toString();
+          }
+        },
+      },
+    },
   },
-  plugins: [
-    react(),
-    tailwindcss(),
-    createMpaPlugin({
-      htmlMinify: true,
-      template: "frontend/app/template.html",
-      pages: [
-        {
-          name: "Main",
-          filename: "index.html",
-          entry: "/frontend/app/operator.tsx",
-          data: {
-            scriptPath: "frontend/app/operator.tsx",
-          },
-        },
-        {
-          name: "Scoreboard",
-          filename: "sb.html",
-          entry: "/frontend/app/scoreboard.tsx",
-          data: {
-            scriptPath: "frontend/app/scoreboard.tsx",
-          },
-        },
-      ],
-    }),
-  ],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./frontend"),
+      "@": dirname,
     },
   },
   test: {
@@ -60,7 +56,7 @@ export default defineConfig({
           // The plugin will run tests for the stories defined in your Storybook config
           // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
           storybookTest({
-            configDir: path.join(dirname, ".storybook"),
+            configDir: path.join(dirname, "storybook"),
           }),
         ],
         test: {
