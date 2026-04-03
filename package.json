@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build -c frontend/vite.config.ts",
     "build no-minify": "tsc -b && vite build --minify false",
     "watch": "tsc -b && vite build --watch",
-    "lint": "eslint .",
+    "lint": "eslint -c ./frontend/configs/eslint.config.js",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -17,7 +17,7 @@
   "lint-staged": {
     "*.{js,ts,tsx,json,css,md,toml}": [
       "npx prettier --write",
-      "eslint --fix"
+      "eslint -c ./frontend/configs/eslint.config.js --fix"
     ],
     "*.py": [
       "uvx ty check",
