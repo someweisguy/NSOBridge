@@ -1,3 +1,5 @@
+import PageView from "@/components/page-view";
+import { BoutUriProvider } from "@/hooks/use-bout-uri-context";
 import { useGetAllBouts } from "@/hooks/use-get-all-bouts";
 import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import { SyncDataProvider } from "@/hooks/use-sync-context";
@@ -6,8 +8,6 @@ import { Bout } from "@/types/bout";
 import { MantineProvider } from "@mantine/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren, StrictMode, useEffect, useState } from "react";
-import PageView from "./page-view";
-import { BoutUriProvider } from "./use-bout-uri-context";
 
 const urlParams = new URLSearchParams(window.location.search);
 const boutUuidParam = urlParams.get("boutUuid");

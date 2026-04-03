@@ -1,6 +1,6 @@
+import PageContainer from "@/components/page-container";
 import { ElementType } from "react";
 import { createRoot } from "react-dom/client";
-import PageContainer from "./page-container";
 
 /**
  * A utility function to render a page to the React DOM.

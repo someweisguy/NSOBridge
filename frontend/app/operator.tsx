@@ -22,8 +22,8 @@ import "@mantine/core/styles.css";
 import { Suspense } from "react";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
-import renderPage from "./provider/renderPage";
-import { useBoutUriContext } from "./provider/use-bout-uri-context";
+import renderPage from "./render-page";
+import { useBoutUriContext } from "../hooks/use-bout-uri-context";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
