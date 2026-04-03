@@ -15,3 +15,7 @@ vitejs
 plugin-react-swc
 vitest
 ts
+js
+jsx
+mjs
+tsx
