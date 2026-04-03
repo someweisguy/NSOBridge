@@ -19,5 +19,16 @@
     "editor.tabSize": 2
   },
   "spellright.language": ["en"],
-  "spellright.documentTypes": ["markdown", "latex", "plaintext", "typescript"]
+  "spellright.documentTypes": [
+    "markdown",
+    "latex",
+    "plaintext",
+    "typescript",
+    "postcss"
+  ],
+  "spellright.parserByClass": {
+    "postcss": {
+      "parser": "plain"
+    }
+  }
 }
