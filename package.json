@@ -5,9 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build -c frontend/vite.config.ts",
-    "build no-minify": "tsc -b && vite build --minify false",
-    "watch": "tsc -b && vite build --watch",
+    "build": "tsc -b && vite build -c frontend/configs/vite.config.ts",
     "lint": "eslint -c ./frontend/configs/eslint.config.js",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",

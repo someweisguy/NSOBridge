@@ -9,24 +9,27 @@ import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import { fileURLToPath } from "node:url";
 
-const dirname =
+const frontendDirectory = path.resolve(
   typeof __dirname !== "undefined"
     ? __dirname
-    : path.dirname(fileURLToPath(import.meta.url));
+    : path.dirname(fileURLToPath(import.meta.url)),
+  "../",
+);
+const projectDirectory = path.resolve(frontendDirectory, "../");
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  root: path.resolve(dirname),
-  publicDir: "../public",
+  root: frontendDirectory,
+  publicDir: path.resolve(projectDirectory, "public"),
   build: {
     cssMinify: true,
     minify: true,
-    outDir: "../www",
+    outDir: path.resolve(projectDirectory, "www"),
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        index: path.resolve(dirname, "index.html"),
-        sb: path.resolve(dirname, "sb.html"),
+        index: path.resolve(frontendDirectory, "index.html"),
+        sb: path.resolve(frontendDirectory, "sb.html"),
       },
       output: {
         manualChunks(id) {
@@ -45,7 +48,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": dirname,
+      "@": frontendDirectory,
     },
   },
   test: {
