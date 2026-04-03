@@ -117,7 +117,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version-file: pyproject.toml
-      - run: pyinstaller onedir.spec
+      - run: pyinstaller backend/build.spec
       - run: rm -rf "dist/NSO Bridge"; chmod -R +x "dist/NSO Bridge.app"
         if: ${{ runner.os == 'macOS' }}
       - uses: actions/upload-artifact@v4

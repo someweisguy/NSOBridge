@@ -1,14 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 a = Analysis(
-    ['backend/src/with_gui.py'],
+    ['src/with_gui.py'],
     pathex=[],
     binaries=[],
     datas=[
-        ('www', 'www'),
-        ('public', 'public'),
-        ('README.md', '.'),
-        ('LICENSE.txt', '.'),
+        ('../www', 'www'),
+        ('../public', 'public'),
+        ('../README.md', '.'),
+        ('../LICENSE.txt', '.'),
     ],
     hiddenimports=['aiosqlite', 'sqlalchemy.dialects.sqlite', 'PIL'],
     hookspath=[],
@@ -36,7 +36,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['public/skate.png'],
+    icon=['../public/skate.png'],
 )
 coll = COLLECT(
     exe,
@@ -50,6 +50,6 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='NSO Bridge.app',
-    icon='public/skate.png',
+    icon='../public/skate.png',
     bundle_identifier=None,
 )
