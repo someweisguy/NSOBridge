@@ -3,7 +3,7 @@
   "references": [{ "path": "./frontend/tsconfig.app.json" }],
   "compilerOptions": {
     "paths": {
-      "@/*": ["./frontend/*"]
+      "@/*": ["./*"]
     }
   }
 }

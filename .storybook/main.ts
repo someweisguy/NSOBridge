@@ -5,6 +5,7 @@ const config: StorybookConfig = {
     "../frontend/stories/*.stories.@(js|jsx|mjs|ts|tsx)",
     "../frontend/features/**/*.stories.@(js|jsx|mjs|ts|tsx)",
   ],
+
   addons: [
     "@chromatic-com/storybook",
     "@storybook/addon-vitest",
