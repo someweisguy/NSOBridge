@@ -23,6 +23,9 @@
       "uvx ruff format ."
     ]
   },
+  "prettier": {
+    "plugins": ["prettier-plugin-toml"]
+  },
   "dependencies": {
     "@fit-screen/react": "^1.0.2",
     "@mantine/core": "9.0.0",
