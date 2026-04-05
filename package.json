@@ -5,17 +5,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build -c frontend/configs/vite.config.ts",
-    "lint": "eslint -c ./frontend/configs/eslint.config.js",
+    "build": "tsc -p frontend/configs/tsconfig.json && vite build -c frontend/configs/vite.config.ts",
+    "lint": "eslint -c frontend/configs/eslint.config.js",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test-storybook": "vitest -r . -c ./frontend/configs/vite.config.ts --project=storybook"
+    "test-storybook": "vitest -r . -c frontend/configs/vite.config.ts --project=storybook"
   },
   "lint-staged": {
     "*.{js,ts,tsx,json,css,md,toml}": [
       "npx prettier --write",
-      "eslint -c ./frontend/configs/eslint.config.js --fix"
+      "eslint -c frontend/configs/eslint.config.js --fix"
     ],
     "*.py": [
       "uvx ty check",

@@ -6,6 +6,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -14,8 +15,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["../*"]
     },
+
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -24,5 +26,5 @@
     "strict": true,
     "strictPropertyInitialization": false
   },
-  "include": ["."]
+  "include": ["..", "../.storybook/*"]
 }
