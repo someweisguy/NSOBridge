@@ -6,13 +6,13 @@ const frontendDirectory = path.resolve(
   typeof __dirname !== "undefined"
     ? __dirname
     : path.dirname(fileURLToPath(import.meta.url)),
-  "../frontend",
+  "../",
 );
 
 const config: StorybookConfig = {
   stories: [
-    "../frontend/stories/*.stories.@(js|jsx|mjs|ts|tsx)",
-    "../frontend/features/**/*.stories.@(js|jsx|mjs|ts|tsx)",
+    "../stories/*.stories.@(js|jsx|mjs|ts|tsx)",
+    "../features/**/*.stories.@(js|jsx|mjs|ts|tsx)",
   ],
   addons: [
     "@chromatic-com/storybook",

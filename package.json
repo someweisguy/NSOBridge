@@ -8,7 +8,7 @@
     "build": "tsc -p frontend/configs/tsconfig.json && vite build -c frontend/configs/vite.config.ts",
     "lint": "eslint -c frontend/configs/eslint.config.js",
     "prepare": "husky",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 6006 --config-dir frontend/.storybook",
     "build-storybook": "storybook build",
     "test-storybook": "vitest -r . -c frontend/configs/vite.config.ts --project=storybook"
   },
