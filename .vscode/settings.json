@@ -30,5 +30,8 @@
     "postcss": {
       "parser": "plain"
     }
+  },
+  "files.associations": {
+    "*.spec": "python"
   }
 }

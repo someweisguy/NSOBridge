@@ -25,7 +25,11 @@ dev = [
   "ty>=0.0.8",
 ]
 
+[tool.pytest.ini_options]
+pythonpath = ["backend/src"]
+
 [tool.ruff]
+extend-exclude = ["*.spec"]
 indent-width = 4
 line-length = 88
 
@@ -71,8 +75,5 @@ force-single-line = false
 [tool.setuptools.packages.find]
 include = ["backend"]
 
-[tool.pytest.ini_options]
-pythonpath = ["backend/src"]
-
 [tool.ty.src]
-exclude = ["./*.spec"]
+exclude = ["backend/*.spec"]
