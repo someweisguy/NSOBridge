@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p frontend/configs/tsconfig.json && vite build -c frontend/configs/vite.config.ts",
+    "build": "tsc -b && vite build -c frontend/configs/vite.config.ts",
     "lint": "eslint -c frontend/configs/eslint.config.js .",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006 --config-dir frontend/.storybook",

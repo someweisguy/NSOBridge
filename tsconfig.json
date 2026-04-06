@@ -15,7 +15,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": ["../*"]
+      "@/*": ["./frontend/*"]
     },
 
     /* Linting */
@@ -26,5 +26,5 @@
     "strict": true,
     "strictPropertyInitialization": false
   },
-  "include": ["..", "../.storybook/*"]
+  "include": ["."]
 }
