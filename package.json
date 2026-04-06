@@ -10,7 +10,7 @@
     "prepare": "husky",
     "storybook": "storybook dev -p 6006 --config-dir frontend/.storybook",
     "build-storybook": "storybook build",
-    "test-storybook": "vitest -r . -c frontend/configs/vite.config.ts --project=storybook"
+    "test-storybook": "vitest --dir frontend/ -c frontend/configs/vite.config.ts --project=storybook"
   },
   "lint-staged": {
     "*.{js,ts,tsx,json,css,md,toml}": [
