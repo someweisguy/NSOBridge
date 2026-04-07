@@ -29,7 +29,7 @@ export default function TeamName({
     <>
       {editable && (
         <Modal title="Edit Team Name" opened={opened} onClose={close} centered>
-          <Group>
+          <Group align="end" justify="center">
             <TextInput
               description="New Team Name"
               value={teamNameState}
