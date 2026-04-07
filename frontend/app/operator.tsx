@@ -3,6 +3,7 @@ import BoutJamControlContainer from "@/features/bouts/components/bout-jam-contro
 import BoutPeriodControlContainer from "@/features/bouts/components/bout-period-control-container";
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control-container";
+import TeamNameContainer from "@/features/bouts/components/team-name-container";
 import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import JamNumberContainer from "@/features/jams/components/jam-number-container";
 import JammerStateEditorContainer from "@/features/jams/components/jammer-state-container";
@@ -21,9 +22,9 @@ import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense } from "react";
 import { twMerge } from "tailwind-merge";
+import { useBoutUriContext } from "../hooks/use-bout-uri-context";
 import "./global.css";
 import renderPage from "./render-page";
-import { useBoutUriContext } from "../hooks/use-bout-uri-context";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
@@ -63,9 +64,13 @@ export default function Operator() {
       <SimpleGrid cols={bout.teams.length}>
         {bout.teams.map((team: Team, i: number) => (
           <Stack key={i} justify="center">
-            <Text ta="center" fw="bolder" size="36pt">
-              {team.name}
-            </Text>
+            <TeamNameContainer
+              boutUuid={bout.uuid}
+              teamNum={team.num}
+              ta="center"
+              fw="bolder"
+              size="36pt"
+            />
             <Flex
               direction={i % 2 ? "row-reverse" : "row"}
               align="center"

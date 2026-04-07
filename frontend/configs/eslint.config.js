@@ -8,7 +8,17 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
+import path from "path";
 import tseslint from "typescript-eslint";
+import { fileURLToPath } from "url";
+
+const frontendDirectory = path.resolve(
+  typeof __dirname !== "undefined"
+    ? __dirname
+    : path.dirname(fileURLToPath(import.meta.url)),
+  "../",
+);
+const projectDirectory = path.resolve(frontendDirectory, "../");
 
 export default defineConfig([
   globalIgnores([
@@ -34,8 +44,8 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
-        project: ["./tsconfig.json"],
-        tsconfigRootDir: import.meta.dirname,
+        project: [path.resolve(projectDirectory, "tsconfig.json")],
+        tsconfigRootDir: projectDirectory,
       },
     },
     settings: {
@@ -53,7 +63,7 @@ export default defineConfig([
       "import/no-restricted-paths": [
         "error",
         {
-          basePath: "../",
+          basePath: frontendDirectory,
           zones: [
             // Disable cross-feature imports
             {

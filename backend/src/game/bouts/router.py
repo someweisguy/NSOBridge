@@ -219,4 +219,14 @@ async def set_clock_is_running(
     return APIResponse(None, cache=await bout.get_updates())
 
 
+@router.put(path='/setTeamName')
+async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> APIResponse:
+    """Set the desired Team's name."""
+    # TODO: Does any additional string handling need to happen here?
+
+    team.name = name
+
+    return APIResponse(None, cache=await team.get_bout().get_updates())
+
+
 __all__ = ('router',)
