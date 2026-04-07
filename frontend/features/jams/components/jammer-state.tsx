@@ -27,7 +27,7 @@ export default function JammerState({
   lost,
   starPass,
   w = 50,
-  h = 50,
+  h = w,
   leadComponent = <IconStarFilled size="80%" />,
   lostComponent = <IconX size="100%" />,
   starPassComponent = (
