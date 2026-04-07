@@ -14,9 +14,9 @@ export const useSetTeamName = ({
 }: TeamUri & AppMutationOptions<void, unknown, string>) =>
   useMutation({
     mutationFn: (newTeamName: string) =>
-      localAPI.post<void>("bout/setClockIsRunning", {
+      localAPI.put<void>("bout/setTeamName", {
         query: { boutUuid, teamNum },
-        body: newTeamName,
+        body: JSON.stringify(newTeamName),
       }),
     ...options,
   });
