@@ -20,7 +20,6 @@ RANDOM_TEAM_NAMES: list[tuple[str, str]] = [
     ('Coffee', 'Tea'),
     ('Sweet', 'Sour'),
     ('Books', 'Movies'),
-    ('Give', 'Take'),
     ('Push', 'Pull'),
     ('Humans', 'Machines'),
     ('Heroes', 'Villains'),
@@ -28,6 +27,19 @@ RANDOM_TEAM_NAMES: list[tuple[str, str]] = [
     ('Necromancers', 'Paladins'),
     ('Wizards', 'Warlocks'),
     ('Zombies', 'Ninjas'),
+    ('Sharks', 'Jets'),
+    ('North', 'South'),
+    ('East', 'West'),
+    ('Spring', 'Autumn'),
+    ('Summer', 'Winter'),
+    ('Fireflies', 'Lightning Bugs'),
+    ('Brains', 'Brawn'),
+    ('Alpha', 'Omega'),
+    ('Soup', 'Salad'),
+    ('Dinosaurs', 'Asteroids'),
+    ('Duct Tape', 'WD-40'),
+    ('Cats', 'Laser Pointers'),
+    ('Bananas', 'Peels'),
 ]
 """A list of random team names that are used to create Bouts when no team names are
 specified."""
