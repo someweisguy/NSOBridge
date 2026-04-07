@@ -41,7 +41,7 @@ export default function TeamName({
           </Group>
         </Modal>
       )}
-      <Text {...props} onClick={open}>
+      <Text style={{ cursor: "pointer" }} {...props} onClick={open}>
         {teamName}
       </Text>
     </>
