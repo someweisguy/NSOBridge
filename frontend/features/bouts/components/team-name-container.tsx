@@ -5,6 +5,9 @@ import { TextProps } from "@mantine/core";
 import { useSetTeamName } from "../hooks/use-set-team-name";
 import TeamName from "./team-name";
 
+/**
+ * A Team Name container used for displaying and editing the desired Team's name.
+ */
 export default function TeamNameContainer({
   boutUuid,
   teamNum,

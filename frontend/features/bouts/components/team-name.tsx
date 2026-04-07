@@ -11,11 +11,23 @@ import { UseMutationResult } from "@tanstack/react-query";
 import { useState } from "react";
 
 interface TeamNameProps extends TextProps {
+  /**
+   * The Team Name to display.
+   */
   teamName: string;
+  /**
+   * A mutator which tells the server to rename the team.
+   */
   setTeamName?: UseMutationResult<void, unknown, string>;
+  /**
+   * True to make this component editable.
+   */
   editable?: boolean;
 }
 
+/**
+ * Display an editable version of a Team's Name.
+ */
 export default function TeamName({
   teamName,
   editable = true,
