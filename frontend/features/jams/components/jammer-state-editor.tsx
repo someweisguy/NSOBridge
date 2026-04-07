@@ -51,7 +51,7 @@ interface JammerStateProps extends GroupProps {
  * has been declared lead, has lost eligibility for lead, or if a star pass has
  * occurred.
  */
-export default function JammerState({
+export default function JammerStateEditor({
   lead,
   lost,
   starPass,
