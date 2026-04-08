@@ -16,7 +16,7 @@ export default function JamStopReasonEditorContainer({
 
   return (
     <TitledSegmentedControl
-      title="Jam Stop Reason"
+      label="Jam Stop Reason"
       data={[
         {
           value: "called",

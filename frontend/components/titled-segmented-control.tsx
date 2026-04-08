@@ -9,21 +9,31 @@ interface JamStopReasonControlProps extends SegmentedControlProps {
   /**
    * The title to associate with this SegmentedControl.
    */
-  title: string;
+  label?: string;
+  description?: string;
 }
 
 /**
  * Display a Mantine SegmentedControl with a title.
  */
 export default function TitledSegmentedControl({
-  title,
+  label,
+  description,
+  w,
   ...props
 }: JamStopReasonControlProps) {
   return (
-    <Stack gap="0">
-      <Text size="sm" fw="300">
-        {title}
-      </Text>
+    <Stack w={w} gap="1">
+      {label && (
+        <Text span lh="1.4" py="2" size="sm" fw="500" w="fit-content">
+          {label}
+        </Text>
+      )}
+      {description && (
+        <Text p="0" mt="0" mb="4" lh="1" size="xs" c="dimmed">
+          {description}
+        </Text>
+      )}
       <SegmentedControl {...props} />
     </Stack>
   );
