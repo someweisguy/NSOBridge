@@ -3,11 +3,30 @@ import { IconStarFilled, IconX } from "@tabler/icons-react";
 import { ReactElement } from "react";
 
 interface JammerStateProps extends BoxProps {
+  /**
+   * True if the Jammer is or was the lead.
+   */
   lead: boolean;
+  /**
+   * True if the Jammer has lost lead Jammer eligibility.
+   */
   lost: boolean;
+  /**
+   * True if the Jammer has successfully completed a Star Pass.
+   */
   starPass: boolean;
+  /**
+   * The component which should be displayed when this Jammer is lead.
+   */
   leadComponent?: ReactElement;
+  /**
+   * The component which should be displayed when this Jammer has lost lead eligibility.
+   */
   lostComponent?: ReactElement;
+  /**
+   * The component which should be displayed when this Jammer has successfully completed
+   * a Star Pass.
+   */
   starPassComponent?: ReactElement;
 }
 
