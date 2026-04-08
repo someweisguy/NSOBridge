@@ -16,7 +16,7 @@ interface PageViewProps
     Omit<AppShellProps, "data" | "onChange">,
     Pick<SelectProps, "onChange"> {
   /**
-   * The data which should be shown in the Bout Picker combobox. The label is the
+   * The data which should be shown in the Bout Picker combo box. The label is the
    * display name which should be shown and the value corresponds to the Bout UUID.
    */
   boutData?: { value: string; label: string }[];
