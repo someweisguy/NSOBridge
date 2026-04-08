@@ -10,7 +10,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    title: "My Title",
+    label: "My Label",
+    description: "My Description.",
     data: ["Option 1", "Option 2", "Option 3", "Option 4"],
   },
 };
