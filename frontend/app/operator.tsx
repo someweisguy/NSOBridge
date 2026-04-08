@@ -28,11 +28,13 @@ import renderPage from "./render-page";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
-  if (event.ctrlKey) {
-    if (event.key === "z") {
+  if (event.ctrlKey || event.metaKey) {
+    if (event.key.toLowerCase() === "z") {
+      event.preventDefault();
       void undo();
     }
-    if (event.key === "y") {
+    if (event.key.toLowerCase() === "y") {
+      event.preventDefault();
       void redo();
     }
   }
