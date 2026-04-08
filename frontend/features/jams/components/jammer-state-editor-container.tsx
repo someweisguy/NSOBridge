@@ -5,7 +5,7 @@ import { GroupProps } from "@mantine/core";
 import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
 import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
 import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
-import JammerState from "./jammer-state";
+import JammerStateEditor from "./jammer-state-editor";
 
 /**
  * Display a control which allows users to set the state of the Jammer. This allows
@@ -70,7 +70,7 @@ export default function JammerStateEditorContainer({
   }
 
   return (
-    <JammerState
+    <JammerStateEditor
       lead={lead}
       lost={lost}
       starPass={starPass}

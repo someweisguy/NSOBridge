@@ -1,92 +1,74 @@
-import {
-  Checkbox,
-  createTheme,
-  Divider,
-  Group,
-  GroupProps,
-  MantineProvider,
-} from "@mantine/core";
-import { IconStarFilled } from "@tabler/icons-react";
-import { UseMutationResult } from "@tanstack/react-query";
+import { Box, BoxProps, Center, StyleProp, Text } from "@mantine/core";
+import { IconStarFilled, IconX } from "@tabler/icons-react";
+import { ReactElement } from "react";
 
-const checkBoxTheme = createTheme({
-  // Hovering over checkbox should change cursor
-  cursorType: "pointer",
-});
-
-interface JammerStateProps extends GroupProps {
+interface JammerStateProps extends BoxProps {
   /**
-   * True if this team's Jammer is the lead Jammer.
+   * True if the Jammer is or was the lead.
    */
   lead: boolean;
   /**
-   * True if this team's Jammer has explicitly lost lead Jammer eligibility.
+   * True if the Jammer has lost lead Jammer eligibility.
    */
   lost: boolean;
   /**
-   * True if this team's Jammer has successfully completed a Star Pass.
+   * True if the Jammer has successfully completed a Star Pass.
    */
   starPass: boolean;
   /**
-   * True if this team's Jammer is still eligible for lead. This value would be false if
-   * the other team's Jammer has been declared lead.
+   * The component which should be displayed when this Jammer is lead.
    */
-  isLeadEligible: boolean;
+  leadComponent?: ReactElement;
   /**
-   * The event handler which fires when clicking the lead checkbox.
+   * The component which should be displayed when this Jammer has lost lead eligibility.
    */
-  leadOnClick?: UseMutationResult<void, unknown, boolean, unknown>;
+  lostComponent?: ReactElement;
   /**
-   * The event handler which fires when clicking the lost checkbox.
+   * The component which should be displayed when this Jammer has successfully completed
+   * a Star Pass.
    */
-  lostOnClick?: UseMutationResult<void, unknown, boolean, unknown>;
-  /**
-   * The event handler which fires when clicking the star pass checkbox.
-   */
-  starPassOnClick?: UseMutationResult<void, unknown, boolean, unknown>;
+  starPassComponent?: ReactElement;
+}
+
+function fontSizeTransform(size: StyleProp<number | string>) {
+  if (!isNaN(Number(size))) {
+    size = Number(size) * 0.65;
+  }
+  return size;
 }
 
 /**
- * Displays and allows for editing of the Jammer's state. This shows whether the Jammer
- * has been declared lead, has lost eligibility for lead, or if a star pass has
- * occurred.
+ * Used to display the Jammer's state at a glance. Displays whether the Jammer is the
+ * lead jammer, has lost lead eligibility, or has successfully completed a Star Pass.
  */
 export default function JammerState({
   lead,
   lost,
   starPass,
-  isLeadEligible,
-  leadOnClick,
-  lostOnClick,
-  starPassOnClick,
-  ...props
+  w = 50,
+  h = w,
+  leadComponent = <IconStarFilled size="80%" />,
+  lostComponent = <IconX size="100%" />,
+  starPassComponent = (
+    <Text fw={500} fz={fontSizeTransform(h)} ta="center" tt="uppercase">
+      SP
+    </Text>
+  ),
 }: JammerStateProps) {
+  let renderComponent: ReactElement = <></>;
+  if (starPass) {
+    renderComponent = starPassComponent;
+  } else if (lost) {
+    renderComponent = lostComponent;
+  } else if (lead) {
+    renderComponent = leadComponent;
+  }
+
   return (
-    <MantineProvider theme={checkBoxTheme}>
-      <Group {...props}>
-        <Checkbox
-          label="Lead"
-          checked={lead}
-          disabled={!isLeadEligible}
-          onClick={() => leadOnClick?.mutate(!lead)}
-          variant="outline"
-          icon={({ ...others }) => <IconStarFilled {...others} />}
-        />
-        <Divider orientation="vertical" />
-        <Checkbox
-          label="Lost"
-          checked={lost}
-          onClick={() => lostOnClick?.mutate(!lost)}
-          variant="outline"
-        />
-        <Divider orientation="vertical" />
-        <Checkbox
-          label="Star Pass"
-          checked={starPass}
-          onClick={() => starPassOnClick?.mutate(!starPass)}
-          variant="outline"
-        />
-      </Group>
-    </MantineProvider>
+    <Box w={w} h={h}>
+      <Center h="100%" w="100%">
+        {renderComponent}
+      </Center>
+    </Box>
   );
 }

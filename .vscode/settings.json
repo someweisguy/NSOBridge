@@ -11,7 +11,8 @@
     "latex",
     "plaintext",
     "typescript",
-    "postcss"
+    "postcss",
+    "typescriptreact"
   ],
   "spellright.parserByClass": {
     "postcss": {

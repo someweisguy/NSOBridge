@@ -4,22 +4,55 @@ import JammerState from "../components/jammer-state";
 const meta: Meta<typeof JammerState> = {
   component: JammerState,
   title: "Jammer State",
+  argTypes: {
+    w: {
+      type: "number",
+    },
+    h: {
+      type: "number",
+    },
+  },
 };
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const Lead: Story = {
   args: {
-    isLeadEligible: true,
-    lead: false,
+    lead: true,
     lost: false,
     starPass: false,
+    w: 50,
+    h: 50,
   },
 };
 
-export const NotLeadEligible: Story = {
+export const Lost: Story = {
   args: {
-    isLeadEligible: false,
+    lead: false,
+    lost: true,
+    starPass: false,
+    w: 50,
+    h: 50,
+  },
+};
+
+export const StarPass: Story = {
+  args: {
+    lead: false,
+    lost: false,
+    starPass: true,
+    w: 50,
+    h: 50,
+  },
+};
+
+export const Default: Story = {
+  args: {
+    lead: false,
+    lost: false,
+    starPass: false,
+    w: 50,
+    h: 50,
   },
 };
 
