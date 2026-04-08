@@ -18,7 +18,7 @@ export default function TimeoutTypeEditorContainer({
 
   return (
     <TitledSegmentedControl
-      title="Timeout Type"
+      label="Timeout Type"
       data={[
         { value: "timeout", label: "Timeout" },
         { value: "review", label: "Official Review" },

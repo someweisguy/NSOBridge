@@ -26,7 +26,7 @@ export default function TimeoutCallerEditorContainer({
 
   return (
     <TitledSegmentedControl
-      title="Calling Team"
+      label="Calling Team"
       data={[
         ...data,
         {
