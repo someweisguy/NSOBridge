@@ -19,6 +19,14 @@
       "parser": "plain"
     }
   },
+  "spellright.ignoreFiles": [
+    "**/.venv/**",
+    "**/*_cache/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/www/**"
+  ],
   "[javascript]": {
     "editor.tabSize": 2
   },
