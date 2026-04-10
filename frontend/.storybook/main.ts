@@ -21,6 +21,8 @@ const config: StorybookConfig = {
     "@storybook/addon-docs",
     "@storybook/addon-onboarding",
     "storybook-addon-mock-date",
+    "storybook-addon-deep-controls",
+    "storybook-dark-mode",
   ],
   framework: {
     name: "@storybook/react-vite",
