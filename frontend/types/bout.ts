@@ -189,4 +189,8 @@ export interface Team {
    * the WFTDA 2026 stats paperwork but is used extremely rarely.
    */
   scoreOffset: number;
+  /**
+   * // TODO: The skaters on this team.
+   */
+  skaters: unknown[];
 }
