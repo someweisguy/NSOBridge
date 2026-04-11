@@ -1,8 +1,9 @@
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { BoutUri } from "@/types/query";
-import { Button, ButtonProps } from "@mantine/core";
+import { ButtonProps } from "@mantine/core";
 import { useStartJam } from "../hooks/use-start-jam";
 import { useStopJam } from "../hooks/use-stop-jam";
+import BoutJamControl from "./bout-jam-control";
 
 /**
  * Control the Jam state of the desired Bout. This button starts and stops the latest
@@ -16,12 +17,13 @@ export default function BoutJamControlContainer({
   const startJam = useStartJam({ boutUuid });
   const stopJam = useStopJam({ boutUuid });
 
-  const content = bout.state == "jam" ? "Stop Jam" : "Start Jam";
   const command = bout.state == "jam" ? stopJam : startJam;
 
   return (
-    <Button onClick={() => command.mutate()} {...props}>
-      {content}
-    </Button>
+    <BoutJamControl
+      boutState={bout.state}
+      onClick={() => command.mutate()}
+      {...props}
+    />
   );
 }

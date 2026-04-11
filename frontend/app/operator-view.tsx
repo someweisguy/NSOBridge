@@ -13,6 +13,7 @@ import "@mantine/core/styles.css";
 import { Suspense } from "react";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
+import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 // import renderPage from "./render-page";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
@@ -116,7 +117,7 @@ export default function OperatorView({
       {/* Bout State control */}
       <Group align="end" justify="center" mih="75">
         {/* // TODO */}
-        {/* <BoutJamControlContainer boutUuid={bout.uuid} {...bout} /> */}
+        <BoutJamControl boutState={bout.state} />
         {/* <BoutTimeoutControl boutUuid={bout.uuid} {...bout} variant="subtle" /> */}
         {/* <BoutPeriodControlContainer
           boutUuid={bout.uuid}
