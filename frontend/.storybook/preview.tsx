@@ -32,6 +32,7 @@ const preview: Preview = {
       // 'off' - skip a11y checks entirely
       test: "todo",
     },
+    deepControls: { enabled: true },
   },
   tags: ["autodocs"],
 };
