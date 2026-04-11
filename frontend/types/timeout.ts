@@ -18,6 +18,21 @@ export class Clock {
    */
   alarm: number;
 
+  constructor({
+    startTimestamp,
+    elapsed,
+    alarm,
+  }: {
+    startTimestamp: string | null;
+    elapsed: number;
+    alarm: number;
+  }) {
+    this.startTimestamp =
+      startTimestamp == null ? null : new Date(startTimestamp);
+    this.elapsed = elapsed;
+    this.alarm = alarm;
+  }
+
   /**
    * Determine if this Clock is running.
    *
