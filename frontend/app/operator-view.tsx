@@ -45,7 +45,11 @@ interface OperatorViewProps {
  * server to run the majority of the game. It serves controls to start and stop the Bout
  * edit the score, call Timeouts, and edit Lineups.
  */
-export default function OperatorView({ bout, activeJam }: OperatorViewProps) {
+export default function OperatorView({
+  bout,
+  activeJam,
+  latestTimeout,
+}: OperatorViewProps) {
   return (
     <Stack align="stretch" justify="flex-start">
       {/* Team information */}
@@ -69,8 +73,8 @@ export default function OperatorView({ bout, activeJam }: OperatorViewProps) {
                 numTimeouts={3}
                 timeoutsRemaining={team.timeoutsRemaining}
                 reviewsRemaining={team.reviewsRemaining}
-                timeoutIsActive={false} // TODO
-                isReview={false} // TODO
+                timeoutIsActive={latestTimeout?.isRunning() ?? false}
+                isReview={latestTimeout?.isReview ?? false}
                 size={24}
               />
               <Text fw="bold" w={150} ta="center" size="48pt">
@@ -88,11 +92,16 @@ export default function OperatorView({ bout, activeJam }: OperatorViewProps) {
       <Stack fz="36pt" ta="center" align="stretch">
         <Center>
           <Group grow justify="center" w="75%" ta="center">
-            <BoutClock {...bout.clock} inherit />
-            <JamNumber periodNum={activeJam.period} jamNum={activeJam.num} />
+            <BoutClock {...bout.clock} editable inherit />
+            <JamNumber
+              periodNum={activeJam.period}
+              jamNum={activeJam.num}
+              inherit
+            />
             <JamClock
               isStopped={activeJam.stopTimestamp != null}
               {...activeJam}
+              inherit
             />
           </Group>
         </Center>
