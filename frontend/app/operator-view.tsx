@@ -1,5 +1,7 @@
 import { StatusClock } from "@/components/status-clock";
 import BoutClock from "@/features/bouts/components/bout-clock";
+import BoutJamControl from "@/features/bouts/components/bout-jam-control";
+import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import TeamName from "@/features/bouts/components/team-name";
 import { JamClock } from "@/features/jams/components/jam-clock";
 import JamNumber from "@/features/jams/components/jam-number";
@@ -13,7 +15,6 @@ import "@mantine/core/styles.css";
 import { Suspense } from "react";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
-import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 // import renderPage from "./render-page";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
@@ -118,7 +119,7 @@ export default function OperatorView({
       <Group align="end" justify="center" mih="75">
         {/* // TODO */}
         <BoutJamControl boutState={bout.state} />
-        {/* <BoutTimeoutControl boutUuid={bout.uuid} {...bout} variant="subtle" /> */}
+        <BoutTimeoutControl boutState={bout.state} variant="subtle" />
         {/* <BoutPeriodControlContainer
           boutUuid={bout.uuid}
           {...bout}
