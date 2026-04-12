@@ -8,7 +8,7 @@ import { useStopTimeout } from "../hooks/use-stop-timeout";
  * Control the Timeout state of the desired Bout. This button starts and stops the
  * latest Timeout of the Bout.
  */
-export default function BoutTimeoutControl({
+export default function BoutTimeoutControlContainer({
   boutUuid,
   ...props
 }: BoutUri & Omit<ButtonProps, "onClick">) {

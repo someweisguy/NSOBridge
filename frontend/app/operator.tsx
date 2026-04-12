@@ -2,7 +2,7 @@ import BoutClockContainer from "@/features/bouts/components/bout-clock-container
 import BoutJamControlContainer from "@/features/bouts/components/bout-jam-control-container";
 import BoutPeriodControlContainer from "@/features/bouts/components/bout-period-control-container";
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
-import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control-container";
+import BoutTimeoutControlContainer from "@/features/bouts/components/bout-timeout-control-container";
 import TeamNameContainer from "@/features/bouts/components/team-name-container";
 import JamClockContainer from "@/features/jams/components/jam-clock-container";
 import JamNumberContainer from "@/features/jams/components/jam-number-container";
@@ -115,7 +115,11 @@ export default function Operator() {
       {/* Bout State control */}
       <Group align="end" justify="center" mih="75">
         <BoutJamControlContainer boutUuid={bout.uuid} {...bout} />
-        <BoutTimeoutControl boutUuid={bout.uuid} {...bout} variant="subtle" />
+        <BoutTimeoutControlContainer
+          boutUuid={bout.uuid}
+          {...bout}
+          variant="subtle"
+        />
         <BoutPeriodControlContainer
           boutUuid={bout.uuid}
           {...bout}
