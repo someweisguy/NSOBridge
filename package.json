@@ -65,6 +65,8 @@
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "msw": "^2.13.3",
+    "msw-storybook-addon": "^2.0.7",
     "playwright": "^1.59.1",
     "postcss": "^8.5.9",
     "postcss-preset-mantine": "^1.18.0",
@@ -79,5 +81,10 @@
     "typescript-eslint": "^8.58.1",
     "vite": "^7.3.2",
     "vitest": "^4.0.18"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
