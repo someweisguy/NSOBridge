@@ -5,28 +5,6 @@
   "files.associations": {
     "*.spec": "python"
   },
-  "spellright.language": ["en"],
-  "spellright.documentTypes": [
-    "markdown",
-    "latex",
-    "plaintext",
-    "typescript",
-    "postcss",
-    "typescriptreact"
-  ],
-  "spellright.parserByClass": {
-    "postcss": {
-      "parser": "plain"
-    }
-  },
-  "spellright.ignoreFiles": [
-    "**/.venv/**",
-    "**/*_cache/**",
-    "**/build/**",
-    "**/dist/**",
-    "**/node_modules/**",
-    "**/www/**"
-  ],
   "[javascript]": {
     "editor.tabSize": 2
   },
@@ -47,5 +25,6 @@
   "eslint.format.enable": true,
   "eslint.options": {
     "overrideConfigFile": "./frontend/configs/eslint.config.js"
-  }
+  },
+  "cSpell.words": ["WFTDA"]
 }
