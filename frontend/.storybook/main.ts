@@ -12,22 +12,9 @@ const frontendDirectory = path.resolve(
     : path.dirname(fileURLToPath(import.meta.url)),
   "../",
 );
+const projectDirectory = path.resolve(frontendDirectory, "../");
 
 const config: StorybookConfig = {
-  stories: [
-    "../stories/*.stories.@(js|jsx|mjs|ts|tsx)",
-    "../features/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-  ],
-  addons: [
-    "@chromatic-com/storybook",
-    "@storybook/addon-vitest",
-    "@storybook/addon-a11y",
-    "@storybook/addon-docs",
-    "@storybook/addon-onboarding", // TODO: Remove when ready
-    "storybook-addon-mock-date",
-    "storybook-addon-deep-controls",
-    "storybook-dark-mode",
-  ],
   framework: {
     name: "@storybook/react-vite",
     options: {
@@ -39,5 +26,20 @@ const config: StorybookConfig = {
       },
     },
   },
+  addons: [
+    "@chromatic-com/storybook",
+    "@storybook/addon-vitest",
+    "@storybook/addon-a11y",
+    "@storybook/addon-docs",
+    "@storybook/addon-onboarding", // TODO: Remove when ready
+    "storybook-addon-mock-date",
+    "storybook-addon-deep-controls",
+    "storybook-dark-mode",
+  ],
+  stories: [
+    "../stories/*.stories.@(js|jsx|mjs|ts|tsx)",
+    "../features/**/*.stories.@(js|jsx|mjs|ts|tsx)",
+  ],
+  staticDirs: [path.resolve(projectDirectory, "public")],
 };
 export default config;

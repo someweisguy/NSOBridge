@@ -26,5 +26,5 @@
   "eslint.options": {
     "overrideConfigFile": "./frontend/configs/eslint.config.js"
   },
-  "cSpell.words": ["WFTDA"]
+  "cSpell.words": ["autodocs", "WFTDA"]
 }
