@@ -5,6 +5,7 @@ import { useTimeout } from "@/hooks/use-timeout";
 import { BoutUri } from "@/types/query";
 import { TextProps } from "@mantine/core";
 
+// FIXME: this should not be a container
 /**
  * Displays the Bout status of the desired Bout. This is typically a status string
  * followed by the time that has elapsed since this status has begun or a countdown

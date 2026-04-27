@@ -121,7 +121,7 @@ export default function OperatorView({
         {/* // TODO */}
         <BoutJamControl boutState={bout.state} />
         <BoutTimeoutControl boutState={bout.state} variant="subtle" />
-        <BoutPeriodControl boutState={bout.state} variant="subtle" />
+        <BoutPeriodControl state={bout.state} variant="subtle" />
         {bout.state == "timeout" && (
           <Suspense>
             {/* <TimeoutTypeEditorContainer {...latestTimeoutUri} />

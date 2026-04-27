@@ -7,18 +7,16 @@ import {
   TextProps,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { UseMutationResult } from "@tanstack/react-query";
 import { useState } from "react";
+import { useSetTeamName } from "../hooks/use-set-team-name";
 
 interface TeamNameProps extends TextProps {
   /**
    * The Team Name to display.
    */
-  teamName: string;
-  /**
-   * A mutator which tells the server to rename the team.
-   */
-  setTeamName?: UseMutationResult<void, unknown, string>;
+  name: string;
+  uuid: string;
+  num: number;
   /**
    * True to make this component editable.
    */
@@ -29,13 +27,16 @@ interface TeamNameProps extends TextProps {
  * Display an editable version of a Team's Name.
  */
 export default function TeamName({
-  teamName,
+  uuid,
+  num,
+  name,
   editable = true,
-  setTeamName,
   ...props
 }: TeamNameProps) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [teamNameState, setTeamNameState] = useState(teamName);
+  const [teamNameState, setTeamNameState] = useState(name);
+
+  const setTeamName = useSetTeamName({ boutUuid: uuid, teamNum: num });
 
   return (
     <>
@@ -47,14 +48,14 @@ export default function TeamName({
               value={teamNameState}
               onChange={(event) => setTeamNameState(event.currentTarget.value)}
             ></TextInput>
-            <Button onClick={() => setTeamName?.mutate(teamNameState)}>
+            <Button onClick={() => setTeamName.mutate(teamNameState)}>
               Apply
             </Button>
           </Group>
         </Modal>
       )}
       <Text style={{ cursor: "pointer" }} {...props} onClick={open}>
-        {teamName}
+        {name}
       </Text>
     </>
   );

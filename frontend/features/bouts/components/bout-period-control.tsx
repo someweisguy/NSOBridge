@@ -1,9 +1,12 @@
 import { BoutStateString } from "@/types/bout";
 import { Button, ButtonProps } from "@mantine/core";
+import { useCallback } from "react";
+import { useBeginPeriod } from "../hooks/use-begin-period";
+import { useEndPeriod } from "../hooks/use-end-period";
 
 interface BoutPeriodControlProps extends ButtonProps {
-  boutState: BoutStateString;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  uuid: string;
+  state: BoutStateString;
 }
 
 /**
@@ -12,12 +15,20 @@ interface BoutPeriodControlProps extends ButtonProps {
  * does affect the Bout state. The updated Bout state is reflected on scoreboard pages.
  */
 export default function BoutPeriodControl({
-  boutState,
-  onClick,
+  uuid,
+  state,
   ...props
 }: BoutPeriodControlProps) {
-  const content = boutState == "stopped" ? "Start Period" : "Stop Period";
-  const disabled = boutState == "jam" || boutState == "timeout";
+  const beginPeriod = useBeginPeriod({ boutUuid: uuid });
+  const endPeriod = useEndPeriod({ boutUuid: uuid });
+
+  const onClick = useCallback(
+    () => (state == "stopped" ? beginPeriod.mutate() : endPeriod.mutate()),
+    [state, beginPeriod, endPeriod],
+  );
+
+  const content = state == "stopped" ? "Start Period" : "Stop Period";
+  const disabled = state == "jam" || state == "timeout";
 
   return (
     <Button disabled={disabled} onClick={onClick} {...props}>

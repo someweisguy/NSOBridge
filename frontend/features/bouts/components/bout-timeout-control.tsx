@@ -1,9 +1,12 @@
 import { BoutStateString } from "@/types/bout";
 import { Button, ButtonProps } from "@mantine/core";
+import { useCallback } from "react";
+import { useStartTimeout } from "../hooks/use-start-timeout";
+import { useStopTimeout } from "../hooks/use-stop-timeout";
 
 interface BoutTimeoutControlProps extends ButtonProps {
-  boutState: BoutStateString;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  uuid: string;
+  state: BoutStateString;
 }
 
 /**
@@ -11,12 +14,19 @@ interface BoutTimeoutControlProps extends ButtonProps {
  * latest Timeout of the Bout.
  */
 export default function BoutTimeoutControl({
-  boutState,
-  onClick,
+  uuid,
+  state,
   ...props
 }: BoutTimeoutControlProps) {
-  const content = boutState == "timeout" ? "End Timeout" : "Call Timeout";
-  const disabled = boutState != "lineup" && boutState != "timeout";
+  const startTimeout = useStartTimeout({ boutUuid: uuid });
+  const stopTimeout = useStopTimeout({ boutUuid: uuid });
+  const onClick = useCallback(
+    () => (state == "timeout" ? stopTimeout.mutate() : startTimeout.mutate()),
+    [state, stopTimeout, startTimeout],
+  );
+
+  const content = state == "timeout" ? "End Timeout" : "Call Timeout";
+  const disabled = state != "lineup" && state != "timeout";
 
   return (
     <Button disabled={disabled} onClick={onClick} {...props}>

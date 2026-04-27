@@ -10,10 +10,12 @@ import {
   TextProps,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { UseMutationResult } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
+import { useSetBoutClockElapsed } from "../hooks/use-set-bout-clock-elapsed";
+import { useSetBoutClockIsRunning } from "../hooks/use-set-bout-clock-is-running";
 
 export interface BoutClockProps extends ClockProps, TextProps {
+  uuid: string;
   /**
    * True if the Bout is in overtime.
    */
@@ -22,14 +24,6 @@ export interface BoutClockProps extends ClockProps, TextProps {
    * True if the user should be able to edit the Bout Clock from this component.
    */
   editable?: boolean;
-  /**
-   * Mutator which sets the amount of time on the Bout Clock.
-   */
-  setElapsed?: UseMutationResult<void, unknown, number>;
-  /**
-   * Mutator which pauses and starts the Bout Clock.
-   */
-  setIsRunning?: UseMutationResult<void, unknown, boolean>;
   /**
    * The text to display instead of the Clock when the Bout is in overtime.
    */
@@ -42,20 +36,21 @@ export interface BoutClockProps extends ClockProps, TextProps {
  * displayed.
  */
 export default function BoutClock({
+  uuid,
   isOvertime = false,
   editable = false,
-  setElapsed,
-  setIsRunning,
   overtimeText = "OT",
   ...props
 }: BoutClockProps) {
   const [opened, { open, close }] = useDisclosure(false);
   const [timeValue, setTimeValue] = useState("");
 
-  const closeModal = useCallback(() => {
-    setTimeValue("");
-    close();
-  }, [close]);
+  const resetModal = useCallback(() => setTimeValue(""), []);
+  const setIsRunning = useSetBoutClockIsRunning({ boutUuid: uuid });
+  const setElapsed = useSetBoutClockElapsed({
+    boutUuid: uuid,
+    onSuccess: close,
+  });
 
   return (
     <>
@@ -64,7 +59,7 @@ export default function BoutClock({
       </Text>
 
       {editable && (
-        <Modal title="Edit Clock" opened={opened} onClose={closeModal} centered>
+        <Modal title="Edit Clock" opened={opened} onClose={resetModal} centered>
           <Stack w="full" justify="center" align="center">
             <Group w="full" wrap="nowrap" align="end" justify="center">
               <DurationPicker
@@ -80,7 +75,6 @@ export default function BoutClock({
                     .map((i) => Number(i));
                   const milliseconds = (minutes * 60 + seconds) * 1000;
                   setElapsed?.mutate(alarm - milliseconds);
-                  closeModal();
                 }}
               >
                 Apply

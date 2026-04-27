@@ -1,11 +1,12 @@
 import { BoutStateString } from "@/types/bout";
 import { Button, ButtonProps } from "@mantine/core";
+import { useCallback } from "react";
+import { useStartJam } from "../hooks/use-start-jam";
+import { useStopJam } from "../hooks/use-stop-jam";
 
 interface BoutJamControlProps extends ButtonProps {
-  boutState: BoutStateString;
-  onClick?:
-    | ((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void)
-    | undefined;
+  uuid: string;
+  state: BoutStateString;
 }
 
 /**
@@ -13,15 +14,21 @@ interface BoutJamControlProps extends ButtonProps {
  * latest Jam of the Bout.
  */
 export default function BoutJamControl({
-  boutState,
-  onClick,
+  uuid,
+  state,
   ...props
 }: BoutJamControlProps) {
-  const content = boutState == "jam" ? "Stop Jam" : "Start Jam";
+  const startJam = useStartJam({ boutUuid: uuid });
+  const stopJam = useStopJam({ boutUuid: uuid });
+
+  const onClick = useCallback(
+    () => (state == "jam" ? stopJam.mutate() : startJam.mutate()),
+    [state, startJam, stopJam],
+  );
 
   return (
     <Button onClick={onClick} {...props}>
-      {content}
+      {state == "jam" ? "Stop Jam" : "Start Jam"}
     </Button>
   );
 }
