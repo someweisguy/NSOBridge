@@ -1,7 +1,12 @@
-import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
 import { TimeoutUri } from "@/types/query";
 import { Checkbox, CheckboxProps } from "@mantine/core";
 import { useSetTimeoutRetained } from "../hooks/use-set-timeout-retained";
+
+interface TimeoutRetainedEditorProps extends Omit<CheckboxProps, "onChange"> {
+  timeoutUri: TimeoutUri;
+  retained: boolean;
+  isReview: boolean;
+}
 
 /**
  * Display a control with allows users to edit whether or not a Timeout or Official
@@ -9,19 +14,18 @@ import { useSetTimeoutRetained } from "../hooks/use-set-timeout-retained";
  * simplicity and flexibility the database schema allows either Timeouts or Reviews to
  * be retained.
  */
-export default function TimeoutRetainedEditorContainer({
-  boutUuid,
-  timeoutNum,
+export default function TimeoutRetainedEditor({
+  timeoutUri,
+  retained,
+  isReview,
   label = "Review is Retained?",
-}: TimeoutUri & Omit<CheckboxProps, "onChange">) {
-  const { data: timeout } = useSuspenseTimeout({ boutUuid, timeoutNum });
-
-  const setRetained = useSetTimeoutRetained({ boutUuid, timeoutNum });
+}: TimeoutRetainedEditorProps) {
+  const setRetained = useSetTimeoutRetained({ ...timeoutUri });
   return (
     <Checkbox
       label={label}
-      checked={timeout.retained && timeout.isReview}
-      disabled={!timeout.isReview}
+      checked={retained && isReview}
+      disabled={!isReview}
       onChange={(event) => setRetained.mutate(event.currentTarget.checked)}
     />
   );

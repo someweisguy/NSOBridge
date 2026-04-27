@@ -1,19 +1,17 @@
 import TitledSegmentedControl from "@/components/titled-segmented-control";
-import { useSuspenseJam } from "@/hooks/use-suspense-jam";
-import { JamUri } from "@/types/query";
-import { SegmentedControlProps } from "@mantine/core";
+import { StopReasonString } from "@/types/jam";
+
+interface JamStopReasonEditorProps {
+  stopReason: StopReasonString | null;
+}
 
 /**
  * Display a control which allows users to set the reason that a Jam ended.
  */
-export default function JamStopReasonEditorContainer({
-  boutUuid,
-  periodNum,
-  jamNum,
+export default function JamStopReasonEditor({
+  stopReason,
   ...props
-}: JamUri & Omit<SegmentedControlProps, "data" | "value" | "onChange">) {
-  const { data: jam } = useSuspenseJam({ boutUuid, periodNum, jamNum });
-
+}: JamStopReasonEditorProps) {
   return (
     <TitledSegmentedControl
       label="Jam Stop Reason"
@@ -35,7 +33,7 @@ export default function JamStopReasonEditorContainer({
           label: "Other",
         },
       ]}
-      value={jam.stopReason ?? "other"}
+      value={stopReason ?? "other"}
       disabled={true} // TODO: remove when mutator is added
       onChange={() => null} // TODO: add mutator
       {...props}
