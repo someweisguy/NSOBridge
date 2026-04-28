@@ -17,6 +17,7 @@ import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
+import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
@@ -56,6 +57,7 @@ export default function Operator() {
   const activeJamUri = bout.getActiveJamUri();
   const latestJamUri = bout.getLatestJamUri();
   const latestTimeoutUri = bout.getLatestTimeoutUri();
+  const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
 
   // Prefetch latest Jam to avoid UI blinking
@@ -83,8 +85,8 @@ export default function Operator() {
               gap="md"
             >
               <TimeoutsLeft
-                numTimeouts={3} // TODO: use ruleset
-                numReviews={1} // TODO: use ruleset
+                numTimeouts={ruleset.numTimeouts}
+                numReviews={ruleset.numReviews}
                 timeoutsRemaining={team.timeoutsRemaining}
                 reviewsRemaining={team.reviewsRemaining}
                 timeoutIsActive={false} // TODO: use active timeout
@@ -109,7 +111,7 @@ export default function Operator() {
             <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
             <JamNumber {...activeJamUri} inherit />
             <JamClock
-              jamDuration={2 * 60 * 1000} // TODO: use ruleset
+              jamDuration={ruleset.jamDuration}
               {...activeJam}
               {...activeJamUri}
               inherit
@@ -174,7 +176,7 @@ export default function Operator() {
           {[...Array(2).keys()].map((i: number) => (
             <Stack key={i}>
               <PassEditor
-                numPasses={4} // TODO: use ruleset
+                numPasses={ruleset.pointsPerTrip}
                 teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
               />
               <JammerStateEditor

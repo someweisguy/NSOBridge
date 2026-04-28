@@ -6,6 +6,7 @@ import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
+import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { Team } from "@/types/bout";
 import FitScreen from "@fit-screen/react";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
@@ -27,6 +28,7 @@ export function Scoreboard() {
   const boutUri = useBoutUriContext();
   const { data: bout } = useSuspenseBout(boutUri);
   const activeJamUri = bout.getActiveJamUri();
+  const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
 
   // Prefetch latest Jam to avoid UI blinking
@@ -49,8 +51,8 @@ export function Scoreboard() {
                 gap="md"
               >
                 <TimeoutsLeft
-                  numTimeouts={3} // TODO: use ruleset
-                  numReviews={1} // TODO: use ruleset
+                  numTimeouts={ruleset.numTimeouts}
+                  numReviews={ruleset.numReviews}
                   timeoutsRemaining={team.timeoutsRemaining}
                   reviewsRemaining={team.reviewsRemaining}
                   timeoutIsActive={false} // TODO: use active timeout
@@ -75,7 +77,7 @@ export function Scoreboard() {
               <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
               <JamNumber {...activeJamUri} inherit />
               <JamClock
-                jamDuration={2 * 60 * 1000} // TODO: use ruleset
+                jamDuration={ruleset.jamDuration}
                 {...activeJam}
                 {...activeJamUri}
                 inherit
