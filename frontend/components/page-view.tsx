@@ -39,7 +39,13 @@ export default function PageView({
 }: PageViewProps) {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
-  const { data: rulesetNames } = useAllRulesetNames({ throwOnError: true });
+  const { data: rulesetNames, isPending } = useAllRulesetNames({
+    throwOnError: true,
+  });
+
+  if (isPending) {
+    return <></>; // FIXME: remove this clause
+  }
 
   return (
     <StrictMode>
