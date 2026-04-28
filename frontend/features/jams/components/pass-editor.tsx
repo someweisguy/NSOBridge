@@ -1,5 +1,6 @@
 import { Button, Group, GroupProps } from "@mantine/core";
 import { useTeamJamAddTrip } from "../hooks/use-team-jam-add-trip";
+import { TeamJamUri } from "@/types/query";
 
 interface PassEditorProps {
   /**
@@ -10,10 +11,7 @@ interface PassEditorProps {
    * The number of passes allowed in a trip.
    */
   numPasses: number;
-  boutUuid: string;
-  periodNum: number;
-  jamNum: number;
-  teamNum: number;
+  teamJamUri: TeamJamUri;
 }
 
 /**
@@ -24,18 +22,10 @@ interface PassEditorProps {
 export default function PassEditor({
   showInitial = false,
   numPasses,
-  boutUuid,
-  periodNum,
-  jamNum,
-  teamNum,
+  teamJamUri,
   ...props
 }: PassEditorProps & GroupProps) {
-  const addTrip = useTeamJamAddTrip({
-    boutUuid,
-    periodNum,
-    jamNum,
-    teamNum,
-  });
+  const addTrip = useTeamJamAddTrip({ ...teamJamUri });
 
   if (showInitial) {
     return (

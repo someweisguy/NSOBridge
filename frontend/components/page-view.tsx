@@ -1,4 +1,4 @@
-import CreateBoutButtonContainer from "@/components/create-bout-button-container";
+import { useAllRulesetNames } from "@/hooks/use-all-ruleset-names";
 import {
   AppShell,
   AppShellProps,
@@ -10,6 +10,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { StrictMode, Suspense } from "react";
+import CreateBoutButton from "./create-bout-button";
 
 interface PageViewProps
   extends
@@ -38,6 +39,7 @@ export default function PageView({
 }: PageViewProps) {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+  const { data: rulesetNames } = useAllRulesetNames({ throwOnError: true });
 
   return (
     <StrictMode>
@@ -68,7 +70,7 @@ export default function PageView({
           </AppShell.Header>
 
           <AppShell.Navbar>
-            <CreateBoutButtonContainer />
+            <CreateBoutButton rulesetNames={rulesetNames!} />
             <Select
               allowDeselect={false}
               data={boutData}

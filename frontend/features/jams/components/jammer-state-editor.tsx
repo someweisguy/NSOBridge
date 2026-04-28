@@ -1,3 +1,5 @@
+import { TeamJam } from "@/types/jam";
+import { TeamJamUri } from "@/types/query";
 import {
   Checkbox,
   createTheme,
@@ -10,7 +12,6 @@ import { IconStarFilled } from "@tabler/icons-react";
 import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
 import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
 import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
-import { TeamJam } from "@/types/jam";
 
 const checkBoxTheme = createTheme({
   // Hovering over checkbox should change cursor
@@ -19,27 +20,12 @@ const checkBoxTheme = createTheme({
 
 interface JammerStateProps extends GroupProps {
   /**
-   * True if this team's Jammer is the lead Jammer.
-   */
-  lead: boolean;
-  /**
-   * True if this team's Jammer has explicitly lost lead Jammer eligibility.
-   */
-  lost: boolean;
-  /**
-   * True if this team's Jammer has successfully completed a Star Pass.
-   */
-  starPass: boolean;
-  /**
    * True if this team's Jammer is still eligible for lead. This value would be false if
    * the other team's Jammer has been declared lead.
    */
   isLeadEligible: boolean;
 
-  boutUuid: string;
-  periodNum: number;
-  jamNum: number;
-  teamNum: number;
+  teamJamUri: TeamJamUri;
   teamJam: TeamJam;
 }
 
@@ -50,31 +36,13 @@ interface JammerStateProps extends GroupProps {
  */
 export default function JammerStateEditor({
   isLeadEligible,
-  boutUuid,
-  periodNum,
-  jamNum,
-  teamNum,
+  teamJamUri,
   teamJam,
   ...props
 }: JammerStateProps) {
-  const setLead = useTeamJamAddLead({
-    boutUuid,
-    periodNum,
-    jamNum,
-    teamNum,
-  });
-  const setLost = useTeamJamAddLost({
-    boutUuid,
-    periodNum,
-    jamNum,
-    teamNum,
-  });
-  const setStarPass = useTeamJamAddStarPass({
-    boutUuid,
-    periodNum,
-    jamNum,
-    teamNum,
-  });
+  const setLead = useTeamJamAddLead({ ...teamJamUri });
+  const setLost = useTeamJamAddLost({ ...teamJamUri });
+  const setStarPass = useTeamJamAddStarPass({ ...teamJamUri });
 
   const lead = teamJam.events.some((tripEvent) => tripEvent.lead);
   const lost = teamJam.events.some((tripEvent) => tripEvent.lost);

@@ -1,18 +1,19 @@
-import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
+import BoutClock from "@/features/bouts/components/bout-clock";
 import StatusClockContainer from "@/features/bouts/components/bout-status-container";
-import JamClockContainer from "@/features/jams/components/jam-clock-container";
-import JamNumberContainer from "@/features/jams/components/jam-number-container";
-import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
+import { JamClock } from "@/features/jams/components/jam-clock";
+import JamNumber from "@/features/jams/components/jam-number";
+import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
+import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { Team } from "@/types/bout";
 import FitScreen from "@fit-screen/react";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { twMerge } from "tailwind-merge";
+import { useBoutUriContext } from "../hooks/use-bout-uri-context";
 import "./global.css";
 import renderPage from "./render-page";
-import { useBoutUriContext } from "../hooks/use-bout-uri-context";
 
 // Create the React DOM
 const withShell = false;
@@ -26,6 +27,7 @@ export function Scoreboard() {
   const boutUri = useBoutUriContext();
   const { data: bout } = useSuspenseBout(boutUri);
   const activeJamUri = bout.getActiveJamUri();
+  const { data: activeJam } = useSuspenseJam(activeJamUri);
 
   // Prefetch latest Jam to avoid UI blinking
   void useJam({ ...bout.getLatestJamUri() });
@@ -46,10 +48,14 @@ export function Scoreboard() {
                 justify="center"
                 gap="md"
               >
-                <TimeoutsLeftContainer
-                  boutUuid={bout.uuid}
-                  teamNum={team.num}
-                  size={36}
+                <TimeoutsLeft
+                  numTimeouts={3} // TODO: use ruleset
+                  numReviews={1} // TODO: use ruleset
+                  timeoutsRemaining={team.timeoutsRemaining}
+                  reviewsRemaining={team.reviewsRemaining}
+                  timeoutIsActive={false} // TODO: use active timeout
+                  isReview={false} // TODO: use active timeout
+                  size={24}
                 />
                 <Text fw="bold" w={150} ta="center" size="48pt">
                   {team.boutScore + team.scoreOffset}
@@ -66,9 +72,14 @@ export function Scoreboard() {
         <Stack fz="72pt" ta="center" align="stretch">
           <Center>
             <Group grow justify="center" w="75%" ta="center">
-              <BoutClockContainer boutUuid={bout.uuid} inherit />
-              <JamNumberContainer {...activeJamUri} inherit />
-              <JamClockContainer {...activeJamUri} inherit />
+              <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
+              <JamNumber {...activeJamUri} inherit />
+              <JamClock
+                jamDuration={2 * 60 * 1000} // TODO: use ruleset
+                {...activeJam}
+                {...activeJamUri}
+                inherit
+              />
             </Group>
           </Center>
           <StatusClockContainer

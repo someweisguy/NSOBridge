@@ -9,7 +9,7 @@ interface TimeoutCallerEditorProps extends Omit<
   "value" | "onChange"
 > {
   timeoutUri: TimeoutUri;
-  teamNum: number;
+  teamNum: number | null;
   teamIsOfficials: boolean;
   isReview: boolean;
 }

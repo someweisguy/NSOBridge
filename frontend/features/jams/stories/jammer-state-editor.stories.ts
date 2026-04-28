@@ -9,18 +9,11 @@ const meta: Meta<typeof JammerStateEditor> = {
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {
-    isLeadEligible: true,
-    lead: false,
-    lost: false,
-    starPass: false,
-  },
+  args: {},
 };
 
 export const NotLeadEligible: Story = {
-  args: {
-    isLeadEligible: false,
-  },
+  args: {},
 };
 
 export default meta;
