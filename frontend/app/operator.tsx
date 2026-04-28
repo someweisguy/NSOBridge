@@ -26,7 +26,9 @@ import { Suspense } from "react";
 import { twMerge } from "tailwind-merge";
 import { useBoutUriContext } from "../hooks/use-bout-uri-context";
 import "./global.css";
-import renderPage from "./render-page";
+import PageView from "@/components/page-view";
+import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
+import { createRoot } from "react-dom/client";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
@@ -42,9 +44,12 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-// Create the React DOM
-const withShell = true;
-renderPage("NSO Bridge", Operator, withShell);
+const root: HTMLElement | null = document.getElementById("root");
+if (root == null) {
+  throw new Error("Root HTML Node was not found.");
+}
+createRoot(root).render(<Operator />);
+document.title = "NSO Bridge";
 
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
@@ -52,7 +57,7 @@ renderPage("NSO Bridge", Operator, withShell);
  * edit the score, call Timeouts, and edit Lineups.
  */
 export default function Operator() {
-  const boutUri = useBoutUriContext();
+  const boutUri = useBoutUriContext(); // FIXME: this can't go here
   const { data: bout } = useSuspenseBout(boutUri);
   const activeJamUri = bout.getActiveJamUri();
   const latestJamUri = bout.getLatestJamUri();
@@ -60,149 +65,153 @@ export default function Operator() {
   const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
 
+  const { data: rulesetNames } = useSuspenseAllRulesetNames();
+
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
   void useJam({ ...bout.getLatestJamUri() });
 
   return (
-    <Stack align="stretch" justify="flex-start">
-      {/* Team information */}
-      <SimpleGrid cols={bout.teams.length}>
-        {bout.teams.map((team: Team, i: number) => (
-          <Stack key={i} justify="center">
-            <TeamName
-              uuid={bout.uuid}
-              num={team.num}
-              name={team.name}
-              ta="center"
-              fw="bolder"
-              size="36pt"
-            />
-            <Flex
-              direction={i % 2 ? "row-reverse" : "row"}
-              align="center"
-              justify="center"
-              gap="md"
-            >
-              <TimeoutsLeft
-                numTimeouts={ruleset.numTimeouts}
-                numReviews={ruleset.numReviews}
-                timeoutsRemaining={team.timeoutsRemaining}
-                reviewsRemaining={team.reviewsRemaining}
-                timeoutIsActive={false} // TODO: use active timeout
-                isReview={false} // TODO: use active timeout
-                size={24}
-              />
-              <Text fw="bold" w={150} ta="center" size="48pt">
-                {team.boutScore + team.scoreOffset}
-              </Text>
-              <Text ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
-                {team.jamScore}
-              </Text>
-            </Flex>
-          </Stack>
-        ))}
-      </SimpleGrid>
-
-      {/* Bout State View */}
-      <Stack fz="36pt" ta="center" align="stretch">
-        <Center>
-          <Group grow justify="center" w="75%" ta="center">
-            <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
-            <JamNumber {...activeJamUri} inherit />
-            <JamClock
-              jamDuration={ruleset.jamDuration}
-              {...activeJam}
-              {...activeJamUri}
-              inherit
-            />
-          </Group>
-        </Center>
-        <StatusClockContainer
-          boutUuid={bout.uuid}
-          className={twMerge(bout.state == "jam" && "invisible")}
-          inherit
-          fz="24pt"
-        />
-      </Stack>
-
-      {/* Bout State control */}
-      <Group align="end" justify="center" mih="75">
-        <BoutJamControl uuid={bout.uuid} state={bout.state} />
-        <BoutTimeoutControl
-          uuid={bout.uuid}
-          state={bout.state}
-          variant="subtle"
-        />
-        <BoutPeriodControl
-          uuid={bout.uuid}
-          state={bout.state}
-          variant="subtle"
-        />
-        {bout.state == "timeout" && (
-          <Suspense>
-            <TimeoutTypeEditor
-              timeoutUri={latestTimeoutUri}
-              isReview={false} // TODO: use latest Timeout
-            />
-            <TimeoutCallerEditor
-              timeoutUri={latestTimeoutUri}
-              teamNum={null} // TODO: use latest Timeout
-              teamIsOfficials={false} // TODO: use latest Timeout
-              isReview={false} // TODO: use latest Timeout
-              data={bout.teams.map((team: Team) => {
-                return {
-                  value: String(team.num),
-                  label: team.name,
-                };
-              })}
-            />
-            <TimeoutRetainedEditor
-              timeoutUri={latestTimeoutUri}
-              retained={false} // TODO: use latest Timeout
-              isReview={false} // TODO: use latest Timeout
-              variant="outline"
-            />
-          </Suspense>
-        )}
-        {bout.state == "lineup" && latestJamUri.jamNum > 0 && (
-          <JamStopReasonEditor stopReason={activeJam.stopReason} />
-        )}
-      </Group>
-
-      {/* TeamJam score editors */}
-      <Suspense fallback={"Loading..."}>
+    <PageView withShell rulesetNames={rulesetNames}>
+      <Stack align="stretch" justify="flex-start">
+        {/* Team information */}
         <SimpleGrid cols={bout.teams.length}>
-          {[...Array(2).keys()].map((i: number) => (
-            <Stack key={i}>
-              <PassEditor
-                numPasses={ruleset.pointsPerTrip}
-                teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
+          {bout.teams.map((team: Team, i: number) => (
+            <Stack key={i} justify="center">
+              <TeamName
+                uuid={bout.uuid}
+                num={team.num}
+                name={team.name}
+                ta="center"
+                fw="bolder"
+                size="36pt"
               />
-              <JammerStateEditor
-                teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
-                isLeadEligible={true} // TODO: check if lead eligible
-                teamJam={
-                  activeJam.teamJams.find(
-                    (tj) => tj.teamNum == bout.teams[i].num,
-                  )!
-                }
+              <Flex
+                direction={i % 2 ? "row-reverse" : "row"}
+                align="center"
                 justify="center"
                 gap="md"
-              />
-              <TeamJamTripHistory
-                events={
-                  activeJam.teamJams.find(
-                    (tj) => tj.teamNum == bout.teams[i].num,
-                  )!.events
-                }
-              />
+              >
+                <TimeoutsLeft
+                  numTimeouts={ruleset.numTimeouts}
+                  numReviews={ruleset.numReviews}
+                  timeoutsRemaining={team.timeoutsRemaining}
+                  reviewsRemaining={team.reviewsRemaining}
+                  timeoutIsActive={false} // TODO: use active timeout
+                  isReview={false} // TODO: use active timeout
+                  size={24}
+                />
+                <Text fw="bold" w={150} ta="center" size="48pt">
+                  {team.boutScore + team.scoreOffset}
+                </Text>
+                <Text ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
+                  {team.jamScore}
+                </Text>
+              </Flex>
             </Stack>
           ))}
         </SimpleGrid>
-      </Suspense>
 
-      {/* TODO: Add lineup editors */}
-    </Stack>
+        {/* Bout State View */}
+        <Stack fz="36pt" ta="center" align="stretch">
+          <Center>
+            <Group grow justify="center" w="75%" ta="center">
+              <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
+              <JamNumber {...activeJamUri} inherit />
+              <JamClock
+                jamDuration={ruleset.jamDuration}
+                {...activeJam}
+                {...activeJamUri}
+                inherit
+              />
+            </Group>
+          </Center>
+          <StatusClockContainer
+            boutUuid={bout.uuid}
+            className={twMerge(bout.state == "jam" && "invisible")}
+            inherit
+            fz="24pt"
+          />
+        </Stack>
+
+        {/* Bout State control */}
+        <Group align="end" justify="center" mih="75">
+          <BoutJamControl uuid={bout.uuid} state={bout.state} />
+          <BoutTimeoutControl
+            uuid={bout.uuid}
+            state={bout.state}
+            variant="subtle"
+          />
+          <BoutPeriodControl
+            uuid={bout.uuid}
+            state={bout.state}
+            variant="subtle"
+          />
+          {bout.state == "timeout" && (
+            <Suspense>
+              <TimeoutTypeEditor
+                timeoutUri={latestTimeoutUri}
+                isReview={false} // TODO: use latest Timeout
+              />
+              <TimeoutCallerEditor
+                timeoutUri={latestTimeoutUri}
+                teamNum={null} // TODO: use latest Timeout
+                teamIsOfficials={false} // TODO: use latest Timeout
+                isReview={false} // TODO: use latest Timeout
+                data={bout.teams.map((team: Team) => {
+                  return {
+                    value: String(team.num),
+                    label: team.name,
+                  };
+                })}
+              />
+              <TimeoutRetainedEditor
+                timeoutUri={latestTimeoutUri}
+                retained={false} // TODO: use latest Timeout
+                isReview={false} // TODO: use latest Timeout
+                variant="outline"
+              />
+            </Suspense>
+          )}
+          {bout.state == "lineup" && latestJamUri.jamNum > 0 && (
+            <JamStopReasonEditor stopReason={activeJam.stopReason} />
+          )}
+        </Group>
+
+        {/* TeamJam score editors */}
+        <Suspense fallback={"Loading..."}>
+          <SimpleGrid cols={bout.teams.length}>
+            {[...Array(2).keys()].map((i: number) => (
+              <Stack key={i}>
+                <PassEditor
+                  numPasses={ruleset.pointsPerTrip}
+                  teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
+                />
+                <JammerStateEditor
+                  teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
+                  isLeadEligible={true} // TODO: check if lead eligible
+                  teamJam={
+                    activeJam.teamJams.find(
+                      (tj) => tj.teamNum == bout.teams[i].num,
+                    )!
+                  }
+                  justify="center"
+                  gap="md"
+                />
+                <TeamJamTripHistory
+                  events={
+                    activeJam.teamJams.find(
+                      (tj) => tj.teamNum == bout.teams[i].num,
+                    )!.events
+                  }
+                />
+              </Stack>
+            ))}
+          </SimpleGrid>
+        </Suspense>
+
+        {/* TODO: Add lineup editors */}
+      </Stack>
+    </PageView>
   );
 }

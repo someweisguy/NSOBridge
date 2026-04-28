@@ -14,11 +14,15 @@ import "@mantine/core/styles.css";
 import { twMerge } from "tailwind-merge";
 import { useBoutUriContext } from "../hooks/use-bout-uri-context";
 import "./global.css";
-import renderPage from "./render-page";
+import { createRoot } from "react-dom/client";
+import PageView from "@/components/page-view";
 
-// Create the React DOM
-const withShell = false;
-renderPage("Scoreboard", Scoreboard, withShell);
+const root: HTMLElement | null = document.getElementById("root");
+if (root == null) {
+  throw new Error("Root HTML Node was not found.");
+}
+createRoot(root).render(<Scoreboard />);
+document.title = "Scoreboard";
 
 /**
  * Display the audience-facing scoreboard. This has at-a-glance information about the
@@ -35,63 +39,65 @@ export function Scoreboard() {
   void useJam({ ...bout.getLatestJamUri() });
 
   return (
-    <FitScreen waitTime={25} mode="fit">
-      <Stack align="stretch" justify="flex-start">
-        {/* Team information */}
-        <SimpleGrid cols={bout.teams.length}>
-          {bout.teams.map((team: Team, i: number) => (
-            <Stack key={i} justify="center">
-              <Text ta="center" fw="bolder" size="64pt">
-                {team.name}
-              </Text>
-              <Flex
-                direction={i % 2 ? "row-reverse" : "row"}
-                align="center"
-                justify="center"
-                gap="md"
-              >
-                <TimeoutsLeft
-                  numTimeouts={ruleset.numTimeouts}
-                  numReviews={ruleset.numReviews}
-                  timeoutsRemaining={team.timeoutsRemaining}
-                  reviewsRemaining={team.reviewsRemaining}
-                  timeoutIsActive={false} // TODO: use active timeout
-                  isReview={false} // TODO: use active timeout
-                  size={24}
-                />
-                <Text fw="bold" w={150} ta="center" size="48pt">
-                  {team.boutScore + team.scoreOffset}
+    <PageView>
+      <FitScreen waitTime={25} mode="fit">
+        <Stack align="stretch" justify="flex-start">
+          {/* Team information */}
+          <SimpleGrid cols={bout.teams.length}>
+            {bout.teams.map((team: Team, i: number) => (
+              <Stack key={i} justify="center">
+                <Text ta="center" fw="bolder" size="64pt">
+                  {team.name}
                 </Text>
-                <Text ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
-                  {team.jamScore}
-                </Text>
-              </Flex>
-            </Stack>
-          ))}
-        </SimpleGrid>
+                <Flex
+                  direction={i % 2 ? "row-reverse" : "row"}
+                  align="center"
+                  justify="center"
+                  gap="md"
+                >
+                  <TimeoutsLeft
+                    numTimeouts={ruleset.numTimeouts}
+                    numReviews={ruleset.numReviews}
+                    timeoutsRemaining={team.timeoutsRemaining}
+                    reviewsRemaining={team.reviewsRemaining}
+                    timeoutIsActive={false} // TODO: use active timeout
+                    isReview={false} // TODO: use active timeout
+                    size={24}
+                  />
+                  <Text fw="bold" w={150} ta="center" size="48pt">
+                    {team.boutScore + team.scoreOffset}
+                  </Text>
+                  <Text ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
+                    {team.jamScore}
+                  </Text>
+                </Flex>
+              </Stack>
+            ))}
+          </SimpleGrid>
 
-        {/* Bout State View */}
-        <Stack fz="72pt" ta="center" align="stretch">
-          <Center>
-            <Group grow justify="center" w="75%" ta="center">
-              <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
-              <JamNumber {...activeJamUri} inherit />
-              <JamClock
-                jamDuration={ruleset.jamDuration}
-                {...activeJam}
-                {...activeJamUri}
-                inherit
-              />
-            </Group>
-          </Center>
-          <StatusClockContainer
-            boutUuid={bout.uuid}
-            className={twMerge(bout.state == "jam" && "invisible")}
-            inherit
-            fz="48pt"
-          />
+          {/* Bout State View */}
+          <Stack fz="72pt" ta="center" align="stretch">
+            <Center>
+              <Group grow justify="center" w="75%" ta="center">
+                <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
+                <JamNumber {...activeJamUri} inherit />
+                <JamClock
+                  jamDuration={ruleset.jamDuration}
+                  {...activeJam}
+                  {...activeJamUri}
+                  inherit
+                />
+              </Group>
+            </Center>
+            <StatusClockContainer
+              boutUuid={bout.uuid}
+              className={twMerge(bout.state == "jam" && "invisible")}
+              inherit
+              fz="48pt"
+            />
+          </Stack>
         </Stack>
-      </Stack>
-    </FitScreen>
+      </FitScreen>
+    </PageView>
   );
 }
