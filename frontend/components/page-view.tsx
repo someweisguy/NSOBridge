@@ -1,4 +1,3 @@
-import { useAllRulesetNames } from "@/hooks/use-all-ruleset-names";
 import {
   AppShell,
   AppShellProps,
@@ -25,6 +24,10 @@ interface PageViewProps
    * The Bout UUID which is currently selected.
    */
   selectedBoutUuid: string;
+  /**
+   * The names of all the Rulesets that are supported by the server.
+   */
+  rulesetNames: string[];
 }
 
 /**
@@ -33,19 +36,13 @@ interface PageViewProps
 export default function PageView({
   boutData,
   selectedBoutUuid,
+  rulesetNames,
   onChange,
   disabled,
   children,
 }: PageViewProps) {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
-  const { data: rulesetNames, isPending } = useAllRulesetNames({
-    throwOnError: true,
-  });
-
-  if (isPending) {
-    return <></>; // FIXME: remove this clause
-  }
 
   return (
     <StrictMode>
@@ -76,7 +73,7 @@ export default function PageView({
           </AppShell.Header>
 
           <AppShell.Navbar>
-            <CreateBoutButton rulesetNames={rulesetNames!} />
+            <CreateBoutButton rulesetNames={rulesetNames} />
             <Select
               allowDeselect={false}
               data={boutData}

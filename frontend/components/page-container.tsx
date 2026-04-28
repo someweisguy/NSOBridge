@@ -1,6 +1,7 @@
 import PageView from "@/components/page-view";
 import { BoutUriProvider } from "@/hooks/use-bout-uri-context";
 import { useGetAllBouts } from "@/hooks/use-get-all-bouts";
+import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
 import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import { SyncDataProvider } from "@/hooks/use-sync-context";
 import queryClient from "@/lib/cache";
@@ -38,6 +39,8 @@ export default function PageContainer({
   });
   const [boutUuid, setBoutUuid] = useState<string | null>(boutUuidParam);
 
+  const { data: rulesetNames } = useSuspenseAllRulesetNames();
+
   useEffect(() => {
     if (
       isEnabled &&
@@ -63,9 +66,10 @@ export default function PageContainer({
             value: bout.uuid,
             label: `${bout.teams[0].name} vs. ${bout.teams[1].name}`,
           }))}
+          selectedBoutUuid={boutUuid}
+          rulesetNames={rulesetNames}
           disabled={!useShell}
           onChange={setBoutUuid}
-          selectedBoutUuid={boutUuid}
         >
           <QueryClientProvider client={queryClient}>
             <SyncDataProvider value={syncData}>
