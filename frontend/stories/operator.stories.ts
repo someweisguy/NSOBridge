@@ -12,7 +12,7 @@ const mockApiResponse = (data: unknown, statusCode = 200) => {
 
 const meta: Meta = {
   component: Operator,
-  title: "Operator Page",
+  title: "Pages/Operator",
 };
 
 type Story = StoryObj<typeof meta>;
