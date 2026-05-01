@@ -46,15 +46,14 @@ document.addEventListener("keydown", (event) => {
 });
 
 const root: HTMLElement | null = document.getElementById("root");
-if (root == null) {
-  throw new Error("Root HTML Node was not found.");
+if (root != null) {
+  document.title = "NSO Bridge";
+  createRoot(root).render(
+    <AppProvider>
+      <Operator />
+    </AppProvider>,
+  );
 }
-document.title = "NSO Bridge";
-createRoot(root).render(
-  <AppProvider>
-    <Operator />
-  </AppProvider>,
-);
 
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
