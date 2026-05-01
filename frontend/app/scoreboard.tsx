@@ -15,7 +15,7 @@ import { twMerge } from "tailwind-merge";
 import { useBoutUriContext } from "../hooks/use-bout-uri-context";
 import "./global.css";
 import { createRoot } from "react-dom/client";
-import PageView from "@/components/page-view";
+import PageView from "@/components/page-shell";
 
 const root: HTMLElement | null = document.getElementById("root");
 if (root == null) {

@@ -1,3 +1,4 @@
+import PageShell from "@/components/page-shell";
 import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
@@ -16,19 +17,19 @@ import TimeoutTypeEditor from "@/features/timeouts/components/timeout-type-edito
 import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
+import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
+import { BoutUri } from "@/types/query";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { Suspense } from "react";
-import { twMerge } from "tailwind-merge";
-import { useBoutUriContext } from "../hooks/use-bout-uri-context";
-import "./global.css";
-import PageView from "@/components/page-view";
-import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
+import { Suspense, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { twMerge } from "tailwind-merge";
+import "./global.css";
+import AppProvider from "./provider";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
@@ -48,8 +49,12 @@ const root: HTMLElement | null = document.getElementById("root");
 if (root == null) {
   throw new Error("Root HTML Node was not found.");
 }
-createRoot(root).render(<Operator />);
 document.title = "NSO Bridge";
+createRoot(root).render(
+  <AppProvider>
+    <Operator />
+  </AppProvider>,
+);
 
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
@@ -57,22 +62,24 @@ document.title = "NSO Bridge";
  * edit the score, call Timeouts, and edit Lineups.
  */
 export default function Operator() {
-  const boutUri = useBoutUriContext(); // FIXME: this can't go here
+  const { data: allBouts } = useSuspenseGetAllBouts();
+  const [boutUri] = useState<BoutUri>({ boutUuid: allBouts[0].uuid });
+
+  const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
+
   const activeJamUri = bout.getActiveJamUri();
   const latestJamUri = bout.getLatestJamUri();
   const latestTimeoutUri = bout.getLatestTimeoutUri();
-  const { data: ruleset } = useSuspenseRuleset(boutUri);
-  const { data: activeJam } = useSuspenseJam(activeJamUri);
 
-  const { data: rulesetNames } = useSuspenseAllRulesetNames();
+  const { data: activeJam } = useSuspenseJam(activeJamUri);
 
   // Prefetch latest Jam to avoid UI blinking
   // TODO: Remove this line when implementing Lineup Editors
-  void useJam({ ...bout.getLatestJamUri() });
+  void useJam(latestJamUri);
 
   return (
-    <PageView withShell rulesetNames={rulesetNames}>
+    <PageShell>
       <Stack align="stretch" justify="flex-start">
         {/* Team information */}
         <SimpleGrid cols={bout.teams.length}>
@@ -212,6 +219,6 @@ export default function Operator() {
 
         {/* TODO: Add lineup editors */}
       </Stack>
-    </PageView>
+    </PageShell>
   );
 }
