@@ -31,7 +31,6 @@ const config: StorybookConfig = {
     "@storybook/addon-vitest",
     "@storybook/addon-a11y",
     "@storybook/addon-docs",
-    "@storybook/addon-onboarding", // TODO: Remove when ready
     "storybook-addon-mock-date",
     "storybook-addon-deep-controls",
     "storybook-dark-mode",
