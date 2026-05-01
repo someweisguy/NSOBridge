@@ -1,5 +1,5 @@
 import BoutClock from "@/features/bouts/components/bout-clock";
-import StatusClockContainer from "@/features/bouts/components/bout-status-container";
+import BoutStatus from "@/features/bouts/components/bout-status";
 import { JamClock } from "@/features/jams/components/jam-clock";
 import JamNumber from "@/features/jams/components/jam-number";
 import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
@@ -99,8 +99,8 @@ export function Scoreboard() {
               />
             </Group>
           </Center>
-          <StatusClockContainer
-            boutUuid={bout.uuid}
+          <BoutStatus
+            {...bout}
             className={twMerge(bout.state == "jam" && "invisible")}
             inherit
             fz="48pt"

@@ -2,7 +2,7 @@ import PageShell from "@/components/page-shell";
 import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
 import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
-import StatusClockContainer from "@/features/bouts/components/bout-status-container";
+import BoutStatus from "@/features/bouts/components/bout-status";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import TeamName from "@/features/bouts/components/team-name";
 import { JamClock } from "@/features/jams/components/jam-clock";
@@ -133,8 +133,8 @@ export default function Operator() {
               />
             </Group>
           </Center>
-          <StatusClockContainer
-            boutUuid={bout.uuid}
+          <BoutStatus
+            {...bout}
             className={twMerge(bout.state == "jam" && "invisible")}
             inherit
             fz="24pt"
