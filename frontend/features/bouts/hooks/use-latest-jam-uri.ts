@@ -19,6 +19,13 @@ const getLatestJamUri = ({
   return { boutUuid: uuid, periodNum, jamNum };
 };
 
+/**
+ * Get a URI which identifies the latest Jam in this Bout. The latest Jam is the first
+ * Jam that has not started.
+ *
+ * @param bout The Bout of which to use the latest Jam URI.
+ * @returns a URI to the latest Jam.
+ */
 export default function useLatestJamUri(bout: Bout): JamUri {
   const [jamUri, setJamUri] = useState(getLatestJamUri(bout));
 

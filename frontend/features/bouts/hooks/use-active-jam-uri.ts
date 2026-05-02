@@ -23,6 +23,14 @@ const getActiveJamUri = ({
   return { boutUuid: uuid, periodNum, jamNum };
 };
 
+/**
+ * Get a URI which identifies the active Jam in this Bout. The active Jam is the last
+ * Jam which is running or has ended. If no Jam meets this condition, the latest Jam
+ * is returned.
+ *
+ * @param bout The bout of which to use the active Jam URI.
+ * @returns a URI to the active Jam.
+ */
 export default function useActiveJamUri(bout: Bout): JamUri {
   const [jamUri, setJamUri] = useState<JamUri | null>(
     getActiveJamUri({ uuid: bout.uuid, jamCounts: bout.jamCounts }),
