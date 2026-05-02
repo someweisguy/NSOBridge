@@ -20,6 +20,7 @@ import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
+import { useTimeout } from "@/hooks/use-timeout";
 import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
 import { BoutUri } from "@/types/query";
@@ -69,13 +70,16 @@ export default function Operator() {
 
   const activeJamUri = bout.getActiveJamUri();
   const latestJamUri = bout.getLatestJamUri();
-  const latestTimeoutUri = bout.getLatestTimeoutUri();
 
   const { data: activeJam } = useSuspenseJam(activeJamUri);
+  void useJam(latestJamUri); // Used to prevent UI from blinking
 
-  // Prefetch latest Jam to avoid UI blinking
-  // TODO: Remove this line when implementing Lineup Editors
-  void useJam(latestJamUri);
+  const latestTimeoutUri = bout.getLatestTimeoutUri();
+  const { data: latestTimeout } = useTimeout({
+    ...latestTimeoutUri,
+    enabled: bout.timeoutCount > 0,
+    throwOnError: false,
+  });
 
   return (
     <PageShell>
@@ -103,8 +107,11 @@ export default function Operator() {
                   numReviews={ruleset.numReviews}
                   timeoutsRemaining={team.timeoutsRemaining}
                   reviewsRemaining={team.reviewsRemaining}
-                  timeoutIsActive={false} // TODO: use active timeout
-                  isReview={false} // TODO: use active timeout
+                  timeoutIsActive={
+                    (latestTimeout?.isRunning() ?? false) &&
+                    latestTimeout?.teamNum === team.num
+                  }
+                  isReview={latestTimeout?.isReview ?? false}
                   size={24}
                 />
                 <Text fw="bold" w={150} ta="center" size="48pt">
@@ -157,13 +164,11 @@ export default function Operator() {
             <Suspense>
               <TimeoutTypeEditor
                 timeoutUri={latestTimeoutUri}
-                isReview={false} // TODO: use latest Timeout
+                {...latestTimeout!}
               />
               <TimeoutCallerEditor
                 timeoutUri={latestTimeoutUri}
-                teamNum={null} // TODO: use latest Timeout
-                teamIsOfficials={false} // TODO: use latest Timeout
-                isReview={false} // TODO: use latest Timeout
+                {...latestTimeout!}
                 data={bout.teams.map((team: Team) => {
                   return {
                     value: String(team.num),
@@ -173,8 +178,7 @@ export default function Operator() {
               />
               <TimeoutRetainedEditor
                 timeoutUri={latestTimeoutUri}
-                retained={false} // TODO: use latest Timeout
-                isReview={false} // TODO: use latest Timeout
+                {...latestTimeout!}
                 variant="outline"
               />
             </Suspense>
