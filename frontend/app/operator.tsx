@@ -5,6 +5,8 @@ import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import BoutStatus from "@/features/bouts/components/bout-status";
 import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import TeamName from "@/features/bouts/components/team-name";
+import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
+import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import { JamClock } from "@/features/jams/components/jam-clock";
 import JamNumber from "@/features/jams/components/jam-number";
 import JammerStateEditor from "@/features/jams/components/jammer-state-editor";
@@ -68,10 +70,10 @@ export default function Operator() {
   const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
 
-  const activeJamUri = bout.getActiveJamUri();
-  const latestJamUri = bout.getLatestJamUri();
-
+  const activeJamUri = useActiveJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
+
+  const latestJamUri = useLatestJamUri(bout);
   void useJam(latestJamUri); // Used to prevent UI from blinking
 
   const latestTimeoutUri = bout.getLatestTimeoutUri();

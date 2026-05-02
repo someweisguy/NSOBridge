@@ -1,5 +1,6 @@
 import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutStatus from "@/features/bouts/components/bout-status";
+import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import { JamClock } from "@/features/jams/components/jam-clock";
 import JamNumber from "@/features/jams/components/jam-number";
 import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
@@ -46,7 +47,7 @@ export function Scoreboard() {
   const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
 
-  const activeJamUri = bout.getActiveJamUri();
+  const activeJamUri = useActiveJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
 
   return (

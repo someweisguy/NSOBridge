@@ -1,4 +1,4 @@
-import { CacheKey, JamUri, TimeoutUri } from "./query";
+import { CacheKey, TimeoutUri } from "./query";
 import { Clock } from "./timeout";
 
 /**
@@ -80,50 +80,6 @@ export class Bout {
       return ["bouts"];
     }
     return ["bouts", boutUuid];
-  }
-
-  /**
-   * Get a URI which identifies the latest Jam in this Bout. The latest Jam is the first
-   * Jam that has not started.
-   *
-   * @returns a URI to the latest Jam.
-   */
-  getLatestJamUri(): JamUri {
-    let periodNum = 0;
-    for (let i = this.jamCounts.length - 1; i >= 0; --i) {
-      // Get the latest Period number that contains Jams
-      if (this.jamCounts[i] > 0) {
-        periodNum = i;
-        break;
-      }
-    }
-    const jamNum = this.jamCounts[periodNum] - 1;
-
-    return { boutUuid: this.uuid, periodNum, jamNum };
-  }
-
-  /**
-   * Get a URI which identifies the active Jam in this Bout. The active Jam is the last
-   * Jam which is running or has ended. If no Jam meets this condition, the latest Jam
-   * is returned.
-   *
-   * @returns a URI to the active Jam.
-   */
-  getActiveJamUri(): JamUri {
-    let periodNum = 0;
-    for (let i = this.jamCounts.length - 1; i >= 0; --i) {
-      // Get the latest Period number that contains Jams
-      if (this.jamCounts[i] > 0) {
-        periodNum = i;
-        break;
-      }
-    }
-    if (this.jamCounts[periodNum] < 2) {
-      return this.getLatestJamUri(); // There is no active Jam
-    }
-    const jamNum = this.jamCounts[periodNum] - 2;
-
-    return { boutUuid: this.uuid, periodNum, jamNum };
   }
 
   /**
