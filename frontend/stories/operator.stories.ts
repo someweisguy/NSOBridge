@@ -66,7 +66,7 @@ const boutData = {
     },
   ],
   jamCounts: [2, 0, 0],
-  timeoutCount: 0,
+  timeoutCount: 1,
 };
 const jamData = {
   boutUuid: "5d68fdab-b8bc-4631-8b7d-734217eb986d",
@@ -86,6 +86,21 @@ const jamData = {
     },
   ],
 };
+const timeoutData = {
+  boutUuid: "5d68fdab-b8bc-4631-8b7d-734217eb986d",
+  num: 0,
+  startTimestamp: "2026-05-02T14:04:28.707586",
+  stopTimestamp: null,
+  clockElapsed: 146576533,
+  teamIsOfficials: false,
+  isReview: false,
+  details: "",
+  result: "",
+  retained: false,
+  periodNum: 0,
+  jamNum: 0,
+  teamNum: null,
+};
 const allBoutsData = [boutData];
 
 export const Default: Story = {
@@ -100,6 +115,9 @@ export const Default: Story = {
         }),
         http.get("/api/jam", () => {
           return HttpResponse.json(mockApiResponse(jamData));
+        }),
+        http.get("/api/timeout", () => {
+          return HttpResponse.json(mockApiResponse(timeoutData));
         }),
       ],
     },
