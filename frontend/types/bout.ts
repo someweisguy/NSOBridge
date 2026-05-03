@@ -3,6 +3,13 @@ import { Clock } from "./time";
 
 /**
  * A type containing the various state values in which a Bout could be.
+ *
+ * - "final" means the Bout has been finalized.
+ * - "jam" means that a Jam is currently running.
+ * - "lineup" means that the Bout is running but neither a Jam nor a Timeout is running.
+ * - "stopped" means the Bout is in pregame, halftime, or unofficial score.
+ * - "timeout" means a Timeout is running.
+ *
  */
 export type BoutStateString =
   | "final"
@@ -39,7 +46,7 @@ export class Bout {
    */
   clock: Clock;
   /**
-   * The current state of the Bout.  // TODO: more documentation required here.
+   * The current state of the Bout.
    */
   state: BoutStateString;
   /**
@@ -81,15 +88,6 @@ export class Bout {
     }
     return ["bouts", boutUuid];
   }
-
-  // /**
-  //  * Return true if this Bout is in overtime.
-  //  *
-  //  * @returns true if this Bout is in overtime.
-  //  */
-  // isOvertime(): boolean {
-  //   return this.jamCounts[2] > 0;
-  // }
 }
 
 /**
