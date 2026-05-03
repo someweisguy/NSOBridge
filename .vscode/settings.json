@@ -27,5 +27,5 @@
     "overrideConfigFile": "./frontend/configs/eslint.config.js"
   },
   "cSpell.words": ["WFTDA"],
-  "cSpell.ignoreWords": ["autodocs", "tabler"]
+  "cSpell.ignoreWords": ["autodocs", "tabler", "wght"]
 }
