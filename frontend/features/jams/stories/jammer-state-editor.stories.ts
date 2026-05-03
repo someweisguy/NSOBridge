@@ -9,11 +9,23 @@ const meta: Meta<typeof JammerStateEditor> = {
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    teamJamUri: { boutUuid: "", periodNum: 0, jamNum: 0, teamNum: 0 },
+    teamJam: {
+      teamNum: 0,
+      events: [],
+    },
+  },
 };
 
 export const NotLeadEligible: Story = {
-  args: {},
+  args: {
+    teamJamUri: { boutUuid: "", periodNum: 0, jamNum: 0, teamNum: 0 },
+    teamJam: {
+      teamNum: 0,
+      events: [],
+    },
+  },
 };
 
 export default meta;
