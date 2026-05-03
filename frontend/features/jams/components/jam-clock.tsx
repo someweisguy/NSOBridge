@@ -20,7 +20,11 @@ interface JamClockProps extends ClockProps, TextProps {
  * displayed. When the Jam has stopped, the reason that the Jam was stopped is
  * displayed.
  */
-export function JamClock({ stopReason, jamDuration, ...props }: JamClockProps) {
+export default function JamClock({
+  stopReason,
+  jamDuration,
+  ...props
+}: JamClockProps) {
   const stopReasonText = stopReason != null ? stopReasonTexts[stopReason] : "-";
 
   return (

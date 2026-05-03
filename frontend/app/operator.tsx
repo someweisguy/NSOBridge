@@ -8,7 +8,7 @@ import TeamName from "@/features/bouts/components/team-name";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
-import { JamClock } from "@/features/jams/components/jam-clock";
+import JamClock from "@/features/jams/components/jam-clock";
 import JamNumber from "@/features/jams/components/jam-number";
 import JammerStateEditor from "@/features/jams/components/jammer-state-editor";
 import PassEditor from "@/features/jams/components/pass-editor";
