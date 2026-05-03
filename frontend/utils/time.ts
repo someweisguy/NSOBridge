@@ -1,10 +1,21 @@
 import { OneShot, Timer } from "@/types/time";
 
+/**
+ * Check if a OneShot or Timer has started.
+ *
+ * @param obj the OneShot or Timer to check.
+ * @returns True if the OneShot or Timer has started.
+ */
 export const isStarted = (obj: OneShot | Timer): boolean => {
   return obj.startTimestamp != null;
 };
 
-// TODO: Move this method
+/**
+ * Check if a OneShot or Timer is running.
+ *
+ * @param obj the OneShot or Timer to check.
+ * @returns True if the OneShot or Timer is running.
+ */
 export const isRunning = (obj: OneShot | Timer): boolean => {
   return (
     obj.startTimestamp != null &&
@@ -12,6 +23,12 @@ export const isRunning = (obj: OneShot | Timer): boolean => {
   );
 };
 
+/**
+ * Get the number of milliseconds that has elapsed on a OneShot or Timer.
+ *
+ * @param obj the OneShot or Timer to check.
+ * @returns the number of milliseconds that has elapsed.
+ */
 export const getElapsed = (obj: OneShot | Timer): number => {
   let elapsed = 0;
 
