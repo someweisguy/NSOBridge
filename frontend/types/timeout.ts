@@ -69,22 +69,4 @@ export class Timeout implements OneShot {
   static generateKey(boutUuid: string, timeoutNum: number): CacheKey {
     return ["timeouts", boutUuid, timeoutNum];
   }
-
-  // /**
-  //  * Determine if this Timeout has been started.
-  //  *
-  //  * @returns true if this Timeout has started.
-  //  */
-  // hasStarted(): boolean {
-  //   return this.startTimestamp != null;
-  // }
-
-  // /**
-  //  * Determine if this Timeout is currently running.
-  //  *
-  //  * @returns true if this Timeout is currently running.
-  //  */
-  // isRunning(): boolean {
-  //   return this.hasStarted() && this.stopTimestamp == null;
-  // }
 }
