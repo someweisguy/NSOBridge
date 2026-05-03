@@ -2,16 +2,9 @@ import Operator from "@/app/operator";
 import { Bout } from "@/types/bout";
 import { Jam } from "@/types/jam";
 import { Timeout } from "@/types/timeout";
+import { mockApiResponse } from "@/utils/mock-api";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { http, HttpResponse } from "msw";
-
-const mockApiResponse = <T = unknown>(data: T, statusCode = 200) => {
-  return {
-    data: data,
-    statusCode: statusCode,
-    timestamp: new Date().toString(),
-  };
-};
 
 const meta: Meta = {
   component: Operator,
