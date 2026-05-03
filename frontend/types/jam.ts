@@ -49,24 +49,6 @@ export class Jam implements OneShot {
   ): CacheKey {
     return ["jams", boutUuid, periodNum, jamNum];
   }
-
-  // /**
-  //  * Determine if this Jam has started.
-  //  *
-  //  * @returns true if this Jam has started.
-  //  */
-  // hasStarted(): boolean {
-  //   return this.startTimestamp != null;
-  // }
-
-  // /**
-  //  * Determine if this Jam is currently running.
-  //  *
-  //  * @returns true if this Jam is currently running.
-  //  */
-  // isRunning(): boolean {
-  //   return this.hasStarted() && this.stopTimestamp == null;
-  // }
 }
 
 /**
@@ -82,15 +64,6 @@ export class TeamJam {
    * An array of Jammer Trip events that have occurred during this Jam.
    */
   events: TripEvent[];
-
-  // /**
-  //  * Get the number of passes that this TeamJam's jammer has completed.
-  //  *
-  //  * @returns the number of passes that the Jammer has completed.
-  //  */
-  // getNumTrips(): number {
-  //   return this.events.filter((tripEvent) => tripEvent.passes != null).length;
-  // }
 }
 
 /**
