@@ -10,13 +10,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
  *
  * @returns a Tanstack useSuspenseQuery object containing the desired Jam.
  */
-export const useSuspenseJam = ({
+export const useSuspenseJam = <T = Jam>({
   boutUuid,
   periodNum,
   jamNum,
   ...options
-}: JamUri & AppSuspenseQueryOptions<Jam>) =>
-  useSuspenseQuery<Jam>({
+}: JamUri & AppSuspenseQueryOptions<Jam, T>) =>
+  useSuspenseQuery<Jam, Error, T>({
     queryKey: generateQueryKey.jam(boutUuid, periodNum, jamNum),
     queryFn: () =>
       localAPI.get<Jam>("jam", {
