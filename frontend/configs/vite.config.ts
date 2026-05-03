@@ -1,7 +1,6 @@
 /// <reference types="vitest/config" />
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react-swc";
 import { playwright } from "@vitest/browser-playwright";
 import { fileURLToPath } from "node:url";
 import path from "path";
@@ -42,7 +41,7 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react(), tailwindcss()],
+  plugins: [tailwindcss()],
   resolve: {
     alias: {
       "@": frontendDirectory,
