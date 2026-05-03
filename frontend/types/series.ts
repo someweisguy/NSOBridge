@@ -3,7 +3,7 @@
  * Bouts. This grouping can be used to track per-event statistics, such as the number
  * of team wins/losses during a tournament Series.
  */
-export class Series {
+export interface Series {
   /**
    * The unique identifier of this Series.
    */

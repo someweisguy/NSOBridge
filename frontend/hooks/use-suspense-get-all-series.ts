@@ -4,7 +4,6 @@ import { AppSuspenseQueryOptions } from "@/types/query";
 import { Series } from "@/types/series";
 import { generateQueryKey } from "@/utils/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
 
 /**
  * Gets all the Series from the server. Each individual Series is automatically cached
@@ -14,14 +13,14 @@ import { useCallback } from "react";
  * @returns a Tanstack useSuspenseQuery object containing an array of all Series.
  */
 export const useSuspenseGetAllSeries = (
-  options?: AppSuspenseQueryOptions<Partial<Series>[]>,
+  options?: AppSuspenseQueryOptions<Series[]>,
 ) =>
   useSuspenseQuery({
     queryKey: generateQueryKey.series("ALL"),
     queryFn: () =>
       localAPI
-        .get<Partial<Series>[]>("series/allSeries")
-        .then<Partial<Series>[]>((allSeries: Partial<Series>[]) => {
+        .get<Series[]>("series/allSeries")
+        .then<Series[]>((allSeries: Series[]) => {
           for (const series of allSeries) {
             if (series.uuid != null) {
               queryClient.setQueryData(
@@ -32,10 +31,5 @@ export const useSuspenseGetAllSeries = (
           }
           return allSeries;
         }),
-    select: useCallback(
-      (allSeries: Partial<Series>[]) =>
-        allSeries.map((series) => Object.assign(new Series(), series)),
-      [],
-    ),
     ...options,
   });

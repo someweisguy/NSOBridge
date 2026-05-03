@@ -14,13 +14,12 @@ export const useSuspenseTimeout = ({
   boutUuid,
   timeoutNum,
   ...options
-}: TimeoutUri & AppSuspenseQueryOptions<Partial<Timeout>>) =>
+}: TimeoutUri & AppSuspenseQueryOptions<Timeout>) =>
   useSuspenseQuery({
     queryKey: generateQueryKey.timeout(boutUuid, timeoutNum),
     queryFn: () =>
-      localAPI.get<Partial<Timeout>>("timeout", {
+      localAPI.get<Timeout>("timeout", {
         query: { boutUuid, num: timeoutNum }, // TODO: fix alias
       }),
-    select: (data) => Object.assign(new Timeout(), data),
     ...options,
   });

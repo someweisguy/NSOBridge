@@ -20,7 +20,7 @@ export type BoutStateString =
 /**
  * Represents a roller derby Bout - the game unit within this app.
  */
-export class Bout {
+export interface Bout {
   /**
    * A unique identifier used with this Bout.
    */

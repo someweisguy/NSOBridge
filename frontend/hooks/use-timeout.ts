@@ -14,13 +14,12 @@ export const useTimeout = ({
   boutUuid,
   timeoutNum,
   ...options
-}: TimeoutUri & AppQueryOptions<Partial<Timeout>>) =>
+}: TimeoutUri & AppQueryOptions<Timeout>) =>
   useQuery({
     queryKey: generateQueryKey.timeout(boutUuid, timeoutNum),
     queryFn: () =>
-      localAPI.get<Partial<Timeout>>("timeout", {
+      localAPI.get<Timeout>("timeout", {
         query: { boutUuid, num: timeoutNum }, // TODO: fix alias
       }),
-    select: (data) => Object.assign(new Timeout(), data),
     ...options,
   });

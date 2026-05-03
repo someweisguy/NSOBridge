@@ -5,7 +5,7 @@ import { OneShot } from "./time";
  * flow of the game. This may be done by any Team with a sufficient number of Timeouts
  * remaining or by the officials for any reason.
  */
-export class Timeout implements OneShot {
+export interface Timeout extends OneShot {
   /**
    * The UUID of the Bout associated with this Timeout.
    */
@@ -23,8 +23,6 @@ export class Timeout implements OneShot {
    * always the Jam number of the Jam that has just ended.
    */
   jamNum: number;
-  startTimestamp: string | null;
-  stopTimestamp: string | null;
   /**
    * The amount of milliseconds that have elapsed on the Period clock when this Timeout
    * was called.

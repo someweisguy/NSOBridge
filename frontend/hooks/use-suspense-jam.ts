@@ -1,5 +1,5 @@
 import { localAPI } from "@/lib/requests";
-import { Jam, TeamJam } from "@/types/jam";
+import { Jam } from "@/types/jam";
 import { AppSuspenseQueryOptions, JamUri } from "@/types/query";
 import { generateQueryKey } from "@/utils/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -15,18 +15,12 @@ export const useSuspenseJam = ({
   periodNum,
   jamNum,
   ...options
-}: JamUri & AppSuspenseQueryOptions<Partial<Jam>>) =>
-  useSuspenseQuery<Partial<Jam>, Error, Jam>({
+}: JamUri & AppSuspenseQueryOptions<Jam>) =>
+  useSuspenseQuery<Jam>({
     queryKey: generateQueryKey.jam(boutUuid, periodNum, jamNum),
     queryFn: () =>
-      localAPI.get<Partial<Jam>>("jam", {
+      localAPI.get<Jam>("jam", {
         query: { boutUuid, periodNum, jamNum },
       }),
-    select: (jam) => {
-      jam.teamJams = jam.teamJams!.map((tj) =>
-        Object.assign(new TeamJam(), tj),
-      );
-      return Object.assign(new Jam(), jam);
-    },
     ...options,
   });

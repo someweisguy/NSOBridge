@@ -9,7 +9,7 @@ export type StopReasonString = "called" | "elapsed" | "injury" | "other";
  * A unit of gameplay within a Bout. These are typically two-minute rounds of action
  * during the run of the Bout.
  */
-export class Jam implements OneShot {
+export interface Jam extends OneShot {
   /**
    * The UUID of the Bout associated with this Jam.
    */
@@ -22,8 +22,6 @@ export class Jam implements OneShot {
    * The Jam number of this Jam.
    */
   num: number;
-  startTimestamp: string | null;
-  stopTimestamp: string | null;
   /**
    * The reason that this Jam was stopped or null if it hasn't been stopped.
    */
@@ -38,7 +36,7 @@ export class Jam implements OneShot {
  * Represent a TeamJam within a Jam. A TeamJam is data which pertains to a particular
  * team within a Jam. Such data may include the Jammer's trips or lineup data.
  */
-export class TeamJam {
+export interface TeamJam {
   /**
    * The unique number of the Team with which this TeamJam is associated.
    */

@@ -3,7 +3,7 @@
  * played. This is used to support multiple styles of Roller Derby play without
  * adjusting the codebase in a major way. Each Bout may only support one Ruleset.
  */
-export class Ruleset {
+export interface Ruleset {
   /**
    * The duration of the Jam in milliseconds.
    */
