@@ -34,6 +34,7 @@ import { twMerge } from "tailwind-merge";
 import "./global.css";
 import AppProvider from "./provider";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
+import { isRunning } from "@/types/abstract";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
@@ -111,8 +112,9 @@ export default function Operator() {
                   timeoutsRemaining={team.timeoutsRemaining}
                   reviewsRemaining={team.reviewsRemaining}
                   timeoutIsActive={
-                    (latestTimeout?.isRunning() ?? false) &&
-                    latestTimeout?.teamNum === team.num
+                    latestTimeout != null &&
+                    isRunning(latestTimeout) &&
+                    latestTimeout.teamNum === team.num
                   }
                   isReview={latestTimeout?.isReview ?? false}
                   size={24}

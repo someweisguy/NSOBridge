@@ -1,4 +1,5 @@
 import { CacheKey } from "./query";
+import { OneShot } from "./abstract";
 
 /**
  * A type which represents all of the possible reason a Jam may be stopped.
@@ -9,7 +10,7 @@ export type StopReasonString = "called" | "elapsed" | "injury" | "other";
  * A unit of gameplay within a Bout. These are typically two-minute rounds of action
  * during the run of the Bout.
  */
-export class Jam {
+export class Jam implements OneShot {
   /**
    * The UUID of the Bout associated with this Jam.
    */
@@ -22,13 +23,7 @@ export class Jam {
    * The Jam number of this Jam.
    */
   num: number;
-  /**
-   * The timestamp at which this Jam started or null if it hasn't been started.
-   */
   startTimestamp: string | null;
-  /**
-   * The timestamp at which this Jam was stopped or null if it hasn't been stopped.
-   */
   stopTimestamp: string | null;
   /**
    * The reason that this Jam was stopped or null if it hasn't been stopped.

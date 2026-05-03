@@ -1,17 +1,12 @@
+import { OneShot, Timer } from "./abstract";
 import { CacheKey } from "./query";
 
 /**
  * Represent a Clock in Roller Derby. A clock may be started and stopped multiple times
  * whereas a one-shot (such as a Jam or Timeout) can only be started and stopped once.
  */
-export class Clock {
-  /**
-   * The timestamp at which this Clock was started or null if it hasn't been started.
-   */
+export class Clock implements Timer {
   startTimestamp: string | null;
-  /**
-   * The number of milliseconds that have already elapsed on this Clock.
-   */
   elapsed: number;
   /**
    * The number of milliseconds that must elapse for the alarm on this Clock to trigger.
@@ -48,7 +43,7 @@ export class Clock {
  * flow of the game. This may be done by any Team with a sufficient number of Timeouts
  * remaining or by the officials for any reason.
  */
-export class Timeout {
+export class Timeout implements OneShot {
   /**
    * The UUID of the Bout associated with this Timeout.
    */
@@ -66,13 +61,7 @@ export class Timeout {
    * always the Jam number of the Jam that has just ended.
    */
   jamNum: number;
-  /**
-   * The timestamp at which this Timeout was called.
-   */
-  startTimestamp: string | null; // TODO: can this be null?
-  /**
-   * The timestamp at which this Timeout was ended.
-   */
+  startTimestamp: string | null;
   stopTimestamp: string | null;
   /**
    * The amount of milliseconds that have elapsed on the Period clock when this Timeout

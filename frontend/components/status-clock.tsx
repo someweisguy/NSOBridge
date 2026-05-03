@@ -9,7 +9,7 @@ interface StatusClockProps extends TextProps {
   /**
    * The optional timestamp that marks the beginning of the current Bout state.
    */
-  startTimestamp?: Date | null;
+  startTimestamp?: string | null;
 }
 
 /**
