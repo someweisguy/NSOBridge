@@ -87,11 +87,11 @@ export default function Operator() {
 
   return (
     <PageShell>
-      <Stack align="stretch" justify="flex-start">
+      <Stack>
         {/* Team information */}
         <SimpleGrid cols={bout.teams.length}>
           {bout.teams.map((team: Team, i: number) => (
-            <Stack key={i} justify="center">
+            <Stack key={i}>
               <TeamName
                 uuid={bout.uuid}
                 num={team.num}
@@ -102,7 +102,6 @@ export default function Operator() {
               />
               <Flex
                 direction={i % 2 ? "row-reverse" : "row"}
-                align="center"
                 justify="center"
                 gap="md"
               >
@@ -119,12 +118,17 @@ export default function Operator() {
                   isReview={latestTimeout?.isReview ?? false}
                   size={24}
                 />
-                <Text fw="bold" w={150} ta="center" size="48pt">
-                  {team.boutScore + team.scoreOffset}
+                <Text fw="bold" h="100%" w={200} ta="center" size="76pt">
+                  <Center h="100%">{team.boutScore + team.scoreOffset}</Center>
                 </Text>
-                <Text ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
-                  {team.jamScore}
-                </Text>
+                <Stack gap="0" justify="space-between" h="100%">
+                  <Text ta="center" size="24pt" w={50}>
+                    {/* TODO: Add Jammer state icon */}
+                  </Text>
+                  <Text ta="center" size="36pt" mb="sm" w={50}>
+                    {team.jamScore}
+                  </Text>
+                </Stack>
               </Flex>
             </Stack>
           ))}
