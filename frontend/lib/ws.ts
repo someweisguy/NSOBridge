@@ -1,6 +1,5 @@
 import { CacheKey } from "@/types/query";
 import { ServerData, SyncData } from "@/types/ws";
-import { dateReviver } from "@/utils/revivers";
 
 type CallbackType<T = unknown> = (data: T) => void;
 
@@ -65,10 +64,7 @@ export default class Socket {
     };
     this.ws.onerror = () => this.ws.close();
     this.ws.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
-      const { type, data } = JSON.parse(
-        event.data,
-        dateReviver,
-      ) as WebSocketSchema<K>;
+      const { type, data } = JSON.parse(event.data) as WebSocketSchema<K>;
       this.handleEvent(type, data);
     };
   }
