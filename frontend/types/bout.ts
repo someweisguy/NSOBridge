@@ -1,4 +1,4 @@
-import { CacheKey, TimeoutUri } from "./query";
+import { CacheKey } from "./query";
 import { Clock } from "./timeout";
 
 /**
@@ -80,17 +80,6 @@ export class Bout {
       return ["bouts"];
     }
     return ["bouts", boutUuid];
-  }
-
-  /**
-   * Get a URI which identifies the latest Timeout. The latest Timeout is the timeout
-   * which was most recently called. If no Timeouts have been called, the timeoutNum
-   * parameter is -1.
-   *
-   * @returns a URI to the latest Timeout.
-   */
-  getLatestTimeoutUri(): TimeoutUri {
-    return { boutUuid: this.uuid, timeoutNum: this.timeoutCount - 1 };
   }
 
   /**

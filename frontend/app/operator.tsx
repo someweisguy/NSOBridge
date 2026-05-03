@@ -33,6 +33,7 @@ import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
 import AppProvider from "./provider";
+import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
@@ -76,7 +77,7 @@ export default function Operator() {
   const latestJamUri = useLatestJamUri(bout);
   void useJam(latestJamUri); // Used to prevent UI from blinking
 
-  const latestTimeoutUri = bout.getLatestTimeoutUri();
+  const latestTimeoutUri = useLatestTimeoutUri(bout);
   const { data: latestTimeout } = useTimeout({
     ...latestTimeoutUri,
     enabled: bout.timeoutCount > 0,
