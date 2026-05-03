@@ -76,9 +76,9 @@
     "storybook-addon-deep-controls": "^0.10.0",
     "storybook-addon-mock-date": "^2.0.0",
     "storybook-dark-mode": "^5.0.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.58.1",
-    "vite": "^7.3.2",
+    "vite": "^8.0.10",
     "vitest": "^4.0.18"
   },
   "msw": {
