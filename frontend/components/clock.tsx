@@ -1,4 +1,5 @@
 import { useSyncDataContext } from "@/hooks/use-sync-context";
+import { Text, TextProps } from "@mantine/core";
 import { useEffect, useState } from "react";
 import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
@@ -12,7 +13,7 @@ const timeFormatters = {
   default: defaultTimeStringFormatter,
 };
 
-export interface ClockProps {
+export interface ClockProps extends TextProps {
   /**
    * The timestamp at which this Clock was started or `null` if it isn't running.
    */
@@ -59,6 +60,7 @@ export default function Clock({
   serverOffset,
   freeze = false,
   formatter = "default",
+  ...props
 }: ClockProps) {
   const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
   const syncDataContext = useSyncDataContext();
@@ -92,5 +94,7 @@ export default function Clock({
     milliseconds += serverOffset ?? syncDataContext?.offset ?? 0;
   }
 
-  return <>{timeFormatters[formatter](milliseconds, alarm)}</>;
+  return (
+    <Text {...props}>{timeFormatters[formatter](milliseconds, alarm)}</Text>
+  );
 }
