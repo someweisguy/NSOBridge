@@ -1,3 +1,4 @@
+import Clock from "@/components/clock";
 import PageShell from "@/components/page-shell";
 import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutJamControl from "@/features/bouts/components/bout-jam-control";
@@ -85,6 +86,9 @@ export default function Operator() {
     throwOnError: false,
   });
 
+  // TODO: get actual timestamp of last event
+  const lastEventTimestamp = new Date().toISOString();
+
   return (
     <PageShell>
       <Stack>
@@ -148,12 +152,14 @@ export default function Operator() {
               />
             </Group>
           </Center>
-          <BoutStatus
-            {...bout}
+          <Group
+            justify="center"
             className={twMerge(bout.state == "jam" && "invisible")}
-            inherit
             fz="24pt"
-          />
+          >
+            <BoutStatus {...bout} inherit />
+            <Clock startTimestamp={lastEventTimestamp} inherit />
+          </Group>
         </Stack>
 
         {/* Bout State control */}
