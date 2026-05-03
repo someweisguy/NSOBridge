@@ -1,5 +1,5 @@
 import { CacheKey } from "./query";
-import { OneShot } from "./abstract";
+import { OneShot } from "./time";
 
 /**
  * A type which represents all of the possible reason a Jam may be stopped.

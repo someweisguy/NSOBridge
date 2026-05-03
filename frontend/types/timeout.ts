@@ -1,42 +1,5 @@
-import { OneShot, Timer } from "./abstract";
 import { CacheKey } from "./query";
-
-/**
- * Represent a Clock in Roller Derby. A clock may be started and stopped multiple times
- * whereas a one-shot (such as a Jam or Timeout) can only be started and stopped once.
- */
-export class Clock implements Timer {
-  startTimestamp: string | null;
-  elapsed: number;
-  /**
-   * The number of milliseconds that must elapse for the alarm on this Clock to trigger.
-   */
-  alarm: number;
-
-  // constructor({
-  //   startTimestamp,
-  //   elapsed,
-  //   alarm,
-  // }: {
-  //   startTimestamp: string | null;
-  //   elapsed: number;
-  //   alarm: number;
-  // }) {
-  //   this.startTimestamp =
-  //     startTimestamp == null ? null : new Date(startTimestamp);
-  //   this.elapsed = elapsed;
-  //   this.alarm = alarm;
-  // }
-
-  // /**
-  //  * Determine if this Clock is running.
-  //  *
-  //  * @returns true if this Clock is running.
-  //  */
-  // isRunning(): boolean {
-  //   return this.startTimestamp !== null;
-  // }
-}
+import { OneShot } from "./time";
 
 /**
  * Represent a Timeout or Official Review within a Bout. A Timeout is called to stop the

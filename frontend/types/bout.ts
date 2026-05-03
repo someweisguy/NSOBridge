@@ -1,5 +1,5 @@
 import { CacheKey } from "./query";
-import { Clock } from "./timeout";
+import { Clock } from "./time";
 
 /**
  * A type containing the various state values in which a Bout could be.

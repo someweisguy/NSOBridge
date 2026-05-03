@@ -1,24 +1,4 @@
-export interface OneShot {
-  /**
-   * The timestamp at which this OneShot was started.
-   */
-  startTimestamp: string | null;
-  /**
-   * The timestamp at which this OneShot was stopped.
-   */
-  stopTimestamp: string | null;
-}
-
-export interface Timer {
-  /**
-   * The timestamp at which this Timer was most recently started.
-   */
-  startTimestamp: string | null;
-  /**
-   * The amount of time that has already elapsed on this Timer.
-   */
-  elapsed: number;
-}
+import { OneShot, Timer } from "@/types/time";
 
 export const isStarted = (obj: OneShot | Timer): boolean => {
   return obj.startTimestamp != null;

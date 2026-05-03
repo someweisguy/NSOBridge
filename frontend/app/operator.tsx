@@ -7,6 +7,7 @@ import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control
 import TeamName from "@/features/bouts/components/team-name";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
+import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import { JamClock } from "@/features/jams/components/jam-clock";
 import JamNumber from "@/features/jams/components/jam-number";
 import JammerStateEditor from "@/features/jams/components/jammer-state-editor";
@@ -26,6 +27,7 @@ import { useTimeout } from "@/hooks/use-timeout";
 import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
 import { BoutUri } from "@/types/query";
+import { isRunning } from "@/utils/time";
 import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense, useState } from "react";
@@ -33,8 +35,6 @@ import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
 import AppProvider from "./provider";
-import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
-import { isRunning } from "@/types/abstract";
 
 // Register Ctrl+Z and Ctrl+Y as undo and redo respectively
 document.addEventListener("keydown", (event) => {
