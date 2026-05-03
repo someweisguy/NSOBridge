@@ -85,7 +85,7 @@ export const Default: Story = {
               period: 0,
               num: 0,
               startTimestamp: new Date().toISOString(),
-              stopTimestamp: null,
+              stopTimestamp: new Date().toISOString(),
               stopReason: null,
               teamJams: [
                 {

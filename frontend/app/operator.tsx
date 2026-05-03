@@ -86,8 +86,16 @@ export default function Operator() {
     throwOnError: false,
   });
 
-  // TODO: get actual timestamp of last event
-  const lastEventTimestamp = new Date().toISOString();
+  // Get the time since the last Jam or Timeout or null if neither have occurred
+  const lastEventTimestamp: string | null =
+    activeJam.stopTimestamp != null && latestTimeout?.stopTimestamp != null
+      ? new Date(
+          Math.max(
+            new Date(activeJam.stopTimestamp).getTime(),
+            new Date(latestTimeout.stopTimestamp).getTime(),
+          ),
+        ).toISOString()
+      : (activeJam.stopTimestamp ?? latestTimeout?.stopTimestamp ?? null);
 
   return (
     <PageShell>
@@ -158,7 +166,9 @@ export default function Operator() {
             fz="24pt"
           >
             <BoutStatus {...bout} inherit />
-            <Clock startTimestamp={lastEventTimestamp} inherit />
+            {lastEventTimestamp != null && (
+              <Clock startTimestamp={lastEventTimestamp} inherit />
+            )}
           </Group>
         </Stack>
 
