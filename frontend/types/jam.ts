@@ -25,11 +25,11 @@ export class Jam {
   /**
    * The timestamp at which this Jam started or null if it hasn't been started.
    */
-  startTimestamp: Date | null;
+  startTimestamp: string | null;
   /**
    * The timestamp at which this Jam was stopped or null if it hasn't been stopped.
    */
-  stopTimestamp: Date | null;
+  stopTimestamp: string | null;
   /**
    * The reason that this Jam was stopped or null if it hasn't been stopped.
    */
@@ -55,23 +55,23 @@ export class Jam {
     return ["jams", boutUuid, periodNum, jamNum];
   }
 
-  /**
-   * Determine if this Jam has started.
-   *
-   * @returns true if this Jam has started.
-   */
-  hasStarted(): boolean {
-    return this.startTimestamp != null;
-  }
+  // /**
+  //  * Determine if this Jam has started.
+  //  *
+  //  * @returns true if this Jam has started.
+  //  */
+  // hasStarted(): boolean {
+  //   return this.startTimestamp != null;
+  // }
 
-  /**
-   * Determine if this Jam is currently running.
-   *
-   * @returns true if this Jam is currently running.
-   */
-  isRunning(): boolean {
-    return this.hasStarted() && this.stopTimestamp == null;
-  }
+  // /**
+  //  * Determine if this Jam is currently running.
+  //  *
+  //  * @returns true if this Jam is currently running.
+  //  */
+  // isRunning(): boolean {
+  //   return this.hasStarted() && this.stopTimestamp == null;
+  // }
 }
 
 /**
@@ -88,14 +88,14 @@ export class TeamJam {
    */
   events: TripEvent[];
 
-  /**
-   * Get the number of passes that this TeamJam's jammer has completed.
-   *
-   * @returns the number of passes that the Jammer has completed.
-   */
-  getNumTrips(): number {
-    return this.events.filter((tripEvent) => tripEvent.passes != null).length;
-  }
+  // /**
+  //  * Get the number of passes that this TeamJam's jammer has completed.
+  //  *
+  //  * @returns the number of passes that the Jammer has completed.
+  //  */
+  // getNumTrips(): number {
+  //   return this.events.filter((tripEvent) => tripEvent.passes != null).length;
+  // }
 }
 
 /**
@@ -108,7 +108,7 @@ export interface TripEvent {
   /**
    * The timestamp at which this event occurred.
    */
-  timestamp: Date;
+  timestamp: string;
   /**
    * True if the Jammer was awarded Lead.
    */

@@ -82,14 +82,14 @@ export class Bout {
     return ["bouts", boutUuid];
   }
 
-  /**
-   * Return true if this Bout is in overtime.
-   *
-   * @returns true if this Bout is in overtime.
-   */
-  isOvertime(): boolean {
-    return this.jamCounts[2] > 0;
-  }
+  // /**
+  //  * Return true if this Bout is in overtime.
+  //  *
+  //  * @returns true if this Bout is in overtime.
+  //  */
+  // isOvertime(): boolean {
+  //   return this.jamCounts[2] > 0;
+  // }
 }
 
 /**

@@ -8,7 +8,7 @@ export class Clock {
   /**
    * The timestamp at which this Clock was started or null if it hasn't been started.
    */
-  startTimestamp: Date | null;
+  startTimestamp: string | null;
   /**
    * The number of milliseconds that have already elapsed on this Clock.
    */
@@ -18,29 +18,29 @@ export class Clock {
    */
   alarm: number;
 
-  constructor({
-    startTimestamp,
-    elapsed,
-    alarm,
-  }: {
-    startTimestamp: string | null;
-    elapsed: number;
-    alarm: number;
-  }) {
-    this.startTimestamp =
-      startTimestamp == null ? null : new Date(startTimestamp);
-    this.elapsed = elapsed;
-    this.alarm = alarm;
-  }
+  // constructor({
+  //   startTimestamp,
+  //   elapsed,
+  //   alarm,
+  // }: {
+  //   startTimestamp: string | null;
+  //   elapsed: number;
+  //   alarm: number;
+  // }) {
+  //   this.startTimestamp =
+  //     startTimestamp == null ? null : new Date(startTimestamp);
+  //   this.elapsed = elapsed;
+  //   this.alarm = alarm;
+  // }
 
-  /**
-   * Determine if this Clock is running.
-   *
-   * @returns true if this Clock is running.
-   */
-  isRunning(): boolean {
-    return this.startTimestamp !== null;
-  }
+  // /**
+  //  * Determine if this Clock is running.
+  //  *
+  //  * @returns true if this Clock is running.
+  //  */
+  // isRunning(): boolean {
+  //   return this.startTimestamp !== null;
+  // }
 }
 
 /**
@@ -69,11 +69,11 @@ export class Timeout {
   /**
    * The timestamp at which this Timeout was called.
    */
-  startTimestamp: Date | null; // TODO: can this be null?
+  startTimestamp: string | null; // TODO: can this be null?
   /**
    * The timestamp at which this Timeout was ended.
    */
-  stopTimestamp: Date | null;
+  stopTimestamp: string | null;
   /**
    * The amount of milliseconds that have elapsed on the Period clock when this Timeout
    * was called.
@@ -118,21 +118,21 @@ export class Timeout {
     return ["timeouts", boutUuid, timeoutNum];
   }
 
-  /**
-   * Determine if this Timeout has been started.
-   *
-   * @returns true if this Timeout has started.
-   */
-  hasStarted(): boolean {
-    return this.startTimestamp != null;
-  }
+  // /**
+  //  * Determine if this Timeout has been started.
+  //  *
+  //  * @returns true if this Timeout has started.
+  //  */
+  // hasStarted(): boolean {
+  //   return this.startTimestamp != null;
+  // }
 
-  /**
-   * Determine if this Timeout is currently running.
-   *
-   * @returns true if this Timeout is currently running.
-   */
-  isRunning(): boolean {
-    return this.hasStarted() && this.stopTimestamp == null;
-  }
+  // /**
+  //  * Determine if this Timeout is currently running.
+  //  *
+  //  * @returns true if this Timeout is currently running.
+  //  */
+  // isRunning(): boolean {
+  //   return this.hasStarted() && this.stopTimestamp == null;
+  // }
 }

@@ -45,7 +45,9 @@ export const Default: Story = {
                 rulesetName: "WFTDA 2025",
                 seriesUuid: "bb4b8918-3cf3-4cad-9ef9-79c89e49d9a9",
                 clock: {
-                  startTimestamp: new Date(Date.now() - 2 * 60 * 1000),
+                  startTimestamp: new Date(
+                    Date.now() - 2 * 60 * 1000,
+                  ).toISOString(),
                   elapsed: 0,
                   alarm: 1800000,
                 },
@@ -91,8 +93,10 @@ export const Default: Story = {
               boutUuid: "5d68fdab-b8bc-4631-8b7d-734217eb986d",
               period: 0,
               num: 0,
-              startTimestamp: new Date(new Date(Date.now() - 2 * 60 * 1000)),
-              stopTimestamp: new Date(),
+              startTimestamp: new Date(
+                new Date(Date.now() - 2 * 60 * 1000),
+              ).toISOString(),
+              stopTimestamp: new Date().toISOString(),
               stopReason: null,
               teamJams: [
                 {
