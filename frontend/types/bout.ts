@@ -1,4 +1,3 @@
-import { CacheKey } from "./query";
 import { Clock } from "./time";
 
 /**
@@ -75,19 +74,6 @@ export class Bout {
    * The number of Timeouts that have been called in this Bout.
    */
   timeoutCount: number;
-
-  /**
-   * Generate a cache key for the desired Bout.
-   *
-   * @param boutUuid the UUID of the desired Bout.
-   * @returns a cache key for the desired Bout.
-   */
-  static generateKey(boutUuid?: string): CacheKey {
-    if (boutUuid == undefined) {
-      return ["bouts"];
-    }
-    return ["bouts", boutUuid];
-  }
 }
 
 /**

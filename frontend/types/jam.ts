@@ -1,4 +1,3 @@
-import { CacheKey } from "./query";
 import { OneShot } from "./time";
 
 /**
@@ -33,22 +32,6 @@ export class Jam implements OneShot {
    * The TeamJams associated with this Jam.
    */
   teamJams: TeamJam[];
-
-  /**
-   * Generate a cache key for the desired Jam.
-   *
-   * @param boutUuid the UUID of the Bout associated with the desired Jam.
-   * @param periodNum the Period number of the desired Jam.
-   * @param jamNum the Jam number of the desired Jam.
-   * @returns a cache key for the desired Jam.
-   */
-  static generateKey(
-    boutUuid?: string,
-    periodNum?: number,
-    jamNum?: number,
-  ): CacheKey {
-    return ["jams", boutUuid, periodNum, jamNum];
-  }
 }
 
 /**

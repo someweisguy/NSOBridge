@@ -1,4 +1,3 @@
-import { CacheKey } from "./query";
 import { OneShot } from "./time";
 
 /**
@@ -58,15 +57,4 @@ export class Timeout implements OneShot {
    * Reviews.
    */
   retained: boolean;
-
-  /**
-   * Generate a cache key for the desired Timeout.
-   *
-   * @param boutUuid the UUID of the Bout associated with the desired Timeout.
-   * @param timeoutNum the number of the desired Timeout.
-   * @returns a cache key for the desired Timeout.
-   */
-  static generateKey(boutUuid: string, timeoutNum: number): CacheKey {
-    return ["timeouts", boutUuid, timeoutNum];
-  }
 }

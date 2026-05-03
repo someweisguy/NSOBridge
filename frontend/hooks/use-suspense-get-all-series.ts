@@ -2,6 +2,7 @@ import queryClient from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
 import { AppSuspenseQueryOptions } from "@/types/query";
 import { Series } from "@/types/series";
+import { generateQueryKey } from "@/utils/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
@@ -16,13 +17,18 @@ export const useSuspenseGetAllSeries = (
   options?: AppSuspenseQueryOptions<Partial<Series>[]>,
 ) =>
   useSuspenseQuery({
-    queryKey: Series.generateKey(),
+    queryKey: generateQueryKey.series("ALL"),
     queryFn: () =>
       localAPI
         .get<Partial<Series>[]>("series/allSeries")
         .then<Partial<Series>[]>((allSeries: Partial<Series>[]) => {
           for (const series of allSeries) {
-            queryClient.setQueryData(Series.generateKey(series.uuid), series);
+            if (series.uuid != null) {
+              queryClient.setQueryData(
+                generateQueryKey.series(series.uuid),
+                series,
+              );
+            }
           }
           return allSeries;
         }),

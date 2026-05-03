@@ -1,6 +1,7 @@
 import { localAPI } from "@/lib/requests";
 import { Jam, TeamJam } from "@/types/jam";
 import { AppQueryOptions, JamUri } from "@/types/query";
+import { generateQueryKey } from "@/utils/query";
 import { useQuery } from "@tanstack/react-query";
 
 /**
@@ -16,7 +17,7 @@ export const useJam = ({
   ...options
 }: JamUri & AppQueryOptions<Partial<Jam>>) =>
   useQuery({
-    queryKey: Jam.generateKey(boutUuid, periodNum, jamNum),
+    queryKey: generateQueryKey.jam(boutUuid, periodNum, jamNum),
     queryFn: () =>
       localAPI.get<Partial<Jam>>("jam", {
         query: { boutUuid, periodNum, jamNum },

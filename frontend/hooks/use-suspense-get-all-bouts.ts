@@ -1,7 +1,8 @@
 import queryClient from "@/lib/cache";
-import { Bout } from "@/types/bout";
 import { localAPI } from "@/lib/requests";
+import { Bout } from "@/types/bout";
 import { AppSuspenseQueryOptions } from "@/types/query";
+import { generateQueryKey } from "@/utils/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
@@ -17,13 +18,18 @@ export const useSuspenseGetAllBouts = (
 ) =>
   useSuspenseQuery<Partial<Bout>[], Error, Bout[]>(
     {
-      queryKey: Bout.generateKey(),
+      queryKey: generateQueryKey.bout("ALL"),
       queryFn: () =>
         localAPI
           .get<Partial<Bout>[]>("bout/allBouts")
           .then((bouts: Partial<Bout>[]) => {
             for (const bout of bouts) {
-              queryClient.setQueryData(Bout.generateKey(bout.uuid), bout);
+              if (bout.uuid != null) {
+                queryClient.setQueryData(
+                  generateQueryKey.bout(bout.uuid),
+                  bout,
+                );
+              }
             }
             return bouts;
           }),

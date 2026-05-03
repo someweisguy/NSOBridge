@@ -1,5 +1,3 @@
-import { CacheKey } from "@/types/query";
-
 /**
  * An object that contains various configuration values that determine how the Bout is
  * played. This is used to support multiple styles of Roller Derby play without
@@ -26,14 +24,4 @@ export class Ruleset {
    * The number of Official Reviews that each Team may have at any given time.
    */
   numReviews: number;
-
-  /**
-   * Generate a cache key for the desired Ruleset.
-   *
-   * @param boutUuid the UUID of the Bout associated with the desired Ruleset.
-   * @returns a cache key for the desired Ruleset.
-   */
-  static generateKey(boutUuid: string): CacheKey {
-    return ["ruleset", boutUuid];
-  }
 }

@@ -2,6 +2,7 @@ import queryClient from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import { AppQueryOptions } from "@/types/query";
+import { generateQueryKey } from "@/utils/query";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
@@ -15,11 +16,13 @@ import { useCallback } from "react";
 export const useGetAllBouts = (options?: AppQueryOptions<Partial<Bout>[]>) =>
   useQuery<Partial<Bout>[], Error, Bout[]>(
     {
-      queryKey: Bout.generateKey(),
+      queryKey: generateQueryKey.bout("ALL"),
       queryFn: () =>
         localAPI.get<Partial<Bout>[]>("bout/allBouts").then((bouts) => {
           for (const bout of bouts) {
-            queryClient.setQueryData(Bout.generateKey(bout.uuid), bout);
+            if (bout.uuid != null) {
+              queryClient.setQueryData(generateQueryKey.bout(bout.uuid), bout);
+            }
           }
           return bouts;
         }),

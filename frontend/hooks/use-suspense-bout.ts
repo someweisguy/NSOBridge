@@ -1,6 +1,7 @@
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import { AppSuspenseQueryOptions, BoutUri } from "@/types/query";
+import { generateQueryKey } from "@/utils/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -14,7 +15,7 @@ export const useSuspenseBout = ({
   ...options
 }: BoutUri & AppSuspenseQueryOptions<Partial<Bout>>) =>
   useSuspenseQuery<Partial<Bout>, Error, Bout>({
-    queryKey: Bout.generateKey(boutUuid),
+    queryKey: generateQueryKey.bout(boutUuid),
     queryFn: () =>
       localAPI.get<Partial<Bout>>("bout", {
         query: { boutUuid },
