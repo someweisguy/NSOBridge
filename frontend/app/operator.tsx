@@ -10,7 +10,6 @@ import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import JamClock from "@/features/jams/components/jam-clock";
-import JamNumber from "@/features/jams/components/jam-number";
 import JammerStateEditor from "@/features/jams/components/jammer-state-editor";
 import PassEditor from "@/features/jams/components/pass-editor";
 import JamStopReasonEditor from "@/features/jams/components/stop-reason-editor";
@@ -192,11 +191,11 @@ export default function Operator() {
               <Grid.Col span={4}>
                 <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
               </Grid.Col>
-              <Grid.Col span={4} w={250}>
-                <Group>
-                  <Divider orientation="vertical" />
-                  <JamNumber {...activeJamUri} fz="36pt" />
-                  <Divider orientation="vertical" />
+              <Grid.Col span={4}>
+                <Group justify="space-between">
+                  <Text inherit w="250">
+                    P{activeJam.period + 1} J{activeJam.num + 1}
+                  </Text>
                 </Group>
               </Grid.Col>
               <Grid.Col span={4}>

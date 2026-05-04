@@ -2,7 +2,6 @@ import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutStatus from "@/features/bouts/components/bout-status";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import JamClock from "@/features/jams/components/jam-clock";
-import JamNumber from "@/features/jams/components/jam-number";
 import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
@@ -10,7 +9,15 @@ import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { Team } from "@/types/bout";
 import { BoutUri } from "@/types/query";
 import FitScreen from "@fit-screen/react";
-import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
+import {
+  Card,
+  Flex,
+  Grid,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -88,18 +95,28 @@ export function Scoreboard() {
 
         {/* Bout State View */}
         <Stack fz="72pt" ta="center" align="stretch">
-          <Center>
-            <Group grow justify="center" w="75%" ta="center">
-              <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
-              <JamNumber {...activeJamUri} inherit />
-              <JamClock
-                jamDuration={ruleset.jamDuration}
-                {...activeJam}
-                {...activeJamUri}
-                inherit
-              />
-            </Group>
-          </Center>
+          <Card withBorder w="content" bg="gray.0">
+            <Grid justify="space-between" align="center" gap="sm">
+              <Grid.Col span={4}>
+                <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <Group justify="space-between">
+                  <Text inherit w="250">
+                    P{activeJam.period + 1} J{activeJam.num + 1}
+                  </Text>
+                </Group>
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <JamClock
+                  jamDuration={ruleset.jamDuration}
+                  {...activeJam}
+                  {...activeJamUri}
+                  inherit
+                />
+              </Grid.Col>
+            </Grid>
+          </Card>
           <BoutStatus
             {...bout}
             className={twMerge(bout.state == "jam" && "invisible")}
