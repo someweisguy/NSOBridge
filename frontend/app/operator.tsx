@@ -186,19 +186,29 @@ export default function Operator() {
         </Group>
 
         {/* Bout State View */}
-        <Stack fz="36pt" ta="center" align="stretch">
-          <Center>
-            <Group grow justify="center" w="75%" ta="center">
-              <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
-              <JamNumber {...activeJamUri} inherit />
-              <JamClock
-                jamDuration={ruleset.jamDuration}
-                {...activeJam}
-                {...activeJamUri}
-                inherit
-              />
-            </Group>
-          </Center>
+        <Stack fz="36pt" ta="center" align="center">
+          <Card withBorder w="content" bg="gray.0">
+            <Grid justify="space-between" align="center" gap="sm">
+              <Grid.Col span={4}>
+                <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
+              </Grid.Col>
+              <Grid.Col span={4} w={250}>
+                <Group>
+                  <Divider orientation="vertical" />
+                  <JamNumber {...activeJamUri} fz="36pt" />
+                  <Divider orientation="vertical" />
+                </Group>
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <JamClock
+                  jamDuration={ruleset.jamDuration}
+                  {...activeJam}
+                  {...activeJamUri}
+                  inherit
+                />
+              </Grid.Col>
+            </Grid>
+          </Card>
           <Group
             justify="center"
             className={twMerge(bout.state == "jam" && "invisible")}
