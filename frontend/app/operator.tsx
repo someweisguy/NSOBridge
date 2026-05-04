@@ -33,7 +33,7 @@ import {
   Card,
   Center,
   Divider,
-  Flex,
+  Grid,
   Group,
   SimpleGrid,
   Stack,
@@ -123,42 +123,55 @@ export default function Operator() {
                   size="36pt"
                 />
                 <Divider />
-                <Flex
-                  direction={i % 2 ? "row-reverse" : "row"}
-                  justify="space-center"
-                  align="flex-end"
-                  wrap="nowrap"
-                  gap="md"
+                <Grid
+                  // grow
+                  // preventGrowOverflow={false}
+                  // cols={3}
+
+                  justify="space-between"
+                  // align="flex-end"
+                  // wrap="nowrap"
+                  // style={{ flexDirection: i % 2 ? "row-reverse" : "row" }}
+                  // p="lg"
+                  // gap="md"
                 >
-                  <TimeoutsLeft
-                    numTimeouts={ruleset.numTimeouts}
-                    numReviews={ruleset.numReviews}
-                    timeoutsRemaining={team.timeoutsRemaining}
-                    reviewsRemaining={team.reviewsRemaining}
-                    timeoutIsActive={
-                      latestTimeout != null &&
-                      isRunning(latestTimeout) &&
-                      latestTimeout.teamNum === team.num
-                    }
-                    isReview={latestTimeout?.isReview ?? false}
-                    size={24}
-                  />
-                  <Text fw="bold" h="100%" w={200} ta="center" size="76pt">
-                    <Center h="100%">
-                      {team.boutScore + team.scoreOffset}
+                  <Grid.Col span="auto" order={i % 2 ? 3 : 1}>
+                    <Center>
+                      <TimeoutsLeft
+                        numTimeouts={ruleset.numTimeouts}
+                        numReviews={ruleset.numReviews}
+                        timeoutsRemaining={team.timeoutsRemaining}
+                        reviewsRemaining={team.reviewsRemaining}
+                        timeoutIsActive={
+                          latestTimeout != null &&
+                          isRunning(latestTimeout) &&
+                          latestTimeout.teamNum === team.num
+                        }
+                        isReview={latestTimeout?.isReview ?? false}
+                        size={24}
+                      />
                     </Center>
-                  </Text>
-                  <Stack gap="4" justify="space-between">
-                    <Text ta="center" size="24pt" w={50}>
-                      {/* TODO: Add Jammer state icon */}
-                    </Text>
-                    <Card withBorder w={75}>
-                      <Text ta="center" size="36pt">
-                        {team.jamScore}
+                  </Grid.Col>
+                  <Grid.Col span={6} order={2}>
+                    <Center h="100%">
+                      <Text fw="bold" h="100%" w={200} ta="center" size="76pt">
+                        {team.boutScore + team.scoreOffset}
                       </Text>
-                    </Card>
-                  </Stack>
-                </Flex>
+                    </Center>
+                  </Grid.Col>
+                  <Grid.Col span="auto" order={i % 2 ? 1 : 3}>
+                    <Stack gap="4" justify="space-between">
+                      <Text ta="center" size="24pt" w={50}>
+                        {/* TODO: Add Jammer state icon */}
+                      </Text>
+                      <Card withBorder w={75}>
+                        <Text ta="center" size="36pt">
+                          {team.jamScore}
+                        </Text>
+                      </Card>
+                    </Stack>
+                  </Grid.Col>
+                </Grid>
               </Stack>
             </Card>
           ))}
