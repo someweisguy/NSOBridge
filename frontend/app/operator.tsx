@@ -29,7 +29,16 @@ import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
 import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
-import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
+import {
+  Card,
+  Center,
+  Divider,
+  Flex,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -101,50 +110,59 @@ export default function Operator() {
     <PageShell>
       <Stack>
         {/* Team information */}
-        <SimpleGrid cols={bout.teams.length}>
+        <Group justify="space-around" p="lg">
           {bout.teams.map((team: Team, i: number) => (
-            <Stack key={i}>
-              <TeamName
-                uuid={bout.uuid}
-                num={team.num}
-                name={team.name}
-                ta="center"
-                fw="bolder"
-                size="36pt"
-              />
-              <Flex
-                direction={i % 2 ? "row-reverse" : "row"}
-                justify="center"
-                gap="md"
-              >
-                <TimeoutsLeft
-                  numTimeouts={ruleset.numTimeouts}
-                  numReviews={ruleset.numReviews}
-                  timeoutsRemaining={team.timeoutsRemaining}
-                  reviewsRemaining={team.reviewsRemaining}
-                  timeoutIsActive={
-                    latestTimeout != null &&
-                    isRunning(latestTimeout) &&
-                    latestTimeout.teamNum === team.num
-                  }
-                  isReview={latestTimeout?.isReview ?? false}
-                  size={24}
+            <Card withBorder key={i}>
+              <Stack gap="sm">
+                <TeamName
+                  uuid={bout.uuid}
+                  num={team.num}
+                  name={team.name}
+                  ta="center"
+                  fw="bolder"
+                  size="36pt"
                 />
-                <Text fw="bold" h="100%" w={200} ta="center" size="76pt">
-                  <Center h="100%">{team.boutScore + team.scoreOffset}</Center>
-                </Text>
-                <Stack gap="0" justify="space-between" h="100%">
-                  <Text ta="center" size="24pt" w={50}>
-                    {/* TODO: Add Jammer state icon */}
+                <Divider />
+                <Flex
+                  direction={i % 2 ? "row-reverse" : "row"}
+                  justify="space-center"
+                  align="flex-end"
+                  wrap="nowrap"
+                  gap="md"
+                >
+                  <TimeoutsLeft
+                    numTimeouts={ruleset.numTimeouts}
+                    numReviews={ruleset.numReviews}
+                    timeoutsRemaining={team.timeoutsRemaining}
+                    reviewsRemaining={team.reviewsRemaining}
+                    timeoutIsActive={
+                      latestTimeout != null &&
+                      isRunning(latestTimeout) &&
+                      latestTimeout.teamNum === team.num
+                    }
+                    isReview={latestTimeout?.isReview ?? false}
+                    size={24}
+                  />
+                  <Text fw="bold" h="100%" w={200} ta="center" size="76pt">
+                    <Center h="100%">
+                      {team.boutScore + team.scoreOffset}
+                    </Center>
                   </Text>
-                  <Text ta="center" size="36pt" mb="sm" w={50}>
-                    {team.jamScore}
-                  </Text>
-                </Stack>
-              </Flex>
-            </Stack>
+                  <Stack gap="4" justify="space-between">
+                    <Text ta="center" size="24pt" w={50}>
+                      {/* TODO: Add Jammer state icon */}
+                    </Text>
+                    <Card withBorder w={75}>
+                      <Text ta="center" size="36pt">
+                        {team.jamScore}
+                      </Text>
+                    </Card>
+                  </Stack>
+                </Flex>
+              </Stack>
+            </Card>
           ))}
-        </SimpleGrid>
+        </Group>
 
         {/* Bout State View */}
         <Stack fz="36pt" ta="center" align="stretch">
