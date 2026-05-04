@@ -31,6 +31,7 @@ import { isRunning } from "@/utils/time";
 import {
   Card,
   Center,
+  Collapse,
   Divider,
   Grid,
   Group,
@@ -41,7 +42,6 @@ import {
 import "@mantine/core/styles.css";
 import { Suspense, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { twMerge } from "tailwind-merge";
 import "./global.css";
 import AppProvider from "./provider";
 
@@ -173,7 +173,7 @@ export default function Operator() {
                   fw="semi-bold"
                   fs="italic"
                   ta="center"
-                  py="md"
+                  py="sm"
                   size="24pt"
                 >
                   {/* TODO: Add Jammer name chip */}
@@ -185,40 +185,46 @@ export default function Operator() {
         </Group>
 
         {/* Bout State View */}
-        <Stack fz="36pt" ta="center" align="center">
-          <Card withBorder w="content" bg="gray.0">
-            <Grid justify="space-between" align="center" gap="sm">
-              <Grid.Col span={4}>
-                <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <Group justify="space-between">
-                  <Text inherit w="250">
-                    P{activeJam.period + 1} J{activeJam.num + 1}
-                  </Text>
+        <Center>
+          <Group fz="36pt" ta="center" align="center">
+            <Card withBorder w="content" bg="gray.0">
+              <Grid justify="space-between" align="center" gap="sm">
+                <Grid.Col span={4}>
+                  <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <Group justify="space-between">
+                    <Text inherit w="250">
+                      P{activeJam.period + 1} J{activeJam.num + 1}
+                    </Text>
+                  </Group>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <JamClock
+                    jamDuration={ruleset.jamDuration}
+                    {...activeJam}
+                    {...activeJamUri}
+                    inherit
+                  />
+                </Grid.Col>
+              </Grid>
+            </Card>
+            <Collapse
+              keepMounted
+              orientation="horizontal"
+              expanded={bout.state != "jam"}
+            >
+              <Card withBorder bg="yellow.3">
+                <Group justify="center" wrap="nowrap" fz="24pt">
+                  <BoutStatus {...bout} inherit />
+                  {lastEventTimestamp != null && (
+                    <Clock startTimestamp={lastEventTimestamp} inherit />
+                  )}
                 </Group>
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <JamClock
-                  jamDuration={ruleset.jamDuration}
-                  {...activeJam}
-                  {...activeJamUri}
-                  inherit
-                />
-              </Grid.Col>
-            </Grid>
-          </Card>
-          <Group
-            justify="center"
-            className={twMerge(bout.state == "jam" && "invisible")}
-            fz="24pt"
-          >
-            <BoutStatus {...bout} inherit />
-            {lastEventTimestamp != null && (
-              <Clock startTimestamp={lastEventTimestamp} inherit />
-            )}
+              </Card>
+            </Collapse>
           </Group>
-        </Stack>
+        </Center>
 
         {/* Bout State control */}
         <Group align="end" justify="center" mih="75">
