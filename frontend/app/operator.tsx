@@ -124,7 +124,11 @@ export default function Operator() {
                 />
                 <Divider />
                 <Grid justify="space-between" align="flex-end">
-                  <Grid.Col span="auto" align="center" order={i % 2 ? 3 : 1}>
+                  <Grid.Col
+                    span="auto"
+                    align="center"
+                    order={{ sm: 1, md: 1, lg: i % 2 ? 3 : 1 }}
+                  >
                     <Center>
                       <TimeoutsLeft
                         numTimeouts={ruleset.numTimeouts}
@@ -148,13 +152,16 @@ export default function Operator() {
                       </Text>
                     </Center>
                   </Grid.Col>
-                  <Grid.Col span="auto" order={i % 2 ? 1 : 3}>
+                  <Grid.Col
+                    span="auto"
+                    order={{ sm: 3, md: 3, lg: i % 2 ? 1 : 3 }}
+                  >
                     <Stack gap="md" justify="space-between">
                       <Text ta="center" size="24pt">
                         {/* TODO: Add Jammer state icon */}
                         &nbsp;
                       </Text>
-                      <Card withBorder w={75}>
+                      <Card withBorder p="xs">
                         <Text ta="center" size="36pt">
                           {team.jamScore}
                         </Text>
@@ -162,6 +169,17 @@ export default function Operator() {
                     </Stack>
                   </Grid.Col>
                 </Grid>
+                <Divider />
+                <Text
+                  fw="semi-bold"
+                  fs="italic"
+                  ta="center"
+                  px="mdFO"
+                  size="24pt"
+                >
+                  {/* TODO: Add Jammer name chip */}
+                  &nbsp;
+                </Text>
               </Stack>
             </Card>
           ))}
