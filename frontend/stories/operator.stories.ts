@@ -22,8 +22,7 @@ const rulesetData = {
   numReviews: 1,
 };
 
-export const InJam: Story = {
-  storyName: "Jam",
+export const PostJam: Story = {
   parameters: {
     msw: {
       handlers: [
