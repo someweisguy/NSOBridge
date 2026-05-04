@@ -25,7 +25,8 @@ export default function JamClock({
   jamDuration,
   ...props
 }: JamClockProps) {
-  const stopReasonText = stopReason != null ? stopReasonTexts[stopReason] : "-";
+  const stopReasonText =
+    stopReason != null ? stopReasonTexts[stopReason] : stopReasonTexts.other;
 
   return (
     <Text {...props}>
