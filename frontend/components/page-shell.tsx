@@ -1,4 +1,11 @@
-import { AppShell, AppShellProps, Burger } from "@mantine/core";
+import {
+  AppShell,
+  AppShellProps,
+  Burger,
+  Button,
+  Group,
+  Text,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { PropsWithChildren, ReactNode, Suspense } from "react";
 
@@ -21,7 +28,7 @@ export default function PageShell({
   return (
     <AppShell
       padding="md"
-      header={{ height: 40 }}
+      header={{ height: 48 }}
       navbar={{
         width: 300,
         breakpoint: "sm",
@@ -30,18 +37,24 @@ export default function PageShell({
       disabled={disabled}
     >
       <AppShell.Header>
-        <Burger
-          opened={mobileOpened}
-          onClick={toggleMobile}
-          hiddenFrom="sm"
-          size="sm"
-        />
-        <Burger
-          opened={desktopOpened}
-          onClick={toggleDesktop}
-          visibleFrom="sm"
-          size="sm"
-        />
+        <Group h="100%" w="100%" justify="space-between" px="md">
+          <Group align="center">
+            <Burger
+              opened={mobileOpened}
+              onClick={toggleMobile}
+              hiddenFrom="sm"
+              size="sm"
+            />
+            <Burger
+              opened={desktopOpened}
+              onClick={toggleDesktop}
+              visibleFrom="sm"
+              size="sm"
+            />
+            <Text>NSO Bridge</Text>
+          </Group>
+          <Button>Navigation Button</Button>
+        </Group>
       </AppShell.Header>
 
       <AppShell.Navbar>{navButtons}</AppShell.Navbar>
