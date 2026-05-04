@@ -193,7 +193,7 @@ export default function Operator() {
               </Grid.Col>
               <Grid.Col span={4}>
                 <Group justify="space-between">
-                  <Text inherit w="250">
+                  <Text inherit w="300">
                     P{activeJam.period + 1} J{activeJam.num + 1}
                   </Text>
                 </Group>
@@ -225,45 +225,53 @@ export default function Operator() {
         </Group>
 
         {/* Bout State control */}
-        <Group align="end" justify="center" mih="75">
-          <BoutJamControl uuid={bout.uuid} state={bout.state} />
-          <BoutTimeoutControl
-            uuid={bout.uuid}
-            state={bout.state}
-            variant="subtle"
-          />
-          <BoutPeriodControl
-            uuid={bout.uuid}
-            state={bout.state}
-            variant="subtle"
-          />
-          {bout.state == "timeout" && (
-            <Suspense>
-              <TimeoutTypeEditor
-                timeoutUri={latestTimeoutUri}
-                {...latestTimeout!}
+        <Card withBorder>
+          <Group grow justify="space-between">
+            <Group align="center" mih="75">
+              <BoutJamControl uuid={bout.uuid} state={bout.state} />
+              <BoutTimeoutControl
+                uuid={bout.uuid}
+                state={bout.state}
+                variant="subtle"
               />
-              <TimeoutCallerEditor
-                timeoutUri={latestTimeoutUri}
-                {...latestTimeout!}
-                data={bout.teams.map((team: Team) => {
-                  return {
-                    value: String(team.num),
-                    label: team.name,
-                  };
-                })}
+              <BoutPeriodControl
+                uuid={bout.uuid}
+                state={bout.state}
+                variant="subtle"
               />
-              <TimeoutRetainedEditor
-                timeoutUri={latestTimeoutUri}
-                {...latestTimeout!}
-                variant="outline"
-              />
-            </Suspense>
-          )}
-          {bout.state == "lineup" && latestJamUri.jamNum > 0 && (
-            <JamStopReasonEditor stopReason={activeJam.stopReason} />
-          )}
-        </Group>
+            </Group>
+            <Group grow align="end" justify="flex-end" mih="75">
+              <Collapse expanded={bout.state == "timeout"}>
+                <Suspense>
+                  <TimeoutTypeEditor
+                    timeoutUri={latestTimeoutUri}
+                    {...latestTimeout!}
+                  />
+                  <TimeoutCallerEditor
+                    timeoutUri={latestTimeoutUri}
+                    {...latestTimeout!}
+                    data={bout.teams.map((team: Team) => {
+                      return {
+                        value: String(team.num),
+                        label: team.name,
+                      };
+                    })}
+                  />
+                  <TimeoutRetainedEditor
+                    timeoutUri={latestTimeoutUri}
+                    {...latestTimeout!}
+                    variant="outline"
+                  />
+                </Suspense>
+              </Collapse>
+              <Collapse
+                expanded={bout.state == "lineup" && latestJamUri.jamNum > 0}
+              >
+                <JamStopReasonEditor stopReason={activeJam.stopReason} />
+              </Collapse>
+            </Group>
+          </Group>
+        </Card>
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>
