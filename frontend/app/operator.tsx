@@ -112,8 +112,8 @@ export default function Operator() {
         {/* Team information */}
         <Group justify="space-around" p="lg">
           {bout.teams.map((team: Team, i: number) => (
-            <Card withBorder key={i}>
-              <Stack gap="sm">
+            <Card withBorder key={i} bg="gray.0">
+              <Stack>
                 <TeamName
                   uuid={bout.uuid}
                   num={team.num}
@@ -123,19 +123,8 @@ export default function Operator() {
                   size="36pt"
                 />
                 <Divider />
-                <Grid
-                  // grow
-                  // preventGrowOverflow={false}
-                  // cols={3}
-
-                  justify="space-between"
-                  // align="flex-end"
-                  // wrap="nowrap"
-                  // style={{ flexDirection: i % 2 ? "row-reverse" : "row" }}
-                  // p="lg"
-                  // gap="md"
-                >
-                  <Grid.Col span="auto" order={i % 2 ? 3 : 1}>
+                <Grid justify="space-between" align="flex-end">
+                  <Grid.Col span="auto" align="center" order={i % 2 ? 3 : 1}>
                     <Center>
                       <TimeoutsLeft
                         numTimeouts={ruleset.numTimeouts}
@@ -148,21 +137,22 @@ export default function Operator() {
                           latestTimeout.teamNum === team.num
                         }
                         isReview={latestTimeout?.isReview ?? false}
-                        size={24}
+                        size={28}
                       />
                     </Center>
                   </Grid.Col>
                   <Grid.Col span={6} order={2}>
                     <Center h="100%">
-                      <Text fw="bold" h="100%" w={200} ta="center" size="76pt">
+                      <Text fw="bold" h="100%" w={225} ta="center" size="76pt">
                         {team.boutScore + team.scoreOffset}
                       </Text>
                     </Center>
                   </Grid.Col>
                   <Grid.Col span="auto" order={i % 2 ? 1 : 3}>
-                    <Stack gap="4" justify="space-between">
-                      <Text ta="center" size="24pt" w={50}>
+                    <Stack gap="md" justify="space-between">
+                      <Text ta="center" size="24pt">
                         {/* TODO: Add Jammer state icon */}
+                        &nbsp;
                       </Text>
                       <Card withBorder w={75}>
                         <Text ta="center" size="36pt">
