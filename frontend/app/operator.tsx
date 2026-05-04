@@ -214,7 +214,7 @@ export default function Operator() {
               orientation="horizontal"
               expanded={bout.state != "jam"}
             >
-              <Card withBorder bg="yellow.3">
+              <Card withBorder w="250" bg="yellow.3">
                 <Group justify="center" wrap="nowrap" fz="24pt">
                   <BoutStatus {...bout} inherit />
                   {lastEventTimestamp != null && (
