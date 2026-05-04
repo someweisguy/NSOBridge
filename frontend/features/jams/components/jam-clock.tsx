@@ -29,7 +29,7 @@ export default function JamClock({
 
   return (
     <Text {...props}>
-      {stopReason != null ? (
+      {props.stopTimestamp != null ? (
         stopReasonText
       ) : (
         <Clock alarm={jamDuration} {...props} />
