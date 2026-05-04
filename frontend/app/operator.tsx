@@ -143,7 +143,7 @@ export default function Operator() {
                   </Grid.Col>
                   <Grid.Col span={6} order={2}>
                     <Center h="100%">
-                      <Text fw="bold" h="100%" w={225} ta="center" size="76pt">
+                      <Text fw="bold" h="100%" w={250} ta="center" size="76pt">
                         {team.boutScore + team.scoreOffset}
                       </Text>
                     </Center>
