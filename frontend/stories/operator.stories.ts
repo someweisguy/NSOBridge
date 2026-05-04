@@ -1,7 +1,6 @@
 import Operator from "@/app/operator";
 import { Bout } from "@/types/bout";
 import { Jam } from "@/types/jam";
-import { Timeout } from "@/types/timeout";
 import { mockApiResponse } from "@/utils/mock-api";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { http, HttpResponse } from "msw";
@@ -23,7 +22,8 @@ const rulesetData = {
   numReviews: 1,
 };
 
-export const Default: Story = {
+export const InJam: Story = {
+  storyName: "Jam",
   parameters: {
     msw: {
       handlers: [
@@ -34,11 +34,13 @@ export const Default: Story = {
           return HttpResponse.json(
             mockApiResponse<Bout[]>([
               {
-                uuid: "5d68fdab-b8bc-4631-8b7d-734217eb986d",
+                uuid: "defcc687-5fdb-4699-9786-fb649c5488db",
                 rulesetName: "WFTDA 2025",
-                seriesUuid: "bb4b8918-3cf3-4cad-9ef9-79c89e49d9a9",
+                seriesUuid: "cd44455d-6cc0-4ff6-8032-f9c536218f74",
                 clock: {
-                  startTimestamp: new Date().toISOString(),
+                  startTimestamp: new Date(
+                    Date.now() - 90 * 1000,
+                  ).toISOString(),
                   elapsed: 0,
                   alarm: 1800000,
                 },
@@ -52,8 +54,8 @@ export const Default: Story = {
                     league: "",
                     mnemonic: "",
                     num: 0,
-                    boutScore: 0,
-                    jamScore: 0,
+                    boutScore: 8,
+                    jamScore: 8,
                     timeoutsRemaining: 3,
                     reviewsRemaining: 1,
                     scoreOffset: 0,
@@ -64,8 +66,8 @@ export const Default: Story = {
                     league: "",
                     mnemonic: "",
                     num: 1,
-                    boutScore: 0,
-                    jamScore: 0,
+                    boutScore: 2,
+                    jamScore: 2,
                     timeoutsRemaining: 3,
                     reviewsRemaining: 1,
                     scoreOffset: 0,
@@ -73,7 +75,7 @@ export const Default: Story = {
                   },
                 ],
                 jamCounts: [2, 0, 0],
-                timeoutCount: 1,
+                timeoutCount: 0,
               },
             ]),
           );
@@ -81,41 +83,73 @@ export const Default: Story = {
         http.get("/api/jam", () => {
           return HttpResponse.json(
             mockApiResponse<Jam>({
-              boutUuid: "5d68fdab-b8bc-4631-8b7d-734217eb986d",
+              boutUuid: "defcc687-5fdb-4699-9786-fb649c5488db",
               period: 0,
               num: 0,
-              startTimestamp: new Date().toISOString(),
+              startTimestamp: new Date(Date.now() - 90 * 1000).toISOString(),
               stopTimestamp: new Date().toISOString(),
               stopReason: null,
               teamJams: [
                 {
                   teamNum: 0,
-                  events: [],
+                  events: [
+                    {
+                      timestamp: "2026-05-04T09:38:44.175021",
+                      lead: true,
+                      lost: false,
+                      passes: null,
+                      starPass: false,
+                    },
+                    {
+                      timestamp: "2026-05-04T09:38:44.175021",
+                      lead: false,
+                      lost: false,
+                      passes: 0,
+                      starPass: false,
+                    },
+                    {
+                      timestamp: "2026-05-04T09:38:44.968050",
+                      lead: false,
+                      lost: false,
+                      passes: 4,
+                      starPass: false,
+                    },
+                    {
+                      timestamp: "2026-05-04T09:38:47.283217",
+                      lead: false,
+                      lost: false,
+                      passes: 4,
+                      starPass: false,
+                    },
+                  ],
                 },
                 {
                   teamNum: 1,
-                  events: [],
+                  events: [
+                    {
+                      timestamp: "2026-05-04T09:38:53.210425",
+                      lead: false,
+                      lost: true,
+                      passes: null,
+                      starPass: false,
+                    },
+                    {
+                      timestamp: "2026-05-04T09:38:53.210425",
+                      lead: false,
+                      lost: false,
+                      passes: 0,
+                      starPass: false,
+                    },
+                    {
+                      timestamp: "2026-05-04T09:39:00.116051",
+                      lead: false,
+                      lost: false,
+                      passes: 2,
+                      starPass: false,
+                    },
+                  ],
                 },
               ],
-            }),
-          );
-        }),
-        http.get("/api/timeout", () => {
-          return HttpResponse.json(
-            mockApiResponse<Timeout | null>({
-              boutUuid: "5d68fdab-b8bc-4631-8b7d-734217eb986d",
-              num: 0,
-              startTimestamp: "2026-05-02T14:04:28.707586",
-              stopTimestamp: null,
-              clockElapsed: 146576533,
-              teamIsOfficials: false,
-              isReview: false,
-              details: "",
-              result: "",
-              retained: false,
-              periodNum: 0,
-              jamNum: 0,
-              teamNum: null,
             }),
           );
         }),
