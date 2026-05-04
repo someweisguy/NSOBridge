@@ -173,7 +173,7 @@ export default function Operator() {
                   fw="semi-bold"
                   fs="italic"
                   ta="center"
-                  px="mdFO"
+                  py="md"
                   size="24pt"
                 >
                   {/* TODO: Add Jammer name chip */}
