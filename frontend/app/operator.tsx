@@ -107,9 +107,9 @@ export default function Operator() {
 
   return (
     <PageShell>
-      <Stack>
+      <Stack gap="sm">
         {/* Team information */}
-        <Group justify="space-around" p="lg">
+        <Group justify="space-around">
           {bout.teams.map((team: Team, i: number) => (
             <Card withBorder key={i} bg="gray.0">
               <Stack>
@@ -119,7 +119,7 @@ export default function Operator() {
                   name={team.name}
                   ta="center"
                   fw="bolder"
-                  size="36pt"
+                  size="26pt"
                 />
                 <Divider />
                 <Grid justify="space-between" align="flex-end">
@@ -140,13 +140,13 @@ export default function Operator() {
                           latestTimeout.teamNum === team.num
                         }
                         isReview={latestTimeout?.isReview ?? false}
-                        size={28}
+                        size={24}
                       />
                     </Center>
                   </Grid.Col>
                   <Grid.Col span={6} order={2}>
                     <Center h="100%">
-                      <Text fw="bold" h="100%" w={250} ta="center" size="76pt">
+                      <Text fw="bold" h="100%" w={250} ta="center" size="60pt">
                         {team.boutScore + team.scoreOffset}
                       </Text>
                     </Center>
@@ -161,7 +161,7 @@ export default function Operator() {
                         &nbsp;
                       </Text>
                       <Card withBorder p="xs">
-                        <Text ta="center" size="36pt">
+                        <Text ta="center" size="24pt">
                           {team.jamScore}
                         </Text>
                       </Card>
@@ -174,7 +174,7 @@ export default function Operator() {
                   fs="italic"
                   ta="center"
                   py="sm"
-                  size="24pt"
+                  size="18pt"
                 >
                   {/* TODO: Add Jammer name chip */}
                   &nbsp;
@@ -185,7 +185,7 @@ export default function Operator() {
         </Group>
 
         {/* Bout State View */}
-        <Group gap="xl" fz="36pt" ta="center" justify="center" align="center">
+        <Group gap="xl" fz="24pt" ta="center" justify="center" align="center">
           <Card withBorder w="content" bg="gray.0">
             <Grid justify="space-between" align="center" gap="sm">
               <Grid.Col span={4}>
@@ -214,7 +214,7 @@ export default function Operator() {
             expanded={bout.state != "jam"}
           >
             <Card withBorder w="250" bg="yellow.3">
-              <Group justify="center" wrap="nowrap" fz="24pt">
+              <Group justify="center" wrap="nowrap">
                 <BoutStatus {...bout} inherit />
                 {lastEventTimestamp != null && (
                   <Clock startTimestamp={lastEventTimestamp} inherit />
