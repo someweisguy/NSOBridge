@@ -1,17 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import JamNumber from "../components/jam-number";
+import PageView from "../components/page-shell";
 
-const meta: Meta = {
-  component: JamNumber,
-  title: "Jam Number",
+const meta: Meta<typeof PageView> = {
+  component: PageView,
+  title: "Page View",
 };
 
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    jamNum: 0,
-    periodNum: 0,
+    children: "Page data goes here.",
   },
 };
 

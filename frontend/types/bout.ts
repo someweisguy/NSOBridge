@@ -1,8 +1,14 @@
-import { CacheKey, JamUri, TimeoutUri } from "./query";
-import { Clock } from "./timeout";
+import { Clock } from "./time";
 
 /**
  * A type containing the various state values in which a Bout could be.
+ *
+ * - "final" means the Bout has been finalized.
+ * - "jam" means that a Jam is currently running.
+ * - "lineup" means that the Bout is running but neither a Jam nor a Timeout is running.
+ * - "stopped" means the Bout is in pregame, halftime, or unofficial score.
+ * - "timeout" means a Timeout is running.
+ *
  */
 export type BoutStateString =
   | "final"
@@ -14,7 +20,7 @@ export type BoutStateString =
 /**
  * Represents a roller derby Bout - the game unit within this app.
  */
-export class Bout {
+export interface Bout {
   /**
    * A unique identifier used with this Bout.
    */
@@ -39,7 +45,7 @@ export class Bout {
    */
   clock: Clock;
   /**
-   * The current state of the Bout.  // TODO: more documentation required here.
+   * The current state of the Bout.
    */
   state: BoutStateString;
   /**
@@ -68,83 +74,6 @@ export class Bout {
    * The number of Timeouts that have been called in this Bout.
    */
   timeoutCount: number;
-
-  /**
-   * Generate a cache key for the desired Bout.
-   *
-   * @param boutUuid the UUID of the desired Bout.
-   * @returns a cache key for the desired Bout.
-   */
-  static generateKey(boutUuid?: string): CacheKey {
-    if (boutUuid == undefined) {
-      return ["bouts"];
-    }
-    return ["bouts", boutUuid];
-  }
-
-  /**
-   * Get a URI which identifies the latest Jam in this Bout. The latest Jam is the first
-   * Jam that has not started.
-   *
-   * @returns a URI to the latest Jam.
-   */
-  getLatestJamUri(): JamUri {
-    let periodNum = 0;
-    for (let i = this.jamCounts.length - 1; i >= 0; --i) {
-      // Get the latest Period number that contains Jams
-      if (this.jamCounts[i] > 0) {
-        periodNum = i;
-        break;
-      }
-    }
-    const jamNum = this.jamCounts[periodNum] - 1;
-
-    return { boutUuid: this.uuid, periodNum, jamNum };
-  }
-
-  /**
-   * Get a URI which identifies the active Jam in this Bout. The active Jam is the last
-   * Jam which is running or has ended. If no Jam meets this condition, the latest Jam
-   * is returned.
-   *
-   * @returns a URI to the active Jam.
-   */
-  getActiveJamUri(): JamUri {
-    let periodNum = 0;
-    for (let i = this.jamCounts.length - 1; i >= 0; --i) {
-      // Get the latest Period number that contains Jams
-      if (this.jamCounts[i] > 0) {
-        periodNum = i;
-        break;
-      }
-    }
-    if (this.jamCounts[periodNum] < 2) {
-      return this.getLatestJamUri(); // There is no active Jam
-    }
-    const jamNum = this.jamCounts[periodNum] - 2;
-
-    return { boutUuid: this.uuid, periodNum, jamNum };
-  }
-
-  /**
-   * Get a URI which identifies the latest Timeout. The latest Timeout is the timeout
-   * which was most recently called. If no Timeouts have been called, the timeoutNum
-   * parameter is -1.
-   *
-   * @returns a URI to the latest Timeout.
-   */
-  getLatestTimeoutUri(): TimeoutUri {
-    return { boutUuid: this.uuid, timeoutNum: this.timeoutCount - 1 };
-  }
-
-  /**
-   * Return true if this Bout is in overtime.
-   *
-   * @returns true if this Bout is in overtime.
-   */
-  isOvertime(): boolean {
-    return this.jamCounts[2] > 0;
-  }
 }
 
 /**
@@ -189,4 +118,8 @@ export interface Team {
    * the WFTDA 2026 stats paperwork but is used extremely rarely.
    */
   scoreOffset: number;
+  /**
+   * // TODO: The skaters on this team.
+   */
+  skaters: unknown[];
 }

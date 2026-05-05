@@ -1,39 +1,11 @@
-import { CacheKey } from "./query";
-
-/**
- * Represent a Clock in Roller Derby. A clock may be started and stopped multiple times
- * whereas a one-shot (such as a Jam or Timeout) can only be started and stopped once.
- */
-export class Clock {
-  /**
-   * The timestamp at which this Clock was started or null if it hasn't been started.
-   */
-  startTimestamp: Date | null;
-  /**
-   * The number of milliseconds that have already elapsed on this Clock.
-   */
-  elapsed: number;
-  /**
-   * The number of milliseconds that must elapse for the alarm on this Clock to trigger.
-   */
-  alarm: number;
-
-  /**
-   * Determine if this Clock is running.
-   *
-   * @returns true if this Clock is running.
-   */
-  isRunning(): boolean {
-    return this.startTimestamp !== null;
-  }
-}
+import { OneShot } from "./time";
 
 /**
  * Represent a Timeout or Official Review within a Bout. A Timeout is called to stop the
  * flow of the game. This may be done by any Team with a sufficient number of Timeouts
  * remaining or by the officials for any reason.
  */
-export class Timeout {
+export interface Timeout extends OneShot {
   /**
    * The UUID of the Bout associated with this Timeout.
    */
@@ -51,14 +23,6 @@ export class Timeout {
    * always the Jam number of the Jam that has just ended.
    */
   jamNum: number;
-  /**
-   * The timestamp at which this Timeout was called.
-   */
-  startTimestamp: Date | null; // TODO: can this be null?
-  /**
-   * The timestamp at which this Timeout was ended.
-   */
-  stopTimestamp: Date | null;
   /**
    * The amount of milliseconds that have elapsed on the Period clock when this Timeout
    * was called.
@@ -91,33 +55,4 @@ export class Timeout {
    * Reviews.
    */
   retained: boolean;
-
-  /**
-   * Generate a cache key for the desired Timeout.
-   *
-   * @param boutUuid the UUID of the Bout associated with the desired Timeout.
-   * @param timeoutNum the number of the desired Timeout.
-   * @returns a cache key for the desired Timeout.
-   */
-  static generateKey(boutUuid: string, timeoutNum: number): CacheKey {
-    return ["timeouts", boutUuid, timeoutNum];
-  }
-
-  /**
-   * Determine if this Timeout has been started.
-   *
-   * @returns true if this Timeout has started.
-   */
-  hasStarted(): boolean {
-    return this.startTimestamp != null;
-  }
-
-  /**
-   * Determine if this Timeout is currently running.
-   *
-   * @returns true if this Timeout is currently running.
-   */
-  isRunning(): boolean {
-    return this.hasStarted() && this.stopTimestamp == null;
-  }
 }

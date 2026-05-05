@@ -1,28 +1,37 @@
 import TitledSegmentedControl from "@/components/titled-segmented-control";
-import { useSuspenseTimeout } from "@/hooks/use-suspense-timeout";
 import { TimeoutUri } from "@/types/query";
 import { SegmentedControlProps } from "@mantine/core";
 import { useDeferredValue } from "react";
 import { useSetTimeoutTeam } from "../hooks/use-set-timeout-team";
 
+interface TimeoutCallerEditorProps extends Omit<
+  SegmentedControlProps,
+  "value" | "onChange"
+> {
+  timeoutUri: TimeoutUri;
+  teamNum: number | null;
+  teamIsOfficials: boolean;
+  isReview: boolean;
+}
+
 /**
  * Display a control which allows users to edit the calling team of the desired Timeout.
  */
-export default function TimeoutCallerEditorContainer({
-  boutUuid,
-  timeoutNum,
+export default function TimeoutCallerEditor({
+  timeoutUri,
+  teamNum,
+  teamIsOfficials,
+  isReview,
   data,
   ...props
-}: TimeoutUri & Omit<SegmentedControlProps, "value" | "onChange">) {
-  const { data: timeout } = useSuspenseTimeout({ boutUuid, timeoutNum });
-
+}: TimeoutCallerEditorProps) {
   // Used to solve a minor UI glitch that occurs when selecting the initial value of a
   // SegmentedControl component
   const isInitialSelection = useDeferredValue(
-    timeout.teamNum == null && !timeout.teamIsOfficials,
+    teamNum == null && !teamIsOfficials,
   );
 
-  const setTeam = useSetTimeoutTeam({ boutUuid, timeoutNum });
+  const setTeam = useSetTimeoutTeam({ ...timeoutUri });
 
   return (
     <TitledSegmentedControl
@@ -32,15 +41,15 @@ export default function TimeoutCallerEditorContainer({
         {
           value: String(NaN),
           label: "Official",
-          disabled: timeout.isReview,
+          disabled: isReview,
         },
       ]}
       value={
-        timeout.teamNum == null
-          ? timeout.teamIsOfficials
+        teamNum == null
+          ? teamIsOfficials
             ? String(NaN)
             : "" // Nothing selected
-          : String(timeout.teamNum)
+          : String(teamNum)
       }
       transitionDuration={isInitialSelection ? 0 : 200}
       onChange={(teamNum) =>

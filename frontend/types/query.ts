@@ -19,7 +19,7 @@ export type CacheKey = [string, ...unknown[]];
  */
 export type AppSuspenseQueryOptions<T = unknown, D = T> = Omit<
   UseSuspenseQueryOptions<T, Error, D>,
-  "queryKey" | "queryFn" | "select"
+  "queryKey" | "queryFn"
 >;
 
 /**
@@ -29,7 +29,7 @@ export type AppSuspenseQueryOptions<T = unknown, D = T> = Omit<
  */
 export type AppQueryOptions<T> = Omit<
   UseQueryOptions<T, Error, T>,
-  "queryKey" | "queryFn" | "select"
+  "queryKey" | "queryFn"
 >;
 
 /**

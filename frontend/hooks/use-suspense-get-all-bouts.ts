@@ -1,9 +1,9 @@
 import queryClient from "@/lib/cache";
-import { Bout } from "@/types/bout";
 import { localAPI } from "@/lib/requests";
+import { Bout } from "@/types/bout";
 import { AppSuspenseQueryOptions } from "@/types/query";
+import { generateQueryKey } from "@/utils/query";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
 
 /**
  * Gets all the Bouts from the server. Each individual Bout is automatically cached
@@ -13,25 +13,20 @@ import { useCallback } from "react";
  * @returns a Tanstack useSuspenseQuery object containing an array of all Bouts.
  */
 export const useSuspenseGetAllBouts = (
-  options?: AppSuspenseQueryOptions<Partial<Bout>[]>,
+  options?: AppSuspenseQueryOptions<Bout[]>,
 ) =>
-  useSuspenseQuery<Partial<Bout>[], Error, Bout[]>(
+  useSuspenseQuery<Bout[]>(
     {
-      queryKey: Bout.generateKey(),
+      queryKey: generateQueryKey.bout("ALL"),
       queryFn: () =>
-        localAPI
-          .get<Partial<Bout>[]>("bout/allBouts")
-          .then((bouts: Partial<Bout>[]) => {
-            for (const bout of bouts) {
-              queryClient.setQueryData(Bout.generateKey(bout.uuid), bout);
+        localAPI.get<Bout[]>("bout/allBouts").then((bouts: Bout[]) => {
+          for (const bout of bouts) {
+            if (bout.uuid != null) {
+              queryClient.setQueryData(generateQueryKey.bout(bout.uuid), bout);
             }
-            return bouts;
-          }),
-      select: useCallback(
-        (data: Partial<Bout>[]) =>
-          data.map((bout) => Object.assign(new Bout(), bout)),
-        [],
-      ),
+          }
+          return bouts;
+        }),
       ...options,
     },
     queryClient,

@@ -30,8 +30,8 @@
   },
   "dependencies": {
     "@fit-screen/react": "^1.0.2",
-    "@mantine/core": "9.0.0",
-    "@mantine/hooks": "9.0.0",
+    "@mantine/core": "^9.1.1",
+    "@mantine/hooks": "^9.1.1",
     "@tabler/icons-react": "^3.41.1",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query": "^5.97.0",
@@ -43,12 +43,11 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@chromatic-com/storybook": "^5.1.1",
-    "@storybook/addon-a11y": "^10.3.5",
-    "@storybook/addon-docs": "^10.3.5",
-    "@storybook/addon-onboarding": "^10.3.5",
-    "@storybook/addon-vitest": "^10.3.5",
-    "@storybook/react-vite": "^10.3.5",
+    "@chromatic-com/storybook": "^5.1.2",
+    "@storybook/addon-a11y": "^10.3.6",
+    "@storybook/addon-docs": "^10.3.6",
+    "@storybook/addon-vitest": "^10.3.6",
+    "@storybook/react-vite": "^10.3.6",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -61,23 +60,30 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
-    "eslint-plugin-storybook": "^10.3.5",
+    "eslint-plugin-storybook": "^10.3.6",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "msw": "^2.13.6",
+    "msw-storybook-addon": "^2.0.7",
     "playwright": "^1.59.1",
     "postcss": "^8.5.9",
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
     "prettier": "^3.8.2",
     "prettier-plugin-toml": "^2.0.6",
-    "storybook": "^10.3.5",
+    "storybook": "^10.3.6",
     "storybook-addon-deep-controls": "^0.10.0",
     "storybook-addon-mock-date": "^2.0.0",
     "storybook-dark-mode": "^5.0.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.58.1",
-    "vite": "^7.3.2",
+    "vite": "^8.0.10",
     "vitest": "^4.0.18"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

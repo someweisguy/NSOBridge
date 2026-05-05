@@ -1,9 +1,9 @@
 import { useCreateBout } from "@/hooks/use-create-bout";
-import { Button, Group, Modal, Select } from "@mantine/core";
+import { Button, ButtonProps, Group, Modal, Select } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 
-interface CreateBoutButtonProps {
+interface CreateBoutButtonProps extends ButtonProps {
   /**
    * The ruleset names supported by the server.
    */
@@ -17,6 +17,7 @@ interface CreateBoutButtonProps {
  */
 export default function CreateBoutButton({
   rulesetNames,
+  ...props
 }: CreateBoutButtonProps) {
   const [opened, { open, close }] = useDisclosure(false);
   const [rulesetName, setRulesetName] = useState<string>("");
@@ -53,7 +54,9 @@ export default function CreateBoutButton({
           </Button>
         </Group>
       </Modal>
-      <Button onClick={open}>Create New Bout</Button>
+      <Button onClick={open} {...props}>
+        Create New Bout
+      </Button>
     </>
   );
 }

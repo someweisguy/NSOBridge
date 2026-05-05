@@ -1,13 +1,10 @@
 /// <reference types="vitest/config" />
-import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { defineConfig } from "vite";
-
-// https://vite.dev/config/
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
+import tailwindcss from "@tailwindcss/vite";
 import { playwright } from "@vitest/browser-playwright";
 import { fileURLToPath } from "node:url";
+import path from "path";
+import { defineConfig } from "vite";
 
 const frontendDirectory = path.resolve(
   typeof __dirname !== "undefined"
@@ -17,7 +14,6 @@ const frontendDirectory = path.resolve(
 );
 const projectDirectory = path.resolve(frontendDirectory, "../");
 
-// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   root: frontendDirectory,
   publicDir: path.resolve(projectDirectory, "public"),
@@ -45,7 +41,7 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react(), tailwindcss()],
+  plugins: [tailwindcss()],
   resolve: {
     alias: {
       "@": frontendDirectory,

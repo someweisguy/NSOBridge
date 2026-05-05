@@ -1,15 +1,18 @@
 import Clock, { ClockProps } from "@/components/clock";
+import { StopReasonString } from "@/types/jam";
 import { Text, TextProps } from "@mantine/core";
 
+// Default strings to display for the various reason a Jam can be stopped.
+const stopReasonTexts = {
+  called: "Called",
+  elapsed: "Time",
+  injury: "Injury",
+  other: "-",
+};
+
 interface JamClockProps extends ClockProps, TextProps {
-  /**
-   * True if the desired Jam is stopped.
-   */
-  isStopped: boolean;
-  /**
-   * Text which displays the reason that the Jam was stopped.
-   */
-  stopReasonText?: string;
+  stopReason: StopReasonString | null;
+  jamDuration: number;
 }
 
 /**
@@ -17,12 +20,21 @@ interface JamClockProps extends ClockProps, TextProps {
  * displayed. When the Jam has stopped, the reason that the Jam was stopped is
  * displayed.
  */
-export function JamClock({
-  isStopped,
-  stopReasonText = "-",
+export default function JamClock({
+  stopReason,
+  jamDuration,
   ...props
 }: JamClockProps) {
+  const stopReasonText =
+    stopReason != null ? stopReasonTexts[stopReason] : stopReasonTexts.other;
+
   return (
-    <Text {...props}>{isStopped ? stopReasonText : <Clock {...props} />}</Text>
+    <Text {...props}>
+      {props.stopTimestamp != null ? (
+        stopReasonText
+      ) : (
+        <Clock alarm={jamDuration} {...props} />
+      )}
+    </Text>
   );
 }

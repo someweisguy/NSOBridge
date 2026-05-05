@@ -1,6 +1,7 @@
 import { localAPI } from "@/lib/requests";
 import { AppQueryOptions, BoutUri } from "@/types/query";
 import { Ruleset } from "@/types/ruleset";
+import { generateQueryKey } from "@/utils/query";
 import { useQuery } from "@tanstack/react-query";
 
 /**
@@ -14,7 +15,7 @@ export const useRuleset = <T = null>({
   ...options
 }: BoutUri & AppQueryOptions<Ruleset | T>) =>
   useQuery<Ruleset | T>({
-    queryKey: Ruleset.generateKey(boutUuid),
+    queryKey: generateQueryKey.ruleset(boutUuid),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
         query: { boutUuid },

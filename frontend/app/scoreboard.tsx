@@ -1,34 +1,61 @@
-import BoutClockContainer from "@/features/bouts/components/bout-clock-container";
-import StatusClockContainer from "@/features/bouts/components/bout-status-container";
-import JamClockContainer from "@/features/jams/components/jam-clock-container";
-import JamNumberContainer from "@/features/jams/components/jam-number-container";
-import TimeoutsLeftContainer from "@/features/timeouts/components/timeouts-left-container";
-import { useJam } from "@/hooks/use-jam";
+import BoutClock from "@/features/bouts/components/bout-clock";
+import BoutStatus from "@/features/bouts/components/bout-status";
+import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
+import JamClock from "@/features/jams/components/jam-clock";
+import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
+import { useSuspenseJam } from "@/hooks/use-suspense-jam";
+import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { Team } from "@/types/bout";
+import { BoutUri } from "@/types/query";
 import FitScreen from "@fit-screen/react";
-import { Center, Flex, Group, SimpleGrid, Stack, Text } from "@mantine/core";
+import {
+  Card,
+  Flex,
+  Grid,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@mantine/core";
 import "@mantine/core/styles.css";
+import { useState } from "react";
+import { createRoot } from "react-dom/client";
 import { twMerge } from "tailwind-merge";
 import "./global.css";
-import renderPage from "./render-page";
-import { useBoutUriContext } from "../hooks/use-bout-uri-context";
+import AppProvider from "./provider";
 
-// Create the React DOM
-const withShell = false;
-renderPage("Scoreboard", Scoreboard, withShell);
+const root: HTMLElement | null = document.getElementById("root");
+if (root == null) {
+  throw new Error("Root HTML Node was not found.");
+}
+document.title = "Scoreboard";
+createRoot(root).render(
+  <AppProvider>
+    <Scoreboard />
+  </AppProvider>,
+);
+
+const urlParams = new URLSearchParams(window.location.search);
+const boutParamName = "boutUuid";
 
 /**
  * Display the audience-facing scoreboard. This has at-a-glance information about the
  * state of the bout as concisely and accessibly as possible.
  */
 export function Scoreboard() {
-  const boutUri = useBoutUriContext();
-  const { data: bout } = useSuspenseBout(boutUri);
-  const activeJamUri = bout.getActiveJamUri();
+  if (!urlParams.has(boutParamName)) {
+    throw new Error("No Bout Provided");
+  }
+  const [boutUri] = useState<BoutUri>({
+    boutUuid: urlParams.get(boutParamName)!,
+  });
 
-  // Prefetch latest Jam to avoid UI blinking
-  void useJam({ ...bout.getLatestJamUri() });
+  const { data: ruleset } = useSuspenseRuleset(boutUri);
+  const { data: bout } = useSuspenseBout(boutUri);
+
+  const activeJamUri = useActiveJamUri(bout);
+  const { data: activeJam } = useSuspenseJam(activeJamUri);
 
   return (
     <FitScreen waitTime={25} mode="fit">
@@ -46,10 +73,14 @@ export function Scoreboard() {
                 justify="center"
                 gap="md"
               >
-                <TimeoutsLeftContainer
-                  boutUuid={bout.uuid}
-                  teamNum={team.num}
-                  size={36}
+                <TimeoutsLeft
+                  numTimeouts={ruleset.numTimeouts}
+                  numReviews={ruleset.numReviews}
+                  timeoutsRemaining={team.timeoutsRemaining}
+                  reviewsRemaining={team.reviewsRemaining}
+                  timeoutIsActive={false} // TODO: use active timeout
+                  isReview={false} // TODO: use active timeout
+                  size={24}
                 />
                 <Text fw="bold" w={150} ta="center" size="48pt">
                   {team.boutScore + team.scoreOffset}
@@ -64,15 +95,30 @@ export function Scoreboard() {
 
         {/* Bout State View */}
         <Stack fz="72pt" ta="center" align="stretch">
-          <Center>
-            <Group grow justify="center" w="75%" ta="center">
-              <BoutClockContainer boutUuid={bout.uuid} inherit />
-              <JamNumberContainer {...activeJamUri} inherit />
-              <JamClockContainer {...activeJamUri} inherit />
-            </Group>
-          </Center>
-          <StatusClockContainer
-            boutUuid={bout.uuid}
+          <Card withBorder w="content" bg="gray.0">
+            <Grid justify="space-between" align="center" gap="sm">
+              <Grid.Col span={4}>
+                <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <Group justify="space-between">
+                  <Text inherit w="250">
+                    P{activeJam.period + 1} J{activeJam.num + 1}
+                  </Text>
+                </Group>
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <JamClock
+                  jamDuration={ruleset.jamDuration}
+                  {...activeJam}
+                  {...activeJamUri}
+                  inherit
+                />
+              </Grid.Col>
+            </Grid>
+          </Card>
+          <BoutStatus
+            {...bout}
             className={twMerge(bout.state == "jam" && "invisible")}
             inherit
             fz="48pt"

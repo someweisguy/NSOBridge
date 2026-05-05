@@ -3,7 +3,10 @@ import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import type { Preview } from "@storybook/react-vite";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { initialize, mswLoader } from "msw-storybook-addon";
 import queryClient from "../lib/cache";
+
+initialize();
 
 const preview: Preview = {
   decorators: [
@@ -32,7 +35,9 @@ const preview: Preview = {
       // 'off' - skip a11y checks entirely
       test: "todo",
     },
+    deepControls: { enabled: true },
   },
+  loaders: [mswLoader],
   tags: ["autodocs"],
 };
 

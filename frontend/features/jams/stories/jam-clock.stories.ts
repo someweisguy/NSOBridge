@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { JamClock } from "../components/jam-clock";
+import JamClock from "../components/jam-clock";
 
 const meta: Meta = {
   component: JamClock,

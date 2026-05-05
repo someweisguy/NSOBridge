@@ -1,6 +1,7 @@
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import { AppQueryOptions, BoutUri } from "@/types/query";
+import { generateQueryKey } from "@/utils/query";
 import { useQuery } from "@tanstack/react-query";
 
 /**
@@ -12,10 +13,9 @@ import { useQuery } from "@tanstack/react-query";
 export const useBout = ({
   boutUuid,
   ...options
-}: BoutUri & AppQueryOptions<Partial<Bout>>) =>
-  useQuery<Partial<Bout>, Error, Bout>({
-    queryKey: Bout.generateKey(boutUuid),
+}: BoutUri & AppQueryOptions<Bout>) =>
+  useQuery<Bout>({
+    queryKey: generateQueryKey.bout(boutUuid),
     queryFn: () => localAPI.get("bout", { query: { boutUuid } }),
-    select: (data) => Object.assign(new Bout(), data),
     ...options,
   });

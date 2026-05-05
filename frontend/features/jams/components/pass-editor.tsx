@@ -1,5 +1,6 @@
 import { Button, Group, GroupProps } from "@mantine/core";
-import { UseMutationResult } from "@tanstack/react-query";
+import { useTeamJamAddTrip } from "../hooks/use-team-jam-add-trip";
+import { TeamJamUri } from "@/types/query";
 
 interface PassEditorProps {
   /**
@@ -10,10 +11,7 @@ interface PassEditorProps {
    * The number of passes allowed in a trip.
    */
   numPasses: number;
-  /**
-   * Mutator which handles adding passes to this TeamJam.
-   */
-  addPassOnClick?: UseMutationResult<void, unknown, number, unknown>;
+  teamJamUri: TeamJamUri;
 }
 
 /**
@@ -24,16 +22,18 @@ interface PassEditorProps {
 export default function PassEditor({
   showInitial = false,
   numPasses,
-  addPassOnClick,
+  teamJamUri,
   ...props
 }: PassEditorProps & GroupProps) {
+  const addTrip = useTeamJamAddTrip({ ...teamJamUri });
+
   if (showInitial) {
     return (
       <Group justify="center" gap="md" {...props}>
-        <Button variant="subtle" onClick={() => addPassOnClick?.mutate(0)}>
+        <Button variant="subtle" onClick={() => addTrip.mutate(0)}>
           No Pass
         </Button>
-        <Button variant="outline" onClick={() => addPassOnClick?.mutate(4)}>
+        <Button variant="outline" onClick={() => addTrip.mutate(4)}>
           Initial
         </Button>
       </Group>
@@ -46,7 +46,7 @@ export default function PassEditor({
         <Button
           key={i}
           variant={i < numPasses ? "subtle" : "outline"}
-          onClick={() => addPassOnClick?.mutate(i)}
+          onClick={() => addTrip.mutate(i)}
         >
           {i}
         </Button>

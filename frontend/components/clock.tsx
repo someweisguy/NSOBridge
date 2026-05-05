@@ -1,4 +1,5 @@
 import { useSyncDataContext } from "@/hooks/use-sync-context";
+import { Text, TextProps } from "@mantine/core";
 import { useEffect, useState } from "react";
 import defaultTimeStringFormatter from "../utils/time-string-formatters";
 
@@ -12,15 +13,15 @@ const timeFormatters = {
   default: defaultTimeStringFormatter,
 };
 
-export interface ClockProps {
+export interface ClockProps extends TextProps {
   /**
    * The timestamp at which this Clock was started or `null` if it isn't running.
    */
-  startTimestamp: Date | null;
+  startTimestamp: string | null;
   /**
    * The timestamp at which this Clock was stopped or `null` if it is running.
    */
-  stopTimestamp?: Date | null;
+  stopTimestamp?: string | null;
   /**
    * The number of milliseconds that have elapsed on this clock already.
    */
@@ -59,6 +60,7 @@ export default function Clock({
   serverOffset,
   freeze = false,
   formatter = "default",
+  ...props
 }: ClockProps) {
   const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
   const syncDataContext = useSyncDataContext();
@@ -80,15 +82,19 @@ export default function Clock({
   let milliseconds = elapsed;
   if (startTimestamp != null && stopTimestamp == null) {
     // Clock is running
-    milliseconds += currentTimestamp.getTime() - startTimestamp.getTime();
+    milliseconds +=
+      currentTimestamp.getTime() - new Date(startTimestamp).getTime();
   } else if (startTimestamp != null && stopTimestamp != null) {
     // Clock is stopped but add the additional elapsed time to the accumulator
-    milliseconds += stopTimestamp.getTime() - startTimestamp.getTime();
+    milliseconds +=
+      new Date(stopTimestamp).getTime() - new Date(startTimestamp).getTime();
   }
 
   if (startTimestamp != null) {
     milliseconds += serverOffset ?? syncDataContext?.offset ?? 0;
   }
 
-  return <>{timeFormatters[formatter](milliseconds, alarm)}</>;
+  return (
+    <Text {...props}>{timeFormatters[formatter](milliseconds, alarm)}</Text>
+  );
 }

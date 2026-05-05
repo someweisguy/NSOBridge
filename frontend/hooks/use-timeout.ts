@@ -1,6 +1,7 @@
 import { localAPI } from "@/lib/requests";
 import { AppQueryOptions, TimeoutUri } from "@/types/query";
 import { Timeout } from "@/types/timeout";
+import { generateQueryKey } from "@/utils/query";
 import { useQuery } from "@tanstack/react-query";
 
 /**
@@ -13,13 +14,12 @@ export const useTimeout = ({
   boutUuid,
   timeoutNum,
   ...options
-}: TimeoutUri & AppQueryOptions<Partial<Timeout>>) =>
+}: TimeoutUri & AppQueryOptions<Timeout>) =>
   useQuery({
-    queryKey: Timeout.generateKey(boutUuid, timeoutNum),
+    queryKey: generateQueryKey.timeout(boutUuid, timeoutNum),
     queryFn: () =>
-      localAPI.get<Partial<Timeout>>("timeout", {
+      localAPI.get<Timeout>("timeout", {
         query: { boutUuid, num: timeoutNum }, // TODO: fix alias
       }),
-    select: (data) => Object.assign(new Timeout(), data),
     ...options,
   });

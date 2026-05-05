@@ -1,3 +1,5 @@
+import { TeamJam } from "@/types/jam";
+import { TeamJamUri } from "@/types/query";
 import {
   Checkbox,
   createTheme,
@@ -7,7 +9,9 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
-import { UseMutationResult } from "@tanstack/react-query";
+import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
+import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
+import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
 
 const checkBoxTheme = createTheme({
   // Hovering over checkbox should change cursor
@@ -16,34 +20,13 @@ const checkBoxTheme = createTheme({
 
 interface JammerStateProps extends GroupProps {
   /**
-   * True if this team's Jammer is the lead Jammer.
-   */
-  lead: boolean;
-  /**
-   * True if this team's Jammer has explicitly lost lead Jammer eligibility.
-   */
-  lost: boolean;
-  /**
-   * True if this team's Jammer has successfully completed a Star Pass.
-   */
-  starPass: boolean;
-  /**
    * True if this team's Jammer is still eligible for lead. This value would be false if
    * the other team's Jammer has been declared lead.
    */
   isLeadEligible: boolean;
-  /**
-   * The event handler which fires when clicking the lead checkbox.
-   */
-  leadOnClick?: UseMutationResult<void, unknown, boolean, unknown>;
-  /**
-   * The event handler which fires when clicking the lost checkbox.
-   */
-  lostOnClick?: UseMutationResult<void, unknown, boolean, unknown>;
-  /**
-   * The event handler which fires when clicking the star pass checkbox.
-   */
-  starPassOnClick?: UseMutationResult<void, unknown, boolean, unknown>;
+
+  teamJamUri: TeamJamUri;
+  teamJam: TeamJam;
 }
 
 /**
@@ -52,15 +35,19 @@ interface JammerStateProps extends GroupProps {
  * occurred.
  */
 export default function JammerStateEditor({
-  lead,
-  lost,
-  starPass,
   isLeadEligible,
-  leadOnClick,
-  lostOnClick,
-  starPassOnClick,
+  teamJamUri,
+  teamJam,
   ...props
 }: JammerStateProps) {
+  const setLead = useTeamJamAddLead({ ...teamJamUri });
+  const setLost = useTeamJamAddLost({ ...teamJamUri });
+  const setStarPass = useTeamJamAddStarPass({ ...teamJamUri });
+
+  const lead = teamJam.events.some((tripEvent) => tripEvent.lead);
+  const lost = teamJam.events.some((tripEvent) => tripEvent.lost);
+  const starPass = teamJam.events.some((tripEvent) => tripEvent.starPass);
+
   return (
     <MantineProvider theme={checkBoxTheme}>
       <Group {...props}>
@@ -68,7 +55,7 @@ export default function JammerStateEditor({
           label="Lead"
           checked={lead}
           disabled={!isLeadEligible}
-          onClick={() => leadOnClick?.mutate(!lead)}
+          onClick={() => setLead.mutate(!lead)}
           variant="outline"
           icon={({ ...others }) => <IconStarFilled {...others} />}
         />
@@ -76,14 +63,14 @@ export default function JammerStateEditor({
         <Checkbox
           label="Lost"
           checked={lost}
-          onClick={() => lostOnClick?.mutate(!lost)}
+          onClick={() => setLost.mutate(!lost)}
           variant="outline"
         />
         <Divider orientation="vertical" />
         <Checkbox
           label="Star Pass"
           checked={starPass}
-          onClick={() => starPassOnClick?.mutate(!starPass)}
+          onClick={() => setStarPass.mutate(!starPass)}
           variant="outline"
         />
       </Group>
