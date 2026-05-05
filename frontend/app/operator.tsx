@@ -225,8 +225,13 @@ export default function Operator() {
         </Group>
 
         {/* Bout State control */}
-        <Card withBorder>
-          <Group grow justify="space-between">
+        <Card withBorder bg="gray.0">
+          <Group
+            grow
+            preventGrowOverflow={false}
+            wrap="nowrap"
+            justify="space-between"
+          >
             <Group align="center" mih="75">
               <BoutJamControl uuid={bout.uuid} state={bout.state} />
               <BoutTimeoutControl
@@ -240,36 +245,34 @@ export default function Operator() {
                 variant="subtle"
               />
             </Group>
-            <Group grow align="end" justify="flex-end" mih="75">
-              <Collapse expanded={bout.state == "timeout"}>
-                <Suspense>
-                  <TimeoutTypeEditor
-                    timeoutUri={latestTimeoutUri}
-                    {...latestTimeout!}
-                  />
-                  <TimeoutCallerEditor
-                    timeoutUri={latestTimeoutUri}
-                    {...latestTimeout!}
-                    data={bout.teams.map((team: Team) => {
-                      return {
-                        value: String(team.num),
-                        label: team.name,
-                      };
-                    })}
-                  />
-                  <TimeoutRetainedEditor
-                    timeoutUri={latestTimeoutUri}
-                    {...latestTimeout!}
-                    variant="outline"
-                  />
-                </Suspense>
-              </Collapse>
-              <Collapse
-                expanded={bout.state == "lineup" && latestJamUri.jamNum > 0}
-              >
-                <JamStopReasonEditor stopReason={activeJam.stopReason} />
-              </Collapse>
-            </Group>
+            <Collapse expanded={bout.state == "timeout"}>
+              <Group grow preventGrowOverflow={false} wrap="nowrap">
+                <TimeoutTypeEditor
+                  timeoutUri={latestTimeoutUri}
+                  {...latestTimeout!}
+                />
+                <TimeoutCallerEditor
+                  timeoutUri={latestTimeoutUri}
+                  {...latestTimeout!}
+                  data={bout.teams.map((team: Team) => {
+                    return {
+                      value: String(team.num),
+                      label: team.name,
+                    };
+                  })}
+                />
+                <TimeoutRetainedEditor
+                  timeoutUri={latestTimeoutUri}
+                  {...latestTimeout!}
+                  variant="outline"
+                />
+              </Group>
+            </Collapse>
+            <Collapse
+              expanded={bout.state == "lineup" && latestJamUri.jamNum > 0}
+            >
+              <JamStopReasonEditor stopReason={activeJam.stopReason} />
+            </Collapse>
           </Group>
         </Card>
 
