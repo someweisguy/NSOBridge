@@ -1,9 +1,9 @@
-import { useBeginPeriod } from "@/features/bouts/hooks/use-begin-period";
-import { useEndPeriod } from "@/features/bouts/hooks/use-end-period";
-import { useStartJam } from "@/features/bouts/hooks/use-start-jam";
-import { useStartTimeout } from "@/features/bouts/hooks/use-start-timeout";
-import { useStopJam } from "@/features/bouts/hooks/use-stop-jam";
-import { useStopTimeout } from "@/features/bouts/hooks/use-stop-timeout";
+import { useBeginPeriod } from "@/features/operator/hooks/use-begin-period";
+import { useEndPeriod } from "@/features/operator/hooks/use-end-period";
+import { useStartJam } from "@/features/operator/hooks/use-start-jam";
+import { useStartTimeout } from "@/features/operator/hooks/use-start-timeout";
+import { useStopJam } from "@/features/operator/hooks/use-stop-jam";
+import { useStopTimeout } from "@/features/operator/hooks/use-stop-timeout";
 import JamStopReasonEditor from "@/features/jams/components/stop-reason-editor";
 import TimeoutCallerEditor from "@/features/timeouts/components/timeout-caller-editor";
 import TimeoutRetainedEditor from "@/features/timeouts/components/timeout-retained-editor";
