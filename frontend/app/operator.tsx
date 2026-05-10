@@ -101,19 +101,17 @@ export default function Operator() {
     <PageShell>
       <Stack gap="sm">
         {/* Bout State control */}
-        <Card withBorder bg="gray.0">
-          <BoutControl
-            latestPeriodNum={latestJamUri.periodNum}
-            latestJamNum={latestJamUri.jamNum}
-            latestTimeoutNum={latestTimeoutUri.timeoutNum}
-            teamData={bout.teams.map((team: Team) => {
-              return { label: team.name, value: String(team.num) };
-            })}
-            {...bout}
-            {...activeJam}
-            {...latestTimeout}
-          />
-        </Card>
+        <BoutControl
+          latestPeriodNum={latestJamUri.periodNum}
+          latestJamNum={latestJamUri.jamNum}
+          latestTimeoutNum={latestTimeoutUri.timeoutNum}
+          teamData={bout.teams.map((team: Team) => {
+            return { label: team.name, value: String(team.num) };
+          })}
+          {...bout}
+          {...activeJam}
+          {...latestTimeout}
+        />
 
         {/* Team information */}
         <Group justify="space-around">
