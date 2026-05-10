@@ -31,7 +31,6 @@ export const Default: Story = {
       { label: "Home", value: "0" },
       { label: "Away", value: "1" },
     ],
-
     state: "lineup",
     teamNum: null,
     teamIsOfficials: false,
