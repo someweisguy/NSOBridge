@@ -35,32 +35,18 @@ export default function ResponsiveScroller({
   const viewportRef = useRef<HTMLDivElement>(null);
   const groupRef = useRef<HTMLDivElement>(null);
 
-  // It is required to recompute a scroll amount each time the X position changes
-  // because smooth scrolling does not always perfectly scroll to the desired location
-  const scrollByOneChild = useCallback(
-    (direction: "left" | "right") => {
-      if (groupRef.current == null) {
-        return;
-      }
-      const numChildren = groupRef.current.children.length;
-      const childWidth = Math.round(groupRef.current.scrollWidth) / numChildren;
-      const scrollAmount = direction == "left" ? -childWidth : childWidth;
+  const scrollByOneChild = useCallback((direction: "left" | "right") => {
+    if (groupRef.current == null) {
+      return;
+    }
+    const numChildren = groupRef.current.children.length;
+    const childWidth = Math.round(groupRef.current.scrollWidth) / numChildren;
 
-      // Normalize the scroll position to be a multiple of the child width
-      let left = Math.round(scrollPosition.x) + scrollAmount;
-      if (direction == "left") {
-        left += left % childWidth;
-      } else {
-        left -= left % childWidth;
-      }
-
-      viewportRef.current?.scrollTo({
-        behavior: "smooth",
-        left,
-      });
-    },
-    [scrollPosition.x],
-  );
+    viewportRef.current?.scrollBy({
+      behavior: "smooth",
+      left: direction == "left" ? -childWidth : childWidth,
+    });
+  }, []);
 
   // Scroll to end when an item is added or removed or when the page initially loads
   useEffect(() => {
