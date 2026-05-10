@@ -13,8 +13,8 @@ import { StopReasonString } from "@/types/jam";
 import { BoutUri, JamUri, TimeoutUri } from "@/types/query";
 import {
   Button,
+  Card,
   Collapse,
-  Divider,
   Group,
   SegmentedControlItem,
 } from "@mantine/core";
@@ -117,36 +117,34 @@ export default function BoutControl({
   );
 
   return (
-    <Group
-      grow
-      preventGrowOverflow={false}
-      wrap="nowrap"
-      justify="space-between"
-    >
-      <Group align="center" p="0">
-        <Button onClick={jamControlOnClick}>
-          {state == "jam" ? "Stop Jam" : "Start Jam"}
-        </Button>
-        <Button
-          disabled={state != "lineup" && state != "timeout"}
-          onClick={timeoutControlOnClick}
-        >
-          {state == "timeout" ? "End Timeout" : "Call Timeout"}
-        </Button>
-        <Button
-          disabled={state == "jam" || state == "timeout"}
-          onClick={periodControlOnClick}
-        >
-          {state == "stopped" ? "Start Period" : "Stop Period"}
-        </Button>
-      </Group>
-      <Divider orientation="vertical" />
-      <Collapse expanded={state == "timeout"}>
-        <Group grow preventGrowOverflow={false} wrap="nowrap">
+    <Card withBorder orientation="horizontal">
+      <Card.Section withBorder inheritPadding p="md" w="550">
+        <Group align="center" justify="center" h="100%">
+          <Button onClick={jamControlOnClick}>
+            {state == "jam" ? "Stop Jam" : "Start Jam"}
+          </Button>
+          <Button
+            disabled={state != "lineup" && state != "timeout"}
+            onClick={timeoutControlOnClick}
+          >
+            {state == "timeout" ? "End Timeout" : "Call Timeout"}
+          </Button>
+          <Button
+            disabled={state == "jam" || state == "timeout"}
+            onClick={periodControlOnClick}
+          >
+            {state == "stopped" ? "Start Period" : "Stop Period"}
+          </Button>
+        </Group>
+      </Card.Section>
+      <Group grow w="100%" justify="flex-end" wrap="nowrap">
+        <Collapse expanded={state == "timeout"}>
           <TimeoutTypeEditor
             timeoutUri={latestTimeoutUri}
             isReview={isReview!}
           />
+        </Collapse>
+        <Collapse expanded={state == "timeout"}>
           <TimeoutCallerEditor
             timeoutUri={latestTimeoutUri}
             isReview={isReview!}
@@ -154,17 +152,19 @@ export default function BoutControl({
             teamIsOfficials={teamIsOfficials!}
             data={teamData}
           />
+        </Collapse>
+        <Collapse expanded={state == "timeout"}>
           <TimeoutRetainedEditor
             timeoutUri={latestTimeoutUri}
             isReview={isReview!}
             retained={retained!}
             variant="outline"
           />
-        </Group>
-      </Collapse>
-      <Collapse expanded={state == "lineup" && latestJamUri.jamNum > 0}>
-        <JamStopReasonEditor stopReason={stopReason} />
-      </Collapse>
-    </Group>
+        </Collapse>
+        <Collapse expanded={state == "lineup" && latestJamUri.jamNum > 0}>
+          <JamStopReasonEditor stopReason={stopReason} />
+        </Collapse>
+      </Group>
+    </Card>
   );
 }
