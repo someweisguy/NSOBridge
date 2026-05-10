@@ -1,21 +1,15 @@
 import Clock from "@/components/clock";
 import PageShell from "@/components/page-shell";
 import BoutClock from "@/features/bouts/components/bout-clock";
-import BoutJamControl from "@/features/bouts/components/bout-jam-control";
-import BoutPeriodControl from "@/features/bouts/components/bout-period-control";
 import BoutStatus from "@/features/bouts/components/bout-status";
-import BoutTimeoutControl from "@/features/bouts/components/bout-timeout-control";
 import TeamName from "@/features/bouts/components/team-name";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import JamClock from "@/features/jams/components/jam-clock";
 import JammerStateEditor from "@/features/jams/components/jammer-state-editor";
-import JamStopReasonEditor from "@/features/jams/components/stop-reason-editor";
 import TeamJamTripHistory from "@/features/jams/components/team-jam-trip-history";
-import TimeoutCallerEditor from "@/features/timeouts/components/timeout-caller-editor";
-import TimeoutRetainedEditor from "@/features/timeouts/components/timeout-retained-editor";
-import TimeoutTypeEditor from "@/features/timeouts/components/timeout-type-editor";
+import BoutControl from "@/features/operator/components/bout-control";
 import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
@@ -108,54 +102,17 @@ export default function Operator() {
       <Stack gap="sm">
         {/* Bout State control */}
         <Card withBorder bg="gray.0">
-          <Group
-            grow
-            preventGrowOverflow={false}
-            wrap="nowrap"
-            justify="space-between"
-          >
-            <Group align="center" p="0">
-              <BoutJamControl uuid={bout.uuid} state={bout.state} />
-              <BoutTimeoutControl
-                uuid={bout.uuid}
-                state={bout.state}
-                variant="subtle"
-              />
-              <BoutPeriodControl
-                uuid={bout.uuid}
-                state={bout.state}
-                variant="subtle"
-              />
-            </Group>
-            <Collapse expanded={bout.state == "timeout"}>
-              <Group grow preventGrowOverflow={false} wrap="nowrap">
-                <TimeoutTypeEditor
-                  timeoutUri={latestTimeoutUri}
-                  {...latestTimeout!}
-                />
-                <TimeoutCallerEditor
-                  timeoutUri={latestTimeoutUri}
-                  {...latestTimeout!}
-                  data={bout.teams.map((team: Team) => {
-                    return {
-                      value: String(team.num),
-                      label: team.name,
-                    };
-                  })}
-                />
-                <TimeoutRetainedEditor
-                  timeoutUri={latestTimeoutUri}
-                  {...latestTimeout!}
-                  variant="outline"
-                />
-              </Group>
-            </Collapse>
-            <Collapse
-              expanded={bout.state == "lineup" && latestJamUri.jamNum > 0}
-            >
-              <JamStopReasonEditor stopReason={activeJam.stopReason} />
-            </Collapse>
-          </Group>
+          <BoutControl
+            latestPeriodNum={latestJamUri.periodNum}
+            latestJamNum={latestJamUri.jamNum}
+            latestTimeoutNum={latestTimeoutUri.timeoutNum}
+            teamData={bout.teams.map((team: Team) => {
+              return { label: team.name, value: String(team.num) };
+            })}
+            {...bout}
+            {...activeJam}
+            {...latestTimeout}
+          />
         </Card>
 
         {/* Team information */}
