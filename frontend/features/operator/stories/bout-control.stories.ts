@@ -13,6 +13,7 @@ const meta: Meta<typeof BoutControl> = {
     },
     state: {
       control: { type: "inline-radio" },
+      options: ["lineup", "jam", "timeout", "stopped", "final"],
     },
     teamNum: {
       control: {
