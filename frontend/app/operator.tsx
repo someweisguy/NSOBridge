@@ -108,6 +108,58 @@ export default function Operator() {
   return (
     <PageShell>
       <Stack gap="sm">
+        {/* Bout State control */}
+        <Card withBorder bg="gray.0">
+          <Group
+            grow
+            preventGrowOverflow={false}
+            wrap="nowrap"
+            justify="space-between"
+          >
+            <Group align="center" p="0">
+              <BoutJamControl uuid={bout.uuid} state={bout.state} />
+              <BoutTimeoutControl
+                uuid={bout.uuid}
+                state={bout.state}
+                variant="subtle"
+              />
+              <BoutPeriodControl
+                uuid={bout.uuid}
+                state={bout.state}
+                variant="subtle"
+              />
+            </Group>
+            <Collapse expanded={bout.state == "timeout"}>
+              <Group grow preventGrowOverflow={false} wrap="nowrap">
+                <TimeoutTypeEditor
+                  timeoutUri={latestTimeoutUri}
+                  {...latestTimeout!}
+                />
+                <TimeoutCallerEditor
+                  timeoutUri={latestTimeoutUri}
+                  {...latestTimeout!}
+                  data={bout.teams.map((team: Team) => {
+                    return {
+                      value: String(team.num),
+                      label: team.name,
+                    };
+                  })}
+                />
+                <TimeoutRetainedEditor
+                  timeoutUri={latestTimeoutUri}
+                  {...latestTimeout!}
+                  variant="outline"
+                />
+              </Group>
+            </Collapse>
+            <Collapse
+              expanded={bout.state == "lineup" && latestJamUri.jamNum > 0}
+            >
+              <JamStopReasonEditor stopReason={activeJam.stopReason} />
+            </Collapse>
+          </Group>
+        </Card>
+
         {/* Team information */}
         <Group justify="space-around">
           {bout.teams.map((team: Team, i: number) => (
@@ -223,58 +275,6 @@ export default function Operator() {
             </Card>
           </Collapse>
         </Group>
-
-        {/* Bout State control */}
-        <Card withBorder bg="gray.0">
-          <Group
-            grow
-            preventGrowOverflow={false}
-            wrap="nowrap"
-            justify="space-between"
-          >
-            <Group align="center" mih="75">
-              <BoutJamControl uuid={bout.uuid} state={bout.state} />
-              <BoutTimeoutControl
-                uuid={bout.uuid}
-                state={bout.state}
-                variant="subtle"
-              />
-              <BoutPeriodControl
-                uuid={bout.uuid}
-                state={bout.state}
-                variant="subtle"
-              />
-            </Group>
-            <Collapse expanded={bout.state == "timeout"}>
-              <Group grow preventGrowOverflow={false} wrap="nowrap">
-                <TimeoutTypeEditor
-                  timeoutUri={latestTimeoutUri}
-                  {...latestTimeout!}
-                />
-                <TimeoutCallerEditor
-                  timeoutUri={latestTimeoutUri}
-                  {...latestTimeout!}
-                  data={bout.teams.map((team: Team) => {
-                    return {
-                      value: String(team.num),
-                      label: team.name,
-                    };
-                  })}
-                />
-                <TimeoutRetainedEditor
-                  timeoutUri={latestTimeoutUri}
-                  {...latestTimeout!}
-                  variant="outline"
-                />
-              </Group>
-            </Collapse>
-            <Collapse
-              expanded={bout.state == "lineup" && latestJamUri.jamNum > 0}
-            >
-              <JamStopReasonEditor stopReason={activeJam.stopReason} />
-            </Collapse>
-          </Group>
-        </Card>
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>
