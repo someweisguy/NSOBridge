@@ -38,6 +38,8 @@ export const Default: Story = {
         timestamp: new Date().toISOString(),
       },
     ],
+    numPasses: 4,
+    showInitial: false,
   },
 };
 
