@@ -118,8 +118,8 @@ export default function BoutControl({
 
   return (
     <Card withBorder orientation="horizontal">
-      <Card.Section withBorder inheritPadding p="md" w="550">
-        <Group align="center" justify="center" h="100%">
+      <Card.Section withBorder p="md">
+        <Group h="80" align="center" justify="center" wrap="nowrap">
           <Button onClick={jamControlOnClick}>
             {state == "jam" ? "Stop Jam" : "Start Jam"}
           </Button>
@@ -137,7 +137,7 @@ export default function BoutControl({
           </Button>
         </Group>
       </Card.Section>
-      <Group grow w="100%" justify="flex-end" wrap="nowrap">
+      <Group w="100%" align="center" justify="flex-end" wrap="nowrap">
         <Collapse expanded={state == "timeout"}>
           <TimeoutTypeEditor
             timeoutUri={latestTimeoutUri}
@@ -161,7 +161,11 @@ export default function BoutControl({
             variant="outline"
           />
         </Collapse>
-        <Collapse expanded={state == "lineup" && latestJamUri.jamNum > 0}>
+        <Collapse
+          expanded={
+            (state == "lineup" || state == "timeout") && latestJamUri.jamNum > 0
+          }
+        >
           <JamStopReasonEditor stopReason={stopReason} />
         </Collapse>
       </Group>
