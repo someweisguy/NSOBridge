@@ -9,6 +9,7 @@ import {
 } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { twMerge } from "tailwind-merge";
 
 const arrowButtonStyle: ButtonProps = {
   p: 0,
@@ -70,6 +71,7 @@ export default function TeamJamTripHistory({
   return (
     <Group gap="5px" justify="center" wrap="nowrap">
       <Button
+        className={twMerge(scrollPosition.x == 0 && "invisible")}
         disabled={scrollPosition.x == 0}
         onClick={() => scrollByOneChild("left")}
         {...arrowButtonStyle}
@@ -101,6 +103,7 @@ export default function TeamJamTripHistory({
         </Group>
       </ScrollArea.Autosize>
       <Button
+        className={twMerge(disableScrollRight && "invisible")}
         disabled={disableScrollRight}
         onClick={() => scrollByOneChild("right")}
         {...arrowButtonStyle}
