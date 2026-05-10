@@ -11,7 +11,6 @@ import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import JamClock from "@/features/jams/components/jam-clock";
 import JammerStateEditor from "@/features/jams/components/jammer-state-editor";
-import PassEditor from "@/features/jams/components/pass-editor";
 import JamStopReasonEditor from "@/features/jams/components/stop-reason-editor";
 import TeamJamTripHistory from "@/features/jams/components/team-jam-trip-history";
 import TimeoutCallerEditor from "@/features/timeouts/components/timeout-caller-editor";
@@ -35,7 +34,6 @@ import {
   Divider,
   Grid,
   Group,
-  SimpleGrid,
   Stack,
   Text,
 } from "@mantine/core";
@@ -278,34 +276,34 @@ export default function Operator() {
 
         {/* TeamJam score editors */}
         <Suspense fallback={"Loading..."}>
-          <SimpleGrid cols={bout.teams.length}>
+          <Group justify="space-around">
             {[...Array(2).keys()].map((i: number) => (
-              <Stack key={i}>
-                <PassEditor
-                  numPasses={ruleset.pointsPerTrip}
-                  teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
-                />
-                <JammerStateEditor
-                  teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
-                  isLeadEligible={true} // TODO: check if lead eligible
-                  teamJam={
-                    activeJam.teamJams.find(
-                      (tj) => tj.teamNum == bout.teams[i].num,
-                    )!
-                  }
-                  justify="center"
-                  gap="md"
-                />
-                <TeamJamTripHistory
-                  events={
-                    activeJam.teamJams.find(
-                      (tj) => tj.teamNum == bout.teams[i].num,
-                    )!.events
-                  }
-                />
-              </Stack>
+              <Card withBorder bg="gray.0" key={i}>
+                <Stack>
+                  <JammerStateEditor
+                    teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
+                    isLeadEligible={true} // TODO: check if lead eligible
+                    teamJam={
+                      activeJam.teamJams.find(
+                        (tj) => tj.teamNum == bout.teams[i].num,
+                      )!
+                    }
+                    justify="center"
+                    gap="md"
+                  />
+                  <TeamJamTripHistory
+                    numPasses={ruleset.pointsPerTrip}
+                    teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
+                    events={
+                      activeJam.teamJams.find(
+                        (tj) => tj.teamNum == bout.teams[i].num,
+                      )!.events
+                    }
+                  />
+                </Stack>
+              </Card>
             ))}
-          </SimpleGrid>
+          </Group>
         </Suspense>
 
         {/* TODO: Add lineup editors */}
