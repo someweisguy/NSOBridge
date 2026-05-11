@@ -22,7 +22,7 @@ import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import { Card, Collapse, Grid, Group, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
@@ -164,36 +164,34 @@ export default function Operator() {
         </Group>
 
         {/* TeamJam score editors */}
-        <Suspense fallback={"Loading..."}>
-          <Group justify="space-around">
-            {[...Array(2).keys()].map((i: number) => (
-              <Card withBorder bg="gray.0" key={i}>
-                <Stack>
-                  <JammerStateEditor
-                    teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
-                    isLeadEligible={true} // TODO: check if lead eligible
-                    teamJam={
-                      activeJam.teamJams.find(
-                        (tj) => tj.teamNum == bout.teams[i].num,
-                      )!
-                    }
-                    justify="center"
-                    gap="md"
-                  />
-                  <TeamJamTripHistory
-                    numPasses={ruleset.pointsPerTrip}
-                    teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
-                    events={
-                      activeJam.teamJams.find(
-                        (tj) => tj.teamNum == bout.teams[i].num,
-                      )!.events
-                    }
-                  />
-                </Stack>
-              </Card>
-            ))}
-          </Group>
-        </Suspense>
+        <Group justify="space-around">
+          {[...Array(2).keys()].map((i: number) => (
+            <Card withBorder bg="gray.0" key={i}>
+              <Stack>
+                <JammerStateEditor
+                  teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
+                  isLeadEligible={true} // TODO: check if lead eligible
+                  teamJam={
+                    activeJam.teamJams.find(
+                      (tj) => tj.teamNum == bout.teams[i].num,
+                    )!
+                  }
+                  justify="center"
+                  gap="md"
+                />
+                <TeamJamTripHistory
+                  numPasses={ruleset.pointsPerTrip}
+                  teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
+                  events={
+                    activeJam.teamJams.find(
+                      (tj) => tj.teamNum == bout.teams[i].num,
+                    )!.events
+                  }
+                />
+              </Stack>
+            </Card>
+          ))}
+        </Group>
 
         {/* TODO: Add lineup editors */}
       </Stack>
