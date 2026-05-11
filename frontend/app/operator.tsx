@@ -1,8 +1,8 @@
 import Clock from "@/components/clock";
 import PageShell from "@/components/page-shell";
+import TeamCard from "@/components/team-card";
 import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutStatus from "@/features/bouts/components/bout-status";
-import TeamName from "@/features/bouts/components/team-name";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
@@ -10,7 +10,6 @@ import JamClock from "@/features/jams/components/jam-clock";
 import JammerStateEditor from "@/features/jams/components/jammer-state-editor";
 import TeamJamTripHistory from "@/features/jams/components/team-jam-trip-history";
 import BoutControl from "@/features/operator/components/bout-control";
-import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
@@ -21,16 +20,7 @@ import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
 import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
-import {
-  Card,
-  Center,
-  Collapse,
-  Divider,
-  Grid,
-  Group,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { Card, Collapse, Grid, Group, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Suspense, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -116,76 +106,20 @@ export default function Operator() {
         {/* Team information */}
         <Group justify="space-around">
           {bout.teams.map((team: Team, i: number) => (
-            <Card withBorder key={i} bg="gray.0">
-              <Stack>
-                <TeamName
-                  uuid={bout.uuid}
-                  num={team.num}
-                  name={team.name}
-                  ta="center"
-                  fw="bolder"
-                  size="26pt"
-                />
-                <Divider />
-                <Grid justify="space-between" align="flex-end">
-                  <Grid.Col
-                    span="auto"
-                    align="center"
-                    order={{ sm: 1, md: 1, lg: i % 2 ? 3 : 1 }}
-                  >
-                    <Center>
-                      <TimeoutsLeft
-                        numTimeouts={ruleset.numTimeouts}
-                        numReviews={ruleset.numReviews}
-                        timeoutsRemaining={team.timeoutsRemaining}
-                        reviewsRemaining={team.reviewsRemaining}
-                        timeoutIsActive={
-                          latestTimeout != null &&
-                          isRunning(latestTimeout) &&
-                          latestTimeout.teamNum === team.num
-                        }
-                        isReview={latestTimeout?.isReview ?? false}
-                        size={24}
-                      />
-                    </Center>
-                  </Grid.Col>
-                  <Grid.Col span={6} order={2}>
-                    <Center h="100%">
-                      <Text fw="bold" h="100%" w={250} ta="center" size="60pt">
-                        {team.boutScore + team.scoreOffset}
-                      </Text>
-                    </Center>
-                  </Grid.Col>
-                  <Grid.Col
-                    span="auto"
-                    order={{ sm: 3, md: 3, lg: i % 2 ? 1 : 3 }}
-                  >
-                    <Stack gap="md" justify="space-between">
-                      <Text ta="center" size="24pt">
-                        {/* TODO: Add Jammer state icon */}
-                        &nbsp;
-                      </Text>
-                      <Card withBorder p="xs">
-                        <Text ta="center" size="24pt">
-                          {team.jamScore}
-                        </Text>
-                      </Card>
-                    </Stack>
-                  </Grid.Col>
-                </Grid>
-                <Divider />
-                <Text
-                  fw="semi-bold"
-                  fs="italic"
-                  ta="center"
-                  py="sm"
-                  size="18pt"
-                >
-                  {/* TODO: Add Jammer name chip */}
-                  &nbsp;
-                </Text>
-              </Stack>
-            </Card>
+            <TeamCard
+              key={i}
+              teamName={team.name}
+              reverse={!!(i % 2)}
+              timeoutIsActive={
+                latestTimeout != null &&
+                isRunning(latestTimeout) &&
+                latestTimeout.teamNum === team.num
+              }
+              {...bout}
+              {...team}
+              {...latestTimeout}
+              {...ruleset}
+            />
           ))}
         </Group>
 

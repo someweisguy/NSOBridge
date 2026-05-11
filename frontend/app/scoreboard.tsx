@@ -2,7 +2,7 @@ import BoutClock from "@/features/bouts/components/bout-clock";
 import BoutStatus from "@/features/bouts/components/bout-status";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import JamClock from "@/features/jams/components/jam-clock";
-import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
+import TimeoutsLeft from "@/components/timeouts-left";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";

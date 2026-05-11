@@ -1,4 +1,4 @@
-import TimeoutsLeft from "@/features/timeouts/components/timeouts-left";
+import TimeoutsLeft from "@/components/timeouts-left";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta: Meta = {
