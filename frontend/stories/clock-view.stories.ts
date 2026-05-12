@@ -1,9 +1,9 @@
-import Clock from "@/components/clock";
+import ClockView from "@/components/clock-view";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta: Meta = {
-  component: Clock,
-  title: "Clock",
+  component: ClockView,
+  title: "Clock View",
 };
 
 type Story = StoryObj<typeof meta>;

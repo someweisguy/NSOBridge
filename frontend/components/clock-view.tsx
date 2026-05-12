@@ -52,7 +52,7 @@ export interface ClockProps extends TextProps {
  * used in Roller Derby. This component is completely unstyled. It should be wrapped in
  * a text component or similar before being rendered.
  */
-export default function Clock({
+export default function ClockView({
   startTimestamp,
   stopTimestamp,
   elapsed = 0,
