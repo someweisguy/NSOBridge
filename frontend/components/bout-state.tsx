@@ -11,6 +11,14 @@ const stopReasonTexts: Record<StopReasonString, string> = {
   other: "-",
 };
 
+const stateTexts: Record<BoutStateString, string> = {
+  final: "Final",
+  jam: "Jam",
+  lineup: "Lineup",
+  timeout: "Timeout",
+  stopped: "Stopped",
+};
+
 interface BoutStateProps {
   clock: Clock;
   state: BoutStateString;
@@ -70,7 +78,7 @@ export default function BoutState({
       <Collapse keepMounted orientation="horizontal" expanded={state != "jam"}>
         <Card withBorder w="250" bg="yellow.3">
           <Group justify="center" wrap="nowrap">
-            {/* <BoutStatus {...bout} inherit /> */}
+            {stateTexts[state]}
             {eventTimestamp != null && (
               <ClockView startTimestamp={eventTimestamp} inherit />
             )}
