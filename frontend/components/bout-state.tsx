@@ -12,28 +12,25 @@ const stopReasonTexts: Record<StopReasonString, string> = {
 };
 
 interface BoutStateProps {
-  uuid: string;
-
+  clock: Clock;
   state: BoutStateString;
   isOvertime: boolean;
-  clock: Clock;
   activePeriodNum: number;
   activeJamNum: number;
-
   eventTimestamp: string | null;
-  jamDuration: number;
   stopReason: StopReasonString | null;
+  jamDuration: number;
 }
 
 export default function BoutState({
+  clock,
+  state,
+  isOvertime,
   activePeriodNum,
   activeJamNum,
-  isOvertime,
-  clock,
   eventTimestamp,
-  jamDuration,
   stopReason,
-  state,
+  jamDuration,
 }: BoutStateProps) {
   return (
     <Group gap="xl" fz="24pt" ta="center" justify="center" align="center">
