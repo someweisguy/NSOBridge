@@ -75,14 +75,20 @@ export default function Operator() {
 
   // Get the time since the last Jam or Timeout or null if neither have occurred
   const lastEventTimestamp: string | null =
-    activeJam.stopTimestamp != null && latestTimeout?.stopTimestamp != null
+    activeJam.startTimestamp != null
       ? new Date(
           Math.max(
-            new Date(activeJam.stopTimestamp).getTime(),
-            new Date(latestTimeout.stopTimestamp).getTime(),
+            ...[
+              activeJam.startTimestamp,
+              activeJam.stopTimestamp,
+              latestTimeout?.startTimestamp,
+              latestTimeout?.stopTimestamp,
+            ]
+              .filter((val?: string | null) => val != null)
+              .map((val: string) => new Date(val).getTime()),
           ),
         ).toISOString()
-      : (activeJam.stopTimestamp ?? latestTimeout?.stopTimestamp ?? null);
+      : null;
 
   return (
     <PageShell>
