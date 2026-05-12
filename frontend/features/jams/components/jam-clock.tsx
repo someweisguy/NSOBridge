@@ -1,4 +1,4 @@
-import Clock, { ClockProps } from "@/components/clock";
+import ClockView, { ClockProps } from "@/components/clock-view";
 import { StopReasonString } from "@/types/jam";
 import { Text, TextProps } from "@mantine/core";
 
@@ -33,7 +33,7 @@ export default function JamClock({
       {props.stopTimestamp != null ? (
         stopReasonText
       ) : (
-        <Clock alarm={jamDuration} {...props} />
+        <ClockView alarm={jamDuration} {...props} />
       )}
     </Text>
   );

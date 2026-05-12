@@ -1,4 +1,4 @@
-import Clock, { ClockProps } from "@/components/clock";
+import ClockView, { ClockProps } from "@/components/clock-view";
 import DurationPicker from "@/components/duration-picker";
 import {
   Button,
@@ -55,7 +55,7 @@ export default function BoutClock({
   return (
     <>
       <Text style={{ cursor: "pointer" }} onClick={open} {...props}>
-        {isOvertime ? overtimeText : <Clock {...props} formatter="bout" />}
+        {isOvertime ? overtimeText : <ClockView {...props} formatter="bout" />}
       </Text>
 
       {editable && (
