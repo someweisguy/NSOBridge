@@ -1,12 +1,9 @@
-import Clock from "@/components/clock";
+import BoutState from "@/components/bout-state";
 import PageShell from "@/components/page-shell";
 import TeamCard from "@/components/team-card";
-import BoutClock from "@/features/bouts/components/bout-clock";
-import BoutStatus from "@/features/bouts/components/bout-status";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
-import JamClock from "@/features/jams/components/jam-clock";
 import JammerStateEditor from "@/features/jams/components/jammer-state-editor";
 import TeamJamTripHistory from "@/features/jams/components/team-jam-trip-history";
 import BoutControl from "@/features/operator/components/bout-control";
@@ -20,7 +17,7 @@ import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
 import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
-import { Card, Collapse, Grid, Group, Stack, Text } from "@mantine/core";
+import { Card, Group, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -124,44 +121,15 @@ export default function Operator() {
         </Group>
 
         {/* Bout State View */}
-        <Group gap="xl" fz="24pt" ta="center" justify="center" align="center">
-          <Card withBorder w="content" bg="gray.0">
-            <Grid justify="space-between" align="center" gap="sm">
-              <Grid.Col span={4}>
-                <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <Group justify="space-between">
-                  <Text inherit w="300">
-                    P{activeJam.period + 1} J{activeJam.num + 1}
-                  </Text>
-                </Group>
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <JamClock
-                  jamDuration={ruleset.jamDuration}
-                  {...activeJam}
-                  {...activeJamUri}
-                  inherit
-                />
-              </Grid.Col>
-            </Grid>
-          </Card>
-          <Collapse
-            keepMounted
-            orientation="horizontal"
-            expanded={bout.state != "jam"}
-          >
-            <Card withBorder w="250" bg="yellow.3">
-              <Group justify="center" wrap="nowrap">
-                <BoutStatus {...bout} inherit />
-                {lastEventTimestamp != null && (
-                  <Clock startTimestamp={lastEventTimestamp} inherit />
-                )}
-              </Group>
-            </Card>
-          </Collapse>
-        </Group>
+        <BoutState
+          activePeriodNum={activeJam.period}
+          activeJamNum={activeJam.num}
+          isOvertime={bout.jamCounts[2] > 0}
+          eventTimestamp={lastEventTimestamp}
+          {...bout}
+          {...activeJam}
+          {...ruleset}
+        />
 
         {/* TeamJam score editors */}
         <Group justify="space-around">
