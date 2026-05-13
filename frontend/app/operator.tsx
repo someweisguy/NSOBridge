@@ -20,6 +20,7 @@ import { isRunning } from "@/utils/time";
 import { Group, NavLink, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import {
+  IconPlusMinus,
   IconStopwatch,
   IconTrafficLights,
   IconUsers,
@@ -112,6 +113,11 @@ export default function Operator() {
           key={2}
           label="Timeouts"
           leftSection={<IconTrafficLights size={16} />}
+        />,
+        <NavLink
+          key={3}
+          label="Score Offsets"
+          leftSection={<IconPlusMinus size={16} />}
         />,
       ]}
     >
