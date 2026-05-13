@@ -30,7 +30,7 @@ export default function PageShell({
       padding="md"
       header={{ height: 48 }}
       navbar={{
-        width: 300,
+        width: 200,
         breakpoint: "sm",
         collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
       }}
