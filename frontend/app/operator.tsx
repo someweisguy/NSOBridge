@@ -1,6 +1,6 @@
-import BoutClock from "@/features/bouts/components/game-clock";
 import PageShell from "@/components/page-shell";
 import TeamCard from "@/components/team-card";
+import BoutClock from "@/features/bouts/components/game-clock";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
@@ -17,8 +17,13 @@ import { Team } from "@/types/bout";
 import { TeamJam } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
-import { Group, Stack } from "@mantine/core";
+import { Group, NavLink, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
+import {
+  IconStopwatch,
+  IconTrafficLights,
+  IconUsers,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
@@ -91,7 +96,25 @@ export default function Operator() {
       : null;
 
   return (
-    <PageShell>
+    <PageShell
+      navButtons={[
+        <NavLink
+          key={0}
+          label="Teams & Rosters"
+          leftSection={<IconUsers size={16} />}
+        />,
+        <NavLink
+          key={1}
+          label="Bout Clock"
+          leftSection={<IconStopwatch size={16} />}
+        />,
+        <NavLink
+          key={2}
+          label="Timeouts"
+          leftSection={<IconTrafficLights size={16} />}
+        />,
+      ]}
+    >
       <Stack gap="sm">
         {/* Bout State control */}
         <BoutControl
