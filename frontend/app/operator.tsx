@@ -91,17 +91,20 @@ export default function Operator() {
         />,
         <NavLink
           key={1}
+          disabled // TODO: implement clock modal
           label="Bout Clock"
           leftSection={<IconStopwatch size={16} />}
         />,
         <NavLink
           key={2}
-          label="Timeouts"
+          disabled
+          label="Timeouts" // TODO: implement timeout modal
           leftSection={<IconTrafficLights size={16} />}
         />,
         <NavLink
           key={3}
-          label="Score Offsets"
+          disabled
+          label="Score Offsets" // TODO: implement score offset modal
           leftSection={<IconPlusMinus size={16} />}
         />,
       ]}
