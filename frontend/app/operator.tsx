@@ -12,7 +12,6 @@ import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
-import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
 import { TeamJam } from "@/types/jam";
 import { BoutUri } from "@/types/query";
@@ -29,20 +28,6 @@ import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
-
-// Register Ctrl+Z and Ctrl+Y as undo and redo respectively
-document.addEventListener("keydown", (event) => {
-  if (event.ctrlKey || event.metaKey) {
-    if (event.key.toLowerCase() === "z") {
-      event.preventDefault();
-      void undo();
-    }
-    if (event.key.toLowerCase() === "y") {
-      event.preventDefault();
-      void redo();
-    }
-  }
-});
 
 const root: HTMLElement | null = document.getElementById("root");
 if (root != null) {

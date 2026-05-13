@@ -8,9 +8,9 @@ import {
   Group,
   Text,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useOs } from "@mantine/hooks";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
-import { PropsWithChildren, ReactNode, Suspense } from "react";
+import { PropsWithChildren, ReactNode, Suspense, useEffect } from "react";
 
 interface PageShellProps
   extends Pick<AppShellProps, "disabled">, PropsWithChildren {
@@ -28,8 +28,30 @@ export default function PageShell({
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
 
+  const os = useOs();
   const undo = useUndo();
   const redo = useRedo();
+
+  useEffect(() => {
+    const eventHandler = (event: KeyboardEvent) => {
+      if (
+        (os == "windows" && event.ctrlKey) ||
+        (os != "windows" && event.metaKey)
+      ) {
+        if (event.key.toLowerCase() === "z") {
+          event.preventDefault();
+          void undo.mutate();
+        }
+        if (event.key.toLowerCase() === "y") {
+          event.preventDefault();
+          void redo.mutate();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", eventHandler);
+    return () => document.removeEventListener("keydown", eventHandler);
+  }, [os, undo, redo]);
 
   return (
     <AppShell
