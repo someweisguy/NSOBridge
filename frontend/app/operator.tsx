@@ -107,7 +107,6 @@ export default function Operator() {
       ]}
     >
       <Stack gap="sm">
-        {/* Bout State control */}
         <BoutControl
           latestPeriodNum={latestJamUri.periodNum}
           latestJamNum={latestJamUri.jamNum}
@@ -120,7 +119,6 @@ export default function Operator() {
           {...latestTimeout}
         />
 
-        {/* Team information */}
         <Group justify="space-around">
           {bout.teams.map((team: Team, i: number) => (
             <TeamCard
@@ -140,7 +138,6 @@ export default function Operator() {
           ))}
         </Group>
 
-        {/* Bout State View */}
         <BoutClock
           activePeriodNum={activeJam.period}
           activeJamNum={activeJam.num}
@@ -151,7 +148,6 @@ export default function Operator() {
           {...ruleset}
         />
 
-        {/* TeamJam score editors */}
         <Group justify="space-around">
           {activeJam.teamJams.map((teamJam: TeamJam) => (
             <TeamJamControl
