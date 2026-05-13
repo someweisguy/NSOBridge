@@ -1,4 +1,4 @@
-import JamStopReasonEditor from "@/features/jams/components/stop-reason-editor";
+import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import { useBeginPeriod } from "@/features/operator/hooks/use-begin-period";
 import { useEndPeriod } from "@/features/operator/hooks/use-end-period";
 import { useStartJam } from "@/features/operator/hooks/use-start-jam";
