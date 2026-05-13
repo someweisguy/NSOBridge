@@ -1,12 +1,15 @@
+import { useRedo } from "@/hooks/use-redo";
+import { useUndo } from "@/hooks/use-undo";
 import {
+  ActionIcon,
   AppShell,
   AppShellProps,
   Burger,
-  Button,
   Group,
   Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
 import { PropsWithChildren, ReactNode, Suspense } from "react";
 
 interface PageShellProps
@@ -24,6 +27,9 @@ export default function PageShell({
 }: PageShellProps) {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+
+  const undo = useUndo();
+  const redo = useRedo();
 
   return (
     <AppShell
@@ -53,7 +59,15 @@ export default function PageShell({
             />
             <Text>NSO Bridge</Text>
           </Group>
-          <Button>Navigation Button</Button>
+
+          <Group>
+            <ActionIcon variant="subtle" onClick={() => undo.mutate()}>
+              <IconArrowBackUp size={16} />
+            </ActionIcon>
+            <ActionIcon variant="subtle" onClick={() => redo.mutate()}>
+              <IconArrowForwardUp size={16} />
+            </ActionIcon>
+          </Group>
         </Group>
       </AppShell.Header>
 
