@@ -1,5 +1,5 @@
 import ResponsiveScroller from "@/components/responsive-scroller";
-import TripEventButton from "@/features/jams/components/trip-event-button";
+import TripEventButton from "@/features/operator/components/trip-event-button";
 import { TripEvent } from "@/types/jam";
 import { TeamJamUri } from "@/types/query";
 import {

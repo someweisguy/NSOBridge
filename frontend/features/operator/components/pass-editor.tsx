@@ -1,5 +1,5 @@
 import { Button, Group, GroupProps } from "@mantine/core";
-import { useTeamJamAddTrip } from "../hooks/use-team-jam-add-trip";
+import { useTeamJamAddTrip } from "../../jams/hooks/use-team-jam-add-trip";
 import { TeamJamUri } from "@/types/query";
 
 interface PassEditorProps {

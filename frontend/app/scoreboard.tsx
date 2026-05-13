@@ -1,27 +1,16 @@
-import BoutClock from "@/features/bouts/components/bout-clock";
-import BoutStatus from "@/features/bouts/components/bout-status";
-import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
-import JamClock from "@/features/jams/components/jam-clock";
+import BoutState from "@/components/bout-state";
 import TimeoutsLeft from "@/components/timeouts-left";
+import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { Team } from "@/types/bout";
 import { BoutUri } from "@/types/query";
 import FitScreen from "@fit-screen/react";
-import {
-  Card,
-  Flex,
-  Grid,
-  Group,
-  SimpleGrid,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { Flex, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { twMerge } from "tailwind-merge";
 import "./global.css";
 import AppProvider from "./provider";
 
@@ -56,6 +45,22 @@ export function Scoreboard() {
 
   const activeJamUri = useActiveJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
+
+  const lastEventTimestamp: string | null =
+    activeJam.startTimestamp != null
+      ? new Date(
+          Math.max(
+            ...[
+              activeJam.startTimestamp,
+              activeJam.stopTimestamp,
+              // latestTimeout?.startTimestamp,
+              // latestTimeout?.stopTimestamp,
+            ]
+              .filter((val?: string | null) => val != null)
+              .map((val: string) => new Date(val).getTime()),
+          ),
+        ).toISOString()
+      : null;
 
   return (
     <FitScreen waitTime={25} mode="fit">
@@ -94,36 +99,15 @@ export function Scoreboard() {
         </SimpleGrid>
 
         {/* Bout State View */}
-        <Stack fz="72pt" ta="center" align="stretch">
-          <Card withBorder w="content" bg="gray.0">
-            <Grid justify="space-between" align="center" gap="sm">
-              <Grid.Col span={4}>
-                <BoutClock uuid={bout.uuid} {...bout.clock} inherit />
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <Group justify="space-between">
-                  <Text inherit w="250">
-                    P{activeJam.period + 1} J{activeJam.num + 1}
-                  </Text>
-                </Group>
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <JamClock
-                  jamDuration={ruleset.jamDuration}
-                  {...activeJam}
-                  {...activeJamUri}
-                  inherit
-                />
-              </Grid.Col>
-            </Grid>
-          </Card>
-          <BoutStatus
-            {...bout}
-            className={twMerge(bout.state == "jam" && "invisible")}
-            inherit
-            fz="48pt"
-          />
-        </Stack>
+        <BoutState
+          activePeriodNum={activeJam.period}
+          activeJamNum={activeJam.num}
+          isOvertime={bout.jamCounts[2] > 0}
+          eventTimestamp={lastEventTimestamp}
+          {...bout}
+          {...activeJam}
+          {...ruleset}
+        />
       </Stack>
     </FitScreen>
   );
