@@ -2,7 +2,7 @@ import { BoutStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
 import { Clock } from "@/types/time";
 import { Card, Collapse, Grid, Group, Text } from "@mantine/core";
-import ClockView from "./clock-view";
+import ClockView from "../../../components/clock-view";
 
 const stopReasonTexts: Record<StopReasonString, string> = {
   called: "Called",
@@ -19,7 +19,7 @@ const stateTexts: Record<BoutStateString, string> = {
   stopped: "Stopped",
 };
 
-interface BoutStateProps {
+interface BoutClockProps {
   clock: Clock;
   state: BoutStateString;
   isOvertime: boolean;
@@ -30,7 +30,7 @@ interface BoutStateProps {
   jamDuration: number;
 }
 
-export default function BoutState({
+export default function BoutClock({
   clock,
   state,
   isOvertime,
@@ -39,7 +39,7 @@ export default function BoutState({
   eventTimestamp,
   stopReason,
   jamDuration,
-}: BoutStateProps) {
+}: BoutClockProps) {
   return (
     <Group gap="xl" fz="24pt" ta="center" justify="center" align="center">
       <Card withBorder w="content" bg="gray.0">

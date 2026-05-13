@@ -1,4 +1,4 @@
-import BoutState from "@/components/bout-state";
+import BoutClock from "@/features/bouts/components/game-clock";
 import PageShell from "@/components/page-shell";
 import TeamCard from "@/components/team-card";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
@@ -127,7 +127,7 @@ export default function Operator() {
         </Group>
 
         {/* Bout State View */}
-        <BoutState
+        <BoutClock
           activePeriodNum={activeJam.period}
           activeJamNum={activeJam.num}
           isOvertime={bout.jamCounts[2] > 0}
