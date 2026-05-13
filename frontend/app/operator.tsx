@@ -4,9 +4,8 @@ import TeamCard from "@/components/team-card";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
-import JammerStateEditor from "@/features/jams/components/jammer-state-editor";
-import TeamJamTripHistory from "@/features/jams/components/team-jam-trip-history";
 import BoutControl from "@/features/operator/components/bout-control";
+import TeamJamControl from "@/features/operator/components/team-jam-control";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
@@ -15,9 +14,10 @@ import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
 import { redo, undo } from "@/lib/history";
 import { Team } from "@/types/bout";
+import { TeamJam } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
-import { Card, Group, Stack } from "@mantine/core";
+import { Group, Stack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -139,31 +139,16 @@ export default function Operator() {
 
         {/* TeamJam score editors */}
         <Group justify="space-around">
-          {[...Array(2).keys()].map((i: number) => (
-            <Card withBorder bg="gray.0" key={i}>
-              <Stack>
-                <JammerStateEditor
-                  teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
-                  isLeadEligible={true} // TODO: check if lead eligible
-                  teamJam={
-                    activeJam.teamJams.find(
-                      (tj) => tj.teamNum == bout.teams[i].num,
-                    )!
-                  }
-                  justify="center"
-                  gap="md"
-                />
-                <TeamJamTripHistory
-                  numPasses={ruleset.pointsPerTrip}
-                  teamJamUri={{ teamNum: bout.teams[i].num, ...activeJamUri }}
-                  events={
-                    activeJam.teamJams.find(
-                      (tj) => tj.teamNum == bout.teams[i].num,
-                    )!.events
-                  }
-                />
-              </Stack>
-            </Card>
+          {activeJam.teamJams.map((teamJam: TeamJam) => (
+            <TeamJamControl
+              key={teamJam.teamNum}
+              boutUuid={activeJam.boutUuid}
+              periodNum={activeJam.period}
+              jamNum={activeJam.num}
+              isLeadEligible={true} // TODO: Compute lead eligibility
+              {...teamJam}
+              {...ruleset}
+            />
           ))}
         </Group>
 

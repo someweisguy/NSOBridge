@@ -9,7 +9,7 @@ import {
   ScrollAreaAutosizeProps,
   Stack,
 } from "@mantine/core";
-import { useTeamJamAddTrip } from "../hooks/use-team-jam-add-trip";
+import { useTeamJamAddTrip } from "../../jams/hooks/use-team-jam-add-trip";
 
 interface TeamJamTripHistoryProps extends ScrollAreaAutosizeProps {
   events: TripEvent[];
