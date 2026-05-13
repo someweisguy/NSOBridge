@@ -1,5 +1,4 @@
 import ResponsiveScroller from "@/components/responsive-scroller";
-import TripEventButton from "@/features/operator/components/trip-event-button";
 import { TripEvent } from "@/types/jam";
 import { TeamJamUri } from "@/types/query";
 import {
@@ -8,6 +7,7 @@ import {
   Group,
   ScrollAreaAutosizeProps,
   Stack,
+  Text,
 } from "@mantine/core";
 import { useTeamJamAddTrip } from "../../jams/hooks/use-team-jam-add-trip";
 
@@ -60,8 +60,17 @@ export default function TeamJamTripHistory({
         <ResponsiveScroller>
           {events
             .filter((event) => event.passes != null)
-            .map((teamJam, i) => (
-              <TripEventButton key={i} tripNum={i} {...teamJam} />
+            .map((event: TripEvent, i: number) => (
+              <Button key={i} px={0} variant="subtle" c="gray" w="50" h="60">
+                <Stack gap={3}>
+                  <Text fs="italic" c="dimmed" size="8pt">
+                    Trip {i + 1}
+                  </Text>
+                  <Text c="dark" fw="bold" size="md">
+                    {event.passes}
+                  </Text>
+                </Stack>
+              </Button>
             ))}
         </ResponsiveScroller>
       </Card>
