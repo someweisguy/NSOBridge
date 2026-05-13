@@ -79,7 +79,7 @@ export default function BoutState({
         <Card withBorder w="250" bg="yellow.3">
           <Group justify="center" wrap="nowrap">
             {stateTexts[state]}
-            {eventTimestamp != null && (
+            {eventTimestamp != null && state != "jam" && (
               <ClockView startTimestamp={eventTimestamp} inherit />
             )}
           </Group>
