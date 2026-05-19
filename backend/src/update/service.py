@@ -3,6 +3,7 @@
 from collections.abc import Iterable
 from typing import Final
 
+import debugpy
 import requests
 import requests.exceptions
 from pydantic import ValidationError
@@ -40,6 +41,14 @@ def fetch_release_data() -> list:
         requests.exceptions.Timeout,
     ) as e:
         raise ConnectionError('Could not fetch updates at this time') from e
+    except KeyboardInterrupt as e:
+        # When running debugpy for the first time a KeyboardInterrupt may be thrown.
+        # This except block is a convenience to prevent the program from crashing when
+        # debugging.
+        if debugpy.is_client_connected():
+            raise ConnectionError('Could not fetch updates at this time') from e
+        else:
+            raise RuntimeError('An error occurred during update checking') from e
 
     return response.json()
 

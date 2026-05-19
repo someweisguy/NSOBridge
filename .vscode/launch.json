@@ -8,6 +8,7 @@
       "program": "backend/src/main.py",
       "args": ["0.0.0.0", "-d", "-f data.db"],
       "console": "integratedTerminal",
+      "python": "${workspaceFolder}/.venv/Scripts/python",
       "env": {
         "SQLALCHEMY_DEBUG": "false"
       }
