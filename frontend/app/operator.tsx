@@ -16,7 +16,7 @@ import { Team } from "@/types/bout";
 import { TeamJam } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
-import { Group, NavLink, Stack } from "@mantine/core";
+import { Group, Modal, NavLink, Stack, useModalsStack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import {
   IconPlusMinus,
@@ -64,6 +64,13 @@ export default function Operator() {
     throwOnError: false,
   });
 
+  const modalStack = useModalsStack([
+    "teams-rosters",
+    "bout-clock",
+    "timeouts",
+    "score-offset",
+  ]);
+
   // Get the time since the last Jam or Timeout or null if neither have occurred
   const lastEventTimestamp: string | null =
     activeJam.startTimestamp != null
@@ -88,27 +95,49 @@ export default function Operator() {
           key={0}
           label="Teams & Rosters"
           leftSection={<IconUsers size={16} />}
+          onClick={() => modalStack.open("teams-rosters")}
         />,
         <NavLink
           key={1}
-          disabled // TODO: implement clock modal
           label="Bout Clock"
           leftSection={<IconStopwatch size={16} />}
+          onClick={() => modalStack.open("bout-clock")}
         />,
         <NavLink
           key={2}
-          disabled
-          label="Timeouts" // TODO: implement timeout modal
+          label="Timeouts"
           leftSection={<IconTrafficLights size={16} />}
+          onClick={() => modalStack.open("timeouts")}
         />,
         <NavLink
           key={3}
-          disabled
           label="Score Offsets" // TODO: implement score offset modal
           leftSection={<IconPlusMinus size={16} />}
+          onClick={() => modalStack.open("score-offset")}
         />,
       ]}
     >
+      <Modal.Stack>
+        <Modal
+          title="Edit Teams & Rosters"
+          {...modalStack.register("teams-rosters")}
+        >
+          Hello world!
+        </Modal>
+        <Modal title="Edit Bout Clock" {...modalStack.register("bout-clock")}>
+          Hello world!
+        </Modal>
+        <Modal title="Edit Timeouts" {...modalStack.register("timeouts")}>
+          Hello world!
+        </Modal>
+        <Modal
+          title="Edit Score Offset"
+          {...modalStack.register("score-offset")}
+        >
+          Hello world!
+        </Modal>
+      </Modal.Stack>
+
       <Stack gap="sm">
         <BoutControl
           latestPeriodNum={latestJamUri.periodNum}
