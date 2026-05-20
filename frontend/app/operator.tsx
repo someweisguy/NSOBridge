@@ -68,7 +68,7 @@ export default function Operator() {
 
   const modalStack = useModalsStack([
     "ruleset",
-    ...bout.teams.map((team: Team) => team.name),
+    ...bout.teams.map((team: Team) => "team-" + team.num),
     "bout-clock",
     "edit-jams",
     "edit-timeouts",
@@ -111,7 +111,7 @@ export default function Operator() {
             <NavLink
               key={team.num}
               label={team.name}
-              onClick={() => modalStack.open(team.name)}
+              onClick={() => modalStack.open("team-" + team.num)}
             />
           ))}
         </NavLink>,
@@ -142,7 +142,7 @@ export default function Operator() {
           <Modal
             key={team.num}
             title={"Edit " + team.name}
-            {...modalStack.register(team.name)}
+            {...modalStack.register("team-" + team.num)}
           >
             <TeamEditor boutUuid={bout.uuid} {...team} />
           </Modal>
