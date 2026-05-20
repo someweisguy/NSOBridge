@@ -1,6 +1,7 @@
 import PageShell from "@/components/page-shell";
 import TeamCard from "@/components/team-card";
 import BoutClock from "@/features/bouts/components/game-clock";
+import TeamEditor from "@/features/bouts/components/team-editor";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
@@ -143,7 +144,7 @@ export default function Operator() {
             title={"Edit " + team.name}
             {...modalStack.register(team.name)}
           >
-            Editing {team.name}
+            <TeamEditor boutUuid={bout.uuid} {...team} />
           </Modal>
         ))}
         <Modal
