@@ -43,5 +43,5 @@ async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 GetAsyncSession: TypeAlias = Annotated[
     AsyncSession,
-    Depends(_yield_async_session),
+    Depends(_yield_async_session, scope='function'),
 ]
