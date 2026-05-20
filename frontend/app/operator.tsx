@@ -75,7 +75,7 @@ export default function Operator() {
       })),
   });
   const [boutUri, setBoutUri] = useState<BoutUri>({
-    boutUuid: allBouts[0].uuid,
+    boutUuid: allBouts[allBouts.length - 1].uuid,
   });
   const { data: rulesetNames } = useSuspenseAllRulesetNames();
 
