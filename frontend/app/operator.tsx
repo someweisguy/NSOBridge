@@ -19,7 +19,7 @@ import { isRunning } from "@/utils/time";
 import { Group, Modal, NavLink, Stack, useModalsStack } from "@mantine/core";
 import "@mantine/core/styles.css";
 import {
-  IconListNumbers,
+  IconCheckupList,
   IconRollerSkating,
   IconStopwatch,
   IconTrafficLights,
@@ -97,7 +97,7 @@ export default function Operator() {
           disabled
           key={0}
           label="Ruleset"
-          leftSection={<IconListNumbers size={16} />}
+          leftSection={<IconCheckupList size={16} />}
           onClick={() => modalStack.open("ruleset")}
         />,
         <NavLink
