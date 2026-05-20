@@ -167,6 +167,7 @@ export default function Operator() {
           </AppShell.Section>
           <AppShell.Section p="sm">
             <Stack gap="sm" align="stretch">
+              <Divider />
               <Select
                 label="Select a Bout"
                 data={allBoutsSelectData}
