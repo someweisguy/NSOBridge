@@ -23,6 +23,7 @@ import { isRunning } from "@/utils/time";
 import {
   AppShell,
   Button,
+  Divider,
   Group,
   Modal,
   NavLink,
@@ -34,6 +35,7 @@ import {
 import "@mantine/core/styles.css";
 import {
   IconCheckupList,
+  IconExternalLink,
   IconPlus,
   IconRollerSkating,
   IconStopwatch,
@@ -177,6 +179,20 @@ export default function Operator() {
                 }}
               />
               <Button
+                variant="subtle"
+                rightSection={<IconExternalLink size={16} />}
+                onClick={() =>
+                  window.open(
+                    window.location.href + "sb?boutUuid=" + boutUri.boutUuid,
+                    "_blank",
+                  )
+                }
+              >
+                Open Scoreboard
+              </Button>
+              <Divider />
+              <Button
+                variant="light"
                 rightSection={<IconPlus size={16} />}
                 onClick={() => modalStack.open("create-bout")}
               >
