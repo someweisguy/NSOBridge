@@ -14,11 +14,20 @@ import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
-import { Team } from "@/types/bout";
+import { Bout, Team } from "@/types/bout";
 import { TeamJam } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
-import { Group, Modal, NavLink, Stack, useModalsStack } from "@mantine/core";
+import {
+  AppShell,
+  Group,
+  Modal,
+  NavLink,
+  ScrollArea,
+  Select,
+  Stack,
+  useModalsStack,
+} from "@mantine/core";
 import "@mantine/core/styles.css";
 import {
   IconCheckupList,
@@ -49,7 +58,21 @@ if (root != null) {
  */
 export default function Operator() {
   const { data: allBouts } = useSuspenseGetAllBouts();
-  const [boutUri] = useState<BoutUri>({ boutUuid: allBouts[0].uuid });
+  const { data: allBoutsSelectData } = useSuspenseGetAllBouts<
+    {
+      value: string;
+      label: string;
+    }[]
+  >({
+    select: (bouts: Bout[]) =>
+      bouts.map((bout: Bout) => ({
+        value: bout.uuid,
+        label: bout.teams[0].name + " vs. " + bout.teams[1].name,
+      })),
+  });
+  const [boutUri, setBoutUri] = useState<BoutUri>({
+    boutUuid: allBouts[0].uuid,
+  });
 
   const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
@@ -95,53 +118,65 @@ export default function Operator() {
   return (
     <PageShell
       navButtons={
-        <>
-          <NavLink
-            disabled
-            key={0}
-            label="Ruleset"
-            leftSection={<IconCheckupList size={16} />}
-            onClick={() => modalStack.open("ruleset")}
-          />
-          <NavLink
-            defaultOpened
-            key={1}
-            label="Teams & Rosters"
-            leftSection={<IconUsers size={16} />}
-          >
-            {bout.teams.map((team: Team) => (
-              <NavLink
-                key={team.num}
-                label={team.name}
-                onClick={() => modalStack.open("team-" + team.num)}
-              />
-            ))}
-          </NavLink>
-          ,
-          <NavLink
-            key={2}
-            label="Bout Clock"
-            leftSection={<IconStopwatch size={16} />}
-            onClick={() => modalStack.open("bout-clock")}
-          />
-          <NavLink
-            key={4}
-            disabled
-            label="Jams"
-            leftSection={<IconRollerSkating size={16} />}
-            onClick={() => modalStack.open("edit-jams")}
-          />
-          <NavLink
-            disabled
-            key={5}
-            label="Timeouts"
-            leftSection={<IconTrafficLights size={16} />}
-            onClick={() => modalStack.open("edit-timeouts")}
-          />
-        </>
+        <Stack h="100%" gap="md" justify="space-between">
+          <AppShell.Section component={ScrollArea}>
+            <NavLink
+              disabled
+              label="Ruleset"
+              leftSection={<IconCheckupList size={16} />}
+              onClick={() => modalStack.open("ruleset")}
+            />
+            <NavLink
+              defaultOpened
+              label="Teams & Rosters"
+              leftSection={<IconUsers size={16} />}
+            >
+              {bout.teams.map((team: Team) => (
+                <NavLink
+                  key={team.num}
+                  label={team.name}
+                  onClick={() => modalStack.open("team-" + team.num)}
+                />
+              ))}
+            </NavLink>
+            <NavLink
+              label="Bout Clock"
+              leftSection={<IconStopwatch size={16} />}
+              onClick={() => modalStack.open("bout-clock")}
+            />
+            <NavLink
+              disabled
+              label="Jams"
+              leftSection={<IconRollerSkating size={16} />}
+              onClick={() => modalStack.open("edit-jams")}
+            />
+            <NavLink
+              disabled
+              label="Timeouts"
+              leftSection={<IconTrafficLights size={16} />}
+              onClick={() => modalStack.open("edit-timeouts")}
+            />
+          </AppShell.Section>
+          <AppShell.Section p="sm">
+            <Select
+              label="Current Bout"
+              data={allBoutsSelectData}
+              value={boutUri.boutUuid}
+              allowDeselect={false}
+              onChange={(boutUuid: string | null) => {
+                if (boutUuid != null) {
+                  setBoutUri({ boutUuid });
+                }
+              }}
+            />
+          </AppShell.Section>
+        </Stack>
       }
     >
       <Modal.Stack>
+        <Modal title="Select Ruleset" {...modalStack.register("ruleset")}>
+          Edit ruleset...
+        </Modal>
         {bout.teams.map((team: Team) => (
           <Modal
             key={team.num}
@@ -151,26 +186,11 @@ export default function Operator() {
             <TeamEditor boutUuid={bout.uuid} {...team} />
           </Modal>
         ))}
-        <Modal
-          title="Edit Teams & Rosters"
-          {...modalStack.register("teams-rosters")}
-        >
-          Hello world!
-        </Modal>
         <Modal title="Edit Bout Clock" {...modalStack.register("bout-clock")}>
           <BoutClockEditor
             boutUuid={bout.uuid}
             isRunning={bout.clock.startTimestamp != null}
           />
-        </Modal>
-        <Modal title="Select Ruleset" {...modalStack.register("ruleset")}>
-          Hello world!
-        </Modal>
-        <Modal
-          title="Edit Score Offset"
-          {...modalStack.register("score-offset")}
-        >
-          Hello world!
         </Modal>
       </Modal.Stack>
 
