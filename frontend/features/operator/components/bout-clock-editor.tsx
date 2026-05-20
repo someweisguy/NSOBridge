@@ -40,6 +40,7 @@ export default function BoutClockEditor({
     <Stack>
       <TextInput
         ref={ref}
+        label="Set Remaining Time"
         placeholder="mm:ss"
         rightSection={<IconStopwatch size={16} />}
       ></TextInput>
