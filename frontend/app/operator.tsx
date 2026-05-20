@@ -155,7 +155,10 @@ export default function Operator() {
           Hello world!
         </Modal>
         <Modal title="Edit Bout Clock" {...modalStack.register("bout-clock")}>
-          <BoutClockEditor boutUuid={bout.uuid} />
+          <BoutClockEditor
+            boutUuid={bout.uuid}
+            isRunning={bout.clock.startTimestamp != null}
+          />
         </Modal>
         <Modal title="Select Ruleset" {...modalStack.register("ruleset")}>
           Hello world!
