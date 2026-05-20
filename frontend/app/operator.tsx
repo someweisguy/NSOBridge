@@ -1,11 +1,11 @@
 import PageShell from "@/components/page-shell";
 import TeamCard from "@/components/team-card";
 import BoutClock from "@/features/bouts/components/game-clock";
-import TeamEditor from "@/features/bouts/components/team-editor";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import BoutControl from "@/features/operator/components/bout-control";
+import TeamEditor from "@/features/operator/components/team-editor";
 import TeamJamControl from "@/features/operator/components/team-jam-control";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
