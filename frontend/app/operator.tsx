@@ -4,6 +4,7 @@ import GameClock from "@/features/bouts/components/game-clock";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
+import BoutClockEditor from "@/features/operator/components/bout-clock-editor";
 import BoutControl from "@/features/operator/components/bout-control";
 import TeamEditor from "@/features/operator/components/team-editor";
 import TeamJamControl from "@/features/operator/components/team-jam-control";
@@ -154,7 +155,7 @@ export default function Operator() {
           Hello world!
         </Modal>
         <Modal title="Edit Bout Clock" {...modalStack.register("bout-clock")}>
-          Hello world!
+          <BoutClockEditor boutUuid={bout.uuid} />
         </Modal>
         <Modal title="Select Ruleset" {...modalStack.register("ruleset")}>
           Hello world!
