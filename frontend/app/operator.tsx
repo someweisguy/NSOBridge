@@ -1,5 +1,6 @@
 import PageShell from "@/components/page-shell";
 import TeamCard from "@/components/team-card";
+import BoutCreator from "@/features/bouts/components/bout-creator";
 import GameClock from "@/features/bouts/components/game-clock";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
@@ -9,6 +10,7 @@ import BoutControl from "@/features/operator/components/bout-control";
 import TeamEditor from "@/features/operator/components/team-editor";
 import TeamJamControl from "@/features/operator/components/team-jam-control";
 import { useJam } from "@/hooks/use-jam";
+import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
@@ -20,6 +22,7 @@ import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import {
   AppShell,
+  Button,
   Group,
   Modal,
   NavLink,
@@ -31,6 +34,7 @@ import {
 import "@mantine/core/styles.css";
 import {
   IconCheckupList,
+  IconPlus,
   IconRollerSkating,
   IconStopwatch,
   IconTrafficLights,
@@ -73,6 +77,7 @@ export default function Operator() {
   const [boutUri, setBoutUri] = useState<BoutUri>({
     boutUuid: allBouts[0].uuid,
   });
+  const { data: rulesetNames } = useSuspenseAllRulesetNames();
 
   const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
@@ -96,6 +101,7 @@ export default function Operator() {
     "bout-clock",
     "edit-jams",
     "edit-timeouts",
+    "create-bout",
   ]);
 
   // Get the time since the last Jam or Timeout or null if neither have occurred
@@ -158,17 +164,25 @@ export default function Operator() {
             />
           </AppShell.Section>
           <AppShell.Section p="sm">
-            <Select
-              label="Current Bout"
-              data={allBoutsSelectData}
-              value={boutUri.boutUuid}
-              allowDeselect={false}
-              onChange={(boutUuid: string | null) => {
-                if (boutUuid != null) {
-                  setBoutUri({ boutUuid });
-                }
-              }}
-            />
+            <Stack gap="sm" align="stretch">
+              <Select
+                label="Current Bout"
+                data={allBoutsSelectData}
+                value={boutUri.boutUuid}
+                allowDeselect={false}
+                onChange={(boutUuid: string | null) => {
+                  if (boutUuid != null) {
+                    setBoutUri({ boutUuid });
+                  }
+                }}
+              />
+              <Button
+                rightSection={<IconPlus size={16} />}
+                onClick={() => modalStack.open("create-bout")}
+              >
+                Create New Bout
+              </Button>
+            </Stack>
           </AppShell.Section>
         </Stack>
       }
@@ -191,6 +205,9 @@ export default function Operator() {
             boutUuid={bout.uuid}
             isRunning={bout.clock.startTimestamp != null}
           />
+        </Modal>
+        <Modal title="Create New Bout" {...modalStack.register("create-bout")}>
+          <BoutCreator rulesetNames={rulesetNames} />
         </Modal>
       </Modal.Stack>
 
