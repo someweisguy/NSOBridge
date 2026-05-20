@@ -6,7 +6,7 @@ export const generateQueryKey = {
     return ["series", seriesUuid];
   },
   bout(boutUuid?: string) {
-    return ["bouts", boutUuid];
+    return ["bouts", boutUuid].filter((val) => val !== undefined);
   },
   jam(boutUuid: string, periodNum: number, jamNum: number) {
     return ["jams", boutUuid, periodNum, jamNum];
