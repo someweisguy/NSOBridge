@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 export const useGetAllBouts = (options?: AppQueryOptions<Bout[]>) =>
   useQuery<Bout[]>(
     {
-      queryKey: generateQueryKey.bout("ALL"),
+      queryKey: generateQueryKey.bout(),
       queryFn: () =>
         localAPI.get<Bout[]>("bout/allBouts").then((bouts) => {
           for (const bout of bouts) {
