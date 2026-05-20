@@ -12,10 +12,10 @@ import { useSuspenseQuery } from "@tanstack/react-query";
  *
  * @returns a Tanstack useSuspenseQuery object containing an array of all Bouts.
  */
-export const useSuspenseGetAllBouts = (
-  options?: AppSuspenseQueryOptions<Bout[]>,
+export const useSuspenseGetAllBouts = <T = Bout[]>(
+  options?: AppSuspenseQueryOptions<Bout[], T>,
 ) =>
-  useSuspenseQuery<Bout[]>(
+  useSuspenseQuery<Bout[], Error, T>(
     {
       queryKey: generateQueryKey.bout("ALL"),
       queryFn: () =>
