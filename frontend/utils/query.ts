@@ -5,7 +5,7 @@ export const generateQueryKey = {
   series(seriesUuid: string) {
     return ["series", seriesUuid];
   },
-  bout(boutUuid: string) {
+  bout(boutUuid?: string) {
     return ["bouts", boutUuid];
   },
   jam(boutUuid: string, periodNum: number, jamNum: number) {
