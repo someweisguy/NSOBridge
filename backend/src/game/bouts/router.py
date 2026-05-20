@@ -75,7 +75,7 @@ async def create_bout(
     except AssertionError as e:
         # SQLAlchemy raises AssertionError on invalid polymorphic identity
         raise ValueError(
-            f'Cannot create bout with unknonwn ruleset: {ruleset_name}'
+            f'Cannot create bout with unknown ruleset: {ruleset_name}'
         ) from e
     bout.init()
 
