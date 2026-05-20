@@ -79,9 +79,6 @@ async def create_bout(
         ) from e
     bout.init()
 
-    # Allow the new Bout to be immediately queried
-    await session.commit()
-
     return APIResponse(bout.uuid, cache=await bout.get_updates())
 
 
