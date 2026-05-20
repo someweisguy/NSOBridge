@@ -226,7 +226,10 @@ export default function Operator() {
         <Modal title="Create New Bout" {...modalStack.register("create-bout")}>
           <BoutCreator
             rulesetNames={rulesetNames}
-            onSuccess={(boutUuid) => setBoutUri({ boutUuid })}
+            onSuccess={(boutUuid) => {
+              setBoutUri({ boutUuid });
+              modalStack.closeAll();
+            }}
           />
         </Modal>
       </Modal.Stack>
