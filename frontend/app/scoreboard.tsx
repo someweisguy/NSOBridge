@@ -1,4 +1,4 @@
-import BoutClock from "@/features/bouts/components/game-clock";
+import GameClock from "@/features/bouts/components/game-clock";
 import TimeoutsLeft from "@/components/timeouts-left";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
@@ -99,7 +99,7 @@ export function Scoreboard() {
         </SimpleGrid>
 
         {/* Bout State View */}
-        <BoutClock
+        <GameClock
           activePeriodNum={activeJam.period}
           activeJamNum={activeJam.num}
           isOvertime={bout.jamCounts[2] > 0}

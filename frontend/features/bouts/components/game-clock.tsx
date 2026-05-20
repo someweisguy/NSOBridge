@@ -30,7 +30,7 @@ interface BoutClockProps {
   jamDuration: number;
 }
 
-export default function BoutClock({
+export default function GameClock({
   clock,
   state,
   isOvertime,

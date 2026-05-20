@@ -1,9 +1,9 @@
-import BoutClock from "@/features/bouts/components/game-clock";
+import GameClock from "@/features/bouts/components/game-clock";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta: Meta = {
-  component: BoutClock,
-  title: "Bout Clock",
+  component: GameClock,
+  title: "Game Clock",
   parameters: {
     deepControls: { enabled: true },
   },

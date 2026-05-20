@@ -1,6 +1,6 @@
 import PageShell from "@/components/page-shell";
 import TeamCard from "@/components/team-card";
-import BoutClock from "@/features/bouts/components/game-clock";
+import GameClock from "@/features/bouts/components/game-clock";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
@@ -199,7 +199,7 @@ export default function Operator() {
           ))}
         </Group>
 
-        <BoutClock
+        <GameClock
           activePeriodNum={activeJam.period}
           activeJamNum={activeJam.num}
           isOvertime={bout.jamCounts[2] > 0}
