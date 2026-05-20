@@ -4,12 +4,17 @@ import { useState } from "react";
 
 interface BoutCreatorProps {
   rulesetNames: string[];
+  onSuccess?: (newBoutUuid: string) => void;
 }
 
-export default function BoutCreator({ rulesetNames }: BoutCreatorProps) {
+export default function BoutCreator({
+  rulesetNames,
+  onSuccess,
+}: BoutCreatorProps) {
   const [rulesetName, setRulesetName] = useState<string>(rulesetNames[0] ?? "");
   const createBout = useCreateBout({
     rulesetName,
+    onSuccess,
   });
 
   return (
