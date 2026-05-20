@@ -21,7 +21,7 @@ export default function BoutClockEditor({ boutUuid }: BoutClockEditorProps) {
 
   return (
     <Stack>
-      <TextInput ref={ref} placeholder="hh:mm"></TextInput>;
+      <TextInput ref={ref} placeholder="hh:mm"></TextInput>
       <Group justify="flex-end">
         <Button onClick={() => setBoutClock.mutate(0)}>Apply</Button>
       </Group>
