@@ -17,7 +17,7 @@ export const useSuspenseGetAllBouts = <T = Bout[]>(
 ) =>
   useSuspenseQuery<Bout[], Error, T>(
     {
-      queryKey: generateQueryKey.bout("ALL"),
+      queryKey: generateQueryKey.bout(),
       queryFn: () =>
         localAPI.get<Bout[]>("bout/allBouts").then((bouts: Bout[]) => {
           for (const bout of bouts) {
