@@ -30,6 +30,9 @@ export const PostJam: Story = {
         http.get("/api/bout/ruleset", () => {
           return HttpResponse.json(mockApiResponse(rulesetData));
         }),
+        http.get("/api/bout/allRulesetNames", () => {
+          return HttpResponse.json(mockApiResponse(["WFTDA 2025"]));
+        }),
         http.get("/api/bout/allBouts", () => {
           return HttpResponse.json(
             mockApiResponse<Bout[]>([
