@@ -94,49 +94,52 @@ export default function Operator() {
 
   return (
     <PageShell
-      navButtons={[
-        <NavLink
-          disabled
-          key={0}
-          label="Ruleset"
-          leftSection={<IconCheckupList size={16} />}
-          onClick={() => modalStack.open("ruleset")}
-        />,
-        <NavLink
-          defaultOpened
-          key={1}
-          label="Teams & Rosters"
-          leftSection={<IconUsers size={16} />}
-        >
-          {bout.teams.map((team: Team) => (
-            <NavLink
-              key={team.num}
-              label={team.name}
-              onClick={() => modalStack.open("team-" + team.num)}
-            />
-          ))}
-        </NavLink>,
-        <NavLink
-          key={2}
-          label="Bout Clock"
-          leftSection={<IconStopwatch size={16} />}
-          onClick={() => modalStack.open("bout-clock")}
-        />,
-        <NavLink
-          key={4}
-          disabled
-          label="Jams"
-          leftSection={<IconRollerSkating size={16} />}
-          onClick={() => modalStack.open("edit-jams")}
-        />,
-        <NavLink
-          disabled
-          key={5}
-          label="Timeouts"
-          leftSection={<IconTrafficLights size={16} />}
-          onClick={() => modalStack.open("edit-timeouts")}
-        />,
-      ]}
+      navButtons={
+        <>
+          <NavLink
+            disabled
+            key={0}
+            label="Ruleset"
+            leftSection={<IconCheckupList size={16} />}
+            onClick={() => modalStack.open("ruleset")}
+          />
+          <NavLink
+            defaultOpened
+            key={1}
+            label="Teams & Rosters"
+            leftSection={<IconUsers size={16} />}
+          >
+            {bout.teams.map((team: Team) => (
+              <NavLink
+                key={team.num}
+                label={team.name}
+                onClick={() => modalStack.open("team-" + team.num)}
+              />
+            ))}
+          </NavLink>
+          ,
+          <NavLink
+            key={2}
+            label="Bout Clock"
+            leftSection={<IconStopwatch size={16} />}
+            onClick={() => modalStack.open("bout-clock")}
+          />
+          <NavLink
+            key={4}
+            disabled
+            label="Jams"
+            leftSection={<IconRollerSkating size={16} />}
+            onClick={() => modalStack.open("edit-jams")}
+          />
+          <NavLink
+            disabled
+            key={5}
+            label="Timeouts"
+            leftSection={<IconTrafficLights size={16} />}
+            onClick={() => modalStack.open("edit-timeouts")}
+          />
+        </>
+      }
     >
       <Modal.Stack>
         {bout.teams.map((team: Team) => (

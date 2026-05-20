@@ -14,7 +14,7 @@ import { PropsWithChildren, ReactNode, Suspense, useEffect } from "react";
 
 interface PageShellProps
   extends Pick<AppShellProps, "disabled">, PropsWithChildren {
-  navButtons?: ReactNode[];
+  navButtons?: ReactNode;
 }
 
 /**
