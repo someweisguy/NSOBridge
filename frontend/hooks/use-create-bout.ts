@@ -17,7 +17,7 @@ export const useCreateBout = ({
   rulesetName,
   teamNames = [],
   ...options
-}: UseCreateBoutOptions & AppMutationOptions<void>) => {
+}: UseCreateBoutOptions & AppMutationOptions<string>) => {
   const query = new URLSearchParams({ rulesetName });
   for (const teamName of teamNames) {
     query.append("teamName", teamName);
@@ -25,7 +25,7 @@ export const useCreateBout = ({
 
   return useMutation(
     {
-      mutationFn: () => localAPI.put<void>("bout/createBout", { query }),
+      mutationFn: () => localAPI.put<string>("bout/createBout", { query }),
       ...options,
     },
     queryClient,

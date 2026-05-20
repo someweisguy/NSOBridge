@@ -79,7 +79,7 @@ async def create_bout(
         ) from e
     bout.init()
 
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(bout.uuid, cache=await bout.get_updates())
 
 
 @router.post('/beginPeriod')
