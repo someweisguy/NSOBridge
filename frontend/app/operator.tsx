@@ -166,7 +166,7 @@ export default function Operator() {
           <AppShell.Section p="sm">
             <Stack gap="sm" align="stretch">
               <Select
-                label="Current Bout"
+                label="Select a Bout"
                 data={allBoutsSelectData}
                 value={boutUri.boutUuid}
                 allowDeselect={false}
