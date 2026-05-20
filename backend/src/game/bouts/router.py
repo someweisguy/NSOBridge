@@ -180,14 +180,17 @@ async def set_star_pass(
 __all__ = ('router',)
 
 
-@router.post(path='/setClockElapsed')
-async def set_clock_elapsed(
-    bout: GetBout, elapsed: Annotated[int, Body(alias='elapsed')]
+@router.post(path='/setClockRemaining')
+async def set_clock_remaining(
+    bout: GetBout, remaining: Annotated[int, Body(alias='remaining')]
 ) -> APIResponse:
-    """Set the amount of time that has elapsed on the Bout clock."""
+    """Set the amount of time that is remaining on the Bout clock."""
     if bout.clock.is_running():
         bout.clock.start_timestamp = datetime.now()
-    bout.clock.elapsed = timedelta(milliseconds=elapsed)
+    remaining_timedelta = timedelta(milliseconds=remaining)
+    if bout.clock.alarm is not None:
+        remaining_timedelta = bout.clock.alarm - remaining_timedelta
+    bout.clock.elapsed = remaining_timedelta
     flag_dirty(bout)  # Clock has no association with Bout
     return APIResponse(None, cache=await bout.get_updates())
 

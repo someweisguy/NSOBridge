@@ -7,15 +7,15 @@ import { useMutation } from "@tanstack/react-query";
  *
  * @returns A Tanstack Mutation object which can fire the setBoutClockElapsed mutator.
  */
-export const useSetBoutClockElapsed = ({
+export const useSetBoutClockRemaining = ({
   boutUuid,
   ...options
 }: BoutUri & AppMutationOptions<void, unknown, number>) =>
   useMutation({
-    mutationFn: (elapsed: number) =>
-      localAPI.post<void>("bout/setClockElapsed", {
+    mutationFn: (remaining: number) =>
+      localAPI.post<void>("bout/setClockRemaining", {
         query: { boutUuid },
-        body: elapsed,
+        body: remaining,
       }),
     ...options,
   });
