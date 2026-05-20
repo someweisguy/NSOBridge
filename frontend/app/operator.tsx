@@ -18,12 +18,7 @@ import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import { Group, Modal, NavLink, Stack, useModalsStack } from "@mantine/core";
 import "@mantine/core/styles.css";
-import {
-  IconPlusMinus,
-  IconStopwatch,
-  IconTrafficLights,
-  IconUsers,
-} from "@tabler/icons-react";
+import { IconListNumbers, IconStopwatch, IconUsers } from "@tabler/icons-react";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
@@ -69,6 +64,7 @@ export default function Operator() {
     "bout-clock",
     "timeouts",
     "score-offset",
+    ...bout.teams.map((team: Team) => team.name),
   ]);
 
   // Get the time since the last Jam or Timeout or null if neither have occurred
@@ -93,31 +89,42 @@ export default function Operator() {
       navButtons={[
         <NavLink
           key={0}
-          label="Teams & Rosters"
-          leftSection={<IconUsers size={16} />}
-          onClick={() => modalStack.open("teams-rosters")}
+          label="Ruleset"
+          leftSection={<IconListNumbers size={16} />}
+          onClick={() => modalStack.open("ruleset")}
         />,
         <NavLink
+          defaultOpened
           key={1}
+          label="Teams & Rosters"
+          leftSection={<IconUsers size={16} />}
+        >
+          {bout.teams.map((team: Team) => (
+            <NavLink
+              key={team.num}
+              label={team.name}
+              onClick={() => modalStack.open(team.name)}
+            />
+          ))}
+        </NavLink>,
+        <NavLink
+          key={2}
           label="Bout Clock"
           leftSection={<IconStopwatch size={16} />}
           onClick={() => modalStack.open("bout-clock")}
         />,
-        <NavLink
-          key={2}
-          label="Timeouts"
-          leftSection={<IconTrafficLights size={16} />}
-          onClick={() => modalStack.open("timeouts")}
-        />,
-        <NavLink
-          key={3}
-          label="Score Offsets" // TODO: implement score offset modal
-          leftSection={<IconPlusMinus size={16} />}
-          onClick={() => modalStack.open("score-offset")}
-        />,
       ]}
     >
       <Modal.Stack>
+        {bout.teams.map((team: Team) => (
+          <Modal
+            key={team.num}
+            title={"Edit " + team.name}
+            {...modalStack.register(team.name)}
+          >
+            Editing {team.name}
+          </Modal>
+        ))}
         <Modal
           title="Edit Teams & Rosters"
           {...modalStack.register("teams-rosters")}
@@ -127,7 +134,7 @@ export default function Operator() {
         <Modal title="Edit Bout Clock" {...modalStack.register("bout-clock")}>
           Hello world!
         </Modal>
-        <Modal title="Edit Timeouts" {...modalStack.register("timeouts")}>
+        <Modal title="Select Ruleset" {...modalStack.register("ruleset")}>
           Hello world!
         </Modal>
         <Modal
