@@ -18,7 +18,13 @@ import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import { Group, Modal, NavLink, Stack, useModalsStack } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { IconListNumbers, IconStopwatch, IconUsers } from "@tabler/icons-react";
+import {
+  IconListNumbers,
+  IconRollerSkating,
+  IconStopwatch,
+  IconTrafficLights,
+  IconUsers,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
@@ -60,11 +66,11 @@ export default function Operator() {
   });
 
   const modalStack = useModalsStack([
-    "teams-rosters",
-    "bout-clock",
-    "timeouts",
-    "score-offset",
+    "ruleset",
     ...bout.teams.map((team: Team) => team.name),
+    "bout-clock",
+    "edit-jams",
+    "edit-timeouts",
   ]);
 
   // Get the time since the last Jam or Timeout or null if neither have occurred
@@ -88,6 +94,7 @@ export default function Operator() {
     <PageShell
       navButtons={[
         <NavLink
+          disabled
           key={0}
           label="Ruleset"
           leftSection={<IconListNumbers size={16} />}
@@ -112,6 +119,20 @@ export default function Operator() {
           label="Bout Clock"
           leftSection={<IconStopwatch size={16} />}
           onClick={() => modalStack.open("bout-clock")}
+        />,
+        <NavLink
+          key={4}
+          disabled
+          label="Jams"
+          leftSection={<IconRollerSkating size={16} />}
+          onClick={() => modalStack.open("edit-jams")}
+        />,
+        <NavLink
+          disabled
+          key={5}
+          label="Timeouts"
+          leftSection={<IconTrafficLights size={16} />}
+          onClick={() => modalStack.open("edit-timeouts")}
         />,
       ]}
     >
