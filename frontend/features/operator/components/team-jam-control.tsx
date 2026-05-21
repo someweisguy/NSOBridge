@@ -50,6 +50,11 @@ export default function TeamJamControl({
   const lead = events.some((event) => event.lead);
   const lost = events.some((event) => event.lost);
   const starPass = events.some((event) => event.starPass);
+  const numTrips = events.reduce<number>(
+    (numTrips: number, event: TripEvent) =>
+      (numTrips += Number(event.passes != null)),
+    0,
+  );
 
   return (
     <MantineProvider theme={checkBoxTheme}>
@@ -82,6 +87,7 @@ export default function TeamJamControl({
           <TeamJamTripHistory
             numPasses={pointsPerTrip}
             teamJamUri={teamJamUri}
+            showInitial={numTrips == 0}
             events={events}
           />
         </Stack>
