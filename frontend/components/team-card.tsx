@@ -129,7 +129,7 @@ export default function TeamCard({
               </Center>
               <Card withBorder p="xs">
                 <Text ta="center" size="24pt">
-                  {numTrips == 0 ? "-" : jamScore}
+                  {numTrips == 0 ? <>&ndash;</> : jamScore}
                 </Text>
               </Card>
             </Stack>
