@@ -62,6 +62,8 @@ if (root != null) {
  * Display the main scoreboard operator page. This page is used to enter data into the
  * server to run the majority of the game. It serves controls to start and stop the Bout
  * edit the score, call Timeouts, and edit Lineups.
+ *
+ * This page should be designed to fit within a viewport that is 1280px by 585px.
  */
 export default function Operator() {
   const { data: allBouts } = useSuspenseGetAllBouts();
