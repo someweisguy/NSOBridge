@@ -37,7 +37,7 @@ export default function TeamJamTripHistory({
       <Button variant="subtle" onClick={() => addTrip.mutate(0)}>
         No Pass
       </Button>
-      <Button variant="outline" onClick={() => addTrip.mutate(4)}>
+      <Button variant="light" onClick={() => addTrip.mutate(4)}>
         Initial
       </Button>
     </>
@@ -45,7 +45,7 @@ export default function TeamJamTripHistory({
     Array.from({ length: numPasses + 1 }, (_, i) => (
       <Button
         key={i}
-        variant={i < numPasses ? "subtle" : "outline"}
+        variant={i < numPasses ? "subtle" : "light"}
         onClick={() => addTrip.mutate(i)}
       >
         {i}
