@@ -280,6 +280,10 @@ export default function Operator() {
               {...team}
               {...latestTimeout}
               {...ruleset}
+              events={
+                activeJam.teamJams.find((tj: TeamJam) => tj.teamNum == team.num)
+                  ?.events
+              }
             />
           ))}
         </Group>

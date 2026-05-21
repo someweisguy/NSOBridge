@@ -1,4 +1,5 @@
 import TimeoutsLeft from "@/components/timeouts-left";
+import { TripEvent } from "@/types/jam";
 import { Card, Center, Divider, Grid, Stack, Text } from "@mantine/core";
 
 interface TeamCardProps {
@@ -48,6 +49,7 @@ interface TeamCardProps {
    * The Jam score for this team.
    */
   jamScore: number;
+  events?: TripEvent[];
 }
 
 /**
@@ -69,7 +71,18 @@ export default function TeamCard({
   boutScore,
   scoreOffset,
   jamScore,
+  events,
 }: TeamCardProps) {
+  // const lead = events?.some((event) => event.lead) ?? false;
+  // const lost = events?.some((event) => event.lost) ?? false;
+  // const starPass = events?.some((event) => event.starPass) ?? false;
+  const numTrips =
+    events?.reduce<number>(
+      (numTrips: number, event: TripEvent) =>
+        (numTrips += Number(event.passes != null)),
+      0,
+    ) ?? 0;
+
   return (
     <Card withBorder bg="gray.0">
       <Stack>
@@ -106,7 +119,7 @@ export default function TeamCard({
               </Text>
               <Card withBorder p="xs">
                 <Text ta="center" size="24pt">
-                  {jamScore}
+                  {numTrips == 0 ? "-" : jamScore}
                 </Text>
               </Card>
             </Stack>
