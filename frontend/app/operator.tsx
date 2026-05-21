@@ -305,7 +305,9 @@ export default function Operator() {
               boutUuid={activeJam.boutUuid}
               periodNum={activeJam.period}
               jamNum={activeJam.num}
-              isLeadEligible={true} // TODO: Compute lead eligibility
+              leadIsDeclared={activeJam.teamJams.some((tj) =>
+                tj.events.some((event) => event.lead),
+              )}
               {...teamJam}
               {...ruleset}
             />

@@ -26,7 +26,7 @@ interface TeamJamControlProps {
   jamNum: number;
   teamNum: number;
 
-  isLeadEligible: boolean;
+  leadIsDeclared: boolean;
 
   pointsPerTrip: number;
   events: TripEvent[];
@@ -37,7 +37,7 @@ export default function TeamJamControl({
   periodNum,
   jamNum,
   teamNum,
-  isLeadEligible,
+  leadIsDeclared,
   pointsPerTrip,
   events,
 }: TeamJamControlProps) {
@@ -64,7 +64,7 @@ export default function TeamJamControl({
             <Checkbox
               label="Lead"
               checked={lead}
-              disabled={!isLeadEligible}
+              disabled={leadIsDeclared && !lead}
               onClick={() => setLead.mutate(!lead)}
               variant="outline"
               icon={({ ...others }) => <IconStarFilled {...others} />}
