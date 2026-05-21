@@ -40,6 +40,7 @@ import {
   IconRollerSkating,
   IconStopwatch,
   IconTrafficLights,
+  IconUserExclamation,
   IconUsers,
 } from "@tabler/icons-react";
 import { useState } from "react";
@@ -139,6 +140,11 @@ export default function Operator() {
               label="Teams & Rosters"
               leftSection={<IconUsers size={16} />}
             >
+              <NavLink
+                disabled
+                label="Officials"
+                onClick={() => modalStack.open("officials")}
+              />
               {bout.teams.map((team: Team) => (
                 <NavLink
                   key={team.num}
@@ -164,11 +170,18 @@ export default function Operator() {
               leftSection={<IconTrafficLights size={16} />}
               onClick={() => modalStack.open("edit-timeouts")}
             />
+            <NavLink
+              disabled
+              label="Penalties"
+              leftSection={<IconUserExclamation size={16} />}
+              onClick={() => modalStack.open("edit-penalties")}
+            />
           </AppShell.Section>
           <AppShell.Section p="sm">
             <Stack gap="sm" align="stretch">
               <Divider />
               <Select
+                withAlignedLabels
                 label="Select a Bout"
                 data={allBoutsSelectData}
                 value={boutUri.boutUuid}
@@ -177,6 +190,11 @@ export default function Operator() {
                   if (boutUuid != null) {
                     setBoutUri({ boutUuid });
                   }
+                }}
+                comboboxProps={{
+                  position: "top",
+                  middlewares: { flip: false, shift: false },
+                  offset: 0,
                 }}
               />
               <Button
