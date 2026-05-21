@@ -1,6 +1,7 @@
 import TimeoutsLeft from "@/components/timeouts-left";
 import { TripEvent } from "@/types/jam";
 import { Card, Center, Divider, Grid, Stack, Text } from "@mantine/core";
+import { IconStarFilled, IconStarOff } from "@tabler/icons-react";
 
 interface TeamCardProps {
   uuid: string;
@@ -73,9 +74,9 @@ export default function TeamCard({
   jamScore,
   events,
 }: TeamCardProps) {
-  // const lead = events?.some((event) => event.lead) ?? false;
-  // const lost = events?.some((event) => event.lost) ?? false;
-  // const starPass = events?.some((event) => event.starPass) ?? false;
+  const lead = events?.some((event) => event.lead) ?? false;
+  const lost = events?.some((event) => event.lost) ?? false;
+  const starPass = events?.some((event) => event.starPass) ?? false;
   const numTrips =
     events?.reduce<number>(
       (numTrips: number, event: TripEvent) =>
@@ -113,10 +114,19 @@ export default function TeamCard({
           </Grid.Col>
           <Grid.Col span="auto" order={reverse ? 1 : 3}>
             <Stack gap="md" justify="space-between">
-              <Text ta="center" size="24pt">
-                {/* TODO: Add Jammer state icon */}
-                &nbsp;
-              </Text>
+              <Center>
+                {starPass ? (
+                  <Text fw="500" size="22pt">
+                    SP
+                  </Text>
+                ) : lost ? (
+                  <IconStarOff size={32} />
+                ) : lead ? (
+                  <IconStarFilled size={32} />
+                ) : (
+                  <>&nbsp;</>
+                )}
+              </Center>
               <Card withBorder p="xs">
                 <Text ta="center" size="24pt">
                   {numTrips == 0 ? "-" : jamScore}
