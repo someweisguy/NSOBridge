@@ -84,7 +84,11 @@ export default function TimeoutEditor({
             error={officialReviewError}
           />
           <Collapse expanded={isReview} orientation="horizontal">
-            <Button size="xs" variant="default">
+            <Button
+              size="xs"
+              variant="default"
+              onClick={() => setIsRetained.mutate(!isRetained)}
+            >
               <Checkbox
                 size="xs"
                 label="Review is retained?"
@@ -94,9 +98,6 @@ export default function TimeoutEditor({
                   input: { cursor: "pointer" },
                   label: { cursor: "pointer" },
                 }}
-                onChange={(event) =>
-                  setIsRetained.mutate(event.currentTarget.checked)
-                }
               ></Checkbox>
             </Button>
           </Collapse>
