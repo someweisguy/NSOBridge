@@ -8,7 +8,7 @@ import { useStopTimeout } from "@/features/operator/hooks/use-stop-timeout";
 import { BoutStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
 import { BoutUri, JamUri, TimeoutUri } from "@/types/query";
-import { Button, Card, Collapse, Group } from "@mantine/core";
+import { Button, Card, Collapse, Grid, Group } from "@mantine/core";
 import { useCallback } from "react";
 import TimeoutEditor from "./timeout-editor";
 
@@ -110,7 +110,7 @@ export default function BoutControl({
 
   return (
     <Card withBorder orientation="horizontal">
-      <Card.Section withBorder p="md">
+      <Card.Section withBorder p="md" mr="md">
         <Group h="80" align="center" justify="center" wrap="nowrap">
           <Button onClick={jamControlOnClick}>
             {state == "jam" ? "Stop Jam" : "Start Jam"}
@@ -129,25 +129,38 @@ export default function BoutControl({
           </Button>
         </Group>
       </Card.Section>
-      <Group w="100%" align="center" justify="space-between" wrap="nowrap">
-        <Collapse expanded={state == "timeout"}>
-          <TimeoutEditor
-            timeoutUri={latestTimeoutUri}
-            teamNum={teamNum!}
-            teamIsOfficials={teamIsOfficials!}
-            isReview={isReview!}
-            isRetained={retained!}
-            teamData={teamData}
-          />
-        </Collapse>
-        <Collapse
-          expanded={
-            (state == "lineup" || state == "timeout") && latestJamUri.jamNum > 0
-          }
-        >
-          <JamStopReasonEditor stopReason={stopReason} />
-        </Collapse>
-      </Group>
+      <Grid grow w="100%" columns={2}>
+        <Grid.Col span={1}>
+          <Collapse
+            orientation="horizontal"
+            expanded={state == "timeout"}
+            w="fit-content"
+          >
+            <TimeoutEditor
+              timeoutUri={latestTimeoutUri}
+              teamNum={teamNum!}
+              teamIsOfficials={teamIsOfficials!}
+              isReview={isReview!}
+              isRetained={retained!}
+              teamData={teamData}
+            />
+          </Collapse>
+        </Grid.Col>
+        <Grid.Col span={1}>
+          <Group justify="flex-end">
+            <Collapse
+              orientation="horizontal"
+              w="fit-content"
+              expanded={
+                (state == "lineup" || state == "timeout") &&
+                latestJamUri.jamNum > 0
+              }
+            >
+              <JamStopReasonEditor stopReason={stopReason} />
+            </Collapse>
+          </Group>
+        </Grid.Col>
+      </Grid>
     </Card>
   );
 }
