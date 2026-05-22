@@ -77,7 +77,7 @@ export default function BoutControl({
           onClick={periodControlOnClick}
           rightSection={<IconPlayerStop size={16} />}
         >
-          {state == "stopped" ? "Start Period" : "Stop Period"}
+          {state == "stopped" ? "Begin Period" : "End Period"}
         </Button>
       </Group>
     </Fieldset>
