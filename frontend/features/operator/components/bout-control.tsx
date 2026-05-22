@@ -7,6 +7,12 @@ import { useStopTimeout } from "@/features/operator/hooks/use-stop-timeout";
 import { BoutStateString } from "@/types/bout";
 import { BoutUri } from "@/types/query";
 import { Button, Fieldset, Group } from "@mantine/core";
+import {
+  IconAlarm,
+  IconPlayerPause,
+  IconPlayerPlay,
+  IconPlayerStop,
+} from "@tabler/icons-react";
 import { useCallback } from "react";
 
 export default function BoutControl({
@@ -40,20 +46,36 @@ export default function BoutControl({
   return (
     <Fieldset legend="Bout Controls" w="fit-content">
       <Group wrap="nowrap">
-        <Button size="xs" onClick={jamControlOnClick}>
+        <Button
+          size="xs"
+          variant="default"
+          onClick={jamControlOnClick}
+          rightSection={
+            state == "jam" ? (
+              <IconPlayerPause size={16} />
+            ) : (
+              <IconPlayerPlay size={16} />
+            )
+          }
+        >
           {state == "jam" ? "Stop Jam" : "Start Jam"}
         </Button>
         <Button
           size="xs"
+          variant="default"
           disabled={state != "lineup" && state != "timeout"}
           onClick={timeoutControlOnClick}
+          rightSection={<IconAlarm size={16} />}
         >
           {state == "timeout" ? "End Timeout" : "Call Timeout"}
         </Button>
         <Button
           size="xs"
+          color="red"
+          variant="outline"
           disabled={state == "jam" || state == "timeout"}
           onClick={periodControlOnClick}
+          rightSection={<IconPlayerStop size={16} />}
         >
           {state == "stopped" ? "Start Period" : "Stop Period"}
         </Button>
