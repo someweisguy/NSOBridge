@@ -24,6 +24,7 @@ import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import {
   AppShell,
+  Box,
   Button,
   Collapse,
   Divider,
@@ -261,22 +262,24 @@ export default function Operator() {
         <Group justify="space-between" wrap="nowrap">
           <BoutControl boutUuid={bout.uuid} state={bout.state} />
           <Group w="100%" justify="space-between">
-            <Collapse
-              orientation="horizontal"
-              expanded={bout.state == "timeout" && timeoutIsFetched}
-              w="fit-content"
-            >
-              <TimeoutEditor
-                timeoutUri={latestTimeoutUri}
-                teamNum={latestTimeout?.teamNum ?? null}
-                teamIsOfficials={latestTimeout?.teamIsOfficials ?? false}
-                isReview={latestTimeout?.isReview ?? false}
-                isRetained={latestTimeout?.retained ?? false}
-                teamData={bout.teams.map((team: Team) => {
-                  return { label: team.name, value: String(team.num) };
-                })}
-              />
-            </Collapse>
+            <Box>
+              <Collapse
+                orientation="horizontal"
+                expanded={bout.state == "timeout" && timeoutIsFetched}
+                w="fit-content"
+              >
+                <TimeoutEditor
+                  timeoutUri={latestTimeoutUri}
+                  teamNum={latestTimeout?.teamNum ?? null}
+                  teamIsOfficials={latestTimeout?.teamIsOfficials ?? false}
+                  isReview={latestTimeout?.isReview ?? false}
+                  isRetained={latestTimeout?.retained ?? false}
+                  teamData={bout.teams.map((team: Team) => {
+                    return { label: team.name, value: String(team.num) };
+                  })}
+                />
+              </Collapse>
+            </Box>
             <Collapse
               orientation="horizontal"
               w="fit-content"
