@@ -66,7 +66,7 @@ export default function TimeoutEditor({
           />
           <Select
             size="xs"
-            placeholder="Select a team..."
+            placeholder="Select a calling team..."
             data={[
               {
                 value: officialDataValue,
