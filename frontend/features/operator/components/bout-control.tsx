@@ -39,17 +39,19 @@ export default function BoutControl({
 
   return (
     <Fieldset legend="Bout Controls" w="fit-content">
-      <Group>
-        <Button onClick={jamControlOnClick}>
+      <Group wrap="nowrap">
+        <Button size="xs" onClick={jamControlOnClick}>
           {state == "jam" ? "Stop Jam" : "Start Jam"}
         </Button>
         <Button
+          size="xs"
           disabled={state != "lineup" && state != "timeout"}
           onClick={timeoutControlOnClick}
         >
           {state == "timeout" ? "End Timeout" : "Call Timeout"}
         </Button>
         <Button
+          size="xs"
           disabled={state == "jam" || state == "timeout"}
           onClick={periodControlOnClick}
         >
