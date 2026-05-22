@@ -43,6 +43,18 @@ export default function TimeoutEditor({
     setOfficialReviewError(teamIsOfficials && isReview);
   }, [teamIsOfficials, isReview]);
 
+  // Reset the select value whenever rendering this component for a new Timeout
+  const [selectValue, setSelectValue] = useState<string | null>(null);
+  useEffect(() => {
+    setSelectValue(
+      teamIsOfficials
+        ? officialDataValue
+        : teamNum != null
+          ? String(teamNum)
+          : null,
+    );
+  }, [teamIsOfficials, teamNum, timeoutUri]);
+
   const setType = useSetTimeoutType(timeoutUri);
   const setTeam = useSetTimeoutTeam(timeoutUri);
   const setIsRetained = useSetTimeoutRetained(timeoutUri);
@@ -75,13 +87,14 @@ export default function TimeoutEditor({
               },
               ...teamData,
             ]}
-            value={teamIsOfficials ? officialDataValue : String(teamNum)}
+            value={selectValue}
             onChange={(value: string | number | null) => {
               const valueIsOfficials = value == officialDataValue;
               setOfficialReviewError(valueIsOfficials && isReview);
               setTeam.mutate(valueIsOfficials ? null : Number(value));
             }}
             error={officialReviewError}
+            allowDeselect={false}
           />
           <Collapse expanded={isReview} orientation="horizontal">
             <Button
