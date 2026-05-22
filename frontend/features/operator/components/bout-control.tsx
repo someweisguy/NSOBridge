@@ -156,7 +156,11 @@ export default function BoutControl({
                 latestJamUri.jamNum > 0
               }
             >
-              <JamStopReasonEditor size="xs" stopReason={stopReason} />
+              <JamStopReasonEditor
+                size="xs"
+                stopReason={stopReason}
+                jamUri={latestJamUri} // FIXME: use ActiveJamURI
+              />
             </Collapse>
           </Group>
         </Grid.Col>
