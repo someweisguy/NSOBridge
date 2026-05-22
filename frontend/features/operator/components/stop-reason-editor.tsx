@@ -1,5 +1,9 @@
-import TitledSegmentedControl from "@/components/titled-segmented-control";
 import { StopReasonString } from "@/types/jam";
+import {
+  Fieldset,
+  SegmentedControl,
+  SegmentedControlProps,
+} from "@mantine/core";
 
 interface JamStopReasonEditorProps {
   stopReason: StopReasonString | null;
@@ -11,32 +15,33 @@ interface JamStopReasonEditorProps {
 export default function JamStopReasonEditor({
   stopReason,
   ...props
-}: JamStopReasonEditorProps) {
+}: JamStopReasonEditorProps &
+  Omit<SegmentedControlProps, "data" | "value" | "onChange">) {
   return (
-    <TitledSegmentedControl
-      label="Jam Stop Reason"
-      data={[
-        {
-          value: "called",
-          label: "Called",
-        },
-        {
-          value: "elapsed",
-          label: "Time",
-        },
-        {
-          value: "injury",
-          label: "Injury",
-        },
-        {
-          value: "other",
-          label: "Other",
-        },
-      ]}
-      value={stopReason ?? "other"}
-      disabled={true} // TODO: remove when mutator is added
-      onChange={() => null} // TODO: add mutator
-      {...props}
-    />
+    <Fieldset legend="Why did the jam end?" w="fit-content">
+      <SegmentedControl
+        data={[
+          {
+            value: "called",
+            label: "Called",
+          },
+          {
+            value: "elapsed",
+            label: "Time",
+          },
+          {
+            value: "injury",
+            label: "Injury",
+          },
+          {
+            value: "other",
+            label: "Other",
+          },
+        ]}
+        value={stopReason ?? "other"}
+        onChange={() => null} // TODO: add mutator
+        {...props}
+      />
+    </Fieldset>
   );
 }

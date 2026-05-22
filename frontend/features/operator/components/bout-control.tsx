@@ -156,7 +156,7 @@ export default function BoutControl({
                 latestJamUri.jamNum > 0
               }
             >
-              <JamStopReasonEditor stopReason={stopReason} />
+              <JamStopReasonEditor size="xs" stopReason={stopReason} />
             </Collapse>
           </Group>
         </Grid.Col>
