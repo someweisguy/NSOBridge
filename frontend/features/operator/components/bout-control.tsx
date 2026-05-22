@@ -12,6 +12,7 @@ import {
   IconPlayerPause,
   IconPlayerPlay,
   IconPlayerStop,
+  IconRollerSkating,
 } from "@tabler/icons-react";
 import { useCallback } from "react";
 
@@ -71,11 +72,17 @@ export default function BoutControl({
         </Button>
         <Button
           size="xs"
-          color="red"
+          color={state == "stopped" ? "green.8" : "red"}
           variant="outline"
           disabled={state == "jam" || state == "timeout"}
           onClick={periodControlOnClick}
-          rightSection={<IconPlayerStop size={16} />}
+          rightSection={
+            state == "stopped" ? (
+              <IconRollerSkating size={16} />
+            ) : (
+              <IconPlayerStop size={16} />
+            )
+          }
         >
           {state == "stopped" ? "Begin Period" : "End Period"}
         </Button>
