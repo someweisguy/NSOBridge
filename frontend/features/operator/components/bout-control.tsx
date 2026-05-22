@@ -5,20 +5,12 @@ import { useStartJam } from "@/features/operator/hooks/use-start-jam";
 import { useStartTimeout } from "@/features/operator/hooks/use-start-timeout";
 import { useStopJam } from "@/features/operator/hooks/use-stop-jam";
 import { useStopTimeout } from "@/features/operator/hooks/use-stop-timeout";
-import TimeoutCallerEditor from "@/features/operator/components/timeout-caller-editor";
-import TimeoutRetainedEditor from "@/features/operator/components/timeout-retained-editor";
-import TimeoutTypeEditor from "@/features/operator/components/timeout-type-editor";
 import { BoutStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
 import { BoutUri, JamUri, TimeoutUri } from "@/types/query";
-import {
-  Button,
-  Card,
-  Collapse,
-  Group,
-  SegmentedControlItem,
-} from "@mantine/core";
+import { Button, Card, Collapse, Group } from "@mantine/core";
 import { useCallback } from "react";
+import TimeoutEditor from "./timeout-editor";
 
 interface BoutControlProps {
   /**
@@ -29,7 +21,7 @@ interface BoutControlProps {
    * The Teams competing in the Bout formatted as a value/label pair where value is team
    * number and label is the team name to display.
    */
-  teamData: SegmentedControlItem<string>[];
+  teamData: { value: string; label: string }[];
   /**
    * The state of the Bout.
    */
@@ -137,28 +129,15 @@ export default function BoutControl({
           </Button>
         </Group>
       </Card.Section>
-      <Group w="100%" align="center" justify="flex-end" wrap="nowrap">
+      <Group w="100%" align="center" justify="space-between" wrap="nowrap">
         <Collapse expanded={state == "timeout"}>
-          <TimeoutTypeEditor
+          <TimeoutEditor
             timeoutUri={latestTimeoutUri}
-            isReview={isReview!}
-          />
-        </Collapse>
-        <Collapse expanded={state == "timeout"}>
-          <TimeoutCallerEditor
-            timeoutUri={latestTimeoutUri}
-            isReview={isReview!}
             teamNum={teamNum!}
             teamIsOfficials={teamIsOfficials!}
-            data={teamData}
-          />
-        </Collapse>
-        <Collapse expanded={state == "timeout"}>
-          <TimeoutRetainedEditor
-            timeoutUri={latestTimeoutUri}
             isReview={isReview!}
-            retained={retained!}
-            variant="outline"
+            isRetained={retained!}
+            teamData={teamData}
           />
         </Collapse>
         <Collapse
