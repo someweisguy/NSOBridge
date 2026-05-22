@@ -63,7 +63,6 @@ export default function TimeoutEditor({
     <Fieldset
       legend={"Edit " + (isReview ? "Official Review" : "Timeout")}
       w="fit-content"
-      h="fit-content"
     >
       <Stack>
         <Group align="center">
