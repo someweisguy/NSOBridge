@@ -9,7 +9,21 @@ const meta: Meta<typeof TeamCard> = {
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    uuid: "",
+    num: 0,
+    teamName: "Home",
+    reverse: false,
+    numTimeouts: 3,
+    numReviews: 1,
+    timeoutsRemaining: 3,
+    reviewsRemaining: 1,
+    timeoutIsActive: false,
+    isReview: false,
+    boutScore: 88,
+    scoreOffset: 0,
+    jamScore: 0,
+  },
 };
 
 export default meta;
