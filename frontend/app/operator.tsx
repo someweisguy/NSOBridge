@@ -98,7 +98,7 @@ export default function Operator() {
   void useJam(latestJamUri); // Used to prevent UI from blinking
 
   const latestTimeoutUri = useLatestTimeoutUri(bout);
-  const { data: latestTimeout } = useTimeout({
+  const { data: latestTimeout, isFetched: timeoutIsFetched } = useTimeout({
     ...latestTimeoutUri,
     enabled: bout.timeoutCount > 0,
     throwOnError: false,
@@ -264,15 +264,15 @@ export default function Operator() {
             <Grid.Col span={1}>
               <Collapse
                 orientation="horizontal"
-                expanded={bout.state == "timeout"}
+                expanded={bout.state == "timeout" && timeoutIsFetched}
                 w="fit-content"
               >
                 <TimeoutEditor
                   timeoutUri={latestTimeoutUri}
-                  teamNum={latestTimeout!.teamNum}
-                  teamIsOfficials={latestTimeout!.teamIsOfficials}
-                  isReview={latestTimeout!.isReview}
-                  isRetained={latestTimeout!.retained}
+                  teamNum={latestTimeout?.teamNum ?? null}
+                  teamIsOfficials={latestTimeout?.teamIsOfficials ?? false}
+                  isReview={latestTimeout?.isReview ?? false}
+                  isRetained={latestTimeout?.retained ?? false}
                   teamData={bout.teams.map((team: Team) => {
                     return { label: team.name, value: String(team.num) };
                   })}
