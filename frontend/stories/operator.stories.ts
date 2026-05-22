@@ -6,9 +6,100 @@ import { mockApiResponse } from "@/utils/mock-api";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { http, HttpResponse } from "msw";
 
+const bout: Bout = {
+  uuid: "060f177d-efba-427f-8220-740440aefa6a",
+  rulesetName: "WFTDA 2025",
+  seriesUuid: "780153bf-dc83-432d-894c-7bc9be1796fb",
+  clock: {
+    startTimestamp: null,
+    elapsed: 1704491,
+    alarm: 1800000,
+  },
+  isRunning: true,
+  startCountdown: null,
+  isFinal: false,
+  state: "timeout",
+  teams: [
+    {
+      name: "Home",
+      league: "",
+      mnemonic: "",
+      num: 0,
+      boutScore: 0,
+      jamScore: 0,
+      timeoutsRemaining: 3,
+      reviewsRemaining: 0,
+      scoreOffset: 0,
+      skaters: [],
+    },
+    {
+      name: "Away",
+      league: "",
+      mnemonic: "",
+      num: 1,
+      boutScore: 0,
+      jamScore: 0,
+      timeoutsRemaining: 3,
+      reviewsRemaining: 1,
+      scoreOffset: 0,
+      skaters: [],
+    },
+  ],
+  jamCounts: [4, 0, 0],
+  timeoutCount: 6,
+};
+const allBouts = [bout];
+
+const jam: Jam = {
+  boutUuid: "060f177d-efba-427f-8220-740440aefa6a",
+  period: 0,
+  num: 2,
+  startTimestamp: "2026-05-21T19:14:01.415035",
+  stopTimestamp: "2026-05-21T19:14:02.756517",
+  stopReason: "elapsed",
+  teamJams: [
+    {
+      teamNum: 0,
+      events: [],
+    },
+    {
+      teamNum: 1,
+      events: [],
+    },
+  ],
+};
+
+const timeout: Timeout = {
+  boutUuid: "060f177d-efba-427f-8220-740440aefa6a",
+  num: 5,
+  startTimestamp: "2026-05-21T19:41:35.419829",
+  stopTimestamp: null,
+  clockElapsed: 1704491,
+  teamIsOfficials: false,
+  isReview: false,
+  details: "",
+  result: "",
+  retained: false,
+  periodNum: 0,
+  jamNum: 2,
+  teamNum: null,
+};
+
 const meta: Meta = {
   component: Operator,
   title: "Pages/Operator",
+  parameters: {
+    msw: {
+      handlers: [
+        http.get("/api/bout/ruleset", () => {
+          return HttpResponse.json(mockApiResponse(rulesetData));
+        }),
+        http.get("/api/bout/allRulesetNames", () => {
+          return HttpResponse.json(mockApiResponse(["WFTDA 2025"]));
+        }),
+      ],
+    },
+  },
 };
 
 type Story = StoryObj<typeof meta>;
@@ -34,127 +125,13 @@ export const PostJam: Story = {
           return HttpResponse.json(mockApiResponse(["WFTDA 2025"]));
         }),
         http.get("/api/bout/allBouts", () => {
-          return HttpResponse.json(
-            mockApiResponse<Bout[]>([
-              {
-                uuid: "defcc687-5fdb-4699-9786-fb649c5488db",
-                rulesetName: "WFTDA 2025",
-                seriesUuid: "cd44455d-6cc0-4ff6-8032-f9c536218f74",
-                clock: {
-                  startTimestamp: new Date(
-                    Date.now() - 90 * 1000,
-                  ).toISOString(),
-                  elapsed: 0,
-                  alarm: 1800000,
-                },
-                isRunning: true,
-                startCountdown: null,
-                isFinal: false,
-                state: "lineup",
-                teams: [
-                  {
-                    name: "Home",
-                    league: "",
-                    mnemonic: "",
-                    num: 0,
-                    boutScore: 8,
-                    jamScore: 8,
-                    timeoutsRemaining: 3,
-                    reviewsRemaining: 1,
-                    scoreOffset: 0,
-                    skaters: [],
-                  },
-                  {
-                    name: "Away",
-                    league: "",
-                    mnemonic: "",
-                    num: 1,
-                    boutScore: 2,
-                    jamScore: 2,
-                    timeoutsRemaining: 3,
-                    reviewsRemaining: 1,
-                    scoreOffset: 0,
-                    skaters: [],
-                  },
-                ],
-                jamCounts: [2, 0, 0],
-                timeoutCount: 0,
-              },
-            ]),
-          );
+          return HttpResponse.json(mockApiResponse<Bout[]>(allBouts));
         }),
         http.get("/api/jam", () => {
-          return HttpResponse.json(
-            mockApiResponse<Jam>({
-              boutUuid: "defcc687-5fdb-4699-9786-fb649c5488db",
-              period: 0,
-              num: 0,
-              startTimestamp: new Date(Date.now() - 90 * 1000).toISOString(),
-              stopTimestamp: new Date().toISOString(),
-              stopReason: null,
-              teamJams: [
-                {
-                  teamNum: 0,
-                  events: [
-                    {
-                      timestamp: "2026-05-04T09:38:44.175021",
-                      lead: true,
-                      lost: false,
-                      passes: null,
-                      starPass: false,
-                    },
-                    {
-                      timestamp: "2026-05-04T09:38:44.175021",
-                      lead: false,
-                      lost: false,
-                      passes: 0,
-                      starPass: false,
-                    },
-                    {
-                      timestamp: "2026-05-04T09:38:44.968050",
-                      lead: false,
-                      lost: false,
-                      passes: 4,
-                      starPass: false,
-                    },
-                    {
-                      timestamp: "2026-05-04T09:38:47.283217",
-                      lead: false,
-                      lost: false,
-                      passes: 4,
-                      starPass: false,
-                    },
-                  ],
-                },
-                {
-                  teamNum: 1,
-                  events: [
-                    {
-                      timestamp: "2026-05-04T09:38:53.210425",
-                      lead: false,
-                      lost: true,
-                      passes: null,
-                      starPass: false,
-                    },
-                    {
-                      timestamp: "2026-05-04T09:38:53.210425",
-                      lead: false,
-                      lost: false,
-                      passes: 0,
-                      starPass: false,
-                    },
-                    {
-                      timestamp: "2026-05-04T09:39:00.116051",
-                      lead: false,
-                      lost: false,
-                      passes: 2,
-                      starPass: false,
-                    },
-                  ],
-                },
-              ],
-            }),
-          );
+          return HttpResponse.json(mockApiResponse<Jam>(jam));
+        }),
+        http.get("/api/timeout", () => {
+          return HttpResponse.json(mockApiResponse<Timeout>(timeout));
         }),
       ],
     },
@@ -170,94 +147,17 @@ export const InTimeout: Story = {
         http.get("/api/bout/ruleset", () => {
           return HttpResponse.json(mockApiResponse(rulesetData));
         }),
+        http.get("/api/bout/allRulesetNames", () => {
+          return HttpResponse.json(mockApiResponse(["WFTDA 2025"]));
+        }),
         http.get("/api/bout/allBouts", () => {
-          return HttpResponse.json(
-            mockApiResponse<Bout[]>([
-              {
-                uuid: "27ced413-0a20-49e2-b570-7fa776f768c0",
-                rulesetName: "WFTDA 2025",
-                seriesUuid: "e9f0a658-7dfc-43c4-8027-7d7d33c79575",
-                clock: {
-                  startTimestamp: null,
-                  elapsed: 14675,
-                  alarm: 1800000,
-                },
-                isRunning: true,
-                startCountdown: null,
-                isFinal: false,
-                state: "timeout",
-                teams: [
-                  {
-                    name: "Home",
-                    league: "",
-                    mnemonic: "",
-                    num: 0,
-                    boutScore: 8,
-                    jamScore: 8,
-                    timeoutsRemaining: 3,
-                    reviewsRemaining: 1,
-                    scoreOffset: 0,
-                    skaters: [],
-                  },
-                  {
-                    name: "Away",
-                    league: "",
-                    mnemonic: "",
-                    num: 1,
-                    boutScore: 2,
-                    jamScore: 2,
-                    timeoutsRemaining: 3,
-                    reviewsRemaining: 1,
-                    scoreOffset: 0,
-                    skaters: [],
-                  },
-                ],
-                jamCounts: [2, 0, 0],
-                timeoutCount: 1,
-              },
-            ]),
-          );
+          return HttpResponse.json(mockApiResponse<Bout[]>(allBouts));
         }),
         http.get("/api/jam", () => {
-          return HttpResponse.json(
-            mockApiResponse<Jam>({
-              boutUuid: "27ced413-0a20-49e2-b570-7fa776f768c0",
-              period: 0,
-              num: 1,
-              startTimestamp: null,
-              stopTimestamp: null,
-              stopReason: null,
-              teamJams: [
-                {
-                  teamNum: 0,
-                  events: [],
-                },
-                {
-                  teamNum: 1,
-                  events: [],
-                },
-              ],
-            }),
-          );
+          return HttpResponse.json(mockApiResponse<Jam>(jam));
         }),
         http.get("/api/timeout", () => {
-          return HttpResponse.json(
-            mockApiResponse<Timeout>({
-              boutUuid: "27ced413-0a20-49e2-b570-7fa776f768c0",
-              num: 0,
-              startTimestamp: "2026-05-04T19:25:55.192421",
-              stopTimestamp: null,
-              clockElapsed: 14675,
-              teamIsOfficials: false,
-              isReview: false,
-              details: "",
-              result: "",
-              retained: false,
-              periodNum: 0,
-              jamNum: 0,
-              teamNum: null,
-            }),
-          );
+          return HttpResponse.json(mockApiResponse<Timeout>(timeout));
         }),
       ],
     },
