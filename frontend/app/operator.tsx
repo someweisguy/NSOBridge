@@ -6,6 +6,7 @@ import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import BoutClockEditor from "@/features/operator/components/bout-clock-editor";
+import BoutControl from "@/features/operator/components/bout-control";
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TeamEditor from "@/features/operator/components/team-editor";
 import TeamJamControl from "@/features/operator/components/team-jam-control";
@@ -24,7 +25,6 @@ import { isRunning } from "@/utils/time";
 import {
   AppShell,
   Button,
-  Card,
   Collapse,
   Divider,
   Grid,
@@ -259,8 +259,9 @@ export default function Operator() {
       </Modal.Stack>
 
       <Stack gap="sm">
-        <Card withBorder orientation="horizontal">
-          <Grid grow w="100%" columns={2}>
+        <Group wrap="nowrap">
+          <BoutControl boutUuid={bout.uuid} state={bout.state} />
+          <Grid w="100%" columns={2}>
             <Grid.Col span={1}>
               <Collapse
                 orientation="horizontal"
@@ -298,7 +299,7 @@ export default function Operator() {
               </Group>
             </Grid.Col>
           </Grid>
-        </Card>
+        </Group>
 
         <Group justify="space-around">
           {bout.teams.map((team: Team, i: number) => (
