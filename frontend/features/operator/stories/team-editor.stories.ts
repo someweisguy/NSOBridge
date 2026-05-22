@@ -3,7 +3,7 @@ import TeamEditor from "../components/team-editor";
 
 const meta: Meta = {
   component: TeamEditor,
-  title: "TeamEditor",
+  title: "Team Editor",
 };
 
 type Story = StoryObj<typeof meta>;
