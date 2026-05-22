@@ -6,9 +6,10 @@ import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import BoutClockEditor from "@/features/operator/components/bout-clock-editor";
-import BoutControl from "@/features/operator/components/bout-control";
+import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TeamEditor from "@/features/operator/components/team-editor";
 import TeamJamControl from "@/features/operator/components/team-jam-control";
+import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
@@ -23,7 +24,10 @@ import { isRunning } from "@/utils/time";
 import {
   AppShell,
   Button,
+  Card,
+  Collapse,
   Divider,
+  Grid,
   Group,
   Modal,
   NavLink,
@@ -255,17 +259,46 @@ export default function Operator() {
       </Modal.Stack>
 
       <Stack gap="sm">
-        <BoutControl
-          latestPeriodNum={latestJamUri.periodNum}
-          latestJamNum={latestJamUri.jamNum}
-          latestTimeoutNum={latestTimeoutUri.timeoutNum}
-          teamData={bout.teams.map((team: Team) => {
-            return { label: team.name, value: String(team.num) };
-          })}
-          {...bout}
-          {...activeJam}
-          {...latestTimeout}
-        />
+        <Card withBorder orientation="horizontal">
+          <Grid grow w="100%" columns={2}>
+            <Grid.Col span={1}>
+              <Collapse
+                orientation="horizontal"
+                expanded={bout.state == "timeout"}
+                w="fit-content"
+              >
+                <TimeoutEditor
+                  timeoutUri={latestTimeoutUri}
+                  teamNum={latestTimeout!.teamNum}
+                  teamIsOfficials={latestTimeout!.teamIsOfficials}
+                  isReview={latestTimeout!.isReview}
+                  isRetained={latestTimeout!.retained}
+                  teamData={bout.teams.map((team: Team) => {
+                    return { label: team.name, value: String(team.num) };
+                  })}
+                />
+              </Collapse>
+            </Grid.Col>
+            <Grid.Col span={1}>
+              <Group justify="flex-end">
+                <Collapse
+                  orientation="horizontal"
+                  w="fit-content"
+                  expanded={
+                    (bout.state == "lineup" || bout.state == "timeout") &&
+                    latestJamUri.jamNum > 0
+                  }
+                >
+                  <JamStopReasonEditor
+                    size="xs"
+                    stopReason={activeJam.stopReason}
+                    jamUri={activeJamUri}
+                  />
+                </Collapse>
+              </Group>
+            </Grid.Col>
+          </Grid>
+        </Card>
 
         <Group justify="space-around">
           {bout.teams.map((team: Team, i: number) => (
