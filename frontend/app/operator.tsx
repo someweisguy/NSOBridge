@@ -27,7 +27,6 @@ import {
   Button,
   Collapse,
   Divider,
-  Grid,
   Group,
   Modal,
   NavLink,
@@ -259,46 +258,40 @@ export default function Operator() {
       </Modal.Stack>
 
       <Stack gap="sm">
-        <Group wrap="nowrap">
+        <Group justify="space-between" wrap="nowrap">
           <BoutControl boutUuid={bout.uuid} state={bout.state} />
-          <Grid w="100%" columns={2}>
-            <Grid.Col span={1}>
-              <Collapse
-                orientation="horizontal"
-                expanded={bout.state == "timeout" && timeoutIsFetched}
-                w="fit-content"
-              >
-                <TimeoutEditor
-                  timeoutUri={latestTimeoutUri}
-                  teamNum={latestTimeout?.teamNum ?? null}
-                  teamIsOfficials={latestTimeout?.teamIsOfficials ?? false}
-                  isReview={latestTimeout?.isReview ?? false}
-                  isRetained={latestTimeout?.retained ?? false}
-                  teamData={bout.teams.map((team: Team) => {
-                    return { label: team.name, value: String(team.num) };
-                  })}
-                />
-              </Collapse>
-            </Grid.Col>
-            <Grid.Col span={1}>
-              <Group justify="flex-end">
-                <Collapse
-                  orientation="horizontal"
-                  w="fit-content"
-                  expanded={
-                    (bout.state == "lineup" || bout.state == "timeout") &&
-                    latestJamUri.jamNum > 0
-                  }
-                >
-                  <JamStopReasonEditor
-                    size="xs"
-                    stopReason={activeJam.stopReason}
-                    jamUri={activeJamUri}
-                  />
-                </Collapse>
-              </Group>
-            </Grid.Col>
-          </Grid>
+          <Group w="100%" justify="space-between">
+            <Collapse
+              orientation="horizontal"
+              expanded={bout.state == "timeout" && timeoutIsFetched}
+              w="fit-content"
+            >
+              <TimeoutEditor
+                timeoutUri={latestTimeoutUri}
+                teamNum={latestTimeout?.teamNum ?? null}
+                teamIsOfficials={latestTimeout?.teamIsOfficials ?? false}
+                isReview={latestTimeout?.isReview ?? false}
+                isRetained={latestTimeout?.retained ?? false}
+                teamData={bout.teams.map((team: Team) => {
+                  return { label: team.name, value: String(team.num) };
+                })}
+              />
+            </Collapse>
+            <Collapse
+              orientation="horizontal"
+              w="fit-content"
+              expanded={
+                (bout.state == "lineup" || bout.state == "timeout") &&
+                latestJamUri.jamNum > 0
+              }
+            >
+              <JamStopReasonEditor
+                size="xs"
+                stopReason={activeJam.stopReason}
+                jamUri={activeJamUri}
+              />
+            </Collapse>
+          </Group>
         </Group>
 
         <Group justify="space-around">
