@@ -1,8 +1,11 @@
-import { Card, Center, Divider } from "@mantine/core";
+import { Box, Card, CardProps } from "@mantine/core";
 import { IconCircleFilled } from "@tabler/icons-react";
 import { twMerge } from "tailwind-merge";
 
-interface TimeoutsLeftProps {
+interface TimeoutsLeftProps extends Omit<
+  CardProps,
+  "size" | "p" | "px" | "py"
+> {
   /**
    * The total permitted number of Timeouts allowed per the ruleset.
    */
@@ -46,12 +49,13 @@ export default function TimeoutsLeft({
   timeoutIsActive,
   isReview,
   size,
+  ...props
 }: TimeoutsLeftProps) {
   return (
-    <Card withBorder w={size} radius="md">
-      {Array.from({ length: numTimeouts }, (_, i) => (
-        <Card.Section key={i}>
-          <Center>
+    <Card withBorder w="fit-content" px={size / 8} {...props}>
+      <Card.Section inheritPadding withBorder py={size / 8}>
+        {Array.from({ length: numTimeouts }, (_, i) => (
+          <Box key={i}>
             <IconCircleFilled
               className={twMerge(
                 i >= timeoutsRemaining && "invisible",
@@ -62,15 +66,12 @@ export default function TimeoutsLeft({
               )}
               size={size}
             />
-          </Center>
-        </Card.Section>
-      ))}
-      <Card.Section>
-        <Divider mx={4} my={2} />
+          </Box>
+        ))}
       </Card.Section>
-      {Array.from({ length: numReviews }, (_, i) => (
-        <Card.Section key={i}>
-          <Center>
+      <Card.Section inheritPadding py={size / 8}>
+        {Array.from({ length: numReviews }, (_, i) => (
+          <Box key={i}>
             <IconCircleFilled
               className={twMerge(
                 i >= reviewsRemaining && "invisible",
@@ -81,9 +82,9 @@ export default function TimeoutsLeft({
               )}
               size={size}
             />
-          </Center>
-        </Card.Section>
-      ))}
+          </Box>
+        ))}
+      </Card.Section>
     </Card>
   );
 }
