@@ -85,7 +85,7 @@ export default function TeamCard({
     ) ?? 0;
 
   return (
-    <Card withBorder bg="gray.0">
+    <Card withBorder bg="gray.0" w="fit-content">
       <Stack>
         <Text ta="center" fw="bolder" size="26pt">
           {teamName}
