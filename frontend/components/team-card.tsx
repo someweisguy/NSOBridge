@@ -44,7 +44,7 @@ export default function TeamCard({
   starPass,
   aside,
   textSize,
-  w = "fit-contents",
+  w,
   justify = "space-between",
   ...props
 }: TeamCardProps) {
@@ -52,7 +52,7 @@ export default function TeamCard({
 
   // Arbitrary middle column width expression that appears reasonably good when
   // adjusting the column width throughout a range of textSizes.
-  const middleColumnWidth = textSize < 21 ? headerSize * 1.61 : headerSize * 2;
+  const middleColumnWidth = textSize + textSize * 10;
 
   return (
     <Grid columns={5} w={w} justify={justify} {...props}>
@@ -67,8 +67,8 @@ export default function TeamCard({
           </Flex>
         </Grid.Col>
       )}
-      <Grid.Col span={3} order={1} align={"flex-end"} w={middleColumnWidth}>
-        <Text inline ta="center" pb="0" mb="0" fz={headerSize}>
+      <Grid.Col align="flex-end" span={3} order={1} w={middleColumnWidth}>
+        <Text inline ta="center" fz={headerSize}>
           {boutScore + scoreOffset}
         </Text>
       </Grid.Col>
