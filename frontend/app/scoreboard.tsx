@@ -1,5 +1,5 @@
 import GameClock from "@/features/bouts/components/game-clock";
-import TimeoutsLeft from "@/components/timeouts-left";
+import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
