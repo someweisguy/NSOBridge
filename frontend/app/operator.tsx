@@ -302,7 +302,9 @@ export default function Operator() {
         <Group justify="space-around">
           {bout.teams.map((team: Team, i: number) => (
             <Stack key={team.num}>
-              <Title ta="center">{team.name}</Title>
+              <Title ta="center" fz="h3">
+                {team.name}
+              </Title>
               <TeamScore
                 w={200}
                 reverse={!!(i % 2)}
