@@ -35,6 +35,7 @@ import {
   ScrollArea,
   Select,
   Stack,
+  Title,
   useModalsStack,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -300,35 +301,37 @@ export default function Operator() {
 
         <Group justify="space-around">
           {bout.teams.map((team: Team, i: number) => (
-            <TeamScore
-              key={i}
-              w={200}
-              reverse={!!(i % 2)}
-              aside={
-                <TimeoutsLeft
-                  timeoutIsActive={
-                    latestTimeout != null &&
-                    isRunning(latestTimeout) &&
-                    latestTimeout.teamNum === team.num
-                  }
-                  isReview={latestTimeout?.isReview ?? false}
-                  size={13}
-                  {...team}
-                  {...ruleset}
-                />
-              }
-              lead={activeJam.teamJams
-                .find((tj: TeamJam) => tj.teamNum == team.num)!
-                .events.some((event) => event.lead)}
-              lost={activeJam.teamJams
-                .find((tj: TeamJam) => tj.teamNum == team.num)!
-                .events.some((event) => event.lost)}
-              starPass={activeJam.teamJams
-                .find((tj: TeamJam) => tj.teamNum == team.num)!
-                .events.some((event) => event.starPass)}
-              textSize={20}
-              {...team}
-            />
+            <Stack key={team.num}>
+              <Title ta="center">{team.name}</Title>
+              <TeamScore
+                w={200}
+                reverse={!!(i % 2)}
+                aside={
+                  <TimeoutsLeft
+                    timeoutIsActive={
+                      latestTimeout != null &&
+                      isRunning(latestTimeout) &&
+                      latestTimeout.teamNum === team.num
+                    }
+                    isReview={latestTimeout?.isReview ?? false}
+                    size={13}
+                    {...team}
+                    {...ruleset}
+                  />
+                }
+                lead={activeJam.teamJams
+                  .find((tj: TeamJam) => tj.teamNum == team.num)!
+                  .events.some((event) => event.lead)}
+                lost={activeJam.teamJams
+                  .find((tj: TeamJam) => tj.teamNum == team.num)!
+                  .events.some((event) => event.lost)}
+                starPass={activeJam.teamJams
+                  .find((tj: TeamJam) => tj.teamNum == team.num)!
+                  .events.some((event) => event.starPass)}
+                textSize={20}
+                {...team}
+              />
+            </Stack>
           ))}
         </Group>
 
