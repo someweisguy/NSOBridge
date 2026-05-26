@@ -1,4 +1,4 @@
-import { Card, Flex, Grid, GridProps, Stack, Text } from "@mantine/core";
+import { Box, Card, Flex, Grid, GridProps, Stack, Text } from "@mantine/core";
 import { IconStarFilled, IconStarOff } from "@tabler/icons-react";
 import { ReactNode } from "react";
 
@@ -89,7 +89,7 @@ export default function TeamCard({
           ) : lead ? (
             <IconStarFilled size={textSize} />
           ) : (
-            <>&nbsp;</>
+            <Box h={textSize} />
           )}
           <Card withBorder p={textSize / 4}>
             <Text ta="center" fz={textSize} w={textSize * 1.5}>
