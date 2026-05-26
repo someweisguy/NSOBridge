@@ -14,15 +14,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     clock: {
-      startTimestamp: "",
+      startTimestamp: new Date().toISOString(),
       elapsed: 0,
       alarm: 1800000,
     },
-
     activePeriodNum: 0,
     activeJamNum: 0,
-    uuid: "",
-    state: {},
+    state: "lineup",
   },
 };
 
