@@ -25,6 +25,8 @@ export const Default: Story = {
     starPass: false,
     textSize: 30,
     aside: <></>,
+    w: "fit-content",
+    justify: "space-between",
   },
 };
 
@@ -49,6 +51,8 @@ export const WithTimeouts: Story = {
         size={24}
       />
     ),
+    w: "fit-content",
+    justify: "space-between",
   },
 };
 
