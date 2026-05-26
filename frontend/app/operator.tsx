@@ -1,5 +1,6 @@
 import PageShell from "@/components/page-shell";
 import TeamCard from "@/components/team-card";
+import TimeoutsLeft from "@/components/timeouts-left";
 import BoutCreator from "@/features/bouts/components/bout-creator";
 import GameClock from "@/features/bouts/components/game-clock";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
@@ -301,21 +302,25 @@ export default function Operator() {
           {bout.teams.map((team: Team, i: number) => (
             <TeamCard
               key={i}
-              teamName={team.name}
               reverse={!!(i % 2)}
-              timeoutIsActive={
-                latestTimeout != null &&
-                isRunning(latestTimeout) &&
-                latestTimeout.teamNum === team.num
+              aside={
+                <TimeoutsLeft
+                  timeoutIsActive={
+                    latestTimeout != null &&
+                    isRunning(latestTimeout) &&
+                    latestTimeout.teamNum === team.num
+                  }
+                  isReview={latestTimeout?.isReview ?? false}
+                  size={24}
+                  {...team}
+                  {...ruleset}
+                />
               }
-              {...bout}
+              lead={false} // TODO
+              lost={false} // TODO
+              starPass={false} // TODO
+              textSize={20}
               {...team}
-              {...latestTimeout}
-              {...ruleset}
-              events={
-                activeJam.teamJams.find((tj: TeamJam) => tj.teamNum == team.num)
-                  ?.events
-              }
             />
           ))}
         </Group>

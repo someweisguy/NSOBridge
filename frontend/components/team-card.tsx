@@ -1,43 +1,12 @@
-import TimeoutsLeft from "@/components/timeouts-left";
-import { TripEvent } from "@/types/jam";
-import { Card, Center, Divider, Grid, Stack, Text } from "@mantine/core";
+import { Card, Flex, Grid, Stack, Text } from "@mantine/core";
 import { IconStarFilled, IconStarOff } from "@tabler/icons-react";
+import { ReactNode } from "react";
 
 interface TeamCardProps {
-  uuid: string;
-  num: number;
-  /**
-   * The team name to display
-   */
-  teamName: string;
   /**
    * True to reverse the Jam score and the Timeout counter. Defaults to false.
    */
   reverse?: boolean;
-  /**
-   * The maximum number of timeouts that a Team may have.
-   */
-  numTimeouts: number;
-  /**
-   * The maximum number of official reviews that a Team may have.
-   */
-  numReviews: number;
-  /**
-   * The number of timeouts that this Team has remaining.
-   */
-  timeoutsRemaining: number;
-  /**
-   * The number of official reviews that this Team has remaining.
-   */
-  reviewsRemaining: number;
-  /**
-   * True if this Team has called a Timeout or official review.
-   */
-  timeoutIsActive: boolean;
-  /**
-   * True if the active Timeout is an official review.
-   */
-  isReview?: boolean;
   /**
    * The Bout score for this Team.
    */
@@ -50,7 +19,12 @@ interface TeamCardProps {
    * The Jam score for this team.
    */
   jamScore: number;
-  events?: TripEvent[];
+  aside?: ReactNode;
+  lead: boolean;
+  lost: boolean;
+  starPass: boolean;
+
+  textSize: number;
 }
 
 /**
@@ -61,86 +35,66 @@ interface TeamCardProps {
  * of this Team's Jammer in the active Jam.
  */
 export default function TeamCard({
-  teamName,
   reverse = false,
-  numTimeouts,
-  numReviews,
-  timeoutsRemaining,
-  reviewsRemaining,
-  isReview,
-  timeoutIsActive,
   boutScore,
   scoreOffset,
   jamScore,
-  events,
+  lead,
+  lost,
+  starPass,
+  aside,
+  textSize,
 }: TeamCardProps) {
-  const lead = events?.some((event) => event.lead) ?? false;
-  const lost = events?.some((event) => event.lost) ?? false;
-  const starPass = events?.some((event) => event.starPass) ?? false;
-  const numTrips =
-    events?.reduce<number>(
-      (numTrips: number, event: TripEvent) =>
-        (numTrips += Number(event.passes != null)),
-      0,
-    ) ?? 0;
+  const headerSize = textSize * 3;
+
+  // Arbitrary middle column width expression that appears reasonably good when
+  // adjusting the column width throughout a range of textSizes.
+  const middleColumnWidth = textSize < 21 ? headerSize * 1.61 : headerSize * 2;
 
   return (
-    <Card withBorder bg="gray.0" w="fit-content">
-      <Stack>
-        <Text ta="center" fw="bolder" size="26pt">
-          {teamName}
+    <Grid w="fit-content" justify="space-between" columns={5}>
+      {aside && (
+        <Grid.Col span={1} order={reverse ? 2 : 0}>
+          <Flex
+            h="100%"
+            align="flex-end"
+            justify={reverse ? "flex-end" : "flex-start"}
+          >
+            {aside}
+          </Flex>
+        </Grid.Col>
+      )}
+      <Grid.Col span={3} order={1} align={"flex-end"} w={middleColumnWidth}>
+        <Text inline ta="center" pb="0" mb="0" fz={headerSize}>
+          {boutScore + scoreOffset}
         </Text>
-        <Divider />
-        <Grid justify="space-between" align="flex-end">
-          <Grid.Col span="auto" align="center" order={reverse ? 3 : 1}>
-            <Center>
-              <TimeoutsLeft
-                numTimeouts={numTimeouts}
-                numReviews={numReviews}
-                timeoutsRemaining={timeoutsRemaining}
-                reviewsRemaining={reviewsRemaining}
-                timeoutIsActive={timeoutIsActive}
-                isReview={isReview ?? false}
-                size={24}
-              />
-            </Center>
-          </Grid.Col>
-          <Grid.Col span={6} order={2}>
-            <Center h="100%">
-              <Text fw="bold" h="100%" w={250} ta="center" size="60pt">
-                {boutScore + scoreOffset}
-              </Text>
-            </Center>
-          </Grid.Col>
-          <Grid.Col span="auto" order={reverse ? 1 : 3}>
-            <Stack gap="md" justify="space-between">
-              <Center>
-                {starPass ? (
-                  <Text fw="500" size="22pt">
-                    SP
-                  </Text>
-                ) : lost ? (
-                  <IconStarOff size={32} />
-                ) : lead ? (
-                  <IconStarFilled size={32} />
-                ) : (
-                  <>&nbsp;</>
-                )}
-              </Center>
-              <Card withBorder p="xs">
-                <Text ta="center" size="24pt">
-                  {numTrips == 0 ? <>&ndash;</> : jamScore}
-                </Text>
-              </Card>
-            </Stack>
-          </Grid.Col>
-        </Grid>
-        <Divider />
-        <Text fw="semi-bold" fs="italic" ta="center" py="sm" size="18pt">
-          {/* TODO: Add Jammer name chip */}
-          &nbsp;
-        </Text>
-      </Stack>
-    </Card>
+      </Grid.Col>
+      <Grid.Col
+        h="100%"
+        align="center"
+        span={1}
+        order={reverse ? 0 : 2}
+        w={2.5 + "rem"}
+      >
+        <Stack justify="flex-end" align="center" gap={textSize / 2}>
+          {starPass ? (
+            <Text fw="500" size={textSize + "px"}>
+              SP
+            </Text>
+          ) : lost ? (
+            <IconStarOff size={textSize} />
+          ) : lead ? (
+            <IconStarFilled size={textSize} />
+          ) : (
+            <>&nbsp;</>
+          )}
+          <Card withBorder p={textSize / 4}>
+            <Text ta="center" fz={textSize} w={textSize * 1.5}>
+              {jamScore}
+            </Text>
+          </Card>
+        </Stack>
+      </Grid.Col>
+    </Grid>
   );
 }
