@@ -306,7 +306,7 @@ export default function Operator() {
                 {team.name}
               </Title>
               <TeamScore
-                w={200}
+                w={250}
                 reverse={!!(i % 2)}
                 aside={
                   <TimeoutsLeft
