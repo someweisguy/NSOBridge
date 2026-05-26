@@ -52,39 +52,41 @@ export default function TimeoutsLeft({
   ...props
 }: TimeoutsLeftProps) {
   return (
-    <Card withBorder w="fit-content" px={size / 8} {...props}>
-      <Card.Section inheritPadding withBorder py={size / 8}>
-        {Array.from({ length: numTimeouts }, (_, i) => (
-          <Box key={i}>
-            <IconCircleFilled
-              className={twMerge(
-                i >= timeoutsRemaining && "invisible",
-                i == timeoutsRemaining - 1 &&
-                  timeoutIsActive &&
-                  !isReview &&
-                  "animate-blink",
-              )}
-              size={size}
-            />
-          </Box>
-        ))}
-      </Card.Section>
-      <Card.Section inheritPadding py={size / 8}>
-        {Array.from({ length: numReviews }, (_, i) => (
-          <Box key={i}>
-            <IconCircleFilled
-              className={twMerge(
-                i >= reviewsRemaining && "invisible",
-                i == reviewsRemaining - 1 &&
-                  timeoutIsActive &&
-                  isReview &&
-                  "animate-blink",
-              )}
-              size={size}
-            />
-          </Box>
-        ))}
-      </Card.Section>
-    </Card>
+    <Box>
+      <Card withBorder w="fit-content" px={size / 8} {...props}>
+        <Card.Section inheritPadding withBorder py={size / 8}>
+          {Array.from({ length: numTimeouts }, (_, i) => (
+            <Box key={i}>
+              <IconCircleFilled
+                className={twMerge(
+                  i >= timeoutsRemaining && "invisible",
+                  i == timeoutsRemaining - 1 &&
+                    timeoutIsActive &&
+                    !isReview &&
+                    "animate-blink",
+                )}
+                size={size}
+              />
+            </Box>
+          ))}
+        </Card.Section>
+        <Card.Section inheritPadding py={size / 8}>
+          {Array.from({ length: numReviews }, (_, i) => (
+            <Box key={i}>
+              <IconCircleFilled
+                className={twMerge(
+                  i >= reviewsRemaining && "invisible",
+                  i == reviewsRemaining - 1 &&
+                    timeoutIsActive &&
+                    isReview &&
+                    "animate-blink",
+                )}
+                size={size}
+              />
+            </Box>
+          ))}
+        </Card.Section>
+      </Card>
+    </Box>
   );
 }
