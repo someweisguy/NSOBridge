@@ -1,8 +1,8 @@
-import { Card, Flex, Grid, Stack, Text } from "@mantine/core";
+import { Card, Flex, Grid, GridProps, Stack, Text } from "@mantine/core";
 import { IconStarFilled, IconStarOff } from "@tabler/icons-react";
 import { ReactNode } from "react";
 
-interface TeamCardProps {
+interface TeamCardProps extends Omit<GridProps, "columns"> {
   /**
    * True to reverse the Jam score and the Timeout counter. Defaults to false.
    */
@@ -44,6 +44,9 @@ export default function TeamCard({
   starPass,
   aside,
   textSize,
+  w = "fit-contents",
+  justify = "space-between",
+  ...props
 }: TeamCardProps) {
   const headerSize = textSize * 3;
 
@@ -52,7 +55,7 @@ export default function TeamCard({
   const middleColumnWidth = textSize < 21 ? headerSize * 1.61 : headerSize * 2;
 
   return (
-    <Grid w="fit-content" justify="space-between" columns={5}>
+    <Grid columns={5} w={w} justify={justify} {...props}>
       {aside && (
         <Grid.Col span={1} order={reverse ? 2 : 0}>
           <Flex
