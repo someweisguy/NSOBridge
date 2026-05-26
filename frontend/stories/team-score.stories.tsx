@@ -1,10 +1,10 @@
-import TeamCard from "@/components/team-card";
+import TeamScore from "@/components/team-score";
 import TimeoutsLeft from "@/components/timeouts-left";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-const meta: Meta<typeof TeamCard> = {
-  component: TeamCard,
-  title: "Team Card",
+const meta: Meta<typeof TeamScore> = {
+  component: TeamScore,
+  title: "Team Score",
   argTypes: {
     aside: {
       control: false,

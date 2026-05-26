@@ -2,11 +2,7 @@ import { Box, Card, Flex, Grid, GridProps, Stack, Text } from "@mantine/core";
 import { IconStarFilled, IconStarOff } from "@tabler/icons-react";
 import { ReactNode } from "react";
 
-interface TeamCardProps extends Omit<GridProps, "columns"> {
-  /**
-   * True to reverse the Jam score and the Timeout counter. Defaults to false.
-   */
-  reverse?: boolean;
+interface TeamScoreProps extends Omit<GridProps, "columns"> {
   /**
    * The Bout score for this Team.
    */
@@ -19,22 +15,42 @@ interface TeamCardProps extends Omit<GridProps, "columns"> {
    * The Jam score for this team.
    */
   jamScore: number;
-  aside?: ReactNode;
+  /**
+   * The team's jammer has lead.
+   */
   lead: boolean;
+  /**
+   * The team's jammer has lost lead eligibility.
+   */
   lost: boolean;
+  /**
+   * The team's jammer has completed a star pass.
+   */
   starPass: boolean;
-
+  /**
+   * True to reverse the Jam score and the Timeout counter. Defaults to false.
+   */
+  reverse?: boolean;
+  /**
+   * The size of the text (in pixels) in which the jam score should be rendered.
+   */
   textSize: number;
+  /**
+   * The component to be rendered beside the bout score.
+   */
+  aside?: ReactNode;
 }
 
 /**
- * Display a Team card which shows relevant Team information.
+ * Display a TeamScore which includes the Bout score, the Jam score and additionally
+ * a Jammer status icon, which indicates whether the Jammer is lead, has lost lead, or
+ * has successfully completed a star pass.
  *
- * The display team information includes the team name, the number of timeout and
- * reviews that this Team has remaining, the Bout score, the Jam score, and the name
- * of this Team's Jammer in the active Jam.
+ * Also allows for an optional aside component to be displayed next to the Bout score.
+ * Hint: the aside component is a great opportunity to display the team's TimeoutsLeft
+ * component!
  */
-export default function TeamCard({
+export default function TeamScore({
   reverse = false,
   boutScore,
   scoreOffset,
@@ -44,10 +60,9 @@ export default function TeamCard({
   starPass,
   aside,
   textSize,
-  w,
   justify = "space-between",
   ...props
-}: TeamCardProps) {
+}: TeamScoreProps) {
   const headerSize = textSize * 3;
 
   // Arbitrary middle column width expression that appears reasonably good when
@@ -55,7 +70,7 @@ export default function TeamCard({
   const middleColumnWidth = textSize + textSize * 10;
 
   return (
-    <Grid columns={5} w={w} justify={justify} {...props}>
+    <Grid columns={5} justify={justify} {...props}>
       {aside && (
         <Grid.Col span={1} order={reverse ? 2 : 0}>
           <Flex h="100%" align="center" justify="center">

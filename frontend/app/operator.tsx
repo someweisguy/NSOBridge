@@ -1,5 +1,5 @@
 import PageShell from "@/components/page-shell";
-import TeamCard from "@/components/team-card";
+import TeamScore from "@/components/team-score";
 import TimeoutsLeft from "@/components/timeouts-left";
 import BoutCreator from "@/features/bouts/components/bout-creator";
 import GameClock from "@/features/bouts/components/game-clock";
@@ -300,7 +300,7 @@ export default function Operator() {
 
         <Group justify="space-around">
           {bout.teams.map((team: Team, i: number) => (
-            <TeamCard
+            <TeamScore
               key={i}
               w={200}
               reverse={!!(i % 2)}
