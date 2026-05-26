@@ -58,11 +58,7 @@ export default function TeamCard({
     <Grid columns={5} w={w} justify={justify} {...props}>
       {aside && (
         <Grid.Col span={1} order={reverse ? 2 : 0}>
-          <Flex
-            h="100%"
-            align="flex-end"
-            justify={reverse ? "flex-end" : "flex-start"}
-          >
+          <Flex h="100%" align="center" justify="center">
             {aside}
           </Flex>
         </Grid.Col>
@@ -91,7 +87,7 @@ export default function TeamCard({
           ) : (
             <Box h={textSize} />
           )}
-          <Card withBorder p={textSize / 4}>
+          <Card withBorder p={textSize / 4} mx={textSize / 4}>
             <Text ta="center" fz={textSize} w={textSize * 1.5}>
               {jamScore}
             </Text>

@@ -302,6 +302,7 @@ export default function Operator() {
           {bout.teams.map((team: Team, i: number) => (
             <TeamCard
               key={i}
+              w={200}
               reverse={!!(i % 2)}
               aside={
                 <TimeoutsLeft
@@ -311,7 +312,7 @@ export default function Operator() {
                     latestTimeout.teamNum === team.num
                   }
                   isReview={latestTimeout?.isReview ?? false}
-                  size={24}
+                  size={13}
                   {...team}
                   {...ruleset}
                 />
