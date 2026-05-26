@@ -316,9 +316,15 @@ export default function Operator() {
                   {...ruleset}
                 />
               }
-              lead={false} // TODO
-              lost={false} // TODO
-              starPass={false} // TODO
+              lead={activeJam.teamJams
+                .find((tj: TeamJam) => tj.teamNum == team.num)!
+                .events.some((event) => event.lead)}
+              lost={activeJam.teamJams
+                .find((tj: TeamJam) => tj.teamNum == team.num)!
+                .events.some((event) => event.lost)}
+              starPass={activeJam.teamJams
+                .find((tj: TeamJam) => tj.teamNum == team.num)!
+                .events.some((event) => event.starPass)}
               textSize={20}
               {...team}
             />
