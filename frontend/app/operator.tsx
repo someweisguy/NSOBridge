@@ -360,8 +360,8 @@ export default function Operator() {
                       {teamJam != null && (
                         <>
                           <Divider
-                            label="Jammer Status"
-                            orientation="horizontal"
+                            label="Edit Jammer"
+                            variant="dashed"
                             w="100%"
                           />
                           <TeamJamControl
@@ -380,8 +380,8 @@ export default function Operator() {
                             {...ruleset}
                           />
                           <Divider
-                            label="Trip Editor"
-                            orientation="horizontal"
+                            label="Add Trips"
+                            variant="dashed"
                             w="100%"
                           />
                           <TeamJamTripHistory
