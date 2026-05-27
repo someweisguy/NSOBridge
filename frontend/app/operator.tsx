@@ -340,46 +340,6 @@ export default function Operator() {
           ))}
         </Group>
 
-        <Center>
-          <Card
-            withBorder
-            orientation="horizontal"
-            w="fit-content"
-            fz="h4"
-            p="0"
-          >
-            <GameClock
-              align="center"
-              p="xs"
-              h="100%"
-              w="300px"
-              activePeriodNum={activeJam.period}
-              activeJamNum={activeJam.num}
-              isOvertime={activeJam.period > 2}
-              {...bout}
-              {...activeJam}
-              {...ruleset}
-            />
-            <Divider
-              orientation="vertical"
-              size={bout.state != "jam" ? "xs" : 0}
-            />
-            <Collapse
-              orientation="horizontal"
-              expanded={bout.state != "jam"}
-              bg="yellow.3"
-            >
-              <EventClock
-                p="xs"
-                fz="h4"
-                ta="center"
-                w="200px"
-                startTimestamp={lastEventTimestamp}
-                {...bout}
-              />
-            </Collapse>
-          </Card>
-        </Center>
 
         <Group justify="space-around">
           {activeJam.teamJams.map((teamJam: TeamJam) => (
