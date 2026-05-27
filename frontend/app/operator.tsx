@@ -360,7 +360,10 @@ export default function Operator() {
               {...activeJam}
               {...ruleset}
             />
-            <Divider orientation="vertical" hidden={bout.state == "jam"} />
+            <Divider
+              orientation="vertical"
+              size={bout.state != "jam" ? "xs" : 0}
+            />
             <Collapse
               orientation="horizontal"
               expanded={bout.state != "jam"}
