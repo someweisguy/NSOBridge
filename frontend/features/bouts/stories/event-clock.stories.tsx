@@ -17,6 +17,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     startTimestamp: new Date().toISOString(),
+    state: "timeout",
   },
 };
 
