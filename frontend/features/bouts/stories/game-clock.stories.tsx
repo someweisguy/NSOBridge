@@ -4,8 +4,15 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 const meta: Meta = {
   component: GameClock,
   title: "Game Clock",
-  parameters: {
-    deepControls: { enabled: true },
+  argTypes: {
+    stopReason: {
+      control: "radio",
+      options: ["called", "elapsed", "other", "injury", null],
+    },
+    state: {
+      control: "radio",
+      options: ["lineup", "stopped", "jam", "timeout", "final"],
+    },
   },
 };
 
@@ -18,9 +25,14 @@ export const Default: Story = {
       elapsed: 0,
       alarm: 1800000,
     },
+    startTimestamp: new Date().toISOString(),
     activePeriodNum: 0,
     activeJamNum: 0,
+    jamDuration: 120000,
     state: "lineup",
+    stopReason: "elapsed",
+    fz: 32,
+    w: "400px",
   },
 };
 
