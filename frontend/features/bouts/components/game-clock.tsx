@@ -1,7 +1,7 @@
 import { BoutStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
 import { Clock } from "@/types/time";
-import { Group, GroupProps, Text } from "@mantine/core";
+import { Grid, GridProps, Text } from "@mantine/core";
 import ClockView from "../../../components/clock-view";
 
 const stopReasonTexts: Record<StopReasonString, string> = {
@@ -11,7 +11,7 @@ const stopReasonTexts: Record<StopReasonString, string> = {
   other: "-",
 };
 
-interface BoutClockProps extends GroupProps {
+interface BoutClockProps extends Omit<GridProps, "columns"> {
   clock: Clock;
   state: BoutStateString;
   isOvertime: boolean;
@@ -33,29 +33,34 @@ export default function GameClock({
   jamDuration,
   ta = "center",
   justify = "space-between",
+  align = "center",
   ...props
 }: BoutClockProps) {
   return (
-    <Group ta={ta} justify={justify} {...props}>
-      {isOvertime ? (
-        <Text inherit ta="right">
-          OT
+    <Grid columns={3} ta={ta} justify={justify} align={align} {...props}>
+      <Grid.Col span={1}>
+        {isOvertime ? (
+          <Text inherit>OT</Text>
+        ) : (
+          <ClockView inherit {...clock} />
+        )}
+      </Grid.Col>
+      <Grid.Col span={1}>
+        <Text inherit>
+          P{activePeriodNum + 1} J{activeJamNum + 1}
         </Text>
-      ) : (
-        <ClockView inherit ta="right" {...clock} />
-      )}
-      <Text inherit>
-        P{activePeriodNum + 1} J{activeJamNum + 1}
-      </Text>
-      {state != "jam" && state != "stopped" ? (
-        <Text inherit>{stopReasonTexts[stopReason ?? "other"]}</Text>
-      ) : (
-        <ClockView
-          inherit
-          alarm={jamDuration}
-          startTimestamp={state == "jam" ? startTimestamp : null}
-        />
-      )}
-    </Group>
+      </Grid.Col>
+      <Grid.Col span={1}>
+        {state != "jam" && state != "stopped" ? (
+          <Text inherit>{stopReasonTexts[stopReason ?? "other"]}</Text>
+        ) : (
+          <ClockView
+            inherit
+            alarm={jamDuration}
+            startTimestamp={state == "jam" ? startTimestamp : null}
+          />
+        )}
+      </Grid.Col>
+    </Grid>
   );
 }
