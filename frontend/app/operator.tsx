@@ -345,38 +345,32 @@ export default function Operator() {
             withBorder
             orientation="horizontal"
             w="fit-content"
-            fz="h3"
+            fz="h4"
             p="0"
           >
-            <Card.Section
-              inheritPadding
+            <GameClock
+              align="center"
               p="xs"
-              withBorder={bout.state != "jam"}
-            >
-              <GameClock
-                p="md"
-                align="center"
-                h="100%"
-                w="300px"
-                activePeriodNum={activeJam.period}
-                activeJamNum={activeJam.num}
-                isOvertime={activeJam.period > 2}
-                {...bout}
-                {...activeJam}
-                {...ruleset}
-              />
-            </Card.Section>
+              h="100%"
+              w="300px"
+              activePeriodNum={activeJam.period}
+              activeJamNum={activeJam.num}
+              isOvertime={activeJam.period > 2}
+              {...bout}
+              {...activeJam}
+              {...ruleset}
+            />
+            <Divider orientation="vertical" hidden={bout.state != "jam"} />
             <Collapse
               orientation="horizontal"
               expanded={bout.state != "jam"}
               bg="yellow.3"
-              p="xs"
             >
               <EventClock
-                fz="h3"
+                p="xs"
+                fz="h4"
                 ta="center"
-                h="100%"
-                w="250px"
+                w="200px"
                 startTimestamp={lastEventTimestamp}
                 {...bout}
               />
