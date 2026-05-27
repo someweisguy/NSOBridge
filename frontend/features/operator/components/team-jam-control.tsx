@@ -1,26 +1,23 @@
-import { TripEvent } from "@/types/jam";
 import { TeamJamUri } from "@/types/query";
 import {
-  Card,
   Checkbox,
   createTheme,
   Divider,
   Group,
+  GroupProps,
   MantineProvider,
-  Stack,
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
 import { useTeamJamAddLead } from "../hooks/use-team-jam-add-lead";
 import { useTeamJamAddLost } from "../hooks/use-team-jam-add-lost";
 import { useTeamJamAddStarPass } from "../hooks/use-team-jam-add-star-pass";
-import TeamJamTripHistory from "./team-jam-trip-history";
 
 const checkBoxTheme = createTheme({
   // Hovering over checkbox should change cursor
   cursorType: "pointer",
 });
 
-interface TeamJamControlProps {
+interface TeamJamControlProps extends GroupProps {
   boutUuid: string;
   periodNum: number;
   jamNum: number;
@@ -28,8 +25,9 @@ interface TeamJamControlProps {
 
   leadIsDeclared: boolean;
 
-  pointsPerTrip: number;
-  events: TripEvent[];
+  lead: boolean;
+  lost: boolean;
+  starPass: boolean;
 }
 
 export default function TeamJamControl({
@@ -38,8 +36,10 @@ export default function TeamJamControl({
   jamNum,
   teamNum,
   leadIsDeclared,
-  pointsPerTrip,
-  events,
+  lead,
+  lost,
+  starPass,
+  ...props
 }: TeamJamControlProps) {
   const teamJamUri: TeamJamUri = { boutUuid, periodNum, jamNum, teamNum };
 
@@ -47,51 +47,32 @@ export default function TeamJamControl({
   const setLost = useTeamJamAddLost({ ...teamJamUri });
   const setStarPass = useTeamJamAddStarPass({ ...teamJamUri });
 
-  const lead = events.some((event) => event.lead);
-  const lost = events.some((event) => event.lost);
-  const starPass = events.some((event) => event.starPass);
-  const numTrips = events.reduce<number>(
-    (numTrips: number, event: TripEvent) =>
-      (numTrips += Number(event.passes != null)),
-    0,
-  );
-
   return (
     <MantineProvider theme={checkBoxTheme}>
-      <Card withBorder bg="gray.0">
-        <Stack>
-          <Group justify="center" gap="md">
-            <Checkbox
-              label="Lead"
-              checked={lead}
-              disabled={leadIsDeclared && !lead}
-              onClick={() => setLead.mutate(!lead)}
-              variant="outline"
-              icon={({ ...others }) => <IconStarFilled {...others} />}
-            />
-            <Divider orientation="vertical" />
-            <Checkbox
-              label="Lost"
-              checked={lost}
-              onClick={() => setLost.mutate(!lost)}
-              variant="outline"
-            />
-            <Divider orientation="vertical" />
-            <Checkbox
-              label="Star Pass"
-              checked={starPass}
-              onClick={() => setStarPass.mutate(!starPass)}
-              variant="outline"
-            />
-          </Group>
-          <TeamJamTripHistory
-            numPasses={pointsPerTrip}
-            teamJamUri={teamJamUri}
-            showInitial={numTrips == 0}
-            events={events}
-          />
-        </Stack>
-      </Card>
+      <Group justify="center" gap="md" {...props}>
+        <Checkbox
+          label="Lead"
+          checked={lead}
+          disabled={leadIsDeclared && !lead}
+          onClick={() => setLead.mutate(!lead)}
+          variant="outline"
+          icon={({ ...others }) => <IconStarFilled {...others} />}
+        />
+        <Divider orientation="vertical" />
+        <Checkbox
+          label="Lost"
+          checked={lost}
+          onClick={() => setLost.mutate(!lost)}
+          variant="outline"
+        />
+        <Divider orientation="vertical" />
+        <Checkbox
+          label="Star Pass"
+          checked={starPass}
+          onClick={() => setStarPass.mutate(!starPass)}
+          variant="outline"
+        />
+      </Group>
     </MantineProvider>
   );
 }

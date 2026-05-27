@@ -12,6 +12,7 @@ import BoutControl from "@/features/operator/components/bout-control";
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TeamEditor from "@/features/operator/components/team-editor";
 import TeamJamControl from "@/features/operator/components/team-jam-control";
+import TeamJamTripHistory from "@/features/operator/components/team-jam-trip-history";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
@@ -21,7 +22,7 @@ import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/types/bout";
-import { TeamJam } from "@/types/jam";
+import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import {
@@ -315,54 +316,85 @@ export default function Operator() {
                 (tj: TeamJam) => tj.teamNum == team.num,
               );
 
+              const lead = teamJam?.events.some((event) => event.lead) ?? false;
+              const lost = teamJam?.events.some((event) => event.lost) ?? false;
+              const starPass =
+                teamJam?.events.some((event) => event.starPass) ?? false;
+              const numTrips =
+                teamJam?.events.reduce<number>(
+                  (numTrips: number, event: TripEvent) =>
+                    (numTrips += Number(event.passes != null)),
+                  0,
+                ) ?? 0;
+
               return (
                 <Grid.Col span={1} key={team.num} order={i == 1 ? 2 : 0}>
-                  <Stack align="center">
-                    <Title ta="center" fz="h3">
-                      {team.name}
-                    </Title>
-                    <TeamScore
-                      w={250}
-                      reverse={!!(i % 2)}
-                      aside={
-                        <TimeoutsLeft
-                          timeoutIsActive={
-                            latestTimeout != null &&
-                            isRunning(latestTimeout) &&
-                            latestTimeout.teamNum === team.num
-                          }
-                          isReview={latestTimeout?.isReview ?? false}
-                          size={13}
-                          {...team}
-                          {...ruleset}
-                        />
-                      }
-                      lead={activeJam.teamJams
-                        .find((tj: TeamJam) => tj.teamNum == team.num)!
-                        .events.some((event) => event.lead)}
-                      lost={activeJam.teamJams
-                        .find((tj: TeamJam) => tj.teamNum == team.num)!
-                        .events.some((event) => event.lost)}
-                      starPass={activeJam.teamJams
-                        .find((tj: TeamJam) => tj.teamNum == team.num)!
-                        .events.some((event) => event.starPass)}
-                      textSize={20}
-                      {...team}
-                    />
-                    {teamJam != null && (
-                      <TeamJamControl
-                        key={teamJam.teamNum}
-                        boutUuid={activeJam.boutUuid}
-                        periodNum={activeJam.period}
-                        jamNum={activeJam.num}
-                        leadIsDeclared={teamJam.events.some(
-                          (event) => event.lead,
-                        )}
-                        {...teamJam}
-                        {...ruleset}
+                  <Card withBorder px="0">
+                    <Stack align="center">
+                      <Title ta="center" fz="h3">
+                        {team.name}
+                      </Title>
+                      <TeamScore
+                        w={250}
+                        reverse={!!(i % 2)}
+                        aside={
+                          <TimeoutsLeft
+                            timeoutIsActive={
+                              latestTimeout != null &&
+                              isRunning(latestTimeout) &&
+                              latestTimeout.teamNum === team.num
+                            }
+                            isReview={latestTimeout?.isReview ?? false}
+                            size={13}
+                            {...team}
+                            {...ruleset}
+                          />
+                        }
+                        lead={lead}
+                        lost={lost}
+                        starPass={starPass}
+                        textSize={20}
+                        {...team}
                       />
-                    )}
-                  </Stack>
+
+                      {teamJam != null && (
+                        <>
+                          <Divider
+                            label="Jammer Status"
+                            orientation="horizontal"
+                            w="100%"
+                          />
+                          <TeamJamControl
+                            w="300px"
+                            mx="md"
+                            boutUuid={activeJam.boutUuid}
+                            periodNum={activeJam.period}
+                            jamNum={activeJam.num}
+                            lead={lead}
+                            lost={lost}
+                            starPass={starPass}
+                            leadIsDeclared={teamJam.events.some(
+                              (event) => event.lead,
+                            )}
+                            {...teamJam}
+                            {...ruleset}
+                          />
+                          <Divider
+                            label="Trip Editor"
+                            orientation="horizontal"
+                            w="100%"
+                          />
+                          <TeamJamTripHistory
+                            teamJamUri={{ teamNum: team.num, ...activeJamUri }}
+                            showInitial={numTrips == 0}
+                            numPasses={ruleset.pointsPerTrip}
+                            {...teamJam}
+                            {...ruleset}
+                          />
+                        </>
+                      )}
+                    </Stack>
+                  </Card>
                 </Grid.Col>
               );
             })}
