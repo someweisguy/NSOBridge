@@ -1,7 +1,7 @@
 import { BoutStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
 import { Clock } from "@/types/time";
-import { Box, SimpleGrid, SimpleGridProps, Text } from "@mantine/core";
+import { Group, GroupProps, Text } from "@mantine/core";
 import ClockView from "../../../components/clock-view";
 
 const stopReasonTexts: Record<StopReasonString, string> = {
@@ -11,15 +11,7 @@ const stopReasonTexts: Record<StopReasonString, string> = {
   other: "-",
 };
 
-// const stateTexts: Record<BoutStateString, string> = {
-//   final: "Final",
-//   jam: "Jam",
-//   lineup: "Lineup",
-//   timeout: "Timeout",
-//   stopped: "Stopped",
-// };
-
-interface BoutClockProps extends SimpleGridProps {
+interface BoutClockProps extends GroupProps {
   clock: Clock;
   state: BoutStateString;
   isOvertime: boolean;
@@ -40,17 +32,18 @@ export default function GameClock({
   stopReason,
   jamDuration,
   ta = "center",
+  justify = "space-between",
   ...props
 }: BoutClockProps) {
   return (
-    <SimpleGrid cols={3} ta={ta} {...props}>
-      <Box px="md">
-        {isOvertime ? (
-          <Text inherit>OT</Text>
-        ) : (
-          <ClockView inherit {...clock} />
-        )}
-      </Box>
+    <Group ta={ta} justify={justify} {...props}>
+      {isOvertime ? (
+        <Text inherit ta="right">
+          OT
+        </Text>
+      ) : (
+        <ClockView inherit ta="right" {...clock} />
+      )}
       <Text inherit>
         P{activePeriodNum + 1} J{activeJamNum + 1}
       </Text>
@@ -63,6 +56,6 @@ export default function GameClock({
           startTimestamp={state == "jam" ? startTimestamp : null}
         />
       )}
-    </SimpleGrid>
+    </Group>
   );
 }

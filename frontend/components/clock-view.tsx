@@ -45,6 +45,8 @@ export interface ClockProps extends TextProps {
    * The format to use when formatting this Clock.
    */
   formatter?: keyof typeof timeFormatters;
+
+  prefix?: string;
 }
 
 /**
@@ -60,6 +62,7 @@ export default function ClockView({
   serverOffset,
   freeze = false,
   formatter = "default",
+  prefix,
   ...props
 }: ClockProps) {
   const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
@@ -95,6 +98,10 @@ export default function ClockView({
   }
 
   return (
-    <Text {...props}>{timeFormatters[formatter](milliseconds, alarm)}</Text>
+    <Text {...props}>
+      {prefix}
+      {prefix == null ? "" : " "}
+      {timeFormatters[formatter](milliseconds, alarm)}
+    </Text>
   );
 }

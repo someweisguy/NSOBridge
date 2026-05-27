@@ -1,8 +1,9 @@
 import PageShell from "@/components/page-shell";
+import BoutCreator from "@/features/bouts/components/bout-creator";
+import EventClock from "@/features/bouts/components/event-clock";
+import GameClock from "@/features/bouts/components/game-clock";
 import TeamScore from "@/features/bouts/components/team-score";
 import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
-import BoutCreator from "@/features/bouts/components/bout-creator";
-import GameClock from "@/features/bouts/components/game-clock";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
@@ -27,6 +28,8 @@ import {
   AppShell,
   Box,
   Button,
+  Card,
+  Center,
   Collapse,
   Divider,
   Group,
@@ -337,15 +340,49 @@ export default function Operator() {
           ))}
         </Group>
 
-        <GameClock
-          activePeriodNum={activeJam.period}
-          activeJamNum={activeJam.num}
-          isOvertime={bout.jamCounts[2] > 0}
-          eventTimestamp={lastEventTimestamp}
-          {...bout}
-          {...activeJam}
-          {...ruleset}
-        />
+        <Center>
+          <Card
+            withBorder
+            orientation="horizontal"
+            w="fit-content"
+            fz="h3"
+            p="0"
+          >
+            <Card.Section
+              inheritPadding
+              p="xs"
+              withBorder={bout.state != "jam"}
+            >
+              <GameClock
+                p="md"
+                align="center"
+                h="100%"
+                w="300px"
+                activePeriodNum={activeJam.period}
+                activeJamNum={activeJam.num}
+                isOvertime={activeJam.period > 2}
+                {...bout}
+                {...activeJam}
+                {...ruleset}
+              />
+            </Card.Section>
+            <Collapse
+              orientation="horizontal"
+              expanded={bout.state != "jam"}
+              bg="yellow.3"
+              p="xs"
+            >
+              <EventClock
+                fz="h3"
+                ta="center"
+                h="100%"
+                w="250px"
+                startTimestamp={lastEventTimestamp}
+                {...bout}
+              />
+            </Collapse>
+          </Card>
+        </Center>
 
         <Group justify="space-around">
           {activeJam.teamJams.map((teamJam: TeamJam) => (

@@ -46,22 +46,6 @@ export function Scoreboard() {
   const activeJamUri = useActiveJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
 
-  const lastEventTimestamp: string | null =
-    activeJam.startTimestamp != null
-      ? new Date(
-          Math.max(
-            ...[
-              activeJam.startTimestamp,
-              activeJam.stopTimestamp,
-              // latestTimeout?.startTimestamp,
-              // latestTimeout?.stopTimestamp,
-            ]
-              .filter((val?: string | null) => val != null)
-              .map((val: string) => new Date(val).getTime()),
-          ),
-        ).toISOString()
-      : null;
-
   return (
     <FitScreen waitTime={25} mode="fit">
       <Stack align="stretch" justify="flex-start">
@@ -103,7 +87,6 @@ export function Scoreboard() {
           activePeriodNum={activeJam.period}
           activeJamNum={activeJam.num}
           isOvertime={bout.jamCounts[2] > 0}
-          eventTimestamp={lastEventTimestamp}
           {...bout}
           {...activeJam}
           {...ruleset}
