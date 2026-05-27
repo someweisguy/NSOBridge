@@ -72,7 +72,7 @@ const jam: Jam = {
 const timeout: Timeout = {
   boutUuid: "060f177d-efba-427f-8220-740440aefa6a",
   num: 5,
-  startTimestamp: "2026-05-21T19:41:35.419829",
+  startTimestamp: new Date().toISOString(),
   stopTimestamp: null,
   clockElapsed: 1704491,
   teamIsOfficials: false,
