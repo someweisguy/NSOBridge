@@ -32,6 +32,7 @@ import {
   Center,
   Collapse,
   Divider,
+  Grid,
   Group,
   Modal,
   NavLink,
@@ -263,7 +264,7 @@ export default function Operator() {
         </Modal>
       </Modal.Stack>
 
-      <Stack gap="sm">
+      <Stack gap="sm" align="stretch" w="100%">
         <Group justify="space-between" wrap="nowrap">
           <BoutControl boutUuid={bout.uuid} state={bout.state} />
           <Group w="100%" justify="space-between">
@@ -302,61 +303,107 @@ export default function Operator() {
           </Group>
         </Group>
 
-        <Group justify="space-around">
-          {bout.teams.map((team: Team, i: number) => (
-            <Stack key={team.num}>
-              <Title ta="center" fz="h3">
-                {team.name}
-              </Title>
-              <TeamScore
-                w={250}
-                reverse={!!(i % 2)}
-                aside={
-                  <TimeoutsLeft
-                    timeoutIsActive={
-                      latestTimeout != null &&
-                      isRunning(latestTimeout) &&
-                      latestTimeout.teamNum === team.num
-                    }
-                    isReview={latestTimeout?.isReview ?? false}
-                    size={13}
-                    {...team}
+        <Center>
+          <Grid
+            columns={bout.teams.length + 1}
+            align="center"
+            w="fit-content"
+            gap="lg"
+          >
+            {bout.teams.map((team: Team, i: number) => {
+              const teamJam = activeJam.teamJams.find(
+                (tj: TeamJam) => tj.teamNum == team.num,
+              );
+
+              return (
+                <Grid.Col span={1} key={team.num} order={i == 1 ? 2 : 0}>
+                  <Stack align="center">
+                    <Title ta="center" fz="h3">
+                      {team.name}
+                    </Title>
+                    <TeamScore
+                      w={250}
+                      reverse={!!(i % 2)}
+                      aside={
+                        <TimeoutsLeft
+                          timeoutIsActive={
+                            latestTimeout != null &&
+                            isRunning(latestTimeout) &&
+                            latestTimeout.teamNum === team.num
+                          }
+                          isReview={latestTimeout?.isReview ?? false}
+                          size={13}
+                          {...team}
+                          {...ruleset}
+                        />
+                      }
+                      lead={activeJam.teamJams
+                        .find((tj: TeamJam) => tj.teamNum == team.num)!
+                        .events.some((event) => event.lead)}
+                      lost={activeJam.teamJams
+                        .find((tj: TeamJam) => tj.teamNum == team.num)!
+                        .events.some((event) => event.lost)}
+                      starPass={activeJam.teamJams
+                        .find((tj: TeamJam) => tj.teamNum == team.num)!
+                        .events.some((event) => event.starPass)}
+                      textSize={20}
+                      {...team}
+                    />
+                    {teamJam != null && (
+                      <TeamJamControl
+                        key={teamJam.teamNum}
+                        boutUuid={activeJam.boutUuid}
+                        periodNum={activeJam.period}
+                        jamNum={activeJam.num}
+                        leadIsDeclared={teamJam.events.some(
+                          (event) => event.lead,
+                        )}
+                        {...teamJam}
+                        {...ruleset}
+                      />
+                    )}
+                  </Stack>
+                </Grid.Col>
+              );
+            })}
+
+            <Grid.Col span={1} order={1}>
+              <Center>
+                <Card withBorder orientation="vertical" fz="h4" p="0">
+                  <GameClock
+                    align="center"
+                    p="xs"
+                    w="250px"
+                    activePeriodNum={activeJam.period}
+                    activeJamNum={activeJam.num}
+                    isOvertime={activeJam.period > 2}
+                    {...bout}
+                    {...activeJam}
                     {...ruleset}
                   />
-                }
-                lead={activeJam.teamJams
-                  .find((tj: TeamJam) => tj.teamNum == team.num)!
-                  .events.some((event) => event.lead)}
-                lost={activeJam.teamJams
-                  .find((tj: TeamJam) => tj.teamNum == team.num)!
-                  .events.some((event) => event.lost)}
-                starPass={activeJam.teamJams
-                  .find((tj: TeamJam) => tj.teamNum == team.num)!
-                  .events.some((event) => event.starPass)}
-                textSize={20}
-                {...team}
-              />
-            </Stack>
-          ))}
-        </Group>
-
-
-        <Group justify="space-around">
-          {activeJam.teamJams.map((teamJam: TeamJam) => (
-            <TeamJamControl
-              key={teamJam.teamNum}
-              boutUuid={activeJam.boutUuid}
-              periodNum={activeJam.period}
-              jamNum={activeJam.num}
-              leadIsDeclared={activeJam.teamJams.some((tj) =>
-                tj.events.some((event) => event.lead),
-              )}
-              {...teamJam}
-              {...ruleset}
-            />
-          ))}
-        </Group>
-
+                  <Divider
+                    orientation="horizontal"
+                    size={bout.state != "jam" ? "xs" : 0}
+                  />
+                  <Collapse
+                    orientation="vertical"
+                    expanded={bout.state != "jam"}
+                    bg="yellow.3"
+                  >
+                    <EventClock
+                      p="xs"
+                      fz="h4"
+                      ta="center"
+                      miw="200px"
+                      startTimestamp={lastEventTimestamp}
+                      {...bout}
+                    />
+                  </Collapse>
+                </Card>
+              </Center>
+            </Grid.Col>
+          </Grid>
+        </Center>
         {/* TODO: Add lineup editors */}
       </Stack>
     </PageShell>
