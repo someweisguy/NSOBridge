@@ -6,6 +6,7 @@ import {
   AppShellProps,
   Group,
   Text,
+  Tooltip,
 } from "@mantine/core";
 import { useOs } from "@mantine/hooks";
 import { IconArrowBackUp, IconArrowForwardUp } from "@tabler/icons-react";
@@ -79,12 +80,16 @@ export default function PageShell({
 
           <Group gap="xs">
             {header}
-            <ActionIcon variant="subtle" onClick={() => undo.mutate()}>
-              <IconArrowBackUp size={16} />
-            </ActionIcon>
-            <ActionIcon variant="subtle" onClick={() => redo.mutate()}>
-              <IconArrowForwardUp size={16} />
-            </ActionIcon>
+            <Tooltip withArrow fz="xs" label="Undo">
+              <ActionIcon variant="subtle" onClick={() => undo.mutate()}>
+                <IconArrowBackUp size={16} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip withArrow fz="xs" label="Redo">
+              <ActionIcon variant="subtle" onClick={() => redo.mutate()}>
+                <IconArrowForwardUp size={16} />
+              </ActionIcon>
+            </Tooltip>
           </Group>
         </Group>
       </AppShell.Header>

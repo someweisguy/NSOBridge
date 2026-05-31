@@ -41,6 +41,7 @@ import {
   Select,
   Stack,
   Title,
+  Tooltip,
   useModalsStack,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -156,12 +157,14 @@ export default function Operator() {
               }
             }}
           />
-          <ActionIcon
-            variant="light"
-            onClick={() => modalStack.open("create-bout")}
-          >
-            <IconPlus size={16} />
-          </ActionIcon>
+          <Tooltip withArrow fz="xs" label="Add bout">
+            <ActionIcon
+              variant="light"
+              onClick={() => modalStack.open("create-bout")}
+            >
+              <IconPlus size={16} />
+            </ActionIcon>
+          </Tooltip>
           <Menu withArrow shadow="md" width={200}>
             <Menu.Target>
               <Button
