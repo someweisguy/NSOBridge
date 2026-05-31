@@ -1,4 +1,5 @@
 import ResponsiveScroller from "@/components/responsive-scroller";
+import { Card } from "@mantine/core";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta: Meta<typeof ResponsiveScroller> = {
@@ -10,7 +11,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: <></>,
+    children: Array.from({ length: 10 }, (_, i: number) => (
+      <Card withBorder key={i} w="60px" h="80px">
+        {i}
+      </Card>
+    )),
   },
 };
 
