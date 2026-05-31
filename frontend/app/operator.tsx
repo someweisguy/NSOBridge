@@ -32,6 +32,7 @@ import {
   Box,
   Button,
   Card,
+  Center,
   Collapse,
   Divider,
   Group,
@@ -348,38 +349,39 @@ export default function Operator() {
 
             return (
               <Card withBorder key={team.num} px="0">
-                <Stack align="center">
+                <Stack align="stretch" w="350px">
                   <Title ta="center" fz="h3">
                     {team.name}
                   </Title>
-                  <TeamScore
-                    w={250}
-                    reverse={!!(i % 2)}
-                    aside={
-                      <TimeoutsLeft
-                        timeoutIsActive={
-                          latestTimeout != null &&
-                          isRunning(latestTimeout) &&
-                          latestTimeout.teamNum === team.num
-                        }
-                        isReview={latestTimeout?.isReview ?? false}
-                        size={13}
-                        {...team}
-                        {...ruleset}
-                      />
-                    }
-                    lead={lead}
-                    lost={lost}
-                    starPass={starPass}
-                    textSize={20}
-                    {...team}
-                  />
+                  <Center>
+                    <TeamScore
+                      reverse={!!(i % 2)}
+                      aside={
+                        <TimeoutsLeft
+                          timeoutIsActive={
+                            latestTimeout != null &&
+                            isRunning(latestTimeout) &&
+                            latestTimeout.teamNum === team.num
+                          }
+                          isReview={latestTimeout?.isReview ?? false}
+                          size={13}
+                          {...team}
+                          {...ruleset}
+                        />
+                      }
+                      lead={lead}
+                      lost={lost}
+                      starPass={starPass}
+                      textSize={20}
+                      {...team}
+                    />
+                  </Center>
 
                   {teamJam != null && (
                     <>
                       <Divider label="Edit Jammer" variant="dashed" w="100%" />
                       <JammerStateControl
-                        w="300px"
+                        w="100%"
                         mx="md"
                         boutUuid={activeJam.boutUuid}
                         periodNum={activeJam.period}
@@ -401,7 +403,7 @@ export default function Operator() {
                         {...teamJam}
                         {...ruleset}
                       />
-                      <ResponsiveScroller w="250px" h="100px">
+                      <ResponsiveScroller m="0" h="100px">
                         {teamJam.events
                           .filter(
                             (tripEvent: TripEvent) => tripEvent.passes != null,

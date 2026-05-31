@@ -42,5 +42,9 @@ export default function JammerTripControl({
     ))
   );
 
-  return <Group>{passButtons}</Group>;
+  return (
+    <Group justify="space-around" mx="md">
+      {passButtons}
+    </Group>
+  );
 }
