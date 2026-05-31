@@ -60,13 +60,13 @@ export default function PageShell({
       padding="md"
       header={{ height: 48 }}
       navbar={{
+        width: 250,
+        breakpoint: "sm",
+      }}
+      aside={{
         width: 200,
         breakpoint: "sm",
         collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
-      }}
-      aside={{
-        width: 250,
-        breakpoint: "sm",
       }}
       disabled={disabled}
     >
@@ -99,8 +99,8 @@ export default function PageShell({
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar>{navButtons}</AppShell.Navbar>
-      <AppShell.Aside p="xs">{aside}</AppShell.Aside>
+      <AppShell.Navbar p="xs">{navButtons}</AppShell.Navbar>
+      <AppShell.Aside>{aside}</AppShell.Aside>
 
       <AppShell.Main>
         {/* TODO: Add error boundary */}

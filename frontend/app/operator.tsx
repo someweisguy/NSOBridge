@@ -143,6 +143,69 @@ export default function Operator() {
   return (
     <PageShell
       navButtons={
+        <Stack>
+          <Box h="100px">
+            <Card withBorder orientation="vertical" fz="h4" p="0">
+              <GameClock
+                align="center"
+                p="xs"
+                activePeriodNum={activeJam.period}
+                activeJamNum={activeJam.num}
+                isOvertime={activeJam.period > 2}
+                {...bout}
+                {...activeJam}
+                {...ruleset}
+              />
+              <Divider
+                orientation="horizontal"
+                size={bout.state != "jam" ? "xs" : 0}
+              />
+              <Collapse
+                orientation="vertical"
+                expanded={bout.state != "jam"}
+                bg="yellow.3"
+              >
+                <EventClock
+                  p="xs"
+                  fz="h3"
+                  ta="center"
+                  startTimestamp={lastEventTimestamp}
+                  {...bout}
+                />
+              </Collapse>
+            </Card>
+          </Box>
+          <BoutControl boutUri={boutUri} state={bout.state} />
+
+          <Collapse
+            expanded={
+              (bout.state == "lineup" || bout.state == "timeout") &&
+              latestJamUri.jamNum > 0
+            }
+          >
+            <JamStopReasonEditor
+              p="xs"
+              stopReason={activeJam.stopReason}
+              jamUri={activeJamUri}
+            />
+          </Collapse>
+
+          <Collapse expanded={bout.state == "timeout" && timeoutIsFetched}>
+            <TimeoutEditor
+              p="xs"
+              timeoutUri={latestTimeoutUri}
+              teamNum={latestTimeout?.teamNum ?? null}
+              teamIsOfficials={latestTimeout?.teamIsOfficials ?? false}
+              isReview={latestTimeout?.isReview ?? false}
+              isRetained={latestTimeout?.retained ?? false}
+              teamData={bout.teams.map((team: Team) => {
+                return { label: team.name, value: String(team.num) };
+              })}
+            />
+          </Collapse>
+        </Stack>
+      }
+      aside={
         <Stack h="100%" gap="0" justify="space-between">
           <AppShell.Section component={ScrollArea}>
             <NavLink
@@ -241,69 +304,6 @@ export default function Operator() {
               </Button>
             </Stack>
           </AppShell.Section>
-        </Stack>
-      }
-      aside={
-        <Stack>
-          <Box h="100px">
-            <Card withBorder orientation="vertical" fz="h4" p="0">
-              <GameClock
-                align="center"
-                p="xs"
-                activePeriodNum={activeJam.period}
-                activeJamNum={activeJam.num}
-                isOvertime={activeJam.period > 2}
-                {...bout}
-                {...activeJam}
-                {...ruleset}
-              />
-              <Divider
-                orientation="horizontal"
-                size={bout.state != "jam" ? "xs" : 0}
-              />
-              <Collapse
-                orientation="vertical"
-                expanded={bout.state != "jam"}
-                bg="yellow.3"
-              >
-                <EventClock
-                  p="xs"
-                  fz="h3"
-                  ta="center"
-                  startTimestamp={lastEventTimestamp}
-                  {...bout}
-                />
-              </Collapse>
-            </Card>
-          </Box>
-          <BoutControl boutUri={boutUri} state={bout.state} />
-
-          <Collapse
-            expanded={
-              (bout.state == "lineup" || bout.state == "timeout") &&
-              latestJamUri.jamNum > 0
-            }
-          >
-            <JamStopReasonEditor
-              p="xs"
-              stopReason={activeJam.stopReason}
-              jamUri={activeJamUri}
-            />
-          </Collapse>
-
-          <Collapse expanded={bout.state == "timeout" && timeoutIsFetched}>
-            <TimeoutEditor
-              p="xs"
-              timeoutUri={latestTimeoutUri}
-              teamNum={latestTimeout?.teamNum ?? null}
-              teamIsOfficials={latestTimeout?.teamIsOfficials ?? false}
-              isReview={latestTimeout?.isReview ?? false}
-              isRetained={latestTimeout?.retained ?? false}
-              teamData={bout.teams.map((team: Team) => {
-                return { label: team.name, value: String(team.num) };
-              })}
-            />
-          </Collapse>
         </Stack>
       }
     >
