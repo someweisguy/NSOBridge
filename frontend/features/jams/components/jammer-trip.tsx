@@ -1,9 +1,9 @@
 import { TripEvent } from "@/types/jam";
-import { ActionIcon, Card, NumberInput } from "@mantine/core";
+import { ActionIcon, Card, CardProps, NumberInput } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
 import { IconTrash } from "@tabler/icons-react";
 
-interface JammerTripProps extends TripEvent {
+interface JammerTripProps extends TripEvent, CardProps {
   tripIndex: number;
   pointsPerTrip: number;
 }
@@ -12,11 +12,19 @@ export default function JammerTrip({
   tripIndex,
   passes,
   pointsPerTrip,
+  ...props
 }: JammerTripProps) {
   const { hovered, ref } = useHover();
 
   return (
-    <Card withBorder ref={ref} w="fit-content" px="0.25rem" py="0.5rem">
+    <Card
+      withBorder
+      ref={ref}
+      w="fit-content"
+      px="0.25rem"
+      py="0.5rem"
+      {...props}
+    >
       <NumberInput
         size="xs"
         variant="unstyled"
@@ -29,7 +37,6 @@ export default function JammerTrip({
         allowDecimal={false}
         label={"Trip " + (tripIndex + 1)}
         hideControls={!hovered}
-        stepHoldDelay={250}
         leftSection={
           hovered && (
             <ActionIcon variant="transparent" color="red">
@@ -40,7 +47,8 @@ export default function JammerTrip({
         leftSectionWidth={24}
         rightSectionWidth={24}
         placeholder="0"
-        styles={{ input: { textAlign: "center" } }}
+        styles={{ input: { textAlign: "center", pointerEvents: "none" } }}
+        onFocusCapture={(event) => event.currentTarget.blur()}
       />
     </Card>
   );
