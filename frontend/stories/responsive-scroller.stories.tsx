@@ -11,6 +11,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    w: "200px",
     children: Array.from({ length: 10 }, (_, i: number) => (
       <Card withBorder key={i} w="60px" h="80px">
         {i}
