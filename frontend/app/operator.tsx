@@ -50,6 +50,7 @@ import {
   IconExternalLink,
   IconPlus,
   IconRollerSkating,
+  IconScoreboard,
   IconStopwatch,
   IconTrafficLights,
   IconUserExclamation,
@@ -113,6 +114,7 @@ export default function Operator() {
   });
 
   const modalStack = useModalsStack([
+    "series",
     "ruleset",
     ...bout.teams.map((team: Team) => "team-" + team.num),
     "bout-clock",
@@ -141,8 +143,14 @@ export default function Operator() {
   return (
     <PageShell
       navButtons={
-        <Stack h="100%" gap="md" justify="space-between">
+        <Stack h="100%" gap="0" justify="space-between">
           <AppShell.Section component={ScrollArea}>
+            <NavLink
+              disabled
+              label="Series"
+              leftSection={<IconScoreboard size={16} />}
+              onClick={() => modalStack.open("series")}
+            />
             <NavLink
               disabled
               label="Ruleset"
@@ -191,7 +199,7 @@ export default function Operator() {
               onClick={() => modalStack.open("edit-penalties")}
             />
           </AppShell.Section>
-          <AppShell.Section p="sm">
+          <AppShell.Section p="0">
             <Stack gap="sm" align="stretch">
               <Divider />
               <Select
