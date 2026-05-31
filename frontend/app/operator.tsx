@@ -199,7 +199,7 @@ export default function Operator() {
               onClick={() => modalStack.open("edit-penalties")}
             />
           </AppShell.Section>
-          <AppShell.Section p="0">
+          <AppShell.Section pt="0" mt="0" m="xs">
             <Stack gap="sm" align="stretch">
               <Divider />
               <Select
