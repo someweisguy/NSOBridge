@@ -2,19 +2,22 @@ import {
   Button,
   ButtonProps,
   Group,
+  Overlay,
   ScrollArea,
   ScrollAreaAutosizeProps,
 } from "@mantine/core";
+import { useScroller } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
 const arrowButtonStyle: ButtonProps = {
   p: 0,
-  variant: "subtle",
+  variant: "gradient",
+  w: "2rem",
   c: "gray",
-  h: "full",
-  w: 30,
+  h: "100%",
+  radius: "0",
 };
 
 /**
@@ -26,27 +29,12 @@ const arrowButtonStyle: ButtonProps = {
  * is added.
  */
 export default function ResponsiveScroller({
-  w = 200,
   children,
   ...props
 }: ScrollAreaAutosizeProps) {
-  const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
-  const [disableScrollRight, setDisableScrollRight] = useState(true);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const groupRef = useRef<HTMLDivElement>(null);
 
-  const scrollByOneChild = useCallback((direction: "left" | "right") => {
-    if (groupRef.current == null) {
-      return;
-    }
-    const numChildren = groupRef.current.children.length;
-    const childWidth = Math.round(groupRef.current.scrollWidth) / numChildren;
-
-    viewportRef.current?.scrollBy({
-      behavior: "smooth",
-      left: direction == "left" ? -childWidth : childWidth,
-    });
-  }, []);
+  const scroller = useScroller();
 
   // Scroll to end when an item is added or removed or when the page initially loads
   useEffect(() => {
@@ -57,44 +45,42 @@ export default function ResponsiveScroller({
   }, [children]);
 
   return (
-    <Group gap="5px" justify="center" wrap="nowrap">
-      <Button
-        className={twMerge(scrollPosition.x == 0 && "invisible")}
-        disabled={scrollPosition.x == 0}
-        onClick={() => scrollByOneChild("left")}
-        {...arrowButtonStyle}
-        pr={1}
-      >
-        <IconChevronLeft size="24" />
-      </Button>
-      <ScrollArea.Autosize
-        type="never"
-        onScrollPositionChange={(newPosition) => {
-          setScrollPosition(newPosition);
-          setDisableScrollRight(
-            Math.round(newPosition.x) +
-              (viewportRef.current?.offsetWidth ?? 0) ==
-              groupRef.current?.scrollWidth,
-          );
-        }}
-        viewportRef={viewportRef}
-        w={w}
-        mih={60}
-        {...props}
-      >
-        <Group ref={groupRef} gap="xs" wrap="nowrap">
-          {children}
+    <ScrollArea.Autosize
+      type="never"
+      viewportRef={(node) => {
+        // Use multiple refs to allow scroll to end
+        scroller.ref(node);
+        viewportRef.current = node;
+      }}
+      {...scroller.dragHandlers}
+      {...props}
+    >
+      <Group gap="xs" m="xs" wrap="nowrap">
+        {children}
+      </Group>
+
+      <Overlay backgroundOpacity={0} style={{ pointerEvents: "none" }}>
+        <Group h="100%" justify="space-between" wrap="nowrap" p="0">
+          <Button
+            className={twMerge(!scroller.canScrollStart && "invisible")}
+            gradient={{ from: "white", to: "transparent", deg: 90 }}
+            onClick={scroller.scrollStart}
+            style={{ pointerEvents: "all" }}
+            {...arrowButtonStyle}
+          >
+            <IconChevronLeft size="24" />
+          </Button>
+          <Button
+            className={twMerge(!scroller.canScrollEnd && "invisible")}
+            gradient={{ from: "white", to: "transparent", deg: -90 }}
+            onClick={scroller.scrollEnd}
+            style={{ pointerEvents: "all" }}
+            {...arrowButtonStyle}
+          >
+            <IconChevronRight size="24" />
+          </Button>
         </Group>
-      </ScrollArea.Autosize>
-      <Button
-        className={twMerge(disableScrollRight && "invisible")}
-        disabled={disableScrollRight}
-        onClick={() => scrollByOneChild("right")}
-        {...arrowButtonStyle}
-        pl={1}
-      >
-        <IconChevronRight size="24" />
-      </Button>
-    </Group>
+      </Overlay>
+    </ScrollArea.Autosize>
   );
 }
