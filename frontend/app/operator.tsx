@@ -28,6 +28,7 @@ import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import {
+  ActionIcon,
   AppShell,
   Box,
   Button,
@@ -41,6 +42,7 @@ import {
   ScrollArea,
   Select,
   Stack,
+  Text,
   Title,
   useModalsStack,
 } from "@mantine/core";
@@ -142,6 +144,44 @@ export default function Operator() {
 
   return (
     <PageShell
+      header={
+        <>
+          <Text size="xs"></Text>
+          <Select
+            size="xs"
+            withAlignedLabels
+            data={allBoutsSelectData}
+            value={boutUri.boutUuid}
+            allowDeselect={false}
+            onChange={(boutUuid: string | null) => {
+              if (boutUuid != null) {
+                setBoutUri({ boutUuid });
+              }
+            }}
+          />
+          <ActionIcon
+            variant="light"
+            onClick={() => modalStack.open("create-bout")}
+          >
+            <IconPlus size={16} />
+          </ActionIcon>
+          <Button
+            size="xs"
+            variant="subtle"
+            justify="space-between"
+            rightSection={<IconExternalLink size={16} />}
+            onClick={() =>
+              window.open(
+                window.location.href + "sb?boutUuid=" + boutUri.boutUuid,
+                "_blank",
+              )
+            }
+          >
+            Open Scoreboard
+          </Button>
+          &nbsp;
+        </>
+      }
       navButtons={
         <Stack>
           <Box h="100px">
@@ -261,48 +301,6 @@ export default function Operator() {
               leftSection={<IconUserExclamation size={16} />}
               onClick={() => modalStack.open("edit-penalties")}
             />
-          </AppShell.Section>
-          <AppShell.Section pt="0" mt="0" m="xs">
-            <Stack gap="sm" align="stretch">
-              <Divider />
-              <Select
-                withAlignedLabels
-                label="Select a Bout"
-                data={allBoutsSelectData}
-                value={boutUri.boutUuid}
-                allowDeselect={false}
-                onChange={(boutUuid: string | null) => {
-                  if (boutUuid != null) {
-                    setBoutUri({ boutUuid });
-                  }
-                }}
-                comboboxProps={{
-                  position: "top",
-                  middlewares: { flip: false, shift: false },
-                  offset: 0,
-                }}
-              />
-              <Button
-                variant="subtle"
-                rightSection={<IconExternalLink size={16} />}
-                onClick={() =>
-                  window.open(
-                    window.location.href + "sb?boutUuid=" + boutUri.boutUuid,
-                    "_blank",
-                  )
-                }
-              >
-                Open Scoreboard
-              </Button>
-              <Divider />
-              <Button
-                variant="light"
-                rightSection={<IconPlus size={16} />}
-                onClick={() => modalStack.open("create-bout")}
-              >
-                Create New Bout
-              </Button>
-            </Stack>
           </AppShell.Section>
         </Stack>
       }
