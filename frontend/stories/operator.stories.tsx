@@ -60,11 +60,90 @@ const jam: Jam = {
   teamJams: [
     {
       teamNum: 0,
-      events: [],
+      events: [
+        {
+          timestamp: "2026-05-30T17:37:54.440417",
+          lead: false,
+          lost: false,
+          passes: 0,
+          starPass: false,
+        },
+        {
+          timestamp: "2026-05-30T17:38:03.880934",
+          lead: true,
+          lost: false,
+          passes: null,
+          starPass: false,
+        },
+        {
+          timestamp: "2026-05-30T17:39:50.919934",
+          lead: false,
+          lost: false,
+          passes: 4,
+          starPass: false,
+        },
+        {
+          timestamp: "2026-05-30T17:39:51.597357",
+          lead: false,
+          lost: false,
+          passes: 4,
+          starPass: false,
+        },
+        {
+          timestamp: "2026-05-30T17:39:52.806932",
+          lead: false,
+          lost: false,
+          passes: 4,
+          starPass: false,
+        },
+        {
+          timestamp: "2026-05-30T19:00:13.958413",
+          lead: false,
+          lost: false,
+          passes: 4,
+          starPass: false,
+        },
+        {
+          timestamp: "2026-05-30T19:00:14.866356",
+          lead: false,
+          lost: false,
+          passes: 4,
+          starPass: false,
+        },
+        {
+          timestamp: "2026-05-30T19:00:18.204427",
+          lead: false,
+          lost: false,
+          passes: 4,
+          starPass: false,
+        },
+        {
+          timestamp: "2026-05-30T19:20:27.979653",
+          lead: false,
+          lost: false,
+          passes: 3,
+          starPass: false,
+        },
+        {
+          timestamp: "2026-05-30T19:20:33.260732",
+          lead: false,
+          lost: false,
+          passes: 0,
+          starPass: false,
+        },
+      ],
     },
     {
       teamNum: 1,
-      events: [],
+      events: [
+        {
+          timestamp: "2026-05-30T19:22:54.712890",
+          lead: false,
+          lost: false,
+          passes: 0,
+          starPass: false,
+        },
+      ],
     },
   ],
 };
