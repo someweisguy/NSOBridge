@@ -17,7 +17,7 @@ const checkBoxTheme = createTheme({
   cursorType: "pointer",
 });
 
-interface TeamJamControlProps extends GroupProps {
+interface JammerStateControlProps extends GroupProps {
   boutUuid: string;
   periodNum: number;
   jamNum: number;
@@ -30,7 +30,7 @@ interface TeamJamControlProps extends GroupProps {
   starPass: boolean;
 }
 
-export default function TeamJamControl({
+export default function JammerStateControl({
   boutUuid,
   periodNum,
   jamNum,
@@ -40,7 +40,7 @@ export default function TeamJamControl({
   lost,
   starPass,
   ...props
-}: TeamJamControlProps) {
+}: JammerStateControlProps) {
   const teamJamUri: TeamJamUri = { boutUuid, periodNum, jamNum, teamNum };
 
   const setLead = useTeamJamAddLead({ ...teamJamUri });

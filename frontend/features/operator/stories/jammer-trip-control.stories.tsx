@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import TeamJamTripHistory from "../components/team-jam-trip-history";
+import JammerTripControl from "../components/jammer-trip-control";
 
-const meta: Meta<typeof TeamJamTripHistory> = {
-  component: TeamJamTripHistory,
-  title: "Trip History",
+const meta: Meta<typeof JammerTripControl> = {
+  component: JammerTripControl,
+  title: "Jammer Trip Control",
   argTypes: {
     w: {
       control: { type: "number" },

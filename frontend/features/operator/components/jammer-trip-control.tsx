@@ -2,7 +2,7 @@ import { TeamJamUri } from "@/types/query";
 import { Button, Group, ScrollAreaAutosizeProps } from "@mantine/core";
 import { useTeamJamAddTrip } from "../hooks/use-team-jam-add-trip";
 
-interface TeamJamTripHistoryProps extends ScrollAreaAutosizeProps {
+interface JammerTripControlProps extends ScrollAreaAutosizeProps {
   /**
    * Show the initial pass interface.
    */
@@ -14,11 +14,11 @@ interface TeamJamTripHistoryProps extends ScrollAreaAutosizeProps {
   teamJamUri: TeamJamUri;
 }
 
-export default function TeamJamTripHistory({
+export default function JammerTripControl({
   showInitial = false,
   numPasses,
   teamJamUri,
-}: TeamJamTripHistoryProps) {
+}: JammerTripControlProps) {
   const addTrip = useTeamJamAddTrip({ ...teamJamUri });
 
   const passButtons = showInitial ? (

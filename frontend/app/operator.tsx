@@ -13,8 +13,8 @@ import BoutClockEditor from "@/features/operator/components/bout-clock-editor";
 import BoutControl from "@/features/operator/components/bout-control";
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TeamEditor from "@/features/operator/components/team-editor";
-import TeamJamControl from "@/features/operator/components/team-jam-control";
-import TeamJamTripHistory from "@/features/operator/components/team-jam-trip-history";
+import JammerStateControl from "@/features/operator/components/jammer-state-control";
+import JammerTripControl from "@/features/operator/components/jammer-trip-control";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
@@ -366,7 +366,7 @@ export default function Operator() {
                             variant="dashed"
                             w="100%"
                           />
-                          <TeamJamControl
+                          <JammerStateControl
                             w="300px"
                             mx="md"
                             boutUuid={activeJam.boutUuid}
@@ -386,7 +386,7 @@ export default function Operator() {
                             variant="dashed"
                             w="100%"
                           />
-                          <TeamJamTripHistory
+                          <JammerTripControl
                             teamJamUri={{ teamNum: team.num, ...activeJamUri }}
                             showInitial={numTrips == 0}
                             numPasses={ruleset.pointsPerTrip}
