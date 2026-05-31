@@ -11,10 +11,10 @@ import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import JammerTrip from "@/features/jams/components/jammer-trip";
 import BoutClockEditor from "@/features/operator/components/bout-clock-editor";
 import BoutControl from "@/features/operator/components/bout-control";
-import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
-import TeamEditor from "@/features/operator/components/team-editor";
 import JammerStateControl from "@/features/operator/components/jammer-state-control";
 import JammerTripControl from "@/features/operator/components/jammer-trip-control";
+import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
+import TeamEditor from "@/features/operator/components/team-editor";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
@@ -29,14 +29,12 @@ import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import {
   AppShell,
-  Box,
   Button,
   Card,
   Center,
   Collapse,
   Divider,
   Grid,
-  Group,
   Modal,
   NavLink,
   ScrollArea,
@@ -236,6 +234,68 @@ export default function Operator() {
           </AppShell.Section>
         </Stack>
       }
+      aside={
+        <Stack justify="space-between">
+          <Card withBorder orientation="vertical" fz="h4" p="0">
+            <GameClock
+              align="center"
+              p="xs"
+              // w="250px"
+              activePeriodNum={activeJam.period}
+              activeJamNum={activeJam.num}
+              isOvertime={activeJam.period > 2}
+              {...bout}
+              {...activeJam}
+              {...ruleset}
+            />
+            <Divider
+              orientation="horizontal"
+              size={bout.state != "jam" ? "xs" : 0}
+            />
+            <Collapse
+              orientation="vertical"
+              expanded={bout.state != "jam"}
+              bg="yellow.3"
+            >
+              <EventClock
+                p="xs"
+                fz="h4"
+                ta="center"
+                startTimestamp={lastEventTimestamp}
+                {...bout}
+              />
+            </Collapse>
+          </Card>
+          <BoutControl boutUri={boutUri} state={bout.state} />
+
+          <Collapse
+            expanded={
+              (bout.state == "lineup" || bout.state == "timeout") &&
+              latestJamUri.jamNum > 0
+            }
+          >
+            <JamStopReasonEditor
+              p="xs"
+              stopReason={activeJam.stopReason}
+              jamUri={activeJamUri}
+            />
+          </Collapse>
+
+          <Collapse expanded={bout.state == "timeout" && timeoutIsFetched}>
+            <TimeoutEditor
+              p="xs"
+              timeoutUri={latestTimeoutUri}
+              teamNum={latestTimeout?.teamNum ?? null}
+              teamIsOfficials={latestTimeout?.teamIsOfficials ?? false}
+              isReview={latestTimeout?.isReview ?? false}
+              isRetained={latestTimeout?.retained ?? false}
+              teamData={bout.teams.map((team: Team) => {
+                return { label: team.name, value: String(team.num) };
+              })}
+            />
+          </Collapse>
+        </Stack>
+      }
     >
       <Modal.Stack>
         <Modal title="Select Ruleset" {...modalStack.register("ruleset")}>
@@ -268,44 +328,6 @@ export default function Operator() {
       </Modal.Stack>
 
       <Stack gap="sm" align="stretch" w="100%">
-        <Group justify="space-between" wrap="nowrap">
-          <BoutControl boutUuid={bout.uuid} state={bout.state} />
-          <Group w="100%" justify="space-between">
-            <Box>
-              <Collapse
-                orientation="horizontal"
-                expanded={bout.state == "timeout" && timeoutIsFetched}
-                w="fit-content"
-              >
-                <TimeoutEditor
-                  timeoutUri={latestTimeoutUri}
-                  teamNum={latestTimeout?.teamNum ?? null}
-                  teamIsOfficials={latestTimeout?.teamIsOfficials ?? false}
-                  isReview={latestTimeout?.isReview ?? false}
-                  isRetained={latestTimeout?.retained ?? false}
-                  teamData={bout.teams.map((team: Team) => {
-                    return { label: team.name, value: String(team.num) };
-                  })}
-                />
-              </Collapse>
-            </Box>
-            <Collapse
-              orientation="horizontal"
-              w="fit-content"
-              expanded={
-                (bout.state == "lineup" || bout.state == "timeout") &&
-                latestJamUri.jamNum > 0
-              }
-            >
-              <JamStopReasonEditor
-                size="xs"
-                stopReason={activeJam.stopReason}
-                jamUri={activeJamUri}
-              />
-            </Collapse>
-          </Group>
-        </Group>
-
         <Center>
           <Grid
             columns={bout.teams.length + 1}
@@ -418,39 +440,7 @@ export default function Operator() {
             })}
 
             <Grid.Col span={1} order={1}>
-              <Center>
-                <Card withBorder orientation="vertical" fz="h4" p="0">
-                  <GameClock
-                    align="center"
-                    p="xs"
-                    w="250px"
-                    activePeriodNum={activeJam.period}
-                    activeJamNum={activeJam.num}
-                    isOvertime={activeJam.period > 2}
-                    {...bout}
-                    {...activeJam}
-                    {...ruleset}
-                  />
-                  <Divider
-                    orientation="horizontal"
-                    size={bout.state != "jam" ? "xs" : 0}
-                  />
-                  <Collapse
-                    orientation="vertical"
-                    expanded={bout.state != "jam"}
-                    bg="yellow.3"
-                  >
-                    <EventClock
-                      p="xs"
-                      fz="h4"
-                      ta="center"
-                      miw="200px"
-                      startTimestamp={lastEventTimestamp}
-                      {...bout}
-                    />
-                  </Collapse>
-                </Card>
-              </Center>
+              <Center></Center>
             </Grid.Col>
           </Grid>
         </Center>

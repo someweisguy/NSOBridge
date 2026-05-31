@@ -15,6 +15,7 @@ import { PropsWithChildren, ReactNode, Suspense, useEffect } from "react";
 interface PageShellProps
   extends Pick<AppShellProps, "disabled">, PropsWithChildren {
   navButtons?: ReactNode;
+  aside?: ReactNode;
 }
 
 /**
@@ -22,6 +23,7 @@ interface PageShellProps
  */
 export default function PageShell({
   navButtons,
+  aside,
   disabled,
   children,
 }: PageShellProps) {
@@ -99,6 +101,8 @@ export default function PageShell({
         {/* TODO: Add error boundary */}
         <Suspense fallback={"Loading..."}>{children}</Suspense>
       </AppShell.Main>
+
+      <AppShell.Aside p="xs">{aside}</AppShell.Aside>
     </AppShell>
   );
 }

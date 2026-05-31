@@ -5,8 +5,8 @@ import {
   Checkbox,
   Collapse,
   Fieldset,
+  FieldsetProps,
   Group,
-  MantineThemeOverride,
   SegmentedControl,
   Select,
   Stack,
@@ -19,7 +19,7 @@ import { useSetTimeoutType } from "../hooks/use-set-timeout-type";
 
 const officialDataValue = ""; // Cannot be the string representation of a number!
 
-interface TimeoutEditorProps extends MantineThemeOverride {
+interface TimeoutEditorProps extends FieldsetProps {
   timeoutUri: TimeoutUri;
   teamNum: number | null;
   teamIsOfficials: boolean;
@@ -35,6 +35,7 @@ export default function TimeoutEditor({
   isReview,
   isRetained,
   teamData,
+  ...props
 }: TimeoutEditorProps) {
   const [officialReviewError, setOfficialReviewError] = useState(
     teamIsOfficials && isReview,
@@ -63,9 +64,15 @@ export default function TimeoutEditor({
     <Fieldset
       legend={"Edit " + (isReview ? "Official Review" : "Timeout")}
       w="fit-content"
+      {...props}
     >
-      <Stack>
-        <Group align="center">
+      <Stack align="flex-state">
+        <Group
+          gap="xs"
+          justify="space-between"
+          wrap="nowrap"
+          preventGrowOverflow={false}
+        >
           <SegmentedControl
             size="xs"
             data={[
@@ -75,48 +82,48 @@ export default function TimeoutEditor({
             value={isReview ? "review" : "timeout"}
             onChange={(type: "timeout" | "review") => setType.mutate(type)}
           />
-          <Select
-            size="xs"
-            placeholder="Select a calling team..."
-            data={[
-              {
-                value: officialDataValue,
-                label: "Officials",
-                disabled: isReview,
-              },
-              ...teamData,
-            ]}
-            value={selectValue}
-            onChange={(value: string | number | null) => {
-              const valueIsOfficials = value == officialDataValue;
-              setOfficialReviewError(valueIsOfficials && isReview);
-              setTeam.mutate(valueIsOfficials ? null : Number(value));
-            }}
-            error={officialReviewError}
-            allowDeselect={false}
-          />
-          <Collapse expanded={isReview} orientation="horizontal">
-            <Button
-              size="xs"
-              variant="default"
-              onClick={() => setIsRetained.mutate(!isRetained)}
-            >
-              <Checkbox
-                size="xs"
-                label="Review is retained?"
-                labelPosition="left"
-                checked={isRetained}
-                styles={{
-                  input: { cursor: "pointer" },
-                  label: { cursor: "pointer" },
-                }}
-              ></Checkbox>
-            </Button>
-          </Collapse>
           <ActionIcon disabled>
             <IconPencil size={16} />
           </ActionIcon>
         </Group>
+        <Select
+          size="xs"
+          placeholder="Select a calling team..."
+          data={[
+            {
+              value: officialDataValue,
+              label: "Officials",
+              disabled: isReview,
+            },
+            ...teamData,
+          ]}
+          value={selectValue}
+          onChange={(value: string | number | null) => {
+            const valueIsOfficials = value == officialDataValue;
+            setOfficialReviewError(valueIsOfficials && isReview);
+            setTeam.mutate(valueIsOfficials ? null : Number(value));
+          }}
+          error={officialReviewError}
+          allowDeselect={false}
+        />
+        <Collapse expanded={isReview} orientation="horizontal">
+          <Button
+            size="xs"
+            variant="default"
+            onClick={() => setIsRetained.mutate(!isRetained)}
+          >
+            <Checkbox
+              size="xs"
+              label="Review is retained?"
+              labelPosition="left"
+              checked={isRetained}
+              styles={{
+                input: { cursor: "pointer" },
+                label: { cursor: "pointer" },
+              }}
+            ></Checkbox>
+          </Button>
+        </Collapse>
       </Stack>
     </Fieldset>
   );

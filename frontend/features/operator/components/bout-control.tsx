@@ -6,7 +6,7 @@ import { useStopJam } from "@/features/operator/hooks/use-stop-jam";
 import { useStopTimeout } from "@/features/operator/hooks/use-stop-timeout";
 import { BoutStateString } from "@/types/bout";
 import { BoutUri } from "@/types/query";
-import { Button, Fieldset, Group } from "@mantine/core";
+import { Button, Fieldset, FieldsetProps, Stack } from "@mantine/core";
 import {
   IconAlarm,
   IconPlayerPause,
@@ -16,10 +16,16 @@ import {
 } from "@tabler/icons-react";
 import { useCallback } from "react";
 
+interface BoutControlProps extends FieldsetProps {
+  boutUri: BoutUri;
+  state: BoutStateString;
+}
+
 export default function BoutControl({
   state,
-  ...boutUri
-}: BoutUri & { state: BoutStateString }) {
+  boutUri,
+  ...props
+}: BoutControlProps) {
   // Jam controls
   const startJam = useStartJam(boutUri);
   const stopJam = useStopJam(boutUri);
@@ -45,8 +51,8 @@ export default function BoutControl({
   );
 
   return (
-    <Fieldset legend="Bout Controls" w="fit-content">
-      <Group wrap="nowrap">
+    <Fieldset legend="Bout Controls" {...props}>
+      <Stack>
         <Button
           size="xs"
           variant="default"
@@ -86,7 +92,7 @@ export default function BoutControl({
         >
           {state == "stopped" ? "Begin Period" : "End Period"}
         </Button>
-      </Group>
+      </Stack>
     </Fieldset>
   );
 }
