@@ -61,10 +61,14 @@ export default function PageShell({
         width: 250,
         breakpoint: "sm",
       }}
-      aside={{
-        width: 200,
-        breakpoint: "sm",
-      }}
+      aside={
+        aside != null
+          ? {
+              width: 200,
+              breakpoint: "sm",
+            }
+          : undefined
+      }
       disabled={disabled}
     >
       <AppShell.Header>
@@ -86,7 +90,7 @@ export default function PageShell({
       </AppShell.Header>
 
       <AppShell.Navbar p="xs">{navButtons}</AppShell.Navbar>
-      <AppShell.Aside>{aside}</AppShell.Aside>
+      {aside != null && <AppShell.Aside>{aside}</AppShell.Aside>}
 
       <AppShell.Main>
         {/* TODO: Add error boundary */}
