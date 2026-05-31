@@ -63,7 +63,6 @@ export default function TimeoutEditor({
   return (
     <Fieldset
       legend={"Edit " + (isReview ? "Official Review" : "Timeout")}
-      w="fit-content"
       {...props}
     >
       <Stack align="flex-state">
@@ -106,13 +105,15 @@ export default function TimeoutEditor({
           error={officialReviewError}
           allowDeselect={false}
         />
-        <Collapse expanded={isReview} orientation="horizontal">
+        <Collapse expanded={isReview}>
           <Button
+            w="100%"
             size="xs"
             variant="default"
             onClick={() => setIsRetained.mutate(!isRetained)}
           >
             <Checkbox
+              w="100%"
               size="xs"
               label="Review is retained?"
               labelPosition="left"
