@@ -45,7 +45,7 @@ export default function GameClock({
           <ClockView inherit {...clock} />
         )}
       </Grid.Col>
-      <Grid.Col span={1}>
+      <Grid.Col span={1} miw="fit-content">
         <Text inherit>
           P{activePeriodNum + 1} J{activeJamNum + 1}
         </Text>
