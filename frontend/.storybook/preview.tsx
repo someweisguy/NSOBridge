@@ -4,6 +4,7 @@ import "@mantine/core/styles.css";
 import type { Preview } from "@storybook/react-vite";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { initialize, mswLoader } from "msw-storybook-addon";
+import { MINIMAL_VIEWPORTS } from "storybook/viewport";
 import queryClient from "../lib/cache";
 
 initialize();
@@ -22,6 +23,15 @@ const preview: Preview = {
     ),
   ],
   parameters: {
+    viewport: {
+      options: {
+        smallDesktop: {
+          name: "Small Desktop",
+          styles: { width: "1280px", height: "585px" },
+        },
+        ...MINIMAL_VIEWPORTS,
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

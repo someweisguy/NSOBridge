@@ -169,7 +169,7 @@ const meta: Meta = {
   title: "Pages/Operator",
   globals: {
     viewport: {
-      value: "desktop",
+      value: "smallDesktop",
     },
   },
   parameters: {
