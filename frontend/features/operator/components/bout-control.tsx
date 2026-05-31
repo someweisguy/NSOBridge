@@ -51,7 +51,7 @@ export default function BoutControl({
   );
 
   return (
-    <Fieldset legend="Bout Controls" {...props}>
+    <Fieldset legend="Control Bout" {...props}>
       <Stack>
         <Button
           size="xs"
