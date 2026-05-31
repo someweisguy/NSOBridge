@@ -235,7 +235,7 @@ export default function Operator() {
         </Stack>
       }
       aside={
-        <Stack align="stretch" w="200px">
+        <Stack gap="xs">
           <Box h="100px">
             <Card withBorder orientation="vertical" fz="h4" p="0">
               <GameClock
