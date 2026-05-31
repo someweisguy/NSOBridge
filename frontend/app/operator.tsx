@@ -9,12 +9,11 @@ import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import JammerTrip from "@/features/jams/components/jammer-trip";
-import BoutClockEditor from "@/features/operator/components/bout-clock-editor";
 import BoutControl from "@/features/operator/components/bout-control";
+import EditMenu from "@/features/operator/components/edit-menu";
 import JammerStateControl from "@/features/operator/components/jammer-state-control";
 import JammerTripControl from "@/features/operator/components/jammer-trip-control";
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
-import TeamEditor from "@/features/operator/components/team-editor";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
@@ -36,27 +35,15 @@ import {
   Collapse,
   Divider,
   Group,
-  Menu,
   Modal,
   Select,
   Stack,
   Title,
   Tooltip,
-  useModalsStack,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
-import {
-  IconCheckupList,
-  IconExternalLink,
-  IconPencil,
-  IconPlus,
-  IconRollerSkating,
-  IconScoreboard,
-  IconStopwatch,
-  IconTrafficLights,
-  IconUserExclamation,
-  IconUsers,
-} from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import { IconExternalLink, IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
@@ -114,15 +101,7 @@ export default function Operator() {
     throwOnError: false,
   });
 
-  const modalStack = useModalsStack([
-    "series",
-    "ruleset",
-    ...bout.teams.map((team: Team) => "team-" + team.num),
-    "bout-clock",
-    "edit-jams",
-    "edit-timeouts",
-    "create-bout",
-  ]);
+  const [opened, { open, close }] = useDisclosure(false);
 
   // Get the time since the last Jam or Timeout or null if neither have occurred
   const lastEventTimestamp: string | null =
@@ -158,92 +137,11 @@ export default function Operator() {
             }}
           />
           <Tooltip withArrow fz="xs" label="Add bout">
-            <ActionIcon
-              variant="light"
-              onClick={() => modalStack.open("create-bout")}
-            >
+            <ActionIcon variant="light" onClick={open}>
               <IconPlus size={16} />
             </ActionIcon>
           </Tooltip>
-          <Menu withArrow shadow="md" width={200}>
-            <Menu.Target>
-              <Button
-                size="xs"
-                variant="default"
-                justify="space-between"
-                rightSection={<IconPencil size={16} />}
-              >
-                Edit
-              </Button>
-            </Menu.Target>
-
-            <Menu.Dropdown>
-              <Menu.Item
-                disabled
-                leftSection={<IconScoreboard size={16} />}
-                onClick={() => modalStack.open("series")}
-              >
-                Series
-              </Menu.Item>
-              <Menu.Item
-                disabled
-                leftSection={<IconCheckupList size={16} />}
-                onClick={() => modalStack.open("ruleset")}
-              >
-                Ruleset
-              </Menu.Item>
-              <Menu.Sub openDelay={120} closeDelay={150}>
-                <Menu.Sub.Target>
-                  <Menu.Sub.Item leftSection={<IconUsers size={16} />}>
-                    Teams
-                  </Menu.Sub.Item>
-                </Menu.Sub.Target>
-                <Menu.Sub.Dropdown>
-                  <Menu.Item
-                    disabled
-                    onClick={() => modalStack.open("officials")}
-                  >
-                    Officials
-                  </Menu.Item>
-                  {bout.teams.map((team: Team) => (
-                    <Menu.Item
-                      key={team.num}
-                      onClick={() => modalStack.open("team-" + team.num)}
-                    >
-                      {team.name}
-                    </Menu.Item>
-                  ))}
-                </Menu.Sub.Dropdown>
-              </Menu.Sub>
-              <Menu.Item
-                leftSection={<IconStopwatch size={16} />}
-                onClick={() => modalStack.open("bout-clock")}
-              >
-                Bout Clock
-              </Menu.Item>
-              <Menu.Item
-                disabled
-                leftSection={<IconRollerSkating size={16} />}
-                onClick={() => modalStack.open("edit-jams")}
-              >
-                Jams
-              </Menu.Item>
-              <Menu.Item
-                disabled
-                leftSection={<IconTrafficLights size={16} />}
-                onClick={() => modalStack.open("edit-timeouts")}
-              >
-                Timeouts
-              </Menu.Item>
-              <Menu.Item
-                disabled
-                leftSection={<IconUserExclamation size={16} />}
-                onClick={() => modalStack.open("edit-penalties")}
-              >
-                Penalties
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+          <EditMenu {...bout} />
           <Button
             size="xs"
             variant="subtle"
@@ -325,35 +223,15 @@ export default function Operator() {
         </Stack>
       }
     >
-      <Modal.Stack>
-        <Modal title="Select Ruleset" {...modalStack.register("ruleset")}>
-          Edit ruleset...
-        </Modal>
-        {bout.teams.map((team: Team) => (
-          <Modal
-            key={team.num}
-            title={"Edit " + team.name}
-            {...modalStack.register("team-" + team.num)}
-          >
-            <TeamEditor boutUuid={bout.uuid} {...team} />
-          </Modal>
-        ))}
-        <Modal title="Edit Bout Clock" {...modalStack.register("bout-clock")}>
-          <BoutClockEditor
-            boutUuid={bout.uuid}
-            isRunning={bout.clock.startTimestamp != null}
-          />
-        </Modal>
-        <Modal title="Create New Bout" {...modalStack.register("create-bout")}>
-          <BoutCreator
-            rulesetNames={rulesetNames}
-            onSuccess={(boutUuid) => {
-              setBoutUri({ boutUuid });
-              modalStack.closeAll();
-            }}
-          />
-        </Modal>
-      </Modal.Stack>
+      <Modal title="Create New Bout" opened={opened} onClose={close}>
+        <BoutCreator
+          rulesetNames={rulesetNames}
+          onSuccess={(boutUuid) => {
+            setBoutUri({ boutUuid });
+            close();
+          }}
+        />
+      </Modal>
 
       <Stack gap="sm" align="stretch" w="100%">
         <Group justify="space-around" gap="lg">
