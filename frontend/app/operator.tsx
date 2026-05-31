@@ -356,7 +356,7 @@ export default function Operator() {
               ) ?? 0;
 
             return (
-              <Card withBorder key={team.num} px="0">
+              <Card withBorder key={team.num} w="350px" px="0">
                 <Stack align="stretch" w="350px">
                   <Title ta="center" fz="h3">
                     {team.name}
@@ -389,7 +389,7 @@ export default function Operator() {
                     <>
                       <Divider label="Edit Jammer" variant="dashed" w="100%" />
                       <JammerStateControl
-                        w="100%"
+                        justify="space-between"
                         mx="md"
                         boutUuid={activeJam.boutUuid}
                         periodNum={activeJam.period}
