@@ -31,10 +31,9 @@ import {
   AppShell,
   Button,
   Card,
-  Center,
   Collapse,
   Divider,
-  Grid,
+  Group,
   Modal,
   NavLink,
   ScrollArea,
@@ -328,123 +327,101 @@ export default function Operator() {
       </Modal.Stack>
 
       <Stack gap="sm" align="stretch" w="100%">
-        <Center>
-          <Grid
-            columns={bout.teams.length + 1}
-            align="center"
-            w="fit-content"
-            gap="lg"
-          >
-            {bout.teams.map((team: Team, i: number) => {
-              const teamJam = activeJam.teamJams.find(
-                (tj: TeamJam) => tj.teamNum == team.num,
-              );
+        <Group justify="space-around" gap="lg">
+          {bout.teams.map((team: Team, i: number) => {
+            const teamJam = activeJam.teamJams.find(
+              (tj: TeamJam) => tj.teamNum == team.num,
+            );
 
-              const lead = teamJam?.events.some((event) => event.lead) ?? false;
-              const lost = teamJam?.events.some((event) => event.lost) ?? false;
-              const starPass =
-                teamJam?.events.some((event) => event.starPass) ?? false;
-              const numTrips =
-                teamJam?.events.reduce<number>(
-                  (numTrips: number, event: TripEvent) =>
-                    (numTrips += Number(event.passes != null)),
-                  0,
-                ) ?? 0;
+            const lead = teamJam?.events.some((event) => event.lead) ?? false;
+            const lost = teamJam?.events.some((event) => event.lost) ?? false;
+            const starPass =
+              teamJam?.events.some((event) => event.starPass) ?? false;
+            const numTrips =
+              teamJam?.events.reduce<number>(
+                (numTrips: number, event: TripEvent) =>
+                  (numTrips += Number(event.passes != null)),
+                0,
+              ) ?? 0;
 
-              return (
-                <Grid.Col span={1} key={team.num} order={i == 1 ? 2 : 0}>
-                  <Card withBorder px="0">
-                    <Stack align="center">
-                      <Title ta="center" fz="h3">
-                        {team.name}
-                      </Title>
-                      <TeamScore
-                        w={250}
-                        reverse={!!(i % 2)}
-                        aside={
-                          <TimeoutsLeft
-                            timeoutIsActive={
-                              latestTimeout != null &&
-                              isRunning(latestTimeout) &&
-                              latestTimeout.teamNum === team.num
-                            }
-                            isReview={latestTimeout?.isReview ?? false}
-                            size={13}
-                            {...team}
-                            {...ruleset}
-                          />
+            return (
+              <Card withBorder key={team.num} px="0">
+                <Stack align="center">
+                  <Title ta="center" fz="h3">
+                    {team.name}
+                  </Title>
+                  <TeamScore
+                    w={250}
+                    reverse={!!(i % 2)}
+                    aside={
+                      <TimeoutsLeft
+                        timeoutIsActive={
+                          latestTimeout != null &&
+                          isRunning(latestTimeout) &&
+                          latestTimeout.teamNum === team.num
                         }
+                        isReview={latestTimeout?.isReview ?? false}
+                        size={13}
+                        {...team}
+                        {...ruleset}
+                      />
+                    }
+                    lead={lead}
+                    lost={lost}
+                    starPass={starPass}
+                    textSize={20}
+                    {...team}
+                  />
+
+                  {teamJam != null && (
+                    <>
+                      <Divider label="Edit Jammer" variant="dashed" w="100%" />
+                      <JammerStateControl
+                        w="300px"
+                        mx="md"
+                        boutUuid={activeJam.boutUuid}
+                        periodNum={activeJam.period}
+                        jamNum={activeJam.num}
                         lead={lead}
                         lost={lost}
                         starPass={starPass}
-                        textSize={20}
-                        {...team}
+                        leadIsDeclared={teamJam.events.some(
+                          (event) => event.lead,
+                        )}
+                        {...teamJam}
+                        {...ruleset}
                       />
-
-                      {teamJam != null && (
-                        <>
-                          <Divider
-                            label="Edit Jammer"
-                            variant="dashed"
-                            w="100%"
-                          />
-                          <JammerStateControl
-                            w="300px"
-                            mx="md"
-                            boutUuid={activeJam.boutUuid}
-                            periodNum={activeJam.period}
-                            jamNum={activeJam.num}
-                            lead={lead}
-                            lost={lost}
-                            starPass={starPass}
-                            leadIsDeclared={teamJam.events.some(
-                              (event) => event.lead,
-                            )}
-                            {...teamJam}
-                            {...ruleset}
-                          />
-                          <Divider
-                            label="Add Trips"
-                            variant="dashed"
-                            w="100%"
-                          />
-                          <JammerTripControl
-                            teamJamUri={{ teamNum: team.num, ...activeJamUri }}
-                            showInitial={numTrips == 0}
-                            numPasses={ruleset.pointsPerTrip}
-                            {...teamJam}
-                            {...ruleset}
-                          />
-                          <ResponsiveScroller w="250px" h="100px">
-                            {teamJam.events
-                              .filter(
-                                (tripEvent: TripEvent) =>
-                                  tripEvent.passes != null,
-                              )
-                              .map((tripEvent: TripEvent, i: number) => (
-                                <JammerTrip
-                                  w="80px"
-                                  key={i}
-                                  tripIndex={i}
-                                  {...tripEvent}
-                                  {...ruleset}
-                                />
-                              ))}
-                          </ResponsiveScroller>
-                        </>
-                      )}
-                    </Stack>
-                  </Card>
-                </Grid.Col>
-              );
-            })}
-
-            <Grid.Col span={1} order={1}>
-              <Center></Center>
-            </Grid.Col>
-          </Grid>
-        </Center>
-        {/* TODO: Add lineup editors */}
+                      <Divider label="Add Trips" variant="dashed" w="100%" />
+                      <JammerTripControl
+                        teamJamUri={{ teamNum: team.num, ...activeJamUri }}
+                        showInitial={numTrips == 0}
+                        numPasses={ruleset.pointsPerTrip}
+                        {...teamJam}
+                        {...ruleset}
+                      />
+                      <ResponsiveScroller w="250px" h="100px">
+                        {teamJam.events
+                          .filter(
+                            (tripEvent: TripEvent) => tripEvent.passes != null,
+                          )
+                          .map((tripEvent: TripEvent, i: number) => (
+                            <JammerTrip
+                              w="80px"
+                              key={i}
+                              tripIndex={i}
+                              {...tripEvent}
+                              {...ruleset}
+                            />
+                          ))}
+                      </ResponsiveScroller>
+                    </>
+                  )}
+                  {/* TODO: Add lineup editors */}
+                </Stack>
+              </Card>
+            );
+          })}
+        </Group>
       </Stack>
     </PageShell>
   );
