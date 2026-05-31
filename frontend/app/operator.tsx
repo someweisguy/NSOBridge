@@ -393,7 +393,7 @@ export default function Operator() {
                             {...teamJam}
                             {...ruleset}
                           />
-                          <ResponsiveScroller w="250px">
+                          <ResponsiveScroller w="250px" h="100px">
                             {teamJam.events
                               .filter(
                                 (tripEvent: TripEvent) =>
