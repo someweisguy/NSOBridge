@@ -179,12 +179,14 @@ export default function Operator() {
 
             <Menu.Dropdown>
               <Menu.Item
+                disabled
                 leftSection={<IconScoreboard size={16} />}
                 onClick={() => modalStack.open("series")}
               >
                 Series
               </Menu.Item>
               <Menu.Item
+                disabled
                 leftSection={<IconCheckupList size={16} />}
                 onClick={() => modalStack.open("ruleset")}
               >
@@ -197,7 +199,10 @@ export default function Operator() {
                   </Menu.Sub.Item>
                 </Menu.Sub.Target>
                 <Menu.Sub.Dropdown>
-                  <Menu.Item onClick={() => modalStack.open("officials")}>
+                  <Menu.Item
+                    disabled
+                    onClick={() => modalStack.open("officials")}
+                  >
                     Officials
                   </Menu.Item>
                   {bout.teams.map((team: Team) => (
@@ -217,18 +222,21 @@ export default function Operator() {
                 Bout Clock
               </Menu.Item>
               <Menu.Item
+                disabled
                 leftSection={<IconRollerSkating size={16} />}
                 onClick={() => modalStack.open("edit-jams")}
               >
                 Jams
               </Menu.Item>
               <Menu.Item
+                disabled
                 leftSection={<IconTrafficLights size={16} />}
                 onClick={() => modalStack.open("edit-timeouts")}
               >
                 Timeouts
               </Menu.Item>
               <Menu.Item
+                disabled
                 leftSection={<IconUserExclamation size={16} />}
                 onClick={() => modalStack.open("edit-penalties")}
               >
