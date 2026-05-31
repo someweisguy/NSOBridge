@@ -394,17 +394,20 @@ export default function Operator() {
                             {...ruleset}
                           />
                           <ResponsiveScroller>
-                            {teamJam.events.map(
-                              (event: TripEvent, i: number) => (
+                            {teamJam.events
+                              .filter(
+                                (tripEvent: TripEvent) =>
+                                  tripEvent.passes != null,
+                              )
+                              .map((tripEvent: TripEvent, i: number) => (
                                 <JammerTrip
                                   w="80px"
                                   key={i}
                                   tripIndex={i}
-                                  {...event}
+                                  {...tripEvent}
                                   {...ruleset}
                                 />
-                              ),
-                            )}
+                              ))}
                           </ResponsiveScroller>
                         </>
                       )}
