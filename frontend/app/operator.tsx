@@ -29,7 +29,6 @@ import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import {
   ActionIcon,
-  AppShell,
   Box,
   Button,
   Card,
@@ -37,12 +36,10 @@ import {
   Collapse,
   Divider,
   Group,
+  Menu,
   Modal,
-  NavLink,
-  ScrollArea,
   Select,
   Stack,
-  Text,
   Title,
   useModalsStack,
 } from "@mantine/core";
@@ -50,6 +47,7 @@ import "@mantine/core/styles.css";
 import {
   IconCheckupList,
   IconExternalLink,
+  IconPencil,
   IconPlus,
   IconRollerSkating,
   IconScoreboard,
@@ -146,7 +144,6 @@ export default function Operator() {
     <PageShell
       header={
         <>
-          <Text size="xs"></Text>
           <Select
             size="xs"
             withAlignedLabels
@@ -165,6 +162,77 @@ export default function Operator() {
           >
             <IconPlus size={16} />
           </ActionIcon>
+          <Menu withArrow shadow="md" width={200}>
+            <Menu.Target>
+              <Button
+                size="xs"
+                variant="default"
+                justify="space-between"
+                rightSection={<IconPencil size={16} />}
+              >
+                Edit
+              </Button>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<IconScoreboard size={16} />}
+                onClick={() => modalStack.open("series")}
+              >
+                Series
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<IconCheckupList size={16} />}
+                onClick={() => modalStack.open("ruleset")}
+              >
+                Ruleset
+              </Menu.Item>
+              <Menu.Sub openDelay={120} closeDelay={150}>
+                <Menu.Sub.Target>
+                  <Menu.Sub.Item leftSection={<IconUsers size={16} />}>
+                    Teams
+                  </Menu.Sub.Item>
+                </Menu.Sub.Target>
+                <Menu.Sub.Dropdown>
+                  <Menu.Item onClick={() => modalStack.open("officials")}>
+                    Officials
+                  </Menu.Item>
+                  {bout.teams.map((team: Team) => (
+                    <Menu.Item
+                      key={team.num}
+                      onClick={() => modalStack.open("team-" + team.num)}
+                    >
+                      {team.name}
+                    </Menu.Item>
+                  ))}
+                </Menu.Sub.Dropdown>
+              </Menu.Sub>
+              <Menu.Item
+                leftSection={<IconStopwatch size={16} />}
+                onClick={() => modalStack.open("bout-clock")}
+              >
+                Bout Clock
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<IconRollerSkating size={16} />}
+                onClick={() => modalStack.open("edit-jams")}
+              >
+                Jams
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<IconTrafficLights size={16} />}
+                onClick={() => modalStack.open("edit-timeouts")}
+              >
+                Timeouts
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<IconUserExclamation size={16} />}
+                onClick={() => modalStack.open("edit-penalties")}
+              >
+                Penalties
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
           <Button
             size="xs"
             variant="subtle"
@@ -243,65 +311,6 @@ export default function Operator() {
               })}
             />
           </Collapse>
-        </Stack>
-      }
-      aside={
-        <Stack h="100%" gap="0" justify="space-between">
-          <AppShell.Section component={ScrollArea}>
-            <NavLink
-              disabled
-              label="Series"
-              leftSection={<IconScoreboard size={16} />}
-              onClick={() => modalStack.open("series")}
-            />
-            <NavLink
-              disabled
-              label="Ruleset"
-              leftSection={<IconCheckupList size={16} />}
-              onClick={() => modalStack.open("ruleset")}
-            />
-            <NavLink
-              defaultOpened
-              label="Teams & Rosters"
-              leftSection={<IconUsers size={16} />}
-            >
-              <NavLink
-                disabled
-                label="Officials"
-                onClick={() => modalStack.open("officials")}
-              />
-              {bout.teams.map((team: Team) => (
-                <NavLink
-                  key={team.num}
-                  label={team.name}
-                  onClick={() => modalStack.open("team-" + team.num)}
-                />
-              ))}
-            </NavLink>
-            <NavLink
-              label="Bout Clock"
-              leftSection={<IconStopwatch size={16} />}
-              onClick={() => modalStack.open("bout-clock")}
-            />
-            <NavLink
-              disabled
-              label="Jams"
-              leftSection={<IconRollerSkating size={16} />}
-              onClick={() => modalStack.open("edit-jams")}
-            />
-            <NavLink
-              disabled
-              label="Timeouts"
-              leftSection={<IconTrafficLights size={16} />}
-              onClick={() => modalStack.open("edit-timeouts")}
-            />
-            <NavLink
-              disabled
-              label="Penalties"
-              leftSection={<IconUserExclamation size={16} />}
-              onClick={() => modalStack.open("edit-penalties")}
-            />
-          </AppShell.Section>
         </Stack>
       }
     >
