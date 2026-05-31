@@ -167,6 +167,11 @@ const timeout: Timeout = {
 const meta: Meta = {
   component: Operator,
   title: "Pages/Operator",
+  globals: {
+    viewport: {
+      value: "desktop",
+    },
+  },
   parameters: {
     msw: {
       handlers: [
@@ -181,8 +186,6 @@ const meta: Meta = {
   },
 };
 
-type Story = StoryObj<typeof meta>;
-
 const rulesetData = {
   name: "WFTDA 2025",
   numPeriods: 2,
@@ -192,6 +195,8 @@ const rulesetData = {
   numTimeouts: 3,
   numReviews: 1,
 };
+
+type Story = StoryObj<typeof meta>;
 
 export const PostJam: Story = {
   parameters: {
