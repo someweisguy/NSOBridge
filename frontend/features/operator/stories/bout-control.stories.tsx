@@ -16,6 +16,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    boutUri: { boutUuid: "" },
     state: "lineup",
   },
 };
