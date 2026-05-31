@@ -1,4 +1,5 @@
 import PageShell from "@/components/page-shell";
+import ResponsiveScroller from "@/components/responsive-scroller";
 import BoutCreator from "@/features/bouts/components/bout-creator";
 import EventClock from "@/features/bouts/components/event-clock";
 import GameClock from "@/features/bouts/components/game-clock";
@@ -7,6 +8,7 @@ import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
+import JammerTrip from "@/features/jams/components/jammer-trip";
 import BoutClockEditor from "@/features/operator/components/bout-clock-editor";
 import BoutControl from "@/features/operator/components/bout-control";
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
@@ -391,6 +393,19 @@ export default function Operator() {
                             {...teamJam}
                             {...ruleset}
                           />
+                          <ResponsiveScroller>
+                            {teamJam.events.map(
+                              (event: TripEvent, i: number) => (
+                                <JammerTrip
+                                  w="80px"
+                                  key={i}
+                                  tripIndex={i}
+                                  {...event}
+                                  {...ruleset}
+                                />
+                              ),
+                            )}
+                          </ResponsiveScroller>
                         </>
                       )}
                     </Stack>
