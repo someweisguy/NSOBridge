@@ -15,29 +15,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    events: [
-      {
-        passes: 0,
-        lead: false,
-        lost: false,
-        starPass: false,
-        timestamp: new Date().toISOString(),
-      },
-      {
-        passes: 4,
-        lead: false,
-        lost: false,
-        starPass: false,
-        timestamp: new Date().toISOString(),
-      },
-      {
-        passes: 4,
-        lead: false,
-        lost: false,
-        starPass: false,
-        timestamp: new Date().toISOString(),
-      },
-    ],
     numPasses: 4,
     showInitial: false,
   },

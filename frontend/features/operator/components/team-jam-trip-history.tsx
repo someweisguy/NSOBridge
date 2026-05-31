@@ -1,17 +1,8 @@
-import ResponsiveScroller from "@/components/responsive-scroller";
-import { TripEvent } from "@/types/jam";
 import { TeamJamUri } from "@/types/query";
-import {
-  Button,
-  Group,
-  ScrollAreaAutosizeProps,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { Button, Group, ScrollAreaAutosizeProps } from "@mantine/core";
 import { useTeamJamAddTrip } from "../hooks/use-team-jam-add-trip";
 
 interface TeamJamTripHistoryProps extends ScrollAreaAutosizeProps {
-  events: TripEvent[];
   /**
    * Show the initial pass interface.
    */
@@ -24,7 +15,6 @@ interface TeamJamTripHistoryProps extends ScrollAreaAutosizeProps {
 }
 
 export default function TeamJamTripHistory({
-  events,
   showInitial = false,
   numPasses,
   teamJamUri,
@@ -52,25 +42,5 @@ export default function TeamJamTripHistory({
     ))
   );
 
-  return (
-    <Stack align="center">
-      <Group>{passButtons}</Group>
-      <ResponsiveScroller>
-        {events
-          .filter((event) => event.passes != null)
-          .map((event: TripEvent, i: number) => (
-            <Button key={i} px={0} variant="subtle" c="gray" w="50" h="60">
-              <Stack gap={3}>
-                <Text fs="italic" c="dimmed" size="8pt">
-                  Trip {i + 1}
-                </Text>
-                <Text c="dark" fw="bold" size="md">
-                  {event.passes}
-                </Text>
-              </Stack>
-            </Button>
-          ))}
-      </ResponsiveScroller>
-    </Stack>
-  );
+  return <Group>{passButtons}</Group>;
 }
