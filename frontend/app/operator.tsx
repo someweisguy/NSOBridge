@@ -29,6 +29,7 @@ import { BoutUri } from "@/types/query";
 import { isRunning } from "@/utils/time";
 import {
   AppShell,
+  Box,
   Button,
   Card,
   Collapse,
@@ -234,37 +235,38 @@ export default function Operator() {
         </Stack>
       }
       aside={
-        <Stack justify="space-between">
-          <Card withBorder orientation="vertical" fz="h4" p="0">
-            <GameClock
-              align="center"
-              p="xs"
-              // w="250px"
-              activePeriodNum={activeJam.period}
-              activeJamNum={activeJam.num}
-              isOvertime={activeJam.period > 2}
-              {...bout}
-              {...activeJam}
-              {...ruleset}
-            />
-            <Divider
-              orientation="horizontal"
-              size={bout.state != "jam" ? "xs" : 0}
-            />
-            <Collapse
-              orientation="vertical"
-              expanded={bout.state != "jam"}
-              bg="yellow.3"
-            >
-              <EventClock
+        <Stack align="stretch" w="200px">
+          <Box h="100px">
+            <Card withBorder orientation="vertical" fz="h4" p="0">
+              <GameClock
+                align="center"
                 p="xs"
-                fz="h4"
-                ta="center"
-                startTimestamp={lastEventTimestamp}
+                activePeriodNum={activeJam.period}
+                activeJamNum={activeJam.num}
+                isOvertime={activeJam.period > 2}
                 {...bout}
+                {...activeJam}
+                {...ruleset}
               />
-            </Collapse>
-          </Card>
+              <Divider
+                orientation="horizontal"
+                size={bout.state != "jam" ? "xs" : 0}
+              />
+              <Collapse
+                orientation="vertical"
+                expanded={bout.state != "jam"}
+                bg="yellow.3"
+              >
+                <EventClock
+                  p="xs"
+                  fz="h3"
+                  ta="center"
+                  startTimestamp={lastEventTimestamp}
+                  {...bout}
+                />
+              </Collapse>
+            </Card>
+          </Box>
           <BoutControl boutUri={boutUri} state={bout.state} />
 
           <Collapse
