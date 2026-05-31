@@ -125,8 +125,8 @@ export default function Operator() {
       header={
         <>
           <Select
-            size="xs"
             withAlignedLabels
+            size="xs"
             data={allBoutsSelectData}
             value={boutUri.boutUuid}
             allowDeselect={false}
