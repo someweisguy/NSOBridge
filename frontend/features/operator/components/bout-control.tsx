@@ -56,6 +56,7 @@ export default function BoutControl({
         <Button
           size="xs"
           variant="default"
+          justify="space-between"
           onClick={jamControlOnClick}
           rightSection={
             state == "jam" ? (
@@ -70,16 +71,19 @@ export default function BoutControl({
         <Button
           size="xs"
           variant="default"
+          justify="space-between"
           disabled={state != "lineup" && state != "timeout"}
           onClick={timeoutControlOnClick}
           rightSection={<IconAlarm size={16} />}
         >
           {state == "timeout" ? "End Timeout" : "Call Timeout"}
         </Button>
+
         <Button
           size="xs"
-          color={state == "stopped" ? "green.8" : "red"}
           variant="outline"
+          justify="space-between"
+          color={state == "stopped" ? "green.8" : "red"}
           disabled={state == "jam" || state == "timeout"}
           onClick={periodControlOnClick}
           rightSection={
