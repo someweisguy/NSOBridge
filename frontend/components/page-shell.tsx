@@ -64,6 +64,10 @@ export default function PageShell({
         breakpoint: "sm",
         collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
       }}
+      aside={{
+        width: 250,
+        breakpoint: "sm",
+      }}
       disabled={disabled}
     >
       <AppShell.Header>
@@ -96,13 +100,12 @@ export default function PageShell({
       </AppShell.Header>
 
       <AppShell.Navbar>{navButtons}</AppShell.Navbar>
+      <AppShell.Aside p="xs">{aside}</AppShell.Aside>
 
       <AppShell.Main>
         {/* TODO: Add error boundary */}
         <Suspense fallback={"Loading..."}>{children}</Suspense>
       </AppShell.Main>
-
-      <AppShell.Aside p="xs">{aside}</AppShell.Aside>
     </AppShell>
   );
 }
