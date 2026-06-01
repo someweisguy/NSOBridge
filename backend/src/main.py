@@ -15,7 +15,7 @@ from core import APIResponse, endpoint_profiling_middleware
 from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from game import BaseBout, Series, Team
+from game import BaseBout, Series, create_bout
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
 from update import GithubReleaseSchema
@@ -94,12 +94,14 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
         if len(results.scalars().all()) == 0:
             logging.info('Instantiating the initial Series model')
             try:
-                initial_bout: BaseBout = BaseBout(
-                    RULESET_NAME, Team('Home'), Team('Away')
-                )
-                session.add(initial_bout)
+                # Create the initial Bout using the API and requery it
+                await create_bout(session, RULESET_NAME, ['Home', 'Away'])
                 await session.commit()
-                await session.refresh(initial_bout)
+
+                statement: Select[tuple[BaseBout]] = select(BaseBout)
+                results: Result[tuple[BaseBout]] = await session.execute(statement)
+                initial_bout: BaseBout = results.scalar_one()
+
                 series: Series = Series('My First Series', initial_bout)
                 session.add(series)
             except Exception as e:
