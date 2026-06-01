@@ -1,6 +1,7 @@
 # Custom Dictionary Words
-sessionmaker
-WFTDA
 autodocs
+selectin
+sessionmaker
 tabler
+WFTDA
 wght
