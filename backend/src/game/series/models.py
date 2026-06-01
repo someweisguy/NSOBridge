@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, override
 
 from db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
+from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .schemas import SeriesSchema
@@ -24,6 +25,7 @@ class Series(CacheableSQLModel):
     """
 
     name: Mapped[str] = mapped_column(default='')
+    active_bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'))
 
     bouts: Mapped[list[BaseBout]] = relationship(
         back_populates='_series',
@@ -33,14 +35,17 @@ class Series(CacheableSQLModel):
 
     __tablename__: str = 'series'
 
-    def __init__(self, name: str = '') -> None:
+    def __init__(self, name: str, initial_bout: BaseBout) -> None:
         """Initialize a Series.
 
         Args:
-            name (str, optional): the name of the Series. Defaults to ''.
+            name (str): the name of the Series.
+            initial_bout (BaseBout): the initial Bout of the Series.
 
         """
-        super().__init__(name=name)
+        super().__init__(
+            name=name, active_bout_uuid=initial_bout.uuid, bouts=[initial_bout]
+        )
 
     @override
     def cache_key(self) -> CacheKey:
