@@ -18,13 +18,14 @@ import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
-import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
+import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
-import { Bout, Team } from "@/types/bout";
+import { Team } from "@/types/bout";
 import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
+import { Series } from "@/types/series";
 import { isRunning } from "@/utils/time";
 import {
   ActionIcon,
@@ -67,23 +68,28 @@ if (root != null) {
  * This page should be designed to fit within a viewport that is 1280px by 585px.
  */
 export default function Operator() {
-  const { data: allBouts } = useSuspenseGetAllBouts();
-  const { data: allBoutsSelectData } = useSuspenseGetAllBouts<
+  const { data: allSeries } = useSuspenseGetAllSeries();
+  const [activeSeries, setActiveSeries] = useState(
+    allSeries[allSeries.length - 1],
+  );
+  const { data: allSeriesSelectData } = useSuspenseGetAllSeries<
     {
       value: string;
       label: string;
     }[]
   >({
-    select: (bouts: Bout[]) =>
-      bouts.map((bout: Bout) => ({
-        value: bout.uuid,
-        label: bout.teams[0].name + " vs. " + bout.teams[1].name,
+    select: (allSeries: Series[]) =>
+      allSeries.map((series: Series, i: number) => ({
+        value: String(i),
+        label: series.name,
       })),
   });
-  const [boutUri, setBoutUri] = useState<BoutUri>({
-    boutUuid: allBouts[allBouts.length - 1].uuid,
-  });
+
   const { data: rulesetNames } = useSuspenseAllRulesetNames();
+
+  const [boutUri] = useState<BoutUri>({
+    boutUuid: activeSeries.activeBoutUuid,
+  });
 
   const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
@@ -127,12 +133,12 @@ export default function Operator() {
           <Select
             withAlignedLabels
             size="xs"
-            data={allBoutsSelectData}
+            data={allSeriesSelectData}
             value={boutUri.boutUuid}
             allowDeselect={false}
-            onChange={(boutUuid: string | null) => {
-              if (boutUuid != null) {
-                setBoutUri({ boutUuid });
+            onChange={(seriesIndex: string | null) => {
+              if (seriesIndex != null) {
+                setActiveSeries(allSeries[Number(seriesIndex)]);
               }
             }}
           />
@@ -226,8 +232,7 @@ export default function Operator() {
       <Modal title="Create New Bout" opened={opened} onClose={close}>
         <BoutCreator
           rulesetNames={rulesetNames}
-          onSuccess={(boutUuid) => {
-            setBoutUri({ boutUuid });
+          onSuccess={() => {
             close();
           }}
         />
