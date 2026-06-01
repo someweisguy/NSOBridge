@@ -15,7 +15,7 @@ from core import APIResponse, endpoint_profiling_middleware
 from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from game import Series, create_bout
+from game import BaseBout, Series, Team
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
 from update import GithubReleaseSchema
@@ -31,9 +31,11 @@ CONFIG_FILE_NAME: Path = core.get_resource_path('./config.ini')
 LOG_DIR_NAME: Path = core.get_resource_path('./logs')
 API_PREFIX: str = '/api'
 
+RULESET_NAME = 'WFTDA 2025'
+
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
+async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
     """Handle the app setup and teardown.
 
     Args:
@@ -83,14 +85,20 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915 # FIXME
         engine.get_async_session_factory()
     )
     async with session_factory() as session:
-        statement: Select[tuple[Series]] = select(Series)
-        results: Result[tuple[Series]] = await session.execute(statement)
+        try:
+            statement: Select[tuple[Series]] = select(Series)
+            results: Result[tuple[Series]] = await session.execute(statement)
+        except Exception as e:
+            logging.critical(e)
+            raise e
         if len(results.scalars().all()) == 0:
             logging.info('Instantiating the initial Series model')
             try:
-                series: Series = Series('My First Series')
+                initial_bout: BaseBout = BaseBout(
+                    RULESET_NAME, Team('Home'), Team('Away')
+                )
+                series: Series = Series('My First Series', initial_bout)
                 session.add(series)
-                await create_bout(session, 'WFTDA 2025', ['Home', 'Away'], series)
             except Exception as e:
                 logging.critical(e)
                 raise e
@@ -231,6 +239,7 @@ if __name__ == '__main__':
         else:
             server: Server = core.get_server(app)
             asyncio.run(server.serve())
+            logging.debug('Asyncio loop has closed')
     except KeyboardInterrupt:
         logging.info('Handling keyboard interrupt')
     finally:
