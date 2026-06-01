@@ -97,6 +97,9 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
                 initial_bout: BaseBout = BaseBout(
                     RULESET_NAME, Team('Home'), Team('Away')
                 )
+                session.add(initial_bout)
+                await session.commit()
+                await session.refresh(initial_bout)
                 series: Series = Series('My First Series', initial_bout)
                 session.add(series)
             except Exception as e:

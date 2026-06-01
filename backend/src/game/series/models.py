@@ -28,8 +28,10 @@ class Series(CacheableSQLModel):
     active_bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'))
 
     bouts: Mapped[list[BaseBout]] = relationship(
+        'BaseBout',
         back_populates='_series',
         cascade=CASCADE_CHILD,
+        foreign_keys='BaseBout.series_uuid',
         lazy='selectin',
     )
 
@@ -43,9 +45,8 @@ class Series(CacheableSQLModel):
             initial_bout (BaseBout): the initial Bout of the Series.
 
         """
-        super().__init__(
-            name=name, active_bout_uuid=initial_bout.uuid, bouts=[initial_bout]
-        )
+        super().__init__(name=name, active_bout_uuid=initial_bout.uuid)
+        self.bouts.append(initial_bout)
 
     @override
     def cache_key(self) -> CacheKey:
