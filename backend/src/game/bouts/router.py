@@ -8,7 +8,6 @@ from core import APIResponse
 from db import GetAsyncSession
 from fastapi import APIRouter, Body, Query
 from game.series.dependencies import GetOptionalSeries
-from game.series.models import Series
 from game.teams.dependencies import GetTeam
 from game.teams.models import Team
 from sqlalchemy import Result, Select, select
@@ -56,18 +55,16 @@ async def create_bout(
 
     home_name, away_name, *_ = team_names
     bout: BaseBout = BaseBout(ruleset_name, Team(home_name), Team(away_name))
+    session.add(bout)
 
     # Fetch a Series if one isn't provided
     # This handles only the simple case where one Series exists in the database
-    if series is None:
-        statement: Select[tuple[Series]] = select(Series)
-        results: Result[tuple[Series]] = await session.execute(statement)
-        series = results.scalars().one()
-
-    session.add(bout)
-    series.bouts.append(bout)
+    if series is not None:
+        bout.series_uuid = series.uuid
 
     # Expunge and merge the Bout to allow the subclass to call init()
+    # It's a weird hack, but it appears to be the only way to allow the object to be
+    # loaded as the correct subclass.
     try:
         await session.flush()
         session.expunge(bout)
