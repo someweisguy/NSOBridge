@@ -28,7 +28,7 @@ export interface Bout {
   /**
    * The unique identifier of the Series with which this Bout is associated.
    */
-  seriesUuid: string;
+  seriesUuid: string; // TODO: This could be null as well.
   /**
    * The unique name of the Ruleset that this Bout uses.
    */
