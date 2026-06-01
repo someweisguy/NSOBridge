@@ -26,6 +26,12 @@
   "eslint.options": {
     "overrideConfigFile": "./frontend/configs/eslint.config.js"
   },
-  "cSpell.words": ["WFTDA"],
-  "cSpell.ignoreWords": ["autodocs", "tabler", "wght"]
+  "cSpell.customDictionaries": {
+    "custom-dictionary-workspace": {
+      "name": "custom-dictionary-workspace",
+      "path": "${workspaceFolder:nso-bridge}/.cspell/custom-dictionary-workspace.txt",
+      "addWords": true,
+      "scope": "workspace"
+    }
+  }
 }
