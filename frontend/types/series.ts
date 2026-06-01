@@ -17,7 +17,7 @@ export interface Series {
    */
   boutUuids: string[];
   /**
-   * The index of the active Bout in this Series or null if no Bout is active.
+   * The UUID of the active Bout in this Series.
    */
-  activeBoutIndex: number | null;
+  activeBoutUuid: string;
 }
