@@ -11,6 +11,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     rulesetNames: ["WFTDA 2025", "WFTDA 2024", "WFTDA 2000"],
+    allSeriesData: [
+      {
+        label: "My Series",
+        value: "",
+      },
+    ],
   },
 };
 
