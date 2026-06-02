@@ -16,7 +16,7 @@ export const useSuspenseGetAllSeries = <T = Series[]>(
   options?: AppSuspenseQueryOptions<Series[], T>,
 ) =>
   useSuspenseQuery({
-    queryKey: generateQueryKey.series("ALL"),
+    queryKey: generateQueryKey.series(),
     queryFn: () =>
       localAPI
         .get<Series[]>("series/allSeries")
