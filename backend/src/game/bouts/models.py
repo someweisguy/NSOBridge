@@ -116,7 +116,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     @final
     @override
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return ()
+        return (self._series,) if self._series is not None else ()
 
     def get_series(self) -> Series | None:
         """Get the Series that owns this Bout.
