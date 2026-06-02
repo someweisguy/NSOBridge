@@ -73,15 +73,15 @@ export default function Operator() {
     allSeries[allSeries.length - 1],
   );
   const { data: allSeriesSelectData } = useSuspenseGetAllSeries<
-    {
-      value: string;
-      label: string;
-    }[]
+    { group: string; items: { value: string; label: string }[] }[]
   >({
     select: (allSeries: Series[]) =>
-      allSeries.map((series: Series, i: number) => ({
-        value: String(i),
-        label: series.name,
+      allSeries.map((series: Series) => ({
+        group: series.name,
+        items: series.boutData.map((data) => ({
+          value: data.uuid,
+          label: data.name,
+        })),
       })),
   });
 
@@ -251,8 +251,8 @@ export default function Operator() {
               teamJam?.events.some((event) => event.starPass) ?? false;
             const numTrips =
               teamJam?.events.reduce<number>(
-                (numTrips: number, event: TripEvent) =>
-                  (numTrips += Number(event.passes != null)),
+                (sum: number, event: TripEvent) =>
+                  sum + Number(event.passes != null),
                 0,
               ) ?? 0;
 
