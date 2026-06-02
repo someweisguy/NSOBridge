@@ -87,7 +87,7 @@ export default function Operator() {
 
   const { data: rulesetNames } = useSuspenseAllRulesetNames();
 
-  const [boutUri] = useState<BoutUri>({
+  const [boutUri, setBoutUri] = useState<BoutUri>({
     boutUuid: activeSeries.activeBoutUuid,
   });
 
@@ -232,7 +232,12 @@ export default function Operator() {
       <Modal title="Create New Bout" opened={opened} onClose={close}>
         <BoutCreator
           rulesetNames={rulesetNames}
-          onSuccess={() => {
+          allSeriesData={allSeries.map((series: Series) => ({
+            value: series.uuid,
+            label: series.name,
+          }))}
+          onSuccess={(boutUuid: string) => {
+            setBoutUri({ boutUuid });
             close();
           }}
         />
