@@ -69,9 +69,7 @@ if (root != null) {
  */
 export default function Operator() {
   const { data: allSeries } = useSuspenseGetAllSeries();
-  const [activeSeries, setActiveSeries] = useState(
-    allSeries[allSeries.length - 1],
-  );
+  const [activeSeries] = useState(allSeries[allSeries.length - 1]);
   const { data: allSeriesSelectData } = useSuspenseGetAllSeries<
     { group: string; items: { value: string; label: string }[] }[]
   >({
@@ -136,9 +134,9 @@ export default function Operator() {
             data={allSeriesSelectData}
             value={boutUri.boutUuid}
             allowDeselect={false}
-            onChange={(seriesIndex: string | null) => {
-              if (seriesIndex != null) {
-                setActiveSeries(allSeries[Number(seriesIndex)]);
+            onChange={(boutUuid: string | null) => {
+              if (boutUuid != null) {
+                setBoutUri({ boutUuid });
               }
             }}
           />
