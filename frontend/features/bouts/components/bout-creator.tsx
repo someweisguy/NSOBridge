@@ -4,17 +4,16 @@ import { useState } from "react";
 
 interface BoutCreatorProps {
   rulesetNames: string[];
-  allSeriesData: { value: string; label: string }[];
+  seriesUuid: string;
   onSuccess?: (newBoutUuid: string) => void;
 }
 
 export default function BoutCreator({
-  allSeriesData,
+  seriesUuid,
   rulesetNames,
   onSuccess,
 }: BoutCreatorProps) {
   const [rulesetName, setRulesetName] = useState<string>(rulesetNames[0] ?? "");
-  const [seriesUuid] = useState<string>(allSeriesData[0]?.value ?? "");
   const createBout = useCreateBout({
     rulesetName,
     seriesUuid,
@@ -30,16 +29,6 @@ export default function BoutCreator({
         value={rulesetName}
         onChange={(value: string | null) => setRulesetName(value!)}
         loading={rulesetNames.length == 0}
-        allowDeselect={false}
-        autoSelectOnBlur
-      />
-      <Select
-        label="Add to Series"
-        placeholder="Select a Series..."
-        data={allSeriesData}
-        value={seriesUuid}
-        onChange={(value: string | null) => setRulesetName(value!)}
-        loading={allSeriesData.length == 0}
         allowDeselect={false}
         autoSelectOnBlur
       />

@@ -71,16 +71,15 @@ export default function Operator() {
   const { data: allSeries } = useSuspenseGetAllSeries();
   const [activeSeries] = useState(allSeries[allSeries.length - 1]);
   const { data: allSeriesSelectData } = useSuspenseGetAllSeries<
-    { group: string; items: { value: string; label: string }[] }[]
+    { value: string; label: string }[]
   >({
     select: (allSeries: Series[]) =>
-      allSeries.map((series: Series) => ({
-        group: series.name,
-        items: series.boutData.map((data) => ({
+      allSeries.flatMap((series: Series) =>
+        series.boutData.map((data) => ({
           value: data.uuid,
           label: data.name,
         })),
-      })),
+      ),
   });
 
   const { data: rulesetNames } = useSuspenseAllRulesetNames();
@@ -230,10 +229,7 @@ export default function Operator() {
       <Modal title="Create New Bout" opened={opened} onClose={close}>
         <BoutCreator
           rulesetNames={rulesetNames}
-          allSeriesData={allSeries.map((series: Series) => ({
-            value: series.uuid,
-            label: series.name,
-          }))}
+          seriesUuid={activeSeries.uuid}
           onSuccess={(boutUuid: string) => {
             setBoutUri({ boutUuid });
             close();
