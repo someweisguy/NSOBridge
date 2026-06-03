@@ -55,12 +55,8 @@ async def create_bout(
 
     home_name, away_name, *_ = team_names
     bout: BaseBout = BaseBout(ruleset_name, Team(home_name), Team(away_name))
+    bout.series_uuid = series.uuid
     session.add(bout)
-
-    # Fetch a Series if one isn't provided
-    # This handles only the simple case where one Series exists in the database
-    if series is not None:
-        bout.series_uuid = series.uuid
 
     # Expunge and merge the Bout to allow the subclass to call init()
     # It's a weird hack, but it appears to be the only way to allow the object to be
@@ -76,11 +72,11 @@ async def create_bout(
         ) from e
     bout.init()
 
-    # Flag the Series as dirty so it will be included in the cache updates
-    if series is not None:
-        if series.active_bout_uuid is None:
-            series.active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment] # FIXME
-        flag_dirty(bout.get_series())
+    # Add the Bout to the Series
+    series.bouts.append(bout)
+    if series.active_bout_uuid is None:
+        series.set_active_bout(bout)
+    flag_dirty(series)  # Include Series in cache updates
 
     return APIResponse(bout.uuid, cache=await bout.get_updates())
 
