@@ -102,7 +102,7 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
                 results: Result[tuple[BaseBout]] = await session.execute(statement)
                 initial_bout: BaseBout = results.scalar_one()
 
-                series: Series = Series('My First Series', initial_bout)
+                series: Series = Series('Default Series', initial_bout)
                 session.add(series)
             except Exception as e:
                 logging.critical(e)
