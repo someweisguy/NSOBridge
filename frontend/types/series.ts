@@ -13,9 +13,9 @@ export interface Series {
    */
   name: string;
   /**
-   * The names and UUIDs of the Bouts in this Series.
+   * The UUIDs of the Bouts in this Series.
    */
-  boutData: { name: string; uuid: string }[];
+  boutUuids: string[];
   /**
    * The UUID of the active Bout in this Series.
    */

@@ -1,6 +1,5 @@
 """Pydantic Series schemas."""
 
-from typing import Any
 from uuid import UUID
 
 from core import ServerSchema
@@ -18,12 +17,6 @@ class SeriesSchema(ServerSchema):
 
     @computed_field
     @property
-    def bout_data(self) -> list[dict[str, Any]]:
-        """Return a list of dicts containing information on each bout in the series."""
-        return [
-            {
-                'uuid': bout.uuid,
-                'name': ' vs. '.join([team.name for team in bout.teams]),
-            }
-            for bout in self.bouts
-        ]
+    def bout_uuids(self) -> list[UUID]:
+        """Return a list of UUIDs for each bout in the series."""
+        return [bout.uuid for bout in self.bouts]
