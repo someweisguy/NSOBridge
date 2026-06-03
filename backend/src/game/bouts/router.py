@@ -76,6 +76,10 @@ async def create_bout(
         ) from e
     bout.init()
 
+    # Flag the Series as dirty so it will be included in the cache updates
+    if series is not None:
+        flag_dirty(bout.get_series())
+
     return APIResponse(bout.uuid, cache=await bout.get_updates())
 
 
