@@ -202,7 +202,7 @@ if __name__ == '__main__':
     args: Final[Namespace] = parser.parse_args()
 
     # Import the command line arguments
-    app.debug: bool = args.debug
+    app.debug = args.debug
     app.extra['db_pathname'] = args.db_pathname
     app.extra['host'] = args.host
     app.extra['port'] = args.port

@@ -48,7 +48,7 @@ if __name__ == '__main__':
     app.extra['db_pathname'] = db_pathname
     app.extra['host'] = config.get(section, 'host', fallback='0.0.0.0')
     app.extra['port'] = int(config.get(section, 'port', fallback=8000))
-    app.debug: bool = config.get(section, 'debug', fallback='').lower() in truth_values
+    app.debug = config.get(section, 'debug', fallback='').lower() in truth_values
     auto_hide: bool = (
         config.get(section, 'auto_hide', fallback='').lower() in truth_values
     )
