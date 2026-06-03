@@ -47,8 +47,8 @@ import {
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { IconExternalLink, IconPlus } from "@tabler/icons-react";
-import { useQueries } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQueries, UseQueryResult } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
@@ -83,12 +83,13 @@ export default function Operator() {
           query: { boutUuid },
         }),
     })),
-    combine: (results) => {
-      return {
+    combine: useCallback(
+      (results: UseQueryResult<Bout, Error>[]) => ({
         data: results.map((result) => result.data),
         isPending: results.some((result) => result.isPending),
-      };
-    },
+      }),
+      [],
+    ),
   });
 
   const { data: rulesetNames } = useSuspenseAllRulesetNames();
