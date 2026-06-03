@@ -46,6 +46,15 @@ class Series(CacheableSQLModel):
         """
         super().__init__(name=name)
 
+    def set_active_bout(self, bout: BaseBout) -> None:
+        """Set the active Bout for the Series."""
+        if bout not in self.bouts:
+            raise ValueError('The active Bout must be part of the Series.')
+        if bout.uuid is None:
+            raise TypeError('The active Bout must have a UUID.')
+
+        self.active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment]
+
     @override
     def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
