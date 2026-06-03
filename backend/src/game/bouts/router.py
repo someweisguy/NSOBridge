@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Annotated, Final, Sequence
 from core import APIResponse
 from db import GetAsyncSession
 from fastapi import APIRouter, Body, Query
-from game.series.dependencies import GetOptionalSeries
+from game.series.dependencies import GetSeries
 from game.teams.dependencies import GetTeam
 from game.teams.models import Team
 from sqlalchemy import Result, Select, select
@@ -41,9 +41,9 @@ async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
 @router.put('/createBout')
 async def create_bout(
     session: GetAsyncSession,
+    series: GetSeries,
     ruleset_name: Annotated[str, Query(alias='rulesetName')],
     team_names: Annotated[list[str] | None, Query(alias='teamName')] = None,
-    series: GetOptionalSeries = None,
 ) -> APIResponse:
     if team_names is None:
         team_names = list(random.choice(RANDOM_TEAM_NAMES))  # noqa: S311

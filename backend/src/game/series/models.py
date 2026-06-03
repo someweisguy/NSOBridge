@@ -25,7 +25,7 @@ class Series(CacheableSQLModel):
     """
 
     name: Mapped[str] = mapped_column(default='')
-    active_bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'))
+    active_bout_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('bouts.uuid'))
 
     bouts: Mapped[list[BaseBout]] = relationship(
         'BaseBout',
@@ -37,16 +37,14 @@ class Series(CacheableSQLModel):
 
     __tablename__: str = 'series'
 
-    def __init__(self, name: str, initial_bout: BaseBout) -> None:
+    def __init__(self, name: str) -> None:
         """Initialize a Series.
 
         Args:
             name (str): the name of the Series.
-            initial_bout (BaseBout): the initial Bout of the Series.
 
         """
-        super().__init__(name=name, active_bout_uuid=initial_bout.uuid)
-        self.bouts.append(initial_bout)
+        super().__init__(name=name)
 
     @override
     def cache_key(self) -> CacheKey:

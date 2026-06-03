@@ -13,7 +13,7 @@ class SeriesSchema(ServerSchema):
 
     uuid: UUID
     name: str
-    active_bout_uuid: UUID
+    active_bout_uuid: UUID | None
     bouts: list[BoutSchema] = Field(exclude=True)
 
     @computed_field
