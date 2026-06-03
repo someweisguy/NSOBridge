@@ -22,10 +22,12 @@ import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
-import { Team } from "@/types/bout";
+import { localAPI } from "@/lib/requests";
+import { Bout, Team } from "@/types/bout";
 import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { Series } from "@/types/series";
+import { generateQueryKey } from "@/utils/query";
 import { isRunning } from "@/utils/time";
 import {
   ActionIcon,
@@ -45,6 +47,7 @@ import {
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { IconExternalLink, IconPlus } from "@tabler/icons-react";
+import { useQueries } from "@tanstack/react-query";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
@@ -68,18 +71,24 @@ if (root != null) {
  * This page should be designed to fit within a viewport that is 1280px by 585px.
  */
 export default function Operator() {
-  const { data: allSeries } = useSuspenseGetAllSeries();
-  const [activeSeries] = useState(allSeries[allSeries.length - 1]);
-  const { data: allSeriesSelectData } = useSuspenseGetAllSeries<
-    { value: string; label: string }[]
-  >({
-    select: (allSeries: Series[]) =>
-      allSeries.flatMap((series: Series) =>
-        series.boutData.map((data) => ({
-          value: data.uuid,
-          label: data.name,
-        })),
-      ),
+  const { data: activeSeries } = useSuspenseGetAllSeries({
+    select: (allSeries: Series[]) => allSeries[allSeries.length - 1],
+  });
+
+  const { data: bouts, pending } = useQueries({
+    queries: activeSeries.boutUuids.map((boutUuid: string) => ({
+      queryKey: generateQueryKey.bout(boutUuid),
+      queryFn: () =>
+        localAPI.get<Bout>("bout", {
+          query: { boutUuid },
+        }),
+    })),
+    combine: (results) => {
+      return {
+        data: results.map((result) => result.data),
+        pending: results.some((result) => result.isPending),
+      };
+    },
   });
 
   const { data: rulesetNames } = useSuspenseAllRulesetNames();
@@ -130,7 +139,13 @@ export default function Operator() {
           <Select
             withAlignedLabels
             size="xs"
-            data={allSeriesSelectData}
+            data={bouts
+              .filter((b) => b != null)
+              .map((b) => ({
+                value: b.uuid,
+                label: b.teams.map((t) => t.name).join(" vs. "),
+              }))}
+            loading={pending}
             value={boutUri.boutUuid}
             allowDeselect={false}
             onChange={(boutUuid: string | null) => {
