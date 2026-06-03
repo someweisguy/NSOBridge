@@ -48,7 +48,7 @@ import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { IconExternalLink, IconPlus } from "@tabler/icons-react";
 import { useQueries, UseQueryResult } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
@@ -100,6 +100,15 @@ export default function Operator() {
 
   const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
+
+  useEffect(() => {
+    if (activeSeries.boutUuids.includes(bout.uuid)) {
+      return;
+    }
+    setBoutUri({
+      boutUuid: activeSeries.boutUuids[activeSeries.boutUuids.length - 1],
+    });
+  }, [bout.uuid, activeSeries.boutUuids]);
 
   const activeJamUri = useActiveJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
