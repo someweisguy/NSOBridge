@@ -23,12 +23,13 @@ interface EditMenuProps {
 export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
   const modalStack = useModalsStack([
     "series",
-    "ruleset",
+    "bout",
+    "clock",
+    "officials",
     ...teams.map((team: Team) => "team-" + team.num),
-    "bout-clock",
-    "edit-jams",
-    "edit-timeouts",
-    "create-bout",
+    "jams",
+    "timeouts",
+    "penalties",
   ]);
 
   return (
@@ -55,9 +56,15 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
         <Menu.Item
           disabled
           leftSection={<IconCheckupList size={16} />}
-          onClick={() => modalStack.open("ruleset")}
+          onClick={() => modalStack.open("bout")}
         >
-          Ruleset
+          Bout
+        </Menu.Item>
+        <Menu.Item
+          leftSection={<IconStopwatch size={16} />}
+          onClick={() => modalStack.open("clock")}
+        >
+          Period Clock
         </Menu.Item>
         <Menu.Sub openDelay={120} closeDelay={150}>
           <Menu.Sub.Target>
@@ -80,37 +87,31 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
           </Menu.Sub.Dropdown>
         </Menu.Sub>
         <Menu.Item
-          leftSection={<IconStopwatch size={16} />}
-          onClick={() => modalStack.open("bout-clock")}
-        >
-          Bout Clock
-        </Menu.Item>
-        <Menu.Item
           disabled
           leftSection={<IconRollerSkating size={16} />}
-          onClick={() => modalStack.open("edit-jams")}
+          onClick={() => modalStack.open("jams")}
         >
           Jams
         </Menu.Item>
         <Menu.Item
           disabled
           leftSection={<IconTrafficLights size={16} />}
-          onClick={() => modalStack.open("edit-timeouts")}
+          onClick={() => modalStack.open("timeouts")}
         >
           Timeouts
         </Menu.Item>
         <Menu.Item
           disabled
           leftSection={<IconUserExclamation size={16} />}
-          onClick={() => modalStack.open("edit-penalties")}
+          onClick={() => modalStack.open("penalties")}
         >
           Penalties
         </Menu.Item>
       </Menu.Dropdown>
 
       <Modal.Stack>
-        <Modal title="Select Ruleset" {...modalStack.register("ruleset")}>
-          Edit ruleset...
+        <Modal title="Edit Bout Information" {...modalStack.register("bout")}>
+          Edit Bout...
         </Modal>
         {teams.map((team: Team) => (
           <Modal
@@ -121,7 +122,7 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
             <TeamEditor boutUuid={uuid} {...team} />
           </Modal>
         ))}
-        <Modal title="Edit Bout Clock" {...modalStack.register("bout-clock")}>
+        <Modal title="Edit Period Clock" {...modalStack.register("clock")}>
           <BoutClockEditor
             boutUuid={uuid}
             isRunning={clock.startTimestamp != null}
