@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, override
 
 from db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
+from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .schemas import SeriesSchema
@@ -24,23 +25,35 @@ class Series(CacheableSQLModel):
     """
 
     name: Mapped[str] = mapped_column(default='')
+    active_bout_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('bouts.uuid'))
 
     bouts: Mapped[list[BaseBout]] = relationship(
+        'BaseBout',
         back_populates='_series',
         cascade=CASCADE_CHILD,
+        foreign_keys='BaseBout.series_uuid',
         lazy='selectin',
     )
 
     __tablename__: str = 'series'
 
-    def __init__(self, name: str = '') -> None:
+    def __init__(self, name: str) -> None:
         """Initialize a Series.
 
         Args:
-            name (str, optional): the name of the Series. Defaults to ''.
+            name (str): the name of the Series.
 
         """
         super().__init__(name=name)
+
+    def set_active_bout(self, bout: BaseBout) -> None:
+        """Set the active Bout for the Series."""
+        if bout not in self.bouts:
+            raise ValueError('The active Bout must be part of the Series.')
+        if bout.uuid is None:
+            raise TypeError('The active Bout must have a UUID.')
+
+        self.active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment]
 
     @override
     def cache_key(self) -> CacheKey:

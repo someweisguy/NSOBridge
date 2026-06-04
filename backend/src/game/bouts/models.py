@@ -37,14 +37,14 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     _clock_uuid: Mapped[UUID] = mapped_column(
         ForeignKey('clocks.uuid', ondelete='RESTRICT')
     )
-    series_uuid: Mapped[UUID] = mapped_column(ForeignKey('series.uuid'))
+    series_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('series.uuid'))
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
     is_running: Mapped[bool] = mapped_column(default=False)
     ruleset_name: Mapped[str] = mapped_column()
 
-    _series: Mapped[Series] = relationship(
+    _series: Mapped[Series | None] = relationship(
         back_populates='bouts',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -118,7 +118,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     async def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
 
-    def get_series(self) -> Series:
+    def get_series(self) -> Series | None:
         """Get the Series that owns this Bout.
 
         Returns:

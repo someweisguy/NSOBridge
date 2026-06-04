@@ -7,8 +7,7 @@ from typing import TYPE_CHECKING, Annotated, Final, Sequence
 from core import APIResponse
 from db import GetAsyncSession
 from fastapi import APIRouter, Body, Query
-from game.series.dependencies import GetOptionalSeries
-from game.series.models import Series
+from game.series.dependencies import GetSeries
 from game.teams.dependencies import GetTeam
 from game.teams.models import Team
 from sqlalchemy import Result, Select, select
@@ -42,9 +41,9 @@ async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
 @router.put('/createBout')
 async def create_bout(
     session: GetAsyncSession,
+    series: GetSeries,
     ruleset_name: Annotated[str, Query(alias='rulesetName')],
     team_names: Annotated[list[str] | None, Query(alias='teamName')] = None,
-    series: GetOptionalSeries = None,
 ) -> APIResponse:
     if team_names is None:
         team_names = list(random.choice(RANDOM_TEAM_NAMES))  # noqa: S311
@@ -56,18 +55,12 @@ async def create_bout(
 
     home_name, away_name, *_ = team_names
     bout: BaseBout = BaseBout(ruleset_name, Team(home_name), Team(away_name))
-
-    # Fetch a Series if one isn't provided
-    # This handles only the simple case where one Series exists in the database
-    if series is None:
-        statement: Select[tuple[Series]] = select(Series)
-        results: Result[tuple[Series]] = await session.execute(statement)
-        series = results.scalars().one()
-
+    bout.series_uuid = series.uuid
     session.add(bout)
-    series.bouts.append(bout)
 
     # Expunge and merge the Bout to allow the subclass to call init()
+    # It's a weird hack, but it appears to be the only way to allow the object to be
+    # loaded as the correct subclass.
     try:
         await session.flush()
         session.expunge(bout)
@@ -78,6 +71,12 @@ async def create_bout(
             f'Cannot create bout with unknown ruleset: {ruleset_name}'
         ) from e
     bout.init()
+
+    # Add the Bout to the Series
+    series.bouts.append(bout)
+    if series.active_bout_uuid is None:
+        series.set_active_bout(bout)
+    flag_dirty(series)  # Include Series in cache updates
 
     return APIResponse(bout.uuid, cache=await bout.get_updates())
 

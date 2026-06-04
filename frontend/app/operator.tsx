@@ -18,13 +18,16 @@ import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
-import { useSuspenseGetAllBouts } from "@/hooks/use-suspense-get-all-bouts";
+import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
+import { localAPI } from "@/lib/requests";
 import { Bout, Team } from "@/types/bout";
 import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
+import { Series } from "@/types/series";
+import { generateQueryKey } from "@/utils/query";
 import { isRunning } from "@/utils/time";
 import {
   ActionIcon,
@@ -44,7 +47,8 @@ import {
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { IconExternalLink, IconPlus } from "@tabler/icons-react";
-import { useState } from "react";
+import { useQueries, UseQueryResult } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
@@ -67,26 +71,44 @@ if (root != null) {
  * This page should be designed to fit within a viewport that is 1280px by 585px.
  */
 export default function Operator() {
-  const { data: allBouts } = useSuspenseGetAllBouts();
-  const { data: allBoutsSelectData } = useSuspenseGetAllBouts<
-    {
-      value: string;
-      label: string;
-    }[]
-  >({
-    select: (bouts: Bout[]) =>
-      bouts.map((bout: Bout) => ({
-        value: bout.uuid,
-        label: bout.teams[0].name + " vs. " + bout.teams[1].name,
-      })),
+  const { data: activeSeries } = useSuspenseGetAllSeries({
+    select: (allSeries: Series[]) => allSeries[allSeries.length - 1],
   });
-  const [boutUri, setBoutUri] = useState<BoutUri>({
-    boutUuid: allBouts[allBouts.length - 1].uuid,
+
+  const { data: bouts, isPending } = useQueries({
+    queries: activeSeries.boutUuids.map((boutUuid: string) => ({
+      queryKey: generateQueryKey.bout(boutUuid),
+      queryFn: () =>
+        localAPI.get<Bout>("bout", {
+          query: { boutUuid },
+        }),
+    })),
+    combine: useCallback(
+      (results: UseQueryResult<Bout, Error>[]) => ({
+        data: results.map((result) => result.data),
+        isPending: results.some((result) => result.isPending),
+      }),
+      [],
+    ),
   });
+
   const { data: rulesetNames } = useSuspenseAllRulesetNames();
+
+  const [boutUri, setBoutUri] = useState<BoutUri>({
+    boutUuid: activeSeries.activeBoutUuid,
+  });
 
   const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
+
+  useEffect(() => {
+    if (activeSeries.boutUuids.includes(bout.uuid)) {
+      return;
+    }
+    setBoutUri({
+      boutUuid: activeSeries.boutUuids[activeSeries.boutUuids.length - 1],
+    });
+  }, [bout.uuid, activeSeries.boutUuids]);
 
   const activeJamUri = useActiveJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
@@ -127,7 +149,13 @@ export default function Operator() {
           <Select
             withAlignedLabels
             size="xs"
-            data={allBoutsSelectData}
+            data={bouts
+              .filter((b) => b != null)
+              .map((b) => ({
+                value: b.uuid,
+                label: b.teams.map((t) => t.name).join(" vs. "),
+              }))}
+            loading={isPending}
             value={boutUri.boutUuid}
             allowDeselect={false}
             onChange={(boutUuid: string | null) => {
@@ -226,7 +254,8 @@ export default function Operator() {
       <Modal title="Create New Bout" opened={opened} onClose={close}>
         <BoutCreator
           rulesetNames={rulesetNames}
-          onSuccess={(boutUuid) => {
+          seriesUuid={activeSeries.uuid}
+          onSuccess={(boutUuid: string) => {
             setBoutUri({ boutUuid });
             close();
           }}
@@ -246,8 +275,8 @@ export default function Operator() {
               teamJam?.events.some((event) => event.starPass) ?? false;
             const numTrips =
               teamJam?.events.reduce<number>(
-                (numTrips: number, event: TripEvent) =>
-                  (numTrips += Number(event.passes != null)),
+                (sum: number, event: TripEvent) =>
+                  sum + Number(event.passes != null),
                 0,
               ) ?? 0;
 

@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 
 interface UseCreateBoutOptions {
   rulesetName: string;
+  seriesUuid: string;
   teamNames?: string[];
 }
 
@@ -15,10 +16,12 @@ interface UseCreateBoutOptions {
  */
 export const useCreateBout = ({
   rulesetName,
+  seriesUuid,
   teamNames = [],
   ...options
 }: UseCreateBoutOptions & AppMutationOptions<string>) => {
   const query = new URLSearchParams({ rulesetName });
+  query.append("seriesUuid", seriesUuid);
   for (const teamName of teamNames) {
     query.append("teamName", teamName);
   }

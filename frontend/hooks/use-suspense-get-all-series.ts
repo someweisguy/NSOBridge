@@ -12,11 +12,11 @@ import { useSuspenseQuery } from "@tanstack/react-query";
  *
  * @returns a Tanstack useSuspenseQuery object containing an array of all Series.
  */
-export const useSuspenseGetAllSeries = (
-  options?: AppSuspenseQueryOptions<Series[]>,
+export const useSuspenseGetAllSeries = <T = Series[]>(
+  options?: AppSuspenseQueryOptions<Series[], T>,
 ) =>
   useSuspenseQuery({
-    queryKey: generateQueryKey.series("ALL"),
+    queryKey: generateQueryKey.series(),
     queryFn: () =>
       localAPI
         .get<Series[]>("series/allSeries")

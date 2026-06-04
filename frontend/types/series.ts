@@ -13,11 +13,11 @@ export interface Series {
    */
   name: string;
   /**
-   * The UUIDs of the Bouts associated with this Series.
+   * The UUIDs of the Bouts in this Series.
    */
   boutUuids: string[];
   /**
-   * The index of the active Bout in this Series or null if no Bout is active.
+   * The UUID of the active Bout in this Series.
    */
-  activeBoutIndex: number | null;
+  activeBoutUuid: string;
 }

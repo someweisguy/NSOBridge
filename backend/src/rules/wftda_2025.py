@@ -38,7 +38,8 @@ class Bout(BaseBout):
         for team in self.teams:
             team.timeouts_remaining = self.NUM_TIMEOUTS
             team.reviews_remaining = self.NUM_REVIEWS
-        self.jams.append(Jam(0, 0, *[TeamJam(team) for team in self.teams]))
+        jam: Jam = Jam(0, 0, *[TeamJam(team) for team in self.teams])
+        self.jams.append(jam)
 
     @override
     def begin_period(self, timestamp: datetime) -> None:

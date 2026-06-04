@@ -1,10 +1,14 @@
 {
+  "json.schemaDownload.enable": true,
+
   "editor.tabSize": 4,
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
   "files.associations": {
     "*.spec": "python"
   },
+  "editor.rulers": [80, 120],
+
   "[javascript]": {
     "editor.tabSize": 2
   },
@@ -26,6 +30,12 @@
   "eslint.options": {
     "overrideConfigFile": "./frontend/configs/eslint.config.js"
   },
-  "cSpell.words": ["WFTDA"],
-  "cSpell.ignoreWords": ["autodocs", "tabler", "wght"]
+  "cSpell.customDictionaries": {
+    "custom-dictionary-workspace": {
+      "name": "custom-dictionary-workspace",
+      "path": "${workspaceFolder:nso-bridge}/.cspell/custom-dictionary-workspace.txt",
+      "addWords": true,
+      "scope": "workspace"
+    }
+  }
 }

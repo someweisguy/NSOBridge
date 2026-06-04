@@ -2,8 +2,8 @@
  * Generate cache keys for roller derby model queries.
  */
 export const generateQueryKey = {
-  series(seriesUuid: string) {
-    return ["series", seriesUuid];
+  series(seriesUuid?: string) {
+    return ["series", seriesUuid].filter((val) => val !== undefined);
   },
   bout(boutUuid?: string) {
     return ["bouts", boutUuid].filter((val) => val !== undefined);

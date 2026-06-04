@@ -1,7 +1,6 @@
 """Constants used for the Bouts sub-module."""
 
 RANDOM_TEAM_NAMES: list[tuple[str, str]] = [
-    ('Home', 'Away'),
     ('Sun', 'Moon'),
     ('Salt', 'Pepper'),
     ('Black', 'White'),
@@ -40,6 +39,8 @@ RANDOM_TEAM_NAMES: list[tuple[str, str]] = [
     ('Duct Tape', 'WD-40'),
     ('Cats', 'Laser Pointers'),
     ('Bananas', 'Peels'),
+    ('Thunder', 'Lightning'),
+    ('Tortoises', 'Hares'),
 ]
 """A list of random team names that are used to create Bouts when no team names are
 specified."""
