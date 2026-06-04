@@ -51,7 +51,7 @@ export default function GameClock({
         </Text>
       </Grid.Col>
       <Grid.Col span={1}>
-        {state != "jam" && state != "stopped" ? (
+        {state != "jam" && stopReason != null ? (
           <Text inherit>{stopReasonTexts[stopReason ?? "other"]}</Text>
         ) : (
           <ClockView
