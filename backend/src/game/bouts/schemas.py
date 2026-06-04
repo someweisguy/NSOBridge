@@ -56,12 +56,22 @@ class BoutSchema(ServerSchema):
     @computed_field
     @property
     def jam_head(self) -> JamUri:
-        """A tuple representing the current or most recently played Jam."""
-        for jam in reversed(self.jams):
-            if jam.start_timestamp is not None:
-                return JamUri(jam.period, jam.num)
+        """A URI representing the current or most recently played Jam.
 
-        return JamUri(0, 0)
+        This Jam URI is sticky on Period thresholds. This is to ensure that the active
+        Jam URI is always the active Jam of the current Period.
+        """
+        period_num: int = self.jams[-1].period
+        if self.state == 'stopped' and period_num > 0:
+            period_num -= 1  # Haven't started the next Period yet
+
+        jam_num: int = 0
+        for jam in reversed([jam for jam in self.jams if jam.period == period_num]):
+            if jam.start_timestamp is not None:
+                jam_num = jam.num
+                break
+
+        return JamUri(period_num, jam_num)
 
     @computed_field
     @property
