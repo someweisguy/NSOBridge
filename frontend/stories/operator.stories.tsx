@@ -46,6 +46,7 @@ const bout: Bout = {
     },
   ],
   jamCounts: [4, 0, 0],
+  jamHead: { periodNum: 0, jamNum: 2 },
   timeoutCount: 6,
 };
 const allBouts = [bout];
