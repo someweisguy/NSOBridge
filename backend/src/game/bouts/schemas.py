@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from uuid import UUID  # noqa: TC003
 
@@ -13,6 +14,14 @@ from game.timeouts.schemas import TimeoutSchema  # noqa: TC002
 from pydantic import Field, SkipValidation, computed_field
 
 from .types import BoutStateStr  # noqa: TC001
+
+
+@dataclass
+class JamUri:
+    """A utility dataclass to represent the Jam head in the BoutSchema."""
+
+    period_num: int
+    jam_num: int
 
 
 class BoutSchema(ServerSchema):
@@ -43,6 +52,16 @@ class BoutSchema(ServerSchema):
         for jam in self.jams:
             counts[jam.period] = counts.get(jam.period, 0) + 1
         return counts.get(0, 0), counts.get(1, 0), counts.get(2, 0)
+
+    @computed_field
+    @property
+    def jam_head(self) -> JamUri:
+        """A tuple representing the current or most recently played Jam."""
+        for jam in reversed(self.jams):
+            if jam.start_timestamp is not None:
+                return JamUri(jam.period, jam.num)
+
+        return JamUri(0, 0)
 
     @computed_field
     @property

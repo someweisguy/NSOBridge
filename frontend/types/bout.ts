@@ -71,6 +71,10 @@ export interface Bout {
    */
   jamCounts: [number, number, number];
   /**
+   * The Period and Jam number of the latest played or current Jam.
+   */
+  jamHead: { periodNum: number; jamNum: number };
+  /**
    * The number of Timeouts that have been called in this Bout.
    */
   timeoutCount: number;
