@@ -149,6 +149,11 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
                 return True
         return False
 
+    @override
+    def stop(self, timestamp: datetime) -> None:
+        super().stop(timestamp)
+        self.stop_reason = 'other'
+
     async def add_trip(self, team: Team, timestamp: datetime, passes: int) -> None:
         """Add a Jammer trip to the desired Team's TeamJam.
 
