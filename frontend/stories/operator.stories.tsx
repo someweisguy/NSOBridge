@@ -18,6 +18,7 @@ const bout: Bout = {
   isRunning: true,
   startCountdown: null,
   state: "timeout",
+  subState: "timeout",
   teams: [
     {
       name: "Home",
