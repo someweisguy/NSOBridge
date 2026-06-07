@@ -227,6 +227,11 @@ export default function Operator() {
                   p="xs"
                   fz="h3"
                   ta="center"
+                  hideClock={
+                    bout.state == "stopped" ||
+                    bout.state == "final" ||
+                    (bout.state == "lineup" && latestJamUri.jamNum == 0)
+                  }
                   prefix={eventNames[bout.subState]}
                   startTimestamp={lastEventTimestamp}
                   {...bout}
