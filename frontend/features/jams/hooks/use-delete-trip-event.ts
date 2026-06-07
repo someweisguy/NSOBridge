@@ -13,7 +13,7 @@ export const useDeleteTripEvent = ({
   periodNum,
   jamNum,
   teamNum,
-  eventNum,
+  eventUuid,
   ...options
 }: TripEventUri & AppMutationOptions<void, unknown, void>) =>
   useMutation({
@@ -24,7 +24,7 @@ export const useDeleteTripEvent = ({
           periodNum,
           jamNum,
           teamNum,
-          eventNum,
+          eventUuid,
         },
       }),
     ...options,

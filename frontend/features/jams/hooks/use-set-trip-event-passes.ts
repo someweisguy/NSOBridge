@@ -13,7 +13,7 @@ export const useSetTripEventPasses = ({
   periodNum,
   jamNum,
   teamNum,
-  eventNum,
+  eventUuid,
   ...options
 }: TripEventUri & AppMutationOptions<void, unknown, number>) =>
   useMutation({
@@ -24,7 +24,7 @@ export const useSetTripEventPasses = ({
           periodNum,
           jamNum,
           teamNum,
-          eventNum,
+          eventUuid,
         },
         body: passes,
       }),

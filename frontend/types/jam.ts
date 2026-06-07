@@ -55,9 +55,9 @@ export interface TeamJam {
  */
 export interface TripEvent {
   /**
-   * Uniquely identify this TripEvent within its TeamJam.
+   * Uniquely identify this TripEvent.
    */
-  tripId: number;
+  uuid: string;
   /**
    * The timestamp at which this event occurred.
    */

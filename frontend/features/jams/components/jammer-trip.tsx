@@ -17,14 +17,15 @@ export default function JammerTrip({
   tripIndex,
   passes,
   pointsPerTrip,
+  uuid,
   ...props
 }: JammerTripProps) {
   const { hovered, ref } = useHover();
   const setTripPasses = useSetTripEventPasses({
-    eventNum: tripIndex,
+    eventUuid: uuid,
     ...teamJamUri,
   });
-  const deleteTrip = useDeleteTripEvent({ eventNum: tripIndex, ...teamJamUri });
+  const deleteTrip = useDeleteTripEvent({ eventUuid: uuid, ...teamJamUri });
 
   return (
     <Card

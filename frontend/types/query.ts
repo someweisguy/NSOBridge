@@ -104,7 +104,7 @@ export interface TeamJamUri extends JamUri {
  */
 export interface TripEventUri extends TeamJamUri {
   /**
-   * The Trip Event number.
+   * The Trip Event UUID.
    */
-  eventNum: number;
+  eventUuid: string;
 }

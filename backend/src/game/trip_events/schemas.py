@@ -1,6 +1,7 @@
 """Pydantic TripEvent schemas."""
 
 from datetime import datetime
+from uuid import UUID
 
 from core import ServerSchema
 
@@ -8,7 +9,7 @@ from core import ServerSchema
 class TripEventSchema(ServerSchema):
     """Represent a TripEvent as a JSON schema."""
 
-    trip_id: int
+    uuid: UUID
     timestamp: datetime
     lead: bool
     lost: bool
