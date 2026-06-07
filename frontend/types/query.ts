@@ -45,6 +45,16 @@ export type AppMutationOptions<
 > = Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutateFn">;
 
 /**
+ * A URI which uniquely identifies a Series.
+ */
+export interface SeriesUri {
+  /**
+   * The UUID of the Series.
+   */
+  seriesUuid: string;
+}
+
+/**
  * A URI which uniquely identifies a Bout.
  */
 export interface BoutUri {

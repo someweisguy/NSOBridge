@@ -1,11 +1,11 @@
 import GameClock from "@/features/bouts/components/game-clock";
 import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
+import { useSuspenseSeries } from "@/hooks/use-series";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
 import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { Team } from "@/types/bout";
-import { BoutUri } from "@/types/query";
 import FitScreen from "@fit-screen/react";
 import { Flex, SimpleGrid, Stack, Text } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -26,22 +26,23 @@ createRoot(root).render(
 );
 
 const urlParams = new URLSearchParams(window.location.search);
-const boutParamName = "boutUuid";
+const seriesParamName = "seriesUuid";
 
 /**
  * Display the audience-facing scoreboard. This has at-a-glance information about the
  * state of the bout as concisely and accessibly as possible.
  */
 export function Scoreboard() {
-  if (!urlParams.has(boutParamName)) {
-    throw new Error("No Bout Provided");
+  const [seriesUuid] = useState(urlParams.get(seriesParamName));
+  if (seriesUuid == null) {
+    throw new Error("No Series Provided");
   }
-  const [boutUri] = useState<BoutUri>({
-    boutUuid: urlParams.get(boutParamName)!,
-  });
+  const { data: series } = useSuspenseSeries({ seriesUuid });
 
-  const { data: ruleset } = useSuspenseRuleset(boutUri);
-  const { data: bout } = useSuspenseBout(boutUri);
+  const { data: ruleset } = useSuspenseRuleset({
+    boutUuid: series.activeBoutUuid,
+  });
+  const { data: bout } = useSuspenseBout({ boutUuid: series.activeBoutUuid });
 
   const activeJamUri = useActiveJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
