@@ -2,7 +2,7 @@ import { localAPI } from "@/lib/requests";
 import { AppQueryOptions, TimeoutUri } from "@/types/query";
 import { Timeout } from "@/types/timeout";
 import { generateQueryKey } from "@/utils/query";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 
 /**
  * Fetches the desired Timeout from the server. This hook is a wrapper for call to
@@ -14,7 +14,7 @@ export const useTimeout = ({
   boutUuid,
   timeoutNum,
   ...options
-}: TimeoutUri & AppQueryOptions<Timeout>) =>
+}: TimeoutUri & AppQueryOptions<Timeout>): UseQueryResult<Timeout, Error> =>
   useQuery({
     queryKey: generateQueryKey.timeout(boutUuid, timeoutNum),
     queryFn: () =>
