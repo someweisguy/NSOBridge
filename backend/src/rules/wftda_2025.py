@@ -69,6 +69,8 @@ class Bout(BaseBout):
             raise GameStateError('There is no running period to end')
 
         final_jam: Jam = self.jams[-1]
+        if final_jam.num == 0 and final_jam.stop_timestamp is None:
+            raise GameStateError('One Jam must be played before ending the Period')
         logging.info(f'Ending P{final_jam.period} in {self}')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
