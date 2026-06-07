@@ -240,7 +240,7 @@ export default function Operator() {
             </Card>
           </Box>
           <BoutControl
-            boutUri={boutUri}
+            latestJamUri={latestJamUri}
             state={bout.state}
             disabled={bout.state == "final"}
           />

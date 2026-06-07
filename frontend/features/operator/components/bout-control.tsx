@@ -5,7 +5,7 @@ import { useStartTimeout } from "@/features/operator/hooks/use-start-timeout";
 import { useStopJam } from "@/features/operator/hooks/use-stop-jam";
 import { useStopTimeout } from "@/features/operator/hooks/use-stop-timeout";
 import { BoutStateString } from "@/types/bout";
-import { BoutUri } from "@/types/query";
+import { JamUri } from "@/types/query";
 import { Button, Fieldset, FieldsetProps, Stack } from "@mantine/core";
 import {
   IconAlarm,
@@ -17,34 +17,38 @@ import {
 import { useCallback } from "react";
 
 interface BoutControlProps extends FieldsetProps {
-  boutUri: BoutUri;
+  /**
+   * The URI of the latest Jam in the Bout. The Jam URI is used to prevent the
+   * user from ending the Period without having played any Jams.
+   */
+  latestJamUri: JamUri;
   state: BoutStateString;
 }
 
 export default function BoutControl({
   state,
-  boutUri,
+  latestJamUri,
   ...props
 }: BoutControlProps) {
   // Jam controls
-  const startJam = useStartJam(boutUri);
-  const stopJam = useStopJam(boutUri);
+  const startJam = useStartJam(latestJamUri);
+  const stopJam = useStopJam(latestJamUri);
   const jamControlOnClick = useCallback(
     () => (state == "jam" ? stopJam.mutate() : startJam.mutate()),
     [state, startJam, stopJam],
   );
 
   // Timeout controls
-  const startTimeout = useStartTimeout(boutUri);
-  const stopTimeout = useStopTimeout(boutUri);
+  const startTimeout = useStartTimeout(latestJamUri);
+  const stopTimeout = useStopTimeout(latestJamUri);
   const timeoutControlOnClick = useCallback(
     () => (state == "timeout" ? stopTimeout.mutate() : startTimeout.mutate()),
     [state, stopTimeout, startTimeout],
   );
 
   // Period controls
-  const beginPeriod = useBeginPeriod(boutUri);
-  const endPeriod = useEndPeriod(boutUri);
+  const beginPeriod = useBeginPeriod(latestJamUri);
+  const endPeriod = useEndPeriod(latestJamUri);
   const periodControlOnClick = useCallback(
     () => (state == "stopped" ? beginPeriod.mutate() : endPeriod.mutate()),
     [state, beginPeriod, endPeriod],
@@ -84,7 +88,11 @@ export default function BoutControl({
           variant="outline"
           justify="space-between"
           color={state == "stopped" ? "green.8" : "red"}
-          disabled={state == "jam" || state == "timeout"}
+          disabled={
+            state == "jam" ||
+            state == "timeout" ||
+            (state == "lineup" && latestJamUri.jamNum == 0)
+          }
           onClick={periodControlOnClick}
           rightSection={
             state == "stopped" ? (
