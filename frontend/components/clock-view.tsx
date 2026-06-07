@@ -1,15 +1,20 @@
 import { useSyncDataContext } from "@/hooks/use-sync-context";
 import { Text, TextProps } from "@mantine/core";
 import { useEffect, useState } from "react";
-import defaultTimeStringFormatter from "../utils/time-string-formatters";
+import defaultTimeStringFormatter, {
+  jamTimeStringFormatter,
+  lineupTimeStringFormatter,
+  periodTimeStringFormatter,
+  timeoutTimeStringFormatter,
+} from "../utils/time-string-formatters";
 
 const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate
 
 const timeFormatters = {
-  bout: defaultTimeStringFormatter,
-  jam: defaultTimeStringFormatter,
-  lineup: defaultTimeStringFormatter,
-  timeout: defaultTimeStringFormatter,
+  bout: periodTimeStringFormatter,
+  jam: jamTimeStringFormatter,
+  lineup: lineupTimeStringFormatter,
+  timeout: timeoutTimeStringFormatter,
   default: defaultTimeStringFormatter,
 };
 

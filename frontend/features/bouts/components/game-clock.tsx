@@ -42,7 +42,7 @@ export default function GameClock({
         {isOvertime ? (
           <Text inherit>OT</Text>
         ) : (
-          <ClockView inherit {...clock} />
+          <ClockView inherit formatter="bout" {...clock} />
         )}
       </Grid.Col>
       <Grid.Col span={1} miw="fit-content">
@@ -56,6 +56,7 @@ export default function GameClock({
         ) : (
           <ClockView
             inherit
+            formatter="jam"
             alarm={jamDuration}
             startTimestamp={state == "jam" ? startTimestamp : null}
           />

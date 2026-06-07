@@ -18,6 +18,11 @@ export default function EventClock({
   }
 
   return (
-    <ClockView prefix={prefix} startTimestamp={startTimestamp} {...props} />
+    <ClockView
+      formatter="lineup"
+      prefix={prefix}
+      startTimestamp={startTimestamp}
+      {...props}
+    />
   );
 }
