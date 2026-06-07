@@ -3,36 +3,36 @@ import { Clock } from "./time";
 /**
  * A type containing the various state values in which a Bout could be.
  *
- * - "final" means the Bout has been finalized.
- * - "jam" means that a Jam is currently running.
- * - "lineup" means that the Bout is running but neither a Jam nor a Timeout is running.
  * - "stopped" means the Bout is in pregame, halftime, or unofficial score.
+ * - "lineup" means that the Bout is running but neither a Jam nor a Timeout is running.
+ * - "jam" means that a Jam is currently running.
  * - "timeout" means a Timeout is running.
+ * - "final" means the Bout has been finalized.
  *
  */
 export type BoutStateString =
-  | "final"
-  | "jam"
-  | "lineup"
   | "stopped"
-  | "timeout";
+  | "lineup"
+  | "jam"
+  | "timeout"
+  | "final";
 
 /**
  * Describes the sub-state of the Bout. This is used for more descriptive event
  * states.
  */
 export type BoutSubStateString =
+  | "pregame"
+  | "halftime"
+  | "unofficial"
   | "lineup"
   | "post-review"
   | "post-timeout"
+  | "jam"
   | "timeout"
   | "review"
   | "team-timeout"
   | "official-timeout"
-  | "pregame"
-  | "halftime"
-  | "unofficial"
-  | "jam"
   | "final";
 
 /**
