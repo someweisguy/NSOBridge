@@ -26,13 +26,13 @@ export type BoutSubStateString =
   | "halftime"
   | "unofficial"
   | "lineup"
-  | "post-review"
-  | "post-timeout"
+  | "post_review"
+  | "post_timeout"
   | "jam"
   | "timeout"
   | "review"
-  | "team-timeout"
-  | "official-timeout"
+  | "team_timeout"
+  | "official_timeout"
   | "final";
 
 /**

@@ -170,18 +170,18 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
                 ):
                     return state
                 elif latest_timeout.is_review:
-                    return 'post-review'
+                    return 'post_review'
                 else:
-                    return 'post-timeout'
+                    return 'post_timeout'
             case 'timeout':
                 if latest_timeout is None:
                     return 'timeout'
                 elif latest_timeout.is_review:
                     return 'review'
                 elif latest_timeout.team is not None:
-                    return 'team-timeout'
+                    return 'team_timeout'
                 else:
-                    return 'official-timeout'
+                    return 'official_timeout'
             case 'stopped':
                 latest_jam: Jam = self.jams[-1]
                 if latest_jam.period == 0:

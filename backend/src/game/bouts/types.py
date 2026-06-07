@@ -7,12 +7,12 @@ type BoutStateStr = Literal['final', 'jam', 'lineup', 'stopped', 'timeout']
 
 type BoutSubStateStr = Literal[
     'lineup',
-    'post-review',
-    'post-timeout',
+    'post_review',
+    'post_timeout',
     'timeout',
     'review',
-    'team-timeout',
-    'official-timeout',
+    'team_timeout',
+    'official_timeout',
     'pregame',
     'halftime',
     'unofficial',

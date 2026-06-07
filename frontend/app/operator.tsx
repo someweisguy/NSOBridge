@@ -24,7 +24,7 @@ import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
-import { Bout, Team } from "@/types/bout";
+import { Bout, BoutSubStateString, Team } from "@/types/bout";
 import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { Series } from "@/types/series";
@@ -64,6 +64,21 @@ if (root != null) {
     </AppProvider>,
   );
 }
+
+const eventNames: Record<BoutSubStateString, string> = {
+  pregame: "Pregame",
+  halftime: "Halftime",
+  unofficial: "Unofficial",
+  lineup: "Lineup",
+  post_review: "Post-review",
+  post_timeout: "Post-timeout",
+  jam: "Jam",
+  timeout: "Timeout",
+  review: "Official Review",
+  team_timeout: "Team Timeout",
+  official_timeout: "Official Timeout",
+  final: "Final",
+};
 
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
@@ -212,7 +227,7 @@ export default function Operator() {
                   p="xs"
                   fz="h3"
                   ta="center"
-                  prefix={bout.subState}
+                  prefix={eventNames[bout.subState]}
                   startTimestamp={lastEventTimestamp}
                   {...bout}
                 />
