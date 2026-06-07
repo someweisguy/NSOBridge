@@ -38,6 +38,7 @@ import {
   Center,
   Collapse,
   Divider,
+  Fieldset,
   Group,
   Modal,
   Select,
@@ -322,47 +323,60 @@ export default function Operator() {
                   </Center>
 
                   {teamJam != null && (
-                    <>
-                      <Divider label="Edit Jammer" variant="dashed" w="100%" />
-                      <JammerStateControl
-                        justify="space-between"
-                        mx="md"
-                        boutUuid={activeJam.boutUuid}
-                        periodNum={activeJam.period}
-                        jamNum={activeJam.num}
-                        lead={lead}
-                        lost={lost}
-                        starPass={starPass}
-                        leadIsDeclared={teamJam.events.some(
-                          (event) => event.lead,
-                        )}
-                        {...teamJam}
-                        {...ruleset}
-                      />
-                      <Divider label="Add Trips" variant="dashed" w="100%" />
-                      <JammerTripControl
-                        teamJamUri={{ teamNum: team.num, ...activeJamUri }}
-                        showInitial={numTrips == 0}
-                        numPasses={ruleset.pointsPerTrip}
-                        {...teamJam}
-                        {...ruleset}
-                      />
-                      <ResponsiveScroller m="0" h="100px">
-                        {teamJam.events
-                          .filter(
-                            (tripEvent: TripEvent) => tripEvent.passes != null,
-                          )
-                          .map((tripEvent: TripEvent, i: number) => (
-                            <JammerTrip
-                              w="80px"
-                              key={i}
-                              tripIndex={i}
-                              {...tripEvent}
-                              {...ruleset}
-                            />
-                          ))}
-                      </ResponsiveScroller>
-                    </>
+                    <Fieldset
+                      variant="unstyled"
+                      disabled={
+                        activeJam.startTimestamp == null ||
+                        bout.state == "final"
+                      }
+                    >
+                      <Stack gap="xs">
+                        <Divider
+                          label="Edit Jammer"
+                          variant="dashed"
+                          w="100%"
+                        />
+                        <JammerStateControl
+                          justify="space-between"
+                          mx="md"
+                          boutUuid={activeJam.boutUuid}
+                          periodNum={activeJam.period}
+                          jamNum={activeJam.num}
+                          lead={lead}
+                          lost={lost}
+                          starPass={starPass}
+                          leadIsDeclared={teamJam.events.some(
+                            (event) => event.lead,
+                          )}
+                          {...teamJam}
+                          {...ruleset}
+                        />
+                        <Divider label="Add Trips" variant="dashed" w="100%" />
+                        <JammerTripControl
+                          teamJamUri={{ teamNum: team.num, ...activeJamUri }}
+                          showInitial={numTrips == 0}
+                          numPasses={ruleset.pointsPerTrip}
+                          {...teamJam}
+                          {...ruleset}
+                        />
+                        <ResponsiveScroller m="0" h="100px">
+                          {teamJam.events
+                            .filter(
+                              (tripEvent: TripEvent) =>
+                                tripEvent.passes != null,
+                            )
+                            .map((tripEvent: TripEvent, i: number) => (
+                              <JammerTrip
+                                w="80px"
+                                key={i}
+                                tripIndex={i}
+                                {...tripEvent}
+                                {...ruleset}
+                              />
+                            ))}
+                        </ResponsiveScroller>
+                      </Stack>
+                    </Fieldset>
                   )}
                   {/* TODO: Add lineup editors */}
                 </Stack>
