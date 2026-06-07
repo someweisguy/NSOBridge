@@ -179,7 +179,7 @@ export default function Operator() {
             rightSection={<IconExternalLink size={16} />}
             onClick={() =>
               window.open(
-                window.location.href + "sb?boutUuid=" + boutUri.boutUuid,
+                window.location.href + "sb?seriesUuid=" + activeSeries.uuid,
                 "_blank",
               )
             }
