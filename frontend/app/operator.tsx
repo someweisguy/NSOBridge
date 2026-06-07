@@ -221,7 +221,11 @@ export default function Operator() {
               </Collapse>
             </Card>
           </Box>
-          <BoutControl boutUri={boutUri} state={bout.state} />
+          <BoutControl
+            boutUri={boutUri}
+            state={bout.state}
+            disabled={bout.isFinal}
+          />
 
           <Collapse
             expanded={activeJamUri.periodNum >= 1 && bout.state == "stopped"}
