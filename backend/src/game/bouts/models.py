@@ -174,7 +174,9 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
                 else:
                     return 'post_timeout'
             case 'timeout':
-                if latest_timeout is None:
+                if latest_timeout is None or (
+                    not latest_timeout.team_is_officials and latest_timeout.team is None
+                ):
                     return 'timeout'
                 elif latest_timeout.is_review:
                     return 'review'
