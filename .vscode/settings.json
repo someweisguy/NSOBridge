@@ -26,6 +26,7 @@
   },
 
   "[python]": {
+    "editor.tabSize": 4,
     "editor.rulers": [88]
   },
   "python.testing.pytestArgs": ["backend"],
