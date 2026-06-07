@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_OTHER, BaseSQLModel
-from sqlalchemy import CheckConstraint, Constraint, ForeignKey
+from sqlalchemy import CheckConstraint, Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -31,6 +31,7 @@ class TripEvent(BaseSQLModel):
         ForeignKey('team_jams.uuid'), nullable=False
     )
 
+    trip_id: Mapped[int] = mapped_column()
     timestamp: Mapped[datetime] = mapped_column()
     lead: Mapped[bool] = mapped_column(default=False)
     lost: Mapped[bool] = mapped_column(default=False)
@@ -47,10 +48,12 @@ class TripEvent(BaseSQLModel):
     __tablename__: str = 'trip_events'
     __table_args__: tuple[Constraint, ...] = (
         CheckConstraint('passes = 0 OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
+        UniqueConstraint(team_jam_uuid, trip_id),
     )
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
+        trip_id: int,
         timestamp: datetime,
         *,
         lead: bool = False,
@@ -61,6 +64,7 @@ class TripEvent(BaseSQLModel):
         """Initialize a TripEvent.
 
         Args:
+            trip_id (int): uniquely identifies this TripEvent within its TeamJam.
             timestamp (datetime): the timestamp of the TripEvent.
             lead (bool, optional): True if lead was assessed after this TripEvent.
             Defaults to False.
@@ -76,6 +80,7 @@ class TripEvent(BaseSQLModel):
         """
         super().__init__(
             _team_jam=None,
+            trip_id=trip_id,
             timestamp=timestamp,
             lead=lead,
             lost=lost,

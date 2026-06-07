@@ -194,7 +194,8 @@ class Bout(BaseBout):
         if is_initial:
             logging.info(f'This is the initial pass for {team} in {self}')
 
-        event: TripEvent = TripEvent(timestamp, passes=passes)
+        trip_id: int = len(team_jam.events)
+        event: TripEvent = TripEvent(trip_id, timestamp, passes=passes)
 
         # Automatically set lead on the first 4-point trip
         if not jam.lead_is_declared() and passes == self.POINTS_PER_TRIP:
@@ -221,7 +222,8 @@ class Bout(BaseBout):
             # Add a new Trip Event in which lead is declared
             if jam.lead_is_declared():
                 raise GameRulesError('A lead jammer has already been declared')
-            event: TripEvent = TripEvent(timestamp, lead=lead)
+            trip_id: int = len(team_jam.events)
+            event: TripEvent = TripEvent(trip_id, timestamp, lead=lead)
             team_jam.events.append(event)
         else:
             for event in team_jam.events:
@@ -242,7 +244,8 @@ class Bout(BaseBout):
             # Add a new Trip Event in which the Jammer has lost eligibility for lead
             if any(event.lost for event in team_jam.events):
                 raise GameRulesError('This team has already lost lead eligibility')
-            event: TripEvent = TripEvent(timestamp, lost=lost)
+            trip_id: int = len(team_jam.events)
+            event: TripEvent = TripEvent(trip_id, timestamp, lost=lost)
             team_jam.events.append(event)
         else:
             for event in team_jam.events:
@@ -266,7 +269,8 @@ class Bout(BaseBout):
                 raise GameRulesError(
                     'This team has already completed a star pass in this Jam'
                 )
-            event: TripEvent = TripEvent(timestamp, star_pass=star_pass)
+            trip_id: int = len(team_jam.events)
+            event: TripEvent = TripEvent(trip_id, timestamp, star_pass=star_pass)
             if not any(event.lost for event in team_jam.events):
                 event.lost = True  # Removing the star makes one ineligible for Lead
             team_jam.events.append(event)
