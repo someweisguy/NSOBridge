@@ -1,6 +1,7 @@
 """FastAPI routes associated with Jams."""
 
 from typing import Annotated, Final
+from uuid import UUID
 
 from core import APIResponse
 from fastapi import APIRouter, Body, Query
@@ -29,7 +30,7 @@ async def set_stop_reason(
 async def set_trip_passes(
     jam: GetJam,
     team_num: Annotated[int, Query(alias='teamNum')],
-    event_uuid: Annotated[int, Query(alias='eventUuid')],
+    event_uuid: Annotated[UUID, Query(alias='eventUuid')],
     passes: Annotated[int, Body()],
 ) -> APIResponse:
     """Set the number of passes in a desired Trip Event."""
@@ -54,7 +55,7 @@ async def set_trip_passes(
 async def delete_trip_event(
     jam: GetJam,
     team_num: Annotated[int, Query(alias='teamNum')],
-    event_uuid: Annotated[int, Query(alias='eventUuid')],
+    event_uuid: Annotated[UUID, Query(alias='eventUuid')],
 ) -> APIResponse:
     """Delete the desired Trip Event."""
     for team_jam in jam.team_jams:
@@ -69,6 +70,6 @@ async def delete_trip_event(
     else:
         raise ValueError('TripEvent not found.')
 
-    del event
+    team_jam.events.remove(event)
 
     return APIResponse(None, cache=await jam.get_updates())
