@@ -11,6 +11,7 @@ import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import JammerTrip from "@/features/jams/components/jammer-trip";
 import BoutControl from "@/features/operator/components/bout-control";
 import EditMenu from "@/features/operator/components/edit-menu";
+import EndBoutControl from "@/features/operator/components/end-bout-control";
 import JammerStateControl from "@/features/operator/components/jammer-state-control";
 import JammerTripControl from "@/features/operator/components/jammer-trip-control";
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
@@ -221,6 +222,12 @@ export default function Operator() {
             </Card>
           </Box>
           <BoutControl boutUri={boutUri} state={bout.state} />
+
+          <Collapse
+            expanded={activeJamUri.periodNum >= 1 && bout.state == "stopped"}
+          >
+            <EndBoutControl boutUuid={boutUri.boutUuid} />
+          </Collapse>
 
           <Collapse
             expanded={
