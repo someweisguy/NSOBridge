@@ -370,6 +370,10 @@ export default function Operator() {
                                 w="80px"
                                 key={i}
                                 tripIndex={i}
+                                teamJamUri={{
+                                  teamNum: teamJam.teamNum,
+                                  ...activeJamUri,
+                                }}
                                 {...tripEvent}
                                 {...ruleset}
                               />

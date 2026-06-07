@@ -1,13 +1,17 @@
 """FastAPI routes associated with Jams."""
 
-from typing import Annotated, Final
+from typing import TYPE_CHECKING, Annotated, Final
 
 from core import APIResponse
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Query
 
 from .dependencies import GetJam, _get_jam
 from .schemas import JamSchema
 from .types import StopReasonStr
+
+if TYPE_CHECKING:
+    from game.trip_events.models import TripEvent
+
 
 JAMS_TAG = 'Jams'
 
@@ -21,5 +25,43 @@ async def set_stop_reason(
 ) -> APIResponse:
     """Set the stop reason for the desired Jam."""
     jam.stop_reason = stop_reason
+
+    return APIResponse(None, cache=await jam.get_updates())
+
+
+@router.put('/setTripEventPasses')
+async def set_trip_passes(
+    jam: GetJam,
+    team_num: Annotated[int, Query(alias='teamNum')],
+    event_num: Annotated[int, Query(alias='eventNum')],
+    passes: Annotated[int, Body()],
+) -> APIResponse:
+    """Set the number of passes in a desired Trip Event."""
+    for team_jam in jam.team_jams:
+        if team_jam.team_num == team_num:
+            break
+    else:
+        raise ValueError('TeamJam not found.')
+
+    trip: TripEvent = team_jam.events[event_num]
+    trip.passes = passes
+
+    return APIResponse(None, cache=await jam.get_updates())
+
+
+@router.delete('/tripEvent')
+async def delete_trip_event(
+    jam: GetJam,
+    team_num: Annotated[int, Query(alias='teamNum')],
+    event_num: Annotated[int, Query(alias='eventNum')],
+) -> APIResponse:
+    """Delete the desired Trip Event."""
+    for team_jam in jam.team_jams:
+        if team_jam.team_num == team_num:
+            break
+    else:
+        raise ValueError('TeamJam not found.')
+
+    del team_jam.events[event_num]
 
     return APIResponse(None, cache=await jam.get_updates())

@@ -98,3 +98,13 @@ export interface TeamJamUri extends JamUri {
    */
   teamNum: number;
 }
+
+/**
+ * A URI which uniquely identifies a Trip Event within a TeamJam.
+ */
+export interface TripEventUri extends TeamJamUri {
+  /**
+   * The Trip Event number.
+   */
+  eventNum: number;
+}

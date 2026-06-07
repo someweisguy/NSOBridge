@@ -1,20 +1,30 @@
 import { TripEvent } from "@/types/jam";
+import { TeamJamUri } from "@/types/query";
 import { ActionIcon, Card, CardProps, NumberInput } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
 import { IconTrash } from "@tabler/icons-react";
+import { useDeleteTripEvent } from "../hooks/use-delete-trip-event";
+import { useSetTripEventPasses } from "../hooks/use-set-trip-event-passes";
 
 interface JammerTripProps extends TripEvent, CardProps {
+  teamJamUri: TeamJamUri;
   tripIndex: number;
   pointsPerTrip: number;
 }
 
 export default function JammerTrip({
+  teamJamUri,
   tripIndex,
   passes,
   pointsPerTrip,
   ...props
 }: JammerTripProps) {
   const { hovered, ref } = useHover();
+  const setTripPasses = useSetTripEventPasses({
+    eventNum: tripIndex,
+    ...teamJamUri,
+  });
+  const deleteTrip = useDeleteTripEvent({ eventNum: tripIndex, ...teamJamUri });
 
   return (
     <Card
@@ -31,6 +41,7 @@ export default function JammerTrip({
         clampBehavior="strict"
         maw="80px"
         ta="center"
+        placeholder="0"
         min={0}
         max={pointsPerTrip}
         value={passes ?? 0}
@@ -39,14 +50,18 @@ export default function JammerTrip({
         hideControls={!hovered}
         leftSection={
           hovered && (
-            <ActionIcon variant="transparent" color="red">
+            <ActionIcon
+              variant="transparent"
+              color="red"
+              onClick={() => deleteTrip.mutate()}
+            >
               <IconTrash size={16} />
             </ActionIcon>
           )
         }
         leftSectionWidth={24}
         rightSectionWidth={24}
-        placeholder="0"
+        onChange={(value) => setTripPasses.mutate(Number(value))}
         styles={{ input: { textAlign: "center", pointerEvents: "none" } }}
         onFocusCapture={(event) => event.currentTarget.blur()}
       />
