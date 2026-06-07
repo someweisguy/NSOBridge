@@ -13,7 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .ruleset import RulesetProtocol
 from .schemas import BoutSchema
-from .types import BoutStateStr  # noqa: TC001
+from .types import BoutStateStr, BoutSubStateStr  # noqa: TC001
 
 if TYPE_CHECKING:
     from core import CacheKey
@@ -150,6 +150,48 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
             return 'lineup'
         else:
             return 'stopped'
+
+    @final
+    @property
+    def sub_state(self) -> BoutSubStateStr:  # noqa: C901, PLR0911, PLR0912
+        """Get the sub-state of the Bout.
+
+        The sub-state is used for more descriptive event states.
+        """
+        latest_timeout: Timeout | None = self.get_last_timeout()
+        match self.state:
+            case 'lineup' as state:
+                active_jam: Jam = self.get_active_jam()
+                if (
+                    latest_timeout is None
+                    or active_jam.stop_timestamp is None
+                    or latest_timeout.stop_timestamp is None
+                    or latest_timeout.stop_timestamp <= active_jam.stop_timestamp
+                ):
+                    return state
+                elif latest_timeout.is_review:
+                    return 'post-review'
+                else:
+                    return 'post-timeout'
+            case 'timeout':
+                if latest_timeout is None:
+                    return 'timeout'
+                elif latest_timeout.is_review:
+                    return 'review'
+                elif latest_timeout.team is not None:
+                    return 'team-timeout'
+                else:
+                    return 'official-timeout'
+            case 'stopped':
+                latest_jam: Jam = self.jams[-1]
+                if latest_jam.period == 0:
+                    return 'pregame'
+                elif latest_jam.period == 1:
+                    return 'halftime'
+                else:
+                    return 'unofficial'
+            case default:
+                return default
 
     def get_team_jam_score(self, team_jam: TeamJam) -> int:
         """Calculate the score in the desired TeamJam.

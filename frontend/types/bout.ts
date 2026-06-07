@@ -18,6 +18,24 @@ export type BoutStateString =
   | "timeout";
 
 /**
+ * Describes the sub-state of the Bout. This is used for more descriptive event
+ * states.
+ */
+export type BoutSubStateString =
+  | "lineup"
+  | "post-review"
+  | "post-timeout"
+  | "timeout"
+  | "review"
+  | "team-timeout"
+  | "official-timeout"
+  | "pregame"
+  | "halftime"
+  | "unofficial"
+  | "jam"
+  | "final";
+
+/**
  * Represents a roller derby Bout - the game unit within this app.
  */
 export interface Bout {
@@ -48,6 +66,10 @@ export interface Bout {
    * The current state of the Bout.
    */
   state: BoutStateString;
+  /**
+   * The current sub-state of the Bout.
+   */
+  subState: BoutSubStateString;
   /**
    * True if this Bout is currently running. A Bout is considered to be running when it
    * is not in pregame, halftime, or final. It is possible for a Bout to be running even

@@ -1,30 +1,17 @@
 import ClockView from "@/components/clock-view";
-import { BoutStateString } from "@/types/bout";
 import { TextProps } from "@mantine/core";
 
-const stateTexts: Record<BoutStateString, string> = {
-  final: "Final",
-  jam: "Jam",
-  lineup: "Lineup",
-  timeout: "Timeout",
-  stopped: "Stopped",
-};
-
 interface EventClockProps extends TextProps {
-  state: BoutStateString;
+  prefix: string;
   startTimestamp: string | null;
 }
 
 export default function EventClock({
-  state,
+  prefix,
   startTimestamp,
   ...props
 }: EventClockProps) {
   return (
-    <ClockView
-      prefix={stateTexts[state]}
-      startTimestamp={startTimestamp}
-      {...props}
-    />
+    <ClockView prefix={prefix} startTimestamp={startTimestamp} {...props} />
   );
 }

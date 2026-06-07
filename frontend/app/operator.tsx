@@ -207,15 +207,12 @@ export default function Operator() {
                 orientation="horizontal"
                 size={bout.state != "jam" ? "xs" : 0}
               />
-              <Collapse
-                orientation="vertical"
-                expanded={bout.state != "jam"}
-                bg="yellow.3"
-              >
+              <Collapse expanded={bout.state != "jam"} bg="yellow.3">
                 <EventClock
                   p="xs"
                   fz="h3"
                   ta="center"
+                  prefix={bout.subState}
                   startTimestamp={lastEventTimestamp}
                   {...bout}
                 />
