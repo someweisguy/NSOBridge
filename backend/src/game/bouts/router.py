@@ -183,7 +183,7 @@ async def finalize(bout: GetBout) -> APIResponse:
     return APIResponse(None, cache=await bout.get_updates())
 
 
-@router.post(path='/setClockRemaining')
+@router.put(path='/setClockRemaining')
 async def set_clock_remaining(
     bout: GetBout, remaining: Annotated[int, Body(alias='remaining')]
 ) -> APIResponse:
@@ -198,7 +198,7 @@ async def set_clock_remaining(
     return APIResponse(None, cache=await bout.get_updates())
 
 
-@router.post(path='/setClockAlarm')
+@router.put(path='/setClockAlarm')
 async def set_clock_alarm(
     bout: GetBout, alarm: Annotated[int, Body(alias='alarm')]
 ) -> APIResponse:
@@ -209,7 +209,7 @@ async def set_clock_alarm(
     return APIResponse(None, cache=await bout.get_updates())
 
 
-@router.post(path='/setClockIsRunning')
+@router.put(path='/setClockIsRunning')
 async def set_clock_is_running(
     bout: GetBout, is_running: Annotated[bool, Body(alias='isRunning')]
 ) -> APIResponse:

@@ -13,7 +13,7 @@ export const useSetBoutClockRemaining = ({
 }: BoutUri & AppMutationOptions<void, unknown, number>) =>
   useMutation({
     mutationFn: (remaining: number) =>
-      localAPI.post<void>("bout/setClockRemaining", {
+      localAPI.put<void>("bout/setClockRemaining", {
         query: { boutUuid },
         body: remaining,
       }),

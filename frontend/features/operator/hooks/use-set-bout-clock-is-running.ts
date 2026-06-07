@@ -13,7 +13,7 @@ export const useSetBoutClockIsRunning = ({
 }: BoutUri & AppMutationOptions<void, unknown, boolean>) =>
   useMutation({
     mutationFn: (isRunning: boolean) =>
-      localAPI.post<void>("bout/setClockIsRunning", {
+      localAPI.put<void>("bout/setClockIsRunning", {
         query: { boutUuid },
         body: isRunning,
       }),
