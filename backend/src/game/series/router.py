@@ -1,12 +1,14 @@
 """FastAPI routes associated with Series."""
 
-from typing import Final, Sequence
+from typing import Annotated, Final, Sequence
+from uuid import UUID
 
+from core import APIResponse
 from db import GetAsyncSession
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from sqlalchemy import Result, Select, select
 
-from .dependencies import _get_series
+from .dependencies import GetSeries, _get_series
 from .models import Series
 from .schemas import SeriesSchema
 
@@ -23,3 +25,17 @@ async def get_all_series(session: GetAsyncSession) -> Sequence[Series]:
     results: Result[tuple[Series]] = await session.execute(statement)
 
     return results.scalars().all()
+
+
+@router.put('/activeBout')
+async def set_active_bout(
+    series: GetSeries, bout_uuid: Annotated[UUID, Body(alias='boutUuid')]
+) -> APIResponse:
+    """Set the active Bout of the Series."""
+    for bout in series.bouts:
+        if bout.uuid == bout_uuid:
+            break
+    else:
+        raise ValueError('No such Bout was found.')
+    series.set_active_bout(bout)
+    return APIResponse(None, await series.get_updates())
