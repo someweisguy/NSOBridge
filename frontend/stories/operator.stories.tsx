@@ -17,7 +17,6 @@ const bout: Bout = {
   },
   isRunning: true,
   startCountdown: null,
-  isFinal: false,
   state: "timeout",
   teams: [
     {

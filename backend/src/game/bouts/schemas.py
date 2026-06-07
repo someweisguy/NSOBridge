@@ -33,7 +33,6 @@ class BoutSchema(ServerSchema):
     clock: ClockSchema
     is_running: bool
     start_countdown: datetime | None
-    is_final: bool
     state: BoutStateStr
     teams: list[TeamSchema]
     jams: list[SkipValidation[JamSchema]] = Field(exclude=True)

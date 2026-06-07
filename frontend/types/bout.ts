@@ -55,11 +55,6 @@ export interface Bout {
    */
   isRunning: boolean;
   /**
-   * True if this Bout has been finalized. In this situation, a winner (or a tie) has
-   * been declared.
-   */
-  isFinal: boolean;
-  /**
    * An array of the Teams competing in this Bout. At least two Teams are required.
    */
   teams: Team[];

@@ -225,7 +225,7 @@ export default function Operator() {
           <BoutControl
             boutUri={boutUri}
             state={bout.state}
-            disabled={bout.isFinal}
+            disabled={bout.state == "final"}
           />
 
           <Collapse
