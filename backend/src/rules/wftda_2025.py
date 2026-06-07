@@ -280,39 +280,8 @@ class Bout(BaseBout):
             if event.is_empty():
                 team_jam.events.remove(event)
 
-
-# class Timeout(BaseTimeout):
-#     """A Timeout model using the WFTDA 2025 ruleset."""
-
-#     @override
-#     def set_type(self, is_review: bool) -> None:
-#         logging.info(
-#             f'Setting {self} to {"official review" if is_review else "timeout"} type '
-#             f'in Bout ID {self.bout_uuid}'
-#         )
-
-#         self.is_review = is_review
-
-#     @override
-#     def set_team(self, team: Team | None) -> None:
-#         if team is not None and team.bout_uuid != self.bout_uuid:
-#             raise GameStateError('Team and timeout are not part of the same Bout')
-#         if team is None and self.is_review:
-#             raise GameRulesError('Official reviews can only be called by teams')
-
-#         logging.info(
-#             f'Setting {self} calling team to {team or "officials"} in Bout ID '
-#             f'{self.bout_uuid}'
-#         )
-
-#         self.team = team
-#         self.team_is_officials = team is None
-
-#     @override
-#     def set_retained(self, retained: bool) -> None:
-#         logging.info(
-#             f'Setting {self} to {"" if retained else "un"}retained in Bout ID '
-#             f'{self.bout_uuid}'
-#         )
-
-#         self.retained = retained
+    @override
+    def finalize(self) -> None:
+        if self.get_running_jam() is not None or self.get_running_timeout() is not None:
+            raise GameRulesError('The Bout cannot be finalized now.')
+        self.is_final = True

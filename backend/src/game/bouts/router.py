@@ -176,7 +176,11 @@ async def set_star_pass(
     return APIResponse(None, await bout.get_updates())
 
 
-__all__ = ('router',)
+@router.post(path='/finalize')
+async def finalize(bout: GetBout) -> APIResponse:
+    """Finalize the Bout."""
+    bout.finalize()
+    return APIResponse(None, cache=await bout.get_updates())
 
 
 @router.post(path='/setClockRemaining')

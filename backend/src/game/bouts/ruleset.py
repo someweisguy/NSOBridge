@@ -154,3 +154,12 @@ class RulesetProtocol:
 
         """
         ...
+
+    @abstractmethod
+    def finalize(self) -> None:
+        """Finalize the Bout.
+
+        A finalized Bout has been completed. After a Bout is finalized, there can be no
+        more changes made to the Bout.
+        """
+        ...
