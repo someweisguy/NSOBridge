@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { useScroller } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import { useEffect, useRef } from "react";
+import { Children, useEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
 const arrowButtonStyle: ButtonProps = {
@@ -33,15 +33,20 @@ export default function ResponsiveScroller({
   ...props
 }: ScrollAreaAutosizeProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
+  const childrenCount = useRef<number>(0);
 
   const scroller = useScroller();
 
-  // Scroll to end when an item is added or removed or when the page initially loads
+  // Scroll to end when an item is added or when the page initially loads
   useEffect(() => {
-    viewportRef.current?.scrollTo({
-      behavior: "smooth",
-      left: viewportRef.current.scrollWidth,
-    });
+    const newChildrenCount = Children.count(children);
+    if (newChildrenCount > childrenCount.current) {
+      viewportRef.current?.scrollTo({
+        behavior: "smooth",
+        left: viewportRef.current.scrollWidth,
+      });
+    }
+    childrenCount.current = newChildrenCount;
   }, [children]);
 
   return (
