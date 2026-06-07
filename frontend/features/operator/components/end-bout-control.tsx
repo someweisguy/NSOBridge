@@ -13,7 +13,7 @@ export default function EndBoutControl({ ...props }: FieldsetProps) {
         color="red.9"
         rightSection={<IconCancel size={16} />}
       >
-        End Bout
+        Finalize Bout
       </Button>
     </Fieldset>
   );
