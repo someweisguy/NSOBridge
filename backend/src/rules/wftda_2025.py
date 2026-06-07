@@ -284,4 +284,13 @@ class Bout(BaseBout):
     def finalize(self) -> None:
         if self.get_running_jam() is not None or self.get_running_timeout() is not None:
             raise GameRulesError('The Bout cannot be finalized now.')
+
+        # Cull all Jams and Timeouts that have not started
+        self.jams: list[Jam] = [
+            jam for jam in self.jams if jam.start_timestamp is not None
+        ]
+        self.timeouts: list[Timeout] = [
+            timeout for timeout in self.timeouts if timeout.start_timestamp is not None
+        ]
+
         self.is_final = True
