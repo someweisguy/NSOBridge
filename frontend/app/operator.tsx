@@ -16,6 +16,7 @@ import JammerStateControl from "@/features/operator/components/jammer-state-cont
 import JammerTripControl from "@/features/operator/components/jammer-trip-control";
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
+import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
 import { useJam } from "@/hooks/use-jam";
 import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
 import { useSuspenseBout } from "@/hooks/use-suspense-bout";
@@ -159,6 +160,8 @@ export default function Operator() {
         ).toISOString()
       : null;
 
+  const setActiveBout = useSetActiveBout({ seriesUuid: activeSeries.uuid });
+
   return (
     <PageShell
       header={
@@ -178,6 +181,7 @@ export default function Operator() {
             onChange={(boutUuid: string | null) => {
               if (boutUuid != null) {
                 setBoutUri({ boutUuid });
+                setActiveBout.mutate(boutUuid);
               }
             }}
           />
