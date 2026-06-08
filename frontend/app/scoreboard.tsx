@@ -1,9 +1,9 @@
 import GameClock from "@/features/bouts/components/game-clock";
 import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
+import { useSuspenseBout } from "@/features/bouts/hooks/use-bout";
+import { useSuspenseJam } from "@/features/jams/hooks/use-jam";
 import { useSuspenseSeries } from "@/hooks/use-series";
-import { useSuspenseBout } from "@/hooks/use-suspense-bout";
-import { useSuspenseJam } from "@/hooks/use-suspense-jam";
 import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { Team } from "@/types/bout";
 import FitScreen from "@fit-screen/react";
