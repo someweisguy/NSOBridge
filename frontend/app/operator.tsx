@@ -93,7 +93,7 @@ export default function Operator() {
     select: (allSeries: Series[]) => allSeries[allSeries.length - 1],
   });
 
-  const { data: bouts, isPending } = useQueries({
+  const { data: bouts, isPending: boutsArePending } = useQueries({
     queries: activeSeries.boutUuids.map((boutUuid: string) => ({
       queryKey: generateQueryKey.bout(boutUuid),
       queryFn: () =>
@@ -175,7 +175,7 @@ export default function Operator() {
                 value: b.uuid,
                 label: b.teams.map((t) => t.name).join(" vs. "),
               }))}
-            loading={isPending}
+            loading={boutsArePending}
             value={boutUri.boutUuid}
             allowDeselect={false}
             onChange={(boutUuid: string | null) => {
