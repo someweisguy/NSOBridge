@@ -20,7 +20,6 @@ import JamStopReasonEditor from "@/features/operator/components/stop-reason-edit
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
-import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
 import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
@@ -54,6 +53,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
+import { useSuspenseAllRulesetNames } from "@/hooks/use-all-ruleset-names";
 
 const root: HTMLElement | null = document.getElementById("root");
 if (root != null) {
