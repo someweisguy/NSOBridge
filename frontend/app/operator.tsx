@@ -185,7 +185,7 @@ export default function Operator() {
               }
             }}
           />
-          <Tooltip withArrow fz="xs" label="Add bout">
+          <Tooltip withArrow fz="xs" label="Create a Bout">
             <ActionIcon variant="light" onClick={open}>
               <IconPlus size={16} />
             </ActionIcon>
