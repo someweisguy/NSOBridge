@@ -1,4 +1,4 @@
-import { useCreateBout } from "@/hooks/use-create-bout";
+import { useCreateBout } from "@/features/bouts/hooks/use-create-bout";
 import { Button, Group, Select } from "@mantine/core";
 import { useState } from "react";
 
