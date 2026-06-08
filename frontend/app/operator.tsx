@@ -19,8 +19,9 @@ import JammerTripControl from "@/features/operator/components/jammer-trip-contro
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
+import { useSuspenseAllRulesetNames } from "@/hooks/use-all-ruleset-names";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
-import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
+import { useSuspenseGetAllSeries } from "@/hooks/use-series";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
 import { Bout, BoutSubStateString, Team } from "@/types/bout";
@@ -53,7 +54,6 @@ import { useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
-import { useSuspenseAllRulesetNames } from "@/hooks/use-all-ruleset-names";
 
 const root: HTMLElement | null = document.getElementById("root");
 if (root != null) {
