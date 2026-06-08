@@ -19,9 +19,9 @@ import JammerTripControl from "@/features/operator/components/jammer-trip-contro
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
+import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseAllRulesetNames } from "@/hooks/use-suspense-all-ruleset-names";
 import { useSuspenseGetAllSeries } from "@/hooks/use-suspense-get-all-series";
-import { useSuspenseRuleset } from "@/hooks/use-suspense-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
 import { Bout, BoutSubStateString, Team } from "@/types/bout";
