@@ -31,6 +31,7 @@ const config: StorybookConfig = {
     "@storybook/addon-vitest",
     "@storybook/addon-a11y",
     "@storybook/addon-docs",
+    "@storybook/addon-queryparams",
     "storybook-addon-mock-date",
     "storybook-addon-deep-controls",
     "storybook-dark-mode",
