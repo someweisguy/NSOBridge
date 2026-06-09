@@ -15,25 +15,23 @@ import "./global.css";
 import AppProvider from "./provider";
 
 const root: HTMLElement | null = document.getElementById("root");
-if (root == null) {
-  throw new Error("Root HTML Node was not found.");
+if (root != null) {
+  document.title = "Scoreboard";
+  createRoot(root).render(
+    <AppProvider>
+      <Scoreboard />
+    </AppProvider>,
+  );
 }
-document.title = "Scoreboard";
-createRoot(root).render(
-  <AppProvider>
-    <Scoreboard />
-  </AppProvider>,
-);
-
-const urlParams = new URLSearchParams(window.location.search);
-const seriesParamName = "seriesUuid";
 
 /**
  * Display the audience-facing scoreboard. This has at-a-glance information about the
  * state of the bout as concisely and accessibly as possible.
  */
 export function Scoreboard() {
-  const [seriesUuid] = useState(urlParams.get(seriesParamName));
+  const [seriesUuid] = useState(
+    new URLSearchParams(window.location.search).get("seriesUuid"),
+  );
   if (seriesUuid == null) {
     throw new Error("No Series Provided");
   }
