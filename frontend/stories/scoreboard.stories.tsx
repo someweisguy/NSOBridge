@@ -186,11 +186,6 @@ const timeout: Timeout = {
 const meta: Meta = {
   component: Scoreboard,
   title: "Pages/Scoreboard",
-  globals: {
-    viewport: {
-      value: "smallDesktop",
-    },
-  },
   parameters: {
     msw: {
       handlers: [
