@@ -1,13 +1,29 @@
+import EventClock from "@/features/bouts/components/event-clock";
 import GameClock from "@/features/bouts/components/game-clock";
+import TeamScore from "@/features/bouts/components/team-score";
 import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
 import useActiveJamUri from "@/features/bouts/hooks/use-active-jam-uri";
 import { useSuspenseBout } from "@/features/bouts/hooks/use-bout";
+import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
+import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import { useSuspenseJam } from "@/features/jams/hooks/use-jam";
 import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseSeries } from "@/hooks/use-series";
-import { Team } from "@/types/bout";
+import { useTimeout } from "@/hooks/use-timeout";
+import { BoutSubStateString, Team } from "@/types/bout";
+import { TeamJam } from "@/types/jam";
+import { isRunning } from "@/utils/time";
 import FitScreen from "@fit-screen/react";
-import { Flex, SimpleGrid, Stack, Text } from "@mantine/core";
+import {
+  Box,
+  Card,
+  Center,
+  Collapse,
+  Divider,
+  Group,
+  Stack,
+  Title,
+} from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -23,6 +39,21 @@ if (root != null) {
     </AppProvider>,
   );
 }
+
+const eventNames: Record<BoutSubStateString, string> = {
+  pregame: "Pregame",
+  halftime: "Halftime",
+  unofficial: "Unofficial",
+  lineup: "Lineup",
+  post_review: "Post-review",
+  post_timeout: "Post-timeout",
+  jam: "Jam",
+  timeout: "Timeout",
+  review: "Official Review",
+  team_timeout: "Team Timeout",
+  official_timeout: "Official Timeout",
+  final: "Final",
+};
 
 /**
  * Display the audience-facing scoreboard. This has at-a-glance information about the
@@ -43,53 +74,114 @@ export function Scoreboard() {
   const { data: bout } = useSuspenseBout({ boutUuid: series.activeBoutUuid });
 
   const activeJamUri = useActiveJamUri(bout);
+  const latestJamUri = useLatestJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
+
+  const latestTimeoutUri = useLatestTimeoutUri(bout);
+  const { data: latestTimeout } = useTimeout({
+    ...latestTimeoutUri,
+    enabled: bout.timeoutCount > 0,
+    throwOnError: false,
+  });
+
+  // Get the time since the last Jam or Timeout or null if neither have occurred
+  const lastEventTimestamp: string | null =
+    activeJam.startTimestamp != null
+      ? new Date(
+          Math.max(
+            ...[
+              activeJam.startTimestamp,
+              activeJam.stopTimestamp,
+              latestTimeout?.startTimestamp,
+              latestTimeout?.stopTimestamp,
+            ]
+              .filter((val?: string | null) => val != null)
+              .map((val: string) => new Date(val).getTime()),
+          ),
+        ).toISOString()
+      : null;
 
   return (
     <FitScreen waitTime={25} mode="fit">
-      <Stack align="stretch" justify="flex-start">
-        {/* Team information */}
-        <SimpleGrid cols={bout.teams.length}>
-          {bout.teams.map((team: Team, i: number) => (
-            <Stack key={i} justify="center">
-              <Text ta="center" fw="bolder" size="64pt">
-                {team.name}
-              </Text>
-              <Flex
-                direction={i % 2 ? "row-reverse" : "row"}
-                align="center"
-                justify="center"
-                gap="md"
-              >
-                <TimeoutsLeft
-                  numTimeouts={ruleset.numTimeouts}
-                  numReviews={ruleset.numReviews}
-                  timeoutsRemaining={team.timeoutsRemaining}
-                  reviewsRemaining={team.reviewsRemaining}
-                  timeoutIsActive={false} // TODO: use active timeout
-                  isReview={false} // TODO: use active timeout
-                  size={24}
-                />
-                <Text fw="bold" w={150} ta="center" size="48pt">
-                  {team.boutScore + team.scoreOffset}
-                </Text>
-                <Text ta={i % 2 ? "right" : "left"} size="24pt" w={50}>
-                  {team.jamScore}
-                </Text>
-              </Flex>
-            </Stack>
-          ))}
-        </SimpleGrid>
+      <Stack gap="sm" align="stretch" w="100%">
+        <Group justify="space-around" gap="lg">
+          {bout.teams.map((team: Team, i: number) => {
+            const teamJam = activeJam.teamJams.find(
+              (tj: TeamJam) => tj.teamNum == team.num,
+            );
 
-        {/* Bout State View */}
-        <GameClock
-          activePeriodNum={activeJam.period}
-          activeJamNum={activeJam.num}
-          isOvertime={bout.jamCounts[2] > 0}
-          {...bout}
-          {...activeJam}
-          {...ruleset}
-        />
+            const lead = teamJam?.events.some((event) => event.lead) ?? false;
+            const lost = teamJam?.events.some((event) => event.lost) ?? false;
+            const starPass =
+              teamJam?.events.some((event) => event.starPass) ?? false;
+
+            return (
+              <Card withBorder key={team.num} w="350px" px="0">
+                <Stack align="stretch" w="350px">
+                  <Title ta="center" fz="h3">
+                    {team.name}
+                  </Title>
+                  <Center>
+                    <TeamScore
+                      reverse={!!(i % 2)}
+                      aside={
+                        <TimeoutsLeft
+                          timeoutIsActive={
+                            latestTimeout != null &&
+                            isRunning(latestTimeout) &&
+                            latestTimeout.teamNum === team.num
+                          }
+                          isReview={latestTimeout?.isReview ?? false}
+                          size={13}
+                          {...team}
+                          {...ruleset}
+                        />
+                      }
+                      lead={lead}
+                      lost={lost}
+                      starPass={starPass}
+                      textSize={20}
+                      {...team}
+                    />
+                  </Center>
+                </Stack>
+              </Card>
+            );
+          })}
+        </Group>
+        <Box>
+          <Card withBorder orientation="vertical" fz="h4" p="0">
+            <GameClock
+              align="center"
+              p="xs"
+              activePeriodNum={activeJam.period}
+              activeJamNum={activeJam.num}
+              isOvertime={activeJam.period > 2}
+              {...bout}
+              {...activeJam}
+              {...ruleset}
+            />
+            <Divider
+              orientation="horizontal"
+              size={bout.state != "jam" ? "xs" : 0}
+            />
+            <Collapse expanded={bout.state != "jam"} bg="yellow.3">
+              <EventClock
+                p="xs"
+                fz="h3"
+                ta="center"
+                hideClock={
+                  bout.state == "stopped" ||
+                  bout.state == "final" ||
+                  (bout.state == "lineup" && latestJamUri.jamNum == 0)
+                }
+                prefix={eventNames[bout.subState]}
+                startTimestamp={lastEventTimestamp}
+                {...bout}
+              />
+            </Collapse>
+          </Card>
+        </Box>
       </Stack>
     </FitScreen>
   );
