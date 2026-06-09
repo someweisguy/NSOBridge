@@ -1,5 +1,6 @@
 """Service methods for the updater module."""
 
+import logging
 from collections.abc import Iterable
 from typing import Final
 
@@ -62,9 +63,12 @@ def parse_latest_release(github_json: Iterable) -> GithubReleaseSchema:
     for obj in github_json:
         try:
             release = GithubReleaseSchema.model_validate(obj)
+            if release.tag_name.startswith('v'):
+                release.tag_name = release.tag_name[1:]
             if not release.draft and VersionInfo.is_valid(release.tag_name):
                 releases.append(release)
         except ValidationError:
+            logging.warning('Could not parse GitHub release schema.')
             continue
     if len(releases) == 0:
         raise ValueError('No releases found')
