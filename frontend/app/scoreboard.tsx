@@ -15,7 +15,6 @@ import { TeamJam } from "@/types/jam";
 import { isRunning } from "@/utils/time";
 import FitScreen from "@fit-screen/react";
 import {
-  Box,
   Card,
   Center,
   Collapse,
@@ -103,7 +102,7 @@ export function Scoreboard() {
 
   return (
     <FitScreen waitTime={25} mode="fit">
-      <Stack gap="sm" align="stretch" w="100%">
+      <Stack gap="xl" justify="space-around" h="100%" py="xl">
         <Group justify="space-around" gap="lg">
           {bout.teams.map((team: Team, i: number) => {
             const teamJam = activeJam.teamJams.find(
@@ -116,9 +115,9 @@ export function Scoreboard() {
               teamJam?.events.some((event) => event.starPass) ?? false;
 
             return (
-              <Card withBorder key={team.num} w="350px" px="0">
-                <Stack align="stretch" w="350px">
-                  <Title ta="center" fz="h3">
+              <Card key={team.num} px="0">
+                <Stack align="stretch">
+                  <Title ta="center" fz="68pt">
                     {team.name}
                   </Title>
                   <Center>
@@ -132,7 +131,7 @@ export function Scoreboard() {
                             latestTimeout.teamNum === team.num
                           }
                           isReview={latestTimeout?.isReview ?? false}
-                          size={13}
+                          size={36}
                           {...team}
                           {...ruleset}
                         />
@@ -140,7 +139,7 @@ export function Scoreboard() {
                       lead={lead}
                       lost={lost}
                       starPass={starPass}
-                      textSize={20}
+                      textSize={48}
                       {...team}
                     />
                   </Center>
@@ -149,8 +148,8 @@ export function Scoreboard() {
             );
           })}
         </Group>
-        <Box>
-          <Card withBorder orientation="vertical" fz="h4" p="0">
+        <Center>
+          <Card withBorder fz="48pt" w="75%" p="0">
             <GameClock
               align="center"
               p="xs"
@@ -167,8 +166,8 @@ export function Scoreboard() {
             />
             <Collapse expanded={bout.state != "jam"} bg="yellow.3">
               <EventClock
-                p="xs"
-                fz="h3"
+                p="sm"
+                fz="36pt"
                 ta="center"
                 hideClock={
                   bout.state == "stopped" ||
@@ -181,7 +180,7 @@ export function Scoreboard() {
               />
             </Collapse>
           </Card>
-        </Box>
+        </Center>
       </Stack>
     </FitScreen>
   );
