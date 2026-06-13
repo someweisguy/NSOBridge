@@ -180,7 +180,7 @@ export function Scoreboard() {
             <Collapse expanded={bout.state != "jam"} bg="yellow.3">
               <EventClock
                 p="sm"
-                fz="36pt"
+                fz="42pt"
                 ta="center"
                 hideClock={
                   bout.state == "stopped" ||
