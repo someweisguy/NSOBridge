@@ -160,9 +160,6 @@ export default function Operator() {
       : null;
 
   const setActiveBout = useSetActiveBout({ seriesUuid: activeSeries.uuid });
-  useEffect(() => {
-    setActiveBout.mutate(boutUri.boutUuid);
-  }, [boutUri, setActiveBout]);
 
   return (
     <PageShell
@@ -183,6 +180,7 @@ export default function Operator() {
             onChange={(boutUuid: string | null) => {
               if (boutUuid != null) {
                 setBoutUri({ boutUuid });
+                setActiveBout.mutate(boutUuid);
               }
             }}
           />
@@ -291,6 +289,7 @@ export default function Operator() {
           seriesUuid={activeSeries.uuid}
           onSuccess={(boutUuid: string) => {
             setBoutUri({ boutUuid });
+            setActiveBout.mutate(boutUuid);
             close();
           }}
         />
