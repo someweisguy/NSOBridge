@@ -2,24 +2,22 @@
 
 from __future__ import annotations
 
-from typing import Final, override
+from typing import TYPE_CHECKING, Final, override
 from uuid import UUID  # noqa: TC003
 
 from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
-from game.bouts.models import BaseBout
-from game.jams.models import Jam
 from game.skaters.models import Skater
 from game.team_jams.models import TeamJam
 from game.timeouts.models import Timeout
-from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
+from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import (
     Mapped,
-    MappedSQLExpression,
-    column_property,
     mapped_column,
     relationship,
 )
-from sqlalchemy.sql import desc
+
+if TYPE_CHECKING:
+    from game.bouts.models import BaseBout
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
@@ -69,20 +67,6 @@ class Team(BaseSQLModel):
         cascade='all',  # Exclude `delete-orphan` as Timeouts can be called by officials
         lazy='selectin',
         order_by=[Timeout.num],
-    )
-
-    # Used to calculate the current Jam score
-    # SQLAlchemy does not understand `is` keyword in WHERE clauses, thus ignore E711.
-    _active_jam_uuid: MappedSQLExpression[UUID] = column_property(
-        select(Jam.uuid)
-        .where(Jam.start_timestamp != None)  # noqa: E711
-        .order_by(desc(Jam.period), desc(Jam.num))
-        .scalar_subquery()
-    )
-    _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name)
-        .where(BaseBout.uuid == bout_uuid)
-        .scalar_subquery()
     )
 
     __tablename__: str = 'teams'
@@ -135,9 +119,7 @@ class Team(BaseSQLModel):
             int: the current jam score of this Team.
 
         """
-        active_team_jam: TeamJam | None = next(
-            (tj for tj in self.team_jams if tj._jam_uuid == self._active_jam_uuid), None
-        )
-        if active_team_jam is None:
-            return 0
-        return self._bout.get_team_jam_score(active_team_jam)
+        for team_jam in reversed(self.team_jams):
+            if team_jam.jam.is_started():
+                break
+        return self._bout.get_team_jam_score(team_jam)
