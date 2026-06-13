@@ -187,6 +187,7 @@ const meta: Meta = {
   component: Scoreboard,
   title: "Pages/Scoreboard",
   parameters: {
+    layout: "fullscreen",
     msw: {
       handlers: [
         http.get("/api/bout/ruleset", () => {

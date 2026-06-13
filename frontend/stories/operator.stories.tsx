@@ -185,6 +185,7 @@ const meta: Meta = {
     },
   },
   parameters: {
+    layout: "fullscreen",
     msw: {
       handlers: [
         http.get("/api/bout/ruleset", () => {
