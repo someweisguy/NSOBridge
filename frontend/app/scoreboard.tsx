@@ -105,7 +105,7 @@ export function Scoreboard() {
   return (
     <FitScreen waitTime={25} mode="fit" className="bg-black">
       <Stack gap="xl" justify="space-around" h="100%" py="xl">
-        <Group justify="space-around" align="self-start" gap="lg">
+        <Group justify="space-around" align="self-start" gap="lg" h="66%">
           {bout.teams.map((team: Team, i: number) => {
             const teamJam = activeJam.teamJams.find(
               (tj: TeamJam) => tj.teamNum == team.num,
@@ -162,8 +162,8 @@ export function Scoreboard() {
             );
           })}
         </Group>
-        <Center>
-          <Card withBorder fz="48pt" w="75%" p="0">
+        <Group justify="center" align="flex-start" h="33%">
+          <Card withBorder fz="68pt" w="75%" p="0">
             <GameClock
               align="center"
               p="xs"
@@ -194,7 +194,7 @@ export function Scoreboard() {
               />
             </Collapse>
           </Card>
-        </Center>
+        </Group>
       </Stack>
     </FitScreen>
   );
