@@ -337,6 +337,7 @@ export default function Operator() {
                       lead={lead}
                       lost={lost}
                       starPass={starPass}
+                      noInitial={numTrips == 0}
                       textSize={20}
                       {...team}
                     />

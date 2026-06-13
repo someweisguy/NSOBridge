@@ -11,7 +11,7 @@ import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseSeries } from "@/hooks/use-series";
 import { useTimeout } from "@/hooks/use-timeout";
 import { BoutSubStateString, Team } from "@/types/bout";
-import { TeamJam } from "@/types/jam";
+import { TeamJam, TripEvent } from "@/types/jam";
 import { isRunning } from "@/utils/time";
 import FitScreen from "@fit-screen/react";
 import {
@@ -114,13 +114,12 @@ export function Scoreboard() {
             const lost = teamJam?.events.some((event) => event.lost) ?? false;
             const starPass =
               teamJam?.events.some((event) => event.starPass) ?? false;
-            // TODO: calculate if this is the initial trip
-            // const numTrips =
-            //   teamJam?.events.reduce<number>(
-            //     (sum: number, event: TripEvent) =>
-            //       sum + Number(event.passes != null),
-            //     0,
-            //   ) ?? 0;
+            const numTrips =
+              teamJam?.events.reduce<number>(
+                (sum: number, event: TripEvent) =>
+                  sum + Number(event.passes != null),
+                0,
+              ) ?? 0;
 
             return (
               <Card key={team.num} px="0">
@@ -148,6 +147,7 @@ export function Scoreboard() {
                       lead={lead}
                       lost={lost}
                       starPass={starPass}
+                      noInitial={numTrips == 0}
                       textSize={48}
                       {...team}
                     />

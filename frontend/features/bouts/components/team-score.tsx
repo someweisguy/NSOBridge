@@ -28,6 +28,10 @@ interface TeamScoreProps extends Omit<GridProps, "columns"> {
    */
   starPass: boolean;
   /**
+   * True if the Jammer has not completed the initial pass.
+   */
+  noInitial: boolean;
+  /**
    * True to reverse the Jam score and the Timeout counter. Defaults to false.
    */
   reverse?: boolean;
@@ -58,6 +62,7 @@ export default function TeamScore({
   lead,
   lost,
   starPass,
+  noInitial,
   aside,
   textSize,
   justify = "space-between",
@@ -104,7 +109,7 @@ export default function TeamScore({
           )}
           <Card withBorder p={textSize / 4} mx={textSize / 4}>
             <Text ta="center" fz={textSize} w={textSize * 1.5}>
-              {jamScore}
+              {noInitial ? "-" : jamScore}
             </Text>
           </Card>
         </Stack>
