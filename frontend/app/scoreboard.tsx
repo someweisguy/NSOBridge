@@ -21,6 +21,7 @@ import {
   Divider,
   Group,
   Stack,
+  Text,
   Title,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -101,9 +102,9 @@ export function Scoreboard() {
       : null;
 
   return (
-    <FitScreen waitTime={25} mode="fit">
+    <FitScreen waitTime={25} mode="fit" className="bg-black">
       <Stack gap="xl" justify="space-around" h="100%" py="xl">
-        <Group justify="space-around" gap="lg">
+        <Group justify="space-around" align="self-start" gap="lg">
           {bout.teams.map((team: Team, i: number) => {
             const teamJam = activeJam.teamJams.find(
               (tj: TeamJam) => tj.teamNum == team.num,
@@ -113,6 +114,13 @@ export function Scoreboard() {
             const lost = teamJam?.events.some((event) => event.lost) ?? false;
             const starPass =
               teamJam?.events.some((event) => event.starPass) ?? false;
+            // TODO: calculate if this is the initial trip
+            // const numTrips =
+            //   teamJam?.events.reduce<number>(
+            //     (sum: number, event: TripEvent) =>
+            //       sum + Number(event.passes != null),
+            //     0,
+            //   ) ?? 0;
 
             return (
               <Card key={team.num} px="0">
@@ -122,6 +130,7 @@ export function Scoreboard() {
                   </Title>
                   <Center>
                     <TeamScore
+                      px="xl"
                       reverse={!!(i % 2)}
                       aside={
                         <TimeoutsLeft
@@ -143,6 +152,10 @@ export function Scoreboard() {
                       {...team}
                     />
                   </Center>
+                  <Divider />
+                  <Text ta="center" fz="42pt" td="underline" h="6rem">
+                    {lead && !lost && "Lead"}
+                  </Text>
                 </Stack>
               </Card>
             );
