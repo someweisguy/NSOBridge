@@ -15,13 +15,13 @@ from .app.utils import (
 from .app.ws import disconnect_all, invalidate_queries, ws
 from .error_handlers import error_handlers
 from .logging import configure_logging
-from .memento import Memento
 from .server import (
     get_default_route,
     get_server,
     shutdown,
 )
 from .types import CacheKey
+from .users.memento import Memento
 
 __all__ = (
     'api_router',
