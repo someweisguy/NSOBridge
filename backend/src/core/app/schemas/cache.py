@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from core.types import CacheKey  # noqa: TC002
-
 from .base import ServerSchema
+from .types import CacheKey  # noqa: TC001, TC002
 
 
 class CacheItemSchema(ServerSchema):

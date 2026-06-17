@@ -6,10 +6,10 @@ from abc import ABC
 from datetime import datetime
 from typing import Any, Sequence
 
-from core.types import CacheKey
 from pydantic import Field, field_serializer
 
 from .base import ClientSchema, ServerSchema
+from .types import CacheKey
 
 
 class WebSocketServerSchema[T: Any](ServerSchema, ABC):
