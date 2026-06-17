@@ -10,16 +10,16 @@ from .response import APIResponse
 from .router import api_router, assets, pages_router
 from .schemas.base import ClientSchema, ServerSchema
 from .schemas.cache import CacheItemSchema
+from .server import (
+    get_default_route,
+    get_server,
+    shutdown,
+)
 from .types import CacheKey
 from .utils import (
     endpoint_profiling_middleware,
     get_resource_path,
     timedelta_serializer,
-)
-from .uvicorn import (
-    get_default_route,
-    get_server,
-    shutdown,
 )
 from .ws import disconnect_all, invalidate_queries, ws
 
