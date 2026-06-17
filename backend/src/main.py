@@ -7,18 +7,18 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final, Iterable
 
 import core
+import core.updates
 import game
 import rules
-import update
 import user
 from core import APIResponse, endpoint_profiling_middleware
+from core.updates import GithubReleaseSchema
 from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Series, create_bout
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
-from update import GithubReleaseSchema
 from uvicorn import Server
 from websockets import CloseCode
 
@@ -213,8 +213,8 @@ if __name__ == '__main__':
     if args.check_for_releases:
         logging.info('Checking for new releases')
         try:
-            data: Iterable = update.fetch_release_data()
-            release: GithubReleaseSchema = update.parse_latest_release(data)
+            data: Iterable = core.updates.fetch_release_data()
+            release: GithubReleaseSchema = core.updates.parse_latest_release(data)
 
             latest_version: VersionInfo = VersionInfo.parse(release.tag_name)
             current_version: VersionInfo = VersionInfo.parse(app.version)

@@ -2,8 +2,9 @@
 
 from typing import ClassVar
 
-from core import ClientSchema
 from pydantic.config import ConfigDict
+
+from core import ClientSchema
 
 
 class GithubReleaseSchema(ClientSchema):

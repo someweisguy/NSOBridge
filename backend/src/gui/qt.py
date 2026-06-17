@@ -4,7 +4,8 @@ import json
 from typing import Iterable, override
 
 import core
-import update
+import core.updates
+from core.updates import UPDATE_URL, GithubReleaseSchema
 from fastapi import FastAPI
 from pydantic import ValidationError
 from PySide6 import QtCore, QtWidgets
@@ -25,7 +26,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from semver import VersionInfo
-from update import UPDATE_URL, GithubReleaseSchema
 
 
 class AppWindow(QMainWindow):
@@ -156,7 +156,7 @@ class AppWindow(QMainWindow):
             self.update_label.setText('You are running the latest version!')
 
             try:
-                release: GithubReleaseSchema = update.parse_latest_release(data)
+                release: GithubReleaseSchema = core.updates.parse_latest_release(data)
             except (ValidationError, ValueError):
                 return
 
