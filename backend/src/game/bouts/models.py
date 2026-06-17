@@ -6,7 +6,7 @@ from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
 from uuid import UUID  # noqa: TC003
 
-from db import CASCADE_CHILD, CASCADE_OTHER, CacheableSQLModel
+from core.db import CASCADE_CHILD, CASCADE_OTHER, CacheableSQLModel
 from game.clocks.models import Clock
 from sqlalchemy import ForeignKey, column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -17,7 +17,7 @@ from .types import BoutStateStr, BoutSubStateStr  # noqa: TC001
 
 if TYPE_CHECKING:
     from core import CacheKey
-    from db import BaseSQLModel
+    from core.db import BaseSQLModel
     from game.jams.models import Jam
     from game.series.models import Series
     from game.team_jams.models import TeamJam

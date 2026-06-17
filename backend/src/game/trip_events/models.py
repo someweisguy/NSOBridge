@@ -9,7 +9,7 @@ from uuid import (
     uuid4,
 )
 
-from db import CASCADE_OTHER, BaseSQLModel
+from core.db import CASCADE_OTHER, BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

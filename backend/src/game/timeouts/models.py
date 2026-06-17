@@ -6,7 +6,7 @@ from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
-from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
+from core.db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel
 from sqlalchemy import ForeignKey, select

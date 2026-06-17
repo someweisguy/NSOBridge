@@ -6,13 +6,15 @@ from abc import abstractmethod
 from copy import deepcopy
 from typing import TYPE_CHECKING, override
 
-from core import CacheItemSchema, Memento, invalidate_queries
 from sqlalchemy import Result, Select, select
 
+from core import CacheItemSchema, Memento, invalidate_queries
+
 if TYPE_CHECKING:
-    from core import CacheKey, ServerSchema
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
     from sqlalchemy.orm import Session
+
+    from core import CacheKey, ServerSchema
 
 from .engine import DatabaseEngine
 from .model import BaseSQLModel

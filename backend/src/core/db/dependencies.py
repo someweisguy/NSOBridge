@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from typing import Annotated, AsyncGenerator, TypeAlias
 
-from core import CacheKey, invalidate_queries
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from core import CacheKey, invalidate_queries
 
 from .cache import CacheableSQLModel, get_mutated_cache_models
 from .engine import DatabaseEngine

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
+from core.db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
 from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

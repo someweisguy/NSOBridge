@@ -12,8 +12,8 @@ import core.users
 import game
 import rules
 from core import APIResponse, endpoint_profiling_middleware
+from core.db import DatabaseEngine
 from core.updates import GithubReleaseSchema
-from db import DatabaseEngine
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Series, create_bout

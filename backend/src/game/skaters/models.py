@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
-from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
+from core.db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

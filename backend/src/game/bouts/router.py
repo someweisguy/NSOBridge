@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
 from core import APIResponse
-from db import GetAsyncSession
+from core.db import GetAsyncSession
 from fastapi import APIRouter, Body, Query
 from game.series.dependencies import GetSeries
 from game.teams.dependencies import GetTeam

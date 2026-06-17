@@ -9,7 +9,7 @@ from game.models import TimeableModel
 from sqlalchemy.orm import Mapped, mapped_column
 
 if TYPE_CHECKING:
-    from db import BaseSQLModel
+    from core.db import BaseSQLModel
 
 
 class Clock(TimeableModel):

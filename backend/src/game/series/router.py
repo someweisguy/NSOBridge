@@ -4,7 +4,7 @@ from typing import Annotated, Final, Sequence
 from uuid import UUID
 
 from core import APIResponse
-from db import GetAsyncSession
+from core.db import GetAsyncSession
 from fastapi import APIRouter, Body
 from sqlalchemy import Result, Select, select
 

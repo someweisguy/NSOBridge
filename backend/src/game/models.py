@@ -6,7 +6,7 @@ from abc import abstractmethod
 from datetime import datetime, timedelta
 from typing import override
 
-from db import BaseSQLModel
+from core.db import BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint
 from sqlalchemy.orm import Mapped, mapped_column
 
