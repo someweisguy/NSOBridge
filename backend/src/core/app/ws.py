@@ -2,7 +2,7 @@
 
 import asyncio
 import logging
-from typing import Final
+from typing import Any, Final
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
@@ -14,7 +14,6 @@ from .schemas.ws import (
     CacheWebsocketServerSchema,
     WebSocketServerSchema,
 )
-from .types import CacheKey
 
 _clients: set[WebSocket] = set()
 _background_tasks: set[asyncio.Task[None]] = set()
@@ -71,7 +70,7 @@ async def disconnect_all(code: int, reason: str) -> None:
         await client.close(code=code, reason=reason)
 
 
-async def invalidate_queries(keys: list[CacheKey]) -> None:
+async def invalidate_queries(keys: list[Any]) -> None:
     """Invalidate the client queries of the desired models.
 
     Args:
