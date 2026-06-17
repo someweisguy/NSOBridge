@@ -4,9 +4,15 @@ This module is used to store a per-user command history and initialize endpoints
 users to undo and redo commands.
 """
 
+from typing import Final
+
+from fastapi import APIRouter
+
 from .dependencies import GetUser
-from .router import routers
+from .router import router
 from .service import User
+
+routers: Final[tuple[APIRouter, ...]] = (router,)
 
 __all__ = (
     'GetUser',

@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING, Annotated, TypeAlias
 from uuid import UUID
 
 from core.exceptions import ModelLookupError
+from core.users import GetUser
 from db import GetAsyncSession
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from user import GetUser
 
 from .models import BaseBout
 

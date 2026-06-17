@@ -3,16 +3,15 @@
 import logging
 from typing import Final
 
-from core.exceptions import UserStateError
 from fastapi import APIRouter
+
+from core.exceptions import UserStateError
 
 from .dependencies import GetUser
 
 HISTORY_TAG = 'History'
 
 router: Final[APIRouter] = APIRouter()
-
-routers: Final[tuple[APIRouter, ...]] = (router,)
 
 
 @router.post('/undo', tags=[HISTORY_TAG])

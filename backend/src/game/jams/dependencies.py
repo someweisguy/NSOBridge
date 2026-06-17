@@ -3,9 +3,9 @@
 from typing import Annotated, TypeAlias
 
 from core.exceptions import ModelLookupError
+from core.users import GetUser
 from fastapi import Depends, Query, Request
 from game.bouts.dependencies import GetBout
-from user import GetUser
 
 from .models import Jam
 
