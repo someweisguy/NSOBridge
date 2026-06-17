@@ -6,8 +6,9 @@ import logging
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Callable, Final
 
-from core.exceptions import ClientError, ModelLookupError
 from fastapi.exceptions import RequestValidationError
+
+from core.exceptions import ClientError, ModelLookupError
 
 from .response import APIResponse
 from .schemas.api import ErrorSchema

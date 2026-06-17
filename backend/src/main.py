@@ -6,12 +6,11 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Iterable
 
-import core
 import core.updates
 import core.users
 import game
 import rules
-from core import APIResponse, endpoint_profiling_middleware
+from core.app import APIResponse, endpoint_profiling_middleware
 from core.db import DatabaseEngine
 from core.updates import GithubReleaseSchema
 from fastapi import FastAPI
