@@ -45,6 +45,7 @@ if __name__ == '__main__':
             db_pathname = Path(db_pathname)
 
     truth_values: set[str] = {'true', 'yes'}
+    # FIXME: Remove the use of app.extra
     app.extra['db_pathname'] = db_pathname
     app.extra['host'] = config.get(section, 'host', fallback='0.0.0.0')
     app.extra['port'] = int(config.get(section, 'port', fallback=8000))
