@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Annotated, AsyncGenerator, TypeAlias
+from typing import TYPE_CHECKING, Annotated, AsyncGenerator, TypeAlias
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from .cache import CacheableSQLModel, get_mutated_cache_models, invalidate_cached_models
 from .engine import DatabaseEngine
+from .service import get_mutated_cache_models, invalidate_cached_models
+
+if TYPE_CHECKING:
+    from .model import CacheableSQLModel
 
 
 async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:

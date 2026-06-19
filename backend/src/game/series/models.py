@@ -53,7 +53,7 @@ class Series(CacheableSQLModel):
         if bout.uuid is None:
             raise TypeError('The active Bout must have a UUID.')
 
-        self.active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment]
+        self.active_bout_uuid = bout.uuid
 
     @override
     def cache_key(self) -> CacheKey:
