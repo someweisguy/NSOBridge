@@ -45,7 +45,7 @@ class CacheableSQLModel(BaseSQLModel):
             for model in models
         ]
 
-    def get_memento(self) -> _DatabaseMemento:
+    def get_memento(self) -> Memento:
         """Get a memento of the current state of this model and all its children.
 
         Returns:
