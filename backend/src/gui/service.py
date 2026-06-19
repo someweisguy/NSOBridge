@@ -67,7 +67,7 @@ def run(
     icon: QPixmap = get_svg_pixmap(icon_path)
     gui.setWindowIcon(icon)
 
-    window = AppWindow(app, icon)
+    window = AppWindow(app, host, port, icon)
     if not auto_hide:
         window.show()
     else:

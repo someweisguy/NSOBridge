@@ -43,23 +43,21 @@ if __name__ == '__main__':
             db_pathname = core.get_resource_path(db_pathname)
         else:
             db_pathname = Path(db_pathname)
+    # TODO: where does db_pathname get used?
 
     truth_values: set[str] = {'true', 'yes'}
     host: str = config.get(section, 'host', fallback='0.0.0.0')
     port: int = int(config.get(section, 'port', fallback=8000))
-    app.debug = config.get(section, 'debug', fallback='').lower() in truth_values
     auto_hide: bool = (
         config.get(section, 'auto_hide', fallback='').lower() in truth_values
     )
-
-    # FIXME: Remove the use of app.extra
-    app.extra['db_pathname'] = db_pathname
 
     # Configure logging
     log_level: int = logging.DEBUG if app.debug else logging.INFO
     core.configure_logging(LOG_DIR_NAME, level=log_level, silent=True)
 
     # Run the application
+    app.debug = config.get(section, 'debug', fallback='').lower() in truth_values
     gui.run(app, host=host, port=port, auto_hide=auto_hide)  # Blocks program execution
     logging.info('Program terminated')
     logging.shutdown()

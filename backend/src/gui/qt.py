@@ -31,20 +31,19 @@ from semver import VersionInfo
 class AppWindow(QMainWindow):
     """The main Qt window for the GUI."""
 
-    def __init__(self, app: FastAPI, icon_pixmap: QPixmap):
+    def __init__(self, app: FastAPI, host: str, port: int, icon_pixmap: QPixmap):
         """Initialize the main window.
 
         Args:
             app (FastAPI): the app whose information should be displayed.
+            host (str): The interface on which the server is being hosted.
+            port (int): The port on which the server is being hosted.
             icon_pixmap (QPixmap): the pixmap of the image to be the GUI's icon.
 
         """
         super().__init__()
 
-        host: str = app.extra['host']
-        port: int = app.extra['port']
         if host == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
-            http_port: int = 80
             host = core.get_default_route()
 
         self.version_label: QLabel = QLabel(

@@ -43,6 +43,15 @@ async def lifespan(app: FastAPI):
     """
     logging.info(f'App started{" in debug mode" if app.debug else ""}')
 
+    # Create the database schema if it doesn't already exist
+    logging.debug('Creating database schema')
+    engine: DatabaseEngine = DatabaseEngine.get_engine()
+    try:
+        await engine.create_all()
+    except Exception as e:
+        logging.critical(e)
+        raise e
+
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
         app.add_exception_handler(e, handler)
@@ -213,13 +222,6 @@ if __name__ == '__main__':
             DatabaseEngine.create_engine(args.db_pathname)
         except ValueError:
             logging.critical('Database pathname is invalid')
-    logging.debug('Creating database schema')
-    engine: DatabaseEngine = DatabaseEngine.get_engine()
-    try:
-        asyncio.run(engine.create_all())
-    except Exception as e:
-        logging.critical(e)
-        raise e
 
     # Run the application
     try:
