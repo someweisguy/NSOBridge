@@ -24,8 +24,7 @@ if TYPE_CHECKING:
     from .types import CacheKey
 
 
-from .engine import DatabaseEngine
-from .service import get_mutated_cache_models, invalidate_cached_models
+from .service import DatabaseEngine, get_mutated_cache_models, invalidate_cached_models
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect

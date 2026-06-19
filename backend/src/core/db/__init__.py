@@ -2,8 +2,8 @@
 
 from .constants import CASCADE_CHILD, CASCADE_OTHER
 from .dependencies import GetAsyncSession
-from .engine import DatabaseEngine
 from .model import BaseSQLModel, CacheableSQLModel
+from .service import DatabaseEngine
 from .types import CacheKey
 
 __all__ = (

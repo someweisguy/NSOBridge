@@ -7,8 +7,7 @@ from typing import TYPE_CHECKING, Annotated, AsyncGenerator, TypeAlias
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from .engine import DatabaseEngine
-from .service import get_mutated_cache_models, invalidate_cached_models
+from .service import DatabaseEngine, get_mutated_cache_models, invalidate_cached_models
 
 if TYPE_CHECKING:
     from .model import CacheableSQLModel
