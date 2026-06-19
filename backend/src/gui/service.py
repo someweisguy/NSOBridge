@@ -7,7 +7,6 @@ from threading import Thread
 from typing import TYPE_CHECKING
 
 import core
-from core.db import DatabaseEngine
 from fastapi import FastAPI
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPainter, QPixmap
@@ -80,7 +79,8 @@ def run(
         window.show_help_toast()
 
     try:
-        DatabaseEngine.create_engine(db_pathname)
+        # FIXME: figure out how to handle db engine creation
+        pass
     except ValueError as e:
         raise e  # FIXME: proper error handling on invalid pathname
 

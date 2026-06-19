@@ -13,10 +13,10 @@ import core
 from core import CacheItemSchema, Memento
 
 from .models import BaseSQLModel
-from .service import DatabaseEngine
+from .service import AsyncSessionLocal
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+    from sqlalchemy.ext.asyncio import AsyncSession
     from sqlalchemy.orm import Session
 
     from core import ServerSchema
@@ -38,10 +38,7 @@ class _DatabaseMemento(Memento):
 
     @override
     async def restore(self) -> Memento:
-        session_factory: async_sessionmaker = (
-            DatabaseEngine.get_engine().get_async_session_factory()
-        )
-        async with session_factory() as session, session.begin():
+        async with AsyncSessionLocal() as session, session.begin():
             # Query and detach the current state of the database object
             table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
             statement: Select[tuple[CacheableSQLModel]] = select(table).where(

@@ -4,26 +4,24 @@ import asyncio
 import logging
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, Iterable
+from typing import Final, Iterable
 
 import core.updates
 import core.users
 import game
 import rules
 from core.app import APIResponse, endpoint_profiling_middleware
-from core.db import DatabaseEngine
+from core.db import AsyncSessionLocal, BaseSQLModel, get_database_url
 from core.updates import GithubReleaseSchema
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Series, create_bout
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
+from sqlalchemy.engine.url import URL
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from uvicorn import Server
 from websockets import CloseCode
-
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-
 
 APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 2, 3)
 CONFIG_FILE_NAME: Path = core.get_resource_path('./config.ini')
@@ -31,6 +29,9 @@ LOG_DIR_NAME: Path = core.get_resource_path('./logs')
 API_PREFIX: str = '/api'
 
 RULESET_NAME = 'WFTDA 2025'
+
+
+async_engine: AsyncEngine | None = None
 
 
 @asynccontextmanager
@@ -43,15 +44,6 @@ async def lifespan(app: FastAPI):
     """
     logging.info(f'App started{" in debug mode" if app.debug else ""}')
 
-    # Create the database schema if it doesn't already exist
-    logging.debug('Creating database schema')
-    engine: DatabaseEngine = DatabaseEngine.get_engine()
-    try:
-        await engine.create_all()
-    except Exception as e:
-        logging.critical(e)
-        raise e
-
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
         app.add_exception_handler(e, handler)
@@ -63,13 +55,17 @@ async def lifespan(app: FastAPI):
     # Load the pages router without a path prefix
     app.include_router(core.pages_router)
 
+    if async_engine is None:
+        e = RuntimeError('The database engine has not been configured')
+        logging.critical(e)
+        raise e
+
+    async with async_engine.begin() as connection:
+        await connection.run_sync(BaseSQLModel.metadata.create_all)
+
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
-    engine: DatabaseEngine = DatabaseEngine.get_engine()
-    session_factory: async_sessionmaker[AsyncSession] = (
-        engine.get_async_session_factory()
-    )
-    async with session_factory() as session:
+    async with AsyncSessionLocal() as session:
         try:
             statement: Select[tuple[Series]] = select(Series)
             results: Result[tuple[Series]] = await session.execute(statement)
@@ -224,9 +220,13 @@ if __name__ == '__main__':
             else:
                 logging.info(f'Connecting to database: {args.db_pathname}')
                 try:
-                    DatabaseEngine.create_engine(args.db_pathname)
+                    url: URL = get_database_url(args.db_pathname)
+                    async_engine = create_async_engine(url)
+                    AsyncSessionLocal.configure(bind=async_engine)
                 except ValueError:
                     logging.critical('Database pathname is invalid')
+                except Exception as e:
+                    logging.critical(e)
 
             server: Server = core.get_server(app, args.host, args.port)
             asyncio.run(server.serve())
