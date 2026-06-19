@@ -48,11 +48,15 @@ def get_svg_pixmap(path: Path | str) -> QPixmap:
     return pixmap
 
 
-def run(app: FastAPI, *, auto_hide: bool) -> None:
+def run(
+    app: FastAPI, host: str = '0.0.0.0', port: int = 8000, auto_hide: bool = False
+) -> None:
     """Run the app until the GUI is closed.
 
     Args:
         app (FastAPI): the FastAPI app to pass to the GUI.
+        host (str): The interface on which to host the server. Defaults to '0.0.0.0'.
+        port (int): The port on which to host the server. Defaults to 8000.
         auto_hide (bool): True to automatically hide the GUI on app startup.
 
     """
@@ -70,7 +74,7 @@ def run(app: FastAPI, *, auto_hide: bool) -> None:
         window.show_help_toast()
 
     # Configure and start the server on a new thread
-    uvicorn: Server = core.get_server(app)
+    uvicorn: Server = core.get_server(app, host, port)
     uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
     uvicorn_thread.start()
 
