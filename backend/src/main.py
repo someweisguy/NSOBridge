@@ -34,7 +34,7 @@ RULESET_NAME = 'WFTDA 2025'
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
+async def lifespan(app: FastAPI):
     """Handle the app setup and teardown.
 
     Args:
