@@ -42,7 +42,6 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
 
     """
     logging.info(f'App started{" in debug mode" if app.debug else ""}')
-    logging.debug(f'{app.extra=}')
 
     # Load the API and exception handlers
     for e, handler in core.error_handlers.items():
@@ -55,31 +54,9 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
     # Load the pages router without a path prefix
     app.include_router(core.pages_router)
 
-    # Connect to the desired database
-
-    db_pathname: str | None = app.extra.get('db_pathname', None)
-    if db_pathname is None:
-        logging.error('No database pathname was found')
-        db_pathname = ''
-    if not db_pathname:
-        logging.warning('Connecting to in-memory database')
-    else:
-        logging.info(f'Connecting to database: {db_pathname}')
-        try:
-            DatabaseEngine.create_engine(db_pathname)
-        except ValueError:
-            logging.critical('Database pathname is invalid')
-            return
-    logging.debug('Creating database schema')
-    engine: DatabaseEngine = DatabaseEngine.get_engine()
-    try:
-        await engine.create_all()
-    except Exception as e:
-        logging.critical(e)
-        raise e
-
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
+    engine: DatabaseEngine = DatabaseEngine.get_engine()
     session_factory: async_sessionmaker[AsyncSession] = (
         engine.get_async_session_factory()
     )
@@ -122,7 +99,6 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
 
 
 app: Final[FastAPI] = FastAPI(
-    db_pathname='',  # Require default empty string
     default_response_class=APIResponse,
     lifespan=lifespan,
     title='NSO Bridge',
@@ -195,18 +171,13 @@ if __name__ == '__main__':
         dest='use_gui',
     )
 
-    args: Final[Namespace] = parser.parse_args()
-
     # Import the command line arguments
+    args: Final[Namespace] = parser.parse_args()
     app.debug = args.debug
-    app.extra['db_pathname'] = args.db_pathname
-    app.extra['host'] = args.host
-    app.extra['port'] = args.port
 
     # Configure logging
-    silent_logging: bool = args.silent
-    log_level: int = logging.DEBUG if app.debug else logging.INFO
-    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=silent_logging)
+    log_level: int = logging.DEBUG if args.debug else logging.INFO
+    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=args.silent)
 
     # Check for new releases in the Github releases page
     if args.check_for_releases:
@@ -229,16 +200,33 @@ if __name__ == '__main__':
         logging.info('Skipping release check')
 
     # Configure debugging
-    if app.debug:
+    if args.debug:
         # Add a debug endpoint profile middleware - looks funky but it works!
         app.middleware('http')(endpoint_profiling_middleware)
+
+    # Connect to the database
+    if not args.db_pathname:
+        logging.warning('Connecting to in-memory database')
+    else:
+        logging.info(f'Connecting to database: {args.db_pathname}')
+        try:
+            DatabaseEngine.create_engine(args.db_pathname)
+        except ValueError:
+            logging.critical('Database pathname is invalid')
+    logging.debug('Creating database schema')
+    engine: DatabaseEngine = DatabaseEngine.get_engine()
+    try:
+        asyncio.run(engine.create_all())
+    except Exception as e:
+        logging.critical(e)
+        raise e
 
     # Run the application
     try:
         if args.use_gui:
             gui.run(app, auto_hide=False)
         else:
-            server: Server = core.get_server(app)
+            server: Server = core.get_server(app, args.host, args.port)
             asyncio.run(server.serve())
             logging.debug('Asyncio loop has closed')
     except KeyboardInterrupt:

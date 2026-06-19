@@ -17,11 +17,14 @@ if TYPE_CHECKING:
 logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
 
 
-def get_server(app: FastAPI) -> Server:
+def get_server(app: FastAPI, host: str = '0.0.0.0', port: int = 8000) -> Server:
     """Build and return a Uvicorn server to serve the desired FastAPI app.
 
     Args:
         app (FastAPI): The FastAPI app to serve.
+        host (str, optional): The host interface on which to serve the app. Defaults to
+        '0.0.0.0'.
+        port (int, optional): The host port on which to serve the app. Defaults to 8000.
 
     Raises:
         KeyError: if a host or port is not included in the app extras.
@@ -31,9 +34,6 @@ def get_server(app: FastAPI) -> Server:
         Server: the configured server which can be used to serve the app.
 
     """
-    host: str = app.extra['host']
-    port: int = app.extra['port']
-
     max_port_num: Final[int] = 65535
     if 0 >= port > max_port_num:
         logging.critical(
