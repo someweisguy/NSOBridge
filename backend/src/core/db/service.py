@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, ClassVar, Final
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from .model import BaseSQLModel
+from .models import BaseSQLModel
 
 if TYPE_CHECKING:
     from pathlib import Path
