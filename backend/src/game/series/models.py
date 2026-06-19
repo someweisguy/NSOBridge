@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .schemas import SeriesSchema
 
 if TYPE_CHECKING:
-    from core import CacheKey
+    from core.db import CacheKey
     from game.bouts.models import BaseBout
 
 

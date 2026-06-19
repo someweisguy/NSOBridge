@@ -8,7 +8,6 @@ from .app.response import APIResponse
 from .app.router import api_router, assets, pages_router
 from .app.schemas.base import ClientSchema, ServerSchema
 from .app.schemas.cache import CacheItemSchema
-from .app.schemas.types import CacheKey
 from .app.utils import (
     endpoint_profiling_middleware,
     get_resource_path,
@@ -28,7 +27,6 @@ __all__ = (
     'APIResponse',
     'assets',
     'CacheItemSchema',
-    'CacheKey',
     'ClientSchema',
     'configure_logging',
     'disconnect_all',

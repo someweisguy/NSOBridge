@@ -23,7 +23,7 @@ from .types import StopReasonStr  # noqa: TC001
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from core import CacheKey
+    from core.db import CacheKey
     from game.team_jams.models import TeamJam
     from game.teams.models import Team
 

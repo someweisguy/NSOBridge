@@ -10,7 +10,7 @@ from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from core import CacheKey
+    from core.db import CacheKey
     from game.teams.models import Team
 
 

@@ -9,7 +9,6 @@ from typing import Any, Sequence
 from pydantic import Field, field_serializer
 
 from .base import ClientSchema, ServerSchema
-from .types import CacheKey
 
 
 class WebSocketServerSchema[T: Any](ServerSchema, ABC):
@@ -25,10 +24,10 @@ class WebSocketServerSchema[T: Any](ServerSchema, ABC):
         return data
 
 
-class CacheWebsocketServerSchema(WebSocketServerSchema[Sequence[CacheKey]]):
+class CacheWebsocketServerSchema(WebSocketServerSchema[Sequence[Any]]):
     """The schema used by the server to send cache invalidation data to clients."""
 
-    def __init__(self, data: Sequence[CacheKey]) -> None:
+    def __init__(self, data: Sequence[Any]) -> None:
         """Create a packet to send cache invalidation data.
 
         Args:

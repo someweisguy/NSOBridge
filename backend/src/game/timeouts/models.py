@@ -22,7 +22,7 @@ from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 from .schemas import TimeoutSchema
 
 if TYPE_CHECKING:
-    from core import CacheKey
+    from core.db import CacheKey
     from game.jams.models import Jam
     from game.teams.models import Team
 

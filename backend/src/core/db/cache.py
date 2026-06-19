@@ -15,7 +15,9 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
     from sqlalchemy.orm import Session
 
-    from core import CacheKey, ServerSchema
+    from core import ServerSchema
+
+    from .types import CacheKey
 
 from .engine import DatabaseEngine
 from .model import BaseSQLModel
