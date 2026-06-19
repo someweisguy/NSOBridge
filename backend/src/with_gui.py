@@ -57,9 +57,7 @@ if __name__ == '__main__':
 
     # Run the application
     app.debug = config.get(section, 'debug', fallback='').lower() in truth_values
-    gui.run(
-        app, db_pathname, host=host, port=port, auto_hide=auto_hide
-    )  # Blocks program execution
+    gui.run(app, db_pathname, host, port, auto_hide)  # Blocks program execution
     logging.info('Program terminated')
     logging.shutdown()
     core.shutdown()
