@@ -213,21 +213,21 @@ if __name__ == '__main__':
         # Add a debug endpoint profile middleware - looks funky but it works!
         app.middleware('http')(endpoint_profiling_middleware)
 
-    # Connect to the database
-    if not args.db_pathname:
-        logging.warning('Connecting to in-memory database')
-    else:
-        logging.info(f'Connecting to database: {args.db_pathname}')
-        try:
-            DatabaseEngine.create_engine(args.db_pathname)
-        except ValueError:
-            logging.critical('Database pathname is invalid')
-
     # Run the application
     try:
         if args.use_gui:
             gui.run(app, args.db_pathname, args.host, args.port, auto_hide=False)
         else:
+            # Connect to the database
+            if not args.db_pathname:
+                logging.warning('Connecting to in-memory database')
+            else:
+                logging.info(f'Connecting to database: {args.db_pathname}')
+                try:
+                    DatabaseEngine.create_engine(args.db_pathname)
+                except ValueError:
+                    logging.critical('Database pathname is invalid')
+
             server: Server = core.get_server(app, args.host, args.port)
             asyncio.run(server.serve())
             logging.debug('Asyncio loop has closed')
