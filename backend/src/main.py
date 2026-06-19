@@ -226,7 +226,7 @@ if __name__ == '__main__':
     # Run the application
     try:
         if args.use_gui:
-            gui.run(app, auto_hide=False)
+            gui.run(app, args.db_pathname, args.host, args.port, auto_hide=False)
         else:
             server: Server = core.get_server(app, args.host, args.port)
             asyncio.run(server.serve())

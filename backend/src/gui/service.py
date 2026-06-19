@@ -7,6 +7,7 @@ from threading import Thread
 from typing import TYPE_CHECKING
 
 import core
+from core.db import DatabaseEngine
 from fastapi import FastAPI
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPainter, QPixmap
@@ -49,12 +50,17 @@ def get_svg_pixmap(path: Path | str) -> QPixmap:
 
 
 def run(
-    app: FastAPI, host: str = '0.0.0.0', port: int = 8000, auto_hide: bool = False
+    app: FastAPI,
+    db_pathname: str | Path,
+    host: str = '0.0.0.0',
+    port: int = 8000,
+    auto_hide: bool = False,
 ) -> None:
     """Run the app until the GUI is closed.
 
     Args:
         app (FastAPI): the FastAPI app to pass to the GUI.
+        db_pathname (str): the initial database to which to connect.
         host (str): The interface on which to host the server. Defaults to '0.0.0.0'.
         port (int): The port on which to host the server. Defaults to 8000.
         auto_hide (bool): True to automatically hide the GUI on app startup.
@@ -72,6 +78,11 @@ def run(
         window.show()
     else:
         window.show_help_toast()
+
+    try:
+        DatabaseEngine.create_engine(db_pathname)
+    except ValueError as e:
+        raise e  # FIXME: proper error handling on invalid pathname
 
     # Configure and start the server on a new thread
     uvicorn: Server = core.get_server(app, host, port)

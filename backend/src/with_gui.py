@@ -43,7 +43,6 @@ if __name__ == '__main__':
             db_pathname = core.get_resource_path(db_pathname)
         else:
             db_pathname = Path(db_pathname)
-    # TODO: where does db_pathname get used?
 
     truth_values: set[str] = {'true', 'yes'}
     host: str = config.get(section, 'host', fallback='0.0.0.0')
@@ -58,7 +57,9 @@ if __name__ == '__main__':
 
     # Run the application
     app.debug = config.get(section, 'debug', fallback='').lower() in truth_values
-    gui.run(app, host=host, port=port, auto_hide=auto_hide)  # Blocks program execution
+    gui.run(
+        app, db_pathname, host=host, port=port, auto_hide=auto_hide
+    )  # Blocks program execution
     logging.info('Program terminated')
     logging.shutdown()
     core.shutdown()
