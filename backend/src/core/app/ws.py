@@ -11,7 +11,6 @@ from websockets import CloseCode
 from .schemas.ws import (
     AboutDataClientSchema,
     AboutWebsocketServerSchema,
-    CacheWebsocketServerSchema,
     WebSocketServerSchema,
 )
 
@@ -70,14 +69,14 @@ async def disconnect_all(code: int, reason: str) -> None:
         await client.close(code=code, reason=reason)
 
 
-async def invalidate_queries(keys: list[Any]) -> None:
-    """Invalidate the client queries of the desired models.
+async def send_all[T: Any](message_type: str, data: T) -> None:
+    """Send a WebSocket payload to all clients.
 
     Args:
-        keys (list[CacheKey]): the keys of the models which should be invalidated.
+       message_type (str): the message type to send to all clients.
+       data (T: Any): the message data to send to all clients.
 
     """
-    logging.debug(f'Invalidating queries: {keys}')
-    payload: str = CacheWebsocketServerSchema(keys).model_dump_json()
+    payload: str = WebSocketServerSchema(type=message_type, data=data).model_dump_json()
     for client in _clients:
         await client.send_text(payload)

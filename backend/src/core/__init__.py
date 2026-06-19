@@ -14,7 +14,7 @@ from .app.utils import (
     get_resource_path,
     timedelta_serializer,
 )
-from .app.ws import disconnect_all, invalidate_queries, ws
+from .app.ws import disconnect_all, send_all, ws
 from .logging import configure_logging
 from .server import (
     get_default_route,
@@ -37,9 +37,9 @@ __all__ = (
     'get_default_route',
     'get_resource_path',
     'get_server',
-    'invalidate_queries',
     'Memento',
     'pages_router',
+    'send_all',
     'ServerSchema',
     'shutdown',
     'timedelta_serializer',

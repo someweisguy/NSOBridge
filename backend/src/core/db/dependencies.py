@@ -7,9 +7,7 @@ from typing import Annotated, AsyncGenerator, TypeAlias
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from core import CacheKey, invalidate_queries
-
-from .cache import CacheableSQLModel, get_mutated_cache_models
+from .cache import CacheableSQLModel, get_mutated_cache_models, invalidate_cached_models
 from .engine import DatabaseEngine
 
 
@@ -34,12 +32,11 @@ async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
 
         # Get a list of query keys to invalidate before committing the session
         models: list[CacheableSQLModel] = await get_mutated_cache_models(session)
-        query_keys: list[CacheKey] = [model.cache_key() for model in models]
 
         await session.commit()
 
-    if len(query_keys) > 0:
-        await invalidate_queries(query_keys)
+    if len(models) > 0:
+        await invalidate_cached_models(models)
 
 
 GetAsyncSession: TypeAlias = Annotated[

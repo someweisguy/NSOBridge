@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING, override
 
 from sqlalchemy import Result, Select, select
 
-from core import CacheItemSchema, Memento, invalidate_queries
+import core
+from core import CacheItemSchema, Memento
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -112,12 +113,11 @@ class _DatabaseMemento(Memento):
 
             # Get a list of query keys to invalidate before committing the session
             models: list[CacheableSQLModel] = await get_mutated_cache_models(session)
-            query_keys: list[CacheKey] = [model.cache_key() for model in models]
 
             await session.commit()
 
-        if len(query_keys) > 0:
-            await invalidate_queries(query_keys)
+        if len(models) > 0:
+            await invalidate_cached_models(models)
 
         return current_state.get_memento()
 
@@ -155,3 +155,16 @@ async def get_mutated_cache_models(
         }
 
     return list(cacheables)
+
+
+async def invalidate_cached_models(models: list[CacheableSQLModel]) -> None:
+    """Invalidate the specified cached models.
+
+    This informs all clients that the keys of the specified models have been updated
+    and must be queried again.
+
+    Args:
+        models (list[CacheableSQLModel]): a list of models to be invalidated.
+
+    """
+    await core.send_all('cache', [model.cache_key() for model in models])
