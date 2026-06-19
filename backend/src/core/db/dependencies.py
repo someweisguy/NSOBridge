@@ -8,7 +8,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .cache import get_mutated_cache_models, invalidate_cached_models
-from .service import AsyncSessionLocal
+from .service import session_factory
 
 if TYPE_CHECKING:
     from .cache import CacheableSQLModel
@@ -27,7 +27,7 @@ async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
         AsyncSession.
 
     """
-    async with AsyncSessionLocal() as session:
+    async with session_factory() as session:
         yield session
 
         # Get a list of query keys to invalidate before committing the session

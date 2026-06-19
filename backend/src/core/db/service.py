@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 if TYPE_CHECKING:
     from pathlib import Path
 
-AsyncSessionLocal: Final[async_sessionmaker[AsyncSession]] = async_sessionmaker[
+session_factory: Final[async_sessionmaker[AsyncSession]] = async_sessionmaker[
     AsyncSession
 ](expire_on_commit=False)
 

@@ -11,7 +11,7 @@ import core.users
 import game
 import rules
 from core.app import APIResponse, endpoint_profiling_middleware
-from core.db import AsyncSessionLocal, BaseSQLModel, get_database_url
+from core.db import BaseSQLModel, get_database_url, session_factory
 from core.updates import GithubReleaseSchema
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
@@ -65,7 +65,7 @@ async def lifespan(app: FastAPI):
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
-    async with AsyncSessionLocal() as session:
+    async with session_factory() as session:
         try:
             statement: Select[tuple[Series]] = select(Series)
             results: Result[tuple[Series]] = await session.execute(statement)
@@ -222,7 +222,7 @@ if __name__ == '__main__':
                 try:
                     url: URL = get_database_url(args.db_pathname)
                     async_engine = create_async_engine(url)
-                    AsyncSessionLocal.configure(bind=async_engine)
+                    session_factory.configure(bind=async_engine)
                 except ValueError:
                     logging.critical('Database pathname is invalid')
                 except Exception as e:

@@ -4,11 +4,10 @@ from .cache import CacheableSQLModel
 from .constants import CASCADE_CHILD, CASCADE_OTHER
 from .dependencies import GetAsyncSession
 from .models import BaseSQLModel
-from .service import AsyncSessionLocal, get_database_url
+from .service import get_database_url, session_factory
 from .types import CacheKey
 
 __all__ = (
-    'AsyncSessionLocal',
     'BaseSQLModel',
     'CacheableSQLModel',
     'CacheKey',
@@ -16,4 +15,5 @@ __all__ = (
     'CASCADE_OTHER',
     'get_database_url',
     'GetAsyncSession',
+    'session_factory',
 )
