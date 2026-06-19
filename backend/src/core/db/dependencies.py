@@ -7,10 +7,11 @@ from typing import TYPE_CHECKING, Annotated, AsyncGenerator, TypeAlias
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from .service import DatabaseEngine, get_mutated_cache_models, invalidate_cached_models
+from .cache import get_mutated_cache_models, invalidate_cached_models
+from .service import DatabaseEngine
 
 if TYPE_CHECKING:
-    from .model import CacheableSQLModel
+    from .cache import CacheableSQLModel
 
 
 async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
