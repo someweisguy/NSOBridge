@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import core
 from core import CacheItemSchema, Memento
 
-from .model import BaseSQLModel
+from .models import BaseSQLModel
 from .service import DatabaseEngine
 
 if TYPE_CHECKING:
