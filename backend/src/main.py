@@ -134,7 +134,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-f',
-        type=str,
+        type=str.lstrip,
         help='The database file to use for storing game data. If no file is provided, '
         'an in-memory database will be used',
         default='',
