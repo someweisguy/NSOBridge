@@ -28,7 +28,7 @@ CONFIG_FILE_NAME: Path = core.get_resource_path('./config.ini')
 LOG_DIR_NAME: Path = core.get_resource_path('./logs')
 API_PREFIX: str = '/api'
 
-RULESET_NAME = 'WFTDA 2025'
+DEFAULT_BOUT_RULESET_NAME = 'WFTDA 2025'
 
 
 @asynccontextmanager
@@ -70,7 +70,9 @@ async def lifespan(app: FastAPI):
 
                 # Create the initial Bout using the API and requery it
                 await session.refresh(series)
-                await create_bout(session, series, RULESET_NAME, ['Home', 'Away'])
+                await create_bout(
+                    session, series, DEFAULT_BOUT_RULESET_NAME, ['Home', 'Away']
+                )
             except Exception as e:
                 logging.critical(e)
                 raise e
