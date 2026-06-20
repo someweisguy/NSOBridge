@@ -12,6 +12,17 @@
       "env": {
         "SQLALCHEMY_DEBUG": "false"
       }
+    },
+    {
+      "name": "With GUI",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "backend/src/with_gui.py",
+      "console": "integratedTerminal",
+      "python": "${workspaceFolder}/.venv/Scripts/python",
+      "env": {
+        "SQLALCHEMY_DEBUG": "false"
+      }
     }
   ]
 }
