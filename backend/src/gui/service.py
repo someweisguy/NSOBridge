@@ -85,12 +85,14 @@ def run(
     try:
         url: URL = core.db.get_database_url(db_pathname)
         async_engine = create_async_engine(url)
-        core.db.session_factory.configure(bind=async_engine)
         asyncio.run(core.db.create_tables(async_engine))
-    except ValueError:
+        core.db.session_factory.configure(bind=async_engine)
+    except ValueError as e:
         logging.critical('Database pathname is invalid')
+        raise e
     except Exception as e:
         logging.critical(e)
+        raise e
 
     # Configure and start the server on a new thread
     uvicorn: Server = core.get_server(app, host, port)

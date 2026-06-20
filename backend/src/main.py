@@ -213,12 +213,14 @@ if __name__ == '__main__':
                 try:
                     url: URL = get_database_url(args.db_pathname)
                     async_engine: AsyncEngine = create_async_engine(url)
-                    session_factory.configure(bind=async_engine)
                     asyncio.run(create_tables(async_engine))
-                except ValueError:
+                    session_factory.configure(bind=async_engine)
+                except ValueError as e:
                     logging.critical('Database pathname is invalid')
+                    raise e
                 except Exception as e:
                     logging.critical(e)
+                    raise e
 
             server: Server = core.get_server(app, args.host, args.port)
             asyncio.run(server.serve())
