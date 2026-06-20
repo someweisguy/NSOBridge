@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final
 
 from sqlalchemy import URL
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+
+from .models import BaseSQLModel
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -26,3 +28,14 @@ def get_database_url(file_path: str | Path) -> URL:
 
     """
     return URL.create('sqlite+aiosqlite', database=str(file_path))
+
+
+async def create_tables(engine: AsyncEngine) -> None:
+    """Create the database tables for a file.
+
+    Args:
+        engine (AsyncEngine): The async engine used to connect to the file.
+
+    """
+    async with engine.begin() as connection:
+        await connection.run_sync(BaseSQLModel.metadata.create_all)

@@ -11,7 +11,7 @@ import core.users
 import game
 import rules
 from core.app import APIResponse, endpoint_profiling_middleware
-from core.db import BaseSQLModel, get_database_url, session_factory
+from core.db import create_tables, get_database_url, session_factory
 from core.updates import GithubReleaseSchema
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
@@ -29,9 +29,6 @@ LOG_DIR_NAME: Path = core.get_resource_path('./logs')
 API_PREFIX: str = '/api'
 
 RULESET_NAME = 'WFTDA 2025'
-
-
-async_engine: AsyncEngine | None = None
 
 
 @asynccontextmanager
@@ -54,14 +51,6 @@ async def lifespan(app: FastAPI):
 
     # Load the pages router without a path prefix
     app.include_router(core.pages_router)
-
-    if async_engine is None:
-        e = RuntimeError('The database engine has not been configured')
-        logging.critical(e)
-        raise e
-
-    async with async_engine.begin() as connection:
-        await connection.run_sync(BaseSQLModel.metadata.create_all)
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
@@ -221,8 +210,9 @@ if __name__ == '__main__':
                 logging.info(f'Connecting to database: {args.db_pathname}')
                 try:
                     url: URL = get_database_url(args.db_pathname)
-                    async_engine = create_async_engine(url)
+                    async_engine: AsyncEngine = create_async_engine(url)
                     session_factory.configure(bind=async_engine)
+                    asyncio.run(create_tables(async_engine))
                 except ValueError:
                     logging.critical('Database pathname is invalid')
                 except Exception as e:

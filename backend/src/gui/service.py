@@ -1,5 +1,6 @@
 """Service methods for the GUI module."""
 
+import asyncio
 import logging
 from pathlib import Path
 from signal import SIGTERM
@@ -7,15 +8,18 @@ from threading import Thread
 from typing import TYPE_CHECKING
 
 import core
+import core.db
 from fastapi import FastAPI
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from .qt import AppWindow
 
 if TYPE_CHECKING:
+    from sqlalchemy.engine.url import URL
     from uvicorn import Server
 
 
@@ -79,10 +83,14 @@ def run(
         window.show_help_toast()
 
     try:
-        # FIXME: figure out how to handle db engine creation
-        pass
-    except ValueError as e:
-        raise e  # FIXME: proper error handling on invalid pathname
+        url: URL = core.db.get_database_url(db_pathname)
+        async_engine = create_async_engine(url)
+        core.db.session_factory.configure(bind=async_engine)
+        asyncio.run(core.db.create_tables(async_engine))
+    except ValueError:
+        logging.critical('Database pathname is invalid')
+    except Exception as e:
+        logging.critical(e)
 
     # Configure and start the server on a new thread
     uvicorn: Server = core.get_server(app, host, port)
