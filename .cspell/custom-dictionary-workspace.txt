@@ -1,6 +1,7 @@
 # Custom Dictionary Words
 autodocs
 ondelete
+pixmap
 selectin
 sessionmaker
 tabler
