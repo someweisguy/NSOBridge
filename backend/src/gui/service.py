@@ -72,16 +72,19 @@ def run(
     gui = QApplication()
     gui.setApplicationName(app.title)
 
+    # Render the application icon
     icon_path: Path = core.get_resource_path('public') / 'skate.svg'
     icon: QPixmap = get_svg_pixmap(icon_path)
     gui.setWindowIcon(icon)
 
+    # Render the application window
     window = AppWindow(app, host, port, icon)
     if not auto_hide:
         window.show()
     else:
         window.show_help_toast()
 
+    # Load the default database
     try:
         url: URL = core.db.get_database_url(db_pathname)
         async_engine = create_async_engine(url)
@@ -99,6 +102,7 @@ def run(
     uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
     uvicorn_thread.start()
 
+    # Run the GUI
     gui.exec()
     logging.info('The GUI has been closed')
 
