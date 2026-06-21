@@ -1,10 +1,11 @@
-"""Constants used in the core application."""
+"""Miscellaneous constants used in the core application."""
 
 from math import floor
 
 from pydantic import PlainSerializer
 
 timedelta_serializer = PlainSerializer(lambda td: floor(td.total_seconds() * 1000))
+"""Serialize timedelta objects into an integer number of milliseconds."""
 
 tags_metadata: list[dict[str, str]] = [
     {
@@ -36,3 +37,4 @@ tags_metadata: list[dict[str, str]] = [
         'description': 'Endpoints that render HTML.',
     },
 ]
+"""FastAPI documentation metadata. Used to describe the API in the `/docs` page."""

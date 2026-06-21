@@ -3,36 +3,20 @@
 from __future__ import annotations
 
 import logging
-import os
-import sys
 import time
 from http import HTTPStatus
-from pathlib import Path
 from typing import TYPE_CHECKING, Awaitable, Callable
 
 from core.exceptions import ClientError, ModelLookupError
 
-from .schemas.api import APIResponse, ErrorSchema
+from .schemas.api import ErrorSchema
+from .service import APIResponse
 
 if TYPE_CHECKING:
     from fastapi import Request, Response
     from fastapi.exceptions import RequestValidationError
 
 logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
-
-
-def get_resource_path(relative_path: str) -> Path:
-    """Get absolute path to resource, works for dev and for pyinstaller.
-
-    Args:
-        relative_path (LiteralStr): the relative path of the desired resource.
-
-    Returns:
-        Path: a path to the resource.
-
-    """
-    base_path: str | Path = getattr(sys, '_MEIPASS', Path.cwd())
-    return Path(os.path.join(base_path, relative_path))
 
 
 async def endpoint_profiling_middleware(

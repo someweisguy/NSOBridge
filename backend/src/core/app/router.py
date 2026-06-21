@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .schemas.api import VersionSchema
-from .utils import get_resource_path
+from .service import get_resource_path
 
 PAGES_TAG = 'Pages'
 METADATA_TAG = 'Metadata'
