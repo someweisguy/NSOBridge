@@ -6,6 +6,7 @@ ondelete
 pixmap
 selectin
 sessionmaker
+someweisguy
 tabler
 transferrables
 WFTDA
