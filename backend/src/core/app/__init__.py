@@ -7,10 +7,9 @@ from fastapi.exceptions import RequestValidationError
 from core.exceptions import ClientError
 
 from .constants import timedelta_serializer
-from .responses import APIResponse
 from .router import api_router, assets, pages_router
 from .schemas import ClientSchema, ServerSchema
-from .service import get_resource_path
+from .service import APIResponse, get_resource_path
 from .utils import (
     endpoint_profiling_middleware,
     generic_error_handler,
