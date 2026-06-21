@@ -7,8 +7,10 @@ from typing import Annotated, AsyncGenerator, TypeAlias
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .models import BaseSQLModel
-from .service import CacheableSQLModel, invalidate_cached_models, session_factory
+import core.ws
+
+from .constants import session_factory
+from .models import BaseSQLModel, CacheableSQLModel
 
 
 async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
@@ -49,7 +51,7 @@ async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
         await session.commit()
 
     if len(models) > 0:
-        await invalidate_cached_models(list(cacheables))
+        await core.ws.send_all('cache', [model.cache_key() for model in cacheables])
 
 
 GetAsyncSession: TypeAlias = Annotated[

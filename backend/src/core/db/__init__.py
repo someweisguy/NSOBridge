@@ -1,13 +1,11 @@
 """Database."""
 
-from .constants import CASCADE_CHILD, CASCADE_OTHER
+from .constants import CASCADE_CHILD, CASCADE_OTHER, session_factory
 from .dependencies import GetAsyncSession
-from .models import BaseSQLModel
+from .models import BaseSQLModel, CacheableSQLModel
 from .service import (
-    CacheableSQLModel,
     create_tables,
     get_database_url,
-    session_factory,
 )
 from .types import CacheKey
 
