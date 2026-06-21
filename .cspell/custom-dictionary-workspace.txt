@@ -1,5 +1,6 @@
 # Custom Dictionary Words
 autodocs
+Cristian
 ondelete
 pixmap
 selectin
