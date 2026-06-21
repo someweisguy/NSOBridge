@@ -10,7 +10,6 @@ from sqlalchemy import Result, Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import core
-from core.app.schemas import CacheItemSchema
 from core.users.service import Memento
 
 from .models import BaseSQLModel
@@ -73,20 +72,6 @@ class CacheableSQLModel(BaseSQLModel):
     """
 
     __abstract__: bool = True
-
-    async def get_updates(self) -> list[CacheItemSchema]:
-        """Get the updates from the session that this model is in.
-
-        Returns:
-            list[CacheItemSchema]: a mapping of cache keys to their model data.
-
-        """
-        session: AsyncSession = self.get_session()
-        models: list[CacheableSQLModel] = get_mutated_cache_models(session)
-        return [
-            CacheItemSchema(key=model.cache_key(), data=model.serialize())
-            for model in models
-        ]
 
     def get_memento(self) -> Memento:
         """Get a memento of the current state of this model and all its children.
