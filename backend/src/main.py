@@ -6,10 +6,11 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Final, Iterable
 
-import core.app.ws
+import core.app
 import core.server
 import core.updates
 import core.users
+import core.ws
 import game
 import rules
 from core.app import endpoint_profiling_middleware
@@ -55,7 +56,7 @@ async def lifespan(app: FastAPI):
     ]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.app.assets)
-    app.mount('/ws', core.app.ws.ws)
+    app.mount('/ws', core.ws.app)
 
     # Load the pages router without a path prefix
     app.include_router(core.app.pages_router)
@@ -98,9 +99,7 @@ async def lifespan(app: FastAPI):
     logging.debug('App lifespan has resumed execution')
 
     logging.info('Disconnecting all WebSockets')
-    await core.app.ws.disconnect_all(
-        CloseCode.GOING_AWAY, 'The server is shutting down'
-    )
+    await core.ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
     logging.debug('WebSockets disconnected')
 
 

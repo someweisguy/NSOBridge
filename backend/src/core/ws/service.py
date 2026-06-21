@@ -18,10 +18,10 @@ _clients: set[WebSocket] = set()
 _background_tasks: set[asyncio.Task[None]] = set()
 
 
-ws: Final[FastAPI] = FastAPI()
+app: Final[FastAPI] = FastAPI()
 
 
-@ws.websocket('/')
+@app.websocket('/')
 async def _handle_socket(websocket: WebSocket) -> None:
     """Handle all connecting WebSockets.
 
