@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 
 from core.exceptions import ClientError
 
-from .response import APIResponse
+from .schemas.api import APIResponse
 from .utils import (
     endpoint_profiling_middleware,
     generic_error_handler,

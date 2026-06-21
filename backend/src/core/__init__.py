@@ -5,8 +5,8 @@ This file exports the core functions needed to run NSO Bridge.
 
 from .app import error_handlers
 from .app.constants import timedelta_serializer
-from .app.response import APIResponse
 from .app.router import api_router, assets, pages_router
+from .app.schemas.api import APIResponse
 from .app.schemas.base import ClientSchema, ServerSchema
 from .app.schemas.cache import CacheItemSchema
 from .app.utils import (

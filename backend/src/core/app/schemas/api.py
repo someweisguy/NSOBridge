@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
-from typing import Any
+from http import HTTPStatus
+from typing import TYPE_CHECKING, Any, Mapping, override
 
+from fastapi.responses import JSONResponse
 from pydantic import Field
 
 from .base import ServerSchema
 from .cache import CacheItemSchema  # noqa: TC001
 
+if TYPE_CHECKING:
+    from starlette.background import BackgroundTask
 
-class APISchema(ServerSchema):
+
+class _APISchema(ServerSchema):
     """The default schema for returning API requests."""
 
     data: Any
@@ -34,3 +40,48 @@ class VersionSchema(ServerSchema):
     """The schema which returns application version information."""
 
     version: str
+
+
+class APIResponse[T: Any](JSONResponse):
+    """Used to wrap all API responses in a common JSON interface.
+
+    See `core.schemas.APISchema`.
+    """
+
+    @override
+    def __init__(
+        self,
+        data: T,
+        cache: list[CacheItemSchema] | None = None,
+        status_code: int = HTTPStatus.OK,
+        headers: Mapping[str, str] | None = None,
+        media_type: str | None = None,
+        background: BackgroundTask | None = None,
+    ) -> None:
+        error_occurred: bool = status_code not in range(
+            HTTPStatus.OK, HTTPStatus.MULTIPLE_CHOICES
+        )
+        cache = [] if cache is None else cache
+        super().__init__(
+            _APISchema(
+                status_code=status_code,
+                error=data if error_occurred else None,
+                data=data if not error_occurred else None,
+                cache=cache,
+            ).model_dump(),
+            status_code,
+            headers,
+            media_type,
+            background,
+        )
+
+    @override
+    def render(self, content: Any) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(',', ':'),
+            default=(str),  # Serialize datetime objects
+        ).encode('utf-8')
