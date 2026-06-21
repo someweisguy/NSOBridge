@@ -6,6 +6,7 @@ ondelete
 pixmap
 selectin
 sessionmaker
+SOCK_DGRAM
 someweisguy
 tabler
 transferrables
