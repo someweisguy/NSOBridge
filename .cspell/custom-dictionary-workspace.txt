@@ -2,6 +2,7 @@
 autodocs
 cacheables
 Cristian
+getpid
 ondelete
 pixmap
 selectin
