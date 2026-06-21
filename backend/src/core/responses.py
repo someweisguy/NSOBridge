@@ -12,13 +12,13 @@ from .app.schemas import (
     APISchema,
     CacheItemSchema,  # noqa: TC001
 )
-from .db.cache import get_mutated_cache_models
+from .db import get_mutated_cache_models
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
     from starlette.background import BackgroundTask
 
-    from .db.cache import CacheableSQLModel
+    from .db import CacheableSQLModel
 
 
 class APIResponse[T: Any](JSONResponse):
