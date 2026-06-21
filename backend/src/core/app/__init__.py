@@ -4,7 +4,7 @@ from typing import Callable, Final
 
 from fastapi.exceptions import RequestValidationError
 
-from core.exceptions import ClientError
+from core import ClientError
 
 from .service import get_resource_path
 from .utils import (

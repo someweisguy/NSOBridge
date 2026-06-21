@@ -8,10 +8,7 @@ from typing import TYPE_CHECKING, Any, Mapping, override
 
 from fastapi.responses import JSONResponse
 
-from .app.schemas import (
-    APISchema,
-    CacheItemSchema,  # noqa: TC001
-)
+from .app.schemas import APISchema, CacheItemSchema
 from .db import get_mutated_cache_models
 
 if TYPE_CHECKING:

@@ -10,7 +10,7 @@ from sqlalchemy import URL, Result, Select, select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 import core
-from core.users.service import Memento
+from core import Memento
 
 from .models import BaseSQLModel
 

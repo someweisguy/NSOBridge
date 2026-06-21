@@ -10,6 +10,7 @@ from .app.schemas import CacheItemSchema, ClientSchema, ServerSchema
 from .app.service import get_resource_path
 from .app.utils import endpoint_profiling_middleware
 from .app.ws import disconnect_all, send_all, ws
+from .exceptions import ClientError, ModelLookupError, UserStateError
 from .logging import configure_logging
 from .responses import APIResponse
 from .server import (
@@ -24,6 +25,7 @@ __all__ = (
     'APIResponse',
     'assets',
     'CacheItemSchema',
+    'ClientError',
     'ClientSchema',
     'configure_logging',
     'disconnect_all',
@@ -33,10 +35,12 @@ __all__ = (
     'get_resource_path',
     'get_server',
     'Memento',
+    'ModelLookupError',
     'pages_router',
     'send_all',
     'ServerSchema',
     'shutdown',
     'timedelta_serializer',
+    'UserStateError',
     'ws',
 )
