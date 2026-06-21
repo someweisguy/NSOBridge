@@ -71,7 +71,7 @@ def get_resource_path(relative_path: str) -> Path:
     """Get absolute path to resource, works for dev and for pyinstaller.
 
     Args:
-        relative_path (LiteralStr): the relative path of the desired resource.
+        relative_path (str): the relative path of the desired resource.
 
     Returns:
         Path: a path to the resource.
