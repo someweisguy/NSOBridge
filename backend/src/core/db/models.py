@@ -17,7 +17,7 @@ from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 import core.ws
 from core.users import Memento
 
-from .constants import session_factory
+from .constants import MESSAGE_TYPE, session_factory
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
@@ -140,7 +140,9 @@ class _DatabaseMemento(Memento):
             await session.commit()
 
         if len(models) > 0:
-            await core.ws.send_all('cache', [model.cache_key() for model in models])
+            await core.ws.send_all(
+                MESSAGE_TYPE, [model.cache_key() for model in models]
+            )
 
         return model.get_memento()
 

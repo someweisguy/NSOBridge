@@ -14,6 +14,8 @@ CASCADE_OTHER: Final[str] = 'expunge, save-update'
 relationships, i.e. parent relationships or other non-inferior relationships.
 """
 
+MESSAGE_TYPE: Final[str] = 'cache'
+
 
 session_factory: Final[async_sessionmaker[AsyncSession]] = async_sessionmaker[
     AsyncSession

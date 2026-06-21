@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import core.ws
 
-from .constants import session_factory
+from .constants import MESSAGE_TYPE, session_factory
 from .models import BaseSQLModel, CacheableSQLModel
 
 
@@ -51,7 +51,9 @@ async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
         await session.commit()
 
     if len(models) > 0:
-        await core.ws.send_all('cache', [model.cache_key() for model in cacheables])
+        await core.ws.send_all(
+            MESSAGE_TYPE, [model.cache_key() for model in cacheables]
+        )
 
 
 GetAsyncSession: TypeAlias = Annotated[
