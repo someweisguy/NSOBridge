@@ -7,7 +7,6 @@ from .service import (
     CacheableSQLModel,
     create_tables,
     get_database_url,
-    get_mutated_cache_models,
     session_factory,
 )
 from .types import CacheKey

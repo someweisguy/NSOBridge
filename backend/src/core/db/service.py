@@ -17,8 +17,6 @@ from .models import BaseSQLModel
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from sqlalchemy.orm import Session
-
     from core.app import ServerSchema
 
     from .types import CacheKey
@@ -49,21 +47,21 @@ class _DatabaseMemento(Memento):
                 table.uuid == self._detached_state_to_restore.uuid
             )
             results: Result[tuple[CacheableSQLModel]] = await session.execute(statement)
-            current_state: CacheableSQLModel = results.scalar_one()
-            session.expunge(current_state)
+            model: CacheableSQLModel = results.scalar_one()
+            session.expunge(model)
 
             # Merge the desired state with the database
             _ = await session.merge(self._detached_state_to_restore)
 
             # Get a list of query keys to invalidate before committing the session
-            models: list[CacheableSQLModel] = get_mutated_cache_models(session)
+            models: list[CacheableSQLModel] = model.get_updates()
 
             await session.commit()
 
         if len(models) > 0:
             await invalidate_cached_models(models)
 
-        return current_state.get_memento()
+        return model.get_memento()
 
 
 class CacheableSQLModel(BaseSQLModel):
@@ -86,6 +84,39 @@ class CacheableSQLModel(BaseSQLModel):
         """
         copy: CacheableSQLModel = deepcopy(self)
         return _DatabaseMemento(copy)
+
+    def get_updates(self) -> list[CacheableSQLModel]:
+        """Get a list of the cacheables which have been modified in the desired session.
+
+        Args:
+            session (AsyncSession | Session): the session which to check.
+
+        Returns:
+            list[CacheItem]: a list of all the cacheable models which have been modified
+            and their cache keys.
+
+        """
+        # Add each dirty or deleted model to a set for updates
+        session: AsyncSession = self.get_session()
+        models: set[BaseSQLModel] = {
+            model
+            for identity_map in [session.dirty]
+            for model in identity_map
+            if isinstance(model, BaseSQLModel)
+        }
+
+        # Extract the cacheable models from the session
+        cacheables: set[CacheableSQLModel] = {
+            model for model in models if isinstance(model, CacheableSQLModel)
+        }
+        for model in models:
+            cacheables |= {
+                parent
+                for parent in model.get_recursive_parents()
+                if isinstance(parent, CacheableSQLModel)
+            }
+
+        return list(cacheables)
 
     @abstractmethod
     def cache_key(self) -> CacheKey:
@@ -112,54 +143,6 @@ class CacheableSQLModel(BaseSQLModel):
         ...
 
 
-def get_mutated_cache_models(
-    session: AsyncSession | Session,
-) -> list[CacheableSQLModel]:
-    """Get a list of the cacheables which have been modified in the desired session.
-
-    Args:
-        session (AsyncSession | Session): the session which to check.
-
-    Returns:
-        list[CacheItem]: a list of all the cacheable models which have been modified
-        and their cache keys.
-
-    """
-    # Add each dirty or deleted model to a set for updates
-    models: set[BaseSQLModel] = {
-        model
-        for identity_map in [session.dirty]
-        for model in identity_map
-        if isinstance(model, BaseSQLModel)
-    }
-
-    # Extract the cacheable models from the session
-    cacheables: set[CacheableSQLModel] = {
-        model for model in models if isinstance(model, CacheableSQLModel)
-    }
-    for model in models:
-        cacheables |= {
-            parent
-            for parent in model.get_recursive_parents()
-            if isinstance(parent, CacheableSQLModel)
-        }
-
-    return list(cacheables)
-
-
-async def invalidate_cached_models(models: list[CacheableSQLModel]) -> None:
-    """Invalidate the specified cached models.
-
-    This informs all clients that the keys of the specified models have been updated
-    and must be queried again.
-
-    Args:
-        models (list[CacheableSQLModel]): a list of models to be invalidated.
-
-    """
-    await core.ws.send_all('cache', [model.cache_key() for model in models])
-
-
 def get_database_url(file_path: str | Path) -> URL:
     """Get a URL to a database.
 
@@ -182,3 +165,16 @@ async def create_tables(engine: AsyncEngine) -> None:
     """
     async with engine.begin() as connection:
         await connection.run_sync(BaseSQLModel.metadata.create_all)
+
+
+async def invalidate_cached_models(models: list[CacheableSQLModel]) -> None:
+    """Invalidate the specified cached models.
+
+    This informs all clients that the keys of the specified models have been updated
+    and must be queried again.
+
+    Args:
+        models (list[CacheableSQLModel]): a list of models to be invalidated.
+
+    """
+    await core.ws.send_all('cache', [model.cache_key() for model in models])

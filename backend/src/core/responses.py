@@ -9,10 +9,8 @@ from typing import TYPE_CHECKING, Any, Mapping, override
 from fastapi.responses import JSONResponse
 
 from .app.schemas import APISchema, CacheItemSchema
-from .db import get_mutated_cache_models
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
     from starlette.background import BackgroundTask
 
     from .db import CacheableSQLModel
@@ -30,7 +28,7 @@ class APIResponse[T: Any](JSONResponse):
     def __init__(
         self,
         data: T,
-        session: AsyncSession | None = None,
+        cache: list[CacheableSQLModel] | None = None,
         status_code: int = HTTPStatus.OK,
         headers: Mapping[str, str] | None = None,
         media_type: str | None = None,
@@ -40,11 +38,10 @@ class APIResponse[T: Any](JSONResponse):
             HTTPStatus.OK, HTTPStatus.MULTIPLE_CHOICES
         )
 
-        if session is not None:
-            models: list[CacheableSQLModel] = get_mutated_cache_models(session)
+        if cache is not None:
             cache_data = [
                 CacheItemSchema(key=model.cache_key(), data=model.serialize())
-                for model in models
+                for model in cache
             ]
         else:
             cache_data = []
