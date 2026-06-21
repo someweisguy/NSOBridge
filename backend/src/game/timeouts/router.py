@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, Annotated, Final, Literal
 
-from core.responses import APIResponse
+from core.app import APIResponse
 from fastapi import APIRouter, Body
 
 from .dependencies import GetTimeout, _get_timeout

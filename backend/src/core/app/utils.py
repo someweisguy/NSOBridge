@@ -8,8 +8,8 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING, Awaitable, Callable
 
 from core.exceptions import ClientError, ModelLookupError
-from core.responses import APIResponse
 
+from .responses import APIResponse
 from .schemas import ErrorSchema
 
 if TYPE_CHECKING:

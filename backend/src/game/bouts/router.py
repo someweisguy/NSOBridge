@@ -4,8 +4,8 @@ import random
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
+from core.app import APIResponse
 from core.db import GetAsyncSession
-from core.responses import APIResponse
 from fastapi import APIRouter, Body, Query
 from game.series.dependencies import GetSeries
 from game.teams.dependencies import GetTeam

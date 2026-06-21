@@ -7,6 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from core.exceptions import ClientError
 
 from .constants import timedelta_serializer
+from .responses import APIResponse
 from .router import api_router, assets, pages_router
 from .schemas import ClientSchema, ServerSchema
 from .service import get_resource_path
@@ -25,6 +26,7 @@ error_handlers: Final[dict[type[Exception], Callable]] = {
 
 __all__ = (
     'api_router',
+    'APIResponse',
     'assets',
     'ClientSchema',
     'endpoint_profiling_middleware',

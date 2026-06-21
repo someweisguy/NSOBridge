@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, Any, Mapping, override
 
 from fastapi.responses import JSONResponse
 
-from .app.schemas import APISchema, CacheItemSchema
+from .schemas import APISchema, CacheItemSchema
 
 if TYPE_CHECKING:
     from starlette.background import BackgroundTask
 
-    from .db import CacheableSQLModel
+    from core.db import CacheableSQLModel
 
 
 class APIResponse[T: Any](JSONResponse):
