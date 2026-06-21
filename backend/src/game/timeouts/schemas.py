@@ -4,7 +4,7 @@ from datetime import datetime, timedelta  # noqa: TC003
 from typing import Annotated
 from uuid import UUID
 
-from core import ServerSchema, timedelta_serializer
+from core.app import ServerSchema, timedelta_serializer
 from game.jams.schemas import JamSchema
 from game.teams.schemas import TeamSchema
 from pydantic import Field, computed_field

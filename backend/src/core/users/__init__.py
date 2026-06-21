@@ -10,7 +10,7 @@ from fastapi import APIRouter
 
 from .dependencies import GetUser
 from .router import router
-from .service import User
+from .service import Memento, User
 
 routers: Final[tuple[APIRouter, ...]] = (router,)
 
@@ -18,4 +18,5 @@ __all__ = (
     'GetUser',
     'routers',
     'User',
+    'Memento',
 )

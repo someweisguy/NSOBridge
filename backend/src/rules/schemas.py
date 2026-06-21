@@ -3,7 +3,7 @@
 from datetime import timedelta
 from typing import Annotated
 
-from core import ServerSchema, timedelta_serializer
+from core.app import ServerSchema, timedelta_serializer
 
 
 class Ruleset(ServerSchema):

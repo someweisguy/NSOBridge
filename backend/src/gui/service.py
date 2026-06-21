@@ -7,8 +7,9 @@ from signal import SIGTERM
 from threading import Thread
 from typing import TYPE_CHECKING
 
-import core
+import core.app
 import core.db
+import core.server
 from fastapi import FastAPI
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPainter, QPixmap
@@ -73,7 +74,7 @@ def run(
     gui.setApplicationName(app.title)
 
     # Render the application icon
-    icon_path: Path = core.get_resource_path('public') / 'skate.svg'
+    icon_path: Path = core.app.get_resource_path('public') / 'skate.svg'
     icon: QPixmap = get_svg_pixmap(icon_path)
     gui.setWindowIcon(icon)
 
@@ -98,7 +99,7 @@ def run(
         raise e
 
     # Configure and start the server on a new thread
-    uvicorn: Server = core.get_server(app, host, port)
+    uvicorn: Server = core.server.get_server(app, host, port)
     uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
     uvicorn_thread.start()
 

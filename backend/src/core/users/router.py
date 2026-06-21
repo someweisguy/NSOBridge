@@ -5,7 +5,7 @@ from typing import Final
 
 from fastapi import APIRouter
 
-from core import UserStateError
+from core.exceptions import UserStateError
 
 from .dependencies import GetUser
 

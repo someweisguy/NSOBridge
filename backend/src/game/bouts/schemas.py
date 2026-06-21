@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
 from uuid import UUID  # noqa: TC003
 
-from core import ServerSchema
+from core.app import ServerSchema
 from game.clocks.schemas import ClockSchema  # noqa: TC002
 from game.jams.schemas import JamSchema  # noqa: TC002
 from game.teams.schemas import TeamSchema  # noqa: TC002

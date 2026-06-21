@@ -3,7 +3,7 @@
 import json
 from typing import Iterable, override
 
-import core
+import core.server
 import core.updates
 from core.updates import UPDATE_URL, GithubReleaseSchema
 from fastapi import FastAPI
@@ -44,7 +44,7 @@ class AppWindow(QMainWindow):
         super().__init__()
 
         if host == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
-            host = core.get_default_route()
+            host = core.server.get_default_route()
 
         self.version_label: QLabel = QLabel(
             f'v{app.version}', alignment=Qt.AlignmentFlag.AlignHCenter

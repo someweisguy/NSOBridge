@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from core import ServerSchema
+from core.app import ServerSchema
 
 
 class SkaterSchema(ServerSchema):

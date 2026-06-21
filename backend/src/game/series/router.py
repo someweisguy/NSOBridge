@@ -3,8 +3,8 @@
 from typing import Annotated, Final, Sequence
 from uuid import UUID
 
-from core import APIResponse
 from core.db import GetAsyncSession
+from core.responses import APIResponse
 from fastapi import APIRouter, Body
 from sqlalchemy import Result, Select, select
 

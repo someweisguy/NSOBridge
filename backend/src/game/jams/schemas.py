@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from core import ServerSchema
+from core.app import ServerSchema
 from game.team_jams.schemas import TeamJamSchema
 
 from .types import StopReasonStr

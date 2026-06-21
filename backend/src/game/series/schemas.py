@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from core import ServerSchema
+from core.app import ServerSchema
 from game.bouts.schemas import BoutSchema
 from pydantic import Field, computed_field
 

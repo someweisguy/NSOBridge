@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Final, override
 from sqlalchemy import URL, Result, Select, select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-import core
-from core import Memento
+import core.app.ws
+from core.users import Memento
 
 from .models import BaseSQLModel
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from sqlalchemy.orm import Session
 
-    from core import ServerSchema
+    from core.app import ServerSchema
 
     from .types import CacheKey
 
@@ -157,7 +157,7 @@ async def invalidate_cached_models(models: list[CacheableSQLModel]) -> None:
         models (list[CacheableSQLModel]): a list of models to be invalidated.
 
     """
-    await core.send_all('cache', [model.cache_key() for model in models])
+    await core.app.ws.send_all('cache', [model.cache_key() for model in models])
 
 
 def get_database_url(file_path: str | Path) -> URL:

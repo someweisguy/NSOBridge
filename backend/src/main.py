@@ -6,6 +6,8 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Final, Iterable
 
+import core.app.ws
+import core.server
 import core.updates
 import core.users
 import game
@@ -25,8 +27,8 @@ from uvicorn import Server
 from websockets import CloseCode
 
 APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 2, 3)
-CONFIG_FILE_NAME: Path = core.get_resource_path('./config.ini')
-LOG_DIR_NAME: Path = core.get_resource_path('./logs')
+CONFIG_FILE_NAME: Path = core.app.get_resource_path('./config.ini')
+LOG_DIR_NAME: Path = core.app.get_resource_path('./logs')
 API_PREFIX: str = '/api'
 
 DEFAULT_BOUT_RULESET_NAME = 'WFTDA 2025'
@@ -43,15 +45,20 @@ async def lifespan(app: FastAPI):
     logging.info(f'App started{" in debug mode" if app.debug else ""}')
 
     # Load the API and exception handlers
-    for e, handler in core.error_handlers.items():
+    for e, handler in core.app.error_handlers.items():
         app.add_exception_handler(e, handler)
-    for router in [core.api_router, *game.routers, *core.users.routers, rules.router]:
+    for router in [
+        core.app.api_router,
+        *core.users.routers,
+        *game.routers,
+        rules.router,
+    ]:
         app.include_router(router, prefix=API_PREFIX)
-    app.mount('/assets', core.assets)
-    app.mount('/ws', core.ws)
+    app.mount('/assets', core.app.assets)
+    app.mount('/ws', core.app.ws.ws)
 
     # Load the pages router without a path prefix
-    app.include_router(core.pages_router)
+    app.include_router(core.app.pages_router)
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
@@ -91,7 +98,9 @@ async def lifespan(app: FastAPI):
     logging.debug('App lifespan has resumed execution')
 
     logging.info('Disconnecting all WebSockets')
-    await core.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
+    await core.app.ws.disconnect_all(
+        CloseCode.GOING_AWAY, 'The server is shutting down'
+    )
     logging.debug('WebSockets disconnected')
 
 
@@ -223,7 +232,7 @@ if __name__ == '__main__':
                     logging.critical(e)
                     raise e
 
-            server: Server = core.get_server(app, args.host, args.port)
+            server: Server = core.server.get_server(app, args.host, args.port)
             asyncio.run(server.serve())
             logging.debug('Asyncio loop has closed')
     except KeyboardInterrupt:
@@ -231,4 +240,4 @@ if __name__ == '__main__':
     finally:
         logging.info('Program terminated')
         logging.shutdown()
-        core.shutdown()
+        core.server.shutdown()

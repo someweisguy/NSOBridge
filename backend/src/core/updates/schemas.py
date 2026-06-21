@@ -4,7 +4,7 @@ from typing import ClassVar
 
 from pydantic.config import ConfigDict
 
-from core import ClientSchema
+from core.app import ClientSchema
 
 
 class GithubReleaseSchema(ClientSchema):
