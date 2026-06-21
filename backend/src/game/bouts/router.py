@@ -78,35 +78,35 @@ async def create_bout(
         series.set_active_bout(bout)
     flag_dirty(series)  # Include Series in cache updates
 
-    return APIResponse(bout.uuid, cache=await bout.get_updates())
+    return APIResponse(bout.uuid, bout.get_session())
 
 
 @router.post('/beginPeriod')
 async def begin_period(bout: GetBout) -> APIResponse:
     """Begin the period of the specified Bout."""
     bout.begin_period(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post('/endPeriod')
 async def end_period(bout: GetBout) -> APIResponse:
     """End the period of the specified Bout."""
     bout.end_period(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post('/startJam')
 async def start_jam(bout: GetBout):
     """Start the next Jam of the specified Bout."""
     bout.start_jam(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post('/stopJam')
 async def stop_jam(bout: GetBout) -> APIResponse:
     """Stop the active Jam of the specified Bout."""
     bout.stop_jam(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post('/startTimeout')
@@ -122,14 +122,14 @@ async def start_timeout(
         timeout.is_review = is_review
         if team_num is not None:
             timeout.team = bout.teams[team_num]
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post(path='/stopTimeout')
 async def stop_timeout(bout: GetBout) -> APIResponse:
     """Stop the active Timeout in the specified Bout."""
     bout.stop_timeout(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post('/addTrip')
@@ -140,7 +140,7 @@ async def add_trip(
 ) -> APIResponse:
     """Add a Trip for the specified Team of the specified Jam."""
     bout.add_trip(team, datetime.now(), passes)
-    return APIResponse(None, await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post('/addLead')
@@ -151,7 +151,7 @@ async def set_lead(
 ) -> APIResponse:
     """Set Lead for the specified Team of the specified Jam."""
     bout.add_lead(team, datetime.now(), lead)
-    return APIResponse(None, await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post('/addLost')
@@ -162,7 +162,7 @@ async def set_lost(
 ) -> APIResponse:
     """Set Lost for the specified Team of the specified Jam."""
     bout.add_lost(team, datetime.now(), lost)
-    return APIResponse(None, await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post('/addStarPass')
@@ -173,14 +173,14 @@ async def set_star_pass(
 ) -> APIResponse:
     """Set a Star Pass for the specified Team of the specified Jam."""
     bout.add_star_pass(team, datetime.now(), star_pass)
-    return APIResponse(None, await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.post(path='/finalize')
 async def finalize(bout: GetBout) -> APIResponse:
     """Finalize the Bout."""
     bout.finalize()
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.put(path='/setClockRemaining')
@@ -195,7 +195,7 @@ async def set_clock_remaining(
         remaining_timedelta = bout.clock.alarm - remaining_timedelta
     bout.clock.elapsed = remaining_timedelta
     flag_dirty(bout)  # Clock has no association with Bout
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.put(path='/setClockAlarm')
@@ -206,7 +206,7 @@ async def set_clock_alarm(
     if bout.clock.alarm.total_seconds() != alarm / 1000:
         bout.clock.alarm = timedelta(milliseconds=alarm)
         flag_dirty(bout)  # Clock has no association with Bout
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.put(path='/setClockIsRunning')
@@ -222,7 +222,7 @@ async def set_clock_is_running(
             bout.clock.stop(now)
         flag_dirty(bout)  # Clock has no association with Bout
 
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_session())
 
 
 @router.put(path='/setTeamName')
@@ -232,7 +232,7 @@ async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> APIRespo
 
     team.name = name
 
-    return APIResponse(None, cache=await team.get_bout().get_updates())
+    return APIResponse(None, team.get_session())
 
 
 __all__ = ('router',)

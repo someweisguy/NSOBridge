@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 
 from core.exceptions import ClientError
 
-from .service import APIResponse, get_resource_path
+from .service import get_resource_path
 from .utils import (
     endpoint_profiling_middleware,
     generic_error_handler,
@@ -22,7 +22,6 @@ error_handlers: Final[dict[type[Exception], Callable]] = {
 
 
 __all__ = (
-    'APIResponse',
     'endpoint_profiling_middleware',
     'get_resource_path',
     'send_all',

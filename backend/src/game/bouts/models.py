@@ -114,7 +114,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
 
     @final
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
 
     def get_series(self) -> Series | None:

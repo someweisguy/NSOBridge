@@ -82,8 +82,8 @@ class Team(BaseSQLModel):
         super().__init__(name=name)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs._bout,)
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self._bout,)
 
     def get_bout(self) -> BaseBout:
         """Get the Bout to which this Team belongs.

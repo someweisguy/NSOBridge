@@ -8,9 +8,9 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING, Awaitable, Callable
 
 from core.exceptions import ClientError, ModelLookupError
+from core.responses import APIResponse
 
 from .schemas import ErrorSchema
-from .service import APIResponse
 
 if TYPE_CHECKING:
     from fastapi import Request, Response

@@ -31,7 +31,7 @@ async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
         # Get a list of query keys to invalidate before committing the session
-        models: list[CacheableSQLModel] = await get_mutated_cache_models(session)
+        models: list[CacheableSQLModel] = get_mutated_cache_models(session)
 
         await session.commit()
 

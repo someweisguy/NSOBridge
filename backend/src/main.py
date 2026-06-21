@@ -10,8 +10,9 @@ import core.updates
 import core.users
 import game
 import rules
-from core.app import APIResponse, endpoint_profiling_middleware
+from core.app import endpoint_profiling_middleware
 from core.db import create_tables, get_database_url, session_factory
+from core.responses import APIResponse
 from core.updates import GithubReleaseSchema
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager

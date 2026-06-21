@@ -10,7 +10,8 @@ from sqlalchemy import Result, Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import core
-from core import CacheItemSchema, Memento
+from core.app.schemas import CacheItemSchema
+from core.users.service import Memento
 
 from .models import BaseSQLModel
 from .service import session_factory
@@ -52,7 +53,7 @@ class _DatabaseMemento(Memento):
             _ = await session.merge(self._detached_state_to_restore)
 
             # Get a list of query keys to invalidate before committing the session
-            models: list[CacheableSQLModel] = await get_mutated_cache_models(session)
+            models: list[CacheableSQLModel] = get_mutated_cache_models(session)
 
             await session.commit()
 
@@ -81,7 +82,7 @@ class CacheableSQLModel(BaseSQLModel):
 
         """
         session: AsyncSession = self.get_session()
-        models: list[CacheableSQLModel] = await get_mutated_cache_models(session)
+        models: list[CacheableSQLModel] = get_mutated_cache_models(session)
         return [
             CacheItemSchema(key=model.cache_key(), data=model.serialize())
             for model in models
@@ -122,7 +123,7 @@ class CacheableSQLModel(BaseSQLModel):
         ...
 
 
-async def get_mutated_cache_models(
+def get_mutated_cache_models(
     session: AsyncSession | Session,
 ) -> list[CacheableSQLModel]:
     """Get a list of the cacheables which have been modified in the desired session.
@@ -150,7 +151,7 @@ async def get_mutated_cache_models(
     for model in models:
         cacheables |= {
             parent
-            for parent in await model.get_recursive_parents()
+            for parent in model.get_recursive_parents()
             if isinstance(parent, CacheableSQLModel)
         }
 

@@ -27,7 +27,7 @@ class Clock(TimeableModel):
     __tablename__: str = 'clocks'
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
 
     @override

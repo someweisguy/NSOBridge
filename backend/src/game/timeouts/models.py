@@ -106,10 +106,10 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
         return TimeoutSchema.model_validate(self)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
         if self._team_uuid is None:
-            return (await self.awaitable_attrs._bout,)
-        return (await self.awaitable_attrs._bout, await self.awaitable_attrs.team)
+            return (self._bout,)
+        return (self._bout, self.team)  # ty:ignore[invalid-return-type]
 
     def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Timeout.

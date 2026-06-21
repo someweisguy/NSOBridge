@@ -23,7 +23,7 @@ async def set_stop_reason(
     """Set the stop reason for the desired Jam."""
     jam.stop_reason = stop_reason
 
-    return APIResponse(None, cache=await jam.get_updates())
+    return APIResponse(None, jam.get_session())
 
 
 @router.put('/setTripEventPasses')
@@ -48,7 +48,7 @@ async def set_trip_passes(
 
     event.passes = passes
 
-    return APIResponse(None, cache=await jam.get_updates())
+    return APIResponse(None, jam.get_session())
 
 
 @router.delete('/tripEvent')
@@ -72,4 +72,4 @@ async def delete_trip_event(
 
     team_jam.events.remove(event)
 
-    return APIResponse(None, cache=await jam.get_updates())
+    return APIResponse(None, jam.get_session())

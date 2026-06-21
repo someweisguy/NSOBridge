@@ -38,4 +38,4 @@ async def set_active_bout(
     else:
         raise ValueError('No such Bout was found.')
     series.set_active_bout(bout)
-    return APIResponse(None, await series.get_updates())
+    return APIResponse(None, series.get_session())

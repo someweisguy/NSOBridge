@@ -53,7 +53,7 @@ class BaseSQLModel(DeclarativeBase, AsyncAttrs):
     __abstract__: bool = True
     __type_annotation_map__: dict = {timedelta: _TimedeltaAsMilliseconds}
 
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
         """Asynchronously get a tuple of this model's direct parents.
 
         Returns:
@@ -62,7 +62,7 @@ class BaseSQLModel(DeclarativeBase, AsyncAttrs):
         """
         raise NotImplementedError('get_parents() is not implemented in this model')
 
-    async def get_recursive_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_recursive_parents(self) -> tuple[BaseSQLModel, ...]:
         """Recursively and asynchronously get a tuple of this model's parents.
 
         This method is used to get the hierarchical branch of models that this model
@@ -73,10 +73,10 @@ class BaseSQLModel(DeclarativeBase, AsyncAttrs):
             tuple[BaseSQLModel]: the recursive parents of this model.
 
         """
-        recursive_parents: list[BaseSQLModel] = list(await self.get_parents())
-        for parent in await self.get_parents():
+        recursive_parents: list[BaseSQLModel] = list(self.get_parents())
+        for parent in self.get_parents():
             if isinstance(parent, BaseSQLModel):
-                recursive_parents.extend(await parent.get_recursive_parents())
+                recursive_parents.extend(parent.get_recursive_parents())
         return tuple(recursive_parents)
 
     def get_session(self) -> AsyncSession:
