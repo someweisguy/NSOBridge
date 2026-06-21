@@ -11,8 +11,10 @@ from typing import TYPE_CHECKING, Any, Mapping, override
 
 from fastapi.responses import JSONResponse
 
-from .schemas.api import APISchema
-from .schemas.cache import CacheItemSchema  # noqa: TC001
+from .schemas import (
+    APISchema,
+    CacheItemSchema,  # noqa: TC001
+)
 
 if TYPE_CHECKING:
     from starlette.background import BackgroundTask

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable
 
 from core.exceptions import ClientError, ModelLookupError
 
-from .schemas.api import ErrorSchema
+from .schemas import ErrorSchema
 from .service import APIResponse
 
 if TYPE_CHECKING:

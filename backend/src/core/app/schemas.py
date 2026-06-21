@@ -1,14 +1,80 @@
-"""WebSocket schemas."""
+"""Core application schemas."""
 
 from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Any, Sequence
+from http import HTTPStatus
+from typing import Any, ClassVar, Sequence
 
-from pydantic import Field, field_serializer
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic.alias_generators import to_camel
 
-from .base import ClientSchema, ServerSchema
+
+class ServerSchema(BaseModel):
+    """The base schema for schemas which originate from this server.
+
+    This is the base schema for all schemas that this server generates. It automatically
+    converts all snake_case attributes, the Python standard, to camelCase, the
+    Javascript and Typescript standard.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        alias_generator=to_camel,
+        from_attributes=True,
+        validate_by_name=True,
+        serialize_by_alias=True,
+    )
+
+
+class ClientSchema(BaseModel):
+    """The base schema for schemas which originate from outside of this server.
+
+    This is the base schema for all schemas which are generated from outside of this
+    server. It automatically converts all camelCase attributes, the Javascript and
+    Typescript standard, to snake_case, the Python standard. This schema also forbids
+    extra arguments, raising exceptions when additional fields are provided.
+
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        alias_generator=to_camel,
+        extra='forbid',
+        from_attributes=True,
+        validate_by_alias=True,
+    )
+
+
+class APISchema(ServerSchema):
+    """The default schema for returning API requests."""
+
+    data: Any
+    cache: list[CacheItemSchema] = Field(
+        default_factory=list, exclude_if=lambda c: len(c) == 0
+    )
+    status_code: int = Field(default=HTTPStatus.OK, kw_only=True)
+    error: ErrorSchema | None = Field(default=None, exclude_if=lambda e: e is None)
+    timestamp: datetime = Field(default_factory=datetime.now, init=False)
+
+
+class ErrorSchema(ServerSchema):
+    """A schema for returning detailed error messages to clients."""
+
+    type: str
+    message: str
+
+
+class VersionSchema(ServerSchema):
+    """The schema which returns application version information."""
+
+    version: str
+
+
+class CacheItemSchema(ServerSchema):
+    """A utility class to associate a cache key with model data in JSON."""
+
+    key: Any
+    data: Any
 
 
 class WebSocketServerSchema[T: Any](ServerSchema, ABC):

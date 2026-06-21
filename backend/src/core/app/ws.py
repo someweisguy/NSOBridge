@@ -8,7 +8,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 from websockets import CloseCode
 
-from .schemas.ws import (
+from .schemas import (
     AboutDataClientSchema,
     AboutWebsocketServerSchema,
     WebSocketServerSchema,

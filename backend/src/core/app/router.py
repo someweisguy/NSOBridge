@@ -8,7 +8,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from .schemas.api import VersionSchema
+from .schemas import VersionSchema
 from .service import get_resource_path
 
 PAGES_TAG = 'Pages'
