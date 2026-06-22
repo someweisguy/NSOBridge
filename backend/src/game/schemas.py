@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta  # noqa: TC003
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 from core.app import ServerSchema, timedelta_serializer
+
+if TYPE_CHECKING:
+    from datetime import datetime, timedelta
 
 
 class ClockSchema(ServerSchema):
