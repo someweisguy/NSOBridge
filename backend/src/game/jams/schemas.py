@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
-from uuid import UUID  # noqa: TC003
+from typing import TYPE_CHECKING
 
 from core.app import ServerSchema
 
-from .types import StopReasonStr  # noqa: TC001
+if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
+
+    from .types import StopReasonStr
 
 
 class JamSchema(ServerSchema):

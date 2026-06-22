@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Annotated
 
 from core.app import ServerSchema, timedelta_serializer
 from pydantic import Field, SkipValidation, computed_field
 
 if TYPE_CHECKING:
+    from datetime import datetime, timedelta
     from uuid import UUID
 
     from game.bouts.schemas import TeamSchema
