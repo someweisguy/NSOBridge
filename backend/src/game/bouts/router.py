@@ -16,7 +16,7 @@ from sqlalchemy.orm.attributes import flag_dirty
 from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, _get_bout
 from .models import BaseBout
-from .schemas import BoutSchema
+from .schemas import BoutSchema, Ruleset
 
 if TYPE_CHECKING:
     from game.timeouts.models import Timeout
@@ -27,6 +27,11 @@ REQUIRED_NUM_TEAMS: Final[int] = 2
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
+
+
+@router.get('/ruleset')
+async def get_ruleset(bout: GetBout) -> Ruleset:
+    return bout.ruleset
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])

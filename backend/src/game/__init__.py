@@ -21,7 +21,6 @@ instantiation.
 
 from typing import Final
 
-import rules
 from fastapi import APIRouter
 
 from .bouts.models import BaseBout, Team

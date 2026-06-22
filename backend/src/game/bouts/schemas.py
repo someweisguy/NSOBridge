@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime  # noqa: TC003
+from datetime import datetime, timedelta  # noqa: TC003
+from typing import Annotated
 from uuid import UUID  # noqa: TC003
 
-from core.app import ServerSchema
+from core.app import ServerSchema, timedelta_serializer
 from game.jams.schemas import JamSchema  # noqa: TC002
 from game.schemas import ClockSchema  # noqa: TC002
 from game.skaters.schemas import SkaterSchema  # noqa: TC002
@@ -98,3 +99,20 @@ class TeamSchema(ServerSchema):
     reviews_remaining: int
     score_offset: int
     skaters: list[SkaterSchema]
+
+
+class Ruleset(ServerSchema):
+    """Represent a Ruleset as a JSON schema.
+
+    The Ruleset differs from other schemas in this module in that it is only
+    representable as a schema; there is no Ruleset model. This is because Rulesets are
+    stored as constants which do not need to be written to file.
+    """
+
+    name: str
+    num_periods: int
+    jam_duration: Annotated[timedelta, timedelta_serializer]
+    lineup_duration: Annotated[timedelta, timedelta_serializer]
+    points_per_trip: int
+    num_timeouts: int
+    num_reviews: int

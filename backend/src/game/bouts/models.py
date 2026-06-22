@@ -29,7 +29,8 @@ from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol  # noqa: TC001
 
 if TYPE_CHECKING:
     from game.series.models import Series
-    from rules.schemas import Ruleset
+
+    from .schemas import Ruleset
 
 
 REQUIRED_NUM_TEAMS: Final[int] = 2

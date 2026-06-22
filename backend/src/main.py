@@ -12,7 +12,7 @@ import core.updates
 import core.users
 import core.ws
 import game
-import rules
+import game.bouts.rulesets
 from core.app import APIResponse, endpoint_profiling_middleware
 from core.db import create_tables, get_database_url, session_factory
 from core.updates import GithubReleaseSchema
@@ -47,12 +47,7 @@ async def lifespan(app: FastAPI):
     # Load the API and exception handlers
     for e, handler in core.app.error_handlers.items():
         app.add_exception_handler(e, handler)
-    for router in [
-        core.app.api_router,
-        *core.users.routers,
-        *game.routers,
-        rules.router,
-    ]:
+    for router in [core.app.api_router, *core.users.routers, *game.routers]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.app.assets)
     app.mount('/ws', core.ws.app)
