@@ -1,4 +1,4 @@
-"""Pydantic Clock schemas."""
+"""Shared schemas used within the game module."""
 
 from __future__ import annotations
 
