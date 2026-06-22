@@ -60,3 +60,8 @@ GetAsyncSession: TypeAlias = Annotated[
     AsyncSession,
     Depends(_yield_async_session, scope='function'),
 ]
+"""FastAPI dependency injection which gets a session from the default session factory.
+
+Each new session is auto-committed at the end of each endpoint and client cache keys
+are automatically invalidated.
+"""

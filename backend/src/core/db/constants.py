@@ -20,3 +20,7 @@ MESSAGE_TYPE: Final[str] = 'cache'
 session_factory: Final[async_sessionmaker[AsyncSession]] = async_sessionmaker[
     AsyncSession
 ](expire_on_commit=False)
+"""The default session factory for this application.
+
+This is the primary database connection which should be used by the main application.
+"""

@@ -1,7 +1,9 @@
 """Handle users and authentication.
 
-This module is used to store a per-user command history and initialize endpoints for
-users to undo and redo commands.
+Every user has their own command history. When a use makes changes to the application
+state, the previous history should be stored in the user's command history. This
+application uses the Memento pattern to achieve this behavior. This submodule lays the
+groundwork for a reusable Memento pattern, which other modules may apply.
 """
 
 from typing import Final
