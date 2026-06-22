@@ -61,6 +61,7 @@ class BaseSQLModel(DeclarativeBase, AsyncAttrs):
     """
 
     uuid: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
+    """The model's UUID; its primary key."""
 
     __abstract__: bool = True
     __type_annotation_map__: dict = {timedelta: _TimedeltaAsMilliseconds}

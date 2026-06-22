@@ -1,4 +1,4 @@
-"""Handling of client and server caching."""
+"""The main business logic database handling."""
 
 from __future__ import annotations
 
