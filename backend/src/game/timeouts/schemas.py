@@ -11,8 +11,8 @@ if TYPE_CHECKING:
     from datetime import datetime, timedelta
     from uuid import UUID
 
-    from game.bouts.schemas import TeamSchema
-    from game.jams.schemas import JamSchema
+    from game.bouts.models import Team
+    from game.jams.models import Jam
 
 
 class TimeoutSchema(ServerSchema):
@@ -21,8 +21,8 @@ class TimeoutSchema(ServerSchema):
     bout_uuid: UUID
     num: int
 
-    jam: SkipValidation[JamSchema] = Field(exclude=True)
-    team: SkipValidation[TeamSchema] | None = Field(exclude=True)
+    jam: SkipValidation[Jam] = Field(exclude=True)
+    team: SkipValidation[Team] | None = Field(exclude=True)
 
     start_timestamp: datetime | None
     stop_timestamp: datetime | None

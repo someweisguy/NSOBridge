@@ -10,7 +10,7 @@ from pydantic import Field, SkipValidation, computed_field
 if TYPE_CHECKING:
     from uuid import UUID
 
-    from game.bouts.schemas import BoutSchema
+    from game.bouts.models import BaseBout
 
 
 class SeriesSchema(ServerSchema):
@@ -19,7 +19,7 @@ class SeriesSchema(ServerSchema):
     uuid: UUID
     name: str
     active_bout_uuid: UUID | None
-    bouts: list[SkipValidation[BoutSchema]] = Field(exclude=True)
+    bouts: list[SkipValidation[BaseBout]] = Field(exclude=True)
 
     @computed_field
     @property

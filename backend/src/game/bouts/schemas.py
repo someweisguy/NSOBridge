@@ -12,10 +12,10 @@ if TYPE_CHECKING:
     from datetime import datetime, timedelta
     from uuid import UUID
 
-    from game.jams.schemas import JamSchema
+    from game.jams.models import Jam
     from game.schemas import ClockSchema
     from game.skaters.schemas import SkaterSchema
-    from game.timeouts.schemas import TimeoutSchema
+    from game.timeouts.models import Timeout
 
     from .types import BoutStateStr, BoutSubStateStr
 
@@ -40,8 +40,8 @@ class BoutSchema(ServerSchema):
     state: BoutStateStr
     sub_state: BoutSubStateStr
     teams: list[TeamSchema]
-    jams: list[SkipValidation[JamSchema]] = Field(exclude=True)
-    timeouts: list[SkipValidation[TimeoutSchema]] = Field(exclude=True)
+    jams: list[SkipValidation[Jam]] = Field(exclude=True)
+    timeouts: list[SkipValidation[Timeout]] = Field(exclude=True)
 
     @computed_field
     @property
