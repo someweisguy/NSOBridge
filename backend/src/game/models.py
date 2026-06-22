@@ -1,4 +1,4 @@
-"""Base models used by the game module."""
+"""Common protocol models implemented by the game logic."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ class TimeableModel(BaseSQLModel):
         """Start the timeable object.
 
         Args:
-            timestamp (datetime): The timestap at which to start the model.
+            timestamp (datetime): The timestamp at which to start the model.
 
         Raises:
             RuntimeError: if the timeable object is already running.

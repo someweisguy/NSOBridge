@@ -42,4 +42,12 @@ routers: Final[tuple[APIRouter, ...]] = (
 )
 
 
-__all__ = ('BaseBout', 'create_bout', 'routers', 'rules', 'Series', 'Team', 'WFTDA2025')
+__all__ = (
+    'BaseBout',
+    'create_bout',
+    'routers',
+    'rules',
+    'Series',
+    'Team',
+    'WFTDA2025',
+)
