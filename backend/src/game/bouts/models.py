@@ -13,7 +13,7 @@ from core.db import (
     CacheableSQLModel,
     CacheKey,
 )
-from game.jams.models import Jam, TeamJam
+from game.jams.models import TeamJam
 from game.models import Clock
 from game.skaters.models import Skater
 from game.timeouts.models import Timeout
@@ -28,6 +28,7 @@ from .schemas import BoutSchema
 from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol  # noqa: TC001
 
 if TYPE_CHECKING:
+    from game.jams.models import Jam
     from game.series.models import Series
 
     from .schemas import Ruleset

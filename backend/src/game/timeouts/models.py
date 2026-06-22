@@ -7,23 +7,16 @@ from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
 from core.db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
-from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel
-from sqlalchemy import ForeignKey, select
-from sqlalchemy.orm import (
-    Mapped,
-    MappedSQLExpression,
-    column_property,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 
 from .schemas import TimeoutSchema
 
 if TYPE_CHECKING:
     from core.db import CacheKey
-    from game.bouts.models import Team
+    from game.bouts.models import BaseBout, Team
     from game.jams.models import Jam
 
 
@@ -64,12 +57,6 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
         cascade=CASCADE_OTHER,
         foreign_keys=[_team_uuid],
         lazy='selectin',
-    )
-
-    _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name)
-        .where(BaseBout.uuid == bout_uuid)
-        .scalar_subquery()
     )
 
     __tablename__: str = 'timeouts'

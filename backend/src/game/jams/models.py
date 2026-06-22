@@ -10,7 +10,6 @@ from uuid import (
 )
 
 from core.db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
-from game.bouts.models import BaseBout
 from game.models import AbstractOneShotModel
 from sqlalchemy import (
     CheckConstraint,
@@ -36,7 +35,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from core.db import CacheKey
-    from game.bouts.models import Team
+    from game.bouts.models import BaseBout, Team
 
 
 class Jam(AbstractOneShotModel, CacheableSQLModel):
@@ -62,12 +61,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by='TeamJam.team_num',
-    )
-
-    _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name)
-        .where(BaseBout.uuid == bout_uuid)
-        .scalar_subquery()
     )
 
     __tablename__: str = 'jams'
@@ -245,7 +238,7 @@ class TeamJam(BaseSQLModel):
         back_populates='_team_jam',
         cascade=CASCADE_CHILD,
         lazy='selectin',
-        order_by=['trip_events.timestamp'],
+        order_by=[column('timestamp')],
     )
 
     jam_num: MappedSQLExpression[int] = column_property(

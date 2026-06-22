@@ -1,13 +1,18 @@
 """Pydantic Timeout schemas."""
 
+from __future__ import annotations
+
 from datetime import datetime, timedelta  # noqa: TC003
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from core.app import ServerSchema, timedelta_serializer
-from game.bouts.schemas import TeamSchema
-from game.jams.schemas import JamSchema
-from pydantic import Field, computed_field
+from pydantic import Field, SkipValidation, computed_field
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from game.bouts.models import Team
+    from game.jams.models import Jam
 
 
 class TimeoutSchema(ServerSchema):
@@ -16,8 +21,8 @@ class TimeoutSchema(ServerSchema):
     bout_uuid: UUID
     num: int
 
-    jam: JamSchema = Field(exclude=True)
-    team: TeamSchema | None = Field(exclude=True)
+    jam: SkipValidation[Jam] = Field(exclude=True)
+    team: SkipValidation[Team | None] = Field(exclude=True)
 
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
