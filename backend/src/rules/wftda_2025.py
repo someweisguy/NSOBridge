@@ -8,10 +8,8 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from core.exceptions import GameRulesError, GameStateError
 from game.bouts.models import BaseBout
-from game.jams.models import Jam
-from game.team_jams.models import TeamJam
+from game.jams.models import Jam, TeamJam, TripEvent
 from game.timeouts.models import Timeout
-from game.trip_events.models import TripEvent
 
 if TYPE_CHECKING:
     from game.teams.models import Team

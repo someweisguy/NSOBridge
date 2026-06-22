@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Final, override
 from uuid import UUID  # noqa: TC003
 
 from core.db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel
+from game.jams.models import TeamJam
 from game.skaters.models import Skater
-from game.team_jams.models import TeamJam
 from game.timeouts.models import Timeout
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import (

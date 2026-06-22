@@ -17,9 +17,8 @@ from .types import BoutStateStr, BoutSubStateStr  # noqa: TC001
 
 if TYPE_CHECKING:
     from core.db import BaseSQLModel, CacheKey
-    from game.jams.models import Jam
+    from game.jams.models import Jam, TeamJam
     from game.series.models import Series
-    from game.team_jams.models import TeamJam
     from game.teams.models import Team
     from game.timeouts.models import Timeout
     from rules.schemas import Ruleset
