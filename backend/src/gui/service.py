@@ -11,46 +11,16 @@ import core.app
 import core.db
 import core.server
 from fastapi import FastAPI
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QPainter, QPixmap
-from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from .qt import AppWindow
+from .types import AppWindow
+from .utils import get_svg_pixmap
 
 if TYPE_CHECKING:
+    from PySide6.QtGui import QPixmap
     from sqlalchemy.engine.url import URL
     from uvicorn import Server
-
-
-def get_svg_pixmap(path: Path | str) -> QPixmap:
-    """Get a Qt Pixmap of the desired .svg file.
-
-    Args:
-        path (Path | str): the pathname to the .svg file.
-
-    Raises:
-        ValueError: if the pathname is invalid.
-
-    Returns:
-        QPixmap: a Qt Pixmap of of the .svg file.
-
-    """
-    renderer = QSvgRenderer(str(path))
-    if not renderer.isValid():
-        raise ValueError('Invalid GUI icon path')
-
-    # Create the Qt pixmap
-    pixmap: QPixmap = QPixmap(QSize(64, 64))
-    pixmap.fill(Qt.GlobalColor.transparent)
-
-    # Paint the icon onto the pixmap
-    painter: QPainter = QPainter(pixmap)
-    renderer.render(painter)
-    painter.end()
-
-    return pixmap
 
 
 def run(
