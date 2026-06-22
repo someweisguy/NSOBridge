@@ -14,18 +14,6 @@ from .models import BaseSQLModel, CacheableSQLModel
 
 
 async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
-    """Yield a session which automatically commits.
-
-    This method is useful for FastAPI dependency injection.
-
-    Returns:
-        AsyncGenerator[AsyncEngine, None]: a generator which yields an AsyncSession
-
-    Yields:
-        Iterator[AsyncGenerator[AsyncEngine, None]]: an auto-committing
-        AsyncSession.
-
-    """
     async with session_factory() as session:
         yield session
 
