@@ -24,6 +24,11 @@ if TYPE_CHECKING:
 BOUTS_TAG = 'Bouts'
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
+RULESET_NAMES: Final[list[str]] = []
+"""A list of all the unique ruleset names in this application. 
+
+This value is lazily computed when it is initially queried.
+"""
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
@@ -32,6 +37,19 @@ router.add_api_route('', _get_bout, response_model=BoutSchema)
 @router.get('/ruleset')
 async def get_ruleset(bout: GetBout) -> Ruleset:
     return bout.ruleset
+
+
+@router.get('/allRulesetNames')
+async def get_all_rulesets() -> list[str]:
+    if len(RULESET_NAMES) == 0:
+        unique_ruleset_names: set[str] = set()
+        for subclass in BaseBout.__subclasses__():
+            if hasattr(subclass, 'ruleset_name') and isinstance(
+                subclass.ruleset_name, str
+            ):
+                unique_ruleset_names.add(subclass.ruleset_name)
+        RULESET_NAMES.extend(unique_ruleset_names)
+    return RULESET_NAMES
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])
