@@ -1,4 +1,4 @@
-"""Core application schemas."""
+"""Schemas used in the WebSocket submodule."""
 
 from __future__ import annotations
 

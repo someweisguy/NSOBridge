@@ -1,4 +1,4 @@
-"""Services for the WebSocket module including the sub-application and methods."""
+"""Services for the WebSocket module."""
 
 import asyncio
 import logging
