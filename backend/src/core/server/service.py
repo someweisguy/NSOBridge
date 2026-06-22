@@ -69,8 +69,9 @@ def get_default_route() -> str:
     """Get the default route of this device.
 
     This is the IP address that this server would serve on if the user allows the server
-    to run on all interfaces (0.0.0.0). This method doesn't actually transmit any data.
-    This is a known
+    to run on all interfaces (0.0.0.0).
+
+    This method doesn't actually transmit any data.
 
     Returns:
         str: the default route of this device.
