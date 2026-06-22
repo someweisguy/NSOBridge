@@ -1,10 +1,16 @@
 """Pydantic Series schemas."""
 
-from uuid import UUID
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from core.app import ServerSchema
-from game.bouts.schemas import BoutSchema
 from pydantic import Field, SkipValidation, computed_field
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from game.bouts.schemas import BoutSchema
 
 
 class SeriesSchema(ServerSchema):
