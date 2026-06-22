@@ -22,7 +22,7 @@ class TimeoutSchema(ServerSchema):
     num: int
 
     jam: SkipValidation[JamSchema] = Field(exclude=True)
-    team: SkipValidation[TeamSchema | None] = Field(exclude=True)
+    team: SkipValidation[TeamSchema] | None = Field(exclude=True)
 
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
