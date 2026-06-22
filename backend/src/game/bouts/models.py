@@ -24,9 +24,8 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from .ruleset import RulesetProtocol
 from .schemas import BoutSchema
-from .types import BoutStateStr, BoutSubStateStr  # noqa: TC001
+from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol  # noqa: TC001
 
 if TYPE_CHECKING:
     from game.series.models import Series

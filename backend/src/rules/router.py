@@ -12,7 +12,7 @@ from .schemas import Ruleset
 
 router: Final[APIRouter] = APIRouter(prefix='/bout')
 
-RULESET_NAMES: set[str] = set()
+RULESET_NAMES: Final[set[str]] = set()
 
 # Compute the ruleset names supported by the application
 for subclass in BaseBout.__subclasses__():
