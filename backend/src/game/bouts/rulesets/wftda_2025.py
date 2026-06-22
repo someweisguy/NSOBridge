@@ -30,7 +30,7 @@ class Bout(BaseBout):
     __mapper_args__: dict[str, Any] = {'polymorphic_identity': RULESET_NAME}
 
     @override
-    def init(self) -> None:
+    def setup(self) -> None:
         self.ruleset_name = 'WFTDA 2025'
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:

@@ -36,8 +36,11 @@ class RulesetProtocol:
     RULESET_NAME: str
 
     @abstractmethod
-    def init(self) -> None:
+    def setup(self) -> None:
         """Do Bout initialization.
+
+        Typically handles chores such as setting the correct number of initial timeouts
+        and official reviews, etc.
 
         Args:
             bout (Bout): the Bout to initialize.

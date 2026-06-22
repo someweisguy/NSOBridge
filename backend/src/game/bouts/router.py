@@ -75,7 +75,7 @@ async def create_bout(
         raise ValueError(
             f'Cannot create bout with unknown ruleset: {ruleset_name}'
         ) from e
-    bout.init()
+    bout.setup()
 
     # Add the Bout to the Series
     series.bouts.append(bout)
