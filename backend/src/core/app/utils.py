@@ -37,7 +37,7 @@ async def endpoint_profiling_middleware(
         Response: the endpoint response.
 
     """
-    threshold_milliseconds: float = 200
+    threshold_milliseconds: float = 500
     start_time: float = time.perf_counter()
     response: Response = await call_next(request)
     process_time: float = round((time.perf_counter() - start_time) * 1000, 3)
