@@ -1,16 +1,10 @@
 """Pydantic Series schemas."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from uuid import UUID
 
 from core.app import ServerSchema
+from game.bouts.models import BaseBout
 from pydantic import Field, SkipValidation, computed_field
-
-if TYPE_CHECKING:
-    from uuid import UUID
-
-    from game.bouts.models import BaseBout
 
 
 class SeriesSchema(ServerSchema):
@@ -26,3 +20,7 @@ class SeriesSchema(ServerSchema):
     def bout_uuids(self) -> list[UUID]:
         """Return a list of UUIDs for each bout in the series."""
         return [bout.uuid for bout in self.bouts]
+
+
+# TODO: is it possible to remove this line?
+SeriesSchema.model_rebuild()

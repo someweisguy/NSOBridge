@@ -21,6 +21,7 @@ class ServerSchema(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
         alias_generator=to_camel,
+        arbitrary_types_allowed=True,
         from_attributes=True,
         validate_by_name=True,
         serialize_by_alias=True,
