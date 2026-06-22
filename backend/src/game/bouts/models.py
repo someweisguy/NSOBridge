@@ -13,8 +13,8 @@ from core.db import (
     CacheableSQLModel,
     CacheKey,
 )
-from game.clocks.models import Clock
 from game.jams.models import Jam, TeamJam
+from game.models import Clock
 from game.skaters.models import Skater
 from game.timeouts.models import Timeout
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, column
