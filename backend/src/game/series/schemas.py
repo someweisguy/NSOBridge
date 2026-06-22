@@ -4,7 +4,7 @@ from uuid import UUID
 
 from core.app import ServerSchema
 from game.bouts.schemas import BoutSchema
-from pydantic import Field, computed_field
+from pydantic import Field, SkipValidation, computed_field
 
 
 class SeriesSchema(ServerSchema):
@@ -13,7 +13,7 @@ class SeriesSchema(ServerSchema):
     uuid: UUID
     name: str
     active_bout_uuid: UUID | None
-    bouts: list[BoutSchema] = Field(exclude=True)
+    bouts: list[SkipValidation[BoutSchema]] = Field(exclude=True)
 
     @computed_field
     @property
