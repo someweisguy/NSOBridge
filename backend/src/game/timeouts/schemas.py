@@ -11,8 +11,8 @@ from pydantic import Field, SkipValidation, computed_field
 if TYPE_CHECKING:
     from uuid import UUID
 
-    from game.bouts.models import Team
-    from game.jams.models import Jam
+    from game.bouts.schemas import TeamSchema
+    from game.jams.schemas import JamSchema
 
 
 class TimeoutSchema(ServerSchema):
@@ -21,8 +21,8 @@ class TimeoutSchema(ServerSchema):
     bout_uuid: UUID
     num: int
 
-    jam: SkipValidation[Jam] = Field(exclude=True)
-    team: SkipValidation[Team | None] = Field(exclude=True)
+    jam: SkipValidation[JamSchema] = Field(exclude=True)
+    team: SkipValidation[TeamSchema | None] = Field(exclude=True)
 
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
