@@ -23,8 +23,8 @@ from .schemas import TimeoutSchema
 
 if TYPE_CHECKING:
     from core.db import CacheKey
+    from game.bouts.models import Team
     from game.jams.models import Jam
-    from game.teams.models import Team
 
 
 class Timeout(AbstractOneShotModel, CacheableSQLModel):

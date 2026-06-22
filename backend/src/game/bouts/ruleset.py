@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from game.teams.models import Team
+    from game.bouts.models import Team
 
 
 class RulesetProtocol:

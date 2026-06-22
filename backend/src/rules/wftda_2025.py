@@ -12,7 +12,7 @@ from game.jams.models import Jam, TeamJam, TripEvent
 from game.timeouts.models import Timeout
 
 if TYPE_CHECKING:
-    from game.teams.models import Team
+    from game.bouts.models import Team
 
 
 @final

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     from core.db import CacheKey
-    from game.teams.models import Team
+    from game.bouts.models import Team
 
 
 class Skater(CacheableSQLModel):

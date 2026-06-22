@@ -10,7 +10,7 @@ from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
-from .models import BaseBout
+from .models import BaseBout, Team
 
 if TYPE_CHECKING:
     from sqlalchemy import Result, Select
@@ -39,3 +39,15 @@ async def _get_bout(
 
 
 GetBout: TypeAlias = Annotated[BaseBout, Depends(_get_bout)]
+
+
+async def _get_team(
+    bout: GetBout, team_num: Annotated[int, Query(alias='teamNum')]
+) -> Team:
+    try:
+        return bout.teams[team_num]
+    except KeyError as e:
+        raise ModelLookupError(f'Could not find Team ({bout=} {team_num=})') from e
+
+
+GetTeam: TypeAlias = Annotated[Team, Depends(_get_team)]

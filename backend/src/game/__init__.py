@@ -24,13 +24,12 @@ from typing import Final
 import rules
 from fastapi import APIRouter
 
-from .bouts.models import BaseBout
+from .bouts.models import BaseBout, Team
 from .bouts.router import create_bout, router as bout_router
 from .jams.router import router as jam_router
 from .series.models import Series
 from .series.router import router as series_router
 from .skaters.router import router as skater_router
-from .teams.models import Team
 from .timeouts.router import router as timeout_router
 
 routers: Final[tuple[APIRouter, ...]] = (

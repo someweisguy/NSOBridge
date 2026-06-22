@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from core.db import CacheKey
-    from game.teams.models import Team
+    from game.bouts.models import Team
 
 
 class Jam(AbstractOneShotModel, CacheableSQLModel):

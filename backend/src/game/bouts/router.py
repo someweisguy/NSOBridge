@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING, Annotated, Final, Sequence
 from core.app import APIResponse
 from core.db import GetAsyncSession
 from fastapi import APIRouter, Body, Query
+from game.bouts.dependencies import GetTeam
+from game.bouts.models import Team
 from game.series.dependencies import GetSeries
-from game.teams.dependencies import GetTeam
-from game.teams.models import Team
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 

@@ -5,8 +5,8 @@ from typing import Annotated
 from uuid import UUID
 
 from core.app import ServerSchema, timedelta_serializer
+from game.bouts.schemas import TeamSchema
 from game.jams.schemas import JamSchema
-from game.teams.schemas import TeamSchema
 from pydantic import Field, computed_field
 
 

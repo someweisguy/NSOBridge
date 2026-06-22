@@ -9,7 +9,7 @@ from uuid import UUID  # noqa: TC003
 from core.app import ServerSchema
 from game.clocks.schemas import ClockSchema  # noqa: TC002
 from game.jams.schemas import JamSchema  # noqa: TC002
-from game.teams.schemas import TeamSchema  # noqa: TC002
+from game.skaters.schemas import SkaterSchema  # noqa: TC002
 from game.timeouts.schemas import TimeoutSchema  # noqa: TC002
 from pydantic import Field, SkipValidation, computed_field
 
@@ -83,3 +83,18 @@ class BoutSchema(ServerSchema):
 
         """
         return len(self.timeouts)
+
+
+class TeamSchema(ServerSchema):
+    """Represent a Team as a JSON schema."""
+
+    name: str
+    league: str
+    mnemonic: str
+    num: int
+    bout_score: int
+    jam_score: int
+    timeouts_remaining: int
+    reviews_remaining: int
+    score_offset: int
+    skaters: list[SkaterSchema]
