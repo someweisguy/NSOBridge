@@ -1,4 +1,4 @@
-"""Qt windows for the GUI module."""
+"""Types (windows) for the GUI module."""
 
 import json
 from typing import Iterable, override

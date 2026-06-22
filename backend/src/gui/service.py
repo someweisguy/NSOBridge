@@ -1,4 +1,4 @@
-"""Service methods for the GUI module."""
+"""Business logic involved in running the GUI."""
 
 import asyncio
 import logging
