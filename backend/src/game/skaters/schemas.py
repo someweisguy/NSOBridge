@@ -1,7 +1,5 @@
 """Pydantic Skater schemas."""
 
-from __future__ import annotations
-
 from core.app import ServerSchema
 
 

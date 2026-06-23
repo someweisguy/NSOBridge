@@ -1,16 +1,29 @@
 """Pydantic Jam schemas."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from datetime import datetime
+from uuid import UUID
 
 from core.app import ServerSchema
 
-if TYPE_CHECKING:
-    from datetime import datetime
-    from uuid import UUID
+from .types import StopReasonStr
 
-    from .types import StopReasonStr
+
+class TripEventSchema(ServerSchema):
+    """Represent a TripEvent as a JSON schema."""
+
+    uuid: UUID
+    timestamp: datetime
+    lead: bool
+    lost: bool
+    passes: int | None
+    star_pass: bool
+
+
+class TeamJamSchema(ServerSchema):
+    """Represent a TeamJam as a JSON schema."""
+
+    team_num: int
+    events: list[TripEventSchema]
 
 
 class JamSchema(ServerSchema):
@@ -25,21 +38,3 @@ class JamSchema(ServerSchema):
     stop_reason: StopReasonStr | None
 
     team_jams: list[TeamJamSchema]
-
-
-class TeamJamSchema(ServerSchema):
-    """Represent a TeamJam as a JSON schema."""
-
-    team_num: int
-    events: list[TripEventSchema]
-
-
-class TripEventSchema(ServerSchema):
-    """Represent a TripEvent as a JSON schema."""
-
-    uuid: UUID
-    timestamp: datetime
-    lead: bool
-    lost: bool
-    passes: int | None
-    star_pass: bool
