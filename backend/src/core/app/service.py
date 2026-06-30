@@ -50,7 +50,8 @@ class APIResponse[T: Any](JSONResponse):
         if cache is not None:
             cache_data = [
                 CacheItemSchema(
-                    key=model.cache_key(), data=get_schema(model).model_validate(model)
+                    key=model.cache_key(),
+                    data=get_schema(type(model)).model_validate(model),
                 )
                 for model in cache
             ]
@@ -133,5 +134,7 @@ def get_schema(model: Any) -> Type[ServerSchema]:
     """
     schema: Type[ServerSchema] | None = _model_table.get(model, None)
     if schema is None:
-        raise ValueError(f'Found unregistered model: {model}')
+        raise ValueError(
+            f'Found unregistered model: {model}. Was the model passed by type?'
+        )
     return schema
