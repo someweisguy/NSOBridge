@@ -20,7 +20,3 @@ class SeriesSchema(ServerSchema):
     def bout_uuids(self) -> list[UUID]:
         """Return a list of UUIDs for each bout in the series."""
         return [bout.uuid for bout in self.bouts]
-
-
-# TODO: is it possible to remove this line?
-SeriesSchema.model_rebuild()

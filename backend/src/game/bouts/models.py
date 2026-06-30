@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import TYPE_CHECKING, Any, ClassVar, Final, final, override
+from typing import TYPE_CHECKING, Any, Final, final, override
 from uuid import UUID  # noqa: TC003  # noqa: TC003
 
 from core.db import (
@@ -31,16 +31,12 @@ if TYPE_CHECKING:
     from game.jams.models import Jam
     from game.series.models import Series
 
-    from .schemas import Ruleset
-
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
 class BaseBout(CacheableSQLModel, RulesetProtocol):
     """An abstract Bout without any associated ruleset."""
-
-    ruleset: ClassVar[Ruleset]
 
     _clock_uuid: Mapped[UUID] = mapped_column(
         ForeignKey('clocks.uuid', ondelete='RESTRICT')

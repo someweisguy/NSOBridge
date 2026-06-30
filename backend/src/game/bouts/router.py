@@ -35,12 +35,23 @@ router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 
 @router.get('/ruleset')
-async def get_ruleset(bout: GetBout) -> Ruleset:
-    return bout.ruleset
+async def get_ruleset(bout: GetBout) -> APIResponse:
+    # FIXME: this should not be hard-coded
+    return APIResponse(
+        Ruleset(
+            name='WFTDA 2025',
+            num_periods=2,
+            jam_duration=timedelta(minutes=2),
+            lineup_duration=timedelta(seconds=30),
+            points_per_trip=4,
+            num_timeouts=3,
+            num_reviews=3,
+        )
+    )
 
 
 @router.get('/allRulesetNames')
-async def get_all_rulesets() -> list[str]:
+async def get_all_rulesets() -> APIResponse:
     if len(RULESET_NAMES) == 0:
         unique_ruleset_names: set[str] = set()
         for subclass in BaseBout.__subclasses__():
@@ -49,7 +60,7 @@ async def get_all_rulesets() -> list[str]:
             ):
                 unique_ruleset_names.add(subclass.ruleset_name)
         RULESET_NAMES.extend(unique_ruleset_names)
-    return RULESET_NAMES
+    return APIResponse(RULESET_NAMES)
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])

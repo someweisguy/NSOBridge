@@ -3,21 +3,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Annotated
+from datetime import datetime, timedelta  # noqa: TC003
+from typing import Annotated
+from uuid import UUID  # noqa: TC003
 
 from core.app import ServerSchema, timedelta_serializer
+from game.jams.schemas import JamSchema  # noqa: TC002
+from game.schemas import ClockSchema  # noqa: TC002
+from game.skaters.schemas import SkaterSchema  # noqa: TC002
+from game.timeouts.schemas import TimeoutSchema  # noqa: TC002
 from pydantic import Field, SkipValidation, computed_field
 
-if TYPE_CHECKING:
-    from datetime import datetime, timedelta
-    from uuid import UUID
-
-    from game.jams.schemas import JamSchema
-    from game.schemas import ClockSchema
-    from game.skaters.schemas import SkaterSchema
-    from game.timeouts.schemas import TimeoutSchema
-
-    from .types import BoutStateStr, BoutSubStateStr
+from .types import BoutStateStr, BoutSubStateStr  # noqa: TC001
 
 
 @dataclass
@@ -119,3 +116,6 @@ class BoutSchema(ServerSchema):
 
         """
         return len(self.timeouts)
+
+
+BoutSchema.model_rebuild()

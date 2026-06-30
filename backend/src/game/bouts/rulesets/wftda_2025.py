@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from core.exceptions import GameRulesError, GameStateError
 from game.bouts.models import BaseBout
+from game.bouts.schemas import Ruleset
 from game.jams.models import Jam, TeamJam, TripEvent
 from game.timeouts.models import Timeout
 
@@ -28,6 +29,16 @@ class Bout(BaseBout):
     POINTS_PER_TRIP: int = 4
 
     __mapper_args__: dict[str, Any] = {'polymorphic_identity': RULESET_NAME}
+
+    ruleset = Ruleset(
+        name='WFTDA 2025',
+        num_periods=2,
+        jam_duration=timedelta(minutes=2),
+        lineup_duration=timedelta(seconds=30),
+        points_per_trip=4,
+        num_timeouts=3,
+        num_reviews=3,
+    )
 
     @override
     def setup(self) -> None:

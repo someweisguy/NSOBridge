@@ -1,13 +1,17 @@
 """Pydantic Timeout schemas."""
 
-from datetime import datetime, timedelta
-from typing import Annotated
-from uuid import UUID
+from __future__ import annotations
+
+from datetime import datetime, timedelta  # noqa: TC003
+from typing import TYPE_CHECKING, Annotated
+from uuid import UUID  # noqa: TC003
 
 from core.app import ServerSchema, timedelta_serializer
-from game.bouts.schemas import TeamSchema
-from game.jams.schemas import JamSchema
 from pydantic import Field, SkipValidation, computed_field
+
+if TYPE_CHECKING:
+    from game.bouts.schemas import TeamSchema
+    from game.jams.schemas import JamSchema
 
 
 class TimeoutSchema(ServerSchema):
