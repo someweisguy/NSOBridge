@@ -6,14 +6,17 @@ from datetime import datetime, timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, Annotated
 from uuid import UUID  # noqa: TC003
 
-from core.app import ServerSchema, timedelta_serializer
+from core.app import ServerSchema, register_model, timedelta_serializer
 from pydantic import Field, SkipValidation, computed_field
+
+from .models import Timeout
 
 if TYPE_CHECKING:
     from game.bouts.schemas import TeamSchema
     from game.jams.schemas import JamSchema
 
 
+@register_model(Timeout)
 class TimeoutSchema(ServerSchema):
     """Represent a Timeout as a JSON schema."""
 

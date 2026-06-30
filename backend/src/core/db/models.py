@@ -23,8 +23,6 @@ if TYPE_CHECKING:
     from sqlalchemy import Dialect
     from sqlalchemy.ext.asyncio import AsyncSession
 
-    from core.app import ServerSchema
-
     from .types import CacheKey
 
 
@@ -212,16 +210,6 @@ class CacheableSQLModel(BaseSQLModel):
 
         Returns:
             CacheKey: the unique cache key of this model.
-
-        """
-        ...
-
-    @abstractmethod
-    def serialize(self) -> ServerSchema:
-        """Serialize the model using the model's associated Pydantic schema.
-
-        Returns:
-            ServerSchema: the model's associated Pydantic schema.
 
         """
         ...

@@ -2,11 +2,14 @@
 
 from uuid import UUID
 
-from core.app import ServerSchema
+from core.app import ServerSchema, register_model
 from game.bouts.models import BaseBout
 from pydantic import Field, SkipValidation, computed_field
 
+from .models import Series
 
+
+@register_model(Series)
 class SeriesSchema(ServerSchema):
     """Represent a Series as a JSON schema."""
 

@@ -4,12 +4,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Annotated
 
-from core.app import ServerSchema, timedelta_serializer
+from core.app import ServerSchema, register_model, timedelta_serializer
+
+from .models import Clock
 
 if TYPE_CHECKING:
     from datetime import datetime, timedelta
 
 
+@register_model(Clock)
 class ClockSchema(ServerSchema):
     """Represent a Clock as a JSON schema."""
 

@@ -16,7 +16,7 @@ from sqlalchemy.orm.attributes import flag_dirty
 from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, _get_bout
 from .models import BaseBout
-from .schemas import BoutSchema, Ruleset
+from .schemas import BoutSchema, RulesetSchema
 
 if TYPE_CHECKING:
     from game.timeouts.models import Timeout
@@ -38,7 +38,7 @@ router.add_api_route('', _get_bout, response_model=BoutSchema)
 async def get_ruleset(bout: GetBout) -> APIResponse:
     # FIXME: this should not be hard-coded
     return APIResponse(
-        Ruleset(
+        RulesetSchema(
             name='WFTDA 2025',
             num_periods=2,
             jam_duration=timedelta(minutes=2),

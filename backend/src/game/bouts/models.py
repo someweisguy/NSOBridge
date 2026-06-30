@@ -24,7 +24,6 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from .schemas import BoutSchema
 from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol  # noqa: TC001
 
 if TYPE_CHECKING:
@@ -111,11 +110,6 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     @override
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.uuid)
-
-    @final
-    @override
-    def serialize(self) -> BoutSchema:
-        return BoutSchema.model_validate(self)
 
     @final
     @override

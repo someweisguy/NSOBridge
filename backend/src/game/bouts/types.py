@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, ClassVar, Literal
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from datetime import datetime
 
     from game.bouts.models import Team
-    from game.bouts.schemas import Ruleset
 
 
 # The various states that a Bout could be.
@@ -35,8 +34,6 @@ class RulesetProtocol:
     """Handles ruleset events."""
 
     RULESET_NAME: str
-
-    ruleset: ClassVar[Ruleset]
 
     @abstractmethod
     def setup(self) -> None:

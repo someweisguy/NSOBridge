@@ -9,7 +9,7 @@ from core.exceptions import ClientError
 from .constants import timedelta_serializer
 from .router import api_router, assets, pages_router
 from .schemas import ClientSchema, ServerSchema
-from .service import APIResponse, get_resource_path
+from .service import APIResponse, get_resource_path, register_model
 from .utils import (
     endpoint_profiling_middleware,
     generic_error_handler,
@@ -31,6 +31,7 @@ __all__ = (
     'endpoint_profiling_middleware',
     'get_resource_path',
     'pages_router',
+    'register_model',
     'timedelta_serializer',
     'ServerSchema',
 )

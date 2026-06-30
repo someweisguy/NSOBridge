@@ -7,7 +7,8 @@ from datetime import datetime, timedelta  # noqa: TC003
 from typing import Annotated
 from uuid import UUID  # noqa: TC003
 
-from core.app import ServerSchema, timedelta_serializer
+from core.app import ServerSchema, register_model, timedelta_serializer
+from game.bouts.models import BaseBout, Team
 from game.jams.schemas import JamSchema  # noqa: TC002
 from game.schemas import ClockSchema  # noqa: TC002
 from game.skaters.schemas import SkaterSchema  # noqa: TC002
@@ -25,7 +26,8 @@ class JamUri:
     jam_num: int
 
 
-class Ruleset(ServerSchema):
+# TODO: @register_model(Ruleset)
+class RulesetSchema(ServerSchema):
     """Represent a Ruleset as a JSON schema.
 
     The Ruleset differs from other schemas in this module in that it is only
@@ -42,6 +44,7 @@ class Ruleset(ServerSchema):
     num_reviews: int
 
 
+@register_model(Team)
 class TeamSchema(ServerSchema):
     """Represent a Team as a JSON schema."""
 
@@ -57,6 +60,7 @@ class TeamSchema(ServerSchema):
     skaters: list[SkaterSchema]
 
 
+@register_model(BaseBout)
 class BoutSchema(ServerSchema):
     """Represent a Bout as a JSON schema."""
 

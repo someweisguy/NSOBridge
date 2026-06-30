@@ -12,8 +12,6 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 
-from .schemas import TimeoutSchema
-
 if TYPE_CHECKING:
     from core.db import CacheKey
     from game.bouts.models import BaseBout, Team
@@ -87,10 +85,6 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     @override
     def cache_key(self) -> CacheKey:
         return (self.__tablename__, self.bout_uuid, self.num)
-
-    @override
-    def serialize(self) -> TimeoutSchema:
-        return TimeoutSchema.model_validate(self)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:

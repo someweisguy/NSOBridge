@@ -8,8 +8,6 @@ from core.db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
 from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .schemas import SeriesSchema
-
 if TYPE_CHECKING:
     from core.db import CacheKey
     from game.bouts.models import BaseBout
@@ -58,10 +56,6 @@ class Series(CacheableSQLModel):
     def cache_key(self) -> CacheKey:
         # Special case where updating one Series invalidates the cache for all Series
         return (self.__tablename__, self.uuid)
-
-    @override
-    def serialize(self) -> SeriesSchema:
-        return SeriesSchema.model_validate(self)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:

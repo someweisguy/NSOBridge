@@ -3,11 +3,13 @@
 from datetime import datetime
 from uuid import UUID
 
-from core.app import ServerSchema
+from core.app import ServerSchema, register_model
 
+from .models import Jam, TeamJam, TripEvent
 from .types import StopReasonStr
 
 
+@register_model(TripEvent)
 class TripEventSchema(ServerSchema):
     """Represent a TripEvent as a JSON schema."""
 
@@ -19,6 +21,7 @@ class TripEventSchema(ServerSchema):
     star_pass: bool
 
 
+@register_model(TeamJam)
 class TeamJamSchema(ServerSchema):
     """Represent a TeamJam as a JSON schema."""
 
@@ -26,6 +29,7 @@ class TeamJamSchema(ServerSchema):
     events: list[TripEventSchema]
 
 
+@register_model(Jam)
 class JamSchema(ServerSchema):
     """Represent a Jam as a JSON schema."""
 
