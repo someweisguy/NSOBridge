@@ -36,6 +36,7 @@ class RulesetProtocol:
     """Handles ruleset events."""
 
     ruleset: RulesetSchema
+    """The ruleset constants associated with this class."""
 
     @abstractmethod
     def setup(self) -> None:
