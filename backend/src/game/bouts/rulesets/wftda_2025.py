@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, final, override
 
 from core.exceptions import GameRulesError, GameStateError
-from game.bouts.models import BaseBout
+from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
 from game.bouts.schemas import RulesetSchema
 from game.jams.models import Jam, TeamJam, TripEvent
 from game.timeouts.models import Timeout
@@ -21,8 +21,6 @@ RULESET_NAME: str = 'WFTDA 2025'
 @final
 class Bout(BaseBout):
     """The mutator which describes the WFTDA 2025 ruleset."""
-
-    REQUIRED_NUM_TEAMS: int = 2  # TODO: remove this classvar
 
     __mapper_args__: dict[str, Any] = {'polymorphic_identity': RULESET_NAME}
 
@@ -118,8 +116,8 @@ class Bout(BaseBout):
         jam: Jam | None = self.get_upcoming_jam()
         if jam is None:
             raise NotImplementedError()  # TODO: push a new Jam if this is None
-        if len(jam.team_jams) != self.REQUIRED_NUM_TEAMS:
-            raise RuntimeError(f'each Jam requires {self.REQUIRED_NUM_TEAMS} TeamJams')
+        if len(jam.team_jams) != REQUIRED_NUM_TEAMS:
+            raise RuntimeError(f'each Jam requires {REQUIRED_NUM_TEAMS} TeamJams')
 
         logging.info(f'Starting {jam}')
 
