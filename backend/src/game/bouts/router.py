@@ -53,6 +53,7 @@ async def get_ruleset(bout: GetBout) -> APIResponse:
 @router.get('/allRulesetNames')
 async def get_all_rulesets() -> APIResponse:
     if len(RULESET_NAMES) == 0:
+        # FIXME: correctly get all the ruleset names here
         unique_ruleset_names: set[str] = set()
         for subclass in BaseBout.__subclasses__():
             if hasattr(subclass, 'ruleset_name') and isinstance(
