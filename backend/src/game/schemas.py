@@ -1,15 +1,11 @@
 """Shared schemas used within the game module."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Annotated
+from datetime import datetime, timedelta
+from typing import Annotated
 
 from core.app import ServerSchema, register_model, timedelta_serializer
 
 from .models import Clock
-
-if TYPE_CHECKING:
-    from datetime import datetime, timedelta
 
 
 @register_model(Clock)

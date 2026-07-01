@@ -1,21 +1,19 @@
 """Pydantic Bout schemas."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
-from datetime import datetime, timedelta  # noqa: TC003
+from datetime import datetime, timedelta
 from typing import Annotated
-from uuid import UUID  # noqa: TC003
+from uuid import UUID
 
 from core.app import ServerSchema, register_model, timedelta_serializer
 from game.bouts.models import BaseBout, Team
-from game.jams.schemas import JamSchema  # noqa: TC002
-from game.schemas import ClockSchema  # noqa: TC002
-from game.skaters.schemas import SkaterSchema  # noqa: TC002
-from game.timeouts.schemas import TimeoutSchema  # noqa: TC002
+from game.jams.schemas import JamSchema
+from game.schemas import ClockSchema
+from game.skaters.schemas import SkaterSchema
+from game.timeouts.schemas import TimeoutSchema
 from pydantic import Field, SkipValidation, computed_field
 
-from .types import BoutStateStr, BoutSubStateStr  # noqa: TC001
+from .types import BoutStateStr, BoutSubStateStr
 
 
 @dataclass

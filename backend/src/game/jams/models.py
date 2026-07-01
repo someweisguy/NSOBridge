@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, override
-from uuid import (
-    UUID,  # noqa: TC003  # noqa: TC003
-    uuid4,
-)
+from uuid import UUID, uuid4
 
 from core.db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.models import AbstractOneShotModel
