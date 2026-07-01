@@ -100,6 +100,9 @@ def get_resource_path(relative_path: str) -> Path:
 def register_model(model: Any) -> Callable:
     """Register a model to be associated with the decorated Pydantic schema.
 
+    This method also registers all the subclasses of the model, if the model implements
+    subclasses.
+
     Use as a decorator for Pydantic schemas to allow models to be dynamically
     serialized. This is needed because FastAPI doesn't natively know how to serialize
     models unless explicitly told how.
@@ -112,6 +115,8 @@ def register_model(model: Any) -> Callable:
 
     def _schema_decorator(cls: Type[ServerSchema]):
         _model_table[model] = cls
+        for subclass in model.__subclasses__():
+            _model_table[subclass] = cls
         return cls
 
     return _schema_decorator
@@ -119,6 +124,11 @@ def register_model(model: Any) -> Callable:
 
 def get_schema(model: Any) -> Type[ServerSchema]:
     """Get the schema registered to the desired model.
+
+    This method automatically checks if the base class of the model has been registered
+    to the model-schema lookup table. If it has, it associates the child class with its
+    parent's schema. This is used for different rulesets so that a single schema may be
+    associated with all ruleset class definitions.
 
     This method is the inverse of the `register model` decorator.
 
@@ -133,6 +143,15 @@ def get_schema(model: Any) -> Type[ServerSchema]:
 
     """
     schema: Type[ServerSchema] | None = _model_table.get(model, None)
+
+    # Dynamically add sub-classes to the lookup table
+    if schema is None and issubclass(model, tuple(_model_table.keys())):
+        for parent_class in model.__bases__:
+            schema = _model_table.get(parent_class, None)
+            if schema is not None:
+                _model_table[model] = schema
+                break
+
     if schema is None:
         raise ValueError(
             f'Found unregistered model: {model}. Was the model passed by type?'
