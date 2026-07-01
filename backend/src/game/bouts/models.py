@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003
+from datetime import datetime  # noqa: TC003 - Make SQLAlchemy happy
 from typing import TYPE_CHECKING, Any, Final, final, override
-from uuid import UUID  # noqa: TC003
+from uuid import UUID  # noqa: TC003 - Make SQLAlchemy happy
 
 from core.db import (
     CASCADE_CHILD,
