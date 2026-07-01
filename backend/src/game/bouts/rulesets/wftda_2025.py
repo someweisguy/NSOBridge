@@ -15,12 +15,12 @@ from game.timeouts.models import Timeout
 if TYPE_CHECKING:
     from game.bouts.models import Team
 
+RULESET_NAME: str = 'WFTDA 2025'
+
 
 @final
 class Bout(BaseBout):
     """The mutator which describes the WFTDA 2025 ruleset."""
-
-    RULESET_NAME: str = 'WFTDA 2025'
 
     REQUIRED_NUM_TEAMS: int = 2
     NUM_TIMEOUTS: int = 3
@@ -42,7 +42,6 @@ class Bout(BaseBout):
 
     @override
     def setup(self) -> None:
-        self.ruleset_name = 'WFTDA 2025'
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:
             team.timeouts_remaining = self.NUM_TIMEOUTS
