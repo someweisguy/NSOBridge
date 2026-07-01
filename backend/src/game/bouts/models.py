@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any, Final, final, override
-from uuid import UUID  # noqa: TC003  # noqa: TC003
+from uuid import UUID  # noqa: TC003
 
 from core.db import (
     CASCADE_CHILD,
@@ -24,7 +24,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol  # noqa: TC001
+from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol
 
 if TYPE_CHECKING:
     from game.jams.models import Jam
