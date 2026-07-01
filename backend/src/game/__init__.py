@@ -19,9 +19,13 @@ should be used by the core app as well as dedicated ruleset objects for initial 
 instantiation.
 """
 
+import importlib
+import pkgutil
 from typing import Final
 
 from fastapi import APIRouter
+
+from game.bouts import rulesets
 
 from .bouts.models import BaseBout, Team
 from .bouts.router import create_bout, router as bout_router
@@ -39,13 +43,16 @@ routers: Final[tuple[APIRouter, ...]] = (
     timeout_router,
 )
 
+# Dynamically import all rulesets to allow SQLAlchemy to initialize correctly
+for _, module_name, _ in pkgutil.iter_modules(
+    rulesets.__path__, f'{rulesets.__name__}.'
+):
+    importlib.import_module(module_name)
 
 __all__ = (
     'BaseBout',
     'create_bout',
     'routers',
-    'rules',
     'Series',
     'Team',
-    'WFTDA2025',
 )
