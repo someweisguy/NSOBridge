@@ -22,16 +22,12 @@ RULESET_NAME: str = 'WFTDA 2025'
 class Bout(BaseBout):
     """The mutator which describes the WFTDA 2025 ruleset."""
 
-    REQUIRED_NUM_TEAMS: int = 2
-    NUM_TIMEOUTS: int = 3
-    NUM_REVIEWS: int = 1
-    NUM_PERIODS: int = 2
-    POINTS_PER_TRIP: int = 4
+    REQUIRED_NUM_TEAMS: int = 2  # TODO: remove this classvar
 
     __mapper_args__: dict[str, Any] = {'polymorphic_identity': RULESET_NAME}
 
     ruleset = RulesetSchema(
-        name='WFTDA 2025',
+        name=RULESET_NAME,
         num_periods=2,
         jam_duration=timedelta(minutes=2),
         lineup_duration=timedelta(seconds=30),
@@ -44,8 +40,8 @@ class Bout(BaseBout):
     def setup(self) -> None:
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:
-            team.timeouts_remaining = self.NUM_TIMEOUTS
-            team.reviews_remaining = self.NUM_REVIEWS
+            team.timeouts_remaining = self.ruleset.num_timeouts
+            team.reviews_remaining = self.ruleset.num_reviews
         jam: Jam = Jam(0, 0, *[TeamJam(team) for team in self.teams])
         self.jams.append(jam)
 
@@ -54,13 +50,15 @@ class Bout(BaseBout):
         jam: Jam | None = self.get_upcoming_jam()
         if jam is None:
             raise GameStateError('There is no upcoming Jam in this period')
-        if jam.period == self.NUM_PERIODS:
-            raise GameRulesError(f'This Bout can only have {self.NUM_PERIODS} periods')
+        if jam.period == self.ruleset.num_periods:
+            raise GameRulesError(
+                f'This Bout can only have {self.ruleset.num_periods} periods'
+            )
 
         logging.info(f'Beginning P{jam.period} in {self}')
 
         # If this Period is not in overtime reset the Clock and Official Reviews
-        if jam.period < self.NUM_PERIODS:
+        if jam.period < self.ruleset.num_periods:
             self.clock.reset()
             for team in self.teams:
                 team.reviews_remaining = 1
@@ -83,7 +81,7 @@ class Bout(BaseBout):
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
         # Or calling end_period() after OT ends the Bout
-        if not self.is_running or self.jams[-1].period == self.NUM_PERIODS:
+        if not self.is_running or self.jams[-1].period == self.ruleset.num_periods:
             self.is_final = True
 
         if self.clock.is_running():
@@ -126,7 +124,7 @@ class Bout(BaseBout):
         logging.info(f'Starting {jam}')
 
         # Start the Clock if not in overtime
-        if jam.period < self.NUM_PERIODS and not self.clock.is_running():
+        if jam.period < self.ruleset.num_periods and not self.clock.is_running():
             self.clock.start(timestamp)
         jam.start(timestamp)
 
@@ -210,18 +208,18 @@ class Bout(BaseBout):
         logging.info(f'Adding {passes} passes to {team} in {self}')
 
         is_initial: bool = team_jam.get_num_trips() == 0
-        is_overtime: bool = jam.period >= self.NUM_PERIODS
+        is_overtime: bool = jam.period >= self.ruleset.num_periods
         if is_initial:
             logging.info(f'This is the initial pass for {team} in {self}')
 
         event: TripEvent = TripEvent(timestamp, passes=passes)
 
         # Automatically set lead on the first 4-point trip
-        if not jam.lead_is_declared() and passes == self.POINTS_PER_TRIP:
+        if not jam.lead_is_declared() and passes == self.ruleset.points_per_trip:
             self.add_lead(team, timestamp, True)
 
         # Lose eligibility on initial no-pass/no-penalty
-        if len(team_jam.events) == 0 and passes < self.POINTS_PER_TRIP:
+        if len(team_jam.events) == 0 and passes < self.ruleset.points_per_trip:
             self.add_lost(team, timestamp, True)
 
         # Jammer cannot earn points on the initial pass
