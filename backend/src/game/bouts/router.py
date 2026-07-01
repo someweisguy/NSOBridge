@@ -16,7 +16,7 @@ from sqlalchemy.orm.attributes import flag_dirty
 from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, _get_bout
 from .models import BaseBout
-from .schemas import BoutSchema, RulesetSchema
+from .schemas import BoutSchema
 
 if TYPE_CHECKING:
     from game.timeouts.models import Timeout
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 BOUTS_TAG = 'Bouts'
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
-RULESET_NAMES: Final[list[str]] = []
+ALL_RULESET_NAMES: Final[list[str]] = []
 """A list of all the unique ruleset names in this application. 
 
 This value is lazily computed when it is initially queried.
@@ -36,32 +36,19 @@ router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 @router.get('/ruleset')
 async def get_ruleset(bout: GetBout) -> APIResponse:
-    # FIXME: this should not be hard-coded
-    return APIResponse(
-        RulesetSchema(
-            name='WFTDA 2025',
-            num_periods=2,
-            jam_duration=timedelta(minutes=2),
-            lineup_duration=timedelta(seconds=30),
-            points_per_trip=4,
-            num_timeouts=3,
-            num_reviews=3,
-        )
-    )
+    return APIResponse(bout.ruleset)
 
 
 @router.get('/allRulesetNames')
 async def get_all_rulesets() -> APIResponse:
-    if len(RULESET_NAMES) == 0:
-        # FIXME: correctly get all the ruleset names here
+    # Don't query the database; all possible ruleset names should be fetched, not just
+    # the rulesets that are persisted in the database.
+    if len(ALL_RULESET_NAMES) == 0:
         unique_ruleset_names: set[str] = set()
         for subclass in BaseBout.__subclasses__():
-            if hasattr(subclass, 'ruleset_name') and isinstance(
-                subclass.ruleset_name, str
-            ):
-                unique_ruleset_names.add(subclass.ruleset_name)
-        RULESET_NAMES.extend(unique_ruleset_names)
-    return APIResponse(RULESET_NAMES)
+            unique_ruleset_names.add(subclass.ruleset.name)
+        ALL_RULESET_NAMES.extend(unique_ruleset_names)
+    return APIResponse(ALL_RULESET_NAMES)
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])

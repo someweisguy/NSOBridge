@@ -30,7 +30,6 @@ if TYPE_CHECKING:
     from game.jams.models import Jam
     from game.series.models import Series
 
-
 REQUIRED_NUM_TEAMS: Final[int] = 2
 
 
@@ -91,6 +90,12 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
 
         """
         return f'[Bout UUID: {self.uuid}]'
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        """Ensure all subclasses implement a ruleset."""
+        super().__init_subclass__(**kwargs)
+        if 'ruleset' not in cls.__dict__:
+            raise RuntimeError('Concrete Bout classes must define a ruleset.')
 
     def __init__(self, ruleset_name: str, *teams: Team) -> None:
         """Instantiate a Bout.
