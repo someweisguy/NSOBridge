@@ -76,7 +76,7 @@ async def create_bout(
         )
 
     home_name, away_name, *_ = team_names
-    bout: BaseBout = BaseBout(ruleset_name, Team(home_name), Team(away_name))
+    bout: BaseBout = BaseBout(ruleset_name, Team(home_name, 0), Team(away_name, 1))
     bout.series_uuid = series.uuid
     session.add(bout)
 

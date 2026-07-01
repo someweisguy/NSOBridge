@@ -319,14 +319,15 @@ class Team(BaseSQLModel):
     __tablename__: str = 'teams'
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, num: int) -> None:
         """Initialize a Team.
 
         Args:
             name (str): the name of this Team.
+            num (int): the unique team number of the team.
 
         """
-        super().__init__(name=name)
+        super().__init__(name=name, num=num)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
