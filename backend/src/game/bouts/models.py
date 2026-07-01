@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from game.series.models import Series
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
+"""The minimum number of teams required to play a Bout."""
 
 
 class BaseBout(CacheableSQLModel, RulesetProtocol):
