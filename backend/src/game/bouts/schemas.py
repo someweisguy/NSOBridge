@@ -7,10 +7,10 @@ from uuid import UUID
 
 from core.app import ServerSchema, register_model, timedelta_serializer
 from game.bouts.models import BaseBout, Team
-from game.jams.schemas import JamSchema
+from game.jams.models import Jam
 from game.schemas import ClockSchema
 from game.skaters.schemas import SkaterSchema
-from game.timeouts.schemas import TimeoutSchema
+from game.timeouts.models import Timeout
 from pydantic import Field, SkipValidation, computed_field
 
 from .types import BoutStateStr, BoutSubStateStr
@@ -71,8 +71,8 @@ class BoutSchema(ServerSchema):
     state: BoutStateStr
     sub_state: BoutSubStateStr
     teams: list[TeamSchema]
-    jams: list[SkipValidation[JamSchema]] = Field(exclude=True)
-    timeouts: list[SkipValidation[TimeoutSchema]] = Field(exclude=True)
+    jams: Annotated[list[Jam], SkipValidation] = Field(exclude=True)
+    timeouts: Annotated[list[Timeout], SkipValidation] = Field(exclude=True)
 
     @computed_field
     @property
@@ -118,6 +118,3 @@ class BoutSchema(ServerSchema):
 
         """
         return len(self.timeouts)
-
-
-BoutSchema.model_rebuild()
