@@ -8,7 +8,7 @@ from core.app import APIResponse
 from core.db import GetAsyncSession
 from fastapi import APIRouter, Body, Query
 from game.bouts.dependencies import GetTeam
-from game.bouts.models import Team
+from game.bouts.models import REQUIRED_NUM_TEAMS, Team
 from game.series.dependencies import GetSeries
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
@@ -22,7 +22,6 @@ if TYPE_CHECKING:
     from game.timeouts.models import Timeout
 
 BOUTS_TAG = 'Bouts'
-REQUIRED_NUM_TEAMS: Final[int] = 2
 
 ALL_RULESET_NAMES: Final[list[str]] = []
 """A list of all the unique ruleset names in this application. 
@@ -36,11 +35,13 @@ router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 @router.get('/ruleset')
 async def get_ruleset(bout: GetBout) -> APIResponse:
+    """Get the ruleset associated with a specific Bout."""
     return APIResponse(bout.ruleset)
 
 
 @router.get('/allRulesetNames')
-async def get_all_rulesets() -> APIResponse:
+async def get_all_ruleset_names() -> APIResponse:
+    """Get all the ruleset names supported by the application."""
     # Don't query the database; all possible ruleset names should be fetched, not just
     # the rulesets that are persisted in the database.
     if len(ALL_RULESET_NAMES) == 0:
@@ -67,20 +68,22 @@ async def create_bout(
     ruleset_name: Annotated[str, Query(alias='rulesetName')],
     team_names: Annotated[list[str] | None, Query(alias='teamName')] = None,
 ) -> APIResponse:
+    """Create a Bout and initialize it."""
+    # Ensure that the team names are properly initialized
     if team_names is None:
         team_names = list(random.choice(RANDOM_TEAM_NAMES))  # noqa: S311
-
     if len(team_names) < REQUIRED_NUM_TEAMS:
         raise ValueError(
             f'At least {REQUIRED_NUM_TEAMS} team are needed to create a Bout.'
         )
-
     home_name, away_name, *_ = team_names
+
+    # Create the Bout
     bout: BaseBout = BaseBout(ruleset_name, Team(home_name, 0), Team(away_name, 1))
     bout.series_uuid = series.uuid
     session.add(bout)
 
-    # Expunge and merge the Bout to allow the subclass to call init()
+    # Expunge and merge the Bout to allow the subclass to call setup()
     # It's a weird hack, but it appears to be the only way to allow the object to be
     # loaded as the correct subclass.
     try:
