@@ -4,38 +4,38 @@ import asyncio
 import logging
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, Iterable
+from typing import Final, Iterable
 
-import core
+import core.app
+import core.server
+import core.updates
+import core.users
+import core.ws
 import game
-import rules
-import update
-import user
-from core import APIResponse, endpoint_profiling_middleware
-from db import DatabaseEngine
+import game.bouts.rulesets
+from core.app import APIResponse, endpoint_profiling_middleware
+from core.db import create_tables, get_database_url, session_factory
+from core.updates import GithubReleaseSchema
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from game import Series, create_bout
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
-from update import GithubReleaseSchema
+from sqlalchemy.engine.url import URL
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from uvicorn import Server
 from websockets import CloseCode
 
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-
-
 APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 2, 3)
-CONFIG_FILE_NAME: Path = core.get_resource_path('./config.ini')
-LOG_DIR_NAME: Path = core.get_resource_path('./logs')
+CONFIG_FILE_NAME: Path = core.app.get_resource_path('./config.ini')
+LOG_DIR_NAME: Path = core.app.get_resource_path('./logs')
 API_PREFIX: str = '/api'
 
-RULESET_NAME = 'WFTDA 2025'
+DEFAULT_BOUT_RULESET_NAME = 'WFTDA 2025'
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
+async def lifespan(app: FastAPI):
     """Handle the app setup and teardown.
 
     Args:
@@ -43,47 +43,20 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
 
     """
     logging.info(f'App started{" in debug mode" if app.debug else ""}')
-    logging.debug(f'{app.extra=}')
 
     # Load the API and exception handlers
-    for e, handler in core.error_handlers.items():
+    for e, handler in core.app.error_handlers.items():
         app.add_exception_handler(e, handler)
-    for router in [core.api_router, *game.routers, *user.routers, rules.router]:
+    for router in [core.app.api_router, *core.users.routers, *game.routers]:
         app.include_router(router, prefix=API_PREFIX)
-    app.mount('/assets', core.assets)
-    app.mount('/ws', core.ws)
+    app.mount('/assets', core.app.assets)
+    app.mount('/ws', core.ws.app)
 
     # Load the pages router without a path prefix
-    app.include_router(core.pages_router)
-
-    # Connect to the desired database
-
-    db_pathname: str | None = app.extra.get('db_pathname', None)
-    if db_pathname is None:
-        logging.error('No database pathname was found')
-        db_pathname = ''
-    if not db_pathname:
-        logging.warning('Connecting to in-memory database')
-    else:
-        logging.info(f'Connecting to database: {db_pathname}')
-        try:
-            DatabaseEngine.create_engine(db_pathname)
-        except ValueError:
-            logging.critical('Database pathname is invalid')
-            return
-    logging.debug('Creating database schema')
-    engine: DatabaseEngine = DatabaseEngine.get_engine()
-    try:
-        await engine.create_all()
-    except Exception as e:
-        logging.critical(e)
-        raise e
+    app.include_router(core.app.pages_router)
 
     # Create a Bout model if one does not already exist
     logging.debug('Checking database for model data')
-    session_factory: async_sessionmaker[AsyncSession] = (
-        engine.get_async_session_factory()
-    )
     async with session_factory() as session:
         try:
             statement: Select[tuple[Series]] = select(Series)
@@ -100,7 +73,9 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
 
                 # Create the initial Bout using the API and requery it
                 await session.refresh(series)
-                await create_bout(session, series, RULESET_NAME, ['Home', 'Away'])
+                await create_bout(
+                    session, series, DEFAULT_BOUT_RULESET_NAME, ['Home', 'Away']
+                )
             except Exception as e:
                 logging.critical(e)
                 raise e
@@ -118,12 +93,11 @@ async def lifespan(app: FastAPI):  # noqa: PLR0915, C901 # FIXME
     logging.debug('App lifespan has resumed execution')
 
     logging.info('Disconnecting all WebSockets')
-    await core.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
+    await core.ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
     logging.debug('WebSockets disconnected')
 
 
 app: Final[FastAPI] = FastAPI(
-    db_pathname='',  # Require default empty string
     default_response_class=APIResponse,
     lifespan=lifespan,
     title='NSO Bridge',
@@ -163,7 +137,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-f',
-        type=str,
+        type=str.lstrip,
         help='The database file to use for storing game data. If no file is provided, '
         'an in-memory database will be used',
         default='',
@@ -196,25 +170,20 @@ if __name__ == '__main__':
         dest='use_gui',
     )
 
-    args: Final[Namespace] = parser.parse_args()
-
     # Import the command line arguments
+    args: Final[Namespace] = parser.parse_args()
     app.debug = args.debug
-    app.extra['db_pathname'] = args.db_pathname
-    app.extra['host'] = args.host
-    app.extra['port'] = args.port
 
     # Configure logging
-    silent_logging: bool = args.silent
-    log_level: int = logging.DEBUG if app.debug else logging.INFO
-    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=silent_logging)
+    log_level: int = logging.DEBUG if args.debug else logging.INFO
+    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=args.silent)
 
     # Check for new releases in the Github releases page
     if args.check_for_releases:
         logging.info('Checking for new releases')
         try:
-            data: Iterable = update.fetch_release_data()
-            release: GithubReleaseSchema = update.parse_latest_release(data)
+            data: Iterable = core.updates.fetch_release_data()
+            release: GithubReleaseSchema = core.updates.parse_latest_release(data)
 
             latest_version: VersionInfo = VersionInfo.parse(release.tag_name)
             current_version: VersionInfo = VersionInfo.parse(app.version)
@@ -230,16 +199,33 @@ if __name__ == '__main__':
         logging.info('Skipping release check')
 
     # Configure debugging
-    if app.debug:
+    if args.debug:
         # Add a debug endpoint profile middleware - looks funky but it works!
         app.middleware('http')(endpoint_profiling_middleware)
 
     # Run the application
     try:
         if args.use_gui:
-            gui.run(app, auto_hide=False)
+            gui.run(app, args.db_pathname, args.host, args.port, auto_hide=False)
         else:
-            server: Server = core.get_server(app)
+            # Connect to the database
+            if not args.db_pathname:
+                logging.warning('Connecting to in-memory database')
+            else:
+                logging.info(f'Connecting to database: {args.db_pathname}')
+                try:
+                    url: URL = get_database_url(args.db_pathname)
+                    async_engine: AsyncEngine = create_async_engine(url)
+                    asyncio.run(create_tables(async_engine))
+                    session_factory.configure(bind=async_engine)
+                except ValueError as e:
+                    logging.critical('Database pathname is invalid')
+                    raise e
+                except Exception as e:
+                    logging.critical(e)
+                    raise e
+
+            server: Server = core.server.get_server(app, args.host, args.port)
             asyncio.run(server.serve())
             logging.debug('Asyncio loop has closed')
     except KeyboardInterrupt:
@@ -247,4 +233,4 @@ if __name__ == '__main__':
     finally:
         logging.info('Program terminated')
         logging.shutdown()
-        core.shutdown()
+        core.server.shutdown()

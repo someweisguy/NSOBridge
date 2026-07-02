@@ -1,9 +1,16 @@
 # Custom Dictionary Words
 autodocs
+cacheables
+Cristian
+getpid
 ondelete
+pixmap
 selectin
 sessionmaker
+SOCK_DGRAM
+someweisguy
 tabler
+Timeable
 transferrables
 WFTDA
 wght

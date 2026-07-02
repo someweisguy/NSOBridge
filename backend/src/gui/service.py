@@ -1,79 +1,79 @@
-"""Service methods for the GUI module."""
+"""Business logic involved in running the GUI."""
 
+import asyncio
 import logging
 from pathlib import Path
 from signal import SIGTERM
 from threading import Thread
 from typing import TYPE_CHECKING
 
-import core
+import core.app
+import core.db
+import core.server
 from fastapi import FastAPI
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QPainter, QPixmap
-from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication
+from sqlalchemy.ext.asyncio import create_async_engine
 
-from .qt import AppWindow
+from .types import AppWindow
+from .utils import get_svg_pixmap
 
 if TYPE_CHECKING:
+    from PySide6.QtGui import QPixmap
+    from sqlalchemy.engine.url import URL
     from uvicorn import Server
 
 
-def get_svg_pixmap(path: Path | str) -> QPixmap:
-    """Get a Qt Pixmap of the desired .svg file.
-
-    Args:
-        path (Path | str): the pathname to the .svg file.
-
-    Raises:
-        ValueError: if the pathname is invalid.
-
-    Returns:
-        QPixmap: a Qt Pixmap of of the .svg file.
-
-    """
-    renderer = QSvgRenderer(str(path))
-    if not renderer.isValid():
-        raise ValueError('Invalid GUI icon path')
-
-    # Create the Qt pixmap
-    pixmap: QPixmap = QPixmap(QSize(64, 64))
-    pixmap.fill(Qt.GlobalColor.transparent)
-
-    # Paint the icon onto the pixmap
-    painter: QPainter = QPainter(pixmap)
-    renderer.render(painter)
-    painter.end()
-
-    return pixmap
-
-
-def run(app: FastAPI, *, auto_hide: bool) -> None:
+def run(
+    app: FastAPI,
+    db_pathname: str | Path,
+    host: str = '0.0.0.0',
+    port: int = 8000,
+    auto_hide: bool = False,
+) -> None:
     """Run the app until the GUI is closed.
 
     Args:
         app (FastAPI): the FastAPI app to pass to the GUI.
+        db_pathname (str): the initial database to which to connect.
+        host (str): The interface on which to host the server. Defaults to '0.0.0.0'.
+        port (int): The port on which to host the server. Defaults to 8000.
         auto_hide (bool): True to automatically hide the GUI on app startup.
 
     """
     gui = QApplication()
     gui.setApplicationName(app.title)
 
-    icon_path: Path = core.get_resource_path('public') / 'skate.svg'
+    # Render the application icon
+    icon_path: Path = core.app.get_resource_path('public') / 'skate.svg'
     icon: QPixmap = get_svg_pixmap(icon_path)
     gui.setWindowIcon(icon)
 
-    window = AppWindow(app, icon)
+    # Render the application window
+    window = AppWindow(app, host, port, icon)
     if not auto_hide:
         window.show()
     else:
         window.show_help_toast()
 
+    # Load the default database
+    try:
+        url: URL = core.db.get_database_url(db_pathname)
+        async_engine = create_async_engine(url)
+        asyncio.run(core.db.create_tables(async_engine))
+        core.db.session_factory.configure(bind=async_engine)
+    except ValueError as e:
+        logging.critical('Database pathname is invalid')
+        raise e
+    except Exception as e:
+        logging.critical(e)
+        raise e
+
     # Configure and start the server on a new thread
-    uvicorn: Server = core.get_server(app)
+    uvicorn: Server = core.server.get_server(app, host, port)
     uvicorn_thread: Thread = Thread(name='uvicorn', target=uvicorn.run)
     uvicorn_thread.start()
 
+    # Run the GUI
     gui.exec()
     logging.info('The GUI has been closed')
 

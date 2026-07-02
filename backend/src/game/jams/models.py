@@ -2,13 +2,21 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, override
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
-from game.bouts.models import BaseBout
+from core.db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.models import AbstractOneShotModel
-from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, select
+from sqlalchemy import (
+    CheckConstraint,
+    Constraint,
+    ForeignKey,
+    UniqueConstraint,
+    column,
+    select,
+    table,
+)
 from sqlalchemy.orm import (
     Mapped,
     MappedSQLExpression,
@@ -17,15 +25,13 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from .schemas import JamSchema
 from .types import StopReasonStr  # noqa: TC001
 
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from core import CacheKey
-    from game.team_jams.models import TeamJam
-    from game.teams.models import Team
+    from core.db import CacheKey
+    from game.bouts.models import BaseBout, Team
 
 
 class Jam(AbstractOneShotModel, CacheableSQLModel):
@@ -51,12 +57,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by='TeamJam.team_num',
-    )
-
-    _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name)
-        .where(BaseBout.uuid == bout_uuid)
-        .scalar_subquery()
     )
 
     __tablename__: str = 'jams'
@@ -92,12 +92,8 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
         return (self.__tablename__, self.bout_uuid, self.period, self.num)
 
     @override
-    def serialize(self) -> JamSchema:
-        return JamSchema.model_validate(self)
-
-    @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs._bout,)
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self._bout,)
 
     def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Jam.
@@ -199,3 +195,188 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
         """
         ...
+
+
+class TeamJam(BaseSQLModel):
+    """Represent a TeamJam in a Jam.
+
+    A TeamJam is a representation of a specific Team in a given Jam. Since each Jam has
+    two Teams competing against each other, each Jam model should have two TeamJam
+    models.
+
+    TeamJams can be used to represent jammer trips and the lineup roster for each Team
+    in a Jam.
+
+    """
+
+    _jam_uuid: Mapped[UUID | None] = mapped_column(
+        ForeignKey('jams.uuid'), nullable=False
+    )
+    team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
+
+    _team: Mapped[Team] = relationship(
+        back_populates='team_jams',
+        cascade=CASCADE_OTHER,
+        lazy='selectin',
+        foreign_keys=[team_uuid],
+    )
+    jam: Mapped[Jam] = relationship(
+        back_populates='team_jams',
+        cascade=CASCADE_OTHER,
+        foreign_keys=[_jam_uuid],
+        lazy='selectin',
+    )
+    events: Mapped[list[TripEvent]] = relationship(
+        back_populates='_team_jam',
+        cascade=CASCADE_CHILD,
+        lazy='selectin',
+        order_by=[column('timestamp')],
+    )
+
+    jam_num: MappedSQLExpression[int] = column_property(
+        select(Jam.num).where(Jam.uuid == _jam_uuid).scalar_subquery()
+    )
+    period_num: MappedSQLExpression[int] = column_property(
+        select(Jam.period).where(Jam.uuid == _jam_uuid).scalar_subquery()
+    )
+    team_num: MappedSQLExpression[int] = column_property(
+        select(table('teams', column('num')))
+        .where(column('uuid') == team_uuid)
+        .scalar_subquery()
+    )
+
+    __tablename__: str = 'team_jams'
+    __mapper_args__: dict[str, Any] = {
+        'confirm_deleted_rows': False,  # Make best effort to delete orphaned rows
+    }
+
+    def __init__(self, team: Team) -> None:
+        """Initialize a TeamJam.
+
+        Args:
+            team (BaseTeam): the Team to which this TeamJam belongs.
+            jam (BaseJam): the Jam to which this TeamJam belongs.
+
+        Raises:
+            ValueError: if the Team and Jam provided are not in the same Bout.
+
+        """
+        super().__init__(_team=team)
+
+    @override
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self._team, self.jam)
+
+    def get_team(self) -> Team:
+        """Get the Team that owns this TeamJam.
+
+        Returns:
+            BaseTeam: the Team that owns this TeamJam.
+
+        """
+        return self._team
+
+    def get_num_trips(self) -> int:
+        """Get the number of trips that this TeamJam's Jammer has completed.
+
+        Returns:
+            int: the number of trips completed.
+
+        """
+        return sum([event.passes is not None for event in self.events])
+
+
+class TripEvent(BaseSQLModel):
+    """Represent a TripEvent in a TeamJam.
+
+    A TripEvent represents an event that takes place during a jammer's Trip in a Jam. It
+    should be noticed that there is a subtle distinction between a trip and a TripEvent.
+    In the WFTDA 2025 ruleset, a trip is when a jammer gains position ahead of the pack.
+    A TripEvent is any remarkable event that may occur during a trip, including the
+    completion of the trip.
+
+    Events that may occur during a trip include completing a star pass or losing lead
+    eligibility.
+    """
+
+    team_jam_uuid: Mapped[UUID | None] = mapped_column(
+        ForeignKey('team_jams.uuid'), nullable=False
+    )
+
+    timestamp: Mapped[datetime] = mapped_column()
+    lead: Mapped[bool] = mapped_column(default=False)
+    lost: Mapped[bool] = mapped_column(default=False)
+    passes: Mapped[int | None] = mapped_column(default=None)
+    star_pass: Mapped[bool] = mapped_column(default=False)
+
+    _team_jam: Mapped[TeamJam] = relationship(
+        back_populates='events',
+        cascade=CASCADE_OTHER,
+        lazy='selectin',
+        foreign_keys=[team_jam_uuid],
+    )
+
+    __tablename__: str = 'trip_events'
+    __table_args__: tuple[Constraint, ...] = (
+        CheckConstraint('passes = 0 OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
+    )
+
+    def __init__(
+        self,
+        timestamp: datetime,
+        *,
+        lead: bool = False,
+        lost: bool = False,
+        passes: int | None = None,
+        star_pass: bool = False,
+    ) -> None:
+        """Initialize a TripEvent.
+
+        Args:
+            timestamp (datetime): the timestamp of the TripEvent.
+            lead (bool, optional): True if lead was assessed after this TripEvent.
+            Defaults to False.
+            lost (bool, optional): True if lead eligibility was lost after this
+            TripEvent. Defaults to False.
+            passes (int | None, optional): the number of legal passes that were earned
+            during this TripEvent. Setting this value to an integer is interpreted as a
+            complete trip. If a trip has not been completed, this value should be set to
+            None. Defaults to None.
+            star_pass (bool, optional): True if a legal star pass was completed after
+            this TripEvent. Defaults to False.
+
+        """
+        super().__init__(
+            _team_jam=None,
+            uuid=uuid4(),  # Required when adding a new TripEvent
+            timestamp=timestamp,
+            lead=lead,
+            lost=lost,
+            passes=passes,
+            star_pass=star_pass,
+        )
+
+    @override
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self._team_jam,)
+
+    def get_team_jam(self) -> TeamJam:
+        """Get the TeamJam to which this TripEvent belongs.
+
+        Returns:
+            TeamJam: the TeamJam to which this TripEvent belongs.
+
+        """
+        return self._team_jam
+
+    def is_empty(self) -> bool:
+        """Return True if this TripEvent is empty.
+
+        A TripEvent is empty if it does not contain any meaningful data. Typically an
+        empty TripEvent should be pruned from the database.
+
+        Returns:
+            bool: if the TripEvent is empty.
+
+        """
+        return self.passes is None and not any([self.lead, self.lost, self.star_pass])

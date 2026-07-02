@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, Annotated, Final, Literal
 
-from core import APIResponse
+from core.app import APIResponse
 from fastapi import APIRouter, Body
 
 from .dependencies import GetTimeout, _get_timeout
@@ -26,7 +26,7 @@ async def set_type(
 ) -> APIResponse:
     """Set the type of the specified Timeout."""
     timeout.is_review = timeout_type == 'review'
-    return APIResponse(None, await timeout.get_updates())
+    return APIResponse(None, timeout.get_updates())
 
 
 @router.post('/team', tags=[TIMEOUTS_TAG])
@@ -36,7 +36,7 @@ async def set_team(
     """Set the calling Team of the specified Timeout."""
     bout: BaseBout = timeout.get_bout()
     timeout.set_team(bout.teams[team_num] if team_num is not None else None)
-    return APIResponse(None, await timeout.get_updates())
+    return APIResponse(None, timeout.get_updates())
 
 
 @router.post('/retained', tags=[TIMEOUTS_TAG])
@@ -45,7 +45,7 @@ async def set_retained(
 ) -> APIResponse:
     """Set whether or not the Timeout is retained."""
     timeout.retained = retained
-    return APIResponse(None, await timeout.get_updates())
+    return APIResponse(None, timeout.get_updates())
 
 
 @router.put('/details', tags=[TIMEOUTS_TAG])
@@ -54,7 +54,7 @@ async def set_details(
 ) -> APIResponse:
     """Add details about the specified Timeout."""
     timeout.details = details
-    return APIResponse(None, await timeout.get_updates())
+    return APIResponse(None, timeout.get_updates())
 
 
 @router.put('/result', tags=[TIMEOUTS_TAG])
@@ -63,4 +63,4 @@ async def set_result(
 ) -> APIResponse:
     """Add results about the specified Timeout."""
     timeout.result = result
-    return APIResponse(None, await timeout.get_updates())
+    return APIResponse(None, timeout.get_updates())

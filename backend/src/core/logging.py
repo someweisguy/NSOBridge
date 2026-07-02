@@ -1,4 +1,8 @@
-"""Application log handling."""
+"""Application log handling.
+
+Allows for logging to file as well as logging to a console, with or without console
+colors.
+"""
 
 from __future__ import annotations
 

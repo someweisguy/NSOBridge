@@ -4,12 +4,12 @@ import random
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
-from core import APIResponse
-from db import GetAsyncSession
+from core.app import APIResponse
+from core.db import GetAsyncSession
 from fastapi import APIRouter, Body, Query
+from game.bouts.dependencies import GetTeam
+from game.bouts.models import REQUIRED_NUM_TEAMS, Team
 from game.series.dependencies import GetSeries
-from game.teams.dependencies import GetTeam
-from game.teams.models import Team
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
@@ -22,11 +22,34 @@ if TYPE_CHECKING:
     from game.timeouts.models import Timeout
 
 BOUTS_TAG = 'Bouts'
-REQUIRED_NUM_TEAMS: Final[int] = 2
 
+ALL_RULESET_NAMES: Final[list[str]] = []
+"""A list of all the unique ruleset names in this application. 
+
+This value is lazily computed when it is initially queried.
+"""
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
+
+
+@router.get('/ruleset')
+async def get_ruleset(bout: GetBout) -> APIResponse:
+    """Get the ruleset associated with a specific Bout."""
+    return APIResponse(bout.ruleset)
+
+
+@router.get('/allRulesetNames')
+async def get_all_ruleset_names() -> APIResponse:
+    """Get all the ruleset names supported by the application."""
+    # Don't query the database; all possible ruleset names should be fetched, not just
+    # the rulesets that are persisted in the database.
+    if len(ALL_RULESET_NAMES) == 0:
+        unique_ruleset_names: set[str] = set()
+        for subclass in BaseBout.__subclasses__():
+            unique_ruleset_names.add(subclass.ruleset.name)
+        ALL_RULESET_NAMES.extend(unique_ruleset_names)
+    return APIResponse(ALL_RULESET_NAMES)
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])
@@ -45,20 +68,22 @@ async def create_bout(
     ruleset_name: Annotated[str, Query(alias='rulesetName')],
     team_names: Annotated[list[str] | None, Query(alias='teamName')] = None,
 ) -> APIResponse:
+    """Create a Bout and initialize it."""
+    # Ensure that the team names are properly initialized
     if team_names is None:
         team_names = list(random.choice(RANDOM_TEAM_NAMES))  # noqa: S311
-
     if len(team_names) < REQUIRED_NUM_TEAMS:
         raise ValueError(
             f'At least {REQUIRED_NUM_TEAMS} team are needed to create a Bout.'
         )
-
     home_name, away_name, *_ = team_names
-    bout: BaseBout = BaseBout(ruleset_name, Team(home_name), Team(away_name))
+
+    # Create the Bout
+    bout: BaseBout = BaseBout(ruleset_name, Team(home_name, 0), Team(away_name, 1))
     bout.series_uuid = series.uuid
     session.add(bout)
 
-    # Expunge and merge the Bout to allow the subclass to call init()
+    # Expunge and merge the Bout to allow the subclass to call setup()
     # It's a weird hack, but it appears to be the only way to allow the object to be
     # loaded as the correct subclass.
     try:
@@ -70,7 +95,7 @@ async def create_bout(
         raise ValueError(
             f'Cannot create bout with unknown ruleset: {ruleset_name}'
         ) from e
-    bout.init()
+    bout.setup()
 
     # Add the Bout to the Series
     series.bouts.append(bout)
@@ -78,35 +103,35 @@ async def create_bout(
         series.set_active_bout(bout)
     flag_dirty(series)  # Include Series in cache updates
 
-    return APIResponse(bout.uuid, cache=await bout.get_updates())
+    return APIResponse(bout.uuid, bout.get_updates())
 
 
 @router.post('/beginPeriod')
 async def begin_period(bout: GetBout) -> APIResponse:
     """Begin the period of the specified Bout."""
     bout.begin_period(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post('/endPeriod')
 async def end_period(bout: GetBout) -> APIResponse:
     """End the period of the specified Bout."""
     bout.end_period(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post('/startJam')
 async def start_jam(bout: GetBout):
     """Start the next Jam of the specified Bout."""
     bout.start_jam(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post('/stopJam')
 async def stop_jam(bout: GetBout) -> APIResponse:
     """Stop the active Jam of the specified Bout."""
     bout.stop_jam(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post('/startTimeout')
@@ -122,14 +147,14 @@ async def start_timeout(
         timeout.is_review = is_review
         if team_num is not None:
             timeout.team = bout.teams[team_num]
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post(path='/stopTimeout')
 async def stop_timeout(bout: GetBout) -> APIResponse:
     """Stop the active Timeout in the specified Bout."""
     bout.stop_timeout(datetime.now())
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post('/addTrip')
@@ -140,7 +165,7 @@ async def add_trip(
 ) -> APIResponse:
     """Add a Trip for the specified Team of the specified Jam."""
     bout.add_trip(team, datetime.now(), passes)
-    return APIResponse(None, await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post('/addLead')
@@ -151,7 +176,7 @@ async def set_lead(
 ) -> APIResponse:
     """Set Lead for the specified Team of the specified Jam."""
     bout.add_lead(team, datetime.now(), lead)
-    return APIResponse(None, await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post('/addLost')
@@ -162,7 +187,7 @@ async def set_lost(
 ) -> APIResponse:
     """Set Lost for the specified Team of the specified Jam."""
     bout.add_lost(team, datetime.now(), lost)
-    return APIResponse(None, await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post('/addStarPass')
@@ -173,14 +198,14 @@ async def set_star_pass(
 ) -> APIResponse:
     """Set a Star Pass for the specified Team of the specified Jam."""
     bout.add_star_pass(team, datetime.now(), star_pass)
-    return APIResponse(None, await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.post(path='/finalize')
 async def finalize(bout: GetBout) -> APIResponse:
     """Finalize the Bout."""
     bout.finalize()
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.put(path='/setClockRemaining')
@@ -195,7 +220,7 @@ async def set_clock_remaining(
         remaining_timedelta = bout.clock.alarm - remaining_timedelta
     bout.clock.elapsed = remaining_timedelta
     flag_dirty(bout)  # Clock has no association with Bout
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.put(path='/setClockAlarm')
@@ -206,7 +231,7 @@ async def set_clock_alarm(
     if bout.clock.alarm.total_seconds() != alarm / 1000:
         bout.clock.alarm = timedelta(milliseconds=alarm)
         flag_dirty(bout)  # Clock has no association with Bout
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.put(path='/setClockIsRunning')
@@ -222,7 +247,7 @@ async def set_clock_is_running(
             bout.clock.stop(now)
         flag_dirty(bout)  # Clock has no association with Bout
 
-    return APIResponse(None, cache=await bout.get_updates())
+    return APIResponse(None, bout.get_updates())
 
 
 @router.put(path='/setTeamName')
@@ -232,7 +257,7 @@ async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> APIRespo
 
     team.name = name
 
-    return APIResponse(None, cache=await team.get_bout().get_updates())
+    return APIResponse(None, team.get_bout().get_updates())
 
 
 __all__ = ('router',)

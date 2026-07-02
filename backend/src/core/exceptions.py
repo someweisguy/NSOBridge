@@ -1,4 +1,9 @@
-"""Base exceptions."""
+"""Base exceptions used throughout the application.
+
+These exceptions are helpful for handling errors which may occur when users interact
+with this application. In other words, errors which are exceptional but should be
+handled gracefully.
+"""
 
 from abc import ABC
 

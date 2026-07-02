@@ -3,12 +3,12 @@
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 from uuid import UUID
 
+from core.db import GetAsyncSession
 from core.exceptions import ModelLookupError
-from db import GetAsyncSession
+from core.users import GetUser
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from user import GetUser
 
 from .models import Series
 

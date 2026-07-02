@@ -6,25 +6,16 @@ from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
-from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
-from game.bouts.models import BaseBout
+from core.db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.models import AbstractOneShotModel
-from sqlalchemy import ForeignKey, select
-from sqlalchemy.orm import (
-    Mapped,
-    MappedSQLExpression,
-    column_property,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 
-from .schemas import TimeoutSchema
-
 if TYPE_CHECKING:
-    from core import CacheKey
+    from core.db import CacheKey
+    from game.bouts.models import BaseBout, Team
     from game.jams.models import Jam
-    from game.teams.models import Team
 
 
 class Timeout(AbstractOneShotModel, CacheableSQLModel):
@@ -66,12 +57,6 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
         lazy='selectin',
     )
 
-    _ruleset: MappedSQLExpression[str] = column_property(
-        select(BaseBout.ruleset_name)
-        .where(BaseBout.uuid == bout_uuid)
-        .scalar_subquery()
-    )
-
     __tablename__: str = 'timeouts'
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
 
@@ -102,14 +87,10 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
         return (self.__tablename__, self.bout_uuid, self.num)
 
     @override
-    def serialize(self) -> TimeoutSchema:
-        return TimeoutSchema.model_validate(self)
-
-    @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
         if self._team_uuid is None:
-            return (await self.awaitable_attrs._bout,)
-        return (await self.awaitable_attrs._bout, await self.awaitable_attrs.team)
+            return (self._bout,)
+        return (self._bout, self.team)  # ty:ignore[invalid-return-type]
 
     def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Timeout.

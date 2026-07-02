@@ -6,7 +6,8 @@ import logging
 from pathlib import Path
 from typing import Final
 
-import core
+import core.app
+import core.server
 import gui
 from main import CONFIG_FILE_NAME, LOG_DIR_NAME, app
 
@@ -40,25 +41,24 @@ if __name__ == '__main__':
     db_pathname: str | Path = config.get(section, 'db_pathname', fallback='')
     if db_pathname != '':
         if not Path(db_pathname).is_absolute():
-            db_pathname = core.get_resource_path(db_pathname)
+            db_pathname = core.app.get_resource_path(db_pathname)
         else:
             db_pathname = Path(db_pathname)
 
     truth_values: set[str] = {'true', 'yes'}
-    app.extra['db_pathname'] = db_pathname
-    app.extra['host'] = config.get(section, 'host', fallback='0.0.0.0')
-    app.extra['port'] = int(config.get(section, 'port', fallback=8000))
-    app.debug = config.get(section, 'debug', fallback='').lower() in truth_values
+    host: str = config.get(section, 'host', fallback='0.0.0.0')
+    port: int = int(config.get(section, 'port', fallback=8000))
     auto_hide: bool = (
         config.get(section, 'auto_hide', fallback='').lower() in truth_values
     )
 
     # Configure logging
     log_level: int = logging.DEBUG if app.debug else logging.INFO
-    core.configure_logging(LOG_DIR_NAME, level=log_level, silent=True)
+    core.logging.configure_logging(LOG_DIR_NAME, level=log_level, silent=True)
 
     # Run the application
-    gui.run(app, auto_hide=auto_hide)  # Blocks program execution
+    app.debug = config.get(section, 'debug', fallback='').lower() in truth_values
+    gui.run(app, db_pathname, host, port, auto_hide)  # Blocks program execution
     logging.info('Program terminated')
     logging.shutdown()
-    core.shutdown()
+    core.server.shutdown()

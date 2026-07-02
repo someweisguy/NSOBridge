@@ -1,19 +1,19 @@
 """Pydantic Bout schemas."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
-from datetime import datetime  # noqa: TC003
-from uuid import UUID  # noqa: TC003
+from datetime import datetime, timedelta
+from typing import Annotated
+from uuid import UUID
 
-from core import ServerSchema
-from game.clocks.schemas import ClockSchema  # noqa: TC002
-from game.jams.schemas import JamSchema  # noqa: TC002
-from game.teams.schemas import TeamSchema  # noqa: TC002
-from game.timeouts.schemas import TimeoutSchema  # noqa: TC002
+from core.app import ServerSchema, register_model, timedelta_serializer
+from game.bouts.models import BaseBout, Team
+from game.jams.schemas import JamSchema
+from game.schemas import ClockSchema
+from game.skaters.schemas import SkaterSchema
+from game.timeouts.schemas import TimeoutSchema
 from pydantic import Field, SkipValidation, computed_field
 
-from .types import BoutStateStr, BoutSubStateStr  # noqa: TC001
+from .types import BoutStateStr, BoutSubStateStr
 
 
 @dataclass
@@ -24,6 +24,41 @@ class JamUri:
     jam_num: int
 
 
+# TODO: @register_model(Ruleset)
+class RulesetSchema(ServerSchema):
+    """Represent a Ruleset as a JSON schema.
+
+    The Ruleset differs from other schemas in this module in that it is only
+    representable as a schema; there is no Ruleset model. This is because Rulesets are
+    stored as constants which do not need to be written to file.
+    """
+
+    name: str
+    num_periods: int
+    jam_duration: Annotated[timedelta, timedelta_serializer]
+    lineup_duration: Annotated[timedelta, timedelta_serializer]
+    points_per_trip: int
+    num_timeouts: int
+    num_reviews: int
+
+
+@register_model(Team)
+class TeamSchema(ServerSchema):
+    """Represent a Team as a JSON schema."""
+
+    name: str
+    league: str
+    mnemonic: str
+    num: int
+    bout_score: int
+    jam_score: int
+    timeouts_remaining: int
+    reviews_remaining: int
+    score_offset: int
+    skaters: list[SkaterSchema]
+
+
+@register_model(BaseBout)
 class BoutSchema(ServerSchema):
     """Represent a Bout as a JSON schema."""
 
@@ -83,3 +118,6 @@ class BoutSchema(ServerSchema):
 
         """
         return len(self.timeouts)
+
+
+BoutSchema.model_rebuild()

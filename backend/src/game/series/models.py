@@ -4,14 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
-from db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
+from core.db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
 from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .schemas import SeriesSchema
-
 if TYPE_CHECKING:
-    from core import CacheKey
+    from core.db import CacheKey
     from game.bouts.models import BaseBout
 
 
@@ -28,7 +26,6 @@ class Series(CacheableSQLModel):
     active_bout_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('bouts.uuid'))
 
     bouts: Mapped[list[BaseBout]] = relationship(
-        'BaseBout',
         back_populates='_series',
         cascade=CASCADE_CHILD,
         foreign_keys='BaseBout.series_uuid',
@@ -61,9 +58,5 @@ class Series(CacheableSQLModel):
         return (self.__tablename__, self.uuid)
 
     @override
-    def serialize(self) -> SeriesSchema:
-        return SeriesSchema.model_validate(self)
-
-    @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()

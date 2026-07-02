@@ -1,10 +1,11 @@
 """Pydantic Skater schemas."""
 
-from __future__ import annotations
+from core.app import ServerSchema, register_model
 
-from core import ServerSchema
+from .models import Skater
 
 
+@register_model(Skater)
 class SkaterSchema(ServerSchema):
     """Represent a Skater as a JSON schema."""
 

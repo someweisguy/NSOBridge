@@ -2,18 +2,21 @@
 
 from uuid import UUID
 
-from core import ServerSchema
+from core.app import ServerSchema, register_model
 from game.bouts.schemas import BoutSchema
-from pydantic import Field, computed_field
+from pydantic import Field, SkipValidation, computed_field
+
+from .models import Series
 
 
+@register_model(Series)
 class SeriesSchema(ServerSchema):
     """Represent a Series as a JSON schema."""
 
     uuid: UUID
     name: str
     active_bout_uuid: UUID | None
-    bouts: list[BoutSchema] = Field(exclude=True)
+    bouts: list[SkipValidation[BoutSchema]] = Field(exclude=True)
 
     @computed_field
     @property

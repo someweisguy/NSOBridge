@@ -3,7 +3,7 @@
 from typing import Annotated, Final
 from uuid import UUID
 
-from core import APIResponse
+from core.app import APIResponse
 from fastapi import APIRouter, Body, Query
 
 from .dependencies import GetJam, _get_jam
@@ -23,7 +23,7 @@ async def set_stop_reason(
     """Set the stop reason for the desired Jam."""
     jam.stop_reason = stop_reason
 
-    return APIResponse(None, cache=await jam.get_updates())
+    return APIResponse(None, jam.get_updates())
 
 
 @router.put('/setTripEventPasses')
@@ -48,7 +48,7 @@ async def set_trip_passes(
 
     event.passes = passes
 
-    return APIResponse(None, cache=await jam.get_updates())
+    return APIResponse(None, jam.get_updates())
 
 
 @router.delete('/tripEvent')
@@ -72,4 +72,4 @@ async def delete_trip_event(
 
     team_jam.events.remove(event)
 
-    return APIResponse(None, cache=await jam.get_updates())
+    return APIResponse(None, jam.get_updates())

@@ -1,47 +1,19 @@
 """Core NSO Bridge dependencies.
 
-This file exports the core functions needed to run NSO Bridge.
+There are eight sub-modules with this module: `app`, `db`, `server`, `updates`, `users`,
+`ws`, and `exceptions`.
+
+- `app` includes functionality for running the core FastAPI application.
+- `db' pertains to database operations.
+- `server` manages the network layer
+- `updates` is involved in checking for updates to this application.
+- `users` is for user management and related operations.
+- `ws` handles WebSockets.
+- `exceptions` exposes the base exceptions used by this application.
+
+An additional `logging` file is used to configure information and error logging.
 """
 
-from .error_handlers import error_handlers
 from .logging import configure_logging
-from .memento import Memento
-from .response import APIResponse
-from .router import api_router, assets, pages_router
-from .schemas.base import ClientSchema, ServerSchema
-from .schemas.cache import CacheItemSchema
-from .types import CacheKey
-from .utils import (
-    endpoint_profiling_middleware,
-    get_resource_path,
-    timedelta_serializer,
-)
-from .uvicorn import (
-    get_default_route,
-    get_server,
-    shutdown,
-)
-from .ws import disconnect_all, invalidate_queries, ws
 
-__all__ = (
-    'api_router',
-    'APIResponse',
-    'assets',
-    'CacheItemSchema',
-    'CacheKey',
-    'ClientSchema',
-    'configure_logging',
-    'disconnect_all',
-    'endpoint_profiling_middleware',
-    'error_handlers',
-    'get_default_route',
-    'get_resource_path',
-    'get_server',
-    'invalidate_queries',
-    'Memento',
-    'pages_router',
-    'ServerSchema',
-    'shutdown',
-    'timedelta_serializer',
-    'ws',
-)
+__all__ = ('configure_logging',)

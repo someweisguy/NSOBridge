@@ -5,13 +5,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, override
 from uuid import UUID  # noqa: TC003
 
-from db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
+from core.db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from core import CacheKey
-    from game.teams.models import Team
+    from core.db import CacheKey
+    from game.bouts.models import Team
 
 
 class Skater(CacheableSQLModel):
@@ -51,8 +51,8 @@ class Skater(CacheableSQLModel):
         return (self.__tablename__, self._team.bout_uuid, self._team.num, self.num)
 
     @override
-    async def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (await self.awaitable_attrs._team,)
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self._team,)
 
     def get_team(self) -> Team:
         """Get the Team to which this Skater belongs.
