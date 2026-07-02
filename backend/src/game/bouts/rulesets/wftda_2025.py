@@ -36,6 +36,7 @@ class Bout(BaseBout):
 
     @override
     def setup(self) -> None:
+        logging.info(f'Instantiating a Bout using the {self.ruleset.name} ruleset.')
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:
             team.timeouts_remaining = self.ruleset.num_timeouts
