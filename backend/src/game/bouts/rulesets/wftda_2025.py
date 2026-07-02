@@ -31,7 +31,7 @@ class Bout(BaseBout):
         lineup_duration=timedelta(seconds=30),
         points_per_trip=4,
         num_timeouts=3,
-        num_reviews=3,
+        num_reviews=1,
     )
 
     @override
