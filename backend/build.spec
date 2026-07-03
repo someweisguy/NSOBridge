@@ -1,6 +1,10 @@
 # # -*- mode: python ; coding: utf-8 -*-
 from glob import glob
 
+# These are imported just to make the static analysis and linting a bit nicer
+from PyInstaller.building.api import PYZ, EXE, COLLECT
+from PyInstaller.building.build_main import Analysis, BUNDLE
+
 # Get all the rulesets defined in the application
 rulesets: list[str] = [
     f'game.bouts.rulesets.{file_name[:-3]}'
