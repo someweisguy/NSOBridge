@@ -46,5 +46,13 @@
       "scope": "workspace"
     }
   },
-  "cSpell.ignoreWords": ["MEIPASS"]
+  "cSpell.ignoreWords": [
+    "MEIPASS",
+    "codesign",
+    "datas",
+    "hiddenimports",
+    "hooksconfig",
+    "hookspath",
+    "pathex"
+  ]
 }
