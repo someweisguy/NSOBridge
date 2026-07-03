@@ -1,4 +1,13 @@
-# -*- mode: python ; coding: utf-8 -*-
+# # -*- mode: python ; coding: utf-8 -*-
+from glob import glob
+
+# Get all the rulesets defined in the application
+rulesets: list[str] = [
+    f'game.bouts.rulesets.{file_name[:-3]}'
+    for file_name in glob("*.py", root_dir='backend/src/game/bouts/rulesets')
+    if file_name != '__init__.py'
+]
+print('Collected rulesets:', rulesets)
 
 a = Analysis(
     ['src/with_gui.py'],
@@ -10,7 +19,7 @@ a = Analysis(
         ('../README.md', '.'),
         ('../LICENSE.txt', '.'),
     ],
-    hiddenimports=['aiosqlite', 'sqlalchemy.dialects.sqlite', 'PIL'],
+    hiddenimports=['aiosqlite', 'PIL', 'sqlalchemy.dialects.sqlite'] + rulesets,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
