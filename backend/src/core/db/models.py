@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from sqlalchemy import Dialect
     from sqlalchemy.ext.asyncio import AsyncSession
 
-    from .types import CacheKey
+    from core.app import CacheKey
 
 
 class _TimedeltaAsMilliseconds(TypeDecorator[Integer]):

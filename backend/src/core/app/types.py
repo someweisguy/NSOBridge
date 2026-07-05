@@ -5,6 +5,9 @@ from __future__ import annotations
 import typing
 from typing import Any, Iterable, Protocol
 
+type CacheKey = tuple[Any, ...]
+"""A cache key type used for the client model caching feature. """
+
 
 @typing.runtime_checkable
 class CacheableProtocol(Protocol):
@@ -19,7 +22,7 @@ class CacheableProtocol(Protocol):
         """
         ...
 
-    def cache_key(self) -> Any:
+    def cache_key(self) -> CacheKey:
         """Get the cache key of the cacheable.
 
         Returns:

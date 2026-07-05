@@ -11,7 +11,6 @@ from core.db import (
     CASCADE_OTHER,
     BaseSQLModel,
     CacheableSQLModel,
-    CacheKey,
 )
 from game.jams.models import TeamJam
 from game.models import Clock
@@ -27,6 +26,7 @@ from sqlalchemy.orm import (
 from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol
 
 if TYPE_CHECKING:
+    from core.app import CacheKey
     from game.jams.models import Jam
     from game.series.models import Series
 

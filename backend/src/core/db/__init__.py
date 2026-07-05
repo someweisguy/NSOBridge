@@ -28,12 +28,10 @@ from .service import (
     create_tables,
     get_database_url,
 )
-from .types import CacheKey
 
 __all__ = (
     'BaseSQLModel',
     'CacheableSQLModel',
-    'CacheKey',
     'CASCADE_CHILD',
     'CASCADE_OTHER',
     'create_tables',

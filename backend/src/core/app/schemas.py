@@ -17,7 +17,7 @@ from pydantic import (
 from pydantic.alias_generators import to_camel
 
 from .service import get_schema
-from .types import CacheableProtocol
+from .types import CacheableProtocol, CacheKey
 
 
 class ServerSchema(BaseModel):
@@ -66,8 +66,8 @@ class CacheSchema[T: ServerSchema](ServerSchema):
     """
 
     class _CacheItemSchema(ServerSchema):
-        key: Any
-        data: Any
+        key: CacheKey
+        data: Any  # This type must be Any for Pydantic to work properly
 
     data: T | None = Field(default=None)
     cache: list[_CacheItemSchema] = Field(
