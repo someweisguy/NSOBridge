@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
-from core.app.schemas import CacheSchema
+from core.app import CacheSchema
 from core.db import GetAsyncSession
 from fastapi import APIRouter, Body, Query
 from game.bouts.dependencies import GetTeam

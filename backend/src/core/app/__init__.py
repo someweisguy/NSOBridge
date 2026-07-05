@@ -8,7 +8,7 @@ from core.exceptions import ClientError
 
 from .constants import timedelta_serializer
 from .router import api_router, assets, pages_router
-from .schemas import ClientSchema, ServerSchema
+from .schemas import CacheSchema, ClientSchema, ServerSchema
 from .service import APIResponse, get_resource_path, register_model
 from .types import CacheableProtocol
 from .utils import (
@@ -29,6 +29,7 @@ __all__ = (
     'APIResponse',
     'assets',
     'CacheableProtocol',
+    'CacheSchema',
     'ClientSchema',
     'endpoint_profiling_middleware',
     'get_resource_path',

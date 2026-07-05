@@ -3,7 +3,7 @@
 from typing import Annotated, Final, Sequence
 from uuid import UUID
 
-from core.app.schemas import CacheSchema
+from core.app import CacheSchema
 from core.db import GetAsyncSession
 from fastapi import APIRouter, Body
 from sqlalchemy import Result, Select, select

@@ -3,7 +3,7 @@
 from typing import Annotated, Final
 from uuid import UUID
 
-from core.app.schemas import CacheSchema
+from core.app import CacheSchema
 from fastapi import APIRouter, Body, Query
 
 from .dependencies import GetJam, _get_jam

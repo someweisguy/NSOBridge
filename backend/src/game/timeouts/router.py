@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, Annotated, Final, Literal
 
-from core.app.schemas import CacheSchema
+from core.app import CacheSchema
 from fastapi import APIRouter, Body
 
 from .dependencies import GetTimeout, _get_timeout
