@@ -9,8 +9,8 @@ from core.exceptions import ClientError
 from .constants import timedelta_serializer
 from .router import api_router, assets, pages_router
 from .schemas import CacheSchema, ClientSchema, ServerSchema
-from .service import APIResponse, get_resource_path, register_model
-from .types import CacheableProtocol, CacheKey
+from .service import get_resource_path, register_model
+from .types import APIResponse, CacheableProtocol, CacheKey
 from .utils import (
     endpoint_profiling_middleware,
     generic_error_handler,

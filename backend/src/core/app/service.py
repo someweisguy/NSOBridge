@@ -2,14 +2,10 @@
 
 from __future__ import annotations
 
-import json
 import os
 import sys
-from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Final, Type, override
-
-from fastapi.responses import JSONResponse
+from typing import TYPE_CHECKING, Any, Callable, Final, Type
 
 if TYPE_CHECKING:
     from .schemas import ServerSchema
@@ -17,29 +13,6 @@ if TYPE_CHECKING:
 
 _model_table: Final[dict[Any, Type[ServerSchema]]] = {}
 """Maps app models to their corresponding Pydantic schema."""
-
-
-class APIResponse[T: Any](JSONResponse):
-    """Used to wrap all API responses in a common JSON interface.
-
-    This class provides a wrapper for returning APISchemas in a nice way. This class is
-    a subclass of the FastAPI response class and also does not require the use of
-    keyword args to instantiate the response.
-    """
-
-    @override
-    def render(self, content: dict) -> bytes:
-        payload: dict[str, Any] = content if 'data' in content else {'data': content}
-        payload['status_code'] = self.status_code
-        payload['timestamp'] = datetime.now()
-        return json.dumps(
-            payload,
-            ensure_ascii=False,
-            allow_nan=False,
-            indent=None,
-            separators=(',', ':'),
-            default=(str),  # Serialize datetime objects
-        ).encode('utf-8')
 
 
 def get_resource_path(relative_path: str) -> Path:

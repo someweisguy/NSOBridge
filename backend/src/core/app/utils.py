@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable
 from core.exceptions import ClientError, ModelLookupError
 
 from .schemas import ErrorSchema
-from .service import APIResponse
+from .types import APIResponse
 
 if TYPE_CHECKING:
     from fastapi import Request, Response
