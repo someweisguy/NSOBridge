@@ -56,7 +56,14 @@ class ClientSchema(BaseModel):
 
 
 class CacheSchema[T: ServerSchema](ServerSchema):
-    """A special schema that renders cache updates."""
+    """A special schema that renders cache updates.
+
+    This schema is designed to take an object which implements the Cacheable Protocol
+    and convert it to a schema with a validated data field as well as a validated cache
+    field.
+
+    If the provided data is not cacheable, it is serialized with the default handler.
+    """
 
     class _CacheItemSchema(ServerSchema):
         key: Any
