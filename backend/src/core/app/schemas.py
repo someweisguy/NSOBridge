@@ -4,11 +4,20 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from http import HTTPStatus
 from typing import Any, ClassVar, Sequence
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ModelWrapValidatorHandler,
+    field_serializer,
+    model_validator,
+)
 from pydantic.alias_generators import to_camel
+
+from .service import get_schema
+from .types import CacheableProtocol
 
 
 class ServerSchema(BaseModel):
@@ -46,16 +55,58 @@ class ClientSchema(BaseModel):
     )
 
 
-class APISchema(ServerSchema):
+class SchemaWithCache[T: ServerSchema](ServerSchema):
+    """A special schema that renders cache updates."""
+
+    data: T | None = Field(default=None)
+    cache: list[CacheItemSchema] = Field(
+        default_factory=[], exclude_if=lambda c: not len(c)
+    )
+
+    @model_validator(mode='wrap')
+    @classmethod
+    def _generate_schema(
+        cls, data: Any, handler: ModelWrapValidatorHandler[Any]
+    ) -> Any:
+        if not isinstance(data, CacheableProtocol):
+            return handler(data)
+
+        return SchemaWithCache(
+            data=get_schema(type(data)).model_validate(data),
+            cache=[
+                CacheItemSchema(
+                    key=model.cache_key(),
+                    data=get_schema(type(model)).model_validate(model),
+                )
+                for model in data.get_updates()
+            ],
+        )
+
+
+class APISchema[T: Any](ServerSchema):
     """The default schema for returning API requests."""
 
-    data: Any
-    cache: list[CacheItemSchema] = Field(
-        default_factory=list, exclude_if=lambda c: len(c) == 0
-    )
-    status_code: int = Field(default=HTTPStatus.OK, kw_only=True)
-    error: ErrorSchema | None = Field(default=None, exclude_if=lambda e: e is None)
-    timestamp: datetime = Field(default_factory=datetime.now, init=False)
+    data: T
+    cache: list[CacheItemSchema] | None = Field(default=None, exclude=True)
+
+    def __init__(self, data: T) -> None:
+        """Initialize the schema and generate cache schemas, if applicable."""
+        cache: list[CacheableProtocol] | None = (
+            data.get_updates() if isinstance(data, CacheableProtocol) else None
+        )
+        super().__init__()
+        self.data = data
+        self.cache = (
+            [
+                CacheItemSchema(
+                    key=model.cache_key(),
+                    data=get_schema(type(model)).model_validate(model),
+                )
+                for model in cache
+            ]
+            if cache is not None
+            else None
+        )
 
 
 class ErrorSchema(ServerSchema):

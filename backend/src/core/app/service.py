@@ -5,19 +5,13 @@ from __future__ import annotations
 import json
 import os
 import sys
-from http import HTTPStatus
+from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Final, Mapping, Type, override
+from typing import TYPE_CHECKING, Any, Callable, Final, Type, override
 
 from fastapi.responses import JSONResponse
 
-from .schemas import APISchema, CacheItemSchema
-
 if TYPE_CHECKING:
-    from starlette.background import BackgroundTask
-
-    from core.db import CacheableSQLModel
-
     from .schemas import ServerSchema
 
 
@@ -34,47 +28,12 @@ class APIResponse[T: Any](JSONResponse):
     """
 
     @override
-    def __init__(
-        self,
-        data: T,
-        cache: list[CacheableSQLModel] | None = None,
-        status_code: int = HTTPStatus.OK,
-        headers: Mapping[str, str] | None = None,
-        media_type: str | None = None,
-        background: BackgroundTask | None = None,
-    ) -> None:
-        error_occurred: bool = status_code not in range(
-            HTTPStatus.OK, HTTPStatus.MULTIPLE_CHOICES
-        )
-
-        if cache is not None:
-            cache_data = [
-                CacheItemSchema(
-                    key=model.cache_key(),
-                    data=get_schema(type(model)).model_validate(model),
-                )
-                for model in cache
-            ]
-        else:
-            cache_data = []
-
-        super().__init__(
-            APISchema(
-                status_code=status_code,
-                error=data if error_occurred else None,
-                data=data if not error_occurred else None,
-                cache=cache_data,
-            ).model_dump(),
-            status_code,
-            headers,
-            media_type,
-            background,
-        )
-
-    @override
-    def render(self, content: Any) -> bytes:
+    def render(self, content: dict) -> bytes:
+        payload: dict[str, Any] = content if 'data' in content else {'data': content}
+        payload['status_code'] = self.status_code
+        payload['timestamp'] = datetime.now()
         return json.dumps(
-            content,
+            payload,
             ensure_ascii=False,
             allow_nan=False,
             indent=None,

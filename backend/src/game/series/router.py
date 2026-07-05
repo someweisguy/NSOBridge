@@ -3,7 +3,7 @@
 from typing import Annotated, Final, Sequence
 from uuid import UUID
 
-from core.app import APIResponse
+from core.app.schemas import SchemaWithCache
 from core.db import GetAsyncSession
 from fastapi import APIRouter, Body
 from sqlalchemy import Result, Select, select
@@ -27,10 +27,10 @@ async def get_all_series(session: GetAsyncSession) -> Sequence[Series]:
     return results.scalars().all()
 
 
-@router.put('/activeBout')
+@router.put('/activeBout', response_model=SchemaWithCache)
 async def set_active_bout(
     series: GetSeries, bout_uuid: Annotated[UUID, Body(alias='boutUuid')]
-) -> APIResponse:
+) -> Series:
     """Set the active Bout of the Series."""
     for bout in series.bouts:
         if bout.uuid == bout_uuid:
@@ -38,4 +38,4 @@ async def set_active_bout(
     else:
         raise ValueError('No such Bout was found.')
     series.set_active_bout(bout)
-    return APIResponse(None, series.get_updates())
+    return series

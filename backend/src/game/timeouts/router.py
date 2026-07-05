@@ -2,10 +2,11 @@
 
 from typing import TYPE_CHECKING, Annotated, Final, Literal
 
-from core.app import APIResponse
+from core.app.schemas import SchemaWithCache
 from fastapi import APIRouter, Body
 
 from .dependencies import GetTimeout, _get_timeout
+from .models import Timeout
 from .schemas import TimeoutSchema
 
 if TYPE_CHECKING:
@@ -13,54 +14,48 @@ if TYPE_CHECKING:
 
 TIMEOUTS_TAG = 'Timeouts'
 
-router: Final[APIRouter] = APIRouter(prefix='/timeout')
-router.add_api_route(
-    '', _get_timeout, response_model=TimeoutSchema | None, tags=[TIMEOUTS_TAG]
-)
+router: Final[APIRouter] = APIRouter(prefix='/timeout', tags=[TIMEOUTS_TAG])
+router.add_api_route('', _get_timeout, response_model=TimeoutSchema | None)
 
 
-@router.post('/type', tags=[TIMEOUTS_TAG])
+@router.post('/type', response_model=SchemaWithCache)
 async def set_type(
     timeout: GetTimeout,
     timeout_type: Annotated[Literal['timeout', 'review'], Body()],
-) -> APIResponse:
+) -> Timeout:
     """Set the type of the specified Timeout."""
     timeout.is_review = timeout_type == 'review'
-    return APIResponse(None, timeout.get_updates())
+    return timeout
 
 
-@router.post('/team', tags=[TIMEOUTS_TAG])
+@router.post('/team', response_model=SchemaWithCache)
 async def set_team(
     timeout: GetTimeout, team_num: Annotated[int | None, Body()] = None
-) -> APIResponse:
+) -> Timeout:
     """Set the calling Team of the specified Timeout."""
     bout: BaseBout = timeout.get_bout()
     timeout.set_team(bout.teams[team_num] if team_num is not None else None)
-    return APIResponse(None, timeout.get_updates())
+    return timeout
 
 
-@router.post('/retained', tags=[TIMEOUTS_TAG])
+@router.post('/retained', response_model=SchemaWithCache)
 async def set_retained(
     timeout: GetTimeout, retained: Annotated[bool, Body()]
-) -> APIResponse:
+) -> Timeout:
     """Set whether or not the Timeout is retained."""
     timeout.retained = retained
-    return APIResponse(None, timeout.get_updates())
+    return timeout
 
 
-@router.put('/details', tags=[TIMEOUTS_TAG])
-async def set_details(
-    timeout: GetTimeout, details: Annotated[str, Body()]
-) -> APIResponse:
+@router.put('/details', response_model=SchemaWithCache)
+async def set_details(timeout: GetTimeout, details: Annotated[str, Body()]) -> Timeout:
     """Add details about the specified Timeout."""
     timeout.details = details
-    return APIResponse(None, timeout.get_updates())
+    return timeout
 
 
-@router.put('/result', tags=[TIMEOUTS_TAG])
-async def set_result(
-    timeout: GetTimeout, result: Annotated[str, Body()]
-) -> APIResponse:
+@router.put('/result', response_model=SchemaWithCache)
+async def set_result(timeout: GetTimeout, result: Annotated[str, Body()]) -> Timeout:
     """Add results about the specified Timeout."""
     timeout.result = result
-    return APIResponse(None, timeout.get_updates())
+    return timeout

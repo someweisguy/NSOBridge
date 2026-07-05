@@ -3,10 +3,11 @@
 from typing import Annotated, Final
 from uuid import UUID
 
-from core.app import APIResponse
+from core.app.schemas import SchemaWithCache
 from fastapi import APIRouter, Body, Query
 
 from .dependencies import GetJam, _get_jam
+from .models import Jam
 from .schemas import JamSchema
 from .types import StopReasonStr
 
@@ -16,23 +17,23 @@ router: Final[APIRouter] = APIRouter(prefix='/jam', tags=[JAMS_TAG])
 router.add_api_route('', _get_jam, response_model=JamSchema | None)
 
 
-@router.put('/setStopReason')
+@router.put('/setStopReason', response_model=JamSchema)
 async def set_stop_reason(
     jam: GetJam, stop_reason: Annotated[StopReasonStr, Body()]
-) -> APIResponse:
+) -> Jam:
     """Set the stop reason for the desired Jam."""
     jam.stop_reason = stop_reason
 
-    return APIResponse(None, jam.get_updates())
+    return jam
 
 
-@router.put('/setTripEventPasses')
+@router.put('/setTripEventPasses', response_model=SchemaWithCache)
 async def set_trip_passes(
     jam: GetJam,
     team_num: Annotated[int, Query(alias='teamNum')],
     event_uuid: Annotated[UUID, Query(alias='eventUuid')],
     passes: Annotated[int, Body()],
-) -> APIResponse:
+) -> Jam:
     """Set the number of passes in a desired Trip Event."""
     for team_jam in jam.team_jams:
         if team_jam.team_num == team_num:
@@ -48,15 +49,15 @@ async def set_trip_passes(
 
     event.passes = passes
 
-    return APIResponse(None, jam.get_updates())
+    return jam
 
 
-@router.delete('/tripEvent')
+@router.delete('/tripEvent', response_model=SchemaWithCache)
 async def delete_trip_event(
     jam: GetJam,
     team_num: Annotated[int, Query(alias='teamNum')],
     event_uuid: Annotated[UUID, Query(alias='eventUuid')],
-) -> APIResponse:
+) -> Jam:
     """Delete the desired Trip Event."""
     for team_jam in jam.team_jams:
         if team_jam.team_num == team_num:
@@ -72,4 +73,4 @@ async def delete_trip_event(
 
     team_jam.events.remove(event)
 
-    return APIResponse(None, jam.get_updates())
+    return jam
