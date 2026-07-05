@@ -55,11 +55,15 @@ class ClientSchema(BaseModel):
     )
 
 
-class SchemaWithCache[T: ServerSchema](ServerSchema):
+class CacheSchema[T: ServerSchema](ServerSchema):
     """A special schema that renders cache updates."""
 
+    class _CacheItemSchema(ServerSchema):
+        key: Any
+        data: Any
+
     data: T | None = Field(default=None)
-    cache: list[CacheItemSchema] = Field(
+    cache: list[_CacheItemSchema] = Field(
         default_factory=[], exclude_if=lambda c: not len(c)
     )
 
@@ -71,41 +75,15 @@ class SchemaWithCache[T: ServerSchema](ServerSchema):
         if not isinstance(data, CacheableProtocol):
             return handler(data)
 
-        return SchemaWithCache(
+        return CacheSchema(
             data=get_schema(type(data)).model_validate(data),
             cache=[
-                CacheItemSchema(
+                CacheSchema._CacheItemSchema(
                     key=model.cache_key(),
                     data=get_schema(type(model)).model_validate(model),
                 )
                 for model in data.get_updates()
             ],
-        )
-
-
-class APISchema[T: Any](ServerSchema):
-    """The default schema for returning API requests."""
-
-    data: T
-    cache: list[CacheItemSchema] | None = Field(default=None, exclude=True)
-
-    def __init__(self, data: T) -> None:
-        """Initialize the schema and generate cache schemas, if applicable."""
-        cache: list[CacheableProtocol] | None = (
-            data.get_updates() if isinstance(data, CacheableProtocol) else None
-        )
-        super().__init__()
-        self.data = data
-        self.cache = (
-            [
-                CacheItemSchema(
-                    key=model.cache_key(),
-                    data=get_schema(type(model)).model_validate(model),
-                )
-                for model in cache
-            ]
-            if cache is not None
-            else None
         )
 
 
@@ -120,13 +98,6 @@ class VersionSchema(ServerSchema):
     """The schema which returns application version information."""
 
     version: str
-
-
-class CacheItemSchema(ServerSchema):
-    """A utility class to associate a cache key with model data in JSON."""
-
-    key: Any
-    data: Any
 
 
 class WebSocketServerSchema[T: Any](ServerSchema, ABC):

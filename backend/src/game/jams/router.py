@@ -3,7 +3,7 @@
 from typing import Annotated, Final
 from uuid import UUID
 
-from core.app.schemas import SchemaWithCache
+from core.app.schemas import CacheSchema
 from fastapi import APIRouter, Body, Query
 
 from .dependencies import GetJam, _get_jam
@@ -27,7 +27,7 @@ async def set_stop_reason(
     return jam
 
 
-@router.put('/setTripEventPasses', response_model=SchemaWithCache)
+@router.put('/setTripEventPasses', response_model=CacheSchema)
 async def set_trip_passes(
     jam: GetJam,
     team_num: Annotated[int, Query(alias='teamNum')],
@@ -52,7 +52,7 @@ async def set_trip_passes(
     return jam
 
 
-@router.delete('/tripEvent', response_model=SchemaWithCache)
+@router.delete('/tripEvent', response_model=CacheSchema)
 async def delete_trip_event(
     jam: GetJam,
     team_num: Annotated[int, Query(alias='teamNum')],

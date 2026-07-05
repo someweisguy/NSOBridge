@@ -3,7 +3,7 @@
 from typing import Annotated, Final, Sequence
 from uuid import UUID
 
-from core.app.schemas import SchemaWithCache
+from core.app.schemas import CacheSchema
 from core.db import GetAsyncSession
 from fastapi import APIRouter, Body
 from sqlalchemy import Result, Select, select
@@ -27,7 +27,7 @@ async def get_all_series(session: GetAsyncSession) -> Sequence[Series]:
     return results.scalars().all()
 
 
-@router.put('/activeBout', response_model=SchemaWithCache)
+@router.put('/activeBout', response_model=CacheSchema)
 async def set_active_bout(
     series: GetSeries, bout_uuid: Annotated[UUID, Body(alias='boutUuid')]
 ) -> Series:
