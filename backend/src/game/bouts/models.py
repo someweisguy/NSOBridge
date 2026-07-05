@@ -6,22 +6,13 @@ from datetime import datetime  # noqa: TC003 - Make SQLAlchemy happy
 from typing import TYPE_CHECKING, Any, Final, final, override
 from uuid import UUID  # noqa: TC003 - Make SQLAlchemy happy
 
-from core.db import (
-    CASCADE_CHILD,
-    CASCADE_OTHER,
-    BaseSQLModel,
-    CacheableSQLModel,
-)
+from core.db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.jams.models import TeamJam
 from game.models import Clock
 from game.skaters.models import Skater
 from game.timeouts.models import Timeout
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, column
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol
 
