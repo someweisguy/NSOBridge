@@ -24,10 +24,7 @@ which may be communicated to clients.
 from .constants import CASCADE_CHILD, CASCADE_OTHER, session_factory
 from .dependencies import GetAsyncSession
 from .models import BaseSQLModel, CacheableSQLModel
-from .service import (
-    create_tables,
-    get_database_url,
-)
+from .service import create_tables, get_database_url
 
 __all__ = (
     'BaseSQLModel',
