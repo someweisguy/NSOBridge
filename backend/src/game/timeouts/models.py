@@ -13,7 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 
 if TYPE_CHECKING:
-    from core.db import CacheKey
+    from core.app import CacheKey
     from game.bouts.models import BaseBout, Team
     from game.jams.models import Jam
 

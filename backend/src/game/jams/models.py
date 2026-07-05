@@ -30,7 +30,7 @@ from .types import StopReasonStr  # noqa: TC001
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from core.db import CacheKey
+    from core.app import CacheKey
     from game.bouts.models import BaseBout, Team
 
 
