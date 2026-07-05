@@ -6,7 +6,7 @@ from typing import Annotated
 from uuid import UUID
 
 from core.app import ServerSchema, register_model, timedelta_serializer
-from game.bouts.models import BaseBout, Team
+from game.bouts.models import BaseBout
 from game.jams.models import Jam
 from game.schemas import ClockSchema
 from game.skaters.schemas import SkaterSchema
@@ -24,7 +24,6 @@ class JamUri:
     jam_num: int
 
 
-# TODO: @register_model(Ruleset)
 class RulesetSchema(ServerSchema):
     """Represent a Ruleset as a JSON schema.
 
@@ -42,7 +41,6 @@ class RulesetSchema(ServerSchema):
     num_reviews: int
 
 
-@register_model(Team)
 class TeamSchema(ServerSchema):
     """Represent a Team as a JSON schema."""
 

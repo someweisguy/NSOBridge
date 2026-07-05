@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Final, Type
 
+from .types import CacheableProtocol
+
 if TYPE_CHECKING:
     from .schemas import ServerSchema
 
@@ -44,6 +46,8 @@ def register_model(model: Any) -> Callable:
         model (Any): the associated model.
 
     """
+    if not isinstance(model, CacheableProtocol):
+        raise TypeError('Only cacheable models should be registered.')
 
     def _schema_decorator(cls: Type[ServerSchema]):
         _model_table[model] = cls

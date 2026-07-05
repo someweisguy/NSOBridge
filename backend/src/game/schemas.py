@@ -3,12 +3,9 @@
 from datetime import datetime, timedelta
 from typing import Annotated
 
-from core.app import ServerSchema, register_model, timedelta_serializer
-
-from .models import Clock
+from core.app import ServerSchema, timedelta_serializer
 
 
-@register_model(Clock)
 class ClockSchema(ServerSchema):
     """Represent a Clock as a JSON schema."""
 
