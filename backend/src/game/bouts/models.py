@@ -315,15 +315,6 @@ class Team(BaseSQLModel):
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (self.bout,)
 
-    def get_bout(self) -> BaseBout:
-        """Get the Bout to which this Team belongs.
-
-        Returns:
-            BaseBout: the Bout to which this Team belongs.
-
-        """
-        return self.bout
-
     @property
     def bout_score(self) -> int:
         """Calculate the total bout score of this Team.

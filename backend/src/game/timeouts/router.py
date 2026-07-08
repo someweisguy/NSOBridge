@@ -33,7 +33,7 @@ async def set_team(
     timeout: GetTimeout, team_num: Annotated[int | None, Body()] = None
 ) -> Timeout:
     """Set the calling Team of the specified Timeout."""
-    bout: BaseBout = timeout.get_bout()
+    bout: BaseBout = timeout.bout
     timeout.set_team(bout.teams[team_num] if team_num is not None else None)
     return timeout
 

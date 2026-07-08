@@ -257,7 +257,7 @@ async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> BaseBout
 
     team.name = name
 
-    return team.get_bout()
+    return team.bout
 
 
 __all__ = ('router',)
