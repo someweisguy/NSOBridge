@@ -22,8 +22,8 @@ class Series(CacheableSQLModel):
 
     """
 
+    _active_bout_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('bouts.uuid'))
     name: Mapped[str] = mapped_column(default='')
-    active_bout_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('bouts.uuid'))
 
     bouts: Mapped[list[BaseBout]] = relationship(
         back_populates='series',
@@ -43,16 +43,39 @@ class Series(CacheableSQLModel):
         """
         super().__init__(name=name)
 
-    def set_active_bout(self, bout: BaseBout) -> None:
-        """Set the active Bout for the Series."""
+    @property
+    def active_bout(self) -> BaseBout | None:
+        """Get the currently active Bout.
+
+        Returns None if there is not an active Bout.
+
+        Returns:
+            BaseBout | None: The currently active Bout or None.
+
+        """
+        return next(
+            (bout for bout in self.bouts if bout.uuid == self._active_bout_uuid), None
+        )
+
+    @active_bout.setter
+    def active_bout(self, bout: BaseBout) -> None:
+        """Set the active Bout for the Series.
+
+        Args:
+            bout (BaseBout): the Bout to set as active.
+
+        Raises:
+            ValueError: if the provided Bout is not part of this Series.
+
+        """
         if bout not in self.bouts:
             raise ValueError('The active Bout must be part of the Series.')
 
-        self.active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment]
+        # I'm not sure why ty thinks this is an invalid assignment...
+        self._active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment]
 
     @override
     def cache_key(self) -> CacheKey:
-        # Special case where updating one Series invalidates the cache for all Series
         return (self.__tablename__, self.uuid)
 
     @override

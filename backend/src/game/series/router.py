@@ -37,5 +37,5 @@ async def set_active_bout(
             break
     else:
         raise ValueError('No such Bout was found.')
-    series.set_active_bout(bout)
+    series.active_bout = bout
     return series

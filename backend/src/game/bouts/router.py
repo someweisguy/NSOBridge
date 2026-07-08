@@ -99,8 +99,8 @@ async def create_bout(
 
     # Add the Bout to the Series
     series.bouts.append(bout)
-    if series.active_bout_uuid is None:
-        series.set_active_bout(bout)
+    if series._active_bout_uuid is None:
+        series.active_bout = bout
     flag_dirty(series)  # Include Series in cache updates
 
     return bout
