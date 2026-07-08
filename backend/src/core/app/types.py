@@ -22,8 +22,12 @@ class APIResponse[T: Any](JSONResponse):
     """
 
     @override
-    def render(self, content: dict) -> bytes:
-        payload: dict[str, Any] = content if 'data' in content else {'data': content}
+    def render(self, content: Any) -> bytes:
+        payload: dict[str, Any] = (
+            content
+            if isinstance(content, dict) and 'data' in content.keys()
+            else {'data': content}
+        )
         payload['status_code'] = self.status_code
         payload['timestamp'] = datetime.now()
         return json.dumps(
