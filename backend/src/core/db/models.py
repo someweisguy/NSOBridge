@@ -134,7 +134,7 @@ class _DatabaseMemento(Memento):
             _ = await session.merge(self._detached_state_to_restore)
 
             # Get a list of query keys to invalidate before committing the session
-            models: list[CacheableSQLModel] = model.get_updates()
+            models: list[CacheableSQLModel] = model.get_updates(session)
 
             await session.commit()
 
@@ -167,19 +167,24 @@ class CacheableSQLModel(BaseSQLModel):
         copy: CacheableSQLModel = deepcopy(self)
         return _DatabaseMemento(copy)
 
-    def get_updates(self) -> list[CacheableSQLModel]:
+    def get_updates(
+        self, session: AsyncSession | None = None
+    ) -> list[CacheableSQLModel]:
         """Get a list of the cacheables which have been modified in the desired session.
 
         Args:
-            session (AsyncSession | Session): the session which to check.
+            session (AsyncSession | None, optional): the session to check for updates.
+            If no session is provided, the model will use the session is is associated
+            with or throw an error if no such session exists. Defaults to None.
 
         Returns:
-            list[CacheItem]: a list of all the cacheable models which have been modified
-            and their cache keys.
+            list[CacheableSQLModel]: a list of all the cacheable models which have been
+            modified.
 
         """
         # Add each dirty or deleted model to a set for updates
-        session: AsyncSession = self.get_session()
+        if session is None:
+            session: AsyncSession = self.get_session()
         models: set[BaseSQLModel] = {
             model
             for identity_map in [session.dirty]
