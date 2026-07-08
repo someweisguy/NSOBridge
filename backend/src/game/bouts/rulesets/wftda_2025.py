@@ -143,8 +143,7 @@ class Bout(BaseBout):
         jam.stop(timestamp)
 
         # Attempt to guess the reason that the Jam ended
-        jam_duration = timedelta(minutes=2)  # FIXME: implement ruleset.jam_duration
-        if jam_duration - jam.get_duration() <= timedelta(seconds=4):
+        if self.ruleset.jam_duration - jam.get_duration() <= timedelta(seconds=4):
             jam.stop_reason = 'elapsed'
         else:
             for team_jam in jam.team_jams:
