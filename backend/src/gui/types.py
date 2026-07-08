@@ -27,6 +27,8 @@ from PySide6.QtWidgets import (
 )
 from semver import VersionInfo
 
+HTTP_PORT: int = 80
+
 
 class AppWindow(QMainWindow):
     """The main Qt window for the GUI."""
@@ -58,9 +60,8 @@ class AppWindow(QMainWindow):
             'Loading...',
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
         )
-        http_port: int = 80
         self.host_label: QLabel = QLabel(
-            f'http://{host}{f":{port}" if port != http_port else ""}',
+            f'http://{host}{f":{port}" if port != HTTP_PORT else ""}',
             alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
         )
         self.host_label.setTextInteractionFlags(
@@ -151,12 +152,10 @@ class AppWindow(QMainWindow):
             message: QByteArray = reply.readAll()
             data: Iterable = json.loads(bytes(message.data()).decode('utf-8'))
 
-            # Preset this value in case this method fails
-            self.update_label.setText('You are running the latest version!')
-
             try:
                 release: GithubReleaseSchema = core.updates.parse_latest_release(data)
             except (ValidationError, ValueError):
+                self.update_label.setText('Unable to check for updates.')
                 return
 
             # Get and compare the against the latest version
@@ -165,6 +164,7 @@ class AppWindow(QMainWindow):
                 self.version_label.text()[1:]
             )
             if current_version >= latest_version:
+                self.update_label.setText('You are running the latest version.')
                 return
 
             self.update_label.setTextFormat(Qt.TextFormat.MarkdownText)
