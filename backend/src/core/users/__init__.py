@@ -12,7 +12,7 @@ from fastapi import APIRouter
 
 from .dependencies import GetUser
 from .router import router
-from .service import Memento, User
+from .types import Memento, User
 
 routers: Final[tuple[APIRouter, ...]] = (router,)
 

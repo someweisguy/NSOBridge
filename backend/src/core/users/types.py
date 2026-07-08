@@ -1,4 +1,4 @@
-"""Service requirements for the user module.
+"""Types for the user module.
 
 In this file the User class and its associated business logic can be found.
 

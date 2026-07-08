@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 
 from fastapi import Cookie, Depends, Response
 
-from .service import User
+from .types import User
 
 if TYPE_CHECKING:
     from collections.abc import Generator
