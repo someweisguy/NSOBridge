@@ -47,8 +47,6 @@ class Series(CacheableSQLModel):
         """Set the active Bout for the Series."""
         if bout not in self.bouts:
             raise ValueError('The active Bout must be part of the Series.')
-        if bout.uuid is None:
-            raise TypeError('The active Bout must have a UUID.')
 
         self.active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment]
 
