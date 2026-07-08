@@ -146,7 +146,7 @@ async def start_timeout(
     if timeout is not None:
         timeout.is_review = is_review
         if team_num is not None:
-            timeout.team = bout.teams[team_num]
+            timeout._team = bout.teams[team_num]
     return bout
 
 

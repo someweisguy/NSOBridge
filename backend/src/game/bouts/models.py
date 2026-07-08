@@ -177,7 +177,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
                     return 'timeout'
                 elif latest_timeout.is_review:
                     return 'review'
-                elif latest_timeout.team is not None:
+                elif latest_timeout._team is not None:
                     return 'team_timeout'
                 else:
                     return 'official_timeout'
@@ -303,7 +303,7 @@ class Team(BaseSQLModel):
         order_by=[TeamJam.period_num, TeamJam.jam_num],
     )
     timeouts: Mapped[list[Timeout]] = relationship(
-        back_populates='team',
+        back_populates='_team',
         cascade='all',  # Exclude `delete-orphan` as Timeouts can be called by officials
         lazy='selectin',
         order_by=[Timeout.num],

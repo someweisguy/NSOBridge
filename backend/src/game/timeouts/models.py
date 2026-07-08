@@ -32,13 +32,19 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
     num: Mapped[int] = mapped_column()
 
+    _team_is_officials: Mapped[bool] = mapped_column(default=False)
     clock_elapsed: Mapped[timedelta | None] = mapped_column(default=None)
-    team_is_officials: Mapped[bool] = mapped_column(default=False)
     is_review: Mapped[bool] = mapped_column(default=False)
     details: Mapped[str] = mapped_column(default='')
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
+    _team: Mapped[Team | None] = relationship(
+        back_populates='timeouts',
+        cascade=CASCADE_OTHER,
+        foreign_keys=[_team_uuid],
+        lazy='selectin',
+    )
     bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
@@ -48,12 +54,6 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     jam: Mapped[Jam] = relationship(
         cascade=CASCADE_OTHER,
         foreign_keys=[_jam_uuid],
-        lazy='selectin',
-    )
-    team: Mapped[Team | None] = relationship(
-        back_populates='timeouts',
-        cascade=CASCADE_OTHER,
-        foreign_keys=[_team_uuid],
         lazy='selectin',
     )
 
@@ -90,9 +90,23 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         if self._team_uuid is None:
             return (self.bout,)
-        return (self.bout, self.team)  # ty:ignore[invalid-return-type]
+        return (self.bout, self._team)  # ty:ignore[invalid-return-type]
 
-    def set_team(self, team: Team | None) -> None:
+    @property
+    def team(self) -> Team | None:
+        """Get the Team that called this Timeout or None.
+
+        None is returned if the Timeout has not yet been assigned to a Team or if the
+        Officials called this timeout.
+
+        Returns:
+            Team | None: the calling Team or None.
+
+        """
+        return self._team
+
+    @team.setter
+    def team(self, team: Team | None) -> None:
         """Set the calling Team of this Timeout.
 
         When a Timeout is initialized, it is not clear if the timeout is called by a
@@ -105,4 +119,19 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
         """
         self._team_uuid = team.uuid if team is not None else None
-        self.team_is_officials = team is None
+        self._team_is_officials = team is None
+
+    @property
+    def team_is_officials(self) -> bool:
+        """True if this team has been called by the officials.
+
+        Knowing the calling Team of a Timeout is a tri-state logic. A Timeout can be
+        called by a team, by the officials, or it could be unknown who the caller is. If
+        this property is False and `self.team` is None, then it is not yet known who
+        called this Timeout.
+
+        Returns:
+            bool: True if this team was called by the officials.
+
+        """
+        return self._team_is_officials

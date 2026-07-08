@@ -186,18 +186,18 @@ class Bout(BaseBout):
         logging.info(f'Stopping Timeout in {self}')
 
         # Validate the Timeout's state
-        if timeout.is_review and timeout.team is None:
+        if timeout.is_review and timeout._team is None:
             raise GameRulesError('Officials cannot call an official review')
 
         # Stop the Timeout
         timeout.stop(timestamp)
 
         # Subtract remaining Timeouts or Official Reviews as appropriate
-        if timeout.team is not None:
+        if timeout._team is not None:
             if timeout.is_review and not timeout.retained:
-                timeout.team.reviews_remaining -= 1
+                timeout._team.reviews_remaining -= 1
             elif not timeout.is_review:
-                timeout.team.timeouts_remaining -= 1
+                timeout._team.timeouts_remaining -= 1
 
     @override
     def add_trip(self, team: Team, timestamp: datetime, passes: int) -> None:

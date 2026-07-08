@@ -34,7 +34,7 @@ async def set_team(
 ) -> Timeout:
     """Set the calling Team of the specified Timeout."""
     bout: BaseBout = timeout.bout
-    timeout.set_team(bout.teams[team_num] if team_num is not None else None)
+    timeout.team = bout.teams[team_num] if team_num is not None else None
     return timeout
 
 
