@@ -63,7 +63,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
         order_by=[column('period'), column('num')],
     )
     timeouts: Mapped[list[Timeout]] = relationship(
-        back_populates='_bout',
+        back_populates='bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('num')],
@@ -280,7 +280,7 @@ class Team(BaseSQLModel):
         foreign_keys=[_bout_uuid],
     )
     skaters: Mapped[list[Skater]] = relationship(
-        back_populates='_team',
+        back_populates='team',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[Skater.num],

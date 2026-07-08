@@ -26,7 +26,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
     _jam_uuid: Mapped[UUID] = mapped_column(ForeignKey('jams.uuid'))
     _team_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('teams.uuid'))
-    bout_uuid: Mapped[UUID | None] = mapped_column(
+    _bout_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('bouts.uuid'), nullable=False
     )
 
@@ -39,11 +39,11 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     result: Mapped[str] = mapped_column(default='')
     retained: Mapped[bool] = mapped_column(default=False)
 
-    _bout: Mapped[BaseBout] = relationship(
+    bout: Mapped[BaseBout] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
         lazy='selectin',
-        foreign_keys=[bout_uuid],
+        foreign_keys=[_bout_uuid],
     )
     jam: Mapped[Jam] = relationship(
         cascade=CASCADE_OTHER,
@@ -58,7 +58,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     )
 
     __tablename__: str = 'timeouts'
-    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_bout_uuid', 'num'),)
 
     def __str__(self) -> str:
         """Return a str representation of this Timeout.
@@ -67,7 +67,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
             str: a str representation of this Timeout.
 
         """
-        return f'[Bout ID: {self.bout_uuid}, T{self.num}]'
+        return f'[Bout ID: {self._bout_uuid}, T{self.num}]'
 
     def __init__(self, jam: Jam, num: int) -> None:
         """Initialize a Timeout.
@@ -84,22 +84,13 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.bout_uuid, self.num)
+        return (self.__tablename__, self._bout_uuid, self.num)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         if self._team_uuid is None:
-            return (self._bout,)
-        return (self._bout, self.team)  # ty:ignore[invalid-return-type]
-
-    def get_bout(self) -> BaseBout:
-        """Get the Bout that owns this Timeout.
-
-        Returns:
-            BaseBout: the Bout that Owns this Timeout.
-
-        """
-        return self._bout
+            return (self.bout,)
+        return (self.bout, self.team)  # ty:ignore[invalid-return-type]
 
     def set_team(self, team: Team | None) -> None:
         """Set the calling Team of this Timeout.

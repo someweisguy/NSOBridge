@@ -17,20 +17,20 @@ if TYPE_CHECKING:
 class Skater(CacheableSQLModel):
     """Represent a singular Skater in roller derby."""
 
-    team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
+    _team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
 
     num: Mapped[str] = mapped_column()
     name: Mapped[str] = mapped_column()
     pronouns: Mapped[str] = mapped_column()  # TODO: Implement pronouns
 
-    _team: Mapped[Team] = relationship(
+    team: Mapped[Team] = relationship(
         cascade=CASCADE_OTHER,
         lazy='selectin',
-        foreign_keys=[team_uuid],
+        foreign_keys=[_team_uuid],
     )
 
     __tablename__: str = 'skaters'
-    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('team_uuid', 'num'),)
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_team_uuid', 'num'),)
 
     def __init__(self, name: str, number: str) -> None:
         """Initialize a Skater.
@@ -48,17 +48,8 @@ class Skater(CacheableSQLModel):
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self._team._bout_uuid, self._team.num, self.num)
+        return (self.__tablename__, self.team._bout_uuid, self.team.num, self.num)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self._team,)
-
-    def get_team(self) -> Team:
-        """Get the Team to which this Skater belongs.
-
-        Returns:
-            BaseTeam: the Team to which this Skater belongs.
-
-        """
-        return self._team
+        return (self.team,)
