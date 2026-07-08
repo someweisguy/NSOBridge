@@ -359,7 +359,7 @@ class TripEvent(BaseSQLModel):
 
         """
         super().__init__(
-            _team_jam=None,
+            team_jam=None,
             uuid=uuid4(),  # Required when adding a new TripEvent
             timestamp=timestamp,
             lead=lead,
