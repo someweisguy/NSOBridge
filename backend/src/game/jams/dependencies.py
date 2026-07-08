@@ -22,7 +22,7 @@ async def _get_jam(  # noqa: PLR0913
     # TODO: polish this method
     statement: Select[tuple[Jam]] = (
         select(Jam)
-        .where(Jam.bout_uuid == bout_uuid)
+        .where(Jam._bout_uuid == bout_uuid)
         .where(Jam.period == period_num)
         .where(Jam.num == jam_num)
     )

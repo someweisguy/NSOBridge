@@ -17,6 +17,7 @@ from sqlalchemy import (
     select,
     table,
 )
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
     Mapped,
     MappedSQLExpression,
@@ -37,20 +38,18 @@ if TYPE_CHECKING:
 class Jam(AbstractOneShotModel, CacheableSQLModel):
     """An abstract Jam without any associated ruleset."""
 
-    bout_uuid: Mapped[UUID | None] = mapped_column(
-        ForeignKey('bouts.uuid'), nullable=False
-    )
+    _bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'))
 
     num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
 
     stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
-    _bout: Mapped[BaseBout] = relationship(
+    bout: Mapped[BaseBout] = relationship(
         back_populates='jams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
-        foreign_keys=[bout_uuid],
+        foreign_keys=[_bout_uuid],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
         back_populates='jam',
@@ -64,7 +63,7 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
         'confirm_deleted_rows': False,
     }
     __table_args__: tuple[Constraint, ...] = AbstractOneShotModel.__table_args__ + (
-        UniqueConstraint('bout_uuid', 'num', 'period'),
+        UniqueConstraint('_bout_uuid', 'num', 'period'),
     )
 
     def __str__(self) -> str:
@@ -74,7 +73,7 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
             str: a str representation of this Jam.
 
         """
-        return f'[Bout ID: {self.bout_uuid}, P{self.period} J{self.num}]'
+        return f'[Bout ID: {self._bout_uuid}, P{self.period} J{self.num}]'
 
     def __init__(self, period_num: int, jam_num: int, *team_jams: TeamJam) -> None:
         """Initialize a Jam.
@@ -89,11 +88,21 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.bout_uuid, self.period, self.num)
+        return (self.__tablename__, self._bout_uuid, self.period, self.num)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self._bout,)
+        return (self.bout,)
+
+    @hybrid_property
+    def bout_uuid(self) -> UUID:
+        """Get the UUID of parent Bout.
+
+        Returns:
+            UUID: the UUID of the Bout.
+
+        """
+        return self._bout_uuid
 
     def get_bout(self) -> BaseBout:
         """Get the Bout that owns this Jam.
@@ -102,7 +111,7 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
             BaseBout: the Bout that owns this Jam.
 
         """
-        return self._bout
+        return self.bout
 
     def get_team_jam(self, team: Team | UUID) -> TeamJam:
         """Get the TeamJam associated with the desired Team.
@@ -125,7 +134,7 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
         # Get the first TeamJam that has the specified Team ID
         team_jam: TeamJam | None = next(
-            (tj for tj in self.team_jams if tj.team_uuid == team), None
+            (tj for tj in self.team_jams if tj._team_uuid == team), None
         )
 
         if team_jam is None:
@@ -212,13 +221,13 @@ class TeamJam(BaseSQLModel):
     _jam_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('jams.uuid'), nullable=False
     )
-    team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
+    _team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
 
-    _team: Mapped[Team] = relationship(
+    team: Mapped[Team] = relationship(
         back_populates='team_jams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
-        foreign_keys=[team_uuid],
+        foreign_keys=[_team_uuid],
     )
     jam: Mapped[Jam] = relationship(
         back_populates='team_jams',
@@ -227,7 +236,7 @@ class TeamJam(BaseSQLModel):
         lazy='selectin',
     )
     events: Mapped[list[TripEvent]] = relationship(
-        back_populates='_team_jam',
+        back_populates='team_jam',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('timestamp')],
@@ -241,7 +250,7 @@ class TeamJam(BaseSQLModel):
     )
     team_num: MappedSQLExpression[int] = column_property(
         select(table('teams', column('num')))
-        .where(column('uuid') == team_uuid)
+        .where(column('uuid') == _team_uuid)
         .scalar_subquery()
     )
 
@@ -261,11 +270,11 @@ class TeamJam(BaseSQLModel):
             ValueError: if the Team and Jam provided are not in the same Bout.
 
         """
-        super().__init__(_team=team)
+        super().__init__(team=team)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self._team, self.jam)
+        return (self.team, self.jam)
 
     def get_team(self) -> Team:
         """Get the Team that owns this TeamJam.
@@ -274,7 +283,7 @@ class TeamJam(BaseSQLModel):
             BaseTeam: the Team that owns this TeamJam.
 
         """
-        return self._team
+        return self.team
 
     def get_num_trips(self) -> int:
         """Get the number of trips that this TeamJam's Jammer has completed.
@@ -299,7 +308,7 @@ class TripEvent(BaseSQLModel):
     eligibility.
     """
 
-    team_jam_uuid: Mapped[UUID | None] = mapped_column(
+    _team_jam_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('team_jams.uuid'), nullable=False
     )
 
@@ -309,11 +318,11 @@ class TripEvent(BaseSQLModel):
     passes: Mapped[int | None] = mapped_column(default=None)
     star_pass: Mapped[bool] = mapped_column(default=False)
 
-    _team_jam: Mapped[TeamJam] = relationship(
+    team_jam: Mapped[TeamJam] = relationship(
         back_populates='events',
         cascade=CASCADE_OTHER,
         lazy='selectin',
-        foreign_keys=[team_jam_uuid],
+        foreign_keys=[_team_jam_uuid],
     )
 
     __tablename__: str = 'trip_events'
@@ -358,7 +367,7 @@ class TripEvent(BaseSQLModel):
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self._team_jam,)
+        return (self.team_jam,)
 
     def get_team_jam(self) -> TeamJam:
         """Get the TeamJam to which this TripEvent belongs.
@@ -367,7 +376,7 @@ class TripEvent(BaseSQLModel):
             TeamJam: the TeamJam to which this TripEvent belongs.
 
         """
-        return self._team_jam
+        return self.team_jam
 
     def is_empty(self) -> bool:
         """Return True if this TripEvent is empty.

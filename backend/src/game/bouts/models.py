@@ -57,7 +57,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
         order_by=[column('num')],
     )
     jams: Mapped[list[Jam]] = relationship(
-        back_populates='_bout',
+        back_populates='bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('period'), column('num')],
@@ -286,7 +286,7 @@ class Team(BaseSQLModel):
         order_by=[Skater.num],
     )
     team_jams: Mapped[list[TeamJam]] = relationship(
-        back_populates='_team',
+        back_populates='team',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[TeamJam.period_num, TeamJam.jam_num],
