@@ -15,14 +15,15 @@ PAGES_TAG = 'Pages'
 METADATA_TAG = 'Metadata'
 
 frontend_dir: Final[Path] = get_resource_path('www')
-assets = StaticFiles(directory=frontend_dir / 'assets')
+ASSETS = StaticFiles(directory=frontend_dir / 'assets')
+"""FastAPI StaticFiles of the frontend assets."""
 
 
-pages_router: Final[APIRouter] = APIRouter(prefix='')
-api_router: Final[APIRouter] = APIRouter(prefix='')
+pages_router: Final[APIRouter] = APIRouter(prefix='', tags=[PAGES_TAG])
+api_router: Final[APIRouter] = APIRouter(prefix='', tags=[METADATA_TAG])
 
 
-@pages_router.get('/', tags=[PAGES_TAG], name='Render Index Page')
+@pages_router.get('/', name='Render Index Page')
 async def _render_index() -> FileResponse:
     """Render the index page."""
     page_path_name: str = 'index.html'
@@ -30,13 +31,13 @@ async def _render_index() -> FileResponse:
     return FileResponse(frontend_dir / page_path_name)
 
 
-@pages_router.get('/sb', tags=[PAGES_TAG], name='Render Scoreboard page')
+@pages_router.get('/sb', name='Render Scoreboard page')
 async def _render_scoreboard(request: Request) -> FileResponse:
     logging.info('Serving "/sb"')
     return FileResponse(frontend_dir / 'sb.html')
 
 
-@pages_router.get('/{file_name}', tags=[PAGES_TAG], name='Render generic page')
+@pages_router.get('/{file_name}', name='Render generic page')
 async def _render_generic_asset(request: Request, file_name: str) -> FileResponse:
     # Render generic HTML files found in the frontend directory
     # Don't forget to register new pages with the FastAPI pages router!
@@ -47,7 +48,7 @@ async def _render_generic_asset(request: Request, file_name: str) -> FileRespons
     return FileResponse(frontend_dir / file_name)
 
 
-@api_router.get('/version', tags=[METADATA_TAG])
+@api_router.get('/version')
 async def _get_app_version(request: Request) -> VersionSchema:
     """Return the current version of the app."""
     return VersionSchema(version=request.app.version)

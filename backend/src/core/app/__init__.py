@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from core.exceptions import ClientError
 
 from .constants import timedelta_serializer
-from .router import api_router, assets, pages_router
+from .router import ASSETS, api_router, pages_router
 from .schemas import CacheSchema, ClientSchema, ServerSchema
 from .service import get_resource_path, register_model
 from .types import APIResponse, CacheableProtocol, CacheKey
@@ -28,7 +28,7 @@ error_handlers: Final[dict[type[Exception], Callable]] = {
 __all__ = (
     'api_router',
     'APIResponse',
-    'assets',
+    'ASSETS',
     'CacheableProtocol',
     'CacheKey',
     'CacheSchema',

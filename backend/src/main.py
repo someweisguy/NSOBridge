@@ -49,7 +49,7 @@ async def lifespan(app: FastAPI):
         app.add_exception_handler(e, handler)
     for router in [core.app.api_router, *core.users.routers, *game.routers]:
         app.include_router(router, prefix=API_PREFIX)
-    app.mount('/assets', core.app.assets)
+    app.mount('/assets', core.app.ASSETS)
     app.mount('/ws', core.ws.app)
 
     # Load the pages router without a path prefix
