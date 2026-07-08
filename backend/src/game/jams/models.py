@@ -26,7 +26,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from .types import StopReasonStr  # noqa: TC001
+from .types import StopReasonStr  # noqa: TC001 - Make SQLAlchemy happy
 
 if TYPE_CHECKING:
     from datetime import datetime
