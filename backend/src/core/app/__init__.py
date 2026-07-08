@@ -22,6 +22,7 @@ error_handlers: Final[dict[type[Exception], Callable]] = {
     ClientError: generic_error_handler,
     RequestValidationError: validation_error_handler,
 }
+"""Default error handlers for the FastAPI application."""
 
 
 __all__ = (

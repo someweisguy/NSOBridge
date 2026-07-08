@@ -14,10 +14,16 @@ from semver import VersionInfo
 from .schemas import GithubReleaseSchema
 
 OWNER: Final[str] = 'someweisguy'
+"""The owner of this code repository on GitHub."""
+
 REPO: Final[str] = 'NSOBridge'
+"""The name of this repository on GitHub."""
 
 UPDATE_URL: Final[str] = f'https://api.github.com/repos/{OWNER}/{REPO}/releases'
+"""The URL at which to check for application updates."""
+
 GITHUB_API_HEADERS: Final[dict[str, str]] = {'Accept': 'application/vnd.github+json'}
+"""The HTTP headers required when querying the GitHub API."""
 
 
 def fetch_release_data() -> list:
@@ -32,7 +38,7 @@ def fetch_release_data() -> list:
     """
     try:
         response: Response = requests.get(
-            UPDATE_URL, headers={'Accept': 'application/vnd.github+json'}, timeout=5
+            UPDATE_URL, headers=GITHUB_API_HEADERS, timeout=5
         )
         response.raise_for_status()
     except (

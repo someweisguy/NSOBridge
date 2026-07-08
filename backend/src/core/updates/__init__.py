@@ -6,6 +6,12 @@ the internet while using this app. This is to be expected.
 
 During the few times that this app is run with an internet connection it should be made
 easy for users to update to the latest version of the app.
+
+
+This app checks for updates by querying the GitHub API for the latest releases of this
+code repository. Releases are expected to be tagged in a version format consistent with
+Semantic Versioning. The latest version number tag can be compared to the current app
+version to determine if a new release is available.
 """
 
 from .schemas import GithubReleaseSchema
