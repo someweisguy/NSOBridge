@@ -16,8 +16,14 @@ class SeriesSchema(ServerSchema):
 
     uuid: UUID
     name: str
-    active_bout_uuid: UUID | None
+    active_bout: Annotated[BaseBout | None, SkipValidation] = Field(exclude=True)
     bouts: Annotated[list[BaseBout], SkipValidation] = Field(exclude=True)
+
+    @computed_field
+    @property
+    def active_bout_uuid(self) -> UUID | None:
+        """Return the UUID of the active Bout or None."""
+        return self.active_bout.uuid if self.active_bout is not None else None
 
     @computed_field
     @property

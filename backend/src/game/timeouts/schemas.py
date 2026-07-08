@@ -5,7 +5,7 @@ from typing import Annotated
 from uuid import UUID
 
 from core.app import ServerSchema, register_model, timedelta_serializer
-from game.bouts.models import Team
+from game.bouts.models import BaseBout, Team
 from game.jams.models import Jam
 from pydantic import Field, SkipValidation, computed_field
 
@@ -16,12 +16,11 @@ from .models import Timeout
 class TimeoutSchema(ServerSchema):
     """Represent a Timeout as a JSON schema."""
 
-    bout_uuid: UUID
-    num: int
-
+    bout: Annotated[BaseBout, SkipValidation] = Field(exclude=True)
     jam: Annotated[Jam, SkipValidation] = Field(exclude=True)
     team: Annotated[Team | None, SkipValidation] = Field(exclude=True)
 
+    num: int
     start_timestamp: datetime | None
     stop_timestamp: datetime | None
     clock_elapsed: Annotated[timedelta, timedelta_serializer] | None
@@ -31,6 +30,12 @@ class TimeoutSchema(ServerSchema):
     details: str
     result: str
     retained: bool
+
+    @computed_field
+    @property
+    def bout_uuid(self) -> UUID:
+        """Get the UUID of the Bout to which this Timeout belongs."""
+        return self.bout.uuid
 
     @computed_field
     @property
