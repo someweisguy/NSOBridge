@@ -104,15 +104,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
         """
         return self._bout_uuid
 
-    def get_bout(self) -> BaseBout:
-        """Get the Bout that owns this Jam.
-
-        Returns:
-            BaseBout: the Bout that owns this Jam.
-
-        """
-        return self.bout
-
     def get_team_jam(self, team: Team | UUID) -> TeamJam:
         """Get the TeamJam associated with the desired Team.
 
@@ -128,8 +119,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
         """
         if not isinstance(team, UUID):
-            if team.uuid is None:
-                raise KeyError('this team does not exist')
             team = team.uuid
 
         # Get the first TeamJam that has the specified Team ID
@@ -218,9 +207,7 @@ class TeamJam(BaseSQLModel):
 
     """
 
-    _jam_uuid: Mapped[UUID | None] = mapped_column(
-        ForeignKey('jams.uuid'), nullable=False
-    )
+    _jam_uuid: Mapped[UUID] = mapped_column(ForeignKey('jams.uuid'))
     _team_uuid: Mapped[UUID] = mapped_column(ForeignKey('teams.uuid'))
 
     team: Mapped[Team] = relationship(
@@ -368,15 +355,6 @@ class TripEvent(BaseSQLModel):
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (self.team_jam,)
-
-    def get_team_jam(self) -> TeamJam:
-        """Get the TeamJam to which this TripEvent belongs.
-
-        Returns:
-            TeamJam: the TeamJam to which this TripEvent belongs.
-
-        """
-        return self.team_jam
 
     def is_empty(self) -> bool:
         """Return True if this TripEvent is empty.
