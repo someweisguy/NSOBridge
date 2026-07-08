@@ -11,10 +11,10 @@ from .dependencies import GetUser
 
 HISTORY_TAG = 'History'
 
-router: Final[APIRouter] = APIRouter()
+router: Final[APIRouter] = APIRouter(tags=[HISTORY_TAG])
 
 
-@router.post('/undo', tags=[HISTORY_TAG])
+@router.post('/undo')
 async def _undo(user: GetUser) -> None:
     """Undo the last command that this user executed."""
     logging.info('User is undoing their last transaction')
@@ -23,7 +23,7 @@ async def _undo(user: GetUser) -> None:
     await user.undo()
 
 
-@router.post('/redo', tags=[HISTORY_TAG])
+@router.post('/redo')
 async def _redo(user: GetUser) -> None:
     """Redo the last command that this user executed."""
     logging.info('User is redoing their last transaction')
