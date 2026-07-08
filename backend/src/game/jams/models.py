@@ -40,10 +40,10 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
     _bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'))
 
-    num: Mapped[int] = mapped_column(index=True)
     period: Mapped[int] = mapped_column(index=True)
+    num: Mapped[int] = mapped_column(index=True)
 
-    stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
+    _stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
     bout: Mapped[BaseBout] = relationship(
         back_populates='jams',
@@ -93,6 +93,22 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return (self.bout,)
+
+    @property
+    def stop_reason(self) -> StopReasonStr | None:
+        """Get the reason that the Jam was stopped or None if it is ongoing.
+
+        Returns:
+            StopReasonStr | None: The Jam stop reason or None.
+
+        """
+        return self._stop_reason
+
+    @stop_reason.setter
+    def stop_reason(self, reason: StopReasonStr) -> None:
+        if self.is_running():
+            raise RuntimeError('Cannot set a stop reason if the Jam is still running')
+        self._stop_reason = reason
 
     @hybrid_property
     def bout_uuid(self) -> UUID:
