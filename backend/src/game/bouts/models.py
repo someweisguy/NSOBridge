@@ -115,6 +115,17 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
 
     @final
     @property
+    def series_uuid(self) -> UUID:
+        """Get the UUID of the parent Series.
+
+        Returns:
+            UUID: the parent Series UUID.
+
+        """
+        return self._series_uuid
+
+    @final
+    @property
     def state(self) -> BoutStateStr:
         """Get the current state of the Bout.
 
