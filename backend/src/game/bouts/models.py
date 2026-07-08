@@ -31,18 +31,18 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     _clock_uuid: Mapped[UUID] = mapped_column(
         ForeignKey('clocks.uuid', ondelete='RESTRICT')
     )
-    series_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('series.uuid'))
+    _series_uuid: Mapped[UUID] = mapped_column(ForeignKey('series.uuid'))
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
     is_running: Mapped[bool] = mapped_column(default=False)
     ruleset_name: Mapped[str] = mapped_column()
 
-    _series: Mapped[Series | None] = relationship(
+    series: Mapped[Series] = relationship(
         back_populates='bouts',
         cascade=CASCADE_OTHER,
         lazy='selectin',
-        foreign_keys=[series_uuid],
+        foreign_keys=[_series_uuid],
     )
     clock: Mapped[Clock] = relationship(
         cascade=CASCADE_CHILD,
@@ -51,7 +51,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
         single_parent=True,
     )
     teams: Mapped[list[Team]] = relationship(
-        back_populates='_bout',
+        back_populates='bout',
         cascade=CASCADE_CHILD,
         lazy='selectin',
         order_by=[column('num')],
@@ -112,15 +112,6 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         return ()
-
-    def get_series(self) -> Series | None:
-        """Get the Series that owns this Bout.
-
-        Returns:
-            Series: the Series that owns this Bout.
-
-        """
-        return self._series
 
     @final
     @property
@@ -268,7 +259,7 @@ class Team(BaseSQLModel):
     data like a team's score offset.
     """
 
-    bout_uuid: Mapped[UUID | None] = mapped_column(
+    _bout_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('bouts.uuid'), nullable=False
     )
 
@@ -282,11 +273,11 @@ class Team(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column(default=0)
     reviews_remaining: Mapped[int] = mapped_column(default=0)
 
-    _bout: Mapped[BaseBout] = relationship(
+    bout: Mapped[BaseBout] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
-        foreign_keys=[bout_uuid],
+        foreign_keys=[_bout_uuid],
     )
     skaters: Mapped[list[Skater]] = relationship(
         back_populates='_team',
@@ -308,7 +299,7 @@ class Team(BaseSQLModel):
     )
 
     __tablename__: str = 'teams'
-    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_bout_uuid', 'num'),)
 
     def __init__(self, name: str, num: int) -> None:
         """Initialize a Team.
@@ -322,7 +313,7 @@ class Team(BaseSQLModel):
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self._bout,)
+        return (self.bout,)
 
     def get_bout(self) -> BaseBout:
         """Get the Bout to which this Team belongs.
@@ -331,7 +322,7 @@ class Team(BaseSQLModel):
             BaseBout: the Bout to which this Team belongs.
 
         """
-        return self._bout
+        return self.bout
 
     @property
     def bout_score(self) -> int:
@@ -345,7 +336,7 @@ class Team(BaseSQLModel):
         """
         bout_score: int = 0
         for team_jam in self.team_jams:
-            bout_score += self._bout.get_team_jam_score(team_jam)
+            bout_score += self.bout.get_team_jam_score(team_jam)
         return bout_score
 
     @property
@@ -361,4 +352,4 @@ class Team(BaseSQLModel):
         for team_jam in reversed(self.team_jams):
             if team_jam.jam.is_started():
                 break
-        return self._bout.get_team_jam_score(team_jam)
+        return self.bout.get_team_jam_score(team_jam)

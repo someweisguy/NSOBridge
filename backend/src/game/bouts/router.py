@@ -80,7 +80,7 @@ async def create_bout(
 
     # Create the Bout
     bout: BaseBout = BaseBout(ruleset_name, Team(home_name, 0), Team(away_name, 1))
-    bout.series_uuid = series.uuid
+    bout._series_uuid = series.uuid
     session.add(bout)
 
     # Expunge and merge the Bout to allow the subclass to call setup()

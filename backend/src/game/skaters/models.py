@@ -48,7 +48,7 @@ class Skater(CacheableSQLModel):
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self._team.bout_uuid, self._team.num, self.num)
+        return (self.__tablename__, self._team._bout_uuid, self._team.num, self.num)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:

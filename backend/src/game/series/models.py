@@ -26,9 +26,9 @@ class Series(CacheableSQLModel):
     active_bout_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('bouts.uuid'))
 
     bouts: Mapped[list[BaseBout]] = relationship(
-        back_populates='_series',
+        back_populates='series',
         cascade=CASCADE_CHILD,
-        foreign_keys='BaseBout.series_uuid',
+        foreign_keys='BaseBout._series_uuid',
         lazy='selectin',
     )
 
