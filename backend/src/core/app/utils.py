@@ -2,21 +2,105 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import time
+from datetime import datetime
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Awaitable, Callable
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, override
 
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
+from pydantic import (
+    Field,
+    ModelWrapValidatorHandler,
+    model_validator,
+)
 
-from .schemas import ErrorSchema
-from .types import APIResponse
+from .schemas import ErrorSchema, ServerSchema
+from .service import get_schema, send_all
+from .types import CacheableProtocol, CacheKey
 
 if TYPE_CHECKING:
     from fastapi import Request, Response
     from fastapi.exceptions import RequestValidationError
 
 logging.getLogger('aiosqlite').setLevel(logging.CRITICAL)
+
+
+class CacheSchema[T: ServerSchema](ServerSchema):
+    """A special schema that renders cache updates.
+
+    This schema is designed to take an object which implements the Cacheable Protocol
+    and convert it to a schema with a validated data field as well as a validated cache
+    field.
+
+    If the provided data is not cacheable, it is serialized with the default handler.
+    """
+
+    class _CacheItemSchema(ServerSchema):
+        key: CacheKey
+        data: Any  # This type must be Any for Pydantic to work properly
+
+    data: T | None = Field(default=None)
+    cache: list[_CacheItemSchema] = Field(
+        default_factory=[], exclude_if=lambda c: not len(c)
+    )
+
+    @model_validator(mode='wrap')
+    @classmethod
+    def _generate_schema(
+        cls, data: Any, handler: ModelWrapValidatorHandler[Any]
+    ) -> Any:
+        if not isinstance(data, CacheableProtocol):
+            return handler(data)
+
+        return CacheSchema(
+            data=get_schema(type(data)).model_validate(data),
+            cache=[
+                CacheSchema._CacheItemSchema(
+                    key=model.cache_key(),
+                    data=get_schema(type(model)).model_validate(model),
+                )
+                for model in data.get_updates()
+            ],
+        )
+
+
+class APIResponse[T: Any](JSONResponse):
+    """Used to wrap all API responses in a common JSON interface.
+
+    This class provides a wrapper for returning APISchemas in a nice way. This class is
+    a subclass of the FastAPI response class and also does not require the use of
+    keyword args to instantiate the response.
+    """
+
+    @override
+    def render(self, content: Any) -> bytes:
+        status_code = HTTPStatus(self.status_code)
+        error: bool = status_code.is_client_error or status_code.is_server_error
+        payload: dict[str, Any] = (
+            content
+            if isinstance(content, dict) and 'data' in content.keys()
+            else {'error' if error else 'data': content}
+        )
+        if 'data' not in payload:
+            payload['data'] = None
+        payload['status_code'] = self.status_code
+        payload['timestamp'] = datetime.now()
+
+        cache: Any = payload.get('cache', None)
+        if cache:
+            send_all('cache', cache)
+
+        return json.dumps(
+            payload,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(',', ':'),
+            default=(str),  # Serialize datetime objects
+        ).encode('utf-8')
 
 
 async def endpoint_profiling_middleware(

@@ -10,7 +10,6 @@ import core.app
 import core.server
 import core.updates
 import core.users
-import core.ws
 import game
 import game.bouts.rulesets
 from core.app import APIResponse, endpoint_profiling_middleware
@@ -48,7 +47,7 @@ async def lifespan(app: FastAPI):
     for router in [core.app.api_router, *core.users.routers, *game.routers]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.app.ASSETS)
-    app.mount('/ws', core.ws.app)
+    app.mount('/ws', core.app.ws)
 
     # Load the pages router without a path prefix
     app.include_router(core.app.pages_router)
@@ -91,7 +90,7 @@ async def lifespan(app: FastAPI):
     logging.debug('App lifespan has resumed execution')
 
     logging.info('Disconnecting all WebSockets')
-    await core.ws.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
+    await core.app.disconnect_all(CloseCode.GOING_AWAY, 'The server is shutting down')
     logging.debug('WebSockets disconnected')
 
 
