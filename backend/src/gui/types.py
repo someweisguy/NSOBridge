@@ -5,7 +5,7 @@ from typing import Iterable, override
 
 import core.server
 import core.updates
-from core.updates import UPDATE_URL, GithubReleaseSchema
+from core.updates import DOWNLOAD_URL, UPDATE_URL, GithubReleaseSchema
 from fastapi import FastAPI
 from pydantic import ValidationError
 from PySide6 import QtCore, QtWidgets
@@ -169,7 +169,7 @@ class AppWindow(QMainWindow):
 
             self.update_label.setTextFormat(Qt.TextFormat.MarkdownText)
             self.update_label.setText(
-                f'[_Click here_]({release.html_url}) to get the latest version!'
+                f'[_Click here_]({DOWNLOAD_URL}) to get the latest version!'
             )
             self.update_label.setOpenExternalLinks(True)
 

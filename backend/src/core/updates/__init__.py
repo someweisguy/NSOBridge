@@ -15,9 +15,10 @@ version to determine if a new release is available.
 """
 
 from .schemas import GithubReleaseSchema
-from .service import UPDATE_URL, fetch_release_data, parse_latest_release
+from .service import DOWNLOAD_URL, UPDATE_URL, fetch_release_data, parse_latest_release
 
 __all__ = (
+    'DOWNLOAD_URL',
     'fetch_release_data',
     'parse_latest_release',
     'GithubReleaseSchema',

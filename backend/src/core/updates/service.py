@@ -22,6 +22,9 @@ REPO: Final[str] = 'NSOBridge'
 UPDATE_URL: Final[str] = f'https://api.github.com/repos/{OWNER}/{REPO}/releases'
 """The URL at which to check for application updates."""
 
+DOWNLOAD_URL: Final[str] = f'https://github.com/{OWNER}/{REPO}#how-to-install'
+"""The URL to use to direct users to download NSO Bridge."""
+
 GITHUB_API_HEADERS: Final[dict[str, str]] = {'Accept': 'application/vnd.github+json'}
 """The HTTP headers required when querying the GitHub API."""
 
