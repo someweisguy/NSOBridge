@@ -2,6 +2,7 @@
 
 from typing import Callable, Final
 
+from fastapi import HTTPException
 from fastapi.exceptions import RequestValidationError
 
 from .constants import timedelta_serializer
@@ -17,6 +18,7 @@ from .utils import (
 
 error_handlers: Final[dict[type[Exception], Callable]] = {
     Exception: generic_error_handler,
+    HTTPException: generic_error_handler,
     RequestValidationError: validation_error_handler,
 }
 """Default error handlers for the FastAPI application."""

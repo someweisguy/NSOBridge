@@ -2,10 +2,9 @@
 
 import logging
 from http import HTTPStatus
-from http.client import HTTPException
 from typing import Final
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from .dependencies import GetUser
 

@@ -5,9 +5,9 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timedelta
 from http import HTTPStatus
-from http.client import HTTPException
 from typing import TYPE_CHECKING, Any, final, override
 
+from fastapi import HTTPException
 from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
 from game.bouts.schemas import RulesetSchema
 from game.jams.models import Jam, TeamJam, TripEvent
