@@ -253,10 +253,7 @@ async def set_clock_is_running(
 @router.put(path='/setTeamName', response_model=CacheSchema)
 async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> BaseBout:
     """Set the desired Team's name."""
-    # TODO: Does any additional string handling need to happen here?
-
     team.name = name
-
     return team.bout
 
 
