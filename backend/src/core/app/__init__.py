@@ -4,8 +4,6 @@ from typing import Callable, Final
 
 from fastapi.exceptions import RequestValidationError
 
-from core.exceptions import ClientError
-
 from .constants import timedelta_serializer
 from .router import ASSETS, api_router, pages_router
 from .schemas import CacheSchema, ClientSchema, ServerSchema
@@ -19,7 +17,6 @@ from .utils import (
 
 error_handlers: Final[dict[type[Exception], Callable]] = {
     Exception: generic_error_handler,
-    ClientError: generic_error_handler,
     RequestValidationError: validation_error_handler,
 }
 """Default error handlers for the FastAPI application."""

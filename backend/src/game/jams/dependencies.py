@@ -1,12 +1,14 @@
 """The FastAPI dependencies methods for Jams."""
 
+from http import HTTPStatus
 from typing import Annotated, TypeAlias
 from uuid import UUID
 
 from core.db import GetAsyncSession
 from core.users import GetUser
-from fastapi import Depends, Query, Request
+from fastapi import Depends, HTTPException, Query, Request
 from sqlalchemy import Result, Select, select
+from sqlalchemy.exc import NoResultFound
 
 from .models import Jam
 
@@ -19,7 +21,6 @@ async def _get_jam(  # noqa: PLR0913
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],
 ) -> Jam:
-    # TODO: polish this method
     statement: Select[tuple[Jam]] = (
         select(Jam)
         .where(Jam._bout_uuid == bout_uuid)
@@ -27,7 +28,11 @@ async def _get_jam(  # noqa: PLR0913
         .where(Jam.num == jam_num)
     )
     results: Result[tuple[Jam]] = await session.execute(statement)
-    jam: Jam = results.scalar_one()
+
+    try:
+        jam: Jam = results.scalar_one()
+    except NoResultFound as e:
+        raise HTTPException(HTTPStatus.NOT_FOUND, 'Could not find Jam') from e
 
     if request.method != 'GET':
         user.stage(jam.get_memento())

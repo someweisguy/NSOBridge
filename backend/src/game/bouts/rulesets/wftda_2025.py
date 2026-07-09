@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta
+from http import HTTPStatus
+from http.client import HTTPException
 from typing import TYPE_CHECKING, Any, final, override
 
-from core.exceptions import GameRulesError, GameStateError
 from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
 from game.bouts.schemas import RulesetSchema
 from game.jams.models import Jam, TeamJam, TripEvent
@@ -48,10 +49,13 @@ class Bout(BaseBout):
     def begin_period(self, timestamp: datetime) -> None:
         jam: Jam | None = self.get_upcoming_jam()
         if jam is None:
-            raise GameStateError('There is no upcoming Jam in this period')
+            raise HTTPException(
+                HTTPStatus.CONFLICT, 'There is no upcoming Jam in this period'
+            )
         if jam.period == self.ruleset.num_periods:
-            raise GameRulesError(
-                f'This Bout can only have {self.ruleset.num_periods} periods'
+            raise HTTPException(
+                HTTPStatus.CONFLICT,
+                f'This Bout can only have {self.ruleset.num_periods} periods',
             )
 
         logging.info(f'Beginning P{jam.period} in {self}')
@@ -69,13 +73,19 @@ class Bout(BaseBout):
         running_jam: Jam | None = self.get_running_jam()
         running_timeout: Timeout | None = self.get_running_timeout()
         if running_jam is not None or running_timeout is not None:
-            raise GameRulesError('A period can only be ended during a lineup')
+            raise HTTPException(
+                HTTPStatus.CONFLICT, 'A period can only be ended during a lineup'
+            )
         if not self.is_running:
-            raise GameStateError('There is no running period to end')
+            raise HTTPException(
+                HTTPStatus.CONFLICT, 'There is no running period to end'
+            )
 
         final_jam: Jam = self.jams[-1]
         if final_jam.num == 0 and final_jam.stop_timestamp is None:
-            raise GameStateError('One Jam must be played before ending the Period')
+            raise HTTPException(
+                HTTPStatus.CONFLICT, 'One Jam must be played before ending the Period'
+            )
         logging.info(f'Ending P{final_jam.period} in {self}')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
@@ -111,7 +121,9 @@ class Bout(BaseBout):
 
         running_jam: Jam | None = self.get_running_jam()
         if running_jam is not None:
-            raise GameRulesError('A Jam may only be started from lineup')
+            raise HTTPException(
+                HTTPStatus.CONFLICT, 'A Jam may only be started from lineup'
+            )
 
         # Get the first Jam that has not started
         jam: Jam | None = self.get_upcoming_jam()
@@ -136,7 +148,7 @@ class Bout(BaseBout):
     def stop_jam(self, timestamp: datetime) -> None:
         jam: Jam | None = self.get_running_jam()
         if jam is None:
-            raise GameStateError('There is no running Jam to stop')
+            raise HTTPException(HTTPStatus.CONFLICT, 'There is no running Jam to stop')
 
         logging.info(f'Stopping {jam}')
 
@@ -163,7 +175,10 @@ class Bout(BaseBout):
 
         running_timeout: Timeout | None = self.get_running_timeout()
         if running_timeout is not None:
-            raise GameStateError('A Timeout cannot be called while one is in progress')
+            raise HTTPException(
+                HTTPStatus.CONFLICT,
+                'A Timeout cannot be called while one is in progress',
+            )
 
         logging.info(f'Calling Timeout {self}')
 
@@ -180,13 +195,17 @@ class Bout(BaseBout):
     def stop_timeout(self, timestamp: datetime) -> None:
         timeout: Timeout | None = self.get_running_timeout()
         if timeout is None:
-            raise GameStateError('There is no active Timeout to stop')
+            raise HTTPException(
+                HTTPStatus.CONFLICT, 'There is no active Timeout to stop'
+            )
 
         logging.info(f'Stopping Timeout in {self}')
 
         # Validate the Timeout's state
         if timeout.is_review and timeout._team is None:
-            raise GameRulesError('Officials cannot call an official review')
+            raise HTTPException(
+                HTTPStatus.CONFLICT, 'Officials cannot call an official review'
+            )
 
         # Stop the Timeout
         timeout.stop(timestamp)
@@ -236,7 +255,9 @@ class Bout(BaseBout):
         if lead:
             # Add a new Trip Event in which lead is declared
             if jam.lead_is_declared():
-                raise GameRulesError('A lead jammer has already been declared')
+                raise HTTPException(
+                    HTTPStatus.CONFLICT, 'A lead jammer has already been declared'
+                )
             event: TripEvent = TripEvent(timestamp, lead=lead)
             team_jam.events.append(event)
         else:
@@ -257,7 +278,9 @@ class Bout(BaseBout):
         if lost:
             # Add a new Trip Event in which the Jammer has lost eligibility for lead
             if any(event.lost for event in team_jam.events):
-                raise GameRulesError('This team has already lost lead eligibility')
+                raise HTTPException(
+                    HTTPStatus.CONFLICT, 'This team has already lost lead eligibility'
+                )
             event: TripEvent = TripEvent(timestamp, lost=lost)
             team_jam.events.append(event)
         else:
@@ -279,8 +302,9 @@ class Bout(BaseBout):
 
         if star_pass:
             if any(event.star_pass for event in team_jam.events):
-                raise GameRulesError(
-                    'This team has already completed a star pass in this Jam'
+                raise HTTPException(
+                    HTTPStatus.CONFLICT,
+                    'This team has already completed a star pass in this Jam',
                 )
             event: TripEvent = TripEvent(timestamp, star_pass=star_pass)
             if not any(event.lost for event in team_jam.events):
@@ -299,7 +323,9 @@ class Bout(BaseBout):
     @override
     def finalize(self) -> None:
         if self.get_running_jam() is not None or self.get_running_timeout() is not None:
-            raise GameRulesError('The Bout cannot be finalized now.')
+            raise HTTPException(
+                HTTPStatus.CONFLICT, 'The Bout cannot be finalized now.'
+            )
 
         # Cull all Jams and Timeouts that have not started
         self.jams: list[Jam] = [

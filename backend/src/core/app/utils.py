@@ -7,8 +7,6 @@ import time
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Awaitable, Callable
 
-from core.exceptions import ClientError, ModelLookupError
-
 from .schemas import ErrorSchema
 from .types import APIResponse
 
@@ -53,14 +51,9 @@ async def generic_error_handler(request: Request, e: Exception) -> APIResponse:
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=str(e))
 
     # Handle exceptions that weren't explicitly caught
-    if not isinstance(e, ClientError):
-        logging.error(f'An unexpected "{error.type}" error occurred: {error.message}')
-        return APIResponse(error, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
     # Determine the HTTP status code based on the exception type
     match e:
-        case ModelLookupError():
-            status_code = HTTPStatus.NOT_FOUND
         case _:
             status_code = HTTPStatus.CONFLICT
 

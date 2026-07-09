@@ -1,10 +1,11 @@
 """The FastAPI dependencies methods for Series."""
 
+from http import HTTPStatus
+from http.client import HTTPException
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 from uuid import UUID
 
 from core.db import GetAsyncSession
-from core.exceptions import ModelLookupError
 from core.users import GetUser
 from fastapi import Depends, Query, Request
 from sqlalchemy import select
@@ -29,7 +30,9 @@ async def _get_series(
     try:
         series: Series = results.scalar_one()
     except NoResultFound as e:
-        raise ModelLookupError(f'Could not find Series ({series_uuid=})') from e
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND, f'Could not find Series ({series_uuid=})'
+        ) from e
 
     # Optionally take a snapshot of the Bout state and return the Bout
     if request.method != 'GET':
@@ -52,7 +55,9 @@ async def _get_optional_series(
     try:
         series: Series = results.scalar_one()
     except NoResultFound as e:
-        raise ModelLookupError(f'Could not find Series ({series_uuid=})') from e
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND, f'Could not find Series ({series_uuid=})'
+        ) from e
 
     # Optionally take a snapshot of the Bout state and return the Bout
     if request.method != 'GET':

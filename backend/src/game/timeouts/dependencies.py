@@ -1,10 +1,10 @@
 """The FastAPI dependencies methods for Timeouts."""
 
+from http import HTTPStatus
 from typing import Annotated, TypeAlias
 
-from core.exceptions import ModelLookupError
 from core.users import GetUser
-from fastapi import Depends, Query, Request
+from fastapi import Depends, HTTPException, Query, Request
 from game.bouts.dependencies import GetBout
 
 from .models import Timeout
@@ -19,7 +19,9 @@ async def _get_timeout(
     try:
         timeout: Timeout = bout.timeouts[num]
     except IndexError as e:
-        raise ModelLookupError(f'Could not find Timeout ({bout=} {num=})') from e
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND, f'Could not find Timeout ({bout=} {num=})'
+        ) from e
 
     # Optionally take a snapshot of the Timeout state
     if request.method != 'GET':
