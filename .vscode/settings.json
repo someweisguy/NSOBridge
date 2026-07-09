@@ -53,6 +53,7 @@
     "hiddenimports",
     "hooksconfig",
     "hookspath",
-    "pathex"
+    "pathex",
+    "venv"
   ]
 }

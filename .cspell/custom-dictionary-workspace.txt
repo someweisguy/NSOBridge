@@ -1,10 +1,13 @@
 # Custom Dictionary Words
+ASGI
 autodocs
 cacheables
 Cristian
 getpid
+IGRF
 ondelete
 pixmap
+Pydantic
 selectin
 sessionmaker
 SOCK_DGRAM
