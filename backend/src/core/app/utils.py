@@ -7,6 +7,8 @@ import time
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Awaitable, Callable
 
+from fastapi import HTTPException
+
 from .schemas import ErrorSchema
 from .types import APIResponse
 
@@ -46,26 +48,21 @@ async def endpoint_profiling_middleware(
     return response
 
 
-async def generic_error_handler(request: Request, e: Exception) -> APIResponse:
+async def generic_error_handler(request: Request, e: Exception) -> Response:
     """Handle generic errors in FastAPI."""
-    error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=str(e))
+    if not isinstance(e, HTTPException):
+        logging.warning(f'An unhandled exception occurred: {type(e).__name__}')
+        logging.info(e)
+        return APIResponse(e, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    # Handle exceptions that weren't explicitly caught
-
-    # Determine the HTTP status code based on the exception type
-    match e:
-        case _:
-            status_code = HTTPStatus.CONFLICT
-
-    logging.info(f'{error.message} (HTTP {status_code})')
-
-    return APIResponse(error, status_code=status_code)
+    logging.info(f'Handling bad request: {e.detail} (HTTP {e.status_code})')
+    return APIResponse(e.detail, status_code=e.status_code)
 
 
 async def validation_error_handler(
     request: Request, e: RequestValidationError
-) -> APIResponse:
+) -> Response:
     """Handle Pydantic validation errors in FastAPI."""
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=(str(e)))
     logging.warning(f'Received invalid input: {str(e)}')
-    return APIResponse(error, status_code=HTTPStatus.BAD_REQUEST)
+    return APIResponse(error, status_code=HTTPStatus.UNPROCESSABLE_ENTITY)

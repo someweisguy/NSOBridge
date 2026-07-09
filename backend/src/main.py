@@ -44,9 +44,7 @@ async def lifespan(app: FastAPI):
     """
     logging.info(f'App started{" in debug mode" if app.debug else ""}')
 
-    # Load the API and exception handlers
-    for e, handler in core.app.error_handlers.items():
-        app.add_exception_handler(e, handler)
+    # Load the API
     for router in [core.app.api_router, *core.users.routers, *game.routers]:
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.app.ASSETS)
@@ -111,8 +109,8 @@ app: Final[FastAPI] = FastAPI(
         'identifier': 'MIT',
     },
     docs_url='/docs',
+    exception_handlers=core.app.error_handlers,
 )
-
 
 if __name__ == '__main__':
     import gui

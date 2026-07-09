@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import typing
 from datetime import datetime
+from http import HTTPStatus
 from typing import Any, Iterable, Protocol, override
 
 from fastapi.responses import JSONResponse
@@ -23,11 +24,15 @@ class APIResponse[T: Any](JSONResponse):
 
     @override
     def render(self, content: Any) -> bytes:
+        status_code = HTTPStatus(self.status_code)
+        error: bool = status_code.is_client_error or status_code.is_server_error
         payload: dict[str, Any] = (
             content
             if isinstance(content, dict) and 'data' in content.keys()
-            else {'data': content}
+            else {'error' if error else 'data': content}
         )
+        if 'data' not in payload:
+            payload['data'] = None
         payload['status_code'] = self.status_code
         payload['timestamp'] = datetime.now()
         return json.dumps(

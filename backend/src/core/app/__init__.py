@@ -1,8 +1,8 @@
 """The core app submodule."""
 
-from typing import Callable, Final
+from typing import Any, Callable, Coroutine, Final
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Request, Response
 from fastapi.exceptions import RequestValidationError
 
 from .constants import timedelta_serializer
@@ -16,7 +16,10 @@ from .utils import (
     validation_error_handler,
 )
 
-error_handlers: Final[dict[type[Exception], Callable]] = {
+error_handlers: Final[
+    dict[int | type[Exception], Callable[[Request, Any], Coroutine[Any, Any, Response]]]
+    | None
+] = {
     Exception: generic_error_handler,
     HTTPException: generic_error_handler,
     RequestValidationError: validation_error_handler,
