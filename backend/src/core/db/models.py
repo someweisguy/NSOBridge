@@ -143,6 +143,23 @@ class _DatabaseMemento(Memento):
 
         return model.get_memento()
 
+    async def get_cache_updates(self) -> list[CacheableSQLModel]:
+        async with session_factory() as session, session.begin():
+            # Query and detach the current state of the database object
+            table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
+            statement: Select[tuple[CacheableSQLModel]] = select(table).where(
+                table.uuid == self._detached_state_to_restore.uuid
+            )
+            results: Result[tuple[CacheableSQLModel]] = await session.execute(statement)
+            model: CacheableSQLModel = results.scalar_one()
+            session.expunge(model)
+
+            # Merge the desired state with the database
+            _ = await session.merge(self._detached_state_to_restore)
+
+            # Get a list of query keys to invalidate before committing the session
+            return model.get_updates(session)
+
 
 class CacheableSQLModel(BaseSQLModel):
     """A database model which can be cached by clients.
