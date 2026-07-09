@@ -10,6 +10,8 @@ from typing import Any, Iterable, Protocol, override
 
 from fastapi.responses import JSONResponse
 
+import core.ws
+
 type CacheKey = tuple[Any, ...]
 """A cache key type used for the client model caching feature. """
 
@@ -35,6 +37,11 @@ class APIResponse[T: Any](JSONResponse):
             payload['data'] = None
         payload['status_code'] = self.status_code
         payload['timestamp'] = datetime.now()
+
+        cache: Any = payload.get('cache', None)
+        if cache:
+            core.ws.send_all('cache', cache)
+
         return json.dumps(
             payload,
             ensure_ascii=False,

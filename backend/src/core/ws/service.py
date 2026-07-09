@@ -69,7 +69,7 @@ async def disconnect_all(code: int, reason: str) -> None:
         await client.close(code=code, reason=reason)
 
 
-async def send_all[T: Any](message_type: str, data: T) -> None:
+def send_all[T: Any](message_type: str, data: T) -> None:
     """Send a WebSocket payload to all clients.
 
     Args:
@@ -79,4 +79,6 @@ async def send_all[T: Any](message_type: str, data: T) -> None:
     """
     payload: str = WebSocketServerSchema(type=message_type, data=data).model_dump_json()
     for client in _clients:
-        await client.send_text(payload)
+        task = asyncio.create_task(client.send_text(payload))
+        task.add_done_callback(_background_tasks.discard)
+        _background_tasks.add(task)

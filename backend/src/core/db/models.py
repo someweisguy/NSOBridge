@@ -14,10 +14,9 @@ from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_object_sessio
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
-import core.ws
 from core.users import Memento
 
-from .constants import MESSAGE_TYPE, session_factory
+from .constants import session_factory
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
@@ -134,14 +133,13 @@ class _DatabaseMemento(Memento):
             _ = await session.merge(self._detached_state_to_restore)
 
             # Get a list of query keys to invalidate before committing the session
-            models: list[CacheableSQLModel] = model.get_updates(session)
+            # models: list[CacheableSQLModel] = model.get_updates(session)
 
             await session.commit()
 
-        if len(models) > 0:
-            await core.ws.send_all(
-                MESSAGE_TYPE, [model.cache_key() for model in models]
-            )
+        # FIXME: How should cache response handling be executed with mementos?
+        # if len(models) > 0:
+        #     core.ws.send_all('cache', [model.cache_key() for model in models])
 
         return model.get_memento()
 
