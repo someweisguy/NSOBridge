@@ -6,7 +6,9 @@ This is a scoreboard application designed for the Women's Flat Track Derby Assoc
 
 ## How to Install
 
-Click your operating system below to download NSO Bridge:
+<!-- The update manager module links to this sub-header for users to install the latest update. Don't change it! -->
+
+Click your operating system below to download the latest version of NSO Bridge:
 
 - **[Windows](https://github.com/someweisguy/NSOBridge/releases/latest/download/nsobridge-windows-latest.zip)**
 - **[macOS (Apple)](https://github.com/someweisguy/NSOBridge/releases/latest/download/nsobridge-macos-26.zip)**
