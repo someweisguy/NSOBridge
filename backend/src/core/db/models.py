@@ -131,15 +131,7 @@ class _DatabaseMemento(Memento):
 
             # Merge the desired state with the database
             _ = await session.merge(self._detached_state_to_restore)
-
-            # Get a list of query keys to invalidate before committing the session
-            # models: list[CacheableSQLModel] = model.get_updates(session)
-
             await session.commit()
-
-        # FIXME: How should cache response handling be executed with mementos?
-        # if len(models) > 0:
-        #     core.ws.send_all('cache', [model.cache_key() for model in models])
 
         return model.get_memento()
 
@@ -157,8 +149,11 @@ class _DatabaseMemento(Memento):
             # Merge the desired state with the database
             _ = await session.merge(self._detached_state_to_restore)
 
-            # Get a list of query keys to invalidate before committing the session
-            return model.get_updates(session)
+            # Get and expunge all the updates models in the session
+            updates: list[CacheableSQLModel] = model.get_updates(session)
+            session.expunge_all()
+
+            return updates
 
 
 class CacheableSQLModel(BaseSQLModel):
