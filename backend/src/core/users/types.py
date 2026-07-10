@@ -6,7 +6,10 @@ In this file the User class and its associated business logic can be found.
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import TYPE_CHECKING, Iterable, Protocol
+
+if TYPE_CHECKING:
+    from core.app import CacheableProtocol
 
 
 class Memento(Protocol):
@@ -15,6 +18,15 @@ class Memento(Protocol):
     Mementos can be used to implement functionality such as undo and redo by restoring
     the application to a previous state.
     """
+
+    async def get_cache_updates(self) -> Iterable[CacheableProtocol]:
+        """Get a list of the cache updates that will occur if this Memento is restored.
+
+        Returns:
+            Iterable[CacheableProtocol]: the cache updates.
+
+        """
+        ...
 
     async def restore(self) -> Memento:
         """Restore the state of the application to when this Memento was constructed.
@@ -71,7 +83,7 @@ class User:
         """
         self._staged = None
 
-    async def undo(self) -> None:
+    async def undo(self) -> Iterable[CacheableProtocol]:
         """Undo the last command.
 
         Pops a Memento from the undo history and push its "redo" Memento to the redo
@@ -83,10 +95,12 @@ class User:
         """
         if len(self.undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
-        redo_memento: Memento = await self.undo_history.pop().restore()
-        self.redo_history.append(redo_memento)
+        undo_memento: Memento = self.undo_history.pop()
+        updates: Iterable[CacheableProtocol] = await undo_memento.get_cache_updates()
+        self.redo_history.append(await undo_memento.restore())
+        return updates
 
-    async def redo(self) -> None:
+    async def redo(self) -> Iterable[CacheableProtocol]:
         """Redo the last undone command.
 
         Pops a Memento from the redo history and push its "re-undo" Memento to the undo
@@ -98,5 +112,7 @@ class User:
         """
         if len(self.redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
-        undo_memento: Memento = await self.redo_history.pop().restore()
-        self.undo_history.append(undo_memento)
+        redo_memento: Memento = self.redo_history.pop()
+        updates: Iterable[CacheableProtocol] = await redo_memento.get_cache_updates()
+        self.undo_history.append(await redo_memento.restore())
+        return updates

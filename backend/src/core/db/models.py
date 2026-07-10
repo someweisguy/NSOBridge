@@ -14,10 +14,9 @@ from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_object_sessio
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
-import core.ws
 from core.users import Memento
 
-from .constants import MESSAGE_TYPE, session_factory
+from .constants import session_factory
 
 if TYPE_CHECKING:
     from sqlalchemy import Dialect
@@ -134,16 +133,32 @@ class _DatabaseMemento(Memento):
             _ = await session.merge(self._detached_state_to_restore)
 
             # Get a list of query keys to invalidate before committing the session
-            models: list[CacheableSQLModel] = model.get_updates(session)
+            # models: list[CacheableSQLModel] = model.get_updates(session)
 
             await session.commit()
 
-        if len(models) > 0:
-            await core.ws.send_all(
-                MESSAGE_TYPE, [model.cache_key() for model in models]
-            )
+        # FIXME: How should cache response handling be executed with mementos?
+        # if len(models) > 0:
+        #     core.ws.send_all('cache', [model.cache_key() for model in models])
 
         return model.get_memento()
+
+    async def get_cache_updates(self) -> list[CacheableSQLModel]:
+        async with session_factory() as session, session.begin():
+            # Query and detach the current state of the database object
+            table: type[CacheableSQLModel] = self._detached_state_to_restore.__class__
+            statement: Select[tuple[CacheableSQLModel]] = select(table).where(
+                table.uuid == self._detached_state_to_restore.uuid
+            )
+            results: Result[tuple[CacheableSQLModel]] = await session.execute(statement)
+            model: CacheableSQLModel = results.scalar_one()
+            session.expunge(model)
+
+            # Merge the desired state with the database
+            _ = await session.merge(self._detached_state_to_restore)
+
+            # Get a list of query keys to invalidate before committing the session
+            return model.get_updates(session)
 
 
 class CacheableSQLModel(BaseSQLModel):
