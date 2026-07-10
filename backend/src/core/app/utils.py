@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, override
+from uuid import UUID, uuid4
 
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
@@ -101,8 +102,11 @@ class APIResponse[T: Any](JSONResponse):
 
     @override
     def render(self, content: Any) -> bytes:
+        transaction_uuid: UUID = uuid4()
         status_code = HTTPStatus(self.status_code)
         error: bool = status_code.is_client_error or status_code.is_server_error
+
+        # Generate the final payload
         payload: dict[str, Any] = (
             content
             if isinstance(content, dict) and 'data' in content.keys()
@@ -110,11 +114,14 @@ class APIResponse[T: Any](JSONResponse):
         )
         if 'data' not in payload:
             payload['data'] = None
-        payload['status_code'] = self.status_code
+        payload['statusCode'] = self.status_code
         payload['timestamp'] = datetime.now()
+        payload['transactionUuid'] = transaction_uuid
 
+        # Send a WebSocket cache message
         cache: Any = payload.get('cache', None)
         if cache:
+            # TODO: attach transaction UUID to WS payload
             send_all('cache', cache)
 
         return json.dumps(
