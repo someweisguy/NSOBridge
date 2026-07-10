@@ -49,22 +49,46 @@ class CacheSchema[T: ServerSchema](ServerSchema):
 
     @model_validator(mode='wrap')
     @classmethod
-    def _generate_schema(
-        cls, data: Any, handler: ModelWrapValidatorHandler[Any]
-    ) -> Any:
-        if not isinstance(data, CacheableProtocol):
-            return handler(data)
+    def generate_schema(cls, data: Any, handler: ModelWrapValidatorHandler[Any]) -> Any:
+        """Generate the schema.
 
-        return CacheSchema(
-            data=get_schema(type(data)).model_validate(data),
-            cache=[
+        This validator mutates the incoming data so that the proper output schema is
+        created. It's a little hacky but it's the best solution for returning multiple
+        values in a schema.
+
+        If a cacheable item is provided as input, the schema is generated appropriately.
+        If a dictionary containing a 'cache' key is provided with an iterable of
+        SQLAlchemy models as the entry, the cache schema is generated.
+
+        Args:
+            data (Any): _description_
+            handler (ModelWrapValidatorHandler[Any]): _description_
+
+        Returns:
+            Any: a validated schema.
+
+        """
+        if isinstance(data, CacheableProtocol):
+            data = {
+                'data': get_schema(type(data)).model_validate(data),
+                'cache': [
+                    CacheSchema._CacheItemSchema(
+                        key=model.cache_key(),
+                        data=get_schema(type(model)).model_validate(model),
+                    )
+                    for model in data.get_updates()
+                ],
+            }
+        elif isinstance(data, dict) and 'cache' in data.keys():
+            data['cache'] = [
                 CacheSchema._CacheItemSchema(
                     key=model.cache_key(),
                     data=get_schema(type(model)).model_validate(model),
                 )
-                for model in data.get_updates()
-            ],
-        )
+                for model in data['cache']
+            ]
+
+        return handler(data)
 
 
 class APIResponse[T: Any](JSONResponse):
