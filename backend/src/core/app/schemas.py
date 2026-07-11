@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Any, ClassVar, Sequence
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from pydantic import (
     BaseModel,
@@ -13,6 +13,9 @@ from pydantic import (
     field_serializer,
 )
 from pydantic.alias_generators import to_camel
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class ServerSchema(BaseModel):
@@ -63,33 +66,6 @@ class VersionSchema(ServerSchema):
     version: str
 
 
-class WebSocketServerSchema[T: Any](ServerSchema, ABC):
-    """The base schema used by the server to send data to clients."""
-
-    type: str
-    data: T
-
-    @field_serializer('data')
-    def _reject_null_data(self, data: Any | None) -> Any:
-        if data is None:
-            raise ValueError('Cannot send a Websocket packet without data')
-        return data
-
-
-class CacheWebsocketServerSchema(WebSocketServerSchema[Sequence[Any]]):
-    """The schema used by the server to send cache invalidation data to clients."""
-
-    def __init__(self, data: Sequence[Any]) -> None:
-        """Create a packet to send cache invalidation data.
-
-        Args:
-            data (Sequence[CacheKey]): a sequence of cache keys representing objects
-            that should be invalidated in the clients' cache.
-
-        """
-        super().__init__(type='cache', data=data)
-
-
 class AboutDataServerSchema(ServerSchema):
     """Represent data to send to clients requesting information about this server.
 
@@ -108,6 +84,31 @@ class AboutDataServerSchema(ServerSchema):
     server: datetime = Field(default_factory=datetime.now, init=False)
 
 
+class AboutDataClientSchema(ClientSchema):
+    """Represent data received from clients requesting information about the server.
+
+    The `process` field is optional. See `AboutDataServerSchema` for more information
+    about its use.
+
+    """
+
+    process: datetime | None = None
+
+
+class WebSocketServerSchema[T: Any](ServerSchema, ABC):
+    """The base schema used by the server to send data to clients."""
+
+    type: str
+    data: T
+    transaction_uuid: UUID | None = Field(None, exclude_if=lambda u: u is None)
+
+    @field_serializer('data')
+    def _reject_null_data(self, data: Any | None) -> Any:
+        if data is None:
+            raise ValueError('Cannot send a Websocket packet without data')
+        return data
+
+
 class AboutWebsocketServerSchema(WebSocketServerSchema[AboutDataServerSchema]):
     """The schema used by the server to send server information data to clients."""
 
@@ -120,14 +121,3 @@ class AboutWebsocketServerSchema(WebSocketServerSchema[AboutDataServerSchema]):
 
         """
         super().__init__(type='about', data=AboutDataServerSchema(process=process))
-
-
-class AboutDataClientSchema(ClientSchema):
-    """Represent data received from clients requesting information about the server.
-
-    The `process` field is optional. See `AboutDataServerSchema` for more information
-    about its use.
-
-    """
-
-    process: datetime | None = None

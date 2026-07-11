@@ -122,7 +122,7 @@ class APIResponse[T: Any](JSONResponse):
         cache: Any = payload.get('cache', None)
         if cache:
             # TODO: attach transaction UUID to WS payload
-            send_all('cache', cache)
+            send_all('cache', cache, transaction_uuid)
 
         return json.dumps(
             payload,

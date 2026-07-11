@@ -21,6 +21,8 @@ from .schemas import (
 from .types import CacheableProtocol
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from .schemas import ServerSchema
 
 
@@ -82,15 +84,18 @@ async def disconnect_all(code: int, reason: str) -> None:
         await client.close(code=code, reason=reason)
 
 
-def send_all[T: Any](message_type: str, data: T) -> None:
+def send_all[T: Any](message_type: str, data: T, transaction_uuid: UUID) -> None:
     """Send a WebSocket payload to all clients.
 
     Args:
        message_type (str): the message type to send to all clients.
        data (T: Any): the message data to send to all clients.
+       transaction_uuid (UUID): the UUID of the transaction.
 
     """
-    payload: str = WebSocketServerSchema(type=message_type, data=data).model_dump_json()
+    payload: str = WebSocketServerSchema(
+        type=message_type, data=data, transaction_uuid=transaction_uuid
+    ).model_dump_json()
     for client in _clients:
         task = asyncio.create_task(client.send_text(payload))
         task.add_done_callback(_background_tasks.discard)
