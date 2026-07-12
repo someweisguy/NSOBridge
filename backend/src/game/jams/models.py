@@ -67,7 +67,7 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
         AbstractOneShotModel.__table_args__
         + (
             UniqueConstraint('_bout_uuid', 'period', 'num'),
-            Index('idx_cache_key', '_bout_uuid', 'period', 'num'),
+            Index('idx_jam_cache_key', '_bout_uuid', 'period', 'num'),
         )
     )
 

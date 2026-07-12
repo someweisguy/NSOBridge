@@ -60,7 +60,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     __tablename__: str = 'timeouts'
     __table_args__: tuple[Constraint | Index, ...] = (
         UniqueConstraint('_bout_uuid', 'num'),
-        Index('idx_cache_key', '_bout_uuid', 'num'),
+        Index('idx_timeout_cache_key', '_bout_uuid', 'num'),
     )
 
     def __str__(self) -> str:
