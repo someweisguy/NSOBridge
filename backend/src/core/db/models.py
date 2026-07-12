@@ -192,10 +192,12 @@ class CacheableSQLModel(BaseSQLModel):
             modified.
 
         """
-        # Add each dirty or deleted model to a set for updates
+        # Get the session if none is provided
         if session is None:
             session: AsyncSession = self.get_session()
-        models: set[BaseSQLModel] = {
+
+        # Add each dirty or deleted model to a set for updates
+        dirty_models: set[BaseSQLModel] = {
             model
             for identity_map in [session.dirty]
             for model in identity_map
@@ -204,9 +206,11 @@ class CacheableSQLModel(BaseSQLModel):
 
         # Extract the cacheable models from the session
         cacheables: set[CacheableSQLModel] = {
-            model for model in models if isinstance(model, CacheableSQLModel)
+            model for model in dirty_models if isinstance(model, CacheableSQLModel)
         }
-        for model in models:
+
+        # Add the cacheable parents of each dirty model to the final output
+        for model in dirty_models:
             cacheables |= {
                 parent
                 for parent in model.get_recursive_parents()
