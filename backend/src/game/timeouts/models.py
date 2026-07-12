@@ -8,7 +8,7 @@ from uuid import UUID  # noqa: TC003
 
 from core.db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.models import AbstractOneShotModel
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 
@@ -58,7 +58,10 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     )
 
     __tablename__: str = 'timeouts'
-    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_bout_uuid', 'num'),)
+    __table_args__: tuple[Constraint | Index, ...] = (
+        UniqueConstraint('_bout_uuid', 'num'),
+        Index('idx_cache_key', '_bout_uuid', 'num'),
+    )
 
     def __str__(self) -> str:
         """Return a str representation of this Timeout.

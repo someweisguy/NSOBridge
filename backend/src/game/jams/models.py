@@ -12,6 +12,7 @@ from sqlalchemy import (
     CheckConstraint,
     Constraint,
     ForeignKey,
+    Index,
     UniqueConstraint,
     column,
     select,
@@ -40,8 +41,8 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
     _bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'))
 
-    period: Mapped[int] = mapped_column(index=True)
-    num: Mapped[int] = mapped_column(index=True)
+    period: Mapped[int] = mapped_column()
+    num: Mapped[int] = mapped_column()
 
     _stop_reason: Mapped[StopReasonStr | None] = mapped_column(default=None)
 
@@ -62,8 +63,12 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
     __mapper_args__: dict[str, Any] = {
         'confirm_deleted_rows': False,
     }
-    __table_args__: tuple[Constraint, ...] = AbstractOneShotModel.__table_args__ + (
-        UniqueConstraint('_bout_uuid', 'num', 'period'),
+    __table_args__: tuple[Constraint | Index, ...] = (
+        AbstractOneShotModel.__table_args__
+        + (
+            UniqueConstraint('_bout_uuid', 'period', 'num'),
+            Index('idx_cache_key', '_bout_uuid', 'period', 'num'),
+        )
     )
 
     def __str__(self) -> str:

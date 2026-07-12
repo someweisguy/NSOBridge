@@ -31,7 +31,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     _clock_uuid: Mapped[UUID] = mapped_column(
         ForeignKey('clocks.uuid', ondelete='RESTRICT')
     )
-    _series_uuid: Mapped[UUID] = mapped_column(ForeignKey('series.uuid'))
+    _series_uuid: Mapped[UUID] = mapped_column(ForeignKey('series.uuid'), index=True)
 
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
