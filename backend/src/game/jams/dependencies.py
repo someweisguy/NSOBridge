@@ -7,8 +7,10 @@ from uuid import UUID
 from core.db import GetAsyncSession
 from core.users import GetUser
 from fastapi import Depends, HTTPException, Query, Request
+from game.bouts.models import BaseBout
 from sqlalchemy import Result, Select, select
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import selectinload
 
 from .models import Jam
 
@@ -23,6 +25,8 @@ async def _get_jam(  # noqa: PLR0913
 ) -> Jam:
     statement: Select[tuple[Jam]] = (
         select(Jam)
+        # Use `selectinload` to allow cache updates of Bout models when Jam is mutated
+        .options(selectinload(Jam.bout).selectinload(BaseBout.jams))
         .where(Jam._bout_uuid == bout_uuid)
         .where(Jam.period == period_num)
         .where(Jam.num == jam_num)

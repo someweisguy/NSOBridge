@@ -17,7 +17,7 @@ router: Final[APIRouter] = APIRouter(prefix='/jam', tags=[JAMS_TAG])
 router.add_api_route('', _get_jam, response_model=JamSchema | None)
 
 
-@router.put('/setStopReason', response_model=JamSchema)
+@router.put('/setStopReason', response_model=CacheSchema)
 async def set_stop_reason(
     jam: GetJam, stop_reason: Annotated[StopReasonStr, Body()]
 ) -> Jam:
