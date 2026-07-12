@@ -1,11 +1,12 @@
 import { useCreateBout } from "@/features/bouts/hooks/use-create-bout";
+import { Bout } from "@/types/bout";
 import { Button, Group, Select } from "@mantine/core";
 import { useState } from "react";
 
 interface BoutCreatorProps {
   rulesetNames: string[];
   seriesUuid: string;
-  onSuccess?: (newBoutUuid: string) => void;
+  onSuccess?: (newBout: Bout) => void;
 }
 
 export default function BoutCreator({

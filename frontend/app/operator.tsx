@@ -287,9 +287,9 @@ export default function Operator() {
         <BoutCreator
           rulesetNames={rulesetNames}
           seriesUuid={activeSeries.uuid}
-          onSuccess={(boutUuid: string) => {
-            setBoutUri({ boutUuid });
-            setActiveBout.mutate(boutUuid);
+          onSuccess={(newBout: Bout) => {
+            setBoutUri({ boutUuid: newBout.uuid });
+            setActiveBout.mutate(newBout.uuid);
             close();
           }}
         />

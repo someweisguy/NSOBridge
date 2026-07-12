@@ -1,5 +1,6 @@
 import queryClient from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
+import { Bout } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
@@ -19,7 +20,7 @@ export const useCreateBout = ({
   seriesUuid,
   teamNames = [],
   ...options
-}: UseCreateBoutOptions & AppMutationOptions<string>) => {
+}: UseCreateBoutOptions & AppMutationOptions<Bout>) => {
   const query = new URLSearchParams({ rulesetName });
   query.append("seriesUuid", seriesUuid);
   for (const teamName of teamNames) {
@@ -28,7 +29,7 @@ export const useCreateBout = ({
 
   return useMutation(
     {
-      mutationFn: () => localAPI.put<string>("bout/createBout", { query }),
+      mutationFn: () => localAPI.put<Bout>("bout/createBout", { query }),
       ...options,
     },
     queryClient,
