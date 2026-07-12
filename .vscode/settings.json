@@ -54,6 +54,7 @@
     "hooksconfig",
     "hookspath",
     "pathex",
+    "selectinload",
     "venv"
   ]
 }
