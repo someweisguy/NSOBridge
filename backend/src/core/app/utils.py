@@ -34,7 +34,8 @@ class CacheSchema[T: ServerSchema](ServerSchema):
 
     This schema is designed to take an object which implements the Cacheable Protocol
     and convert it to a schema with a validated data field as well as a validated cache
-    field.
+    field. This schema will also work if a dict with a `cache` key is passed and the
+    value is a list of cacheable models.
 
     If the provided data is not cacheable, it is serialized with the default handler.
     """
@@ -121,7 +122,6 @@ class APIResponse[T: Any](JSONResponse):
         # Send a WebSocket cache message
         cache: Any = payload.get('cache', None)
         if cache:
-            # TODO: attach transaction UUID to WS payload
             send_all('cache', cache, transaction_uuid)
 
         return json.dumps(
