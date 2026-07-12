@@ -1,10 +1,9 @@
 """Core application schemas."""
 
-from __future__ import annotations
-
 from abc import ABC
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import Any, ClassVar
+from uuid import UUID
 
 from pydantic import (
     BaseModel,
@@ -13,9 +12,6 @@ from pydantic import (
     field_serializer,
 )
 from pydantic.alias_generators import to_camel
-
-if TYPE_CHECKING:
-    from uuid import UUID
 
 
 class ServerSchema(BaseModel):
