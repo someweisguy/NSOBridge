@@ -109,7 +109,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
         return self._team
 
     @team.setter
-    def team(self, team: Team | None) -> None:
+    def team(self, team: Team | int | None) -> None:
         """Set the calling Team of this Timeout.
 
         When a Timeout is initialized, it is not clear if the timeout is called by a
@@ -117,11 +117,13 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
         is clear who called the Timeout.
 
         Args:
-            team (BaseTeam | None): the calling Team of this Timeout or None if this
-            Timeout was called by the officials.
+            team (Team | int | None): the calling Team of this Timeout, the calling team
+            number or None if this Timeout was called by the officials.
 
         """
-        self._team_uuid = team.uuid if team is not None else None
+        if isinstance(team, int):
+            team = self.bout.teams[team]
+        self._team = team
         self._team_is_officials = team is None
 
     @property
