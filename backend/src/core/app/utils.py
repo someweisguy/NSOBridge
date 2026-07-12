@@ -63,8 +63,9 @@ class CacheSchema[T: ServerSchema](ServerSchema):
         SQLAlchemy models as the entry, the cache schema is generated.
 
         Args:
-            data (Any): _description_
-            handler (ModelWrapValidatorHandler[Any]): _description_
+            data (Any): the input data.
+            handler (ModelWrapValidatorHandler[Any]): default validator, passed by
+            FastAPI.
 
         Returns:
             Any: a validated schema.
