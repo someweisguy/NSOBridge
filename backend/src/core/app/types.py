@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import typing
-from typing import Any, Iterable, Protocol
+from typing import TYPE_CHECKING, Any, Iterable, Protocol
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 type CacheKey = tuple[Any, ...]
 """A cache key type used for the client model caching feature. """
@@ -13,7 +16,9 @@ type CacheKey = tuple[Any, ...]
 class CacheableProtocol(Protocol):
     """Defines the protocol for cacheable items."""
 
-    def get_updates(self) -> Iterable[CacheableProtocol]:
+    def get_updates(
+        self, session: AsyncSession | None = None
+    ) -> Iterable[CacheableProtocol]:
         """Get a collection of all the cacheable items that have been updated.
 
         Returns:
