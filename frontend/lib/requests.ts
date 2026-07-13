@@ -63,12 +63,14 @@ export default class API {
     const text: string = await response.text();
     const payload = JSON.parse(text) as APIResponse<T>;
 
-    // TODO: Update the the cache
+    // Update the the cache
     if (payload.cache != null) {
       for (const { key, data } of payload.cache) {
         queryClient.setQueryData(key, data);
       }
     }
+
+    // TODO: Track the transaction UUID to prevent duplicate requests
 
     return payload;
   }
