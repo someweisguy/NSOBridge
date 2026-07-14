@@ -80,6 +80,22 @@ const eventNames: Record<BoutSubStateString, string> = {
   final: "Final",
 };
 
+// TODO: expand on this idea
+const gameKeys = {
+  all: ["game"] as const,
+
+  allSeries: () => [...gameKeys.all, "series"] as const,
+  series: (seriesUuid: string) =>
+    [...gameKeys.allSeries(), seriesUuid] as const,
+
+  bouts: () => [...gameKeys.all, "bouts"] as const,
+  bout: (boutUuid: string) => [...gameKeys.bouts(), boutUuid] as const,
+  jam: (boutUuid: string, periodNum: number, jamNum: number) =>
+    [...gameKeys.bout(boutUuid), [periodNum, jamNum]] as const,
+  timeout: (boutUuid: string, timeoutNum: number) =>
+    [...gameKeys.bout(boutUuid), timeoutNum] as const,
+};
+
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
  * server to run the majority of the game. It serves controls to start and stop the Bout
