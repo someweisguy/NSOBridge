@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, override
 
 from core.db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
+from game.bouts.models import BaseBout
 from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     from core.app import CacheKey
-    from game.bouts.models import BaseBout
 
 
 class Series(CacheableSQLModel):
@@ -30,6 +30,7 @@ class Series(CacheableSQLModel):
         cascade=CASCADE_CHILD,
         foreign_keys='BaseBout._series_uuid',
         lazy='selectin',
+        order_by=[BaseBout.num, BaseBout.created_on],
     )
 
     __tablename__: str = 'series'
