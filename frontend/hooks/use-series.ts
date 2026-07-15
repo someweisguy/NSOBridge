@@ -2,7 +2,7 @@ import queryClient from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
 import { AppSuspenseQueryOptions, SeriesUri } from "@/types/query";
 import { Series } from "@/types/series";
-import { generateQueryKey } from "@/utils/query";
+import { seriesKeys } from "@/utils/query-keys";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -17,7 +17,7 @@ export const useSuspenseSeries = <T = Series>({
   ...options
 }: SeriesUri & AppSuspenseQueryOptions<Series, T>) =>
   useSuspenseQuery({
-    queryKey: generateQueryKey.series(seriesUuid),
+    queryKey: seriesKeys.one(seriesUuid),
     queryFn: () => localAPI.get<Series>("series", { query: { seriesUuid } }),
     ...options,
   });
@@ -33,17 +33,14 @@ export const useSuspenseGetAllSeries = <T = Series[]>(
   options?: AppSuspenseQueryOptions<Series[], T>,
 ) =>
   useSuspenseQuery({
-    queryKey: generateQueryKey.series(),
+    queryKey: seriesKeys.all,
     queryFn: () =>
       localAPI
         .get<Series[]>("series/allSeries")
         .then<Series[]>((allSeries: Series[]) => {
           for (const series of allSeries) {
             if (series.uuid != null) {
-              queryClient.setQueryData(
-                generateQueryKey.series(series.uuid),
-                series,
-              );
+              queryClient.setQueryData(seriesKeys.one(series.uuid), series);
             }
           }
           return allSeries;

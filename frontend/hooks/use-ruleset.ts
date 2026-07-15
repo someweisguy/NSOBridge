@@ -5,7 +5,7 @@ import {
   BoutUri,
 } from "@/types/query";
 import { Ruleset } from "@/types/ruleset";
-import { generateQueryKey } from "@/utils/query";
+import { rulesetKeys } from "@/utils/query-keys";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -19,7 +19,7 @@ export const useRuleset = <T = null>({
   ...options
 }: BoutUri & AppQueryOptions<Ruleset | T>) =>
   useQuery<Ruleset | T>({
-    queryKey: generateQueryKey.ruleset(boutUuid),
+    queryKey: rulesetKeys.one(boutUuid),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
         query: { boutUuid },
@@ -38,7 +38,7 @@ export const useSuspenseRuleset = ({
   ...options
 }: BoutUri & AppSuspenseQueryOptions<Ruleset>) =>
   useSuspenseQuery<Ruleset>({
-    queryKey: generateQueryKey.ruleset(boutUuid),
+    queryKey: rulesetKeys.one(boutUuid),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
         query: { boutUuid },

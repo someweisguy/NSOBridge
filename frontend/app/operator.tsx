@@ -28,7 +28,7 @@ import { Bout, BoutSubStateString, Team } from "@/types/bout";
 import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { Series } from "@/types/series";
-import { generateQueryKey } from "@/utils/query";
+import { boutKeys } from "@/utils/query-keys";
 import { isRunning } from "@/utils/time";
 import {
   ActionIcon,
@@ -80,32 +80,6 @@ const eventNames: Record<BoutSubStateString, string> = {
   final: "Final",
 };
 
-// TODO: expand on this idea
-const gameKeys = {
-  all: ["game"] as const,
-
-  allSeries: () => [...gameKeys.all, "series"] as const,
-  series: (seriesUuid: string) =>
-    [...gameKeys.allSeries(), seriesUuid] as const,
-
-  bouts: () => [...gameKeys.all, "bouts"] as const,
-  bout: (boutUuid: string) => [...gameKeys.bouts(), boutUuid] as const,
-  jam: (boutUuid: string, periodNum: number, jamNum: number) =>
-    [...gameKeys.bout(boutUuid), [periodNum, jamNum]] as const,
-  timeout: (boutUuid: string, timeoutNum: number) =>
-    [...gameKeys.bout(boutUuid), timeoutNum] as const,
-};
-
-const seriesKeys = {
-  all: ["series"] as const,
-  one: (seriesUuid: string) => [...seriesKeys.all, seriesUuid] as const,
-};
-
-const boutKeys = {
-  all: ["bouts"] as const,
-  one: (boutUuid: string) => [...boutKeys.all, boutUuid] as const,
-};
-
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
  * server to run the majority of the game. It serves controls to start and stop the Bout
@@ -120,7 +94,7 @@ export default function Operator() {
 
   const { data: bouts, isPending: boutsArePending } = useQueries({
     queries: activeSeries.boutUuids.map((boutUuid: string) => ({
-      queryKey: generateQueryKey.bout(boutUuid),
+      queryKey: boutKeys.one(boutUuid),
       queryFn: () =>
         localAPI.get<Bout>("bout", {
           query: { boutUuid },
