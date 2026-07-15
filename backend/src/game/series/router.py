@@ -41,6 +41,7 @@ async def set_active_bout(
             break
     else:
         raise ValueError('No such Bout was found.')
+
     series.active_bout = bout
     return series
 
@@ -81,10 +82,10 @@ async def create_bout(
         ) from e
     bout.setup()
 
-    # Add the Bout to the Series
+    # Add the Bout to the Series and make it active
     series.bouts.append(bout)
-    if series._active_bout_uuid is None:
-        series.active_bout = bout
+    series.active_bout = bout
+
     flag_dirty(series)  # Include Series in cache updates
 
     return bout

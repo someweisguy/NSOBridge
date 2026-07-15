@@ -72,6 +72,10 @@ class Series(CacheableSQLModel):
         if bout not in self.bouts:
             raise ValueError('The active Bout must be part of the Series.')
 
+        # Prevent unnecessary cache updates
+        if self._active_bout_uuid == bout.uuid:
+            return
+
         # I'm not sure why ty thinks this is an invalid assignment...
         self._active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment]
 

@@ -82,8 +82,8 @@ export default class API {
     if (payload.cache != null) {
       for (const { key, data } of payload.cache) {
         updateCachedGameData(key, data);
+        console.log("HTTP Updating:", key);
       }
-      
     }
 
     return payload;
