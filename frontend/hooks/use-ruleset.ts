@@ -1,9 +1,5 @@
 import { localAPI } from "@/lib/requests";
-import {
-  AppQueryOptions,
-  AppSuspenseQueryOptions,
-  BoutUri,
-} from "@/types/query";
+import { AppQueryOptions, AppSuspenseQueryOptions } from "@/types/query";
 import { Ruleset } from "@/types/ruleset";
 import { rulesetKeys } from "@/utils/query-keys";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -15,14 +11,14 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
  * @returns a Tanstack useQuery object containing the desired Ruleset.
  */
 export const useGetRuleset = <T = null>({
-  boutUuid,
+  rulesetName,
   ...options
-}: BoutUri & AppQueryOptions<Ruleset | T>) =>
+}: { rulesetName: string } & AppQueryOptions<Ruleset | T>) =>
   useQuery<Ruleset | T>({
-    queryKey: rulesetKeys.one(boutUuid),
+    queryKey: rulesetKeys.one(rulesetName),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
-        query: { boutUuid },
+        query: { rulesetName },
       }),
     ...options,
   });
@@ -34,14 +30,14 @@ export const useGetRuleset = <T = null>({
  * @returns a Tanstack useSuspenseQuery object containing the desired Ruleset.
  */
 export const useSuspenseGetRuleset = ({
-  boutUuid,
+  rulesetName,
   ...options
-}: BoutUri & AppSuspenseQueryOptions<Ruleset>) =>
+}: { rulesetName: string } & AppSuspenseQueryOptions<Ruleset>) =>
   useSuspenseQuery<Ruleset>({
-    queryKey: rulesetKeys.one(boutUuid),
+    queryKey: rulesetKeys.one(rulesetName),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
-        query: { boutUuid },
+        query: { rulesetName },
       }),
     ...options,
   });

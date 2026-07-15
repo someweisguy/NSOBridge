@@ -121,8 +121,8 @@ export default function Operator() {
     boutUuid: activeSeries.activeBoutUuid,
   });
 
-  const { data: ruleset } = useSuspenseGetRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
+  const { data: ruleset } = useSuspenseGetRuleset(bout);
 
   useEffect(() => {
     if (activeSeries.boutUuids.includes(bout.uuid)) {

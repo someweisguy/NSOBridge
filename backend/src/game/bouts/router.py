@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
 from core.app import CacheSchema
 from core.db import GetAsyncSession
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Query
 from game.bouts.dependencies import GetTeam
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
@@ -20,29 +20,33 @@ if TYPE_CHECKING:
 BOUTS_TAG = 'Bouts'
 
 ALL_RULESETS: Final[set[RulesetSchema]] = set()
-"""A list of all the unique rulesets in this application. 
+"""A list of all the unique rulesets in this application."""
 
-This value is lazily computed when it is initially queried.
-"""
+
+def _compute_all_rulesets() -> None:
+    """Collect all the rulesets in the application."""
+    if len(ALL_RULESETS) == 0:
+        for subclass in BaseBout.__subclasses__():
+            ALL_RULESETS.add(subclass.ruleset)
+
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 
 @router.get('/ruleset')
-async def get_ruleset(bout: GetBout) -> RulesetSchema:
+async def get_ruleset(
+    ruleset_name: Annotated[str, Query(alias='rulesetName')],
+) -> RulesetSchema:
     """Get the ruleset associated with a specific Bout."""
-    return bout.ruleset
+    _compute_all_rulesets()
+    return next(ruleset for ruleset in ALL_RULESETS if ruleset.name == ruleset_name)
 
 
 @router.get('/allRulesets')
 async def get_all_rulesets() -> set[RulesetSchema]:
     """Get all the ruleset names supported by the application."""
-    # Don't query the database; all possible rulesets should be fetched, not just the
-    # rulesets that are persisted in the database.
-    if len(ALL_RULESETS) == 0:
-        for subclass in BaseBout.__subclasses__():
-            ALL_RULESETS.add(subclass.ruleset)
+    _compute_all_rulesets()
     return ALL_RULESETS
 
 

@@ -14,7 +14,7 @@ export const boutKeys = {
 
 export const rulesetKeys = {
   all: ["rulesets"] as const,
-  one: (boutUuid: string) => [...rulesetKeys.all, boutUuid] as const,
+  one: (rulesetName: string) => [...rulesetKeys.all, rulesetName] as const,
 };
 
 export const jamKeys = {

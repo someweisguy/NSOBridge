@@ -68,10 +68,8 @@ export function Scoreboard() {
   }
   const { data: series } = useSuspenseSeries({ seriesUuid });
 
-  const { data: ruleset } = useSuspenseGetRuleset({
-    boutUuid: series.activeBoutUuid,
-  });
   const { data: bout } = useSuspenseBout({ boutUuid: series.activeBoutUuid });
+  const { data: ruleset } = useSuspenseGetRuleset(bout);
 
   const activeJamUri = useActiveJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);
