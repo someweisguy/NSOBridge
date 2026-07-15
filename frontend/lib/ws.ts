@@ -68,7 +68,6 @@ export default class Socket {
     };
     this.ws.onerror = () => this.ws.close();
     this.ws.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
-      // TODO: add transactionUuid to the WS handler
       const { type, data } = JSON.parse(event.data) as WebSocketSchema<K>;
       this.handleEvent(type, data);
     };
