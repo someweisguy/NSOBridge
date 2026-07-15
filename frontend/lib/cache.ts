@@ -19,11 +19,14 @@ const queryClient = new QueryClient({
 export function invalidateCacheParents<T = unknown>(key: CacheKey, data: T) {
   for (let i = key.length - 1; i > 0; --i) {
     // Invalidate super-sets of the stale model
-    void queryClient.invalidateQueries({
-      queryKey: key.slice(0, i),
-      type: "active",
-      exact: true,
-    });
+    void queryClient.invalidateQueries(
+      {
+        queryKey: key.slice(0, i),
+        type: "active",
+        exact: true,
+      },
+      { cancelRefetch: false },
+    );
   }
   void queryClient.setQueryData(key, data);
 }
