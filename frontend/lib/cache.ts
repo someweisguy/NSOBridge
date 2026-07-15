@@ -61,7 +61,6 @@ localSocket.addCallback("cache", ({ models, transactionUuid }) => {
   }, 5000);
   for (const { key, data } of models) {
     invalidateCacheParents(key, data);
-    console.log("WS Updating:", key);
   }
 });
 
