@@ -45,3 +45,25 @@ export const useSuspenseRuleset = ({
       }),
     ...options,
   });
+
+/**
+ * Gets all the Bouts from the server. Each individual Bout is automatically cached
+ * after it is fetched. This hook is a wrapper for call to TanStack Query's
+ * `useSuspenseQuery` function.
+ *
+ * @returns a Tanstack useSuspenseQuery object containing an array of all Bouts.
+ */
+export const useSuspenseGetAllRulesets = <T = Ruleset[]>(
+  options?: AppSuspenseQueryOptions<Ruleset[], T>,
+) =>
+  useSuspenseQuery<Ruleset[], Error, T>({
+    queryKey: rulesetKeys.all,
+    queryFn: () =>
+      localAPI
+        .get<Ruleset[]>("bout/allRulesets")
+        .then((rulesets: Ruleset[]) => {
+          // TODO: add all the rulesets to the cache individually
+          return rulesets;
+        }),
+    ...options,
+  });

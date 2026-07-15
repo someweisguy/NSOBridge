@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 
 BOUTS_TAG = 'Bouts'
 
-ALL_RULESET_NAMES: Final[list[str]] = []
-"""A list of all the unique ruleset names in this application. 
+ALL_RULESETS: Final[list[RulesetSchema]] = []
+"""A list of all the unique rulesets in this application. 
 
 This value is lazily computed when it is initially queried.
 """
@@ -35,17 +35,17 @@ async def get_ruleset(bout: GetBout) -> RulesetSchema:
     return bout.ruleset
 
 
-@router.get('/allRulesetNames')
-async def get_all_ruleset_names() -> list[str]:
+@router.get('/allRulesets')
+async def get_all_rulesets() -> list[RulesetSchema]:
     """Get all the ruleset names supported by the application."""
-    # Don't query the database; all possible ruleset names should be fetched, not just
-    # the rulesets that are persisted in the database.
-    if len(ALL_RULESET_NAMES) == 0:
-        unique_ruleset_names: set[str] = set()
+    # Don't query the database; all possible rulesets should be fetched, not just the
+    # rulesets that are persisted in the database.
+    if len(ALL_RULESETS) == 0:
+        unique_rulesets: set[RulesetSchema] = set()
         for subclass in BaseBout.__subclasses__():
-            unique_ruleset_names.add(subclass.ruleset.name)
-        ALL_RULESET_NAMES.extend(unique_ruleset_names)
-    return ALL_RULESET_NAMES
+            unique_rulesets.add(subclass.ruleset)
+        ALL_RULESETS.extend(unique_rulesets)
+    return ALL_RULESETS
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])

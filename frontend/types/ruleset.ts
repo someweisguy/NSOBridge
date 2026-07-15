@@ -5,6 +5,10 @@
  */
 export interface Ruleset {
   /**
+   * The name of the Ruleset.
+   */
+  name: string;
+  /**
    * The duration of the Jam in milliseconds.
    */
   jamDuration: number;
