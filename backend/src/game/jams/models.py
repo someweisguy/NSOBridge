@@ -93,7 +93,7 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self._bout_uuid, self.period, self.num)
+        return (self.__tablename__, self._bout_uuid, [self.period, self.num])
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
