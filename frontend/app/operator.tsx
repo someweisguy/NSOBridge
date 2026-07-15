@@ -21,7 +21,7 @@ import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
 import {
   useSuspenseGetAllRulesets,
-  useSuspenseRuleset,
+  useSuspenseGetRuleset,
 } from "@/hooks/use-ruleset";
 import { useSuspenseGetAllSeries } from "@/hooks/use-series";
 import { useTimeout } from "@/hooks/use-timeout";
@@ -121,7 +121,7 @@ export default function Operator() {
     boutUuid: activeSeries.activeBoutUuid,
   });
 
-  const { data: ruleset } = useSuspenseRuleset(boutUri);
+  const { data: ruleset } = useSuspenseGetRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
 
   useEffect(() => {

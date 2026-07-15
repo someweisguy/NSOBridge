@@ -14,7 +14,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
  *
  * @returns a Tanstack useQuery object containing the desired Ruleset.
  */
-export const useRuleset = <T = null>({
+export const useGetRuleset = <T = null>({
   boutUuid,
   ...options
 }: BoutUri & AppQueryOptions<Ruleset | T>) =>
@@ -33,7 +33,7 @@ export const useRuleset = <T = null>({
  *
  * @returns a Tanstack useSuspenseQuery object containing the desired Ruleset.
  */
-export const useSuspenseRuleset = ({
+export const useSuspenseGetRuleset = ({
   boutUuid,
   ...options
 }: BoutUri & AppSuspenseQueryOptions<Ruleset>) =>
