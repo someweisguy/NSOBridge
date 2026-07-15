@@ -69,7 +69,6 @@ export default class API {
 
     if (this.recentTransactionUuids.has(payload.transactionUuid)) {
       // This data has already been updated by the WS handler
-      console.log("uuid hit in requests");
       return payload;
     }
 
@@ -82,7 +81,6 @@ export default class API {
     if (payload.cache != null) {
       for (const { key, data } of payload.cache) {
         updateCachedGameData(key, data);
-        console.log("HTTP Updating:", key);
       }
     }
 
