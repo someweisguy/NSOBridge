@@ -1,5 +1,6 @@
 import { CacheKey } from "@/types/query";
 import { onlineManager, QueryClient } from "@tanstack/react-query";
+import { localAPI } from "./requests";
 import { localSocket } from "./ws";
 
 const queryClient = new QueryClient({
@@ -47,8 +48,17 @@ localSocket.addCallback("connect", (connected: boolean) => {
 /**
  * Handle cache invalidation packets received from the server.
  */
-localSocket.addCallback("cache", ({ models }) => {
-  // TODO: use the transactionUUID
+localSocket.addCallback("cache", ({ models, transactionUuid }) => {
+  if (localAPI.recentTransactionUuids.has(transactionUuid)) {
+    // This cache update has already been handled by the HTTP handler
+    return;
+  }
+
+  localAPI.recentTransactionUuids.add(transactionUuid);
+  setTimeout(() => {
+    // The transaction UUID will automatically be removed after 5 seconds
+    localAPI.recentTransactionUuids.delete(transactionUuid);
+  }, 5000);
   for (const { key, data } of models) {
     invalidateCacheParents(key, data);
   }
