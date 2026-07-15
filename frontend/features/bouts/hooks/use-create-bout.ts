@@ -29,7 +29,7 @@ export const useCreateBout = ({
 
   return useMutation(
     {
-      mutationFn: () => localAPI.put<Bout>("bout/createBout", { query }),
+      mutationFn: () => localAPI.put<Bout>("series/createBout", { query }),
       ...options,
     },
     queryClient,

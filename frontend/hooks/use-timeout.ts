@@ -5,7 +5,7 @@ import {
   TimeoutUri,
 } from "@/types/query";
 import { Timeout } from "@/types/timeout";
-import { generateQueryKey } from "@/utils/query";
+import { timeoutKeys } from "@/utils/query-keys";
 import {
   useQuery,
   UseQueryResult,
@@ -24,7 +24,7 @@ export const useTimeout = ({
   ...options
 }: TimeoutUri & AppQueryOptions<Timeout>): UseQueryResult<Timeout, Error> =>
   useQuery({
-    queryKey: generateQueryKey.timeout(boutUuid, timeoutNum),
+    queryKey: timeoutKeys.one(boutUuid, timeoutNum),
     queryFn: () =>
       localAPI.get<Timeout>("timeout", {
         query: { boutUuid, num: timeoutNum }, // TODO: fix alias
@@ -44,7 +44,7 @@ export const useSuspenseTimeout = ({
   ...options
 }: TimeoutUri & AppSuspenseQueryOptions<Timeout>) =>
   useSuspenseQuery({
-    queryKey: generateQueryKey.timeout(boutUuid, timeoutNum),
+    queryKey: timeoutKeys.one(boutUuid, timeoutNum),
     queryFn: () =>
       localAPI.get<Timeout>("timeout", {
         query: { boutUuid, num: timeoutNum }, // TODO: fix alias

@@ -12,6 +12,7 @@ from game.models import Clock
 from game.skaters.models import Skater
 from game.timeouts.models import Timeout
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, column
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol
@@ -33,6 +34,9 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     )
     _series_uuid: Mapped[UUID] = mapped_column(ForeignKey('series.uuid'), index=True)
 
+    _created_on: Mapped[datetime] = mapped_column(index=True)
+
+    num: Mapped[int | None] = mapped_column(default=None, index=True)
     start_countdown: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
     is_running: Mapped[bool] = mapped_column(default=False)
@@ -73,6 +77,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     __mapper_args__: dict[str, Any] = {
         'polymorphic_on': ruleset_name,
     }
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_series_uuid', 'num'),)
 
     def __str__(self) -> str:
         """Return a str representation of this Bout.
@@ -101,7 +106,12 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
         """
         for i, team in enumerate(teams):
             team.num = i
-        super().__init__(ruleset_name=ruleset_name, clock=Clock(), teams=list(teams))
+        super().__init__(
+            _created_on=datetime.now(),
+            ruleset_name=ruleset_name,
+            clock=Clock(),
+            teams=list(teams),
+        )
 
     @final
     @override
@@ -123,6 +133,17 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
 
         """
         return self._series_uuid
+
+    @final
+    @hybrid_property
+    def created_on(self) -> datetime:
+        """Get the datetime on which this Bout was created.
+
+        Returns:
+            datetime: when this Bout was created.
+
+        """
+        return self._created_on
 
     @final
     @property

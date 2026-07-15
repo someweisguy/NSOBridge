@@ -1,4 +1,5 @@
-import queryClient from "./cache";
+import { CacheKey } from "@/types/query";
+import { invalidateCacheParents as updateCachedGameData } from "./cache";
 
 interface URLParameters {
   query?: URLSearchParams | Record<string, unknown>;
@@ -8,13 +9,14 @@ interface URLParameters {
 interface APIResponse<T = unknown> {
   statusCode: number;
   data: T;
-  cache?: { key: unknown[]; data: object }[];
+  cache?: { key: CacheKey; data: object }[];
   error?: {
     type: string;
     message: string;
     description: string;
   };
   timestamp: string;
+  transactionUuid: string;
 }
 
 /**
@@ -23,9 +25,11 @@ interface APIResponse<T = unknown> {
  */
 export default class API {
   readonly host: string;
+  public readonly recentTransactionUuids: Set<string>;
 
   constructor(host: string) {
     this.host = host;
+    this.recentTransactionUuids = new Set();
   }
 
   private async sendRequest<T = unknown>(
@@ -63,14 +67,22 @@ export default class API {
     const text: string = await response.text();
     const payload = JSON.parse(text) as APIResponse<T>;
 
-    // Update the the cache
-    if (payload.cache != null) {
-      for (const { key, data } of payload.cache) {
-        queryClient.setQueryData(key, data);
-      }
+    if (this.recentTransactionUuids.has(payload.transactionUuid)) {
+      // This data has already been updated by the WS handler
+      return payload;
     }
 
-    // TODO: Track the transaction UUID to prevent duplicate requests
+    // Track the transaction UUID to prevent duplicate requests
+    this.recentTransactionUuids.add(payload.transactionUuid);
+    setTimeout(() => {
+      // The transaction UUID will automatically be removed after 5 seconds
+      this.recentTransactionUuids.delete(payload.transactionUuid);
+    }, 5000);
+    if (payload.cache != null) {
+      for (const { key, data } of payload.cache) {
+        updateCachedGameData(key, data);
+      }
+    }
 
     return payload;
   }

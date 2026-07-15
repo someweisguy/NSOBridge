@@ -11,7 +11,10 @@ export const serverTimeCacheKey: CacheKey = ["serverTimeCacheKey"];
 const NUM_SYNC_SAMPLES = 5;
 
 interface API {
-  cache: CacheKey[];
+  cache: {
+    models: { key: CacheKey; data: unknown }[];
+    transactionUuid: string;
+  };
   connect: boolean;
   about: ServerData;
 }
@@ -65,7 +68,6 @@ export default class Socket {
     };
     this.ws.onerror = () => this.ws.close();
     this.ws.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
-      // TODO: add transactionUuid to the WS handler
       const { type, data } = JSON.parse(event.data) as WebSocketSchema<K>;
       this.handleEvent(type, data);
     };

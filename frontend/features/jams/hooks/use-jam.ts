@@ -5,7 +5,7 @@ import {
   AppSuspenseQueryOptions,
   JamUri,
 } from "@/types/query";
-import { generateQueryKey } from "@/utils/query";
+import { jamKeys } from "@/utils/query-keys";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -21,7 +21,7 @@ export const useJam = ({
   ...options
 }: JamUri & AppQueryOptions<Jam>) =>
   useQuery({
-    queryKey: generateQueryKey.jam(boutUuid, periodNum, jamNum),
+    queryKey: jamKeys.one(boutUuid, periodNum, jamNum),
     queryFn: () =>
       localAPI.get<Jam>("jam", {
         query: { boutUuid, periodNum, jamNum },
@@ -42,7 +42,7 @@ export const useSuspenseJam = <T = Jam>({
   ...options
 }: JamUri & AppSuspenseQueryOptions<Jam, T>) =>
   useSuspenseQuery<Jam, Error, T>({
-    queryKey: generateQueryKey.jam(boutUuid, periodNum, jamNum),
+    queryKey: jamKeys.one(boutUuid, periodNum, jamNum),
     queryFn: () =>
       localAPI.get<Jam>("jam", {
         query: { boutUuid, periodNum, jamNum },

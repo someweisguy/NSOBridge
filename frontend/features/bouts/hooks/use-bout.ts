@@ -6,7 +6,7 @@ import {
   AppSuspenseQueryOptions,
   BoutUri,
 } from "@/types/query";
-import { generateQueryKey } from "@/utils/query";
+import { boutKeys } from "@/utils/query-keys";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -20,7 +20,7 @@ export const useBout = ({
   ...options
 }: BoutUri & AppQueryOptions<Bout>) =>
   useQuery<Bout>({
-    queryKey: generateQueryKey.bout(boutUuid),
+    queryKey: boutKeys.one(boutUuid),
     queryFn: () => localAPI.get("bout", { query: { boutUuid } }),
     ...options,
   });
@@ -36,7 +36,7 @@ export const useSuspenseBout = ({
   ...options
 }: BoutUri & AppSuspenseQueryOptions<Bout>) =>
   useSuspenseQuery<Bout>({
-    queryKey: generateQueryKey.bout(boutUuid),
+    queryKey: boutKeys.one(boutUuid),
     queryFn: () =>
       localAPI.get<Bout>("bout", {
         query: { boutUuid },
@@ -54,12 +54,12 @@ export const useSuspenseBout = ({
 export const useGetAllBouts = (options?: AppQueryOptions<Bout[]>) =>
   useQuery<Bout[]>(
     {
-      queryKey: generateQueryKey.bout(),
+      queryKey: boutKeys.all,
       queryFn: () =>
         localAPI.get<Bout[]>("bout/allBouts").then((bouts) => {
           for (const bout of bouts) {
             if (bout.uuid != null) {
-              queryClient.setQueryData(generateQueryKey.bout(bout.uuid), bout);
+              queryClient.setQueryData(boutKeys.one(bout.uuid), bout);
             }
           }
           return bouts;
@@ -81,12 +81,12 @@ export const useSuspenseGetAllBouts = <T = Bout[]>(
 ) =>
   useSuspenseQuery<Bout[], Error, T>(
     {
-      queryKey: generateQueryKey.bout(),
+      queryKey: boutKeys.all,
       queryFn: () =>
         localAPI.get<Bout[]>("bout/allBouts").then((bouts: Bout[]) => {
           for (const bout of bouts) {
             if (bout.uuid != null) {
-              queryClient.setQueryData(generateQueryKey.bout(bout.uuid), bout);
+              queryClient.setQueryData(boutKeys.one(bout.uuid), bout);
             }
           }
           return bouts;

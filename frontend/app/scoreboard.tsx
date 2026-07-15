@@ -7,7 +7,7 @@ import { useSuspenseBout } from "@/features/bouts/hooks/use-bout";
 import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import { useJam, useSuspenseJam } from "@/features/jams/hooks/use-jam";
-import { useSuspenseRuleset } from "@/hooks/use-ruleset";
+import { useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseSeries } from "@/hooks/use-series";
 import { useTimeout } from "@/hooks/use-timeout";
 import { BoutSubStateString, Team } from "@/types/bout";
@@ -68,10 +68,8 @@ export function Scoreboard() {
   }
   const { data: series } = useSuspenseSeries({ seriesUuid });
 
-  const { data: ruleset } = useSuspenseRuleset({
-    boutUuid: series.activeBoutUuid,
-  });
   const { data: bout } = useSuspenseBout({ boutUuid: series.activeBoutUuid });
+  const { data: ruleset } = useSuspenseGetRuleset(bout);
 
   const activeJamUri = useActiveJamUri(bout);
   const { data: activeJam } = useSuspenseJam(activeJamUri);

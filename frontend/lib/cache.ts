@@ -1,5 +1,6 @@
 import { CacheKey } from "@/types/query";
 import { onlineManager, QueryClient } from "@tanstack/react-query";
+import { localAPI } from "./requests";
 import { localSocket } from "./ws";
 
 const queryClient = new QueryClient({
@@ -10,6 +11,26 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+/**
+ * Invalidate only the parent queries of a cached query.
+ *
+ * @param key the cache key to invalidate.
+ */
+export function invalidateCacheParents<T = unknown>(key: CacheKey, data: T) {
+  for (let i = key.length - 1; i > 0; --i) {
+    // Invalidate super-sets of the stale model
+    void queryClient.invalidateQueries(
+      {
+        queryKey: key.slice(0, i),
+        type: "active",
+        exact: true,
+      },
+      { cancelRefetch: false },
+    );
+  }
+  void queryClient.setQueryData(key, data);
+}
 
 /**
  * Handle condition in which WebSockets connects to the server. All queries should be
@@ -27,19 +48,20 @@ localSocket.addCallback("connect", (connected: boolean) => {
 /**
  * Handle cache invalidation packets received from the server.
  */
-localSocket.addCallback("cache", (keys: CacheKey[]) => {
-  for (const key of keys) {
-    for (let i = key.length; i > 0; --i) {
-      // Invalidate super-sets of the stale model
-      void queryClient.invalidateQueries(
-        {
-          queryKey: key.slice(0, i),
-          type: "active",
-          exact: true,
-        },
-        { cancelRefetch: true },
-      );
-    }
+localSocket.addCallback("cache", ({ models, transactionUuid }) => {
+  if (localAPI.recentTransactionUuids.has(transactionUuid)) {
+    // This cache update has already been handled by the HTTP handler
+    return;
+  }
+
+  localAPI.recentTransactionUuids.add(transactionUuid);
+  setTimeout(() => {
+    // The transaction UUID will automatically be removed after 5 seconds
+    localAPI.recentTransactionUuids.delete(transactionUuid);
+  }, 5000);
+  for (const { key, data } of models) {
+    invalidateCacheParents(key, data);
+    console.log("WS Updating:", key);
   }
 });
 

@@ -1,11 +1,7 @@
 import { localAPI } from "@/lib/requests";
-import {
-  AppQueryOptions,
-  AppSuspenseQueryOptions,
-  BoutUri,
-} from "@/types/query";
+import { AppQueryOptions, AppSuspenseQueryOptions } from "@/types/query";
 import { Ruleset } from "@/types/ruleset";
-import { generateQueryKey } from "@/utils/query";
+import { rulesetKeys } from "@/utils/query-keys";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 /**
@@ -14,15 +10,15 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
  *
  * @returns a Tanstack useQuery object containing the desired Ruleset.
  */
-export const useRuleset = <T = null>({
-  boutUuid,
+export const useGetRuleset = <T = null>({
+  rulesetName,
   ...options
-}: BoutUri & AppQueryOptions<Ruleset | T>) =>
+}: { rulesetName: string } & AppQueryOptions<Ruleset | T>) =>
   useQuery<Ruleset | T>({
-    queryKey: generateQueryKey.ruleset(boutUuid),
+    queryKey: rulesetKeys.one(rulesetName),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
-        query: { boutUuid },
+        query: { rulesetName },
       }),
     ...options,
   });
@@ -33,15 +29,37 @@ export const useRuleset = <T = null>({
  *
  * @returns a Tanstack useSuspenseQuery object containing the desired Ruleset.
  */
-export const useSuspenseRuleset = ({
-  boutUuid,
+export const useSuspenseGetRuleset = ({
+  rulesetName,
   ...options
-}: BoutUri & AppSuspenseQueryOptions<Ruleset>) =>
+}: { rulesetName: string } & AppSuspenseQueryOptions<Ruleset>) =>
   useSuspenseQuery<Ruleset>({
-    queryKey: generateQueryKey.ruleset(boutUuid),
+    queryKey: rulesetKeys.one(rulesetName),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
-        query: { boutUuid },
+        query: { rulesetName },
       }),
+    ...options,
+  });
+
+/**
+ * Gets all the Bouts from the server. Each individual Bout is automatically cached
+ * after it is fetched. This hook is a wrapper for call to TanStack Query's
+ * `useSuspenseQuery` function.
+ *
+ * @returns a Tanstack useSuspenseQuery object containing an array of all Bouts.
+ */
+export const useSuspenseGetAllRulesets = <T = Ruleset[]>(
+  options?: AppSuspenseQueryOptions<Ruleset[], T>,
+) =>
+  useSuspenseQuery<Ruleset[], Error, T>({
+    queryKey: rulesetKeys.all,
+    queryFn: () =>
+      localAPI
+        .get<Ruleset[]>("bout/allRulesets")
+        .then((rulesets: Ruleset[]) => {
+          // TODO: add all the rulesets to the cache individually
+          return rulesets;
+        }),
     ...options,
   });

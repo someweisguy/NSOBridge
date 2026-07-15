@@ -1,6 +1,5 @@
 """FastAPI routes associated with Bouts."""
 
-import random
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
@@ -8,12 +7,9 @@ from core.app import CacheSchema
 from core.db import GetAsyncSession
 from fastapi import APIRouter, Body, Query
 from game.bouts.dependencies import GetTeam
-from game.bouts.models import REQUIRED_NUM_TEAMS, Team
-from game.series.dependencies import GetSeries
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
-from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, _get_bout
 from .models import BaseBout
 from .schemas import BoutSchema, RulesetSchema
@@ -23,33 +19,35 @@ if TYPE_CHECKING:
 
 BOUTS_TAG = 'Bouts'
 
-ALL_RULESET_NAMES: Final[list[str]] = []
-"""A list of all the unique ruleset names in this application. 
+ALL_RULESETS: Final[set[RulesetSchema]] = set()
+"""A list of all the unique rulesets in this application."""
 
-This value is lazily computed when it is initially queried.
-"""
+
+def _compute_all_rulesets() -> None:
+    """Collect all the rulesets in the application."""
+    if len(ALL_RULESETS) == 0:
+        for subclass in BaseBout.__subclasses__():
+            ALL_RULESETS.add(subclass.ruleset)
+
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 
 @router.get('/ruleset')
-async def get_ruleset(bout: GetBout) -> RulesetSchema:
+async def get_ruleset(
+    ruleset_name: Annotated[str, Query(alias='rulesetName')],
+) -> RulesetSchema:
     """Get the ruleset associated with a specific Bout."""
-    return bout.ruleset
+    _compute_all_rulesets()
+    return next(ruleset for ruleset in ALL_RULESETS if ruleset.name == ruleset_name)
 
 
-@router.get('/allRulesetNames')
-async def get_all_ruleset_names() -> list[str]:
+@router.get('/allRulesets')
+async def get_all_rulesets() -> set[RulesetSchema]:
     """Get all the ruleset names supported by the application."""
-    # Don't query the database; all possible ruleset names should be fetched, not just
-    # the rulesets that are persisted in the database.
-    if len(ALL_RULESET_NAMES) == 0:
-        unique_ruleset_names: set[str] = set()
-        for subclass in BaseBout.__subclasses__():
-            unique_ruleset_names.add(subclass.ruleset.name)
-        ALL_RULESET_NAMES.extend(unique_ruleset_names)
-    return ALL_RULESET_NAMES
+    _compute_all_rulesets()
+    return ALL_RULESETS
 
 
 @router.get('/allBouts', response_model=list[BoutSchema])
@@ -59,51 +57,6 @@ async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
     results: Result[tuple[BaseBout]] = await session.execute(statement)
 
     return results.scalars().all()
-
-
-@router.put('/createBout', response_model=CacheSchema)
-async def create_bout(
-    session: GetAsyncSession,
-    series: GetSeries,
-    ruleset_name: Annotated[str, Query(alias='rulesetName')],
-    team_names: Annotated[list[str] | None, Query(alias='teamName')] = None,
-) -> BaseBout:
-    """Create a Bout and initialize it."""
-    # Ensure that the team names are properly initialized
-    if team_names is None:
-        team_names = list(random.choice(RANDOM_TEAM_NAMES))  # noqa: S311
-    if len(team_names) < REQUIRED_NUM_TEAMS:
-        raise ValueError(
-            f'At least {REQUIRED_NUM_TEAMS} team are needed to create a Bout.'
-        )
-    home_name, away_name, *_ = team_names
-
-    # Create the Bout
-    bout: BaseBout = BaseBout(ruleset_name, Team(home_name, 0), Team(away_name, 1))
-    bout._series_uuid = series.uuid
-    session.add(bout)
-
-    # Expunge and merge the Bout to allow the subclass to call setup()
-    # It's a weird hack, but it appears to be the only way to allow the object to be
-    # loaded as the correct subclass.
-    try:
-        await session.flush()
-        session.expunge(bout)
-        bout = await session.merge(bout)
-    except AssertionError as e:
-        # SQLAlchemy raises AssertionError on invalid polymorphic identity
-        raise ValueError(
-            f'Cannot create bout with unknown ruleset: {ruleset_name}'
-        ) from e
-    bout.setup()
-
-    # Add the Bout to the Series
-    series.bouts.append(bout)
-    if series._active_bout_uuid is None:
-        series.active_bout = bout
-    flag_dirty(series)  # Include Series in cache updates
-
-    return bout
 
 
 @router.post('/beginPeriod', response_model=CacheSchema)

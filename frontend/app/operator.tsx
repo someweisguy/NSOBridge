@@ -19,16 +19,19 @@ import JammerTripControl from "@/features/operator/components/jammer-trip-contro
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
-import { useSuspenseAllRulesetNames } from "@/hooks/use-all-ruleset-names";
-import { useSuspenseRuleset } from "@/hooks/use-ruleset";
+import {
+  useSuspenseGetAllRulesets,
+  useSuspenseGetRuleset,
+} from "@/hooks/use-ruleset";
 import { useSuspenseGetAllSeries } from "@/hooks/use-series";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
 import { Bout, BoutSubStateString, Team } from "@/types/bout";
 import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
+import { Ruleset } from "@/types/ruleset";
 import { Series } from "@/types/series";
-import { generateQueryKey } from "@/utils/query";
+import { boutKeys } from "@/utils/query-keys";
 import { isRunning } from "@/utils/time";
 import {
   ActionIcon,
@@ -94,7 +97,7 @@ export default function Operator() {
 
   const { data: bouts, isPending: boutsArePending } = useQueries({
     queries: activeSeries.boutUuids.map((boutUuid: string) => ({
-      queryKey: generateQueryKey.bout(boutUuid),
+      queryKey: boutKeys.one(boutUuid),
       queryFn: () =>
         localAPI.get<Bout>("bout", {
           query: { boutUuid },
@@ -109,14 +112,17 @@ export default function Operator() {
     ),
   });
 
-  const { data: rulesetNames } = useSuspenseAllRulesetNames();
+  const { data: allRulesetNames } = useSuspenseGetAllRulesets({
+    select: (rulesets: Ruleset[]) =>
+      rulesets.map((ruleset: Ruleset) => ruleset.name),
+  });
 
   const [boutUri, setBoutUri] = useState<BoutUri>({
     boutUuid: activeSeries.activeBoutUuid,
   });
 
-  const { data: ruleset } = useSuspenseRuleset(boutUri);
   const { data: bout } = useSuspenseBout(boutUri);
+  const { data: ruleset } = useSuspenseGetRuleset(bout);
 
   useEffect(() => {
     if (activeSeries.boutUuids.includes(bout.uuid)) {
@@ -285,7 +291,7 @@ export default function Operator() {
     >
       <Modal title="Create New Bout" opened={opened} onClose={close}>
         <BoutCreator
-          rulesetNames={rulesetNames}
+          rulesetNames={allRulesetNames}
           seriesUuid={activeSeries.uuid}
           onSuccess={(newBout: Bout) => {
             setBoutUri({ boutUuid: newBout.uuid });

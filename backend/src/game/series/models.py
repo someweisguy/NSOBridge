@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, override
 
 from core.db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
+from game.bouts.models import BaseBout
 from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     from core.app import CacheKey
-    from game.bouts.models import BaseBout
 
 
 class Series(CacheableSQLModel):
@@ -30,6 +30,7 @@ class Series(CacheableSQLModel):
         cascade=CASCADE_CHILD,
         foreign_keys='BaseBout._series_uuid',
         lazy='selectin',
+        order_by=[BaseBout.num, BaseBout.created_on],
     )
 
     __tablename__: str = 'series'
@@ -70,6 +71,10 @@ class Series(CacheableSQLModel):
         """
         if bout not in self.bouts:
             raise ValueError('The active Bout must be part of the Series.')
+
+        # Prevent unnecessary cache updates
+        if self._active_bout_uuid == bout.uuid:
+            return
 
         # I'm not sure why ty thinks this is an invalid assignment...
         self._active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment]
