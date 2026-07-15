@@ -1,4 +1,5 @@
-import queryClient from "./cache";
+import { CacheKey } from "@/types/query";
+import { invalidateCacheParents } from "./cache";
 
 interface URLParameters {
   query?: URLSearchParams | Record<string, unknown>;
@@ -8,13 +9,14 @@ interface URLParameters {
 interface APIResponse<T = unknown> {
   statusCode: number;
   data: T;
-  cache?: { key: unknown[]; data: object }[];
+  cache?: { key: CacheKey; data: object }[];
   error?: {
     type: string;
     message: string;
     description: string;
   };
   timestamp: string;
+  transactionUuid: string;
 }
 
 /**
@@ -66,7 +68,7 @@ export default class API {
     // Update the the cache
     if (payload.cache != null) {
       for (const { key, data } of payload.cache) {
-        queryClient.setQueryData(key, data);
+        invalidateCacheParents(key, data);
       }
     }
 

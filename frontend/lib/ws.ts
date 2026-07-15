@@ -11,7 +11,10 @@ export const serverTimeCacheKey: CacheKey = ["serverTimeCacheKey"];
 const NUM_SYNC_SAMPLES = 5;
 
 interface API {
-  cache: CacheKey[];
+  cache: {
+    models: { key: CacheKey; data: unknown }[];
+    transactionUuid: string;
+  };
   connect: boolean;
   about: ServerData;
 }

@@ -123,7 +123,10 @@ class APIResponse[T: Any](JSONResponse):
         # Send a WebSocket cache message
         cache: Any = payload.get('cache', None)
         if cache:
-            send_all('cache', cache, transaction_uuid)
+            send_all(
+                'cache',
+                {'models': cache, 'transactionUuid': transaction_uuid},
+            )
 
         return json.dumps(
             payload,

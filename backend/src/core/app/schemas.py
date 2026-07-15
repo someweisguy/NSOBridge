@@ -3,7 +3,6 @@
 from abc import ABC
 from datetime import datetime
 from typing import Any, ClassVar
-from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pydantic.alias_generators import to_camel
@@ -91,7 +90,6 @@ class WebSocketServerSchema[T: Any](ServerSchema, ABC):
 
     type: str
     data: T
-    transaction_uuid: UUID | None = Field(None, exclude_if=lambda u: u is None)
 
     @field_serializer('data')
     def _reject_null_data(self, data: Any | None) -> Any:

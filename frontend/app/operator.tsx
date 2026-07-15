@@ -96,6 +96,16 @@ const gameKeys = {
     [...gameKeys.bout(boutUuid), timeoutNum] as const,
 };
 
+const seriesKeys = {
+  all: ["series"] as const,
+  one: (seriesUuid: string) => [...seriesKeys.all, seriesUuid] as const,
+};
+
+const boutKeys = {
+  all: ["bouts"] as const,
+  one: (boutUuid: string) => [...boutKeys.all, boutUuid] as const,
+};
+
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
  * server to run the majority of the game. It serves controls to start and stop the Bout
