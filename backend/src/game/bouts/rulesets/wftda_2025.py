@@ -58,7 +58,7 @@ class Bout(BaseBout):
                 f'This Bout can only have {self.ruleset.num_periods} periods',
             )
 
-        logging.info(f'Beginning P{jam.period} in {self}')
+        logging.info(f'Readying P{jam.period} in {self}')
 
         # If this Period is not in overtime reset the Clock and Official Reviews
         if jam.period < self.ruleset.num_periods:
@@ -86,7 +86,7 @@ class Bout(BaseBout):
             raise HTTPException(
                 HTTPStatus.CONFLICT, 'One Jam must be played before ending the Period'
             )
-        logging.info(f'Ending P{final_jam.period} in {self}')
+        logging.info(f'Ending P{final_jam.period + 1} in {self}')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
         # Or calling end_period() after OT ends the Bout
@@ -180,14 +180,14 @@ class Bout(BaseBout):
                 'A Timeout cannot be called while one is in progress',
             )
 
-        logging.info(f'Calling Timeout {self}')
-
-        # Instantiate and start the Timeout
+        # Instantiate the Timeout
         timeout: Timeout = Timeout(self.get_active_jam(), len(self.timeouts))
         timeout.clock_elapsed = self.clock.get_duration(timestamp)
+
+        logging.info(f'Calling {timeout}')
+
         timeout.start(timestamp)
         self.timeouts.append(timeout)
-
         if self.clock.is_running():
             self.clock.stop(timestamp)
 
@@ -199,7 +199,7 @@ class Bout(BaseBout):
                 HTTPStatus.CONFLICT, 'There is no active Timeout to stop'
             )
 
-        logging.info(f'Stopping Timeout in {self}')
+        logging.info(f'Ending {timeout}')
 
         # Validate the Timeout's state
         if timeout.is_review and timeout._team is None:
@@ -222,12 +222,12 @@ class Bout(BaseBout):
         jam: Jam = self.get_active_jam()
         team_jam: TeamJam = jam.get_team_jam(team)
 
-        logging.info(f'Adding {passes} passes to {team} in {self}')
+        logging.info(f'Adding {passes} passes to {team}')
 
         is_initial: bool = team_jam.get_num_trips() == 0
         is_overtime: bool = jam.period >= self.ruleset.num_periods
         if is_initial:
-            logging.info(f'This is the initial pass for {team} in {self}')
+            logging.info(f'This is the initial pass for {team}')
 
         event: TripEvent = TripEvent(timestamp, passes=passes)
 
@@ -250,7 +250,7 @@ class Bout(BaseBout):
         jam: Jam = self.get_active_jam()
         team_jam: TeamJam = jam.get_team_jam(team)
 
-        logging.info(f'{"Setting" if lead else "Unsetting"} lead for {team} in {self}')
+        logging.info(f'{"Setting" if lead else "Unsetting"} lead for {team}')
 
         if lead:
             # Add a new Trip Event in which lead is declared
@@ -273,7 +273,7 @@ class Bout(BaseBout):
         jam: Jam = self.get_active_jam()
         team_jam: TeamJam = jam.get_team_jam(team)
 
-        logging.info(f'{"Setting" if lost else "Unsetting"} lost for {team} in {self}')
+        logging.info(f'{"Setting" if lost else "Unsetting"} lost for {team}')
 
         if lost:
             # Add a new Trip Event in which the Jammer has lost eligibility for lead
@@ -296,9 +296,7 @@ class Bout(BaseBout):
         jam: Jam = self.get_active_jam()
         team_jam: TeamJam = jam.get_team_jam(team)
 
-        logging.info(
-            f'{"Setting" if star_pass else "Unsetting"} star pass {team} in {self}'
-        )
+        logging.info(f'{"Setting" if star_pass else "Unsetting"} star pass {team}')
 
         if star_pass:
             if any(event.star_pass for event in team_jam.events):
@@ -334,5 +332,7 @@ class Bout(BaseBout):
         self.timeouts: list[Timeout] = [
             timeout for timeout in self.timeouts if timeout.start_timestamp is not None
         ]
+
+        logging.info(f'Finalizing {self}')
 
         self.is_final = True

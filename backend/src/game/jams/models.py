@@ -78,7 +78,7 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
             str: a str representation of this Jam.
 
         """
-        return f'[Bout ID: {self._bout_uuid}, P{self.period} J{self.num}]'
+        return f'P{self.period + 1}-J{self.num + 1} in {self.bout}'
 
     def __init__(self, period_num: int, jam_num: int, *team_jams: TeamJam) -> None:
         """Initialize a Jam.

@@ -86,7 +86,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
             str: a str representation of this Bout.
 
         """
-        return f'[Bout UUID: {self.uuid}]'
+        return f'bout {str(self.uuid)[-6:]}'
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         """Ensure all subclasses implement a ruleset."""
@@ -332,6 +332,15 @@ class Team(BaseSQLModel):
 
     __tablename__: str = 'teams'
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_bout_uuid', 'num'),)
+
+    def __str__(self) -> str:
+        """Get the string representation of this object.
+
+        Returns:
+            str: the string representation.
+
+        """
+        return f'team `{self.name}` in {self.bout}'
 
     def __init__(self, name: str, num: int) -> None:
         """Initialize a Team.
