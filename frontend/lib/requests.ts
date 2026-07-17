@@ -1,5 +1,7 @@
 import { CacheKey } from "@/types/query";
-import { invalidateCacheParents as updateCachedGameData } from "./cache";
+import queryClient, {
+  invalidateCacheParents as updateCachedGameData,
+} from "./cache";
 
 interface URLParameters {
   query?: URLSearchParams | Record<string, unknown>;
@@ -80,7 +82,8 @@ export default class API {
     }, 5000);
     if (payload.cache != null) {
       for (const { key, data } of payload.cache) {
-        updateCachedGameData(key, data);
+        updateCachedGameData(key);
+        void queryClient.setQueryData(key, data);
       }
     }
 
