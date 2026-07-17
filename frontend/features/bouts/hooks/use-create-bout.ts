@@ -1,8 +1,8 @@
-import queryClient from "@/lib/cache";
+import queryClient, { invalidateCacheParents } from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
-import { boutKeys } from "@/utils/query-keys";
+import { boutKeys, seriesKeys } from "@/utils/query-keys";
 import { useMutation } from "@tanstack/react-query";
 
 interface UseCreateBoutOptions {
@@ -34,6 +34,7 @@ export const useCreateBout = ({
         localAPI
           .put<Bout>("series/createBout", { query })
           .then((bout: Bout) => {
+            invalidateCacheParents(seriesKeys.one(seriesUuid));
             queryClient.setQueriesData(
               { queryKey: boutKeys.one(bout.uuid) },
               bout,
