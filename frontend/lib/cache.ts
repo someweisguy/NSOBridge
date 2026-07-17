@@ -1,4 +1,3 @@
-import { CacheKey } from "@/types/query";
 import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { localAPI } from "./requests";
 import { localSocket } from "./ws";
@@ -17,7 +16,7 @@ const queryClient = new QueryClient({
  *
  * @param key the cache key to invalidate.
  */
-export function invalidateCacheParents<T = unknown>(key: CacheKey, data: T) {
+export function invalidateCacheParents(key: readonly unknown[]) {
   for (let i = key.length - 1; i > 0; --i) {
     // Invalidate super-sets of the stale model
     void queryClient.invalidateQueries(
@@ -29,7 +28,6 @@ export function invalidateCacheParents<T = unknown>(key: CacheKey, data: T) {
       { cancelRefetch: false },
     );
   }
-  void queryClient.setQueryData(key, data);
 }
 
 /**
@@ -60,7 +58,8 @@ localSocket.addCallback("cache", ({ models, transactionUuid }) => {
     localAPI.recentTransactionUuids.delete(transactionUuid);
   }, 5000);
   for (const { key, data } of models) {
-    invalidateCacheParents(key, data);
+    invalidateCacheParents(key);
+    void queryClient.setQueryData(key, data);
   }
 });
 
