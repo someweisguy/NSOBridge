@@ -54,6 +54,10 @@ export default function BoutControl({
     [state, beginPeriod, endPeriod],
   );
 
+  const nextPeriodIsOvertime = latestJamUri.periodNum > 1;
+  const jamText = nextPeriodIsOvertime ? "Overtime Jam" : "Jam";
+  const periodText = nextPeriodIsOvertime ? "Overtime" : "Period";
+
   return (
     <Fieldset legend="Control Bout" {...props}>
       <Stack>
@@ -70,7 +74,7 @@ export default function BoutControl({
             )
           }
         >
-          {state == "jam" ? "Stop Jam" : "Start Jam"}
+          {state == "jam" ? "Stop " : "Start"} {jamText}
         </Button>
         <Button
           size="xs"
@@ -102,7 +106,7 @@ export default function BoutControl({
             )
           }
         >
-          {state == "stopped" ? "Begin Period" : "End Period"}
+          {state == "stopped" ? "Begin" : "End"} {periodText}
         </Button>
       </Stack>
     </Fieldset>
