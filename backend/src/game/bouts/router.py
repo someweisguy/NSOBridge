@@ -50,8 +50,8 @@ async def delete_bout(session: GetAsyncSession, bout: GetBout) -> dict:
                 status_code=HTTPStatus.CONFLICT,
                 detail='At least one Bout is required in every Series',
             )
+    series.bouts.remove(bout)
     await session.delete(bout)
-    flag_dirty(series)
     return {'cache': series.get_updates()}
 
 
