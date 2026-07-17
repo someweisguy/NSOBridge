@@ -91,9 +91,10 @@ const eventNames: Record<BoutSubStateString, string> = {
  * This page should be designed to fit within a viewport that is 1280px by 585px.
  */
 export default function Operator() {
-  const { data: activeSeries } = useSuspenseGetAllSeries({
-    select: (allSeries: Series[]) => allSeries[allSeries.length - 1],
-  });
+  const { data: activeSeries, refetch: refetchAllSeries } =
+    useSuspenseGetAllSeries({
+      select: (allSeries: Series[]) => allSeries[allSeries.length - 1],
+    });
 
   const { data: bouts, isPending: boutsArePending } = useQueries({
     queries: activeSeries.boutUuids.map((boutUuid: string) => ({
@@ -294,9 +295,10 @@ export default function Operator() {
           rulesetNames={allRulesetNames}
           seriesUuid={activeSeries.uuid}
           onSuccess={(newBout: Bout) => {
-            setBoutUri({ boutUuid: newBout.uuid });
-            setActiveBout.mutate(newBout.uuid);
-            close();
+            void refetchAllSeries({ cancelRefetch: false }).then(() => {
+              setBoutUri({ boutUuid: newBout.uuid });
+              close();
+            });
           }}
         />
       </Modal>
