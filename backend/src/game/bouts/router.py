@@ -1,11 +1,12 @@
 """FastAPI routes associated with Bouts."""
 
 from datetime import datetime, timedelta
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
 
 from core.app import CacheSchema
 from core.db import GetAsyncSession
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, HTTPException, Query
 from game.bouts.dependencies import GetTeam
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
@@ -15,6 +16,7 @@ from .models import BaseBout
 from .schemas import BoutSchema, RulesetSchema
 
 if TYPE_CHECKING:
+    from game.series.models import Series
     from game.timeouts.models import Timeout
 
 BOUTS_TAG = 'Bouts'
@@ -32,6 +34,25 @@ def _compute_all_rulesets() -> None:
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
+
+
+@router.delete('', response_model=CacheSchema)
+async def delete_bout(session: GetAsyncSession, bout: GetBout) -> dict:
+    series: Series = await bout.awaitable_attrs.series
+    await series.awaitable_attrs.active_bout
+    await series.awaitable_attrs.bouts
+
+    if series.active_bout is bout:
+        if len(series.bouts) > 1:
+            series.active_bout = next(b for b in series.bouts if b is not bout)
+        else:
+            raise HTTPException(
+                status_code=HTTPStatus.CONFLICT,
+                detail='At least one Bout is required in every Series',
+            )
+    await session.delete(bout)
+    flag_dirty(series)
+    return {'cache': series.get_updates()}
 
 
 @router.get('/ruleset')

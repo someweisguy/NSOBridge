@@ -1,3 +1,4 @@
+import { useDeleteBout } from "@/features/bouts/hooks/use-delete-bout";
 import { Team } from "@/types/bout";
 import { Clock } from "@/types/time";
 import { Button, Menu, Modal, useModalsStack } from "@mantine/core";
@@ -5,9 +6,9 @@ import {
   IconCheckupList,
   IconPencil,
   IconRollerSkating,
-  IconScoreboard,
   IconStopwatch,
   IconTrafficLights,
+  IconTrash,
   IconUserExclamation,
   IconUsers,
 } from "@tabler/icons-react";
@@ -22,7 +23,6 @@ interface EditMenuProps {
 
 export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
   const modalStack = useModalsStack([
-    "series",
     "bout",
     "clock",
     "officials",
@@ -31,6 +31,8 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
     "timeouts",
     "penalties",
   ]);
+
+  const deleteBout = useDeleteBout({ boutUuid: uuid });
 
   return (
     <Menu withArrow shadow="md" width={200}>
@@ -46,13 +48,6 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
       </Menu.Target>
 
       <Menu.Dropdown>
-        <Menu.Item
-          disabled
-          leftSection={<IconScoreboard size={16} />}
-          onClick={() => modalStack.open("series")}
-        >
-          Series
-        </Menu.Item>
         <Menu.Item
           disabled
           leftSection={<IconCheckupList size={16} />}
@@ -106,6 +101,13 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
           onClick={() => modalStack.open("penalties")}
         >
           Penalties
+        </Menu.Item>
+        <Menu.Item
+          color="red"
+          leftSection={<IconTrash size={16} />}
+          onClick={() => deleteBout.mutate()}
+        >
+          Delete Bout
         </Menu.Item>
       </Menu.Dropdown>
 
