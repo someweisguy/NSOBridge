@@ -96,8 +96,8 @@ class User:
         if len(self.undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
         undo_memento: Memento = self.undo_history.pop()
-        updates: Iterable[CacheableProtocol] = await undo_memento.get_cache_updates()
         self.redo_history.append(await undo_memento.restore())
+        updates: Iterable[CacheableProtocol] = await undo_memento.get_cache_updates()
         return updates
 
     async def redo(self) -> Iterable[CacheableProtocol]:
@@ -113,6 +113,6 @@ class User:
         if len(self.redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
         redo_memento: Memento = self.redo_history.pop()
-        updates: Iterable[CacheableProtocol] = await redo_memento.get_cache_updates()
         self.undo_history.append(await redo_memento.restore())
+        updates: Iterable[CacheableProtocol] = await redo_memento.get_cache_updates()
         return updates
