@@ -144,7 +144,6 @@ class _DatabaseMemento(Memento):
             )
             results: Result[tuple[CacheableSQLModel]] = await session.execute(statement)
             model: CacheableSQLModel = results.scalar_one()
-            session.expunge(model)
 
             # Merge the desired state with the database
             _ = await session.merge(self._detached_state_to_restore)
