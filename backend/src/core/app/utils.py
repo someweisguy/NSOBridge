@@ -17,6 +17,7 @@ from pydantic import (
     ModelWrapValidatorHandler,
     model_validator,
 )
+from starlette.background import BackgroundTask
 
 from .schemas import ErrorSchema, ServerSchema
 from .service import get_schema, send_all
@@ -123,9 +124,12 @@ class APIResponse[T: Any](JSONResponse):
         # Send a WebSocket cache message
         cache: Any = payload.get('cache', None)
         if cache:
-            send_all(
-                'cache',
-                {'models': cache, 'transactionUuid': transaction_uuid},
+            # Use a background task to avoid a race condition between HTTP and WS
+            self.background = BackgroundTask(
+                lambda: send_all(
+                    'cache',
+                    {'models': cache, 'transactionUuid': transaction_uuid},
+                )
             )
 
         return json.dumps(
