@@ -28,7 +28,6 @@ _model_table: Final[dict[Any, Type[ServerSchema]]] = {}
 """Maps app models to their corresponding Pydantic schema."""
 
 _clients: set[WebSocket] = set()
-_background_tasks: set[asyncio.Task[None]] = set()
 
 
 ws: Final[FastAPI] = FastAPI()
@@ -82,7 +81,7 @@ async def disconnect_all(code: int, reason: str) -> None:
         await client.close(code=code, reason=reason)
 
 
-def send_all[T: Any](message_type: str, data: T) -> None:
+async def send_all[T: Any](message_type: str, data: T) -> None:
     """Send a WebSocket payload to all clients.
 
     Args:
@@ -92,10 +91,9 @@ def send_all[T: Any](message_type: str, data: T) -> None:
 
     """
     payload: str = WebSocketServerSchema(type=message_type, data=data).model_dump_json()
-    for client in _clients:
-        task = asyncio.create_task(client.send_text(payload))
-        task.add_done_callback(_background_tasks.discard)
-        _background_tasks.add(task)
+    async with asyncio.TaskGroup() as tg:
+        for client in _clients:
+            tg.create_task(client.send_text(payload))
 
 
 def get_resource_path(relative_path: str) -> Path:

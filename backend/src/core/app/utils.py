@@ -126,10 +126,9 @@ class APIResponse[T: Any](JSONResponse):
         if cache:
             # Use a background task to avoid a race condition between HTTP and WS
             self.background = BackgroundTask(
-                lambda: send_all(
-                    'cache',
-                    {'models': cache, 'transactionUuid': transaction_uuid},
-                )
+                send_all,
+                message_type='cache',
+                data={'models': cache, 'transactionUuid': transaction_uuid},
             )
 
         return json.dumps(
