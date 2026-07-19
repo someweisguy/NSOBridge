@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Callable, TypeAlias
+import logging
+from typing import TYPE_CHECKING, Annotated, TypeAlias
 from uuid import UUID, uuid4
 
 from fastapi import Cookie, Depends, Request, Response
@@ -38,10 +39,11 @@ def _get_user(
         user.unstage()
         raise e
     else:
-        endpoint: Callable | None = request.scope.get('endpoint', None)
+        endpoint: function = request.scope['endpoint']  # noqa: F821 - Ruff is wrong.
         if endpoint.__doc__ is not None:
             commit_message = endpoint.__doc__
         else:
+            logging.warning(f'Endpoint `{endpoint.__name__}` does not have docs')
             commit_message = 'Unknown operation'
         user.commit(commit_message)
 
