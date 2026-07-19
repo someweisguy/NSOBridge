@@ -176,23 +176,24 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
 
         The sub-state is used for more descriptive event states.
         """
-        running_timeout: Timeout | None = self.get_running_timeout()
         match self.state:
             case 'lineup' as state:
                 active_jam: Jam = self.get_active_jam()
+                latest_timeout: Timeout | None = self.get_last_timeout()
                 if (
-                    running_timeout is None
+                    latest_timeout is None
                     or active_jam.num == 0
                     or active_jam.stop_timestamp is None
-                    or running_timeout.stop_timestamp is None
-                    or running_timeout.stop_timestamp <= active_jam.stop_timestamp
+                    or latest_timeout.stop_timestamp is None
+                    or latest_timeout.stop_timestamp <= active_jam.stop_timestamp
                 ):
                     return state
-                elif running_timeout.is_review:
+                elif latest_timeout.is_review:
                     return 'post_review'
                 else:
                     return 'post_timeout'
             case 'timeout':
+                running_timeout: Timeout | None = self.get_running_timeout()
                 if running_timeout is None or (
                     not running_timeout.is_review
                     and not running_timeout.team_is_officials
