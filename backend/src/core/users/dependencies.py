@@ -39,6 +39,8 @@ def _get_user(
         user.unstage()
         raise e
     else:
+        if request.method == 'GET':
+            return
         endpoint: function = request.scope['endpoint']  # noqa: F821 - Ruff is wrong.
         if endpoint.__doc__ is not None:
             commit_message = endpoint.__doc__
