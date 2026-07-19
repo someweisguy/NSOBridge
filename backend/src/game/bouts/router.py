@@ -1,5 +1,6 @@
 """FastAPI routes associated with Bouts."""
 
+import random
 from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, Final, Sequence
@@ -8,11 +9,13 @@ from core.app import CacheSchema
 from core.db import GetAsyncSession
 from fastapi import APIRouter, Body, HTTPException, Query
 from game.bouts.dependencies import GetTeam
+from game.series.dependencies import GetSeries
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
+from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, _get_bout
-from .models import BaseBout
+from .models import REQUIRED_NUM_TEAMS, BaseBout, Team
 from .schemas import BoutSchema, RulesetSchema
 
 if TYPE_CHECKING:
@@ -34,6 +37,51 @@ def _compute_all_rulesets() -> None:
 
 router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
 router.add_api_route('', _get_bout, response_model=BoutSchema)
+
+
+@router.put('', response_model=CacheSchema)
+async def create_bout(
+    session: GetAsyncSession,
+    series: GetSeries,
+    ruleset_name: Annotated[str, Query(alias='rulesetName')],
+    team_names: Annotated[list[str] | None, Query(alias='teamName')] = None,
+) -> BaseBout:
+    """Create a Bout and initialize it."""
+    # Ensure that the team names are properly initialized
+    if team_names is None:
+        team_names = list(random.choice(RANDOM_TEAM_NAMES))  # noqa: S311
+    if len(team_names) < REQUIRED_NUM_TEAMS:
+        raise ValueError(
+            f'At least {REQUIRED_NUM_TEAMS} team are needed to create a Bout.'
+        )
+    home_name, away_name, *_ = team_names
+
+    # Create the Bout
+    bout: BaseBout = BaseBout(ruleset_name, Team(home_name, 0), Team(away_name, 1))
+    bout._series_uuid = series.uuid
+    session.add(bout)
+
+    # Expunge and merge the Bout to allow the subclass to call setup()
+    # It's a weird hack, but it appears to be the only way to allow the object to be
+    # loaded as the correct subclass.
+    try:
+        await session.flush()
+        session.expunge(bout)
+        bout = await session.merge(bout)
+    except AssertionError as e:
+        # SQLAlchemy raises AssertionError on invalid polymorphic identity
+        raise ValueError(
+            f'Cannot create bout with unknown ruleset: {ruleset_name}'
+        ) from e
+    bout.setup()
+
+    # Add the Bout to the Series and make it active
+    series.bouts.append(bout)
+    series.active_bout = bout
+
+    flag_dirty(series)  # Include Series in cache updates
+
+    return bout
 
 
 @router.delete('', response_model=CacheSchema)

@@ -31,16 +31,14 @@ export const useCreateBout = ({
   return useMutation(
     {
       mutationFn: () =>
-        localAPI
-          .put<Bout>("series/createBout", { query })
-          .then((bout: Bout) => {
-            invalidateCacheParents(seriesKeys.one(seriesUuid));
-            queryClient.setQueriesData(
-              { queryKey: boutKeys.one(bout.uuid) },
-              bout,
-            );
-            return bout;
-          }),
+        localAPI.put<Bout>("bout", { query }).then((bout: Bout) => {
+          invalidateCacheParents(seriesKeys.one(seriesUuid));
+          queryClient.setQueriesData(
+            { queryKey: boutKeys.one(bout.uuid) },
+            bout,
+          );
+          return bout;
+        }),
       ...options,
     },
     queryClient,
