@@ -70,7 +70,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
             str: a str representation of this Timeout.
 
         """
-        return f'timeout {self.num} in {self.bout}'
+        return f'timeout {self.num + 1} in {self.bout}'
 
     def __init__(self, jam: Jam, num: int) -> None:
         """Initialize a Timeout.
