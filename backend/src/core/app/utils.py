@@ -57,7 +57,8 @@ class CacheSchema[T: ServerSchema](ServerSchema):
 
         This validator mutates the incoming data so that the proper output schema is
         created. It's a little hacky but it's the best solution for returning multiple
-        values in a schema.
+        values in a schema while also allowing the endpoint method to return a non-dict
+        value.
 
         If a cacheable item is provided as input, the schema is generated appropriately.
         If a dictionary containing a 'cache' key is provided with an iterable of
