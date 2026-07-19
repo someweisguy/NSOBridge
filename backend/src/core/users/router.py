@@ -9,6 +9,7 @@ from fastapi import APIRouter, HTTPException
 from core.app import CacheSchema
 
 from .dependencies import GetUser
+from .schemas import HistorySchema
 
 HISTORY_TAG = 'History'
 
@@ -34,3 +35,12 @@ async def _redo(user: GetUser) -> dict:
         raise HTTPException(HTTPStatus.CONFLICT, 'There is nothing left to redo')
     cache = await user.redo()
     return {'data': None, 'cache': cache}
+
+
+@router.get('/history')
+async def _history(user: GetUser) -> HistorySchema:
+    """Get the undo and redo history of this user."""
+    return HistorySchema(
+        undo=[message for message, _ in user.undo_history],
+        redo=[message for message, _ in user.redo_history],
+    )
