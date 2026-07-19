@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, TypeAlias
+from typing import TYPE_CHECKING, Annotated, Callable, TypeAlias
 from uuid import UUID, uuid4
 
-from fastapi import Cookie, Depends, Response
+from fastapi import Cookie, Depends, Request, Response
 
 from .types import User
 
@@ -17,6 +17,7 @@ _users: dict[UUID, User] = {}
 
 
 def _get_user(
+    request: Request,
     response: Response,
     nso_id: Annotated[UUID | None, Cookie(alias='nsoId')] = None,
 ) -> Generator[User, None, None]:
@@ -37,7 +38,12 @@ def _get_user(
         user.unstage()
         raise e
     else:
-        user.commit()
+        endpoint: Callable | None = request.scope.get('endpoint', None)
+        if endpoint.__doc__ is not None:
+            commit_message = endpoint.__doc__
+        else:
+            commit_message = 'Unknown operation'
+        user.commit(commit_message)
 
 
 GetUser: TypeAlias = Annotated[User, Depends(_get_user)]

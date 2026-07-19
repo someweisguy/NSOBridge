@@ -48,8 +48,8 @@ class User:
     def __init__(self) -> None:
         """Initialize a User."""
         self._staged: Memento | None = None
-        self.undo_history: list[Memento] = []
-        self.redo_history: list[Memento] = []
+        self.undo_history: list[tuple[str, Memento]] = []
+        self.redo_history: list[tuple[str, Memento]] = []
 
     def stage(self, memento: Memento) -> None:
         """Stage a Memento before committing it.
@@ -64,14 +64,14 @@ class User:
         """
         self._staged = memento
 
-    def commit(self) -> None:
+    def commit(self, commit_message: str) -> None:
         """Commit a Memento to the undo history.
 
         This method should be called when a transaction completes successfully and a
         Memento is ready to be undone with the undo command.
         """
         if self._staged is not None:
-            self.undo_history.append(self._staged)
+            self.undo_history.append((commit_message, self._staged))
             self.redo_history.clear()
             self._staged = None
 
@@ -95,8 +95,8 @@ class User:
         """
         if len(self.undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
-        undo_memento: Memento = self.undo_history.pop()
-        self.redo_history.append(await undo_memento.restore())
+        message, undo_memento = self.undo_history.pop()
+        self.redo_history.append((message, await undo_memento.restore()))
         updates: Iterable[CacheableProtocol] = await undo_memento.get_cache_updates()
         return updates
 
@@ -112,7 +112,7 @@ class User:
         """
         if len(self.redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
-        redo_memento: Memento = self.redo_history.pop()
-        self.undo_history.append(await redo_memento.restore())
+        message, redo_memento = self.redo_history.pop()
+        self.undo_history.append((message, await redo_memento.restore()))
         updates: Iterable[CacheableProtocol] = await redo_memento.get_cache_updates()
         return updates
