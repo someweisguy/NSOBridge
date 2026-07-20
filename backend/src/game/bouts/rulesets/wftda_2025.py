@@ -52,13 +52,13 @@ class Bout(BaseBout):
             raise HTTPException(
                 HTTPStatus.CONFLICT, 'There is no upcoming Jam in this period'
             )
-        if jam.period == self.ruleset.num_periods:
+        if jam.period > self.ruleset.num_periods:
             raise HTTPException(
                 HTTPStatus.CONFLICT,
                 f'This Bout can only have {self.ruleset.num_periods} periods',
             )
 
-        logging.info(f'Readying P{jam.period} in {self}')
+        logging.info(f'Readying P{jam.period + 1} in {self}')
 
         # If this Period is not in overtime reset the Clock and Official Reviews
         if jam.period < self.ruleset.num_periods:
@@ -86,6 +86,7 @@ class Bout(BaseBout):
             raise HTTPException(
                 HTTPStatus.CONFLICT, 'One Jam must be played before ending the Period'
             )
+
         logging.info(f'Ending P{final_jam.period + 1} in {self}')
 
         # Calling end_period() twice in a row after Period 2 ends the Bout
