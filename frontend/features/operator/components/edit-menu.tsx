@@ -3,13 +3,9 @@ import { Team } from "@/types/bout";
 import { Clock } from "@/types/time";
 import { Button, Menu, Modal, useModalsStack } from "@mantine/core";
 import {
-  IconCheckupList,
   IconPencil,
-  IconRollerSkating,
   IconStopwatch,
-  IconTrafficLights,
   IconTrash,
-  IconUserExclamation,
   IconUsers,
 } from "@tabler/icons-react";
 import BoutClockEditor from "./bout-clock-editor";
@@ -48,13 +44,14 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
       </Menu.Target>
 
       <Menu.Dropdown>
+        {/*  // TODO: Implement editing Bouts 
         <Menu.Item
           disabled
           leftSection={<IconCheckupList size={16} />}
           onClick={() => modalStack.open("bout")}
         >
           Bout
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Item
           leftSection={<IconStopwatch size={16} />}
           onClick={() => modalStack.open("clock")}
@@ -68,9 +65,10 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
             </Menu.Sub.Item>
           </Menu.Sub.Target>
           <Menu.Sub.Dropdown>
+            {/*  // TODO: Implement editing Officials
             <Menu.Item disabled onClick={() => modalStack.open("officials")}>
               Officials
-            </Menu.Item>
+            </Menu.Item> */}
             {teams.map((team: Team) => (
               <Menu.Item
                 key={team.num}
@@ -81,27 +79,30 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
             ))}
           </Menu.Sub.Dropdown>
         </Menu.Sub>
+        {/* // TODO: Implement editing Jams
         <Menu.Item
           disabled
           leftSection={<IconRollerSkating size={16} />}
           onClick={() => modalStack.open("jams")}
         >
           Jams
-        </Menu.Item>
+        </Menu.Item> */}
+        {/* // TODO: Implement editing Timeouts
         <Menu.Item
           disabled
           leftSection={<IconTrafficLights size={16} />}
           onClick={() => modalStack.open("timeouts")}
         >
           Timeouts
-        </Menu.Item>
+        </Menu.Item> */}
+        {/* // TODO: Implement editing Penalties
         <Menu.Item
           disabled
           leftSection={<IconUserExclamation size={16} />}
           onClick={() => modalStack.open("penalties")}
         >
           Penalties
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Item
           color="red"
           leftSection={<IconTrash size={16} />}
