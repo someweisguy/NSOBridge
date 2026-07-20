@@ -221,9 +221,12 @@ export default function Operator() {
               <GameClock
                 align="center"
                 p="xs"
-                activePeriodNum={activeJam.period}
-                activeJamNum={activeJam.num}
-                isOvertime={activeJam.period > 2}
+                activePeriodNum={activeJam.period >= 2 ? 1 : activeJam.period}
+                activeJamNum={
+                  activeJam.num +
+                  (activeJam.period >= 2 ? bout.jamCounts[1] : 0)
+                }
+                isOvertime={activeJam.period >= 2}
                 {...bout}
                 {...activeJam}
                 {...ruleset}
