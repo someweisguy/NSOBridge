@@ -81,7 +81,8 @@ export default function TimeoutEditor({
             value={isReview ? "review" : "timeout"}
             onChange={(type: "timeout" | "review") => setType.mutate(type)}
           />
-          <ActionIcon disabled>
+          {/* // TODO: Unhide and implement Timeout notes editor. */}
+          <ActionIcon hidden disabled>
             <IconPencil size={16} />
           </ActionIcon>
         </Group>
