@@ -27,13 +27,13 @@ from .models import BaseSQLModel, CacheableSQLModel
 from .service import create_tables, get_database_url
 
 __all__ = (
-    'BaseSQLModel',
-    'CacheableSQLModel',
     'CASCADE_CHILD',
     'CASCADE_OTHER',
+    'BaseSQLModel',
+    'CacheableSQLModel',
+    'GetAsyncSession',
     'create_tables',
     'get_database_url',
     'get_mutated_cache_models',
-    'GetAsyncSession',
     'session_factory',
 )

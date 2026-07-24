@@ -18,7 +18,7 @@ routers: Final[tuple[APIRouter, ...]] = (router,)
 
 __all__ = (
     'GetUser',
-    'routers',
-    'User',
     'Memento',
+    'User',
+    'routers',
 )

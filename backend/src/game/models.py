@@ -5,6 +5,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from datetime import datetime, timedelta
 from typing import override
+from uuid import uuid4
 
 from core.db import BaseSQLModel
 from sqlalchemy import CheckConstraint, Constraint
@@ -168,6 +169,16 @@ class Clock(TimeableModel):
     alarm: Mapped[timedelta] = mapped_column(default=timedelta(seconds=0))
 
     __tablename__: str = 'clocks'
+
+    @classmethod
+    def create(cls) -> Clock:
+        """Instantiate a clock.
+
+        Returns:
+            Clock: a new Clock.
+
+        """
+        return Clock(uuid=uuid4())
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:

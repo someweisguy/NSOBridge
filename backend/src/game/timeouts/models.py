@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta  # noqa: TC003
 from typing import TYPE_CHECKING, override
-from uuid import UUID  # noqa: TC003
+from uuid import UUID, uuid4
 
 from core.db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.models import AbstractOneShotModel
@@ -63,16 +63,8 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
         Index('idx_timeout_cache_key', '_bout_uuid', 'num'),
     )
 
-    def __str__(self) -> str:
-        """Return a str representation of this Timeout.
-
-        Returns:
-            str: a str representation of this Timeout.
-
-        """
-        return f'timeout {self.num + 1} in {self.bout}'
-
-    def __init__(self, jam: Jam, num: int) -> None:
+    @classmethod
+    def create(cls, jam: Jam, num: int) -> Timeout:
         """Initialize a Timeout.
 
         The default state for a Timeout is a regular timeout (not an official review)
@@ -83,7 +75,16 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
             num (int): the unique Timeout number associated with this Bout.
 
         """
-        super().__init__(jam=jam, num=num)
+        return Timeout(uuid=uuid4(), jam=jam, num=num)
+
+    def __str__(self) -> str:
+        """Return a str representation of this Timeout.
+
+        Returns:
+            str: a str representation of this Timeout.
+
+        """
+        return f'timeout {self.num + 1} in {self.bout}'
 
     @override
     def cache_key(self) -> CacheKey:

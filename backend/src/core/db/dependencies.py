@@ -2,13 +2,66 @@
 
 from __future__ import annotations
 
-from typing import Annotated, AsyncGenerator, TypeAlias
+from typing import TYPE_CHECKING, Annotated, Any, TypeAlias
 
 from fastapi import Depends
+from sqlalchemy import event, inspect
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import InstanceState, Session
 
 from .constants import session_factory
 from .models import BaseSQLModel, CacheableSQLModel
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+
+@event.listens_for(Session, 'after_flush')
+def _handle_flush(session: Session, flush_context) -> None:
+
+    dirty: set[BaseSQLModel] = session.info.get('dirty', set())
+    new: set[BaseSQLModel] = session.info.get('new', set())
+
+    for i, identity_map in enumerate([session.new, session.deleted | session.dirty]):
+        is_new: bool = i == 0  # This is a silly way to check for newness
+        for model in identity_map:
+            instance: InstanceState = inspect(model)
+
+            # Get a copy of all the modified models BEFORE they were modified
+            attributes: dict[str, Any] = {}
+
+            # Iterate through the non-relationship columns in each model and copy it
+            model_column_names = instance.mapper.column_attrs.keys()
+            for name, attribute in instance.attrs.items():
+                if name not in model_column_names:
+                    continue
+                history = attribute.load_history()
+                if is_new:
+                    attributes[name] = history.added
+                else:
+                    attributes[name] = (
+                        history.deleted if history.has_changes() else history.unchanged
+                    )
+
+            # Instantiate a copy of the model
+            model_class: type[BaseSQLModel] = instance.mapper.class_
+            copy: BaseSQLModel = model_class(**attributes)
+
+            if is_new:
+                new.add(copy)
+            else:
+                dirty.add(copy)
+
+    # TODO: check if any models in new are part of dirty
+    # If a model is found in `dirty` that is also in `new`, replace new model with the
+    # dirty model in the `new` set.
+    if len(new):
+        for model in dirty:
+            if model in new:
+                pass
+
+    session.info['dirty'] = dirty
+    session.info['new'] = new
 
 
 async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:

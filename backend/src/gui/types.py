@@ -1,7 +1,7 @@
 """Types (windows) for the GUI module."""
 
 import json
-from typing import Iterable, override
+from typing import TYPE_CHECKING, override
 
 import core.server
 import core.updates
@@ -27,6 +27,9 @@ from PySide6.QtWidgets import (
 )
 from semver import VersionInfo
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
 HTTP_PORT: int = 80
 
 
@@ -45,7 +48,7 @@ class AppWindow(QMainWindow):
         """
         super().__init__()
 
-        if host == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
+        if host == '0.0.0.0':
             host = core.server.get_default_route()
 
         self.version_label: QLabel = QLabel(
@@ -117,7 +120,7 @@ class AppWindow(QMainWindow):
     @QtCore.Slot()
     def show_advanced(self) -> None:
         """Open a window to configure advanced server options."""
-        pass  # TODO: implement advanced options
+        # TODO: implement advanced options
 
     @QtCore.Slot()
     def hide_window(self) -> None:

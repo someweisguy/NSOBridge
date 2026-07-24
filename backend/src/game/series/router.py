@@ -1,6 +1,7 @@
 """FastAPI routes associated with Series."""
 
-from typing import Annotated, Final, Sequence
+from collections.abc import Sequence
+from typing import Annotated, Final
 from uuid import UUID
 
 from core.app import CacheSchema

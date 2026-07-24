@@ -42,7 +42,7 @@ class Bout(BaseBout):
         for team in self.teams:
             team.timeouts_remaining = self.ruleset.num_timeouts
             team.reviews_remaining = self.ruleset.num_reviews
-        jam: Jam = Jam(0, 0, *[TeamJam(team) for team in self.teams])
+        jam: Jam = Jam.create(0, 0, *[TeamJam.create(team) for team in self.teams])
         self.jams.append(jam)
 
     @override
@@ -142,7 +142,9 @@ class Bout(BaseBout):
 
         # Push a new Jam to allow users to prefetch it
         self.jams.append(
-            Jam(jam.period, jam.num + 1, *[TeamJam(team) for team in self.teams])
+            Jam.create(
+                jam.period, jam.num + 1, *[TeamJam.create(team) for team in self.teams]
+            )
         )
 
     @override
@@ -182,7 +184,7 @@ class Bout(BaseBout):
             )
 
         # Instantiate the Timeout
-        timeout: Timeout = Timeout(self.get_active_jam(), len(self.timeouts))
+        timeout: Timeout = Timeout.create(self.get_active_jam(), len(self.timeouts))
         timeout.clock_elapsed = self.clock.get_duration(timestamp)
 
         logging.info(f'Calling {timeout}')

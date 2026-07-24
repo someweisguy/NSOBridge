@@ -1,9 +1,10 @@
 """FastAPI routes associated with Bouts."""
 
 import random
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Annotated, Final, Sequence
+from typing import TYPE_CHECKING, Annotated, Final
 
 from core.app import CacheSchema
 from core.db import GetAsyncSession
@@ -57,7 +58,9 @@ async def create_bout(
     home_name, away_name, *_ = team_names
 
     # Create the Bout
-    bout: BaseBout = BaseBout(ruleset_name, Team(home_name, 0), Team(away_name, 1))
+    bout: BaseBout = BaseBout.create(
+        ruleset_name, series, Team.create(home_name, 0), Team.create(away_name, 1)
+    )
     bout._series_uuid = series.uuid
     session.add(bout)
 
@@ -68,6 +71,7 @@ async def create_bout(
         await session.flush()
         session.expunge(bout)
         bout = await session.merge(bout)
+        series = await session.merge(series)
     except AssertionError as e:
         # SQLAlchemy raises AssertionError on invalid polymorphic identity
         raise ValueError(
@@ -76,6 +80,7 @@ async def create_bout(
     bout.setup()
 
     # Add the Bout to the Series and make it active
+    await series.awaitable_attrs.bouts
     series.bouts.append(bout)
     series.active_bout = bout
 

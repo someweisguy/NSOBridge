@@ -7,14 +7,13 @@ import logging
 import time
 from datetime import datetime
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, override
+from typing import TYPE_CHECKING, Any, override
 from uuid import UUID, uuid4
 
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import (
     Field,
-    ModelWrapValidatorHandler,
     model_validator,
 )
 from starlette.background import BackgroundTask
@@ -24,6 +23,8 @@ from .service import get_schema, send_all
 from .types import CacheableProtocol, CacheKey
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from fastapi import Request, Response
     from fastapi.exceptions import RequestValidationError
 
@@ -50,9 +51,9 @@ class CacheSchema[T: ServerSchema](ServerSchema):
         default_factory=[], exclude_if=lambda c: not len(c)
     )
 
-    @model_validator(mode='wrap')
+    @model_validator(mode='wrap')  # ty: ignore[invalid-argument-type]
     @classmethod
-    def generate_schema(cls, data: Any, handler: ModelWrapValidatorHandler[Any]) -> Any:
+    def generate_schema(cls, data: Any, handler) -> Any:
         """Generate the schema.
 
         This validator mutates the incoming data so that the proper output schema is
@@ -84,7 +85,7 @@ class CacheSchema[T: ServerSchema](ServerSchema):
                     for model in data.get_updates()
                 ],
             }
-        elif isinstance(data, dict) and 'cache' in data.keys():
+        elif isinstance(data, dict) and 'cache' in data:
             data['cache'] = [
                 CacheSchema._CacheItemSchema(
                     key=model.cache_key(),
@@ -113,7 +114,7 @@ class APIResponse[T: Any](JSONResponse):
         # Generate the final payload
         payload: dict[str, Any] = (
             content
-            if isinstance(content, dict) and 'data' in content.keys()
+            if isinstance(content, dict) and 'data' in content
             else {'error' if error else 'data': content}
         )
         if 'data' not in payload:
@@ -187,5 +188,5 @@ async def validation_error_handler(
 ) -> Response:
     """Handle Pydantic validation errors in FastAPI."""
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=(str(e)))
-    logging.warning(f'Received invalid input: {str(e)}')
+    logging.warning(f'Received invalid input: {e!s}')
     return APIResponse(error, status_code=HTTPStatus.UNPROCESSABLE_ENTITY)

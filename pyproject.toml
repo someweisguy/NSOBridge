@@ -7,6 +7,7 @@ dependencies = [
   "httpx>=0.28.1",
   "pyside6>=6.10.1",
   "requests>=2.32.5",
+  "ruff>=0.15.21",
   "semver>=3.0.4",
   "sqlalchemy[asyncio]>=2.0.45",
   "uvicorn>=0.34.3",
@@ -57,8 +58,13 @@ extend-select = [
   "S",    # flake8 bandit
 ]
 ignore = [
-  "D203", # No blank lines allowed before class docstring
-  "D213", # Multi-line docstring summary should start at the first line
+  "D203",   # No blank lines allowed before class docstring
+  "D213",   # Multi-line docstring summary should start at the first line
+  "LOG",    # TODO: Remove this. Logging.
+  "UP",     # TODO: Remove this. Type keyword.
+  "DTZ",    # TODO: Remove this. Datetime errors.
+  "RUF012", # Mutable default value for class attribute - conflicts with SQLAlchemy.
+  "BLE001", # Catch blind Exception.
 ]
 
 [tool.ruff.lint.isort]

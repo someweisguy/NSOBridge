@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
+from uuid import uuid4
 
 from core.db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
 from game.bouts.models import BaseBout
@@ -35,14 +36,15 @@ class Series(CacheableSQLModel):
 
     __tablename__: str = 'series'
 
-    def __init__(self, name: str) -> None:
+    @classmethod
+    def create(cls, name: str) -> Series:
         """Initialize a Series.
 
         Args:
             name (str): the name of the Series.
 
         """
-        super().__init__(name=name)
+        return Series(uuid=uuid4(), name=name)
 
     @property
     def active_bout(self) -> BaseBout | None:

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003 - Make SQLAlchemy happy
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Final, final, override
-from uuid import UUID  # noqa: TC003 - Make SQLAlchemy happy
+from uuid import UUID, uuid4
 
 from core.db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.jams.models import TeamJam
@@ -79,6 +79,29 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     }
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_series_uuid', 'num'),)
 
+    @classmethod
+    def create(cls, ruleset_name: str, series: Series, *teams: Team) -> BaseBout:
+        """Instantiate a Bout.
+
+        Args:
+            ruleset_name (str): the name of the ruleset to use. This must be one of the
+            currently implemented rulesets.
+            series (Series): the Series to which this Bout should belong.
+            teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout. The
+            first team in the sequence is considered the home team.
+
+        """
+        for i, team in enumerate(teams):
+            team.num = i
+        return BaseBout(
+            _created_on=datetime.now(),
+            uuid=uuid4(),
+            series=series,
+            ruleset_name=ruleset_name,
+            clock=Clock.create(),
+            teams=list(teams),
+        )
+
     def __str__(self) -> str:
         """Return a str representation of this Bout.
 
@@ -93,25 +116,6 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
         super().__init_subclass__(**kwargs)
         if 'ruleset' not in cls.__dict__:
             raise RuntimeError('Concrete Bout classes must define a ruleset.')
-
-    def __init__(self, ruleset_name: str, *teams: Team) -> None:
-        """Instantiate a Bout.
-
-        Args:
-            ruleset_name (str): the name of the ruleset to use. This must be one of the
-            currently implemented rulesets.
-            teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout. The
-            first team in the sequence is considered the home team.
-
-        """
-        for i, team in enumerate(teams):
-            team.num = i
-        super().__init__(
-            _created_on=datetime.now(),
-            ruleset_name=ruleset_name,
-            clock=Clock(),
-            teams=list(teams),
-        )
 
     @final
     @override
@@ -337,6 +341,17 @@ class Team(BaseSQLModel):
     __tablename__: str = 'teams'
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_bout_uuid', 'num'),)
 
+    @classmethod
+    def create(cls, name: str, num: int) -> Team:
+        """Initialize a Team.
+
+        Args:
+            name (str): the name of this Team.
+            num (int): the unique team number of the team.
+
+        """
+        return Team(uuid=uuid4(), name=name, num=num)
+
     def __str__(self) -> str:
         """Get the string representation of this object.
 
@@ -345,16 +360,6 @@ class Team(BaseSQLModel):
 
         """
         return f'team `{self.name}` in {self.bout}'
-
-    def __init__(self, name: str, num: int) -> None:
-        """Initialize a Team.
-
-        Args:
-            name (str): the name of this Team.
-            num (int): the unique team number of the team.
-
-        """
-        super().__init__(name=name, num=num)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:

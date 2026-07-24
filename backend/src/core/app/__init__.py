@@ -1,6 +1,7 @@
 """The core app submodule."""
 
-from typing import Any, Callable, Coroutine, Final
+from collections.abc import Callable, Coroutine
+from typing import Any, Final
 
 from fastapi import HTTPException, Request, Response
 from fastapi.exceptions import RequestValidationError
@@ -30,19 +31,19 @@ error_handlers: Final[
 
 
 __all__ = (
-    'api_router',
-    'APIResponse',
     'ASSETS',
-    'CacheableProtocol',
+    'APIResponse',
     'CacheKey',
     'CacheSchema',
+    'CacheableProtocol',
     'ClientSchema',
+    'ServerSchema',
+    'api_router',
     'disconnect_all',
     'endpoint_profiling_middleware',
     'get_resource_path',
     'pages_router',
     'register_model',
     'timedelta_serializer',
-    'ServerSchema',
     'ws',
 )

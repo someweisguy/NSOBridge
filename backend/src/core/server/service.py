@@ -43,7 +43,7 @@ def get_server(app: FastAPI, host: str = '0.0.0.0', port: int = 8000) -> Server:
 
     # Log the server's address
     ip: str = host
-    if ip == '0.0.0.0':  # noqa: S104 - users may bind to all interfaces
+    if ip == '0.0.0.0':
         ip = get_default_route()
     http_port: Final[int] = 80
     logging.info(

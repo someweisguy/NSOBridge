@@ -7,7 +7,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Final, Type
+from typing import TYPE_CHECKING, Any, Final
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
@@ -21,10 +21,12 @@ from .schemas import (
 from .types import CacheableProtocol
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from .schemas import ServerSchema
 
 
-_model_table: Final[dict[Any, Type[ServerSchema]]] = {}
+_model_table: Final[dict[Any, type[ServerSchema]]] = {}
 """Maps app models to their corresponding Pydantic schema."""
 
 _clients: set[WebSocket] = set()
@@ -128,7 +130,7 @@ def register_model(model: Any) -> Callable:
     if not isinstance(model, CacheableProtocol):
         raise TypeError('Only cacheable models should be registered.')
 
-    def _schema_decorator(cls: Type[ServerSchema]):
+    def _schema_decorator(cls: type[ServerSchema]):
         _model_table[model] = cls
         for subclass in model.__subclasses__():
             _model_table[subclass] = cls
@@ -137,7 +139,7 @@ def register_model(model: Any) -> Callable:
     return _schema_decorator
 
 
-def get_schema(model: Any) -> Type[ServerSchema]:
+def get_schema(model: Any) -> type[ServerSchema]:
     """Get the schema registered to the desired model.
 
     This method automatically checks if the base class of the model has been registered
@@ -157,7 +159,7 @@ def get_schema(model: Any) -> Type[ServerSchema]:
         Type[ServerSchema]: the registered schema.
 
     """
-    schema: Type[ServerSchema] | None = _model_table.get(model, None)
+    schema: type[ServerSchema] | None = _model_table.get(model, None)
 
     # Dynamically add sub-classes to the lookup table
     if schema is None and issubclass(model, tuple(_model_table.keys())):

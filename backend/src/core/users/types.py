@@ -6,9 +6,11 @@ In this file the User class and its associated business logic can be found.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, Protocol
+from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from core.app import CacheableProtocol
 
 
@@ -43,7 +45,7 @@ class Memento(Protocol):
 class User:
     """The User class. Store contextual information about a user."""
 
-    __slots__: tuple[str, ...] = '_staged', 'undo_history', 'redo_history'
+    __slots__: tuple[str, ...] = '_staged', 'redo_history', 'undo_history'
 
     def __init__(self) -> None:
         """Initialize a User."""

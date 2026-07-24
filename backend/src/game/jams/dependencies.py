@@ -15,7 +15,7 @@ from sqlalchemy.orm import selectinload
 from .models import Jam
 
 
-async def _get_jam(  # noqa: PLR0913
+async def _get_jam(  # noqa: PLR0913, PLR0917
     request: Request,
     user: GetUser,
     session: GetAsyncSession,

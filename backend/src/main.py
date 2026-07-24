@@ -3,8 +3,9 @@
 import asyncio
 import logging
 from argparse import ArgumentParser, Namespace
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Final, Iterable
+from typing import Final
 
 import core.app
 import core.server
@@ -60,27 +61,26 @@ async def lifespan(app: FastAPI):
             results: Result[tuple[Series]] = await session.execute(statement)
         except Exception as e:
             logging.critical(e)
-            raise e
+            raise
         if len(results.scalars().all()) == 0:
             logging.info('Instantiating the initial Series model')
             try:
-                series: Series = Series('Default Series')
+                series: Series = Series.create('Default Series')
                 session.add(series)
-                await session.commit()
+                await session.flush()
 
                 # Create the initial Bout using the API and requery it
-                await session.refresh(series)
                 await create_bout(
                     session, series, DEFAULT_BOUT_RULESET_NAME, ['Home', 'Away']
                 )
             except Exception as e:
                 logging.critical(e)
-                raise e
+                raise
             try:
                 await session.commit()
             except Exception as e:
                 logging.critical(e)
-                raise e
+                raise
             logging.debug('Initial data was inserted into the database')
         else:
             logging.debug('Model data was found in the database')
@@ -215,12 +215,12 @@ if __name__ == '__main__':
                     async_engine: AsyncEngine = create_async_engine(url)
                     asyncio.run(create_tables(async_engine))
                     session_factory.configure(bind=async_engine)
-                except ValueError as e:
+                except ValueError:
                     logging.critical('Database pathname is invalid')
-                    raise e
+                    raise
                 except Exception as e:
                     logging.critical(e)
-                    raise e
+                    raise
 
             server: Server = core.server.get_server(app, args.host, args.port)
             asyncio.run(server.serve())

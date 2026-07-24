@@ -35,9 +35,9 @@ def _get_user(
 
     try:
         yield user
-    except Exception as e:
+    except Exception:
         user.unstage()
-        raise e
+        raise
     else:
         if request.method == 'GET':
             return

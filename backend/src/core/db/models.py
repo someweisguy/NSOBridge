@@ -7,7 +7,7 @@ from copy import deepcopy
 from datetime import timedelta
 from math import floor
 from typing import TYPE_CHECKING, Any, override
-from uuid import UUID, uuid4
+from uuid import UUID  # noqa: TC003 - Make SQLAlchemy happy.
 
 from sqlalchemy import Result, Select, select
 from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_object_session
@@ -57,7 +57,8 @@ class BaseSQLModel(DeclarativeBase, AsyncAttrs):
 
     """
 
-    uuid: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
+    # TODO: type should be Mapped[UUID | None]
+    uuid: Mapped[UUID] = mapped_column(primary_key=True, nullable=False)
     """The model's UUID; its primary key."""
 
     __abstract__: bool = True
