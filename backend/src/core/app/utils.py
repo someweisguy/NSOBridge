@@ -14,6 +14,7 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import (
     Field,
+    ModelWrapValidatorHandler,
     model_validator,
 )
 from starlette.background import BackgroundTask
@@ -53,7 +54,7 @@ class CacheSchema[T: ServerSchema](ServerSchema):
 
     @model_validator(mode='wrap')  # ty: ignore[invalid-argument-type]
     @classmethod
-    def generate_schema(cls, data: Any, handler) -> Any:
+    def generate_schema(cls, data: Any, handler: ModelWrapValidatorHandler[Any]) -> Any:
         """Generate the schema.
 
         This validator mutates the incoming data so that the proper output schema is
