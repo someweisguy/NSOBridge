@@ -16,6 +16,7 @@ dist-ssr
 www
 *.local
 *.db
+*.db-journal
 
 # Editor directories and files
 .idea
