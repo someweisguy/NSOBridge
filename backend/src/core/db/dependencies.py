@@ -52,13 +52,11 @@ def _handle_flush(session: Session, flush_context) -> None:
             else:
                 dirty.add(copy)
 
-    # TODO: check if any models in new are part of dirty
-    # If a model is found in `dirty` that is also in `new`, replace new model with the
-    # dirty model in the `new` set.
+    # New models should not be considered dirty
     if len(new):
-        for model in dirty:
-            if model in new:
-                pass
+        dirty_to_new = dirty & new  # Watch the operator precedence!
+        new = {model for model in new if model not in dirty} | dirty_to_new
+        dirty = dirty ^ new
 
     session.info['dirty'] = dirty
     session.info['new'] = new
