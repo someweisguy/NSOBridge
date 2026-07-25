@@ -64,6 +64,30 @@ class BaseSQLModel(DeclarativeBase, AsyncAttrs):
     __abstract__: bool = True
     __type_annotation_map__: dict = {timedelta: _TimedeltaAsMilliseconds}
 
+    def __eq__(self, other: object) -> bool:
+        """Compare this object for equality.
+
+        Args:
+            other (Any): the other object.
+
+        Returns:
+            bool: True if the two objects are equal.
+
+        """
+        return isinstance(other, BaseSQLModel) and other.uuid == self.uuid
+
+    def __hash__(self) -> int:
+        """Get a hash of this object.
+
+        Returns:
+            int: this object's hash.
+
+        """
+        if isinstance(self.uuid, list):
+            return hash(self.uuid[0])
+        else:
+            return hash(self.uuid)
+
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
         """Asynchronously get a tuple of this model's direct parents.
 
