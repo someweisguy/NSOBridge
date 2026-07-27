@@ -34,11 +34,11 @@ def _handle_flush(session: Session, flush_context) -> None:
             # Get a copy of all the modified models BEFORE they were modified
             attributes: dict[str, Any] = {}
 
-            # Iterate through the non-relationship columns in each model and copy it
+            # Iterate through the columns in each model and copy it
             model_column_names = instance.mapper.column_attrs.keys()
             for name, attribute in instance.attrs.items():
                 if name not in model_column_names:
-                    continue
+                    continue  # Ignore relationship attributes
                 history = attribute.load_history()
                 if len(history.sum()):
                     attributes[name] = history.sum()[0]
