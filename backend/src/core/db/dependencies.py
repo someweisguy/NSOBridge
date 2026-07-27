@@ -42,6 +42,8 @@ def _handle_flush(session: Session, flush_context) -> None:
                 history = attribute.load_history()
                 if len(history.sum()):
                     attributes[name] = history.sum()[0]
+                else:
+                    attributes[name] = getattr(model, name)
 
             # Instantiate a copy of the model
             model_class: type[BaseSQLModel] = instance.mapper.class_
