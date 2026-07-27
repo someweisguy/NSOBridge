@@ -87,6 +87,8 @@ class CacheSchema[T: ServerSchema](ServerSchema):
                 ],
             }
         elif isinstance(data, dict) and 'cache' in data:
+            if data['cache'] is None:
+                data['cache'] = []
             data['cache'] = [
                 CacheSchema._CacheItemSchema(
                     key=model.cache_key(),

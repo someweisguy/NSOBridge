@@ -2,18 +2,22 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Any, TypeAlias
+from typing import TYPE_CHECKING, Annotated, Any, Iterable, TypeAlias
 
 from fastapi import Depends
-from sqlalchemy import event, inspect
+from sqlalchemy import delete, event, inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstanceState, Session
 
+from core.users import GetUser  # noqa: TC001 - Ruff is wrong.
+
 from .constants import session_factory
-from .models import BaseSQLModel, CacheableSQLModel
+from .models import BaseSQLModel, CacheableSQLModel, Memento
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
+
+    from sqlalchemy.sql.dml import Delete
 
 
 @event.listens_for(Session, 'after_flush')
@@ -36,12 +40,8 @@ def _handle_flush(session: Session, flush_context) -> None:
                 if name not in model_column_names:
                     continue
                 history = attribute.load_history()
-                if is_new:
-                    attributes[name] = history.added
-                else:
-                    attributes[name] = (
-                        history.deleted if history.has_changes() else history.unchanged
-                    )
+                if len(history.sum()):
+                    attributes[name] = history.sum()[0]
 
             # Instantiate a copy of the model
             model_class: type[BaseSQLModel] = instance.mapper.class_
@@ -62,23 +62,67 @@ def _handle_flush(session: Session, flush_context) -> None:
     session.info['new'] = new
 
 
-async def _yield_async_session() -> AsyncGenerator[AsyncSession, None]:
+class NewDatabaseMemento(Memento):
+    """A memento based on database transactions."""
+
+    def __init__(
+        self, new: Iterable[BaseSQLModel], dirty: Iterable[BaseSQLModel]
+    ) -> None:
+        """Initialize a database memento.
+
+        Args:
+            new (Iterable[BaseSQLModel]): a collection of the newly created models in
+            this transaction.
+            dirty (Iterable[BaseSQLModel]): a collection of the updated models in this
+            transaction.
+
+        """
+        self._new: Iterable[BaseSQLModel] = new
+        self._dirty: Iterable[BaseSQLModel] = dirty
+
+    async def restore(self) -> Memento:
+        """Restore the database to the state stored in this Memento.
+
+        Returns:
+            Memento: a Memento of the current state; allows for redo.
+
+        """
+        async with session_factory() as session:
+            for model in self._dirty:
+                await session.merge(model)
+            for model in self._new:
+                model_class = type(model)
+                statement: Delete = delete(model_class).where(
+                    model_class.uuid == model.uuid
+                )
+                await session.execute(statement)
+
+            await session.commit()
+
+            new: Iterable[BaseSQLModel] = session.info['new']
+            dirty: Iterable[BaseSQLModel] = session.info['dirty']
+
+        return NewDatabaseMemento(new, dirty)
+
+
+async def _yield_async_session(user: GetUser) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session:
         yield session
 
-        # Get a list of query keys to invalidate before committing the session
-        models: set[BaseSQLModel] = {
-            model
-            for identity_map in [session.dirty]
-            for model in identity_map
-            if isinstance(model, BaseSQLModel)
-        }
+        # Get all mutated models in this transaction
+        new: set[BaseSQLModel] = session.info.get('new', set()) | set(session.new)
+        dirty: set[BaseSQLModel] = session.info.get('dirty', set()) | set(session.dirty)
+
+        if len(new) or len(dirty):
+            memento = NewDatabaseMemento(new, dirty)
+            user.stage(memento)
+            user.commit('')
 
         # Extract the cacheable models from the session
         cacheables: set[CacheableSQLModel] = {
-            model for model in models if isinstance(model, CacheableSQLModel)
+            model for model in dirty if isinstance(model, CacheableSQLModel)
         }
-        for model in models:
+        for model in dirty:
             cacheables |= {
                 parent
                 for parent in model.get_recursive_parents()
