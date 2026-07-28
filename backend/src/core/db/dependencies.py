@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Any, Iterable, TypeAlias
+from typing import TYPE_CHECKING, Annotated, Any, Iterable, TypeAlias, override
 
 from fastapi import Depends
 from sqlalchemy import delete, event, inspect
@@ -82,13 +82,8 @@ class NewDatabaseMemento(Memento):
         self._new: Iterable[BaseSQLModel] = new
         self._dirty: Iterable[BaseSQLModel] = dirty
 
+    @override
     async def restore(self) -> Memento:
-        """Restore the database to the state stored in this Memento.
-
-        Returns:
-            Memento: a Memento of the current state; allows for redo.
-
-        """
         async with session_factory() as session:
             for model in self._dirty:
                 await session.merge(model)
@@ -105,6 +100,27 @@ class NewDatabaseMemento(Memento):
             dirty: Iterable[BaseSQLModel] = session.info['dirty']
 
         return NewDatabaseMemento(new, dirty)
+
+    @override
+    async def get_cache_updates(self) -> Iterable[CacheableSQLModel]:
+        from core.app.service import get_schema  # noqa # FIXME: remove me
+
+        async with session_factory() as session:
+            for model in self._dirty:
+                mapper = inspect(model).mapper
+                relationship_names = [rel.key for rel in mapper.relationships]
+
+                try:
+                    updates = set()
+                    if isinstance(model, CacheableSQLModel):
+                        merged = await session.merge(model)
+                        if inspect(merged).persistent:
+                            await session.refresh(merged, relationship_names)
+                            updates.add(merged)
+                except Exception:  # noqa  # FIXME: remove noqa
+                    pass
+
+        return updates
 
 
 async def _yield_async_session(user: GetUser) -> AsyncGenerator[AsyncSession, None]:
