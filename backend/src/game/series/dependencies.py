@@ -53,9 +53,6 @@ async def _get_optional_series(
             HTTPStatus.NOT_FOUND, f'Could not find Series ({series_uuid=})'
         ) from e
 
-    # Optionally take a snapshot of the Bout state and return the Bout
-    if request.method != 'GET':
-        user.stage(series.get_memento())
     return series
 
 
