@@ -36,6 +36,10 @@ class Series(CacheableSQLModel):
 
     __tablename__: str = 'series'
 
+    @override
+    def __str__(self) -> str:
+        return f'series `{self.name}`'
+
     @classmethod
     def create(cls, name: str) -> Series:
         """Initialize a Series.
