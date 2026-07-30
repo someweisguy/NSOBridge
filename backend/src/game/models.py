@@ -170,6 +170,10 @@ class Clock(TimeableModel):
 
     __tablename__: str = 'clocks'
 
+    @override
+    def __str__(self) -> str:
+        return f'clock {str(self.uuid)[-6:]}'
+
     @classmethod
     def create(cls) -> Clock:
         """Instantiate a clock.

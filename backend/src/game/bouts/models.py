@@ -80,26 +80,24 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_series_uuid', 'num'),)
 
     @classmethod
-    def create(cls, ruleset_name: str, series: Series, *teams: Team) -> BaseBout:
+    def create(cls, ruleset_name: str, series: Series, *team_names: str) -> BaseBout:
         """Instantiate a Bout.
 
         Args:
             ruleset_name (str): the name of the ruleset to use. This must be one of the
             currently implemented rulesets.
             series (Series): the Series to which this Bout should belong.
-            teams (tuple[BaseTeam, ...]): the teams which will compete in this Bout. The
-            first team in the sequence is considered the home team.
+            team_names (tuple[str, ...]): the teams which will compete in this Bout.
+            The first team in the sequence is considered the home team.
 
         """
-        for i, team in enumerate(teams):
-            team.num = i
         return BaseBout(
             _created_on=datetime.now(),
             uuid=uuid4(),
             series=series,
             ruleset_name=ruleset_name,
             clock=Clock.create(),
-            teams=list(teams),
+            teams=[Team.create(name, num) for num, name in enumerate(team_names)],
         )
 
     def __str__(self) -> str:
@@ -313,7 +311,7 @@ class Team(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column(default=0)
     reviews_remaining: Mapped[int] = mapped_column(default=0)
 
-    bout: Mapped[BaseBout] = relationship(
+    bout: Mapped[BaseBout | None] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
@@ -347,10 +345,11 @@ class Team(BaseSQLModel):
 
         Args:
             name (str): the name of this Team.
-            num (int): the unique team number of the team.
+            num (int): the number of this Team.
 
         """
-        return Team(uuid=uuid4(), name=name, num=num)
+        team = Team(uuid=uuid4(), name=name, num=num)
+        return team
 
     def __str__(self) -> str:
         """Get the string representation of this object.
@@ -363,7 +362,7 @@ class Team(BaseSQLModel):
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        return (self.bout,)
+        return (self.bout,) if self.bout is not None else ()
 
     @property
     def bout_score(self) -> int:
@@ -376,8 +375,9 @@ class Team(BaseSQLModel):
 
         """
         bout_score: int = 0
-        for team_jam in self.team_jams:
-            bout_score += self.bout.get_team_jam_score(team_jam)
+        if self.bout is not None:
+            for team_jam in self.team_jams:
+                bout_score += self.bout.get_team_jam_score(team_jam)
         return bout_score
 
     @property
@@ -390,6 +390,8 @@ class Team(BaseSQLModel):
             int: the current jam score of this Team.
 
         """
+        if self.bout is None:
+            return 0
         for team_jam in reversed(self.team_jams):
             if team_jam.jam.is_started():
                 break

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Annotated, Any, Iterable, TypeAlias, override
 
 from fastapi import Depends
@@ -22,13 +23,15 @@ if TYPE_CHECKING:
 
 @event.listens_for(Session, 'after_flush')
 def _handle_flush(session: Session, flush_context) -> None:
-
     dirty: set[BaseSQLModel] = session.info.get('dirty', set())
     new: set[BaseSQLModel] = session.info.get('new', set())
 
     for i, identity_map in enumerate([session.new, session.deleted | session.dirty]):
         is_new: bool = i == 0  # This is a silly way to check for newness
         for model in identity_map:
+            if not session.is_modified(model):
+                continue
+
             instance: InstanceState = inspect(model)
 
             # Get a copy of all the modified models BEFORE they were modified
@@ -51,14 +54,13 @@ def _handle_flush(session: Session, flush_context) -> None:
 
             if is_new:
                 new.add(copy)
+                logging.debug(f'Adding {copy} to NEW session cache')
+            elif copy in new:
+                new.remove(copy)
+                new.add(copy)
             else:
+                logging.debug(f'Adding {copy} to DIRTY session cache')
                 dirty.add(copy)
-
-    # New models should not be considered dirty
-    if len(new):
-        dirty_to_new = dirty & new  # Watch the operator precedence!
-        new = {model for model in new if model not in dirty} | dirty_to_new
-        dirty = dirty ^ new
 
     session.info['dirty'] = dirty
     session.info['new'] = new
@@ -106,17 +108,25 @@ class NewDatabaseMemento(Memento):
         from core.app.service import get_schema  # noqa # FIXME: remove me
 
         async with session_factory() as session:
+            updates = set()
             for model in self._dirty:
                 mapper = inspect(model).mapper
                 relationship_names = [rel.key for rel in mapper.relationships]
 
                 try:
-                    updates = set()
                     if isinstance(model, CacheableSQLModel):
                         merged = await session.merge(model)
+                        if (
+                            isinstance(merged, CacheableSQLModel)
+                            and not inspect(merged).persistent
+                        ):
+                            logging.debug(
+                                f'Not adding {merged} because it is not persistent.'
+                            )
                         if inspect(merged).persistent:
                             await session.refresh(merged, relationship_names)
                             updates.add(merged)
+                            logging.debug(f'Adding {merged}')
                 except Exception:  # noqa  # FIXME: remove noqa
                     pass
 
@@ -127,9 +137,11 @@ async def _yield_async_session(user: GetUser) -> AsyncGenerator[AsyncSession, No
     async with session_factory() as session:
         yield session
 
+        await session.flush()
+
         # Get all mutated models in this transaction
-        new: set[BaseSQLModel] = session.info.get('new', set()) | set(session.new)
-        dirty: set[BaseSQLModel] = session.info.get('dirty', set()) | set(session.dirty)
+        new: set[BaseSQLModel] = session.info.get('new', set())
+        dirty: set[BaseSQLModel] = session.info.get('dirty', set())
 
         if len(new) or len(dirty):
             memento = NewDatabaseMemento(new, dirty)

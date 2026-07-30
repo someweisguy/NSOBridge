@@ -16,7 +16,7 @@ from sqlalchemy.orm.attributes import flag_dirty
 
 from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, _get_bout
-from .models import REQUIRED_NUM_TEAMS, BaseBout, Team
+from .models import REQUIRED_NUM_TEAMS, BaseBout
 from .schemas import BoutSchema, RulesetSchema
 
 if TYPE_CHECKING:
@@ -55,13 +55,11 @@ async def create_bout(
         raise ValueError(
             f'At least {REQUIRED_NUM_TEAMS} team are needed to create a Bout.'
         )
-    home_name, away_name, *_ = team_names
 
     # Create the Bout
-    bout: BaseBout = BaseBout.create(
-        ruleset_name, series, Team.create(home_name, 0), Team.create(away_name, 1)
-    )
-    bout._series_uuid = series.uuid
+    bout: BaseBout = BaseBout.create(ruleset_name, series, *team_names)
+
+    bout._series_uuid = series.uuid  # FIXME: No using private vars
     session.add(bout)
 
     # Expunge and merge the Bout to allow the subclass to call setup()
@@ -280,6 +278,11 @@ async def set_clock_is_running(
 @router.put(path='/setTeamName', response_model=CacheSchema)
 async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> BaseBout:
     """Set the desired Team's name."""
+    if team.bout is None:
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail='Bout relationship has not been defined',
+        )
     team.name = name
     return team.bout
 
