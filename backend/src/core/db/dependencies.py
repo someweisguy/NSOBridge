@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Any, Iterable, TypeAlias, override
 
 from fastapi import Depends
 from sqlalchemy import delete, event, inspect
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import InstanceState, Session
+from sqlalchemy.orm import Session, attributes
 
 from core.users import GetUser  # noqa: TC001 - Ruff is wrong.
 
@@ -18,52 +19,84 @@ from .models import BaseSQLModel, CacheableSQLModel, Memento
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
+    from sqlalchemy.orm.attributes import History
     from sqlalchemy.sql.dml import Delete
 
 
-@event.listens_for(Session, 'after_flush')
-def _handle_flush(session: Session, flush_context) -> None:
-    dirty: set[BaseSQLModel] = session.info.get('dirty', set())
-    new: set[BaseSQLModel] = session.info.get('new', set())
+def _take_snapshot(
+    session: Session, obj: Any, now: datetime, operation_type: str
+) -> None:
+    cls = type(obj)
+    mapper = inspect(cls)
+    state = attributes.instance_state(obj)
 
-    for i, identity_map in enumerate([session.new, session.deleted | session.dirty]):
-        is_new: bool = i == 0  # This is a silly way to check for newness
-        for model in identity_map:
-            if not session.is_modified(model):
-                continue
+    # Ensure this model should have a snapshot created
+    if operation_type in ('INSERT', 'DELETE'):
+        should_snapshot = True
+    else:
+        should_snapshot: bool = any(
+            attributes.get_history(obj, col.key).added for col in mapper.column_attrs
+        )
+    if not should_snapshot:
+        return
 
-            instance: InstanceState = inspect(model)
+    is_insert: bool = operation_type == 'INSERT'
+    """This is an INSERT operation."""
 
-            # Get a copy of all the modified models BEFORE they were modified
-            attributes: dict[str, Any] = {}
-
-            # Iterate through the columns in each model and copy it
-            model_column_names = instance.mapper.column_attrs.keys()
-            for name, attribute in instance.attrs.items():
-                if name not in model_column_names:
-                    continue  # Ignore relationship attributes
-                history = attribute.load_history()
-                if len(history.sum()):
-                    attributes[name] = history.sum()[0]
-                else:
-                    attributes[name] = getattr(model, name)
-
-            # Instantiate a copy of the model
-            model_class: type[BaseSQLModel] = instance.mapper.class_
-            copy: BaseSQLModel = model_class(**attributes)
-
-            if is_new:
-                new.add(copy)
-                logging.debug(f'Adding {copy} to NEW session cache')
-            elif copy in new:
-                new.remove(copy)
-                new.add(copy)
+    # Create a copy of this model
+    data: dict[str, Any] = {}
+    for col in mapper.column_attrs:
+        # Prevent MissingGreenlet for lazy loaded / deferred columns
+        if col.key in state.unloaded:
+            val = None
+        else:
+            history: History = state.attrs[col.key].load_history()
+            if is_insert:
+                # Doesn't matter what value the column has
+                val = history.sum()[0]
             else:
-                logging.debug(f'Adding {copy} to DIRTY session cache')
-                dirty.add(copy)
+                val = history.non_added()[0]
 
-    session.info['dirty'] = dirty
-    session.info['new'] = new
+        data[col.key] = val
+    copy = cls(**data)
+
+    # Add the copy to the session information cache
+    if is_insert:
+        records: set = session.info.setdefault('new', set())
+    else:
+        records: set = session.info.setdefault('dirty', set())
+    records.add(copy)
+
+
+@event.listens_for(Session, 'before_flush')
+def _handle_before_flush(session: Session, flush_context: Any, instances: Any) -> None:
+    """``before_flush`` handler — tracks updates and deletes, and buffers inserts."""
+    now: datetime = datetime.now()
+
+    # Buffer new instances for after_flush to capture DB-generated PKs and defaults
+    new_objs = [obj for obj in session.new if isinstance(obj, BaseSQLModel)]
+    if new_objs:
+        session.info.setdefault('sa_versioning_new', []).extend(new_objs)
+
+    for obj in list(session.dirty):
+        if isinstance(obj, BaseSQLModel):
+            _take_snapshot(session, obj, now, 'UPDATE')
+
+    for obj in list(session.deleted):
+        if isinstance(obj, BaseSQLModel):
+            _take_snapshot(session, obj, now, 'DELETE')
+
+
+@event.listens_for(Session, 'after_flush')
+def _handle_after_flush(session: Session, flush_context: Any) -> None:
+    """``after_flush`` handler — inserts version records for buffered inserts."""
+    new_objs = session.info.pop('sa_versioning_new', [])
+    if not new_objs:
+        return
+
+    now = datetime.now()
+    for obj in new_objs:
+        _take_snapshot(session, obj, now, 'INSERT')
 
 
 class NewDatabaseMemento(Memento):
@@ -88,18 +121,26 @@ class NewDatabaseMemento(Memento):
     async def restore(self) -> Memento:
         async with session_factory() as session:
             for model in self._dirty:
-                await session.merge(model)
+                merged = await session.merge(model)
             for model in self._new:
-                model_class = type(model)
+                merged = await session.merge(model)
+                if inspect(merged).persistent:
+                    await session.delete(merged)
+                else:
+                    session.expunge(merged)
+
+                model_class = type(merged)
                 statement: Delete = delete(model_class).where(
-                    model_class.uuid == model.uuid
+                    model_class.uuid == merged.uuid
                 )
                 await session.execute(statement)
 
-            await session.commit()
+            await session.flush()
 
-            new: Iterable[BaseSQLModel] = session.info['new']
-            dirty: Iterable[BaseSQLModel] = session.info['dirty']
+            new: Iterable[BaseSQLModel] = session.info.get('new', [])
+            dirty: Iterable[BaseSQLModel] = session.info.get('dirty', [])
+
+            await session.commit()
 
         return NewDatabaseMemento(new, dirty)
 
