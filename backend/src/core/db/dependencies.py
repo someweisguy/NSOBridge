@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Any, Iterable, TypeAlias, override
 
 from fastapi import Depends
-from sqlalchemy import delete, event, inspect
+from sqlalchemy import event, inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, attributes
 
@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
     from sqlalchemy.orm.attributes import History
-    from sqlalchemy.sql.dml import Delete
 
 
 def _take_snapshot(
@@ -129,13 +128,7 @@ class NewDatabaseMemento(Memento):
                 else:
                     session.expunge(merged)
 
-                model_class = type(merged)
-                statement: Delete = delete(model_class).where(
-                    model_class.uuid == merged.uuid
-                )
-                await session.execute(statement)
-
-            await session.flush()
+            await session.flush()  # TODO: can this be removed?
 
             new: Iterable[BaseSQLModel] = session.info.get('new', [])
             dirty: Iterable[BaseSQLModel] = session.info.get('dirty', [])
