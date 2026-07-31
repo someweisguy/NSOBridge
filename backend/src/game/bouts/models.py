@@ -14,6 +14,7 @@ from game.timeouts.models import Timeout
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, column
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm.exc import DetachedInstanceError
 
 from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol
 
@@ -375,9 +376,12 @@ class Team(BaseSQLModel):
 
         """
         bout_score: int = 0
-        if self.bout is not None:
-            for team_jam in self.team_jams:
-                bout_score += self.bout.get_team_jam_score(team_jam)
+        try:  # TODO: remove try/except when calling undo/redo
+            if self.bout is not None:
+                for team_jam in self.team_jams:
+                    bout_score += self.bout.get_team_jam_score(team_jam)
+        except DetachedInstanceError:
+            pass
         return bout_score
 
     @property
@@ -390,9 +394,14 @@ class Team(BaseSQLModel):
             int: the current jam score of this Team.
 
         """
-        if self.bout is None:
-            return 0
-        for team_jam in reversed(self.team_jams):
-            if team_jam.jam.is_started():
-                break
-        return self.bout.get_team_jam_score(team_jam)
+        jam_score: int = 0
+        try:  # TODO: remove try/except when calling undo/redo
+            if self.bout is None:
+                return jam_score
+            for team_jam in reversed(self.team_jams):
+                if team_jam.jam.is_started():
+                    break
+            jam_score = self.bout.get_team_jam_score(team_jam)
+        except DetachedInstanceError:
+            pass
+        return jam_score
