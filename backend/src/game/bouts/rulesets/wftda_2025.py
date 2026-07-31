@@ -232,7 +232,7 @@ class Bout(BaseBout):
         if is_initial:
             logging.info(f'This is the initial pass for {team}')
 
-        event: TripEvent = TripEvent(timestamp, passes=passes)
+        event: TripEvent = TripEvent.create(timestamp, passes=passes)
 
         # Automatically set lead on the first 4-point trip
         if not jam.lead_is_declared() and passes == self.ruleset.points_per_trip:
@@ -261,7 +261,7 @@ class Bout(BaseBout):
                 raise HTTPException(
                     HTTPStatus.CONFLICT, 'A lead jammer has already been declared'
                 )
-            event: TripEvent = TripEvent(timestamp, lead=lead)
+            event: TripEvent = TripEvent.create(timestamp, lead=lead)
             team_jam.events.append(event)
         else:
             for event in team_jam.events:
@@ -284,7 +284,7 @@ class Bout(BaseBout):
                 raise HTTPException(
                     HTTPStatus.CONFLICT, 'This team has already lost lead eligibility'
                 )
-            event: TripEvent = TripEvent(timestamp, lost=lost)
+            event: TripEvent = TripEvent.create(timestamp, lost=lost)
             team_jam.events.append(event)
         else:
             for event in team_jam.events:
@@ -307,7 +307,7 @@ class Bout(BaseBout):
                     HTTPStatus.CONFLICT,
                     'This team has already completed a star pass in this Jam',
                 )
-            event: TripEvent = TripEvent(timestamp, star_pass=star_pass)
+            event: TripEvent = TripEvent.create(timestamp, star_pass=star_pass)
             if not any(event.lost for event in team_jam.events):
                 event.lost = True  # Removing the star makes one ineligible for Lead
             team_jam.events.append(event)

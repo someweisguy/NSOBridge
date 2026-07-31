@@ -341,15 +341,16 @@ class TripEvent(BaseSQLModel):
         CheckConstraint('passes = 0 OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
     )
 
-    def __init__(
-        self,
+    @classmethod
+    def create(
+        cls,
         timestamp: datetime,
         *,
         lead: bool = False,
         lost: bool = False,
         passes: int | None = None,
         star_pass: bool = False,
-    ) -> None:
+    ) -> TripEvent:
         """Initialize a TripEvent.
 
         Args:
@@ -366,7 +367,7 @@ class TripEvent(BaseSQLModel):
             this TripEvent. Defaults to False.
 
         """
-        super().__init__(
+        return TripEvent(
             team_jam=None,
             uuid=uuid4(),  # Required when adding a new TripEvent
             timestamp=timestamp,
