@@ -173,6 +173,7 @@ async def _yield_async_session(user: GetUser) -> AsyncGenerator[AsyncSession, No
             user.stage(memento)
             user.commit('')
 
+        # TODO: remove this section?
         # Extract the cacheable models from the session
         cacheables: set[CacheableSQLModel] = {
             model for model in dirty if isinstance(model, CacheableSQLModel)
