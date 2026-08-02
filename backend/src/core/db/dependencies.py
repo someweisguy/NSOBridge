@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Any, Iterable, TypeAlias, override
 
 from fastapi import Depends
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session, attributes
+from sqlalchemy.orm import InstanceState, Session, attributes
 
 from core.users import GetUser  # noqa: TC001 - Ruff is wrong.
 
@@ -60,10 +59,14 @@ def _take_snapshot(
     copy = cls(**data)
 
     # Add the copy to the session information cache
+    new: set = session.info.setdefault('new', set())
+    dirty: set = session.info.setdefault('dirty', set())
     if is_insert:
-        records: set = session.info.setdefault('new', set())
+        records: set = new
+        dirty.discard(copy)
     else:
-        records: set = session.info.setdefault('dirty', set())
+        records: set = dirty
+        new.discard(copy)
     records.add(copy)
 
 
@@ -120,7 +123,7 @@ class NewDatabaseMemento(Memento):
     async def restore(self) -> Memento:
         async with session_factory() as session:
             for model in self._dirty:
-                merged = await session.merge(model)
+                await session.merge(model)
             for model in self._new:
                 merged = await session.merge(model)
                 if inspect(merged).persistent:
@@ -130,8 +133,8 @@ class NewDatabaseMemento(Memento):
 
             await session.flush()  # TODO: can this be removed?
 
-            new: Iterable[BaseSQLModel] = session.info.get('new', [])
-            dirty: Iterable[BaseSQLModel] = session.info.get('dirty', [])
+            new: set = session.info.setdefault('new', set())
+            dirty: set = session.info.setdefault('dirty', set())
 
             await session.commit()
 
@@ -139,32 +142,20 @@ class NewDatabaseMemento(Memento):
 
     @override
     async def get_cache_updates(self) -> Iterable[CacheableSQLModel]:
-        from core.app.service import get_schema  # noqa # FIXME: remove me
-
         async with session_factory() as session:
             updates = set()
             for model in self._dirty:
-                mapper = inspect(model).mapper
-                relationship_names = [rel.key for rel in mapper.relationships]
+                merged = await session.merge(model)
+                state: InstanceState[BaseSQLModel] = inspect(merged)
+                if state.persistent:
+                    attribute_names: list[str] = [
+                        rel.key for rel in state.mapper.relationships
+                    ]
+                    await session.refresh(merged, attribute_names)
+                    if isinstance(merged, CacheableSQLModel):
+                        updates.add(merged)
 
-                try:
-                    if isinstance(model, CacheableSQLModel):
-                        merged = await session.merge(model)
-                        if (
-                            isinstance(merged, CacheableSQLModel)
-                            and not inspect(merged).persistent
-                        ):
-                            logging.debug(
-                                f'Not adding {merged} because it is not persistent.'
-                            )
-                        if inspect(merged).persistent:
-                            await session.refresh(merged, relationship_names)
-                            updates.add(merged)
-                            logging.debug(f'Adding {merged}')
-                except Exception:  # noqa  # FIXME: remove noqa
-                    pass
-
-        return updates
+            return updates
 
 
 async def _yield_async_session(user: GetUser) -> AsyncGenerator[AsyncSession, None]:
