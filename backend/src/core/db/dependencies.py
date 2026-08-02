@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Any, Iterable, TypeAlias, override
+from typing import TYPE_CHECKING, Annotated, Any, Iterable, Literal, TypeAlias, override
 
-from fastapi import Depends
+from fastapi import Depends, Request
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstanceState, Session, attributes
@@ -22,7 +22,10 @@ if TYPE_CHECKING:
 
 
 def _take_snapshot(
-    session: Session, obj: Any, now: datetime, operation_type: str
+    session: Session,
+    obj: Any,
+    now: datetime,
+    operation_type: Literal['INSERT', 'UPDATE', 'DELETE'],
 ) -> None:
     cls = type(obj)
     mapper = inspect(cls)
@@ -158,10 +161,13 @@ class NewDatabaseMemento(Memento):
             return updates
 
 
-async def _yield_async_session(user: GetUser) -> AsyncGenerator[AsyncSession, None]:
+async def _yield_async_session(
+    user: GetUser, request: Request
+) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session:
         yield session
 
+        # Flush the session to finish collecting all mutated models
         await session.flush()
 
         # Get all mutated models in this transaction
@@ -173,17 +179,12 @@ async def _yield_async_session(user: GetUser) -> AsyncGenerator[AsyncSession, No
             user.stage(memento)
             user.commit('')
 
-        # TODO: remove this section?
-        # Extract the cacheable models from the session
-        cacheables: set[CacheableSQLModel] = {
-            model for model in dirty if isinstance(model, CacheableSQLModel)
-        }
-        for model in dirty:
-            cacheables |= {
-                parent
-                for parent in model.get_recursive_parents()
-                if isinstance(parent, CacheableSQLModel)
-            }
+        # Store mutated models so a cache message can be generated later
+        for record_name in ['new', 'dirty']:
+            if record_name not in request.state:
+                request.state[record_name] = set()
+        request.state.new |= new
+        request.state.dirty |= dirty
 
         await session.commit()
 
