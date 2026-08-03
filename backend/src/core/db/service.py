@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Callable, Iterable, override
 from uuid import UUID, uuid4
 
 from fastapi.routing import APIRoute
-from sqlalchemy import URL, select
+from sqlalchemy import URL, Select, select
 
 from core.app.service import get_schema
 
@@ -21,9 +21,54 @@ if TYPE_CHECKING:
     from sqlalchemy.engine.result import Result
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
+    from core.app import ServerSchema
+
 
 class CacheAPIRoute(APIRoute):
     """A FastAPI APIRoute which wraps a response in a client cache interface."""
+
+    @staticmethod
+    async def get_client_cache_updates(
+        session: AsyncSession,
+    ) -> list[CacheableSQLModel]:
+        """Fetch the client cache updates for a given Session.
+
+        The Session must be active.
+
+        Args:
+            session (AsyncSession): an active session.
+
+        Returns:
+            list[CacheableSQLModel]: all of the cache models that the client should
+            update.
+
+        """
+        new: Iterable[BaseSQLModel] = session.info.get('new', [])
+        dirty: Iterable[BaseSQLModel] = session.info.get('dirty', [])
+        async with session.begin_nested():
+            # Get the latest version of all dirty models
+            models_and_parents: set[BaseSQLModel] = set()
+            for identity_map in [new, dirty]:
+                for model in identity_map:
+                    cls: type[BaseSQLModel] = type(model)
+                    statement: Select = select(cls).where(cls.uuid == model.uuid)
+                    results: Result = await session.execute(statement)
+                    updated_model: BaseSQLModel | None = results.scalar_one_or_none()
+                    if updated_model is None:
+                        continue
+
+                    # Add the updated models and their parents to a collection
+                    if identity_map is dirty:
+                        models_and_parents.add(updated_model)
+                    for parent in updated_model.get_recursive_parents():
+                        if isinstance(parent, BaseSQLModel):
+                            models_and_parents.add(parent)
+
+        return [
+            model
+            for model in models_and_parents
+            if isinstance(model, CacheableSQLModel)
+        ]
 
     @override
     def get_route_handler(self) -> Callable:
@@ -39,31 +84,15 @@ class CacheAPIRoute(APIRoute):
                 session: AsyncSession = request.state['session']
                 await session.flush()
 
-                dirty: Iterable[BaseSQLModel] = session.info.get('dirty', [])
-                async with session.begin_nested():
-                    for model in dirty:
-                        # Get the latest version of the model
-                        if not isinstance(model, CacheableSQLModel):
-                            continue
-                        cls: type[CacheableSQLModel] = type(model)
-                        results: Result = await session.execute(
-                            select(cls).where(cls.uuid == model.uuid)
-                        )
-                        updated_model: CacheableSQLModel | None = (
-                            results.scalar_one_or_none()
-                        )
-                        if updated_model is None:
-                            continue
-
-                        # TODO: get the models parents
-
-                        schema = get_schema(type(model))
-                        cache.append(
-                            {
-                                'key': updated_model.cache_key(),
-                                'data': schema.model_validate(updated_model),
-                            }
-                        )
+                # Serialize client cache models
+                for model in await self.get_client_cache_updates(session):
+                    schema: type[ServerSchema] = get_schema(type(model))
+                    cache.append(  # TODO: this should be a schema
+                        {
+                            'key': model.cache_key(),
+                            'data': schema.model_validate(model),
+                        }
+                    )
 
             # Wrap the response in cache data
             new_body = CacheResponseSchema(
