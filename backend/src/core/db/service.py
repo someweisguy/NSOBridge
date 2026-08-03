@@ -64,11 +64,11 @@ class CacheAPIRoute(APIRoute):
                         if isinstance(parent, BaseSQLModel):
                             models_and_parents.add(parent)
 
-        return [
-            model
-            for model in models_and_parents
-            if isinstance(model, CacheableSQLModel)
-        ]
+            return [
+                model
+                for model in models_and_parents
+                if isinstance(model, CacheableSQLModel)
+            ]
 
     @override
     def get_route_handler(self) -> Callable:
