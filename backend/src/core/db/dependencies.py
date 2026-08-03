@@ -165,26 +165,29 @@ async def _yield_async_session(
     user: GetUser, request: Request
 ) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session:
+        # Add this session to Request state so CacheAPIRoute can detect cache changes
+        request.state['session'] = session
+
         yield session
 
-        # Flush the session to finish collecting all mutated models
-        await session.flush()
+        # # Flush the session to finish collecting all mutated models
+        # await session.flush()
 
-        # Get all mutated models in this transaction
-        new: set[BaseSQLModel] = session.info.get('new', set())
-        dirty: set[BaseSQLModel] = session.info.get('dirty', set())
+        # # Get all mutated models in this transaction
+        # new: set[BaseSQLModel] = session.info.get('new', set())
+        # dirty: set[BaseSQLModel] = session.info.get('dirty', set())
 
-        if len(new) or len(dirty):
-            memento = NewDatabaseMemento(new, dirty)
-            user.stage(memento)
-            user.commit('')
+        # if len(new) or len(dirty):
+        #     memento = NewDatabaseMemento(new, dirty)
+        #     user.stage(memento)
+        #     user.commit('')
 
-        # Store mutated models so a cache message can be generated later
-        for record_name in ['new', 'dirty']:
-            if record_name not in request.state:
-                request.state[record_name] = set()
-        request.state.new |= new
-        request.state.dirty |= dirty
+        # # Store mutated models so a cache message can be generated later
+        # for record_name in ['new', 'dirty']:
+        #     if record_name not in request.state:
+        #         request.state[record_name] = set()
+        # request.state.new |= new
+        # request.state.dirty |= dirty
 
         await session.commit()
 

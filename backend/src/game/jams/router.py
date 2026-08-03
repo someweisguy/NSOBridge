@@ -3,7 +3,7 @@
 from typing import Annotated, Final
 from uuid import UUID
 
-from core.app import CacheSchema
+from core.db import CacheAPIRoute
 from fastapi import APIRouter, Body, Query
 
 from .dependencies import GetJam, _get_jam
@@ -13,11 +13,13 @@ from .types import StopReasonStr
 
 JAMS_TAG = 'Jams'
 
-router: Final[APIRouter] = APIRouter(prefix='/jam', tags=[JAMS_TAG])
+router: Final[APIRouter] = APIRouter(
+    prefix='/jam', route_class=CacheAPIRoute, tags=[JAMS_TAG]
+)
 router.add_api_route('', _get_jam, response_model=JamSchema | None)
 
 
-@router.put('/setStopReason', response_model=CacheSchema)
+@router.put('/setStopReason', response_model=JamSchema)
 async def set_stop_reason(
     jam: GetJam, stop_reason: Annotated[StopReasonStr, Body()]
 ) -> Jam:
@@ -27,7 +29,7 @@ async def set_stop_reason(
     return jam
 
 
-@router.put('/setTripEventPasses', response_model=CacheSchema)
+@router.put('/setTripEventPasses', response_model=JamSchema)
 async def set_trip_passes(
     jam: GetJam,
     team_num: Annotated[int, Query(alias='teamNum')],
@@ -52,7 +54,7 @@ async def set_trip_passes(
     return jam
 
 
-@router.delete('/tripEvent', response_model=CacheSchema)
+@router.delete('/tripEvent', response_model=JamSchema)
 async def delete_trip_event(
     jam: GetJam,
     team_num: Annotated[int, Query(alias='teamNum')],

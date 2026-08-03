@@ -6,8 +6,7 @@ from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, Final
 
-from core.app import CacheSchema
-from core.db import GetAsyncSession
+from core.db import CacheAPIRoute, GetAsyncSession
 from fastapi import APIRouter, Body, HTTPException, Query
 from game.bouts.dependencies import GetTeam
 from game.series.dependencies import GetSeries
@@ -36,11 +35,13 @@ def _compute_all_rulesets() -> None:
             ALL_RULESETS.add(subclass.ruleset)
 
 
-router: Final[APIRouter] = APIRouter(prefix='/bout', tags=[BOUTS_TAG])
+router: Final[APIRouter] = APIRouter(
+    prefix='/bout', route_class=CacheAPIRoute, tags=[BOUTS_TAG]
+)
 router.add_api_route('', _get_bout, response_model=BoutSchema)
 
 
-@router.put('', response_model=CacheSchema)
+@router.put('', response_model=BoutSchema)
 async def create_bout(
     session: GetAsyncSession,
     series: GetSeries,
@@ -87,8 +88,8 @@ async def create_bout(
     return bout
 
 
-@router.delete('', response_model=CacheSchema)
-async def delete_bout(session: GetAsyncSession, bout: GetBout) -> dict:
+@router.delete('')
+async def delete_bout(session: GetAsyncSession, bout: GetBout) -> None:
     series: Series = await bout.awaitable_attrs.series
     await series.awaitable_attrs.active_bout
     await series.awaitable_attrs.bouts
@@ -103,7 +104,6 @@ async def delete_bout(session: GetAsyncSession, bout: GetBout) -> dict:
             )
     series.bouts.remove(bout)
     await session.delete(bout)
-    return {'cache': series.get_updates()}
 
 
 @router.get('/ruleset')
@@ -131,35 +131,35 @@ async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
     return results.scalars().all()
 
 
-@router.post('/beginPeriod', response_model=CacheSchema)
+@router.post('/beginPeriod', response_model=BoutSchema)
 async def begin_period(bout: GetBout) -> BaseBout:
     """Begin the period of the specified Bout."""
     bout.begin_period(datetime.now())
     return bout
 
 
-@router.post('/endPeriod', response_model=CacheSchema)
+@router.post('/endPeriod', response_model=BoutSchema)
 async def end_period(bout: GetBout) -> BaseBout:
     """End the period of the specified Bout."""
     bout.end_period(datetime.now())
     return bout
 
 
-@router.post('/startJam', response_model=CacheSchema)
+@router.post('/startJam', response_model=BoutSchema)
 async def start_jam(bout: GetBout) -> BaseBout:
     """Start the next Jam of the specified Bout."""
     bout.start_jam(datetime.now())
     return bout
 
 
-@router.post('/stopJam', response_model=CacheSchema)
+@router.post('/stopJam', response_model=BoutSchema)
 async def stop_jam(bout: GetBout) -> BaseBout:
     """Stop the active Jam of the specified Bout."""
     bout.stop_jam(datetime.now())
     return bout
 
 
-@router.post('/startTimeout', response_model=CacheSchema)
+@router.post('/startTimeout', response_model=BoutSchema)
 async def start_timeout(
     bout: GetBout,
     team_num: Annotated[int | None, Body(alias='teamNum')] = None,
@@ -175,14 +175,14 @@ async def start_timeout(
     return bout
 
 
-@router.post(path='/stopTimeout', response_model=CacheSchema)
+@router.post(path='/stopTimeout', response_model=BoutSchema)
 async def stop_timeout(bout: GetBout) -> BaseBout:
     """Stop the active Timeout in the specified Bout."""
     bout.stop_timeout(datetime.now())
     return bout
 
 
-@router.post('/addTrip', response_model=CacheSchema)
+@router.post('/addTrip', response_model=BoutSchema)
 async def add_trip(
     bout: GetBout,
     team: GetTeam,
@@ -193,7 +193,7 @@ async def add_trip(
     return bout
 
 
-@router.post('/addLead', response_model=CacheSchema)
+@router.post('/addLead', response_model=BoutSchema)
 async def set_lead(
     bout: GetBout,
     team: GetTeam,
@@ -204,7 +204,7 @@ async def set_lead(
     return bout
 
 
-@router.post('/addLost', response_model=CacheSchema)
+@router.post('/addLost', response_model=BoutSchema)
 async def set_lost(
     bout: GetBout,
     team: GetTeam,
@@ -215,7 +215,7 @@ async def set_lost(
     return bout
 
 
-@router.post('/addStarPass', response_model=CacheSchema)
+@router.post('/addStarPass', response_model=BoutSchema)
 async def set_star_pass(
     bout: GetBout,
     team: GetTeam,
@@ -226,14 +226,14 @@ async def set_star_pass(
     return bout
 
 
-@router.post(path='/finalize', response_model=CacheSchema)
+@router.post(path='/finalize', response_model=BoutSchema)
 async def finalize(bout: GetBout) -> BaseBout:
     """Finalize the Bout."""
     bout.finalize()
     return bout
 
 
-@router.put(path='/setClockRemaining', response_model=CacheSchema)
+@router.put(path='/setClockRemaining', response_model=BoutSchema)
 async def set_clock_remaining(
     bout: GetBout, remaining: Annotated[int, Body(alias='remaining')]
 ) -> BaseBout:
@@ -248,7 +248,7 @@ async def set_clock_remaining(
     return bout
 
 
-@router.put(path='/setClockAlarm', response_model=CacheSchema)
+@router.put(path='/setClockAlarm', response_model=BoutSchema)
 async def set_clock_alarm(
     bout: GetBout, alarm: Annotated[int, Body(alias='alarm')]
 ) -> BaseBout:
@@ -259,7 +259,7 @@ async def set_clock_alarm(
     return bout
 
 
-@router.put(path='/setClockIsRunning', response_model=CacheSchema)
+@router.put(path='/setClockIsRunning', response_model=BoutSchema)
 async def set_clock_is_running(
     bout: GetBout, is_running: Annotated[bool, Body(alias='isRunning')]
 ) -> BaseBout:
@@ -275,7 +275,7 @@ async def set_clock_is_running(
     return bout
 
 
-@router.put(path='/setTeamName', response_model=CacheSchema)
+@router.put(path='/setTeamName', response_model=BoutSchema)
 async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> BaseBout:
     """Set the desired Team's name."""
     if team.bout is None:

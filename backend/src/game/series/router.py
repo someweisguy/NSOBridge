@@ -4,8 +4,7 @@ from collections.abc import Sequence
 from typing import Annotated, Final
 from uuid import UUID
 
-from core.app import CacheSchema
-from core.db import GetAsyncSession
+from core.db import CacheAPIRoute, GetAsyncSession
 from fastapi import APIRouter, Body
 from sqlalchemy import Result, Select, select
 
@@ -15,7 +14,9 @@ from .schemas import SeriesSchema
 
 SERIES_TAG = 'Series'
 
-router: Final[APIRouter] = APIRouter(prefix='/series', tags=[SERIES_TAG])
+router: Final[APIRouter] = APIRouter(
+    prefix='/series', route_class=CacheAPIRoute, tags=[SERIES_TAG]
+)
 router.add_api_route('', _get_series, response_model=SeriesSchema)
 
 
@@ -28,7 +29,7 @@ async def get_all_series(session: GetAsyncSession) -> Sequence[Series]:
     return results.scalars().all()
 
 
-@router.put('/activeBout', response_model=CacheSchema)
+@router.put('/activeBout', response_model=SeriesSchema)
 async def set_active_bout(
     series: GetSeries, bout_uuid: Annotated[UUID, Body(alias='boutUuid')]
 ) -> Series:

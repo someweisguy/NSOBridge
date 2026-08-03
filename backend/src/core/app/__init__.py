@@ -12,8 +12,6 @@ from .schemas import ClientSchema, ServerSchema
 from .service import disconnect_all, get_resource_path, register_model, ws
 from .types import CacheableProtocol, CacheKey
 from .utils import (
-    APIResponse,
-    CacheSchema,
     endpoint_profiling_middleware,
     generic_error_handler,
     validation_error_handler,
@@ -32,9 +30,7 @@ error_handlers: Final[
 
 __all__ = (
     'ASSETS',
-    'APIResponse',
     'CacheKey',
-    'CacheSchema',
     'CacheableProtocol',
     'ClientSchema',
     'ServerSchema',
