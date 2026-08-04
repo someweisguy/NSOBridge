@@ -14,11 +14,10 @@ import core.users
 import game
 import game.bouts.rulesets
 from core.app import endpoint_profiling_middleware
-from core.db import create_tables, get_database_url, session_factory
+from core.db import CacheAPIRoute, create_tables, get_database_url, session_factory
 from core.updates import GithubReleaseSchema
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
-from fastapi.responses import JSONResponse
 from game import Series, create_bout
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
@@ -96,7 +95,7 @@ async def lifespan(app: FastAPI):
 
 
 app: Final[FastAPI] = FastAPI(
-    default_response_class=JSONResponse,
+    route_class=CacheAPIRoute,
     lifespan=lifespan,
     title='NSO Bridge',
     summary='A scoreboard and statistics server for roller derby.',
