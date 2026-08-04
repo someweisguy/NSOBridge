@@ -74,32 +74,40 @@ def _take_snapshot(
 
 
 @event.listens_for(Session, 'before_flush')
-def _handle_before_flush(session: Session, flush_context: Any, instances: Any) -> None:
-    """``before_flush`` handler — tracks updates and deletes, and buffers inserts."""
+def _handle_before_flush(session: Session, flush_context: Any, _) -> None:
     now: datetime = datetime.now()
 
-    # Buffer new instances for after_flush to capture DB-generated PKs and defaults
-    new_objs = [obj for obj in session.new if isinstance(obj, BaseSQLModel)]
+    # Defer snapshots of new objects until after flush
+    new_objs: list[BaseSQLModel] = [
+        obj for obj in session.new if isinstance(obj, BaseSQLModel)
+    ]
     if new_objs:
         session.info.setdefault('sa_versioning_new', []).extend(new_objs)
 
-    for obj in list(session.dirty):
+    # Snapshot the current state of dirty and deleted objects
+    for obj in session.dirty:
         if isinstance(obj, BaseSQLModel):
             _take_snapshot(session, obj, now, 'UPDATE')
-
-    for obj in list(session.deleted):
+    for obj in session.deleted:
         if isinstance(obj, BaseSQLModel):
             _take_snapshot(session, obj, now, 'DELETE')
 
 
 @event.listens_for(Session, 'after_flush')
 def _handle_after_flush(session: Session, flush_context: Any) -> None:
-    """``after_flush`` handler — inserts version records for buffered inserts."""
-    new_objs = session.info.pop('sa_versioning_new', [])
-    if not new_objs:
-        return
+    now: datetime = datetime.now()
 
-    now = datetime.now()
+    # Collect the mutated models for client cache updates
+    cache: set[BaseSQLModel] = session.info.setdefault('cache', set())
+    for obj in session.dirty:
+        if isinstance(obj, BaseSQLModel):
+            cache.update([obj, *obj.get_recursive_parents()])
+    for obj in session.deleted:
+        if isinstance(obj, BaseSQLModel):
+            cache.update(obj.get_recursive_parents())
+
+    # Snapshot deferred inserts
+    new_objs: list[BaseSQLModel] = session.info.pop('sa_versioning_new', [])
     for obj in new_objs:
         _take_snapshot(session, obj, now, 'INSERT')
 

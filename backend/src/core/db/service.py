@@ -39,36 +39,29 @@ class CacheAPIRoute(APIRoute):
             session (AsyncSession): an active session.
 
         Returns:
-            list[CacheableSQLModel]: all of the cache models that the client should
-            update.
+            list[CacheableSQLModel]: all of each unique cache model that the client
+            should update.
 
         """
-        new: Iterable[BaseSQLModel] = session.info.get('new', [])
-        dirty: Iterable[BaseSQLModel] = session.info.get('dirty', [])
-        async with session.begin_nested():
-            # Get the latest version of all dirty models
-            models_and_parents: set[BaseSQLModel] = set()
-            for identity_map in [new, dirty]:
-                for model in identity_map:
-                    cls: type[BaseSQLModel] = type(model)
-                    statement: Select = select(cls).where(cls.uuid == model.uuid)
-                    results: Result = await session.execute(statement)
-                    updated_model: BaseSQLModel | None = results.scalar_one_or_none()
-                    if updated_model is None:
-                        continue
+        # Fetch the cache from the session context
+        stale_cache: Iterable[CacheableSQLModel] = [
+            model
+            for model in session.info.get('cache', [])
+            if isinstance(model, CacheableSQLModel)
+        ]
 
-                    # Add the updated models and their parents to a collection
-                    if identity_map is dirty:
-                        models_and_parents.add(updated_model)
-                    for parent in updated_model.get_recursive_parents():
-                        if isinstance(parent, BaseSQLModel):
-                            models_and_parents.add(parent)
+        # Update each item in the cache
+        updated_cache: list[CacheableSQLModel] = []
+        for model in stale_cache:
+            cls: type[BaseSQLModel] = type(model)
+            statement: Select = select(cls).where(cls.uuid == model.uuid)
+            results: Result = await session.execute(statement)
+            updated_model: BaseSQLModel | None = results.scalar_one_or_none()
+            if not isinstance(updated_model, CacheableSQLModel):
+                continue
+            updated_cache.append(updated_model)
 
-            return [
-                model
-                for model in models_and_parents
-                if isinstance(model, CacheableSQLModel)
-            ]
+        return updated_cache
 
     @override
     def get_route_handler(self) -> Callable:
