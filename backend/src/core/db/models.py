@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_object_sessio
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
-from core.users import Memento
+from core.app import Memento
 
 from .constants import session_factory
 

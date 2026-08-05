@@ -10,7 +10,7 @@ from .constants import timedelta_serializer
 from .router import ASSETS, api_router, pages_router
 from .schemas import ClientSchema, ServerSchema
 from .service import disconnect_all, get_resource_path, register_model, ws
-from .types import CacheableProtocol, CacheKey
+from .types import CacheableProtocol, CacheKey, Memento
 from .utils import (
     endpoint_profiling_middleware,
     generic_error_handler,
@@ -33,6 +33,7 @@ __all__ = (
     'CacheKey',
     'CacheableProtocol',
     'ClientSchema',
+    'Memento',
     'ServerSchema',
     'api_router',
     'disconnect_all',

@@ -6,13 +6,15 @@ from typing import Final
 
 from fastapi import APIRouter, HTTPException
 
+from core.db.service import CacheAPIRoute
+
 from .dependencies import GetUser
 from .schemas import HistorySchema
 
 HISTORY_TAG = 'History'
 
 
-router: Final[APIRouter] = APIRouter(tags=[HISTORY_TAG])
+router: Final[APIRouter] = APIRouter(route_class=CacheAPIRoute, tags=[HISTORY_TAG])
 
 
 @router.post('/undo')
