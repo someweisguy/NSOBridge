@@ -112,7 +112,7 @@ def _handle_after_flush(session: Session, flush_context: Any) -> None:
         _take_snapshot(session, obj, now, 'INSERT')
 
 
-class NewDatabaseMemento(Memento):
+class DatabaseMemento(Memento):
     """A memento based on database transactions."""
 
     def __init__(
@@ -146,7 +146,7 @@ class NewDatabaseMemento(Memento):
         new: set = session.info.setdefault('new', set())
         dirty: set = session.info.setdefault('dirty', set())
 
-        return NewDatabaseMemento(new, dirty)
+        return DatabaseMemento(new, dirty)
 
 
 async def _yield_async_session(request: Request) -> AsyncGenerator[AsyncSession, None]:
