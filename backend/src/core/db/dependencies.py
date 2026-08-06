@@ -156,6 +156,13 @@ async def _yield_async_session(request: Request) -> AsyncGenerator[AsyncSession,
 
         yield session
 
+        # Create a database memento
+        new: Iterable[BaseSQLModel] = session.info.get('new', [])
+        dirty: Iterable[BaseSQLModel] = session.info.get('dirty', [])
+        if new or dirty:
+            pass  # TODO: Create a memento
+            # memento = DatabaseMemento(new, dirty)
+
         await session.commit()
 
 
