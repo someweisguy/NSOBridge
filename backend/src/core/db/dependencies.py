@@ -8,12 +8,13 @@ from typing import TYPE_CHECKING, Annotated, Any, Iterable, Literal, TypeAlias, 
 from fastapi import Depends, Request
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import InstanceState, Session, attributes
+from sqlalchemy.orm import Session, attributes
 
+from core.app import Memento
 from core.users import GetUser  # noqa: TC001 - Ruff is wrong.
 
 from .constants import session_factory
-from .models import BaseSQLModel, CacheableSQLModel, Memento
+from .models import BaseSQLModel
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -131,8 +132,10 @@ class NewDatabaseMemento(Memento):
         self._dirty: Iterable[BaseSQLModel] = dirty
 
     @override
-    async def restore(self) -> Memento:
+    async def restore(self, request: Request) -> Memento:
         async with session_factory() as session:
+            request.state['session'] = session
+
             for model in self._dirty:
                 await session.merge(model)
             for model in self._new:
@@ -142,31 +145,12 @@ class NewDatabaseMemento(Memento):
                 else:
                     session.expunge(merged)
 
-            await session.flush()  # TODO: can this be removed?
+            await session.commit()
 
             new: set = session.info.setdefault('new', set())
             dirty: set = session.info.setdefault('dirty', set())
 
-            await session.commit()
-
         return NewDatabaseMemento(new, dirty)
-
-    @override
-    async def get_cache_updates(self) -> Iterable[CacheableSQLModel]:
-        async with session_factory() as session:
-            updates = set()
-            for model in self._dirty:
-                merged = await session.merge(model)
-                state: InstanceState[BaseSQLModel] = inspect(merged)
-                if state.persistent:
-                    attribute_names: list[str] = [
-                        rel.key for rel in state.mapper.relationships
-                    ]
-                    await session.refresh(merged, attribute_names)
-                    if isinstance(merged, CacheableSQLModel):
-                        updates.add(merged)
-
-            return updates
 
 
 async def _yield_async_session(

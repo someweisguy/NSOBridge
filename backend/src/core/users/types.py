@@ -9,9 +9,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from fastapi import Request
 
-    from core.app import CacheableProtocol, Memento
+    from core.app import Memento
 
 
 class User:
@@ -57,7 +57,7 @@ class User:
         """
         self._staged = None
 
-    async def undo(self) -> Iterable[CacheableProtocol]:
+    async def undo(self, request: Request) -> None:
         """Undo the last command.
 
         Pops a Memento from the undo history and push its "redo" Memento to the redo
@@ -70,11 +70,9 @@ class User:
         if len(self.undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
         message, undo_memento = self.undo_history.pop()
-        self.redo_history.append((message, await undo_memento.restore()))
-        updates: Iterable[CacheableProtocol] = await undo_memento.get_cache_updates()
-        return updates
+        self.redo_history.append((message, await undo_memento.restore(request)))
 
-    async def redo(self) -> Iterable[CacheableProtocol]:
+    async def redo(self, request: Request) -> None:
         """Redo the last undone command.
 
         Pops a Memento from the redo history and push its "re-undo" Memento to the undo
@@ -87,6 +85,4 @@ class User:
         if len(self.redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
         message, redo_memento = self.redo_history.pop()
-        self.undo_history.append((message, await redo_memento.restore()))
-        updates: Iterable[CacheableProtocol] = await redo_memento.get_cache_updates()
-        return updates
+        self.undo_history.append((message, await redo_memento.restore(request)))

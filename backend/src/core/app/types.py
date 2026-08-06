@@ -6,9 +6,8 @@ import typing
 from typing import TYPE_CHECKING, Any, Protocol
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from fastapi import Request
 
-    from sqlalchemy.ext.asyncio import AsyncSession
 
 type CacheKey = tuple[Any, ...]
 """A cache key type used for the client model caching feature. """
@@ -17,17 +16,6 @@ type CacheKey = tuple[Any, ...]
 @typing.runtime_checkable
 class CacheableProtocol(Protocol):
     """Defines the protocol for cacheable items."""
-
-    def get_updates(
-        self, session: AsyncSession | None = None
-    ) -> Iterable[CacheableProtocol]:
-        """Get a collection of all the cacheable items that have been updated.
-
-        Returns:
-            Iterable[CacheableProtocol]: _description_
-
-        """
-        ...
 
     def cache_key(self) -> CacheKey:
         """Get the cache key of the cacheable.
@@ -46,16 +34,7 @@ class Memento(Protocol):
     the application to a previous state.
     """
 
-    async def get_cache_updates(self) -> Iterable[CacheableProtocol]:
-        """Get a list of the cache updates that will occur if this Memento is restored.
-
-        Returns:
-            Iterable[CacheableProtocol]: the cache updates.
-
-        """
-        ...
-
-    async def restore(self) -> Memento:
+    async def restore(self, request: Request) -> Memento:
         """Restore the state of the application to when this Memento was constructed.
 
         Returns:
