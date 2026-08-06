@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, attributes
 
 from core.app import Memento
-from core.users import GetUser  # noqa: TC001 - Ruff is wrong.
 
 from .constants import session_factory
 from .models import BaseSQLModel
@@ -133,46 +132,29 @@ class NewDatabaseMemento(Memento):
 
     @override
     async def restore(self, request: Request) -> Memento:
-        async with session_factory() as session:
-            request.state['session'] = session
+        session: AsyncSession = request.state['session']
 
-            for model in self._dirty:
-                await session.merge(model)
-            for model in self._new:
-                merged = await session.merge(model)
-                if inspect(merged).persistent:
-                    await session.delete(merged)
-                else:
-                    session.expunge(merged)
+        for model in self._dirty:
+            await session.merge(model)
+        for model in self._new:
+            merged = await session.merge(model)
+            if inspect(merged).persistent:
+                await session.delete(merged)
+            else:
+                session.expunge(merged)
 
-            await session.commit()
-
-            new: set = session.info.setdefault('new', set())
-            dirty: set = session.info.setdefault('dirty', set())
+        new: set = session.info.setdefault('new', set())
+        dirty: set = session.info.setdefault('dirty', set())
 
         return NewDatabaseMemento(new, dirty)
 
 
-async def _yield_async_session(
-    user: GetUser, request: Request
-) -> AsyncGenerator[AsyncSession, None]:
+async def _yield_async_session(request: Request) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session:
         # Add this session to Request state so CacheAPIRoute can detect cache changes
         request.state['session'] = session
 
         yield session
-
-        # Flush the session to finish collecting all mutated models
-        await session.flush()
-
-        # Get all mutated models in this transaction
-        new: set[BaseSQLModel] = session.info.get('new', set())
-        dirty: set[BaseSQLModel] = session.info.get('dirty', set())
-
-        if len(new) or len(dirty):
-            memento = NewDatabaseMemento(new, dirty)
-            user.stage(memento)
-            user.commit('')  # TODO: add commit message
 
         await session.commit()
 

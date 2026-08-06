@@ -70,7 +70,8 @@ class User:
         if len(self.undo_history) == 0:
             raise RuntimeError('There is nothing to undo')
         message, undo_memento = self.undo_history.pop()
-        self.redo_history.append((message, await undo_memento.restore(request)))
+        new_memento = await undo_memento.restore(request)
+        self.redo_history.append((message, new_memento))
 
     async def redo(self, request: Request) -> None:
         """Redo the last undone command.
@@ -85,4 +86,5 @@ class User:
         if len(self.redo_history) == 0:
             raise RuntimeError('There is nothing to redo')
         message, redo_memento = self.redo_history.pop()
-        self.undo_history.append((message, await redo_memento.restore(request)))
+        new_memento = await redo_memento.restore(request)
+        self.undo_history.append((message, new_memento))

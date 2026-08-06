@@ -6,7 +6,7 @@ from typing import Final
 
 from fastapi import APIRouter, HTTPException, Request
 
-from core.db.service import CacheAPIRoute
+from core.db import CacheAPIRoute, GetAsyncSession
 
 from .dependencies import GetUser
 from .schemas import HistorySchema
@@ -18,16 +18,17 @@ router: Final[APIRouter] = APIRouter(route_class=CacheAPIRoute, tags=[HISTORY_TA
 
 
 @router.post('/undo')
-async def _undo(request: Request, user: GetUser) -> None:
+async def _undo(request: Request, user: GetUser, _: GetAsyncSession) -> None:
     """Undo the last command that this user executed."""
     logging.info('User is undoing their last transaction')
     if len(user.undo_history) == 0:
         raise HTTPException(HTTPStatus.CONFLICT, 'There is nothing left to undo')
+
     await user.undo(request)
 
 
 @router.post('/redo')
-async def _redo(request: Request, user: GetUser) -> None:
+async def _redo(request: Request, user: GetUser, _: GetAsyncSession) -> None:
     """Redo the last command that this user executed."""
     logging.info('User is redoing their last transaction')
     if len(user.redo_history) == 0:
