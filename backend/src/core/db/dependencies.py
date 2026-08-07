@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, attributes
 
 from core.app import Memento
+from core.users import GetUser  # noqa: TC001 - FastAPI requires this at runtime
 
 from .constants import session_factory
 from .models import BaseSQLModel
@@ -19,8 +20,6 @@ if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
     from sqlalchemy.orm.attributes import History
-
-    from core.users import GetUser
 
 
 def _take_snapshot(
