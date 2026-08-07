@@ -135,8 +135,12 @@ class DatabaseMemento(Memento):
     async def restore(self, request: Request) -> Memento:
         session: AsyncSession = request.state['session']
 
+        # Reset the database state as described in this Memento
+        new: set[BaseSQLModel] = set()
         for model in self._dirty:
-            await session.merge(model)
+            merged = await session.merge(model)
+            if not inspect(merged).persistent:
+                new.add(merged)
         for model in self._new:
             merged = await session.merge(model)
             if inspect(merged).persistent:
@@ -144,7 +148,14 @@ class DatabaseMemento(Memento):
             else:
                 session.expunge(merged)
 
-        new: set = session.info.setdefault('new', set())
+        # Manually add new models to the client cache updates
+        await session.flush()
+        cache: set[BaseSQLModel] = session.info.setdefault('cache', set())
+        for model in new:
+            await session.refresh(model)
+            cache.update([model, *model.get_recursive_parents()])
+
+        new: set[BaseSQLModel] = session.info.setdefault('new', set())
         dirty: set = session.info.setdefault('dirty', set())
 
         return DatabaseMemento(new, dirty)
