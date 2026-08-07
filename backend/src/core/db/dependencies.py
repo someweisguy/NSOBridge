@@ -20,24 +20,36 @@ if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
     from sqlalchemy.orm.attributes import History
+    from sqlalchemy.orm.mapper import Mapper
+    from sqlalchemy.orm.state import InstanceState
 
 
 def _take_snapshot(
     session: Session,
-    obj: Any,
+    model: BaseSQLModel,
     now: datetime,
     operation_type: Literal['INSERT', 'UPDATE', 'DELETE'],
 ) -> None:
-    cls = type(obj)
-    mapper = inspect(cls)
-    state = attributes.instance_state(obj)
+    cls: type[BaseSQLModel] = type(model)
+    mapper: Mapper[BaseSQLModel] = inspect(cls)
+    state: InstanceState[BaseSQLModel] = attributes.instance_state(model)
 
     # Ensure this model should have a snapshot created
     if operation_type in ('INSERT', 'DELETE'):
         should_snapshot = True
     else:
-        should_snapshot: bool = any(
-            attributes.get_history(obj, col.key).added for col in mapper.column_attrs
+        # FastAPI doesn't report `delete-orphan` relationships as being deleted during
+        # `before-flush` or `after-flush` events. They are reported as dirty due to
+        # their relationship being updated. Therefore, if a model is reported as dirty
+        # and it has no parents we should snapshot it since this means that the model is
+        # being deleted.
+        has_parents: bool = any(parent is not None for parent in model.get_parents())
+        should_snapshot: bool = (
+            any(
+                attributes.get_history(model, col.key).added
+                for col in mapper.column_attrs
+            )
+            or not has_parents
         )
     if not should_snapshot:
         return
@@ -79,11 +91,11 @@ def _handle_before_flush(session: Session, flush_context: Any, _) -> None:
     now: datetime = datetime.now()
 
     # Defer snapshots of new objects until after flush
-    new_objs: list[BaseSQLModel] = [
-        obj for obj in session.new if isinstance(obj, BaseSQLModel)
+    new_models: list[BaseSQLModel] = [
+        model for model in session.new if isinstance(model, BaseSQLModel)
     ]
-    if new_objs:
-        session.info.setdefault('sa_versioning_new', []).extend(new_objs)
+    if new_models:
+        session.info.setdefault('_temp_new_buffer', []).extend(new_models)
 
     # Snapshot the current state of dirty and deleted objects
     for obj in session.dirty:
@@ -100,17 +112,17 @@ def _handle_after_flush(session: Session, flush_context: Any) -> None:
 
     # Collect the mutated models for client cache updates
     cache: set[BaseSQLModel] = session.info.setdefault('cache', set())
-    for obj in session.dirty:
-        if isinstance(obj, BaseSQLModel):
-            cache.update([obj, *obj.get_recursive_parents()])
-    for obj in session.deleted:
-        if isinstance(obj, BaseSQLModel):
-            cache.update(obj.get_recursive_parents())
+    for model in session.dirty:
+        if isinstance(model, BaseSQLModel):
+            cache.update([model, *model.get_recursive_parents()])
+    for model in session.deleted:
+        if isinstance(model, BaseSQLModel):
+            cache.update(model.get_recursive_parents())
 
     # Snapshot deferred inserts
-    new_objs: list[BaseSQLModel] = session.info.pop('sa_versioning_new', [])
-    for obj in new_objs:
-        _take_snapshot(session, obj, now, 'INSERT')
+    new_models: list[BaseSQLModel] = session.info.pop('_temp_new_buffer', [])
+    for model in new_models:
+        _take_snapshot(session, model, now, 'INSERT')
 
 
 class DatabaseMemento(Memento):
@@ -169,6 +181,8 @@ async def _yield_async_session(
         request.state['session'] = session
 
         yield session
+
+        await session.flush()
 
         # Create a database memento
         new: Iterable[BaseSQLModel] = session.info.get('new', [])
