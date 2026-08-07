@@ -38,6 +38,15 @@ class User:
         """
         self._staged = memento
 
+    def staged(self) -> bool:
+        """Return True if a Memento has been staged in this user's transaction.
+
+        Returns:
+            bool: True if self.stage() has been called during this request.
+
+        """
+        return self._staged is not None
+
     def commit(self, commit_message: str) -> None:
         """Commit a Memento to the undo history.
 

@@ -20,6 +20,8 @@ if TYPE_CHECKING:
 
     from sqlalchemy.orm.attributes import History
 
+    from core.users import GetUser
+
 
 def _take_snapshot(
     session: Session,
@@ -149,7 +151,9 @@ class DatabaseMemento(Memento):
         return DatabaseMemento(new, dirty)
 
 
-async def _yield_async_session(request: Request) -> AsyncGenerator[AsyncSession, None]:
+async def _yield_async_session(
+    request: Request, user: GetUser
+) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session:
         # Add this session to Request state so CacheAPIRoute can detect cache changes
         request.state['session'] = session
@@ -160,8 +164,8 @@ async def _yield_async_session(request: Request) -> AsyncGenerator[AsyncSession,
         new: Iterable[BaseSQLModel] = session.info.get('new', [])
         dirty: Iterable[BaseSQLModel] = session.info.get('dirty', [])
         if new or dirty:
-            pass  # TODO: Create a memento
-            # memento = DatabaseMemento(new, dirty)
+            memento = DatabaseMemento(new, dirty)
+            user.stage(memento)
 
         await session.commit()
 

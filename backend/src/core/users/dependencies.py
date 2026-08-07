@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Annotated, TypeAlias
+from typing import TYPE_CHECKING, Annotated, Callable, TypeAlias
 from uuid import UUID, uuid4
 
 from fastapi import Cookie, Depends, Request, Response
@@ -38,16 +38,24 @@ def _get_user(
     except Exception:
         user.unstage()
         raise
+
+    # Never commit when 'undo' endpoint is called or when app state hasn't changed
+    endpoint_name: str = request.scope['path'].split('/')[-1].lower()
+    if endpoint_name == 'undo':
+        return
+    if not user.staged():
+        return
+
+    # Get a commit message from the docstring of the endpoint method
+    endpoint: Callable = request.scope['endpoint']
+    if endpoint.__doc__ is not None:
+        commit_message: str = endpoint.__doc__
     else:
-        if request.method == 'GET':
-            return
-        endpoint: function = request.scope['endpoint']  # noqa: F821 - Ruff is wrong.
-        if endpoint.__doc__ is not None:
-            commit_message = endpoint.__doc__
-        else:
-            logging.warning(f'Endpoint `{endpoint.__name__}` does not have docs')
-            commit_message = 'Unknown operation'
-        user.commit(commit_message)
+        name: str = getattr(endpoint, '__name__', 'Unknown Method')
+        logging.warning(f'Endpoint `{name}` does not have docs')
+        commit_message = 'Unknown operation'
+
+    user.commit(commit_message)
 
 
 GetUser: TypeAlias = Annotated[User, Depends(_get_user)]
