@@ -39,9 +39,9 @@ def _get_user(
         user.unstage()
         raise
 
-    # Never commit when 'undo' endpoint is called or when app state hasn't changed
+    # Don't commit when undo/redo is called or when app state hasn't changed
     endpoint_name: str = request.scope['path'].split('/')[-1].lower()
-    if endpoint_name == 'undo':
+    if endpoint_name in ['undo', 'redo']:
         return
     if not user.staged():
         return
