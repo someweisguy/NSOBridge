@@ -20,20 +20,21 @@ router: Final[APIRouter] = APIRouter(route_class=CacheAPIRoute, tags=[HISTORY_TA
 @router.post('/undo')
 async def _undo(request: Request, user: GetUser, _: GetAsyncSession) -> None:
     """Undo the last command that this user executed."""
-    logging.info('User is undoing their last transaction')
     if len(user.undo_history) == 0:
         raise HTTPException(HTTPStatus.CONFLICT, 'There is nothing left to undo')
 
-    await user.undo(request)
+    message: str = await user.undo(request)
+    logging.info(f'User is undoing `{message}`')
 
 
 @router.post('/redo')
 async def _redo(request: Request, user: GetUser, _: GetAsyncSession) -> None:
     """Redo the last command that this user executed."""
-    logging.info('User is redoing their last transaction')
     if len(user.redo_history) == 0:
         raise HTTPException(HTTPStatus.CONFLICT, 'There is nothing left to redo')
-    await user.redo(request)
+
+    message: str = await user.redo(request)
+    logging.info(f'User is redoing `{message}`')
 
 
 @router.get('/history')
