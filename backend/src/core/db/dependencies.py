@@ -146,7 +146,7 @@ class DatabaseMemento(Memento):
     async def restore(self, request: Request) -> Memento:
         if 'session' in request.state:
             raise ValueError('session already exists')
-        async with session_factory() as session, session.begin():
+        async with session_factory() as session:
             request.state['session'] = session
 
             # Reset the database state as described in this Memento
@@ -180,7 +180,7 @@ class DatabaseMemento(Memento):
 async def _yield_async_session(
     request: Request, user: GetUser
 ) -> AsyncGenerator[AsyncSession, None]:
-    async with session_factory() as session, session.begin():
+    async with session_factory() as session:
         # Add this session to Request state so CacheAPIRoute can detect cache changes
         request.state['session'] = session
 
