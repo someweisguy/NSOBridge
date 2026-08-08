@@ -174,7 +174,7 @@ class DatabaseMemento(Memento):
 
             await session.commit()
 
-            return DatabaseMemento(new, dirty)
+        return DatabaseMemento(new, dirty)
 
 
 async def _yield_async_session(
