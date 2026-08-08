@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Callable, Iterable, override
+from typing import TYPE_CHECKING, Awaitable, Callable, Iterable, override
 from uuid import UUID, uuid4
 
 from fastapi.routing import APIRoute
@@ -65,7 +65,9 @@ class CacheAPIRoute(APIRoute):
 
     @override
     def get_route_handler(self) -> Callable:
-        original_route_handler = super().get_route_handler()
+        original_route_handler: Callable[[Request], Awaitable[Response]] = (
+            super().get_route_handler()
+        )
 
         # FIXME: reusing the database session in this method causes errors
         async def custom_route_handler(request: Request) -> Response:
