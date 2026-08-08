@@ -67,6 +67,7 @@ class CacheAPIRoute(APIRoute):
     def get_route_handler(self) -> Callable:
         original_route_handler = super().get_route_handler()
 
+        # FIXME: reusing the database session in this method causes errors
         async def custom_route_handler(request: Request) -> Response:
             transaction_uuid: UUID = uuid4()
             response: Response = await original_route_handler(request)
