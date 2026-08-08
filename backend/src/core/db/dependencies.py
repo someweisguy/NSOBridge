@@ -145,8 +145,7 @@ class DatabaseMemento(Memento):
     @override
     async def restore(self, request: Request) -> Memento:
         if 'session' in request.state:
-            pass
-
+            raise ValueError('session already exists')
         async with session_factory() as session, session.begin():
             request.state['session'] = session
 
