@@ -6,7 +6,7 @@ In this file the User class and its associated business logic can be found.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 if TYPE_CHECKING:
     from core.app import Memento
@@ -20,8 +20,8 @@ class User:
     def __init__(self) -> None:
         """Initialize a User."""
         self._staged: Memento | None = None
-        self.undo_history: list[tuple[str, Memento]] = []
-        self.redo_history: list[tuple[str, Memento]] = []
+        self.undo_history: Final[list[tuple[str, Memento]]] = []
+        self.redo_history: Final[list[tuple[str, Memento]]] = []
 
     def stage(self, memento: Memento) -> None:
         """Stage a Memento before committing it.
