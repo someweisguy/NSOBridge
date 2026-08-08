@@ -65,19 +65,16 @@ def _take_snapshot(
             val = None
         else:
             history: History = state.attrs[col.key].load_history()
-            if is_insert:
-                # Doesn't matter what value the column has
-                val = history.sum()[0]
-            else:
-                val = history.non_added()[0]
+            val = history.sum()[-1]
 
         data[col.key] = val
     copy = cls(**data)
 
     # Add the copy to the session information cache
+    # Dirty models that are already in `new` should not be discarded from `new`
     new: set = session.info.setdefault('new', set())
     dirty: set = session.info.setdefault('dirty', set())
-    if is_insert:
+    if is_insert or copy in new:
         records: set = new
         dirty.discard(copy)
     else:
