@@ -9,8 +9,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from fastapi import Request
-
     from core.app import Memento
 
 
@@ -65,41 +63,3 @@ class User:
         Memento is not committed to the undo history.
         """
         self._staged = None
-
-    async def undo(self, request: Request) -> str:
-        """Undo the last command.
-
-        Pops a Memento from the undo history and push its "redo" Memento to the redo
-        history.
-
-        Raises:
-            RuntimeError: if there is nothing to undo.
-
-        Returns: the undo message of the transaction that was undone.
-
-        """
-        if len(self.undo_history) == 0:
-            raise RuntimeError('There is nothing to undo')
-        message, undo_memento = self.undo_history.pop()
-        new_memento = await undo_memento.restore(request)
-        self.redo_history.append((message, new_memento))
-        return message
-
-    async def redo(self, request: Request) -> str:
-        """Redo the last undone command.
-
-        Pops a Memento from the redo history and push its "re-undo" Memento to the undo
-        history.
-
-        Raises:
-            RuntimeError: if there is nothing to redo.
-
-        Returns: the redo message of the transaction that was redone.
-
-        """
-        if len(self.redo_history) == 0:
-            raise RuntimeError('There is nothing to redo')
-        message, redo_memento = self.redo_history.pop()
-        new_memento = await redo_memento.restore(request)
-        self.undo_history.append((message, new_memento))
-        return message

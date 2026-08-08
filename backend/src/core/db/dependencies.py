@@ -144,38 +144,44 @@ class DatabaseMemento(Memento):
 
     @override
     async def restore(self, request: Request) -> Memento:
-        session: AsyncSession = request.state['session']
+        if 'session' in request.state:
+            pass
 
-        # Reset the database state as described in this Memento
-        new: set[BaseSQLModel] = set()
-        for model in self._dirty:
-            merged = await session.merge(model)
-            if not inspect(merged).persistent:
-                new.add(merged)
-        for model in self._new:
-            merged = await session.merge(model)
-            if inspect(merged).persistent:
-                await session.delete(merged)
-            else:
-                session.expunge(merged)
+        async with session_factory() as session, session.begin():
+            request.state['session'] = session
 
-        # Manually add new models to the client cache updates
-        await session.flush()
-        cache: set[BaseSQLModel] = session.info.setdefault('cache', set())
-        for model in new:
-            await session.refresh(model)
-            cache.update([model, *model.get_recursive_parents()])
+            # Reset the database state as described in this Memento
+            new: set[BaseSQLModel] = set()
+            for model in self._dirty:
+                merged = await session.merge(model)
+                if not inspect(merged).persistent:
+                    new.add(merged)
+            for model in self._new:
+                merged = await session.merge(model)
+                if inspect(merged).persistent:
+                    await session.delete(merged)
+                else:
+                    session.expunge(merged)
 
-        new: set[BaseSQLModel] = session.info.setdefault('new', set())
-        dirty: set = session.info.setdefault('dirty', set())
+            # Manually add new models to the client cache updates
+            await session.flush()
+            cache: set[BaseSQLModel] = session.info.setdefault('cache', set())
+            for model in new:
+                await session.refresh(model)
+                cache.update([model, *model.get_recursive_parents()])
 
-        return DatabaseMemento(new, dirty)
+            new: set[BaseSQLModel] = session.info.setdefault('new', set())
+            dirty: set = session.info.setdefault('dirty', set())
+
+            await session.commit()
+
+            return DatabaseMemento(new, dirty)
 
 
 async def _yield_async_session(
     request: Request, user: GetUser
 ) -> AsyncGenerator[AsyncSession, None]:
-    async with session_factory() as session:
+    async with session_factory() as session, session.begin():
         # Add this session to Request state so CacheAPIRoute can detect cache changes
         request.state['session'] = session
 
@@ -184,13 +190,14 @@ async def _yield_async_session(
         await session.flush()
 
         # Create a database memento
-        new: Iterable[BaseSQLModel] = session.info.get('new', [])
-        dirty: Iterable[BaseSQLModel] = session.info.get('dirty', [])
-        if new or dirty:
-            memento = DatabaseMemento(new, dirty)
-            user.stage(memento)
+        new: set[BaseSQLModel] = session.info.get('new', set())
+        dirty: set[BaseSQLModel] = session.info.get('dirty', set())
 
         await session.commit()
+
+    if new or dirty:
+        memento = DatabaseMemento(new, dirty)
+        user.stage(memento)
 
 
 GetAsyncSession: TypeAlias = Annotated[
