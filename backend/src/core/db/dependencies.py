@@ -60,23 +60,25 @@ def _take_snapshot(
     # Create a copy of this model
     data: dict[str, Any] = {}
     for col in mapper.column_attrs:
-        # Prevent MissingGreenlet for lazy loaded / deferred columns
+        # Prevent MissingGreenlet for lazy-loaded or deferred columns
         if col.key in state.unloaded:
             val = None
         else:
             history: History = state.attrs[col.key].load_history()
-            val = history.sum()[-1]
-
+            val: Any = history.sum()[-1]
         data[col.key] = val
-    copy = cls(**data)
+    copy: BaseSQLModel = cls(**data)
 
     # Add the copy to the session information cache
     # Dirty models that are already in `new` should not be discarded from `new`
     new: set = session.info.setdefault('new', set())
     dirty: set = session.info.setdefault('dirty', set())
-    if is_insert or copy in new:
+    if is_insert:
         records: set = new
         dirty.discard(copy)
+    elif copy in new:
+        records: set = new
+        new.discard(copy)
     else:
         records: set = dirty
         new.discard(copy)
