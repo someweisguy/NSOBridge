@@ -152,11 +152,11 @@ class DatabaseMemento(Memento):
             # Reset the database state as described in this Memento
             new: set[BaseSQLModel] = set()
             for model in self._dirty:
-                merged = await session.merge(model)
+                merged: BaseSQLModel = await session.merge(model)
                 if not inspect(merged).persistent:
                     new.add(merged)
             for model in self._new:
-                merged = await session.merge(model)
+                merged: BaseSQLModel = await session.merge(model)
                 if inspect(merged).persistent:
                     await session.delete(merged)
                 else:
