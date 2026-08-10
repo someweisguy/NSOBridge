@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Any, Iterable, Literal, TypeAlias, override
+from typing import TYPE_CHECKING, Annotated, Any, Literal, TypeAlias
 
 from fastapi import Depends, Request
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, attributes
-
-from core.app import Memento
-from core.users import GetUser  # noqa: TC001 - FastAPI requires this at runtime
 
 from .constants import session_factory
 from .models import BaseSQLModel
@@ -124,85 +121,15 @@ def _handle_after_flush(session: Session, flush_context: Any) -> None:
         _take_snapshot(session, model, now, 'INSERT')
 
 
-class DatabaseMemento(Memento):
-    """A memento based on database transactions."""
-
-    def __init__(
-        self, new: Iterable[BaseSQLModel], dirty: Iterable[BaseSQLModel]
-    ) -> None:
-        """Initialize a database memento.
-
-        Args:
-            new (Iterable[BaseSQLModel]): a collection of the newly created models in
-            this transaction.
-            dirty (Iterable[BaseSQLModel]): a collection of the updated models in this
-            transaction.
-
-        """
-        self._new: Iterable[BaseSQLModel] = new
-        self._dirty: Iterable[BaseSQLModel] = dirty
-
-    @override
-    async def restore(self, request: Request) -> Memento:
-        if 'session' in request.state:
-            raise ValueError('session already exists')
-        async with session_factory() as session:
-            request.state['session'] = session
-
-            # Reset the database state as described in this Memento
-            new: set[BaseSQLModel] = set()
-            for model in self._dirty:
-                merged: BaseSQLModel = await session.merge(model)
-                if not inspect(merged).persistent:
-                    new.add(merged)
-            for model in self._new:
-                merged: BaseSQLModel = await session.merge(model)
-                if inspect(merged).persistent:
-                    await session.delete(merged)
-                else:
-                    session.expunge(merged)
-
-            # Manually add new models to the client cache updates
-            await session.flush()
-            cache: set[BaseSQLModel] = session.info.setdefault('cache', set())
-            for model in new:
-                await session.refresh(model)
-                cache.update([model, *model.get_recursive_parents()])
-
-            new: set[BaseSQLModel] = session.info.setdefault('new', set())
-            dirty: set = session.info.setdefault('dirty', set())
-
-            await session.commit()
-
-        return DatabaseMemento(new, dirty)
-
-
-async def _yield_async_session(
-    request: Request, user: GetUser
-) -> AsyncGenerator[AsyncSession, None]:
+async def _yield_async_session(request: Request) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session:
         # Add this session to Request state so CacheAPIRoute can detect cache changes
         request.state['session'] = session
-
         yield session
-
-        await session.flush()
-
-        # Create a database memento
-        new: set[BaseSQLModel] = session.info.get('new', set())
-        dirty: set[BaseSQLModel] = session.info.get('dirty', set())
-
         await session.commit()
 
-    if new or dirty:
-        memento = DatabaseMemento(new, dirty)
-        user.stage(memento)
 
-
-GetAsyncSession: TypeAlias = Annotated[
-    AsyncSession,
-    Depends(_yield_async_session, scope='function'),
-]
+GetAsyncSession: TypeAlias = Annotated[AsyncSession, Depends(_yield_async_session)]
 """FastAPI dependency injection which gets a session from the default session factory.
 
 Each new session is auto-committed at the end of each endpoint and client cache keys

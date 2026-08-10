@@ -69,15 +69,14 @@ class CacheAPIRoute(APIRoute):
             super().get_route_handler()
         )
 
-        # FIXME: reusing the database session in this method causes errors
         async def custom_route_handler(request: Request) -> Response:
             transaction_uuid: UUID = uuid4()
             response: Response = await original_route_handler(request)
 
             # Get all of the models that have been updated in this transaction
             cache: list = []
-            if 'session' in request.state:
-                session: AsyncSession = request.state['session']
+            session: AsyncSession | None = request.state.get('session', None)
+            if session is not None:
                 await session.flush()
 
                 # Serialize client cache models

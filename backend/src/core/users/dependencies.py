@@ -3,41 +3,48 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Annotated, Callable, TypeAlias
+from typing import Annotated, AsyncGenerator, Callable, TypeAlias
 from uuid import UUID, uuid4
 
 from fastapi import Cookie, Depends, Request, Response
 
+from core.db import BaseSQLModel, DatabaseMemento, GetAsyncSession
+
 from .types import User
-
-if TYPE_CHECKING:
-    from collections.abc import Generator
-
 
 _users: dict[UUID, User] = {}
 
 
-def _get_user(
+async def _get_user(
     request: Request,
     response: Response,
+    session: GetAsyncSession,
     nso_id: Annotated[UUID | None, Cookie(alias='nsoId')] = None,
-) -> Generator[User, None, None]:
+) -> AsyncGenerator[User, None]:
     # Set a UUID cookie with the browser
     if nso_id is None:
         nso_id = uuid4()
         response.set_cookie('nsoId', str(nso_id))
 
     # Fetch the user context from memory
-    user: User | None = _users.get(nso_id, None)
-    if user is None:
-        user = User()
-        _users[nso_id] = user
+    user: User = _users.setdefault(nso_id, User(session))
+    user.session = session
+    request.scope['user'] = user
 
     try:
         yield user
+        await session.flush()
     except Exception:
         user.unstage()
         raise
+
+    # Create a database memento
+    new: set[BaseSQLModel] = session.info.get('new', set())
+    dirty: set[BaseSQLModel] = session.info.get('dirty', set())
+
+    if new or dirty:
+        memento = DatabaseMemento(new, dirty)
+        user.stage(memento)
 
     # Don't commit when undo/redo is called or when app state hasn't changed
     endpoint_name: str = request.scope['path'].split('/')[-1].lower()

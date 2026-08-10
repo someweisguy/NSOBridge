@@ -4,7 +4,7 @@ from http import HTTPStatus
 from typing import Annotated, TypeAlias
 from uuid import UUID
 
-from core.db import GetAsyncSession
+from core.users import GetUser
 from fastapi import Depends, HTTPException, Query
 from game.bouts.models import BaseBout
 from sqlalchemy import Result, Select, select
@@ -15,7 +15,7 @@ from .models import Jam
 
 
 async def _get_jam(
-    session: GetAsyncSession,
+    user: GetUser,
     bout_uuid: Annotated[UUID, Query(alias='boutUuid')],
     period_num: Annotated[int, Query(alias='periodNum')],
     jam_num: Annotated[int, Query(alias='jamNum')],
@@ -28,7 +28,7 @@ async def _get_jam(
         .where(Jam.period == period_num)
         .where(Jam.num == jam_num)
     )
-    results: Result[tuple[Jam]] = await session.execute(statement)
+    results: Result[tuple[Jam]] = await user.session.execute(statement)
 
     try:
         jam: Jam = results.scalar_one()

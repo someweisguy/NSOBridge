@@ -9,17 +9,20 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Final
 
 if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
+
     from core.app import Memento
 
 
 class User:
     """The User class. Store contextual information about a user."""
 
-    __slots__: tuple[str, ...] = '_staged', 'redo_history', 'undo_history'
+    __slots__: tuple[str, ...] = '_staged', 'redo_history', 'session', 'undo_history'
 
-    def __init__(self) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         """Initialize a User."""
         self._staged: Memento | None = None
+        self.session: AsyncSession = session
         self.undo_history: Final[list[tuple[str, Memento]]] = []
         self.redo_history: Final[list[tuple[str, Memento]]] = []
 

@@ -23,7 +23,7 @@ which may be communicated to clients.
 
 from .constants import CASCADE_CHILD, CASCADE_OTHER, session_factory
 from .dependencies import GetAsyncSession
-from .models import BaseSQLModel, CacheableSQLModel
+from .models import BaseSQLModel, CacheableSQLModel, DatabaseMemento
 from .service import (
     CacheAPIRoute,
     create_tables,
@@ -36,6 +36,7 @@ __all__ = (
     'BaseSQLModel',
     'CacheAPIRoute',
     'CacheableSQLModel',
+    'DatabaseMemento',
     'GetAsyncSession',
     'create_tables',
     'get_database_url',

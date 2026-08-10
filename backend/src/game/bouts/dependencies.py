@@ -4,7 +4,7 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 from uuid import UUID
 
-from core.db import GetAsyncSession
+from core.users import GetUser
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
@@ -16,13 +16,13 @@ if TYPE_CHECKING:
 
 
 async def _get_bout(
-    session: GetAsyncSession,
+    user: GetUser,
     bout_uuid: Annotated[UUID, Query(alias='boutUuid')],
 ) -> BaseBout:
     statement: Select[tuple[BaseBout]] = select(BaseBout).where(
         BaseBout.uuid == bout_uuid
     )
-    results: Result[tuple[BaseBout]] = await session.execute(statement)
+    results: Result[tuple[BaseBout]] = await user.session.execute(statement)
 
     try:
         bout: BaseBout = results.scalar_one()

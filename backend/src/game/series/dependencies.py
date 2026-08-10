@@ -18,11 +18,11 @@ if TYPE_CHECKING:
 
 
 async def _get_series(
-    session: GetAsyncSession,
+    user: GetUser,
     series_uuid: Annotated[UUID, Query(alias='seriesUuid')],
 ) -> Series:
     statement: Select[tuple[Series]] = select(Series).where(Series.uuid == series_uuid)
-    results: Result[tuple[Series]] = await session.execute(statement)
+    results: Result[tuple[Series]] = await user.session.execute(statement)
 
     try:
         series: Series = results.scalar_one()

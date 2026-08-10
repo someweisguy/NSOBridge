@@ -5,14 +5,18 @@ from __future__ import annotations
 from abc import abstractmethod
 from datetime import timedelta
 from math import floor
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any, Iterable, override
 from uuid import UUID  # noqa: TC003 - Make SQLAlchemy happy.
 
+from sqlalchemy import inspect
 from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_object_session
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import Integer, TypeDecorator, TypeEngine
 
+from core.app import Memento
+
 if TYPE_CHECKING:
+    from fastapi import Request
     from sqlalchemy import Dialect
     from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -148,3 +152,51 @@ class CacheableSQLModel(BaseSQLModel):
 
         """
         ...
+
+
+class DatabaseMemento(Memento):
+    """A memento based on database transactions."""
+
+    def __init__(
+        self, new: Iterable[BaseSQLModel], dirty: Iterable[BaseSQLModel]
+    ) -> None:
+        """Initialize a database memento.
+
+        Args:
+            new (Iterable[BaseSQLModel]): a collection of the newly created models in
+            this transaction.
+            dirty (Iterable[BaseSQLModel]): a collection of the updated models in this
+            transaction.
+
+        """
+        self._new: Iterable[BaseSQLModel] = new
+        self._dirty: Iterable[BaseSQLModel] = dirty
+
+    @override
+    async def restore(self, request: Request) -> Memento:
+        session: AsyncSession = request.user.session
+
+        # Reset the database state as described in this Memento
+        new: set[BaseSQLModel] = set()
+        for model in self._dirty:
+            merged: BaseSQLModel = await session.merge(model)
+            if not inspect(merged).persistent:
+                new.add(merged)
+        for model in self._new:
+            merged: BaseSQLModel = await session.merge(model)
+            if inspect(merged).persistent:
+                await session.delete(merged)
+            else:
+                session.expunge(merged)
+
+        # Manually add new models to the client cache updates
+        await session.flush()
+        cache: set[BaseSQLModel] = session.info.setdefault('cache', set())
+        for model in new:
+            await session.refresh(model)
+            cache.update([model, *model.get_recursive_parents()])
+
+        new: set[BaseSQLModel] = session.info.setdefault('new', set())
+        dirty: set = session.info.setdefault('dirty', set())
+
+        return DatabaseMemento(new, dirty)
