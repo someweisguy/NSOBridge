@@ -9,7 +9,14 @@ from fastapi.exceptions import RequestValidationError
 from .constants import timedelta_serializer
 from .router import ASSETS, api_router, pages_router
 from .schemas import ClientSchema, ServerSchema
-from .service import disconnect_all, get_resource_path, register_model, ws
+from .service import (
+    disconnect_all,
+    get_resource_path,
+    get_schema,
+    register_model,
+    send_all,
+    ws,
+)
 from .types import CacheableProtocol, CacheKey, Memento
 from .utils import (
     endpoint_profiling_middleware,
@@ -39,8 +46,10 @@ __all__ = (
     'disconnect_all',
     'endpoint_profiling_middleware',
     'get_resource_path',
+    'get_schema',
     'pages_router',
     'register_model',
+    'send_all',
     'timedelta_serializer',
     'ws',
 )

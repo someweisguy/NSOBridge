@@ -8,8 +8,9 @@ from uuid import UUID, uuid4
 
 from fastapi.routing import APIRoute
 from sqlalchemy import URL, Select, select
+from starlette.background import BackgroundTask
 
-from core.app.service import get_schema
+from core.app import get_schema, send_all
 
 from .models import BaseSQLModel, CacheableSQLModel
 from .schemas import CacheResponseSchema
@@ -98,6 +99,13 @@ class CacheAPIRoute(APIRoute):
             )
             response.body = new_body.model_dump_json().encode('utf-8')
             response.headers['Content-Length'] = str(len(response.body))
+
+            # Queue a background task to send cache updates
+            response.background = BackgroundTask(
+                send_all,
+                message_type='cache',
+                data={'models': cache, 'transactionUuid': transaction_uuid},
+            )
 
             return response
 
