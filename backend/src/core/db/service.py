@@ -75,8 +75,8 @@ class CacheAPIRoute(APIRoute):
 
             # Get all of the models that have been updated in this transaction
             cache: list = []
-            session: AsyncSession | None = request.state.get('session', None)
-            if session is not None:
+            if 'session' in request.state:
+                session: AsyncSession = request.state['session']
                 await session.flush()
 
                 # Serialize client cache models
