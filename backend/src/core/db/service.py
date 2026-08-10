@@ -103,7 +103,7 @@ class CacheAPIRoute(APIRoute):
             # Queue a background task to send cache updates
             response.background = BackgroundTask(
                 send_all,
-                message_type='cache',
+                message_type='cache',  # TODO: use schema
                 data={'models': cache, 'transactionUuid': transaction_uuid},
             )
 
