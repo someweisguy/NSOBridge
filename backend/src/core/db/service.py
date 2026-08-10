@@ -86,7 +86,7 @@ class CacheAPIRoute(APIRoute):
                     cache.append(  # TODO: this should be a schema
                         {
                             'key': model.cache_key(),
-                            'data': schema.model_validate(model),
+                            'value': schema.model_validate(model),
                         }
                     )
 

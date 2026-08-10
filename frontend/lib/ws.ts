@@ -12,7 +12,7 @@ const NUM_SYNC_SAMPLES = 5;
 
 interface API {
   cache: {
-    models: { key: CacheKey; data: unknown }[];
+    models: { key: CacheKey; value: unknown }[];
     transactionUuid: string;
   };
   connect: boolean;
