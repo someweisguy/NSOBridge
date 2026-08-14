@@ -71,6 +71,23 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
         )
     )
 
+    @classmethod
+    def create(cls, period_num: int, jam_num: int, *team_jams: TeamJam) -> Jam:
+        """Create a Jam.
+
+        Args:
+            period_num (int): the Period number of this Jam, zero-indexed.
+            jam_num (int): the Jam number of this Jam, zero-indexed.
+            team_jams (tuple[TeamJam, ...]): the TeamJams that will compete in this Jam.
+
+        Returns:
+            Jam: the created Jam.
+
+        """
+        return Jam(
+            uuid=uuid4(), period=period_num, num=jam_num, team_jams=list(team_jams)
+        )
+
     def __str__(self) -> str:
         """Return a str representation of this Jam.
 
@@ -79,17 +96,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
         """
         return f'P{self.period + 1}-J{self.num + 1} in {self.bout}'
-
-    def __init__(self, period_num: int, jam_num: int, *team_jams: TeamJam) -> None:
-        """Initialize a Jam.
-
-        Args:
-            period_num (int): the Period number of this Jam, zero-indexed.
-            jam_num (int): the Jam number of this Jam, zero-indexed.
-            team_jams (tuple[TeamJam, ...]): the TeamJams that will compete in this Jam.
-
-        """
-        super().__init__(period=period_num, num=jam_num, team_jams=list(team_jams))
 
     @override
     def cache_key(self) -> CacheKey:
@@ -178,7 +184,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
             passes (int): the number of passes the Jammer earned.
 
         """
-        ...
 
     async def set_lead(self, team: Team, timestamp: datetime, lead: bool) -> None:
         """Set the lead Jammer status for the desired Team.
@@ -189,7 +194,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
             lead (bool): True if the Jammer has been declared lead.
 
         """
-        ...
 
     async def set_lost(self, team: Team, timestamp: datetime, lost: bool) -> None:
         """Set the lead eligibility for the desired Team.
@@ -200,7 +204,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
             lost (bool): True if the Jammer has lost lead eligibility.
 
         """
-        ...
 
     async def set_star_pass(
         self, team: Team, timestamp: datetime, star_pass: bool
@@ -213,7 +216,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
             star_pass (bool): True if the star has been successfully passed.
 
         """
-        ...
 
 
 class TeamJam(BaseSQLModel):
@@ -267,7 +269,8 @@ class TeamJam(BaseSQLModel):
         'confirm_deleted_rows': False,  # Make best effort to delete orphaned rows
     }
 
-    def __init__(self, team: Team) -> None:
+    @classmethod
+    def create(cls, team: Team) -> TeamJam:
         """Initialize a TeamJam.
 
         Args:
@@ -278,7 +281,7 @@ class TeamJam(BaseSQLModel):
             ValueError: if the Team and Jam provided are not in the same Bout.
 
         """
-        super().__init__(team=team)
+        return TeamJam(uuid=uuid4(), team=team)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
@@ -338,15 +341,16 @@ class TripEvent(BaseSQLModel):
         CheckConstraint('passes = 0 OR (lead = 0 AND lost = 0 AND star_pass = 0)'),
     )
 
-    def __init__(
-        self,
+    @classmethod
+    def create(
+        cls,
         timestamp: datetime,
         *,
         lead: bool = False,
         lost: bool = False,
         passes: int | None = None,
         star_pass: bool = False,
-    ) -> None:
+    ) -> TripEvent:
         """Initialize a TripEvent.
 
         Args:
@@ -363,7 +367,7 @@ class TripEvent(BaseSQLModel):
             this TripEvent. Defaults to False.
 
         """
-        super().__init__(
+        return TripEvent(
             team_jam=None,
             uuid=uuid4(),  # Required when adding a new TripEvent
             timestamp=timestamp,

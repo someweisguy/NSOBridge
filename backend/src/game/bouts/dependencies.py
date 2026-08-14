@@ -4,9 +4,8 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, TypeAlias
 from uuid import UUID
 
-from core.db import GetAsyncSession
 from core.users import GetUser
-from fastapi import Depends, HTTPException, Query, Request
+from fastapi import Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
@@ -17,15 +16,13 @@ if TYPE_CHECKING:
 
 
 async def _get_bout(
-    request: Request,
     user: GetUser,
-    session: GetAsyncSession,
     bout_uuid: Annotated[UUID, Query(alias='boutUuid')],
 ) -> BaseBout:
     statement: Select[tuple[BaseBout]] = select(BaseBout).where(
         BaseBout.uuid == bout_uuid
     )
-    results: Result[tuple[BaseBout]] = await session.execute(statement)
+    results: Result[tuple[BaseBout]] = await user.session.execute(statement)
 
     try:
         bout: BaseBout = results.scalar_one()
@@ -34,9 +31,6 @@ async def _get_bout(
             HTTPStatus.NOT_FOUND, f'Could not find Bout ({bout_uuid=})'
         ) from e
 
-    # Optionally take a snapshot of the Bout state and return the Bout
-    if request.method != 'GET':
-        user.stage(bout.get_memento())
     return bout
 
 

@@ -57,9 +57,9 @@ localSocket.addCallback("cache", ({ models, transactionUuid }) => {
     // The transaction UUID will automatically be removed after 5 seconds
     localAPI.recentTransactionUuids.delete(transactionUuid);
   }, 5000);
-  for (const { key, data } of models) {
+  for (const { key, value } of models) {
     invalidateCacheParents(key);
-    void queryClient.setQueryData(key, data);
+    void queryClient.setQueryData(key, value);
   }
 });
 

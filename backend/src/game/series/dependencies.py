@@ -18,13 +18,11 @@ if TYPE_CHECKING:
 
 
 async def _get_series(
-    request: Request,
     user: GetUser,
-    session: GetAsyncSession,
     series_uuid: Annotated[UUID, Query(alias='seriesUuid')],
 ) -> Series:
     statement: Select[tuple[Series]] = select(Series).where(Series.uuid == series_uuid)
-    results: Result[tuple[Series]] = await session.execute(statement)
+    results: Result[tuple[Series]] = await user.session.execute(statement)
 
     try:
         series: Series = results.scalar_one()
@@ -33,9 +31,6 @@ async def _get_series(
             HTTPStatus.NOT_FOUND, f'Could not find Series ({series_uuid=})'
         ) from e
 
-    # Optionally take a snapshot of the Bout state and return the Bout
-    if request.method != 'GET':
-        user.stage(series.get_memento())
     return series
 
 
@@ -58,9 +53,6 @@ async def _get_optional_series(
             HTTPStatus.NOT_FOUND, f'Could not find Series ({series_uuid=})'
         ) from e
 
-    # Optionally take a snapshot of the Bout state and return the Bout
-    if request.method != 'GET':
-        user.stage(series.get_memento())
     return series
 
 

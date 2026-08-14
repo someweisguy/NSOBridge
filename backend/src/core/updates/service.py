@@ -72,8 +72,7 @@ def parse_latest_release(github_json: Iterable) -> GithubReleaseSchema:
     for obj in github_json:
         try:
             release = GithubReleaseSchema.model_validate(obj)
-            if release.tag_name.startswith('v'):
-                release.tag_name = release.tag_name[1:]
+            release.tag_name = release.tag_name.removeprefix('v')
             if not release.draft and VersionInfo.is_valid(release.tag_name):
                 releases.append(release)
         except ValidationError:

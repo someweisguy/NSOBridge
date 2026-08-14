@@ -19,8 +19,8 @@ from .service import DOWNLOAD_URL, UPDATE_URL, fetch_release_data, parse_latest_
 
 __all__ = (
     'DOWNLOAD_URL',
+    'UPDATE_URL',
+    'GithubReleaseSchema',
     'fetch_release_data',
     'parse_latest_release',
-    'GithubReleaseSchema',
-    'UPDATE_URL',
 )

@@ -1,4 +1,4 @@
-import { CacheKey } from "@/types/query";
+import { CacheItem } from "@/types/query";
 import queryClient, {
   invalidateCacheParents as updateCachedGameData,
 } from "./cache";
@@ -11,7 +11,7 @@ interface URLParameters {
 interface APIResponse<T = unknown> {
   statusCode: number;
   data: T;
-  cache?: { key: CacheKey; data: object }[];
+  cache?: CacheItem[];
   error?: {
     type: string;
     message: string;
@@ -81,9 +81,9 @@ export default class API {
       this.recentTransactionUuids.delete(payload.transactionUuid);
     }, 5000);
     if (payload.cache != null) {
-      for (const { key, data } of payload.cache) {
+      for (const { key, value } of payload.cache) {
         updateCachedGameData(key);
-        void queryClient.setQueryData(key, data);
+        void queryClient.setQueryData(key, value);
       }
     }
 

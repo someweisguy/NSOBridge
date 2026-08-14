@@ -37,12 +37,12 @@ class Bout(BaseBout):
 
     @override
     def setup(self) -> None:
-        logging.info(f'Instantiating a Bout using the {self.ruleset.name} ruleset.')
+        logging.info(f'Setting up {self} using the {self.ruleset.name} ruleset.')
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:
             team.timeouts_remaining = self.ruleset.num_timeouts
             team.reviews_remaining = self.ruleset.num_reviews
-        jam: Jam = Jam(0, 0, *[TeamJam(team) for team in self.teams])
+        jam: Jam = Jam.create(0, 0, *[TeamJam.create(team) for team in self.teams])
         self.jams.append(jam)
 
     @override
@@ -142,7 +142,9 @@ class Bout(BaseBout):
 
         # Push a new Jam to allow users to prefetch it
         self.jams.append(
-            Jam(jam.period, jam.num + 1, *[TeamJam(team) for team in self.teams])
+            Jam.create(
+                jam.period, jam.num + 1, *[TeamJam.create(team) for team in self.teams]
+            )
         )
 
     @override
@@ -182,7 +184,7 @@ class Bout(BaseBout):
             )
 
         # Instantiate the Timeout
-        timeout: Timeout = Timeout(self.get_active_jam(), len(self.timeouts))
+        timeout: Timeout = Timeout.create(self.get_active_jam(), len(self.timeouts))
         timeout.clock_elapsed = self.clock.get_duration(timestamp)
 
         logging.info(f'Calling {timeout}')
@@ -230,7 +232,7 @@ class Bout(BaseBout):
         if is_initial:
             logging.info(f'This is the initial pass for {team}')
 
-        event: TripEvent = TripEvent(timestamp, passes=passes)
+        event: TripEvent = TripEvent.create(timestamp, passes=passes)
 
         # Automatically set lead on the first 4-point trip
         if not jam.lead_is_declared() and passes == self.ruleset.points_per_trip:
@@ -259,7 +261,7 @@ class Bout(BaseBout):
                 raise HTTPException(
                     HTTPStatus.CONFLICT, 'A lead jammer has already been declared'
                 )
-            event: TripEvent = TripEvent(timestamp, lead=lead)
+            event: TripEvent = TripEvent.create(timestamp, lead=lead)
             team_jam.events.append(event)
         else:
             for event in team_jam.events:
@@ -282,7 +284,7 @@ class Bout(BaseBout):
                 raise HTTPException(
                     HTTPStatus.CONFLICT, 'This team has already lost lead eligibility'
                 )
-            event: TripEvent = TripEvent(timestamp, lost=lost)
+            event: TripEvent = TripEvent.create(timestamp, lost=lost)
             team_jam.events.append(event)
         else:
             for event in team_jam.events:
@@ -305,7 +307,7 @@ class Bout(BaseBout):
                     HTTPStatus.CONFLICT,
                     'This team has already completed a star pass in this Jam',
                 )
-            event: TripEvent = TripEvent(timestamp, star_pass=star_pass)
+            event: TripEvent = TripEvent.create(timestamp, star_pass=star_pass)
             if not any(event.lost for event in team_jam.events):
                 event.lost = True  # Removing the star makes one ineligible for Lead
             team_jam.events.append(event)

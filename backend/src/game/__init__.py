@@ -51,8 +51,8 @@ for _, module_name, _ in pkgutil.iter_modules(
 
 __all__ = (
     'BaseBout',
-    'create_bout',
-    'routers',
     'Series',
     'Team',
+    'create_bout',
+    'routers',
 )

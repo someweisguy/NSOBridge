@@ -4,9 +4,9 @@ import logging
 from http import HTTPStatus
 from typing import Final
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
-from core.app import CacheSchema
+from core.db import CacheAPIRoute
 
 from .dependencies import GetUser
 from .schemas import HistorySchema
@@ -14,27 +14,33 @@ from .schemas import HistorySchema
 HISTORY_TAG = 'History'
 
 
-router: Final[APIRouter] = APIRouter(tags=[HISTORY_TAG])
+router: Final[APIRouter] = APIRouter(route_class=CacheAPIRoute, tags=[HISTORY_TAG])
 
 
-@router.post('/undo', response_model=CacheSchema)
-async def _undo(user: GetUser) -> dict:
+@router.post('/undo')
+async def _undo(request: Request, user: GetUser) -> None:
     """Undo the last command that this user executed."""
-    logging.info('User is undoing their last transaction')
     if len(user.undo_history) == 0:
         raise HTTPException(HTTPStatus.CONFLICT, 'There is nothing left to undo')
-    cache = await user.undo()
-    return {'data': None, 'cache': cache}
+
+    message, memento = user.undo_history.pop()
+    logging.info(f'User is undoing `{message}`')
+
+    memento = await memento.restore(request)
+    user.redo_history.append((message, memento))
 
 
-@router.post('/redo', response_model=CacheSchema)
-async def _redo(user: GetUser) -> dict:
+@router.post('/redo')
+async def _redo(request: Request, user: GetUser) -> None:
     """Redo the last command that this user executed."""
-    logging.info('User is redoing their last transaction')
     if len(user.redo_history) == 0:
         raise HTTPException(HTTPStatus.CONFLICT, 'There is nothing left to redo')
-    cache = await user.redo()
-    return {'data': None, 'cache': cache}
+
+    message, memento = user.redo_history.pop()
+    logging.info(f'User is redoing `{message}`')
+
+    memento = await memento.restore(request)
+    user.undo_history.append((message, memento))
 
 
 @router.get('/history')
