@@ -13,6 +13,15 @@ import {
 export type CacheKey = [string, ...unknown[]];
 
 /**
+ * A cache item received from the server. Contains the value of the item as well
+ * as its cache key.
+ */
+export interface CacheItem {
+  key: CacheKey;
+  value: unknown;
+}
+
+/**
  * Suspense query options used in hooks throughout this app. This type is based on
  * Tanstack Query's useSuspenseQuery object. The query key and query function are
  * provided in built-in hooks so they are omitted from this type.

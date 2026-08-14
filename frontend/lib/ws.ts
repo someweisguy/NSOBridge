@@ -1,4 +1,4 @@
-import { CacheKey } from "@/types/query";
+import { CacheItem, CacheKey } from "@/types/query";
 import { ServerData, SyncData } from "@/types/ws";
 
 type CallbackType<T = unknown> = (data: T) => void;
@@ -12,7 +12,7 @@ const NUM_SYNC_SAMPLES = 5;
 
 interface API {
   cache: {
-    models: { key: CacheKey; value: unknown }[];
+    models: CacheItem[];
     transactionUuid: string;
   };
   connect: boolean;

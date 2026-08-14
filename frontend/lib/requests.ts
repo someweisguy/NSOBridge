@@ -1,4 +1,4 @@
-import { CacheKey } from "@/types/query";
+import { CacheItem } from "@/types/query";
 import queryClient, {
   invalidateCacheParents as updateCachedGameData,
 } from "./cache";
@@ -11,7 +11,7 @@ interface URLParameters {
 interface APIResponse<T = unknown> {
   statusCode: number;
   data: T;
-  cache?: { key: CacheKey; value: object }[]; // TODO: This should be a type
+  cache?: CacheItem[];
   error?: {
     type: string;
     message: string;
