@@ -26,7 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from uvicorn import Server
 from websockets import CloseCode
 
-APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 2, 3)
+APP_VERSION_INFO: Final[VersionInfo] = VersionInfo(0, 3, 0)
 CONFIG_FILE_NAME: Path = core.app.get_resource_path('./config.ini')
 LOG_DIR_NAME: Path = core.app.get_resource_path('./logs')
 API_PREFIX: str = '/api'
