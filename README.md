@@ -14,7 +14,7 @@ Click your operating system below to download the latest version of NSO Bridge:
 - **[macOS (Apple)](https://github.com/someweisguy/NSOBridge/releases/latest/download/nsobridge-macos-26.zip)**
 - **[macOS (Intel)](https://github.com/someweisguy/NSOBridge/releases/latest/download/nsobridge-macos-26-intel.zip)**
 
-If you would prefer to run the server from the command-line, see the [command-line interface section](#command-line-interface) below.
+Tutorials and more information about how to use NSO Bridge can be found on [the wiki][Wiki].
 
 ## Differences from CRG Derby Scoreboard
 
@@ -30,7 +30,9 @@ The backend server is provided a GUI written in [PySide6][PySide6]. This app is 
 
 ### Contributing
 
-Everything in this app was created and reviewed by a human being. The code is heavily documented to ensure that it is maintainable and easy to make contributions. If you'd like to contribute to this app, more information and guides can be found in the [NSO Bridge wiki](https://github.com/someweisguy/NSOBridge/wiki).
+Everything in this app was created by a human being. The use of AI in this project is not permitted.
+
+The code is heavily documented to ensure that it is maintainable and easy to make contributions. If you'd like to contribute to this app, more information and guides can be found in the [NSO Bridge wiki][Wiki].
 
 ### Command-Line Interface
 
@@ -55,3 +57,4 @@ After all the required packages have been installed and the frontend has been bu
 [PySide6]: https://pypi.org/project/PySide6/
 [PyInstaller]: https://pyinstaller.org/en/stable/
 [Storybook]: https://storybook.js.org/
+[Wiki]: https://github.com/someweisguy/NSOBridge/wiki
