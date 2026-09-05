@@ -289,7 +289,7 @@ async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> BaseBout
 
 @router.put(path='/teamTimeoutsRemaining', response_model=BoutSchema)
 async def put_team_timeouts(
-    team: GetTeam, num_timeouts: Annotated[int, Body()]
+    team: GetTeam, num_timeouts: Annotated[int, Body(alias='numTimeouts')]
 ) -> BaseBout:
     """Set the number of remaining Timeouts that a Team has."""
     if team.bout is None:
@@ -313,7 +313,7 @@ async def put_team_timeouts(
 
 @router.put(path='/teamReviewsRemaining', response_model=BoutSchema)
 async def put_team_reviews(
-    team: GetTeam, num_reviews: Annotated[int, Body()]
+    team: GetTeam, num_reviews: Annotated[int, Body(alias='numReviews')]
 ) -> BaseBout:
     """Set the number of remaining Official Reviews that a Team has."""
     if team.bout is None:
