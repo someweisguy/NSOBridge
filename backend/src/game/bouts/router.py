@@ -99,7 +99,7 @@ async def delete_bout(session: GetAsyncSession, bout: GetBout) -> None:
             series.active_bout = next(b for b in series.bouts if b is not bout)
         else:
             raise HTTPException(
-                status_code=HTTPStatus.CONFLICT,
+                status_code=HTTPStatus.BAD_REQUEST,
                 detail='At least one Bout is required in every Series',
             )
     series.bouts.remove(bout)
