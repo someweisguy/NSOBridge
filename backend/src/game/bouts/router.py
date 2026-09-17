@@ -99,7 +99,7 @@ async def delete_bout(session: GetAsyncSession, bout: GetBout) -> None:
             series.active_bout = next(b for b in series.bouts if b is not bout)
         else:
             raise HTTPException(
-                status_code=HTTPStatus.CONFLICT,
+                status_code=HTTPStatus.BAD_REQUEST,
                 detail='At least one Bout is required in every Series',
             )
     series.bouts.remove(bout)
@@ -284,6 +284,54 @@ async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> BaseBout
             detail='Bout relationship has not been defined',
         )
     team.name = name
+    return team.bout
+
+
+@router.put(path='/teamTimeoutsRemaining', response_model=BoutSchema)
+async def put_team_timeouts(
+    team: GetTeam, num_timeouts: Annotated[int, Body(alias='numTimeouts')]
+) -> BaseBout:
+    """Set the number of remaining Timeouts that a Team has."""
+    if team.bout is None:
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail='Bout relationship has not been defined',
+        )
+    if num_timeouts < 0:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Teams must have at least zero timeouts',
+        )
+    if num_timeouts > team.bout.ruleset.num_timeouts:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=f'This team may only have {team.bout.ruleset.num_timeouts} timeouts',
+        )
+    team.timeouts_remaining = num_timeouts
+    return team.bout
+
+
+@router.put(path='/teamReviewsRemaining', response_model=BoutSchema)
+async def put_team_reviews(
+    team: GetTeam, num_reviews: Annotated[int, Body(alias='numReviews')]
+) -> BaseBout:
+    """Set the number of remaining Official Reviews that a Team has."""
+    if team.bout is None:
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail='Bout relationship has not been defined',
+        )
+    if num_reviews < 0:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Teams must have at least zero reviews',
+        )
+    if num_reviews > team.bout.ruleset.num_timeouts:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=f'This team may only have {team.bout.ruleset.num_reviews} reviews',
+        )
+    team.reviews_remaining = num_reviews
     return team.bout
 
 
