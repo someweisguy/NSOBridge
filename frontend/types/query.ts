@@ -36,8 +36,8 @@ export type AppSuspenseQueryOptions<T = unknown, D = T> = Omit<
  * Query's useQuery object. The query key and query function are provided in built-in
  * hooks so they are omitted from this type.
  */
-export type AppQueryOptions<T> = Omit<
-  UseQueryOptions<T, Error, T>,
+export type AppQueryOptions<T, D = T> = Omit<
+  UseQueryOptions<T, Error, D>,
   "queryKey" | "queryFn"
 >;
 
