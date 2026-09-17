@@ -11,6 +11,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     name: "Home",
+    timeoutsRemaining: 3,
+    reviewsRemaining: 1,
   },
 };
 
