@@ -91,6 +91,7 @@ const eventNames: Record<BoutSubStateString, string> = {
  * This page should be designed to fit within a viewport that is 1280px by 585px.
  */
 export default function Operator() {
+  // TODO: Simplify this function
   const { data: activeSeries, refetch: refetchAllSeries } =
     useSuspenseGetAllSeries({
       select: (allSeries: Series[]) => allSeries[allSeries.length - 1],
