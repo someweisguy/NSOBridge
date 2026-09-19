@@ -1,6 +1,5 @@
 import { useDeleteBout } from "@/features/bouts/hooks/use-delete-bout";
-import { Team } from "@/types/bout";
-import { Clock } from "@/types/time";
+import { Bout, Team } from "@/types/bout";
 import { Button, Menu, Modal, useModalsStack } from "@mantine/core";
 import {
   IconPencil,
@@ -12,28 +11,27 @@ import BoutClockEditor from "./bout-clock-editor";
 import TeamEditor from "./team-editor";
 
 interface EditMenuProps {
-  uuid: string;
-  clock: Clock;
-  teams: Team[];
+  bout: Bout | null;
 }
 
-export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
+export default function BoutEditor({ bout }: EditMenuProps) {
   const modalStack = useModalsStack([
     "bout",
     "clock",
     "officials",
-    ...teams.map((team: Team) => "team-" + team.num),
     "jams",
     "timeouts",
     "penalties",
+    ...(bout ?? { teams: [] }).teams.map((team: Team) => "team-" + team.num),
   ]);
 
-  const deleteBout = useDeleteBout({ boutUuid: uuid });
+  const deleteBout = useDeleteBout({ boutUuid: bout?.uuid ?? "" });
 
   return (
-    <Menu withArrow shadow="md" width={200}>
+    <Menu withArrow shadow="md" width={200} disabled={bout == null}>
       <Menu.Target>
         <Button
+          disabled={bout == null}
           size="xs"
           variant="default"
           justify="space-between"
@@ -69,7 +67,7 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
             <Menu.Item disabled onClick={() => modalStack.open("officials")}>
               Officials
             </Menu.Item> */}
-            {teams.map((team: Team) => (
+            {bout?.teams.map((team: Team) => (
               <Menu.Item
                 key={team.num}
                 onClick={() => modalStack.open("team-" + team.num)}
@@ -116,19 +114,19 @@ export default function EditMenu({ uuid, clock, teams }: EditMenuProps) {
         <Modal title="Edit Bout Information" {...modalStack.register("bout")}>
           Edit Bout...
         </Modal>
-        {teams.map((team: Team) => (
+        {bout?.teams.map((team: Team) => (
           <Modal
             key={team.num}
             title={"Edit " + team.name}
             {...modalStack.register("team-" + team.num)}
           >
-            <TeamEditor boutUuid={uuid} {...team} />
+            <TeamEditor boutUuid={bout?.uuid ?? ""} {...team} />
           </Modal>
         ))}
         <Modal title="Edit Period Clock" {...modalStack.register("clock")}>
           <BoutClockEditor
-            boutUuid={uuid}
-            isRunning={clock.startTimestamp != null}
+            boutUuid={bout?.uuid ?? ""}
+            isRunning={bout?.clock.startTimestamp != null}
           />
         </Modal>
       </Modal.Stack>
