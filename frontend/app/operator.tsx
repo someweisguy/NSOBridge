@@ -94,11 +94,13 @@ function useSeriesPicker(): [
   );
 
   useEffect(() => {
-    if (Number(allSeries?.length) > 0 && activeSeries == null) {
+    if (allSeries != null && allSeries.length > 0 && activeSeries == null) {
       // Set the default active Series
+      setActiveSeries(allSeries[0]);
+    }
+    if (!allSeries?.some((s: Series) => s.uuid == activeSeries?.uuid)) {
+      // Handle situation where active Series was deleted.
       setActiveSeries(allSeries![0]);
-    } else {
-      // TODO: Handle situation where the Series was deleted
     }
   }, [allSeries, activeSeries]);
 
@@ -135,19 +137,12 @@ function useBoutPicker(
   const [activeBout, setActiveBout] = useState<Bout | undefined>(undefined);
 
   useEffect(() => {
-    if (Number(bouts?.length) > 0 && activeBout == null) {
+    if (bouts != null && bouts.length > 0 && activeBout == null) {
       // Set the default active Bout
       const bout = bouts.find(
-        (value: Bout) => value?.uuid == series?.activeBoutUuid,
+        (bout: Bout) => bout?.uuid == series?.activeBoutUuid,
       );
-      if (bout != null) {
-        setActiveBout(bout);
-      } else {
-        // An error has occurred - the active Bout is not in the Series
-        console.log("Bout not in Series");
-        console.log(series);
-        // TODO: Error handling
-      }
+      setActiveBout(bout ?? bouts[0]);
     } else {
       // TODO: Handle situation where the Series was deleted
     }
