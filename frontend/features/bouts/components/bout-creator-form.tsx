@@ -11,7 +11,7 @@ interface BoutCreatorProps {
   onSuccess?: (newBout: Bout) => void;
 }
 
-export default function BoutCreator({
+export default function BoutCreatorForm({
   series,
   rulesets,
   onSuccess,
@@ -32,7 +32,7 @@ export default function BoutCreator({
 
   const createBout = useCreateBout({
     rulesetName: rulesetName!,
-    series: series!,
+    seriesUuid: series?.uuid ?? "",
     onSuccess,
   });
 

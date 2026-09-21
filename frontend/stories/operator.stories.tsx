@@ -1,4 +1,4 @@
-import Operator from "@/app/operator";
+import OperatorPage from "@/app/operator";
 import { Bout } from "@/types/bout";
 import { Jam } from "@/types/jam";
 import { Timeout } from "@/types/timeout";
@@ -177,7 +177,7 @@ const timeout: Timeout = {
 };
 
 const meta: Meta = {
-  component: Operator,
+  component: OperatorPage,
   title: "Pages/Operator",
   globals: {
     viewport: {

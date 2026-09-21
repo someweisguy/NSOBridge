@@ -1,6 +1,6 @@
 import PageShell from "@/components/page-shell";
 import ResponsiveScroller from "@/components/responsive-scroller";
-import BoutCreator from "@/features/bouts/components/bout-creator";
+import BoutCreatorForm from "@/features/bouts/components/bout-creator-form";
 import EventClock from "@/features/bouts/components/event-clock";
 import GameClock from "@/features/bouts/components/game-clock";
 import TeamScore from "@/features/bouts/components/team-score";
@@ -11,6 +11,10 @@ import useLatestJamUri from "@/features/bouts/hooks/use-latest-jam-uri";
 import useLatestTimeoutUri from "@/features/bouts/hooks/use-latest-timeout-uri";
 import JammerTrip from "@/features/jams/components/jammer-trip";
 import { useJam, useSuspenseJam } from "@/features/jams/hooks/use-jam";
+import BoutCreator from "@/features/new-operator/components/bout-creator";
+import BoutPicker from "@/features/new-operator/components/bout-picker";
+import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
+import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
 import BoutControl from "@/features/operator/components/bout-control";
 import BoutEditor from "@/features/operator/components/bout-editor";
 import EndBoutControl from "@/features/operator/components/end-bout-control";
@@ -20,19 +24,19 @@ import JamStopReasonEditor from "@/features/operator/components/stop-reason-edit
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
-import { useGetAllSeries, useSuspenseGetAllSeries } from "@/hooks/use-series";
+import { useSuspenseGetAllSeries } from "@/hooks/use-series";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
 import { Bout, BoutSubStateString, Team } from "@/types/bout";
 import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
-import { Ruleset } from "@/types/ruleset";
 import { Series } from "@/types/series";
 import { boutKeys } from "@/utils/query-keys";
 import { isRunning } from "@/utils/time";
 import {
   ActionIcon,
   AppShell,
+  AppShellProps,
   Box,
   Burger,
   Button,
@@ -44,8 +48,8 @@ import {
   Group,
   Modal,
   Select,
-  SelectProps,
   Stack,
+  Text,
   Title,
   Tooltip,
 } from "@mantine/core";
@@ -53,7 +57,7 @@ import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { IconExternalLink, IconPlus } from "@tabler/icons-react";
 import { useQueries, UseQueryResult } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
@@ -63,7 +67,7 @@ if (root != null) {
   document.title = "NSO Bridge";
   createRoot(root).render(
     <AppProvider>
-      <Operator />
+      <OperatorPage />
     </AppProvider>,
   );
 }
@@ -83,156 +87,27 @@ const eventNames: Record<BoutSubStateString, string> = {
   final: "Final",
 };
 
-function useSeriesPicker(): [
-  Series | undefined,
-  (series: Series) => void,
-  Series[] | undefined,
-] {
-  const { data: allSeries } = useGetAllSeries();
-  const [activeSeries, setActiveSeries] = useState<Series | undefined>(
-    undefined,
-  );
+const appShellConfig = (disclosure: boolean): AppShellProps => ({
+  layout: "alt",
+  header: { height: 60 },
+  footer: { height: 60 },
+  navbar: { width: 300, breakpoint: "sm", collapsed: { mobile: !disclosure } },
+  aside: {
+    width: 300,
+    breakpoint: "md",
+    collapsed: { desktop: false, mobile: true },
+  },
+  padding: "md",
+});
 
-  useEffect(() => {
-    if (allSeries != null && allSeries.length > 0 && activeSeries == null) {
-      // Set the default active Series
-      setActiveSeries(allSeries[0]);
-    }
-    if (!allSeries?.some((s: Series) => s.uuid == activeSeries?.uuid)) {
-      // Handle situation where active Series was deleted.
-      setActiveSeries(allSeries![0]);
-    }
-  }, [allSeries, activeSeries]);
-
-  const setActiveSeriesNotNull = useCallback(
-    (series: Series) => setActiveSeries(series),
-    [],
-  );
-
-  return [activeSeries, setActiveSeriesNotNull, allSeries];
-}
-
-function useBoutPicker(
-  series: Series | undefined,
-): [Bout | undefined, (bout: Bout) => void, Bout[] | undefined] {
-  const bouts = useQueries({
-    queries:
-      series?.boutUuids.map((boutUuid: string) => ({
-        queryKey: boutKeys.one(boutUuid),
-        queryFn: () =>
-          localAPI.get<Bout>("bout", {
-            query: { boutUuid },
-          }),
-        enabled: series != null,
-      })) ?? [],
-    combine: useCallback(
-      (results: UseQueryResult<Bout, Error>[]) =>
-        results
-          .filter((result) => result.data != null)
-          .map((result) => result.data),
-      [],
-    ),
-  });
-
-  const [activeBout, setActiveBout] = useState<Bout | undefined>(undefined);
-
-  useEffect(() => {
-    if (bouts != null && bouts.length > 0 && activeBout == null) {
-      // Set the default active Bout
-      const bout = bouts.find(
-        (bout: Bout) => bout?.uuid == series?.activeBoutUuid,
-      );
-      setActiveBout(bout ?? bouts[0]);
-    } else {
-      // TODO: Handle situation where the Series was deleted
-    }
-  }, [bouts, activeBout, series]);
-
-  useEffect(() => {
-    // TODO: Handle situation where the series changes
-    setActiveBout(undefined);
-  }, [series]);
-
-  const setActiveBoutNotNull = useCallback(
-    (bout: Bout) => setActiveBout(bout),
-    [],
-  );
-
-  return [activeBout, setActiveBoutNotNull, bouts];
-}
-
-function BoutPicker({
-  activeBout,
-  bouts,
-  onChange,
-  ...props
-}: {
-  activeBout: Bout | undefined;
-  bouts: Bout[] | undefined;
-  onChange: (bout: Bout) => void;
-} & Omit<SelectProps, "data" | "loading" | "value" | "onChange">) {
-  return (
-    <Select
-      data={
-        bouts
-          ?.filter((b) => b != null)
-          .map((b) => ({
-            value: b.uuid,
-            label: b.teams.map((t) => t.name).join(" vs. "),
-          })) ?? []
-      }
-      value={activeBout?.uuid}
-      allowDeselect={false}
-      onChange={(boutUuid: string | null) => {
-        const bout: Bout | undefined = bouts?.find(
-          (bout: Bout) => bout.uuid == boutUuid,
-        );
-        if (bout != null) {
-          onChange(bout);
-        }
-      }}
-      loading={activeBout == null || bouts?.length == 0}
-      {...props}
-    />
-  );
-}
-
-function BoutCreatorButton({
-  activeSeries,
-  rulesets,
-  onSuccess,
-}: {
-  activeSeries: Series | undefined;
-  rulesets: Ruleset[] | undefined;
-  onSuccess?: (bout: Bout) => void;
-}) {
-  const [opened, { open, close }] = useDisclosure(false);
-
-  return (
-    <>
-      <Tooltip withArrow fz="xs" label="Create a Bout">
-        <ActionIcon variant="light" onClick={open}>
-          <IconPlus size={16} />
-        </ActionIcon>
-      </Tooltip>
-      <Modal title="Create New Bout" opened={opened} onClose={close}>
-        <BoutCreator
-          rulesets={rulesets}
-          series={activeSeries}
-          onSuccess={(bout: Bout) => {
-            activeSeries?.boutUuids.push(bout.uuid);
-            if (onSuccess != null) {
-              onSuccess(bout);
-            }
-            close();
-          }}
-        />
-      </Modal>
-    </>
-  );
-}
-
-export default function Operator() {
+/**
+ * Display the main scoreboard operator page. This page is used to enter data into the
+ * server to run the majority of the game. It serves controls to start and stop the Bout
+ * edit the score, call Timeouts, and edit Lineups.
+ *
+ * This page should be designed to fit within a viewport that is 1280px by 585px.
+ */
+export default function OperatorPage() {
   const [opened, { toggle }] = useDisclosure();
 
   const [activeSeries] = useSeriesPicker();
@@ -240,18 +115,7 @@ export default function Operator() {
   const { data: rulesets } = useGetAllRulesets();
 
   return (
-    <AppShell
-      layout="alt"
-      header={{ height: 60 }}
-      footer={{ height: 60 }}
-      navbar={{ width: 300, breakpoint: "sm", collapsed: { mobile: !opened } }}
-      aside={{
-        width: 300,
-        breakpoint: "md",
-        collapsed: { desktop: false, mobile: true },
-      }}
-      padding="md"
-    >
+    <AppShell {...appShellConfig(opened)}>
       <AppShell.Header>
         <Group h="100%" px="md">
           <BoutPicker
@@ -259,11 +123,11 @@ export default function Operator() {
             activeBout={activeBout}
             onChange={setActiveBout}
           />
-          <BoutCreatorButton
+          <BoutCreator
             rulesets={rulesets}
             activeSeries={activeSeries}
-            onSuccess={(bout) => {
-              setActiveBout(bout);
+            onSuccess={(bout: Bout) => {
+              setActiveBout(bout); // FIXME: Throwing errors
             }}
           />
           <BoutEditor bout={activeBout} />
@@ -274,18 +138,15 @@ export default function Operator() {
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
         </Group>
       </AppShell.Navbar>
-      <AppShell.Main></AppShell.Main>
+      <AppShell.Main>
+        <Suspense fallback={<Text>Loading...</Text>}>
+          {/* TODO: Add Main Operator Interface */}
+        </Suspense>
+      </AppShell.Main>
     </AppShell>
   );
 }
 
-/**
- * Display the main scoreboard operator page. This page is used to enter data into the
- * server to run the majority of the game. It serves controls to start and stop the Bout
- * edit the score, call Timeouts, and edit Lineups.
- *
- * This page should be designed to fit within a viewport that is 1280px by 585px.
- */
 export function Operator2() {
   // TODO: Simplify this function
   const { data: activeSeries, refetch: refetchAllSeries } =
@@ -491,7 +352,7 @@ export function Operator2() {
       }
     >
       <Modal title="Create New Bout" opened={opened} onClose={close}>
-        <BoutCreator
+        <BoutCreatorForm
           rulesets={[]}
           series={activeSeries}
           onSuccess={(newBout: Bout) => {

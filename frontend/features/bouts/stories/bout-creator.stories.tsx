@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import BoutCreator from "../components/bout-creator";
+import BoutCreatorForm from "../components/bout-creator-form";
 
 const meta: Meta = {
-  component: BoutCreator,
+  component: BoutCreatorForm,
   title: "Bout Creator",
 };
 
