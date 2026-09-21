@@ -11,7 +11,7 @@ import BoutClockEditor from "./bout-clock-editor";
 import TeamEditor from "./team-editor";
 
 interface EditMenuProps {
-  bout: Bout | null;
+  bout: Bout | undefined;
 }
 
 export default function BoutEditor({ bout }: EditMenuProps) {

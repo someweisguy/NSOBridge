@@ -19,11 +19,7 @@ import JammerTripControl from "@/features/operator/components/jammer-trip-contro
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
-import {
-  useGetAllRulesets,
-  useSuspenseGetAllRulesets,
-  useSuspenseGetRuleset,
-} from "@/hooks/use-ruleset";
+import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import { useGetAllSeries, useSuspenseGetAllSeries } from "@/hooks/use-series";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
@@ -88,12 +84,14 @@ const eventNames: Record<BoutSubStateString, string> = {
 };
 
 function useSeriesPicker(): [
-  Series | null,
+  Series | undefined,
   (series: Series) => void,
   Series[] | undefined,
 ] {
   const { data: allSeries } = useGetAllSeries();
-  const [activeSeries, setActiveSeries] = useState<Series | null>(null);
+  const [activeSeries, setActiveSeries] = useState<Series | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     if (Number(allSeries?.length) > 0 && activeSeries == null) {
@@ -113,8 +111,8 @@ function useSeriesPicker(): [
 }
 
 function useBoutPicker(
-  series: Series | null,
-): [Bout | null, (bout: Bout) => void, Bout[] | undefined] {
+  series: Series | undefined,
+): [Bout | undefined, (bout: Bout) => void, Bout[] | undefined] {
   const bouts = useQueries({
     queries:
       series?.boutUuids.map((boutUuid: string) => ({
@@ -134,11 +132,11 @@ function useBoutPicker(
     ),
   });
 
-  const [activeBout, setActiveBout] = useState<Bout | null>(null);
+  const [activeBout, setActiveBout] = useState<Bout | undefined>(undefined);
 
   useEffect(() => {
     if (Number(bouts?.length) > 0 && activeBout == null) {
-      // Set the default active Series
+      // Set the default active Bout
       const bout = bouts.find(
         (value: Bout) => value?.uuid == series?.activeBoutUuid,
       );
@@ -146,6 +144,8 @@ function useBoutPicker(
         setActiveBout(bout);
       } else {
         // An error has occurred - the active Bout is not in the Series
+        console.log("Bout not in Series");
+        console.log(series);
         // TODO: Error handling
       }
     } else {
@@ -155,7 +155,7 @@ function useBoutPicker(
 
   useEffect(() => {
     // TODO: Handle situation where the series changes
-    setActiveBout(null);
+    setActiveBout(undefined);
   }, [series]);
 
   const setActiveBoutNotNull = useCallback(
@@ -172,7 +172,7 @@ function BoutPicker({
   onChange,
   ...props
 }: {
-  activeBout: Bout | null;
+  activeBout: Bout | undefined;
   bouts: Bout[] | undefined;
   onChange: (bout: Bout) => void;
 } & Omit<SelectProps, "data" | "loading" | "value" | "onChange">) {
@@ -207,7 +207,7 @@ function BoutCreatorButton({
   rulesets,
   onSuccess,
 }: {
-  activeSeries: Series | null;
+  activeSeries: Series | undefined;
   rulesets: Ruleset[] | undefined;
   onSuccess?: (bout: Bout) => void;
 }) {
@@ -222,9 +222,10 @@ function BoutCreatorButton({
       </Tooltip>
       <Modal title="Create New Bout" opened={opened} onClose={close}>
         <BoutCreator
-          rulesetNames={rulesets?.map((ruleset: Ruleset) => ruleset.name) ?? []}
-          seriesUuid={activeSeries?.uuid ?? ""}
+          rulesets={rulesets}
+          series={activeSeries}
           onSuccess={(bout: Bout) => {
+            activeSeries?.boutUuids.push(bout.uuid);
             if (onSuccess != null) {
               onSuccess(bout);
             }
@@ -314,10 +315,10 @@ export function Operator2() {
     ),
   });
 
-  const { data: allRulesetNames } = useSuspenseGetAllRulesets({
-    select: (rulesets: Ruleset[]) =>
-      rulesets.map((ruleset: Ruleset) => ruleset.name),
-  });
+  // const { data: allRulesetNames } = useSuspenseGetAllRulesets({
+  //   select: (rulesets: Ruleset[]) =>
+  //     rulesets.map((ruleset: Ruleset) => ruleset.name),
+  // });
 
   const [boutUri, setBoutUri] = useState<BoutUri>({
     boutUuid: activeSeries.activeBoutUuid,
@@ -496,8 +497,8 @@ export function Operator2() {
     >
       <Modal title="Create New Bout" opened={opened} onClose={close}>
         <BoutCreator
-          rulesetNames={allRulesetNames}
-          seriesUuid={activeSeries.uuid}
+          rulesets={[]}
+          series={activeSeries}
           onSuccess={(newBout: Bout) => {
             void refetchAllSeries({ cancelRefetch: false }).then(() => {
               setBoutUri({ boutUuid: newBout.uuid });

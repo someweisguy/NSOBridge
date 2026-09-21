@@ -1,14 +1,16 @@
-import queryClient, { invalidateCacheParents } from "@/lib/cache";
+import queryClient from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
-import { boutKeys, seriesKeys } from "@/utils/query-keys";
+import { Series } from "@/types/series";
+import { boutKeys } from "@/utils/query-keys";
 import { useMutation } from "@tanstack/react-query";
 
 interface UseCreateBoutOptions {
+  series: Series;
   rulesetName: string;
-  seriesUuid: string;
   teamNames?: string[];
+  setActive?: boolean;
 }
 
 /**
@@ -17,13 +19,14 @@ interface UseCreateBoutOptions {
  * @returns A Tanstack Mutation object which can fire the create Bout mutator.
  */
 export const useCreateBout = ({
+  series,
   rulesetName,
-  seriesUuid,
   teamNames = [],
+  // setActive = true,
   ...options
 }: UseCreateBoutOptions & AppMutationOptions<Bout>) => {
   const query = new URLSearchParams({ rulesetName });
-  query.append("seriesUuid", seriesUuid);
+  query.append("seriesUuid", series.uuid);
   for (const teamName of teamNames) {
     query.append("teamName", teamName);
   }
@@ -32,11 +35,7 @@ export const useCreateBout = ({
     {
       mutationFn: () =>
         localAPI.put<Bout>("bout", { query }).then((bout: Bout) => {
-          invalidateCacheParents(seriesKeys.one(seriesUuid));
-          queryClient.setQueriesData(
-            { queryKey: boutKeys.one(bout.uuid) },
-            bout,
-          );
+          queryClient.setQueryData(boutKeys.one(bout.uuid), bout);
           return bout;
         }),
       ...options,
