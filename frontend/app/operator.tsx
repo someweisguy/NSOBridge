@@ -13,6 +13,7 @@ import JammerTrip from "@/features/jams/components/jammer-trip";
 import { useJam, useSuspenseJam } from "@/features/jams/hooks/use-jam";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
+import Undoer from "@/features/new-operator/components/undoer";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
 import BoutControl from "@/features/operator/components/bout-control";
@@ -132,6 +133,8 @@ export default function OperatorPage() {
             }}
           />
           <BoutEditor bout={activeBout} />
+
+          <Undoer gap="xs" variant="subtle" />
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
