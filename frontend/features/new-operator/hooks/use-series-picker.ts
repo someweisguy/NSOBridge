@@ -1,6 +1,6 @@
 import { useGetAllSeries } from "@/hooks/use-series";
 import { Series } from "@/types/series";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 export type UseSeriesPickerReturn = [
   Series | undefined,
@@ -22,16 +22,18 @@ export type UseSeriesPickerReturn = [
 export default function useSeriesPicker(): UseSeriesPickerReturn {
   const { data: allSeries } = useGetAllSeries();
 
-  // Declare the activeSeries and automatically set its initial value
-  const [activeSeries, setActiveSeries] = useState<Series | undefined>(
-    undefined,
-  );
-  useEffect(() => {
-    if (allSeries != null && allSeries.length > 0 && activeSeries == null) {
-      // Set the default active Series
-      setActiveSeries(allSeries[0]);
-    }
-  }, [allSeries, activeSeries]);
+  const [activeSeriesUuid, setActiveSeriesUuid] = useState<string | null>(null);
+  const { data: activeSeries } = useGetAllSeries({
+    select: (allSeries: Series[]) => {
+      const series = allSeries.find(
+        (series: Series) => series.uuid == activeSeriesUuid,
+      );
+      if (series == null) {
+        setActiveSeriesUuid(null);
+      }
+      return series ?? allSeries[0];
+    },
+  });
 
   // Only allow valid Series to become the activeSeries
   const handleSetActiveSeries = useCallback(
@@ -39,7 +41,7 @@ export default function useSeriesPicker(): UseSeriesPickerReturn {
       if (!allSeries?.some((s: Series) => s.uuid != series.uuid)) {
         throw new Error("Invalid Series selected: " + series.uuid);
       }
-      setActiveSeries(series);
+      setActiveSeriesUuid(series.uuid);
     },
     [allSeries],
   );
