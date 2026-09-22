@@ -47,6 +47,7 @@ import {
   Fieldset,
   Group,
   Modal,
+  NavLink,
   Select,
   Stack,
   Text,
@@ -137,6 +138,18 @@ export default function OperatorPage() {
         <Group>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
         </Group>
+        <NavLink
+          href="#required-for-focus"
+          label="Open Scoreboard"
+          rightSection={<IconExternalLink color="gray" size={16} />}
+          disabled={activeSeries == null}
+          onClick={() =>
+            window.open(
+              window.location.href + "sb?seriesUuid=" + activeSeries!.uuid,
+              "_blank",
+            )
+          }
+        />
       </AppShell.Navbar>
       <AppShell.Main>
         <Suspense fallback={<Text>Loading...</Text>}>
