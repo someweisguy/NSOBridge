@@ -27,7 +27,7 @@ export default function useBoutPicker(
   series: Series | undefined,
 ): UseBoutPickerReturn {
   // Query all the Bouts in the Series
-  const bouts = useQueries({
+  const { data: bouts, isPending } = useQueries({
     queries:
       series?.boutUuids.map((boutUuid: string) => ({
         queryKey: boutKeys.one(boutUuid),
@@ -38,10 +38,12 @@ export default function useBoutPicker(
         enabled: series != null,
       })) ?? [],
     combine: useCallback(
-      (results: UseQueryResult<Bout, Error>[]) =>
-        results
+      (results: UseQueryResult<Bout, Error>[]) => ({
+        data: results
           .filter((result) => result.data != null)
           .map((result) => result.data),
+        isPending: results.some((result) => result.isPending),
+      }),
       [],
     ),
   });
@@ -49,15 +51,12 @@ export default function useBoutPicker(
   // Set the default activeBout
   const [activeBout, setActiveBout] = useState<Bout | undefined>(undefined);
   useEffect(() => {
-    if (bouts != null && bouts.length > 0 && activeBout == null) {
-      const bout = bouts.find((b: Bout) => b?.uuid == series?.activeBoutUuid);
+    if (!isPending && activeBout == null && series != null) {
+      const bout = bouts.find((b?: Bout) => b?.uuid == series.activeBoutUuid);
       setActiveBout(bout ?? bouts[0]);
     }
-  }, [bouts, activeBout, series]);
-  useEffect(() => {
     // TODO: Handle situation where the series changes
-    setActiveBout(undefined);
-  }, [series]);
+  }, [bouts, isPending, activeBout, series]);
 
   // Only allow valid Bouts to become the activeBout
   const handleSetActiveBout = useCallback(
