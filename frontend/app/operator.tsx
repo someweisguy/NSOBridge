@@ -142,7 +142,7 @@ export default function OperatorPage() {
           </Group>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar p="sm">
         <NavLink
           href="#required-for-focus"
           label="Open Scoreboard"
