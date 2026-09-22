@@ -1,9 +1,10 @@
+import { useBout } from "@/features/bouts/hooks/use-bout";
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import { Series } from "@/types/series";
 import { boutKeys } from "@/utils/query-keys";
 import { useQueries, UseQueryResult } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 export type UseBoutPickerReturn = [
   Bout | undefined,
@@ -27,7 +28,7 @@ export default function useBoutPicker(
   series: Series | undefined,
 ): UseBoutPickerReturn {
   // Query all the Bouts in the Series
-  const { data: bouts, isPending } = useQueries({
+  const { data: bouts } = useQueries({
     queries:
       series?.boutUuids.map((boutUuid: string) => ({
         queryKey: boutKeys.one(boutUuid),
@@ -48,15 +49,14 @@ export default function useBoutPicker(
     ),
   });
 
-  // Set the default activeBout
-  const [activeBout, setActiveBout] = useState<Bout | undefined>(undefined);
-  useEffect(() => {
-    if (!isPending && activeBout == null && series != null) {
-      const bout = bouts.find((b?: Bout) => b?.uuid == series.activeBoutUuid);
-      setActiveBout(bout ?? bouts[0]);
-    }
-    // TODO: Handle situation where the series changes
-  }, [bouts, isPending, activeBout, series]);
+  // Set the activeBout
+  const [activeBoutUuid, setActiveBoutUuid] = useState<string | null>(null);
+  const { data: activeBout } = useBout({
+    boutUuid: activeBoutUuid ?? series?.activeBoutUuid ?? "",
+    enabled: series != null,
+  });
+
+  // Handle 
 
   // Only allow valid Bouts to become the activeBout
   const handleSetActiveBout = useCallback(
@@ -64,7 +64,7 @@ export default function useBoutPicker(
       if (!series?.boutUuids.some((uuid: string) => bout.uuid == uuid)) {
         throw new Error("Invalid Bout selected: " + bout.uuid);
       }
-      setActiveBout(bout);
+      setActiveBoutUuid(bout.uuid);
     },
     [series],
   );
