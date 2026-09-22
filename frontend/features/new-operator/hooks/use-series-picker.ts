@@ -24,15 +24,9 @@ export default function useSeriesPicker(): UseSeriesPickerReturn {
 
   const [activeSeriesUuid, setActiveSeriesUuid] = useState<string | null>(null);
   const { data: activeSeries } = useGetAllSeries({
-    select: (allSeries: Series[]) => {
-      const series = allSeries.find(
-        (series: Series) => series.uuid == activeSeriesUuid,
-      );
-      if (series == null) {
-        setActiveSeriesUuid(null);
-      }
-      return series ?? allSeries[0];
-    },
+    select: (allSeries: Series[]) =>
+      allSeries.find((series: Series) => series.uuid == activeSeriesUuid) ??
+      allSeries[0],
   });
 
   // Only allow valid Series to become the activeSeries
