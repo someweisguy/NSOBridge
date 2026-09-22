@@ -118,23 +118,28 @@ export default function OperatorPage() {
   return (
     <AppShell {...appShellConfig(opened)}>
       <AppShell.Header>
-        <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} size="sm" />
-          <BoutPicker
-            bouts={bouts}
-            activeBout={activeBout}
-            onChange={setActiveBout}
-          />
-          <BoutCreator
-            rulesets={rulesets}
-            activeSeries={activeSeries}
-            onSuccess={(bout: Bout) => {
-              setActiveBout(bout);
-            }}
-          />
-          <BoutEditor bout={activeBout} />
+        <Group justify="space-between" h="100%" px="md">
+          <Group justify="left">
+            <Burger opened={opened} onClick={toggle} size="sm" />
+            <Title order={5}>NSO Bridge</Title>
+          </Group>
+          <Group justify="right">
+            <BoutPicker
+              bouts={bouts}
+              activeBout={activeBout}
+              onChange={setActiveBout}
+            />
+            <BoutCreator
+              rulesets={rulesets}
+              activeSeries={activeSeries}
+              onSuccess={(bout: Bout) => {
+                setActiveBout(bout);
+              }}
+            />
+            <BoutEditor bout={activeBout} />
 
-          <Undoer gap="xs" variant="subtle" />
+            <Undoer gap="xs" variant="subtle" />
+          </Group>
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
