@@ -32,7 +32,7 @@ export default function BoutCreatorForm({
 
   const createBout = useCreateBout({
     rulesetName: rulesetName!,
-    seriesUuid: series?.uuid ?? "",
+    series: series,
     onSuccess,
   });
 

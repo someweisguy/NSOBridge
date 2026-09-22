@@ -47,7 +47,7 @@ export default function BoutCreator({
 
   const { mutate: createBout } = useCreateBout({
     rulesetName: selectedRulesetName!,
-    seriesUuid: activeSeries?.uuid ?? "",
+    series: activeSeries,
     onSuccess: (bout: Bout) => {
       onSuccess?.(bout);
       close();

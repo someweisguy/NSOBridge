@@ -127,7 +127,7 @@ export default function OperatorPage() {
             rulesets={rulesets}
             activeSeries={activeSeries}
             onSuccess={(bout: Bout) => {
-              setActiveBout(bout); // FIXME: Throwing errors
+              setActiveBout(bout);
             }}
           />
           <BoutEditor bout={activeBout} />
