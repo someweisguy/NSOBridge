@@ -93,11 +93,10 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
   layout: "alt",
   header: { height: 60 },
   footer: { height: 60 },
-  navbar: { width: 300, breakpoint: "sm", collapsed: { mobile: !disclosure } },
-  aside: {
+  navbar: {
     width: 300,
-    breakpoint: "md",
-    collapsed: { desktop: false, mobile: true },
+    breakpoint: "sm",
+    collapsed: { desktop: !disclosure, mobile: !disclosure },
   },
   padding: "md",
 });
@@ -110,7 +109,7 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
  * This page should be designed to fit within a viewport that is 1280px by 585px.
  */
 export default function OperatorPage() {
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle }] = useDisclosure(true);
 
   const [activeSeries] = useSeriesPicker();
   const [activeBout, setActiveBout, bouts] = useBoutPicker(activeSeries);
@@ -120,6 +119,7 @@ export default function OperatorPage() {
     <AppShell {...appShellConfig(opened)}>
       <AppShell.Header>
         <Group h="100%" px="md">
+          <Burger opened={opened} onClick={toggle} size="sm" />
           <BoutPicker
             bouts={bouts}
             activeBout={activeBout}
@@ -138,9 +138,6 @@ export default function OperatorPage() {
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
-        <Group>
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-        </Group>
         <NavLink
           href="#required-for-focus"
           label="Open Scoreboard"
