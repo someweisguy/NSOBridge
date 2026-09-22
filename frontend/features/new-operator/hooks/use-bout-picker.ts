@@ -4,7 +4,7 @@ import { Bout } from "@/types/bout";
 import { Series } from "@/types/series";
 import { boutKeys } from "@/utils/query-keys";
 import { useQueries, UseQueryResult } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type UseBoutPickerReturn = [
   Bout | undefined,
@@ -56,7 +56,13 @@ export default function useBoutPicker(
     enabled: series != null,
   });
 
-  // Handle 
+  // Handle when activeBout is deleted
+  useEffect(() => {
+    if (!series?.boutUuids.find((boutUuid) => boutUuid == activeBoutUuid)) {
+      // Default to Series active Bout
+      setActiveBoutUuid(series?.activeBoutUuid ?? null);
+    }
+  }, [series, activeBoutUuid]);
 
   // Only allow valid Bouts to become the activeBout
   const handleSetActiveBout = useCallback(
