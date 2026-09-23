@@ -105,9 +105,7 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
 function OperatorInterfaceContainer({ bout }: { bout: Bout | undefined }) {
   useSuspendIfNullable(bout);
 
-  const x = bout.uuid;
-
-  return <>Hello {x}</>;
+  return <>Bout UUID: {bout.uuid}</>;
 }
 
 /**
@@ -127,12 +125,12 @@ export default function OperatorPage() {
   return (
     <AppShell {...appShellConfig(opened)}>
       <AppShell.Header>
-        <Group justify="space-between" h="100%" px="md">
-          <Group justify="left">
+        <Group justify="space-between" h="100%" px="md" wrap="nowrap">
+          <Group justify="left" wrap="nowrap">
             <Burger opened={opened} onClick={toggle} size="sm" />
             <Title order={5}>NSO Bridge</Title>
           </Group>
-          <Group justify="right">
+          <Group justify="right" wrap="nowrap">
             <BoutPicker
               bouts={bouts}
               activeBout={activeBout}
@@ -147,7 +145,7 @@ export default function OperatorPage() {
             />
             <BoutEditor bout={activeBout} />
 
-            <Undoer gap="xs" variant="subtle" />
+            <Undoer gap="xs" variant="subtle" wrap="nowrap" />
           </Group>
         </Group>
       </AppShell.Header>
@@ -166,9 +164,7 @@ export default function OperatorPage() {
         />
       </AppShell.Navbar>
       <AppShell.Main>
-        <Suspense fallback={<Loader />}>
-          {/* TODO: Add Main Operator Interface */}
-
+        <Suspense fallback={<Loader size="xl" />}>
           <OperatorInterfaceContainer bout={activeBout} />
         </Suspense>
       </AppShell.Main>
