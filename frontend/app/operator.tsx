@@ -26,6 +26,7 @@ import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseGetAllSeries } from "@/hooks/use-series";
+import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
 import { Bout, BoutSubStateString, Team } from "@/types/bout";
@@ -47,11 +48,11 @@ import {
   Divider,
   Fieldset,
   Group,
+  Loader,
   Modal,
   NavLink,
   Select,
   Stack,
-  Text,
   Title,
   Tooltip,
 } from "@mantine/core";
@@ -100,6 +101,14 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
   },
   padding: "md",
 });
+
+function OperatorInterfaceContainer({ bout }: { bout: Bout | undefined }) {
+  useSuspendIfNullable(bout);
+
+  const x = bout.uuid;
+
+  return <>Hello {x}</>;
+}
 
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
@@ -157,8 +166,10 @@ export default function OperatorPage() {
         />
       </AppShell.Navbar>
       <AppShell.Main>
-        <Suspense fallback={<Text>Loading...</Text>}>
+        <Suspense fallback={<Loader />}>
           {/* TODO: Add Main Operator Interface */}
+
+          <OperatorInterfaceContainer bout={activeBout} />
         </Suspense>
       </AppShell.Main>
     </AppShell>
