@@ -164,7 +164,13 @@ export default function OperatorPage() {
         />
       </AppShell.Navbar>
       <AppShell.Main>
-        <Suspense fallback={<Loader size="xl" />}>
+        <Suspense
+          fallback={
+            <Center>
+              <Loader size="lg" />
+            </Center>
+          }
+        >
           <OperatorInterfaceContainer bout={activeBout} />
         </Suspense>
       </AppShell.Main>
