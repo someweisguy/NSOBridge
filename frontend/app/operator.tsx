@@ -139,9 +139,7 @@ export default function OperatorPage() {
             <BoutCreator
               rulesets={rulesets}
               activeSeries={activeSeries}
-              onSuccess={(bout: Bout) => {
-                setActiveBout(bout);
-              }}
+              onSuccess={setActiveBout}
             />
             <BoutEditor bout={activeBout} />
 
