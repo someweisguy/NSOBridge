@@ -17,9 +17,9 @@ import { useEffect } from "react";
  * Also registers hotkeys Ctrl+Z and Ctrl+Y (or Cmd+Z and Cmd+Y).
  */
 export default function Undoer({
-  gap = "md",
   variant = "subtle",
-}: Pick<ActionIconProps, "variant"> & Pick<GroupProps, "gap">) {
+  ...props
+}: Pick<ActionIconProps, "variant"> & GroupProps) {
   const os = useOs();
   const { mutate: undo } = useUndo();
   const { mutate: redo } = useRedo();
@@ -46,7 +46,7 @@ export default function Undoer({
   }, [os, undo, redo]);
 
   return (
-    <Group gap={gap}>
+    <Group {...props}>
       <Tooltip withArrow fz="xs" label="Undo">
         <ActionIcon variant={variant} onClick={() => undo()}>
           <IconArrowBackUp size="70%" />
