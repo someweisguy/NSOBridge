@@ -11,7 +11,7 @@ import { useState } from "react";
  * @param value The value to check is null or undefined.
  */
 export default function useSuspendIfNullable<T>(
-  value: T | undefined,
+  value: T | (undefined | null),
 ): asserts value is NonNullable<T> {
   const [promise] = useState<Promise<unknown> | null>(new Promise(() => null));
 
