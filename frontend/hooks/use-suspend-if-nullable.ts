@@ -13,17 +13,11 @@ import { useState } from "react";
 export default function useSuspendIfNullable<T>(
   value: T | undefined,
 ): asserts value is NonNullable<T> {
-  const [promise, setPromise] = useState<Promise<unknown> | null>(null);
+  const [promise] = useState<Promise<unknown> | null>(new Promise(() => null));
 
-  if (value == null && promise == null) {
-    // TODO: do we need state here?
-    const promise = new Promise(() => null);
-    setPromise(promise);
-
+  if (value == null) {
     // React Suspense works by throwing Promises
     // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw promise;
-  } else if (value != null && promise != null) {
-    setPromise(null);
   }
 }
