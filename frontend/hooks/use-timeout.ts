@@ -18,11 +18,14 @@ import {
  *
  * @returns a Tanstack useQuery object containing the desired Timeout.
  */
-export const useTimeout = ({
+export const useTimeout = <T = Timeout>({
   boutUuid,
   timeoutNum,
   ...options
-}: TimeoutUri & AppQueryOptions<Timeout>): UseQueryResult<Timeout, Error> =>
+}: TimeoutUri & AppQueryOptions<Timeout | T>): UseQueryResult<
+  Timeout | T,
+  Error
+> =>
   useQuery({
     queryKey: timeoutKeys.one(boutUuid, timeoutNum),
     queryFn: () =>
