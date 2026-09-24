@@ -1,0 +1,25 @@
+import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
+import { useTimeout } from "@/hooks/use-timeout";
+import { Bout } from "@/types/bout";
+import { Timeout } from "@/types/timeout";
+import { UseSuspenseQueryResult } from "@tanstack/react-query";
+
+/**
+ * Get the latest Timeout in the Bout. If no Timeouts exist, null is returned.
+ *
+ * @param bout The desired Bout.
+ * @returns A Tanstack Suspense Query object pointing to the latest Timeout.
+ */
+export default function useSuspenseLatestTimeout(bout: Bout) {
+  // Use a non-suspense query function because we need to be able to disable the
+  // query when there aren't any Timeouts in the Bout
+  const queryData = useTimeout<null>({
+    boutUuid: bout.uuid,
+    timeoutNum: bout.timeoutCount - 1,
+    enabled: bout.timeoutCount > 0,
+    initialData: null,
+  });
+  useSuspendIfNullable(queryData.data);
+
+  return queryData as UseSuspenseQueryResult<Timeout | null>;
+}

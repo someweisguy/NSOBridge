@@ -14,7 +14,10 @@ import { useJam, useSuspenseJam } from "@/features/jams/hooks/use-jam";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
 import Undoer from "@/features/new-operator/components/undoer";
+import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
+import useSuspenseLatestJam from "@/features/new-operator/hooks/use-latest-jam";
+import useSuspenseLatestTimeout from "@/features/new-operator/hooks/use-latest-timeout";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
 import BoutControl from "@/features/operator/components/bout-control";
 import BoutEditor from "@/features/operator/components/bout-editor";
@@ -105,7 +108,19 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
 function OperatorInterfaceContainer({ bout }: { bout: Bout | undefined }) {
   useSuspendIfNullable(bout);
 
-  return <>Bout UUID: {bout.uuid}</>;
+  const { data: activeJam } = useSuspenseActiveJam(bout);
+  const { data: latestJam } = useSuspenseLatestJam(bout);
+  const { data: latestTimeout } = useSuspenseLatestTimeout(bout);
+
+  return (
+    <>
+      Bout UUID: {bout.uuid}; Active: P{activeJam.period + 1} J
+      {activeJam.num + 1}; Latest: P{latestJam.period + 1} J{latestJam.num + 1}
+      {latestTimeout == null
+        ? "There are no Timeouts"
+        : "There is" + latestTimeout.num + "timeout(s)."}
+    </>
+  );
 }
 
 /**
@@ -161,10 +176,10 @@ export default function OperatorPage() {
           }
         />
       </AppShell.Navbar>
-      <AppShell.Main>
+      <AppShell.Main h="100vh">
         <Suspense
           fallback={
-            <Center>
+            <Center h="100%">
               <Loader size="lg" />
             </Center>
           }
@@ -199,11 +214,6 @@ export function Operator2() {
       [],
     ),
   });
-
-  // const { data: allRulesetNames } = useSuspenseGetAllRulesets({
-  //   select: (rulesets: Ruleset[]) =>
-  //     rulesets.map((ruleset: Ruleset) => ruleset.name),
-  // });
 
   const [boutUri, setBoutUri] = useState<BoutUri>({
     boutUuid: activeSeries.activeBoutUuid,
