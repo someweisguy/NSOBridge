@@ -115,10 +115,11 @@ function OperatorInterfaceContainer({ bout }: { bout: Bout | undefined }) {
   return (
     <>
       Bout UUID: {bout.uuid}; Active: P{activeJam.period + 1} J
-      {activeJam.num + 1}; Latest: P{latestJam.period + 1} J{latestJam.num + 1}
-      {latestTimeout == null
-        ? "There are no Timeouts"
-        : "There is" + latestTimeout.num + "timeout(s)."}
+      {activeJam.num + 1}; Latest: P{latestJam.period + 1} J{latestJam.num + 1};
+      {" " +
+        (latestTimeout == null
+          ? "There are no Timeouts."
+          : "There is" + latestTimeout.num + "timeout(s).")}
     </>
   );
 }
