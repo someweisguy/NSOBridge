@@ -13,13 +13,14 @@ import { UseSuspenseQueryResult } from "@tanstack/react-query";
 export default function useSuspenseLatestTimeout(bout: Bout) {
   // Use a non-suspense query function because we need to be able to disable the
   // query when there aren't any Timeouts in the Bout
+  const enabled = bout.timeoutCount > 0;
   const queryData = useTimeout<null>({
     boutUuid: bout.uuid,
     timeoutNum: bout.timeoutCount - 1,
-    enabled: bout.timeoutCount > 0,
     initialData: null,
+    enabled,
   });
-  useSuspendIfNullable(queryData.data);
+  useSuspendIfNullable(queryData.data, enabled);
 
   return queryData as UseSuspenseQueryResult<Timeout | null>;
 }

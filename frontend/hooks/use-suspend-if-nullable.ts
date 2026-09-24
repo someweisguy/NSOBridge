@@ -9,13 +9,15 @@ import { useState } from "react";
  * This function also acts as a TypeScript type predicate.
  *
  * @param value The value to check is null or undefined.
+ * @param enabled True to enable the suspense.
  */
 export default function useSuspendIfNullable<T>(
   value: T | (undefined | null),
+  enabled = true,
 ): asserts value is NonNullable<T> {
   const [promise] = useState<Promise<unknown> | null>(new Promise(() => null));
 
-  if (value == null) {
+  if (value == null && enabled) {
     // React Suspense works by throwing Promises
     // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw promise;
