@@ -33,9 +33,10 @@ import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
 import { Bout, BoutSubStateString, Team } from "@/types/bout";
-import { TeamJam, TripEvent } from "@/types/jam";
+import { Jam, TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { Series } from "@/types/series";
+import { Timeout } from "@/types/timeout";
 import { boutKeys } from "@/utils/query-keys";
 import { isRunning } from "@/utils/time";
 import {
@@ -105,6 +106,29 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
   padding: "md",
 });
 
+function OperatorInterface({
+  bout,
+  activeJam,
+  latestJam,
+  latestTimeout,
+}: {
+  bout: Bout;
+  activeJam: Jam;
+  latestJam: Jam;
+  latestTimeout: Timeout | null;
+}) {
+  return (
+    <Card withBorder w="full" h="full" m="md" shadow="lg">
+      Bout UUID: {bout.uuid}; Active: P{activeJam.period + 1} J
+      {activeJam.num + 1}; Latest: P{latestJam.period + 1} J{latestJam.num + 1};
+      {" " +
+        (latestTimeout == null
+          ? "There are no Timeouts."
+          : "There is" + latestTimeout.num + "timeout(s).")}
+    </Card>
+  );
+}
+
 function OperatorInterfaceContainer({ bout }: { bout: Bout | undefined }) {
   useSuspendIfNullable(bout);
 
@@ -113,14 +137,12 @@ function OperatorInterfaceContainer({ bout }: { bout: Bout | undefined }) {
   const { data: latestTimeout } = useSuspenseLatestTimeout(bout);
 
   return (
-    <>
-      Bout UUID: {bout.uuid}; Active: P{activeJam.period + 1} J
-      {activeJam.num + 1}; Latest: P{latestJam.period + 1} J{latestJam.num + 1};
-      {" " +
-        (latestTimeout == null
-          ? "There are no Timeouts."
-          : "There is" + latestTimeout.num + "timeout(s).")}
-    </>
+    <OperatorInterface
+      bout={bout}
+      activeJam={activeJam}
+      latestJam={latestJam}
+      latestTimeout={latestTimeout}
+    />
   );
 }
 
