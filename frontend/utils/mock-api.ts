@@ -16,16 +16,15 @@ export function getHandlerFactory<T = JsonBodyType>(
 ) {
   return http.get(`/api/${endpoint}`, ({ request }) => {
     const url = new URL(request.url);
+    const urlParams = Object.fromEntries(url.searchParams);
     const paramsKeys = Object.keys(params);
-    const urlKeys = Object.keys(url.searchParams);
+    const urlKeys = Object.keys(urlParams);
 
     // Check for parameter equality - shallow comparison is okay here!
     const match =
-      paramsKeys.length !== urlKeys.length &&
+      paramsKeys.length == urlKeys.length &&
       paramsKeys.every(
-        (key) =>
-          url.searchParams.has(key) &&
-          params[key] === url.searchParams.get(key),
+        (key) => url.searchParams.has(key) && params[key] == urlParams[key],
       );
 
     if (match) {
