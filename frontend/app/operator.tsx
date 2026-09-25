@@ -33,10 +33,9 @@ import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { useTimeout } from "@/hooks/use-timeout";
 import { localAPI } from "@/lib/requests";
 import { Bout, BoutSubStateString, Team } from "@/types/bout";
-import { Jam, TeamJam, TripEvent } from "@/types/jam";
+import { TeamJam, TripEvent } from "@/types/jam";
 import { BoutUri } from "@/types/query";
 import { Series } from "@/types/series";
-import { Timeout } from "@/types/timeout";
 import { boutKeys } from "@/utils/query-keys";
 import { isRunning } from "@/utils/time";
 import {
@@ -106,17 +105,13 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
   padding: "md",
 });
 
-function OperatorInterface({
-  bout,
-  activeJam,
-  latestJam,
-  latestTimeout,
-}: {
-  bout: Bout;
-  activeJam: Jam;
-  latestJam: Jam;
-  latestTimeout: Timeout | null;
-}) {
+function OperatorInterface({ bout }: { bout: Bout | undefined }) {
+  useSuspendIfNullable(bout);
+
+  const { data: activeJam } = useSuspenseActiveJam(bout);
+  const { data: latestJam } = useSuspenseLatestJam(bout);
+  const { data: latestTimeout } = useSuspenseLatestTimeout(bout);
+
   return (
     <Card withBorder w="full" h="full" m="md" shadow="lg">
       Bout UUID: {bout.uuid}; Active: P{activeJam.period + 1} J
@@ -126,23 +121,6 @@ function OperatorInterface({
           ? "There are no Timeouts."
           : "There is" + latestTimeout.num + "timeout(s).")}
     </Card>
-  );
-}
-
-function OperatorInterfaceContainer({ bout }: { bout: Bout | undefined }) {
-  useSuspendIfNullable(bout);
-
-  const { data: activeJam } = useSuspenseActiveJam(bout);
-  const { data: latestJam } = useSuspenseLatestJam(bout);
-  const { data: latestTimeout } = useSuspenseLatestTimeout(bout);
-
-  return (
-    <OperatorInterface
-      bout={bout}
-      activeJam={activeJam}
-      latestJam={latestJam}
-      latestTimeout={latestTimeout}
-    />
   );
 }
 
@@ -207,7 +185,7 @@ export default function OperatorPage() {
             </Center>
           }
         >
-          <OperatorInterfaceContainer bout={activeBout} />
+          <OperatorInterface bout={activeBout} />
         </Suspense>
       </AppShell.Main>
     </AppShell>
