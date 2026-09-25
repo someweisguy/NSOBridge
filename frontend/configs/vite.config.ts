@@ -8,8 +8,8 @@ import preserveDirectives from "rollup-preserve-directives";
 import { defineConfig } from "vite";
 
 const frontendDirectory = path.resolve(
-  typeof __dirname !== "undefined"
-    ? __dirname
+  typeof import.meta.dirname !== "undefined"
+    ? import.meta.dirname
     : path.dirname(fileURLToPath(import.meta.url)),
   "../",
 );
