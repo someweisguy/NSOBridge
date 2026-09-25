@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { playwright } from "@vitest/browser-playwright";
 import { fileURLToPath } from "node:url";
 import path from "path";
+import preserveDirectives from "rollup-preserve-directives";
 import { defineConfig } from "vite";
 
 const frontendDirectory = path.resolve(
@@ -41,7 +42,7 @@ export default defineConfig({
       },
     },
   },
-  plugins: [tailwindcss()],
+  plugins: [tailwindcss(), preserveDirectives()],
   resolve: {
     alias: {
       "@": frontendDirectory,
