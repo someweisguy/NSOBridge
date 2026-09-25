@@ -4,10 +4,11 @@ import {
   BOUT_API,
   JAM_API,
   RULESET_API,
+  SERIES_API,
 } from "@/configs/endpoints";
 import { getHandlerFactory } from "@/utils/mock-api";
 
-export const defaultData = [
+export const defaultDataHandlers = [
   getHandlerFactory(ALL_SERIES_API, [
     {
       uuid: "fa2debd1-57a7-4c66-9cd5-fbbcf2c533df",
@@ -16,6 +17,16 @@ export const defaultData = [
       boutUuids: ["727663f3-4421-47e1-ae19-424dcfce895b"],
     },
   ]),
+  getHandlerFactory(
+    SERIES_API,
+    {
+      uuid: "fa2debd1-57a7-4c66-9cd5-fbbcf2c533df",
+      name: "Default Series",
+      activeBoutUuid: "727663f3-4421-47e1-ae19-424dcfce895b",
+      boutUuids: ["727663f3-4421-47e1-ae19-424dcfce895b"],
+    },
+    { seriesUuid: "fa2debd1-57a7-4c66-9cd5-fbbcf2c533df" },
+  ),
   getHandlerFactory(ALL_RULESET_API, [
     {
       name: "WFTDA 2025",
