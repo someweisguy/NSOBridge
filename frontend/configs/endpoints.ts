@@ -7,7 +7,7 @@
  * production code and test code.
  */
 
-export const ALL_SERIES_API = "allSeries"; // TODO: remove this API
+export const ALL_SERIES_API = "series/allSeries"; // TODO: remove this API
 export const SERIES_API = "series";
 export const BOUT_API = "bout";
 export const RULESET_API = "bout/ruleset";
