@@ -1,11 +1,9 @@
-import { Box, Card, CardProps } from "@mantine/core";
+import { Divider, Paper, PaperProps, px, Stack } from "@mantine/core";
 import { IconCircleFilled } from "@tabler/icons-react";
+import { useMemo } from "react";
 import { twMerge } from "tailwind-merge";
 
-interface TimeoutsLeftProps extends Omit<
-  CardProps,
-  "size" | "p" | "px" | "py"
-> {
+interface TimeoutsLeftProps extends PaperProps {
   /**
    * The total permitted number of Timeouts allowed per the ruleset.
    */
@@ -31,10 +29,6 @@ interface TimeoutsLeftProps extends Omit<
    * argument is ignored if `timeoutIsActive` is false.
    */
   isReview: boolean;
-  /**
-   * The width of the timeout bar.
-   */
-  size: number;
 }
 
 /**
@@ -48,45 +42,48 @@ export default function TimeoutsLeft({
   reviewsRemaining,
   timeoutIsActive,
   isReview,
-  size,
+  h,
   ...props
 }: TimeoutsLeftProps) {
+  const size = useMemo(
+    () => Number(px(h)) / (numTimeouts + numReviews),
+    [h, numTimeouts, numReviews],
+  );
+  const margin = useMemo(() => size / 8, [size]);
+
   return (
-    <Box>
-      <Card withBorder w="fit-content" px={size / 8} {...props}>
-        <Card.Section inheritPadding withBorder py={size / 8}>
-          {Array.from({ length: numTimeouts }, (_, i) => (
-            <Box key={i}>
-              <IconCircleFilled
-                className={twMerge(
-                  i >= timeoutsRemaining && "invisible",
-                  i == timeoutsRemaining - 1 &&
-                    timeoutIsActive &&
-                    !isReview &&
-                    "animate-blink",
-                )}
-                size={size}
-              />
-            </Box>
-          ))}
-        </Card.Section>
-        <Card.Section inheritPadding py={size / 8}>
-          {Array.from({ length: numReviews }, (_, i) => (
-            <Box key={i}>
-              <IconCircleFilled
-                className={twMerge(
-                  i >= reviewsRemaining && "invisible",
-                  i == reviewsRemaining - 1 &&
-                    timeoutIsActive &&
-                    isReview &&
-                    "animate-blink",
-                )}
-                size={size}
-              />
-            </Box>
-          ))}
-        </Card.Section>
-      </Card>
-    </Box>
+    <Paper withBorder {...props}>
+      <Stack justify="space-around" align="center" gap="0" m={margin}>
+        {Array.from({ length: numTimeouts }, (_, i) => (
+          <IconCircleFilled
+            key={i}
+            className={twMerge(
+              i >= timeoutsRemaining && "invisible",
+              i == timeoutsRemaining - 1 &&
+                timeoutIsActive &&
+                !isReview &&
+                "animate-blink",
+            )}
+            size={size}
+          />
+        ))}
+      </Stack>
+      <Divider w="100%" />
+      <Stack justify="space-around" align="center" gap="0" m={margin}>
+        {Array.from({ length: numReviews }, (_, i) => (
+          <IconCircleFilled
+            key={i}
+            className={twMerge(
+              i >= reviewsRemaining && "invisible",
+              i == reviewsRemaining - 1 &&
+                timeoutIsActive &&
+                isReview &&
+                "animate-blink",
+            )}
+            size={size}
+          />
+        ))}
+      </Stack>
+    </Paper>
   );
 }
