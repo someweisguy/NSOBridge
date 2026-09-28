@@ -138,7 +138,7 @@ export function Scoreboard() {
                             latestTimeout.teamNum === team.num
                           }
                           isReview={latestTimeout?.isReview ?? false}
-                          size={36}
+                          h={36}
                           {...team}
                           {...ruleset}
                         />

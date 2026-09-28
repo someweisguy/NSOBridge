@@ -48,7 +48,7 @@ export const WithTimeouts: Story = {
         reviewsRemaining={1}
         timeoutIsActive={false}
         isReview={false}
-        size={24}
+        h={24}
       />
     ),
     w: "fit-content",
