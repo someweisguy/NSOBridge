@@ -169,9 +169,10 @@ function OperatorTeamJamController({
               ta="center"
               style={{ aspectRatio: "1 / 1" }}
             >
+              {/* TODO: Show no-initial score */}
               {team.jamScore}
             </Paper>
-            {/* TODO: Add Jammer Status Icon */}
+            {/* TODO: Add Jammer Status icon */}
             <Text>SP</Text>
           </Flex>
         </Grid.Col>
