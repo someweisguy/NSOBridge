@@ -39,6 +39,19 @@ export const defaultDataHandlers = [
     },
   ]),
   getHandlerFactory(
+    RULESET_API,
+    {
+      name: "WFTDA 2025",
+      numPeriods: 2,
+      jamDuration: 120000,
+      lineupDuration: 30000,
+      pointsPerTrip: 4,
+      numTimeouts: 3,
+      numReviews: 1,
+    },
+    { rulesetName: "WFTDA 2025" },
+  ),
+  getHandlerFactory(
     BOUT_API,
     {
       uuid: "727663f3-4421-47e1-ae19-424dcfce895b",
