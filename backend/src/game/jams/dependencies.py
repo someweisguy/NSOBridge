@@ -16,17 +16,13 @@ from .models import Jam
 
 async def _get_jam(
     user: GetUser,
-    bout_uuid: Annotated[UUID, Query(alias='boutUuid')],
-    period_num: Annotated[int, Query(alias='periodNum')],
-    jam_num: Annotated[int, Query(alias='jamNum')],
+    uuid: Annotated[UUID, Query()],
 ) -> Jam:
     statement: Select[tuple[Jam]] = (
         select(Jam)
         # Use `selectinload` to allow cache updates of Bout models when Jam is mutated
         .options(selectinload(Jam.bout).selectinload(BaseBout.jams))
-        .where(Jam._bout_uuid == bout_uuid)
-        .where(Jam.period == period_num)
-        .where(Jam.num == jam_num)
+        .where(Jam.uuid == uuid)
     )
     results: Result[tuple[Jam]] = await user.session.execute(statement)
 
