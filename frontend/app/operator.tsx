@@ -83,7 +83,6 @@ function OperatorBoutController({ bout }: { bout: Bout }) {
 function OperatorTeamJamController({
   team,
   activeJam,
-  latestJam,
   latestTimeout,
   rulesetName,
   reverse,
@@ -151,14 +150,6 @@ function OperatorTeamJamController({
         {...ruleset}
       />
       <TripController jam={activeJam} team={team} w="100%" />
-      <Text>
-        Active: P{activeJam.period + 1} J{activeJam.num + 1}; Latest: P
-        {latestJam.period + 1} J{latestJam.num + 1};
-        {" " +
-          (latestTimeout == null
-            ? "There are no Timeouts."
-            : "There is" + latestTimeout.num + "timeout(s).")}
-      </Text>
     </Stack>
   );
 }
