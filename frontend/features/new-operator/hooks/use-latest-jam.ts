@@ -20,9 +20,5 @@ export default function useSuspenseLatestJam(bout: Bout) {
   }
   const jamNum = bout.jamCounts[periodNum] - 1;
 
-  return useSuspenseJam({
-    boutUuid: bout.uuid,
-    periodNum,
-    jamNum,
-  });
+  return useSuspenseJam({ uuid: bout.jamUuids[periodNum][jamNum] });
 }

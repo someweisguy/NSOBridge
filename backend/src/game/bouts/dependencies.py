@@ -17,16 +17,16 @@ if TYPE_CHECKING:
 
 async def _get_bout(
     user: GetUser,
-    bout_uuid: Annotated[UUID, Query(alias='boutUuid')],
+    uuid: Annotated[UUID, Query()],
 ) -> BaseBout:
-    statement: Select[BaseBout] = select(BaseBout).where(BaseBout.uuid == bout_uuid)
+    statement: Select[BaseBout] = select(BaseBout).where(BaseBout.uuid == uuid)
     results: Result[BaseBout] = await user.session.execute(statement)
 
     try:
         bout: BaseBout = results.scalar_one()
     except NoResultFound as e:
         raise HTTPException(
-            HTTPStatus.NOT_FOUND, f'Could not find Bout ({bout_uuid=})'
+            HTTPStatus.NOT_FOUND, f'Could not find Bout ({uuid=})'
         ) from e
 
     return bout

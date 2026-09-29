@@ -15,8 +15,7 @@ export default function useSuspenseLatestTimeout(bout: Bout) {
   // query when there aren't any Timeouts in the Bout
   const enabled = bout.timeoutCount > 0;
   const queryData = useTimeout<null>({
-    boutUuid: bout.uuid,
-    timeoutNum: bout.timeoutCount - 1,
+    uuid: bout.timeoutUuids[bout.timeoutUuids.length - 1],
     initialData: null,
     enabled,
   });

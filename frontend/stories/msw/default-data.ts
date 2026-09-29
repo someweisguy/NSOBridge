@@ -25,7 +25,7 @@ export const defaultDataHandlers = [
       activeBoutUuid: "727663f3-4421-47e1-ae19-424dcfce895b",
       boutUuids: ["727663f3-4421-47e1-ae19-424dcfce895b"],
     },
-    { seriesUuid: "fa2debd1-57a7-4c66-9cd5-fbbcf2c533df" },
+    { uuid: "fa2debd1-57a7-4c66-9cd5-fbbcf2c533df" },
   ),
   getHandlerFactory(ALL_RULESET_API, [
     {
@@ -92,18 +92,16 @@ export const defaultDataHandlers = [
           skaters: [],
         },
       ],
-      jamCounts: [1, 0, 0],
-      jamHead: {
-        periodNum: 0,
-        jamNum: 0,
-      },
-      timeoutCount: 0,
+      jamUuids: [["727663f3-4421-47e1-ae19-424dcece895b"], [], []],
+      activeJamUuid: "727663f3-4421-47e1-ae19-424dcece895b",
+      timeoutUuids: [],
     },
-    { boutUuid: "727663f3-4421-47e1-ae19-424dcfce895b" },
+    { uuid: "727663f3-4421-47e1-ae19-424dcfce895b" },
   ),
   getHandlerFactory(
     JAM_API,
     {
+      uuid: "727663f3-4421-47e1-ae19-424dcece895b",
       boutUuid: "727663f3-4421-47e1-ae19-424dcfce895b",
       period: 0,
       num: 0,
@@ -122,9 +120,7 @@ export const defaultDataHandlers = [
       ],
     },
     {
-      boutUuid: "727663f3-4421-47e1-ae19-424dcfce895b",
-      periodNum: 0,
-      jamNum: 0,
+      uuid: "727663f3-4421-47e1-ae19-424dcfce895b",
     },
   ),
   getHandlerFactory(

@@ -11,9 +11,5 @@ import { Bout } from "@/types/bout";
  * @returns A Tanstack Suspense Query object pointing to the active Jam.
  */
 export default function useSuspenseActiveJam(bout: Bout) {
-  return useSuspenseJam({
-    boutUuid: bout.uuid,
-    periodNum: bout.jamHead.periodNum,
-    jamNum: bout.jamHead.jamNum,
-  });
+  return useSuspenseJam({ uuid: bout.activeJamUuid });
 }

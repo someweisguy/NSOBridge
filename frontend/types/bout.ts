@@ -102,6 +102,10 @@ export interface Bout {
    * The UUIDs of the Timeouts that have been called in this Bout.
    */
   timeoutUuids: string[];
+  /**
+   * The UUID of the active Jam in this Bout.
+   */
+  activeJamUuid: string;
 }
 
 /**

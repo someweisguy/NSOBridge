@@ -153,3 +153,17 @@ class BoutSchema(ServerSchema):
         return tuple(
             timeout.uuid for timeout in self.timeouts if isinstance(timeout.uuid, UUID)
         )
+
+    @computed_field
+    @property
+    def active_jam_uuid(self) -> UUID:
+        """Get the UUID of the active Jam.
+
+        The UUID of the first Jam is returned if there is no active Jam.
+
+        Returns:
+            UUID: The UUID of the active Jam.
+
+        """
+        uri = self.jam_head
+        return self.jam_uuids[uri.period_num][uri.jam_num]
