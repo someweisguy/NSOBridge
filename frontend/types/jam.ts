@@ -11,6 +11,10 @@ export type StopReasonString = "called" | "elapsed" | "injury" | "other";
  */
 export interface Jam extends OneShot {
   /**
+   * The UUID of the Jam.
+   */
+  uuid: string;
+  /**
    * The UUID of the Bout associated with this Jam.
    */
   boutUuid: string;

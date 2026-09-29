@@ -31,6 +31,8 @@ class TeamJamSchema(ServerSchema):
 class JamSchema(ServerSchema):
     """Represent a Jam as a JSON schema."""
 
+    uuid: UUID
+
     bout_uuid: UUID
     period: int
     num: int
