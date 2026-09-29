@@ -13,6 +13,7 @@ import JammerTrip from "@/features/jams/components/jammer-trip";
 import { useJam, useSuspenseJam } from "@/features/jams/hooks/use-jam";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
+import JammerController from "@/features/new-operator/components/jammer-controller";
 import Undoer from "@/features/new-operator/components/undoer";
 import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
@@ -27,9 +28,6 @@ import JammerTripControl from "@/features/operator/components/jammer-trip-contro
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import TimeoutEditor from "@/features/operator/components/timeout-editor";
 import { useSetActiveBout } from "@/features/operator/hooks/use-set-active-bout";
-import { useTeamJamAddLead } from "@/features/operator/hooks/use-team-jam-add-lead";
-import { useTeamJamAddLost } from "@/features/operator/hooks/use-team-jam-add-lost";
-import { useTeamJamAddStarPass } from "@/features/operator/hooks/use-team-jam-add-star-pass";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import { useSuspenseGetAllSeries } from "@/hooks/use-series";
 import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
@@ -51,17 +49,13 @@ import {
   Button,
   Card,
   Center,
-  Checkbox,
   Collapse,
-  createTheme,
   Divider,
   Fieldset,
   Flex,
   Grid,
   Group,
-  GroupProps,
   Loader,
-  MantineProvider,
   Modal,
   NavLink,
   Paper,
@@ -73,11 +67,7 @@ import {
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
-import {
-  IconExternalLink,
-  IconPlus,
-  IconStarFilled,
-} from "@tabler/icons-react";
+import { IconExternalLink, IconPlus } from "@tabler/icons-react";
 import { useQueries, UseQueryResult } from "@tanstack/react-query";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -123,74 +113,6 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
 
 function OperatorBoutController({ bout }: { bout: Bout }) {
   return <Text>Bout UUID!: {bout.uuid};</Text>;
-}
-
-const checkBoxTheme = createTheme({
-  cursorType: "pointer", // Hovering over checkbox should change cursor
-});
-
-interface JammerStateControlProps extends GroupProps {
-  jam: Jam;
-  team: Team;
-}
-
-function JammerControl({ jam, team, ...props }: JammerStateControlProps) {
-  const teamJamUri = {
-    boutUuid: jam.boutUuid,
-    periodNum: jam.period,
-    jamNum: jam.num,
-    teamNum: team.num,
-  };
-
-  const setLead = useTeamJamAddLead({ ...teamJamUri });
-  const setLost = useTeamJamAddLost({ ...teamJamUri });
-  const setStarPass = useTeamJamAddStarPass({ ...teamJamUri });
-
-  const leadIsDeclared = jam.teamJams.some((teamJam) =>
-    teamJam.events.some((event) => event.lead),
-  );
-
-  const teamJam = jam.teamJams.find((teamJam) => teamJam.teamNum == team.num);
-  const disabled = teamJam == null;
-  const lead = teamJam?.events.some((event) => event.lead) ?? false;
-  const lost = teamJam?.events.some((event) => event.lost) ?? false;
-  const starPass = teamJam?.events.some((event) => event.starPass) ?? false;
-  // const numTrips =
-  //   teamJam?.events.reduce<number>(
-  //     (sum: number, event: TripEvent) => sum + Number(event.passes != null),
-  //     0,
-  //   ) ?? 0;
-
-  return (
-    <MantineProvider theme={checkBoxTheme}>
-      <Fieldset variant="unstyled" disabled={disabled}>
-        <Group justify="center" gap="md" {...props}>
-          <Checkbox
-            label="Lead"
-            checked={lead}
-            disabled={leadIsDeclared && !lead}
-            onClick={() => setLead.mutate(!lead)}
-            variant="outline"
-            icon={({ ...others }) => <IconStarFilled {...others} />}
-          />
-          <Divider orientation="vertical" />
-          <Checkbox
-            label="Lost"
-            checked={lost}
-            onClick={() => setLost.mutate(!lost)}
-            variant="outline"
-          />
-          <Divider orientation="vertical" />
-          <Checkbox
-            label="Star Pass"
-            checked={starPass}
-            onClick={() => setStarPass.mutate(!starPass)}
-            variant="outline"
-          />
-        </Group>
-      </Fieldset>
-    </MantineProvider>
-  );
 }
 
 function OperatorTeamJamController({
@@ -256,7 +178,7 @@ function OperatorTeamJamController({
           </Flex>
         </Grid.Col>
       </Grid>
-      <JammerControl
+      <JammerController
         justify="space-between"
         mx="md"
         jam={activeJam}
