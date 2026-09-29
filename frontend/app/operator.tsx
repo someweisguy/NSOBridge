@@ -14,6 +14,7 @@ import { useJam, useSuspenseJam } from "@/features/jams/hooks/use-jam";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
 import JammerController from "@/features/new-operator/components/jammer-controller";
+import TripController from "@/features/new-operator/components/trip-controller";
 import Undoer from "@/features/new-operator/components/undoer";
 import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
@@ -73,7 +74,6 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
-
 const root: HTMLElement | null = document.getElementById("root");
 if (root != null) {
   document.title = "NSO Bridge";
@@ -185,7 +185,7 @@ function OperatorTeamJamController({
         team={team}
         {...ruleset}
       />
-
+      <TripController jam={activeJam} team={team} w="100%" />
       <Text>
         Active: P{activeJam.period + 1} J{activeJam.num + 1}; Latest: P
         {latestJam.period + 1} J{latestJam.num + 1};
