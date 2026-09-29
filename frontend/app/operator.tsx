@@ -194,8 +194,8 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
     <Card
       withBorder
       orientation="horizontal"
-      w="100%"
-      h="100%"
+      w="fit-content"
+      h="fit-content"
       m="md"
       shadow="lg"
     >
