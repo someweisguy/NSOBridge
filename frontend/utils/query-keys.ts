@@ -19,18 +19,10 @@ export const rulesetKeys = {
 
 export const jamKeys = {
   all: ["jams"] as const,
-  one: (boutUuid: string, periodNum: number, jamNum: number) => [
-    ...jamKeys.all,
-    boutUuid,
-    [periodNum, jamNum],
-  ],
+  one: (uuid: string) => [...jamKeys.all, uuid] as const,
 };
 
 export const timeoutKeys = {
   all: ["timeouts"] as const,
-  one: (boutUuid: string, timeoutNum: number) => [
-    ...timeoutKeys.all,
-    boutUuid,
-    timeoutNum,
-  ],
+  one: (uuid: string) => [...timeoutKeys.all, uuid] as const,
 };

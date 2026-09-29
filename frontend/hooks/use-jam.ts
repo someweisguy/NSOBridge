@@ -3,7 +3,7 @@ import { Jam } from "@/types/jam";
 import {
   AppQueryOptions,
   AppSuspenseQueryOptions,
-  JamUri,
+  CacheUuid,
 } from "@/types/query";
 import { jamKeys } from "@/utils/query-keys";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -15,16 +15,14 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
  * @returns a Tanstack useQuery object containing the desired Jam.
  */
 export const useJam = ({
-  boutUuid,
-  periodNum,
-  jamNum,
+  uuid,
   ...options
-}: JamUri & AppQueryOptions<Jam>) =>
+}: CacheUuid & AppQueryOptions<Jam>) =>
   useQuery({
-    queryKey: jamKeys.one(boutUuid, periodNum, jamNum),
+    queryKey: jamKeys.one(uuid),
     queryFn: () =>
       localAPI.get<Jam>("jam", {
-        query: { boutUuid, periodNum, jamNum },
+        query: { uuid },
       }),
     ...options,
   });
@@ -36,16 +34,14 @@ export const useJam = ({
  * @returns a Tanstack useSuspenseQuery object containing the desired Jam.
  */
 export const useSuspenseJam = <T = Jam>({
-  boutUuid,
-  periodNum,
-  jamNum,
+  uuid,
   ...options
-}: JamUri & AppSuspenseQueryOptions<Jam, T>) =>
+}: CacheUuid & AppSuspenseQueryOptions<Jam, T>) =>
   useSuspenseQuery<Jam, Error, T>({
-    queryKey: jamKeys.one(boutUuid, periodNum, jamNum),
+    queryKey: jamKeys.one(uuid),
     queryFn: () =>
       localAPI.get<Jam>("jam", {
-        query: { boutUuid, periodNum, jamNum },
+        query: { uuid },
       }),
     ...options,
   });

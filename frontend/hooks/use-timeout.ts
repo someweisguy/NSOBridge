@@ -2,7 +2,7 @@ import { localAPI } from "@/lib/requests";
 import {
   AppQueryOptions,
   AppSuspenseQueryOptions,
-  TimeoutUri,
+  CacheUuid,
 } from "@/types/query";
 import { Timeout } from "@/types/timeout";
 import { timeoutKeys } from "@/utils/query-keys";
@@ -19,18 +19,17 @@ import {
  * @returns a Tanstack useQuery object containing the desired Timeout.
  */
 export const useTimeout = <T = Timeout>({
-  boutUuid,
-  timeoutNum,
+  uuid,
   ...options
-}: TimeoutUri & AppQueryOptions<Timeout | T>): UseQueryResult<
+}: CacheUuid & AppQueryOptions<Timeout | T>): UseQueryResult<
   Timeout | T,
   Error
 > =>
   useQuery({
-    queryKey: timeoutKeys.one(boutUuid, timeoutNum),
+    queryKey: timeoutKeys.one(uuid),
     queryFn: () =>
       localAPI.get<Timeout>("timeout", {
-        query: { boutUuid, num: timeoutNum }, // TODO: fix alias
+        query: { uuid },
       }),
     ...options,
   });
@@ -42,15 +41,14 @@ export const useTimeout = <T = Timeout>({
  * @returns a Tanstack useSuspenseQuery object containing the desired Timeout.
  */
 export const useSuspenseTimeout = ({
-  boutUuid,
-  timeoutNum,
+  uuid,
   ...options
-}: TimeoutUri & AppSuspenseQueryOptions<Timeout>) =>
+}: CacheUuid & AppSuspenseQueryOptions<Timeout>) =>
   useSuspenseQuery({
-    queryKey: timeoutKeys.one(boutUuid, timeoutNum),
+    queryKey: timeoutKeys.one(uuid),
     queryFn: () =>
       localAPI.get<Timeout>("timeout", {
-        query: { boutUuid, num: timeoutNum }, // TODO: fix alias
+        query: { uuid },
       }),
     ...options,
   });

@@ -53,77 +53,9 @@ export type AppMutationOptions<
   TContext = unknown,
 > = Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutateFn">;
 
-/**
- * A URI which uniquely identifies a Series.
- */
-export interface SeriesUri {
+export interface CacheUuid {
   /**
-   * The UUID of the Series.
+   * The UUID of the object.
    */
-  seriesUuid: string;
-}
-
-/**
- * A URI which uniquely identifies a Bout.
- */
-export interface BoutUri {
-  /**
-   * The UUID of the Bout.
-   */
-  boutUuid: string;
-}
-
-/**
- * A URI which uniquely identifies a Team within a Bout.
- */
-export interface TeamUri extends BoutUri {
-  /**
-   * The unique Team identifier.
-   */
-  teamNum: number;
-}
-
-/**
- * A URI which uniquely identifies a Jam.
- */
-export interface JamUri extends BoutUri {
-  /**
-   * The Period number of the Jam.
-   */
-  periodNum: number;
-  /**
-   * The Jam number of the Jam.
-   */
-  jamNum: number;
-}
-
-/**
- * A URI which uniquely identifies a Timeout in a Bout.
- */
-export interface TimeoutUri extends BoutUri {
-  /**
-   * The Timeout number.
-   */
-  timeoutNum: number;
-}
-
-/**
- * A URI which uniquely identifies a TeamJam within a Jam.
- */
-export interface TeamJamUri extends JamUri {
-  /**
-   * The Team number. In game types with more than two teams it should be ensured that
-   * the specified Team is in the desired TeamJam.
-   */
-  teamNum: number;
-}
-
-/**
- * A URI which uniquely identifies a Trip Event within a TeamJam.
- */
-export interface TripEventUri extends TeamJamUri {
-  /**
-   * The Trip Event UUID.
-   */
-  eventUuid: string;
+  uuid: string;
 }

@@ -4,7 +4,7 @@ import { Bout } from "@/types/bout";
 import {
   AppQueryOptions,
   AppSuspenseQueryOptions,
-  BoutUri,
+  CacheUuid,
 } from "@/types/query";
 import { boutKeys } from "@/utils/query-keys";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -16,12 +16,12 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
  * @returns a Tanstack useQuery object containing the desired Bout.
  */
 export const useBout = ({
-  boutUuid,
+  uuid,
   ...options
-}: BoutUri & AppQueryOptions<Bout>) =>
+}: CacheUuid & AppQueryOptions<Bout>) =>
   useQuery<Bout>({
-    queryKey: boutKeys.one(boutUuid),
-    queryFn: () => localAPI.get("bout", { query: { boutUuid } }),
+    queryKey: boutKeys.one(uuid),
+    queryFn: () => localAPI.get("bout", { query: { uuid } }),
     ...options,
   });
 
@@ -32,14 +32,14 @@ export const useBout = ({
  * @returns a Tanstack useSuspenseQuery object containing the desired Bout.
  */
 export const useSuspenseBout = ({
-  boutUuid,
+  uuid,
   ...options
-}: BoutUri & AppSuspenseQueryOptions<Bout>) =>
+}: CacheUuid & AppSuspenseQueryOptions<Bout>) =>
   useSuspenseQuery<Bout>({
-    queryKey: boutKeys.one(boutUuid),
+    queryKey: boutKeys.one(uuid),
     queryFn: () =>
       localAPI.get<Bout>("bout", {
-        query: { boutUuid },
+        query: { uuid },
       }),
     ...options,
   });

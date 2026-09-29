@@ -3,7 +3,7 @@ import { localAPI } from "@/lib/requests";
 import {
   AppQueryOptions,
   AppSuspenseQueryOptions,
-  SeriesUri,
+  CacheUuid,
 } from "@/types/query";
 import { Series } from "@/types/series";
 import { seriesKeys } from "@/utils/query-keys";
@@ -21,12 +21,12 @@ import {
  * @returns a Tanstack useSuspenseQuery object containing an array of all Series.
  */
 export const useSuspenseSeries = <T = Series>({
-  seriesUuid,
+  uuid,
   ...options
-}: SeriesUri & AppSuspenseQueryOptions<Series, T>) =>
+}: CacheUuid & AppSuspenseQueryOptions<Series, T>) =>
   useSuspenseQuery({
-    queryKey: seriesKeys.one(seriesUuid),
-    queryFn: () => localAPI.get<Series>("series", { query: { seriesUuid } }),
+    queryKey: seriesKeys.one(uuid),
+    queryFn: () => localAPI.get<Series>("series", { query: { uuid } }),
     ...options,
   });
 
