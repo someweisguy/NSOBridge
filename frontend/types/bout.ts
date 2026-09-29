@@ -11,11 +11,7 @@ import { Clock } from "./time";
  *
  */
 export type BoutStateString =
-  | "stopped"
-  | "lineup"
-  | "jam"
-  | "timeout"
-  | "final";
+  "stopped" | "lineup" | "jam" | "timeout" | "final";
 
 /**
  * Describes the sub-state of the Bout. This is used for more descriptive event
@@ -86,7 +82,14 @@ export interface Bout {
    * overtime. It is guaranteed that there will always be at least one Jam in a Bout,
    * even if it hasn't started.
    */
-  jamCounts: [number, number, number];
+  jamCounts: [number, number, number]; // FIXME: remove
+  /**
+   * The UUIDs of the Jams in this Bout, per period .The "third Period" value is used to
+   * track the number of overtime Jams and is used to determine if this Bout is in
+   * overtime. It is guaranteed that there will always be at least one Jam in a Bout,
+   * even if it hasn't started.
+   */
+  jamUuids: [string[], string[], string[]];
   /**
    * The Period and Jam number of the latest played or current Jam.
    */
@@ -94,7 +97,11 @@ export interface Bout {
   /**
    * The number of Timeouts that have been called in this Bout.
    */
-  timeoutCount: number;
+  timeoutCount: number; // FIXME: remove
+  /**
+   * The UUIDs of the Timeouts that have been called in this Bout.
+   */
+  timeoutUuids: string[];
 }
 
 /**

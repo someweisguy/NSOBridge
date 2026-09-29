@@ -16,6 +16,8 @@ from .models import Timeout
 class TimeoutSchema(ServerSchema):
     """Represent a Timeout as a JSON schema."""
 
+    uuid: UUID
+
     bout: Annotated[BaseBout, SkipValidation] = Field(exclude=True)
     jam: Annotated[Jam, SkipValidation] = Field(exclude=True)
     team: Annotated[Team | None, SkipValidation] = Field(exclude=True)

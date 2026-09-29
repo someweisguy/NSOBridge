@@ -84,6 +84,7 @@ class BoutSchema(ServerSchema):
     @computed_field
     @property
     def jam_counts(self) -> tuple[int, int, int]:
+        # TODO: remove me
         """A tuple representing the number of jams in this Bout per Period.
 
         Returns:
@@ -94,6 +95,20 @@ class BoutSchema(ServerSchema):
         for jam in self.jams:
             counts[jam.period] = counts.get(jam.period, 0) + 1
         return counts.get(0, 0), counts.get(1, 0), counts.get(2, 0)
+
+    @computed_field
+    @property
+    def jam_uuids(self) -> tuple[list[UUID], list[UUID], list[UUID]]:
+        """A tuple listing all the Jams in this Bout, by period.
+
+        Returns:
+            tuple[list[UUID], list[UUID], list[UUID]]: the Jam UUIDs.
+
+        """
+        uuids: tuple[list[UUID], list[UUID], list[UUID]] = [], [], []
+        for jam in self.jams:
+            uuids[jam.period].append(jam.uuid)
+        return uuids
 
     @computed_field
     @property
@@ -125,3 +140,16 @@ class BoutSchema(ServerSchema):
 
         """
         return len(self.timeouts)
+
+    @computed_field
+    @property
+    def timeout_uuids(self) -> tuple[UUID, ...]:
+        """Get the UUIDs of the Timeouts that have been called in this Bout.
+
+        Returns:
+            list[UUID]: the UUIDs of the Timeouts that have been called.
+
+        """
+        return tuple(
+            timeout.uuid for timeout in self.timeouts if isinstance(timeout.uuid, UUID)
+        )

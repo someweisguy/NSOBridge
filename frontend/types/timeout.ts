@@ -7,6 +7,10 @@ import { OneShot } from "./time";
  */
 export interface Timeout extends OneShot {
   /**
+   * The UUID of this Timeout.
+   */
+  uuid: string;
+  /**
    * The UUID of the Bout associated with this Timeout.
    */
   boutUuid: string;
