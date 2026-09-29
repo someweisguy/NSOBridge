@@ -32,7 +32,6 @@ from .types import StopReasonStr  # noqa: TC001 - Make SQLAlchemy happy
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from core.app import CacheKey
     from game.bouts.models import BaseBout, Team
 
 
@@ -96,10 +95,6 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
 
         """
         return f'P{self.period + 1}-J{self.num + 1} in {self.bout}'
-
-    @override
-    def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self._bout_uuid, [self.period, self.num])
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:

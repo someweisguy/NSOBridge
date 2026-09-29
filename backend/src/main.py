@@ -57,8 +57,8 @@ async def lifespan(app: FastAPI):
     logging.debug('Checking database for model data')
     async with session_factory() as session:
         try:
-            statement: Select[tuple[Series]] = select(Series)
-            results: Result[tuple[Series]] = await session.execute(statement)
+            statement: Select[Series] = select(Series)
+            results: Result[Series] = await session.execute(statement)
         except Exception as e:
             logging.critical(e)
             raise

@@ -19,7 +19,6 @@ from sqlalchemy.orm.exc import DetachedInstanceError
 from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol
 
 if TYPE_CHECKING:
-    from core.app import CacheKey
     from game.jams.models import Jam
     from game.series.models import Series
 
@@ -92,6 +91,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
             The first team in the sequence is considered the home team.
 
         """
+        # It's okay to instantiate this "abstract" class
         return BaseBout(
             _created_on=datetime.now(),
             uuid=uuid4(),
@@ -99,7 +99,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
             ruleset_name=ruleset_name,
             clock=Clock.create(),
             teams=[Team.create(name, num) for num, name in enumerate(team_names)],
-        )
+        )  # ty: ignore[call-non-callable]
 
     def __str__(self) -> str:
         """Return a str representation of this Bout.
@@ -115,11 +115,6 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
         super().__init_subclass__(**kwargs)
         if 'ruleset' not in cls.__dict__:
             raise RuntimeError('Concrete Bout classes must define a ruleset.')
-
-    @final
-    @override
-    def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.uuid)
 
     @final
     @override

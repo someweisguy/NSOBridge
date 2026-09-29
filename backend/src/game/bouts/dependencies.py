@@ -19,10 +19,8 @@ async def _get_bout(
     user: GetUser,
     bout_uuid: Annotated[UUID, Query(alias='boutUuid')],
 ) -> BaseBout:
-    statement: Select[tuple[BaseBout]] = select(BaseBout).where(
-        BaseBout.uuid == bout_uuid
-    )
-    results: Result[tuple[BaseBout]] = await user.session.execute(statement)
+    statement: Select[BaseBout] = select(BaseBout).where(BaseBout.uuid == bout_uuid)
+    results: Result[BaseBout] = await user.session.execute(statement)
 
     try:
         bout: BaseBout = results.scalar_one()

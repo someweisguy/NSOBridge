@@ -16,8 +16,8 @@ async def _get_timeout(
     user: GetUser,
     uuid: Annotated[UUID, Query()],
 ) -> Timeout:
-    statement: Select[tuple[Timeout]] = select(Timeout).where(Timeout.uuid == uuid)
-    results: Result[tuple[Timeout]] = await user.session.execute(statement)
+    statement: Select[Timeout] = select(Timeout).where(Timeout.uuid == uuid)
+    results: Result[Timeout] = await user.session.execute(statement)
 
     try:
         timeout: Timeout = results.scalar_one()

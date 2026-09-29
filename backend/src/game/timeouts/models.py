@@ -13,7 +13,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import Constraint, UniqueConstraint
 
 if TYPE_CHECKING:
-    from core.app import CacheKey
     from game.bouts.models import BaseBout, Team
     from game.jams.models import Jam
 
@@ -85,10 +84,6 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
         """
         return f'timeout {self.num + 1} in {self.bout}'
-
-    @override
-    def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self._bout_uuid, self.num)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:

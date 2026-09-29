@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import override
 from uuid import uuid4
 
 from core.db import CASCADE_CHILD, BaseSQLModel, CacheableSQLModel
 from game.bouts.models import BaseBout
 from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-if TYPE_CHECKING:
-    from core.app import CacheKey
 
 
 class Series(CacheableSQLModel):
@@ -84,10 +81,6 @@ class Series(CacheableSQLModel):
 
         # I'm not sure why ty thinks this is an invalid assignment...
         self._active_bout_uuid = bout.uuid  # ty:ignore[invalid-assignment]
-
-    @override
-    def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.uuid)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:

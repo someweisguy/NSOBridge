@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from abc import abstractmethod
 from datetime import timedelta
 from math import floor
-from typing import TYPE_CHECKING, Any, Iterable, override
+from typing import TYPE_CHECKING, Any, Iterable, final, override
 from uuid import UUID  # noqa: TC003 - Make SQLAlchemy happy.
 
 from sqlalchemy import inspect
@@ -139,7 +138,7 @@ class CacheableSQLModel(BaseSQLModel):
 
     __abstract__: bool = True
 
-    @abstractmethod
+    @final
     def cache_key(self) -> CacheKey:
         """Get the cache key of this model.
 
@@ -151,7 +150,7 @@ class CacheableSQLModel(BaseSQLModel):
             CacheKey: the unique cache key of this model.
 
         """
-        ...
+        return self.__table__, self.uuid
 
 
 class DatabaseMemento(Memento):

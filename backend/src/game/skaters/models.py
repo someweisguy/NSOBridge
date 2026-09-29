@@ -10,7 +10,6 @@ from sqlalchemy import Constraint, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from core.app import CacheKey
     from game.bouts.models import Team
 
 
@@ -45,10 +44,6 @@ class Skater(CacheableSQLModel):
 
         """
         super().__init__(name=name, number=number)
-
-    @override
-    def cache_key(self) -> CacheKey:
-        return (self.__tablename__, self.team._bout_uuid, self.team.num, self.num)
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:

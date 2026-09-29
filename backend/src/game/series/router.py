@@ -23,8 +23,8 @@ router.add_api_route('', _get_series, response_model=SeriesSchema)
 @router.get('/allSeries', response_model=list[SeriesSchema])
 async def get_all_series(session: GetAsyncSession) -> Sequence[Series]:
     """Get all the Series in the database."""
-    statement: Select[tuple[Series]] = select(Series)
-    results: Result[tuple[Series]] = await session.execute(statement)
+    statement: Select[Series] = select(Series)
+    results: Result[Series] = await session.execute(statement)
 
     return results.scalars().all()
 

@@ -18,13 +18,13 @@ async def _get_jam(
     user: GetUser,
     uuid: Annotated[UUID, Query()],
 ) -> Jam:
-    statement: Select[tuple[Jam]] = (
+    statement: Select[Jam] = (
         select(Jam)
         # Use `selectinload` to allow cache updates of Bout models when Jam is mutated
         .options(selectinload(Jam.bout).selectinload(BaseBout.jams))
         .where(Jam.uuid == uuid)
     )
-    results: Result[tuple[Jam]] = await user.session.execute(statement)
+    results: Result[Jam] = await user.session.execute(statement)
 
     try:
         jam: Jam = results.scalar_one()

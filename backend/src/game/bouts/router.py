@@ -125,8 +125,8 @@ async def get_all_rulesets() -> set[RulesetSchema]:
 @router.get('/allBouts', response_model=list[BoutSchema])
 async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
     """Get all the Bouts in the database."""
-    statement: Select[tuple[BaseBout]] = select(BaseBout)
-    results: Result[tuple[BaseBout]] = await session.execute(statement)
+    statement: Select[BaseBout] = select(BaseBout)
+    results: Result[BaseBout] = await session.execute(statement)
 
     return results.scalars().all()
 

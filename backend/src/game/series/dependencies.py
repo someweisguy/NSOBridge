@@ -21,8 +21,8 @@ async def _get_series(
     user: GetUser,
     series_uuid: Annotated[UUID, Query(alias='seriesUuid')],
 ) -> Series:
-    statement: Select[tuple[Series]] = select(Series).where(Series.uuid == series_uuid)
-    results: Result[tuple[Series]] = await user.session.execute(statement)
+    statement: Select[Series] = select(Series).where(Series.uuid == series_uuid)
+    results: Result[Series] = await user.session.execute(statement)
 
     try:
         series: Series = results.scalar_one()
@@ -43,8 +43,8 @@ async def _get_optional_series(
     if series_uuid is None:
         return None
 
-    statement: Select[tuple[Series]] = select(Series).where(Series.uuid == series_uuid)
-    results: Result[tuple[Series]] = await session.execute(statement)
+    statement: Select[Series] = select(Series).where(Series.uuid == series_uuid)
+    results: Result[Series] = await session.execute(statement)
 
     try:
         series: Series = results.scalar_one()
