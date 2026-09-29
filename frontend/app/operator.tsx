@@ -13,7 +13,7 @@ import BoutEditor from "@/features/operator/components/bout-editor";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { Bout, Team } from "@/types/bout";
-import { Jam } from "@/types/jam";
+import { Jam, TeamJam } from "@/types/jam";
 import { Timeout } from "@/types/timeout";
 import { isRunning } from "@/utils/time";
 import {
@@ -28,13 +28,18 @@ import {
   Loader,
   NavLink,
   Paper,
+  px,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
-import { IconExternalLink } from "@tabler/icons-react";
+import {
+  IconExternalLink,
+  IconStarFilled,
+  IconStarOff,
+} from "@tabler/icons-react";
 import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
@@ -76,6 +81,8 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
   padding: "md",
 });
 
+const jammerStatusIconSize = "1rem";
+
 function OperatorBoutController({ bout }: { bout: Bout }) {
   return <Text>Bout UUID!: {bout.uuid};</Text>;
 }
@@ -95,6 +102,15 @@ function OperatorTeamJamController({
   reverse: boolean;
 }) {
   const { data: ruleset } = useSuspenseGetRuleset({ rulesetName });
+
+  const teamJam = activeJam.teamJams.find(
+    (teamJam: TeamJam) => team.num == teamJam.teamNum,
+  );
+  const lead = teamJam?.events.some((event) => event.lead) ?? false;
+  const lost = teamJam?.events.some((event) => event.lost) ?? false;
+  const starPass = teamJam?.events.some((event) => event.starPass) ?? false;
+  const initial =
+    teamJam?.events.some((event) => event.passes != null) ?? false;
 
   return (
     <Stack justify="start" align="center">
@@ -126,7 +142,12 @@ function OperatorTeamJamController({
           </Text>
         </Grid.Col>
         <Grid.Col span={3} order={reverse ? 1 : 12}>
-          <Flex align="center" direction="column-reverse" gap="0">
+          <Flex
+            justify="start"
+            align="center"
+            direction="column-reverse"
+            gap="0"
+          >
             <Paper
               withBorder
               fz="2rem"
@@ -134,11 +155,19 @@ function OperatorTeamJamController({
               ta="center"
               style={{ aspectRatio: "1/1" }}
             >
-              {/* TODO: Show no-initial score */}
-              {team.jamScore}
+              {initial ? team.jamScore : "-"}
             </Paper>
-            {/* TODO: Add Jammer Status icon */}
-            <Text>SP</Text>
+            {starPass ? (
+              <Text fw="500" size={jammerStatusIconSize}>
+                SP
+              </Text>
+            ) : lost ? (
+              <IconStarOff size={px(jammerStatusIconSize)} />
+            ) : lead ? (
+              <IconStarFilled size={px(jammerStatusIconSize)} />
+            ) : (
+              <></>
+            )}
           </Flex>
         </Grid.Col>
       </Grid>
