@@ -27,10 +27,7 @@ export const useTimeout = <T = Timeout>({
 > =>
   useQuery({
     queryKey: timeoutKeys.one(uuid),
-    queryFn: () =>
-      localAPI.get<Timeout>("timeout", {
-        query: { uuid },
-      }),
+    queryFn: () => localAPI.get<Timeout>("timeout", { query: { uuid } }),
     ...options,
   });
 
@@ -46,9 +43,6 @@ export const useSuspenseTimeout = ({
 }: CacheUuid & AppSuspenseQueryOptions<Timeout>) =>
   useSuspenseQuery({
     queryKey: timeoutKeys.one(uuid),
-    queryFn: () =>
-      localAPI.get<Timeout>("timeout", {
-        query: { uuid },
-      }),
+    queryFn: () => localAPI.get<Timeout>("timeout", { query: { uuid } }),
     ...options,
   });

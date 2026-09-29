@@ -20,10 +20,7 @@ export const useJam = ({
 }: CacheUuid & AppQueryOptions<Jam>) =>
   useQuery({
     queryKey: jamKeys.one(uuid),
-    queryFn: () =>
-      localAPI.get<Jam>("jam", {
-        query: { uuid },
-      }),
+    queryFn: () => localAPI.get<Jam>("jam", { query: { uuid } }),
     ...options,
   });
 
@@ -39,9 +36,6 @@ export const useSuspenseJam = <T = Jam>({
 }: CacheUuid & AppSuspenseQueryOptions<Jam, T>) =>
   useSuspenseQuery<Jam, Error, T>({
     queryKey: jamKeys.one(uuid),
-    queryFn: () =>
-      localAPI.get<Jam>("jam", {
-        query: { uuid },
-      }),
+    queryFn: () => localAPI.get<Jam>("jam", { query: { uuid } }),
     ...options,
   });
