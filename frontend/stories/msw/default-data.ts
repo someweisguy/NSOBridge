@@ -120,7 +120,7 @@ export const defaultDataHandlers = [
       ],
     },
     {
-      uuid: "727663f3-4421-47e1-ae19-424dcfce895b",
+      uuid: "727663f3-4421-47e1-ae19-424dcece895b",
     },
   ),
   getHandlerFactory(

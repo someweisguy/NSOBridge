@@ -10,15 +10,15 @@ import { Bout } from "@/types/bout";
  * @returns A Tanstack Suspense Query object pointing to the active Jam.
  */
 export default function useSuspenseLatestJam(bout: Bout) {
-  let periodNum = 0;
-  for (let i = bout.jamCounts.length - 1; i >= 0; --i) {
-    // Get the latest Period number that contains Jams
-    if (bout.jamCounts[i] > 0) {
-      periodNum = i;
-      break;
+  let uuid: string | null = null;
+  for (const period of bout.jamUuids) {
+    if (period.length > 0) {
+      uuid = period[period.length - 1];
     }
   }
-  const jamNum = bout.jamCounts[periodNum] - 1;
+  if (uuid == null) {
+    throw new Error("There are no Jams in this Bout");
+  }
 
-  return useSuspenseJam({ uuid: bout.jamUuids[periodNum][jamNum] });
+  return useSuspenseJam({ uuid });
 }
