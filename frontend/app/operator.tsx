@@ -114,8 +114,11 @@ function BoutClock({ bout }: { bout: Bout }) {
           P{periodNum} J{jamNum}
         </Grid.Col>
         <Grid.Col span={4}>
-          {/* TODO: show Jam stop reason */}
-          <ClockView alarm={ruleset.jamDuration} {...activeJam} fz="1.5rem" />
+          {activeJam.stopTimestamp == null ? (
+            <ClockView alarm={ruleset.jamDuration} {...activeJam} fz="1.5rem" />
+          ) : (
+            "-" // TODO: show jam stop reason
+          )}
         </Grid.Col>
       </Grid>
     </Paper>
