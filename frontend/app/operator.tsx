@@ -108,6 +108,7 @@ function BoutClock({ bout }: { bout: Bout }) {
         fz="1.5rem"
       >
         <Grid.Col span={4}>
+          {/* TODO: Overtime display */}
           <ClockView {...bout.clock} fz="1.5rem" />
         </Grid.Col>
         <Grid.Col span={4}>
