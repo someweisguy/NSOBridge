@@ -1,3 +1,4 @@
+import ClockView from "@/components/clock-view";
 import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
@@ -10,6 +11,7 @@ import useSuspenseLatestJam from "@/features/new-operator/hooks/use-latest-jam";
 import useSuspenseLatestTimeout from "@/features/new-operator/hooks/use-latest-timeout";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
 import BoutEditor from "@/features/operator/components/bout-editor";
+import { useSuspenseJam } from "@/hooks/use-jam";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { Bout, Team } from "@/types/bout";
@@ -22,6 +24,7 @@ import {
   Burger,
   Card,
   Center,
+  Divider,
   Flex,
   Grid,
   Group,
@@ -83,8 +86,50 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
 
 const jammerStatusIconSize = "1rem";
 
+function BoutClock({ bout }: { bout: Bout }) {
+  const { data: ruleset } = useSuspenseGetRuleset({
+    rulesetName: bout.rulesetName,
+  });
+
+  const { data: activeJam } = useSuspenseJam({ uuid: bout.activeJamUuid });
+  const periodNum = Math.min(activeJam.period, 1) + 1;
+  let jamNum = activeJam.num + 1;
+  if (activeJam.period > 1) {
+    jamNum += bout.jamUuids[1].length;
+  }
+
+  return (
+    <Paper withBorder m="md">
+      <Grid
+        justify="space-between"
+        align="center"
+        p="sm"
+        ta="center"
+        fz="1.5rem"
+      >
+        <Grid.Col span={4}>
+          <ClockView {...bout.clock} fz="1.5rem" />
+        </Grid.Col>
+        <Grid.Col span={4}>
+          P{periodNum} J{jamNum}
+        </Grid.Col>
+        <Grid.Col span={4}>
+          {/* TODO: show Jam stop reason */}
+          <ClockView alarm={ruleset.jamDuration} {...activeJam} fz="1.5rem" />
+        </Grid.Col>
+      </Grid>
+    </Paper>
+  );
+}
+
 function OperatorBoutController({ bout }: { bout: Bout }) {
-  return <Text>Bout UUID!: {bout.uuid};</Text>;
+  return (
+    <Stack>
+      <BoutClock bout={bout} />
+      <Divider />
+      <Text p="md">Bout UUID!: {bout.uuid}</Text>
+    </Stack>
+  );
 }
 
 function OperatorTeamJamController({
