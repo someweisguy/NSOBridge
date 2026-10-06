@@ -46,6 +46,7 @@ import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
+import BoutController from "@/features/new-operator/components/bout-controller";
 const root: HTMLElement | null = document.getElementById("root");
 if (root != null) {
   document.title = "NSO Bridge";
@@ -72,11 +73,13 @@ const jammerStatusIconSize = "1rem";
 
 function OperatorBoutController({ bout }: { bout: Bout }) {
   return (
-    <Stack gap="0">
-      <BoutClock bout={bout} />
-      <Divider />
-      <Stack>
-        <Text p="md">Bout UUID!: {bout.uuid}</Text>
+    <Stack mb="lg">
+      <Stack gap="0" w="100%">
+        <BoutClock bout={bout} />
+        <Divider />
+      </Stack>
+      <Stack justify="start" align="stretch" px="xs">
+        <BoutController bout={bout} />
       </Stack>
     </Stack>
   );
