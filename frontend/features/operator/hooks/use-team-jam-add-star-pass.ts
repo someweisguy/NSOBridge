@@ -1,6 +1,15 @@
 import { localAPI } from "@/lib/requests";
-import { AppMutationOptions, TeamJamUri } from "@/types/query";
+import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
+
+export interface UseTeamJamAddStarPassProps extends AppMutationOptions<
+  void,
+  unknown,
+  boolean
+> {
+  jamUuid: string;
+  teamNum: number;
+}
 
 /**
  * Adds a star pass to the jammer of this TeamJam.
@@ -8,19 +17,15 @@ import { useMutation } from "@tanstack/react-query";
  * @returns A Tanstack Mutation object which can fire the addJamStarPass mutator.
  */
 export const useTeamJamAddStarPass = ({
-  boutUuid,
-  periodNum,
-  jamNum,
+  jamUuid,
   teamNum,
   ...options
-}: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
+}: UseTeamJamAddStarPassProps) =>
   useMutation({
     mutationFn: (starPass: boolean) =>
       localAPI.post<void>("bout/addStarPass", {
         query: {
-          boutUuid,
-          periodNum,
-          jamNum,
+          jamUuid,
           teamNum,
         },
         body: starPass,

@@ -1,6 +1,15 @@
 import { localAPI } from "@/lib/requests";
-import { AppMutationOptions, TeamJamUri } from "@/types/query";
+import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
+
+export interface UseTeamJamAddTripProps extends AppMutationOptions<
+  void,
+  unknown,
+  number
+> {
+  jamUuid: string;
+  teamNum: number;
+}
 
 /**
  * Adds a jam trip to the TeamJam.
@@ -8,19 +17,15 @@ import { useMutation } from "@tanstack/react-query";
  * @returns A Tanstack Mutation object which can fire the addJamTrip mutator.
  */
 export const useTeamJamAddTrip = ({
-  boutUuid,
-  periodNum,
-  jamNum,
+  jamUuid,
   teamNum,
   ...options
-}: TeamJamUri & AppMutationOptions<void, unknown, number>) =>
+}: UseTeamJamAddTripProps) =>
   useMutation({
     mutationFn: (passes: number) =>
       localAPI.post<void>("bout/addTrip", {
         query: {
-          boutUuid,
-          periodNum,
-          jamNum,
+          jamUuid,
           teamNum,
         },
         body: passes,

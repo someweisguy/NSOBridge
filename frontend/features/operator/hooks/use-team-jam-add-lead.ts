@@ -1,6 +1,15 @@
 import { localAPI } from "@/lib/requests";
-import { AppMutationOptions, TeamJamUri } from "@/types/query";
+import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
+
+export interface UseTeamJamAddLeadProps extends AppMutationOptions<
+  void,
+  unknown,
+  boolean
+> {
+  jamUuid: string;
+  teamNum: number;
+}
 
 /**
  * Sets the lead Jam status of this TeamJam.
@@ -8,19 +17,15 @@ import { useMutation } from "@tanstack/react-query";
  * @returns A Tanstack Mutation object which can fire the addJamLead mutator.
  */
 export const useTeamJamAddLead = ({
-  boutUuid,
-  periodNum,
-  jamNum,
+  jamUuid,
   teamNum,
   ...options
-}: TeamJamUri & AppMutationOptions<void, unknown, boolean>) =>
+}: UseTeamJamAddLeadProps) =>
   useMutation({
     mutationFn: (lead: boolean) =>
       localAPI.post<void>("bout/addLead", {
         query: {
-          boutUuid,
-          periodNum,
-          jamNum,
+          jamUuid,
           teamNum,
         },
         body: lead,
