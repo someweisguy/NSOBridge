@@ -1,6 +1,7 @@
 # Custom Dictionary Words
 ASGI
 autodocs
+bdrs
 cacheables
 Cristian
 getpid
