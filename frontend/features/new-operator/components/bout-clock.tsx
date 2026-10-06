@@ -7,9 +7,8 @@ import {
   Divider,
   Grid,
   Group,
-  Paper,
-  PaperProps,
   Stack,
+  StackProps,
   Text,
 } from "@mantine/core";
 
@@ -28,7 +27,7 @@ const eventNames: Record<BoutSubStateString, string> = {
   final: "Final",
 };
 
-export interface BoutClockProps extends PaperProps {
+export interface BoutClockProps extends StackProps {
   bout: Bout;
 }
 
@@ -48,7 +47,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
   }
 
   return (
-    <Paper shadow="false" {...props}>
+    <Stack justify="center" align="stretch" gap="0" {...props}>
       <Grid
         justify="space-between"
         align="center"
@@ -87,6 +86,6 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
           </Group>
         </Stack>
       </Collapse>
-    </Paper>
+    </Stack>
   );
 }

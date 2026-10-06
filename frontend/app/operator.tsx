@@ -72,10 +72,12 @@ const jammerStatusIconSize = "1rem";
 
 function OperatorBoutController({ bout }: { bout: Bout }) {
   return (
-    <Stack>
+    <Stack gap="0">
       <BoutClock bout={bout} />
       <Divider />
-      <Text p="md">Bout UUID!: {bout.uuid}</Text>
+      <Stack>
+        <Text p="md">Bout UUID!: {bout.uuid}</Text>
+      </Stack>
     </Stack>
   );
 }
