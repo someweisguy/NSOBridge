@@ -69,7 +69,9 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
           <ClockView {...bout.clock} fz="1.5rem" />
         </Grid.Col>
         <Grid.Col span={4}>
-          P{periodNum} J{jamNum}
+          <Text textWrap="nowrap" fz="1.5rem">
+            P{periodNum} J{jamNum}
+          </Text>
         </Grid.Col>
         <Grid.Col span={4}>
           {activeJam.stopTimestamp == null ? (
