@@ -79,7 +79,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
             justify="center"
             align="center"
             p="xs"
-            // bg={"red"}
+            // TODO: set background color according to Bout State
           >
             <Text ta="center">{eventNames[bout.subState] ?? "-"}</Text>
             <ClockView formatter="lineup" {...activeJam} />
