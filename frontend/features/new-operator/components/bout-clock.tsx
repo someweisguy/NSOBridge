@@ -2,6 +2,7 @@ import ClockView from "@/components/clock-view";
 import { useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import { Bout, BoutSubStateString } from "@/types/bout";
+import { StopReasonString } from "@/types/jam";
 import {
   Collapse,
   Divider,
@@ -25,6 +26,13 @@ const eventNames: Record<BoutSubStateString, string> = {
   team_timeout: "Team Timeout",
   official_timeout: "Official Timeout",
   final: "Final",
+};
+
+const stopReasons: Record<StopReasonString, string> = {
+  called: "Called",
+  elapsed: "Time",
+  injury: "Injury",
+  other: "-",
 };
 
 export interface BoutClockProps extends StackProps {
@@ -67,7 +75,9 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
           {activeJam.stopTimestamp == null ? (
             <ClockView alarm={ruleset.jamDuration} {...activeJam} fz="1.5rem" />
           ) : (
-            "-" // TODO: show jam stop reason
+            <Text>
+              {stopReasons[activeJam.stopReason!] ?? stopReasons.other}
+            </Text>
           )}
         </Grid.Col>
       </Grid>
