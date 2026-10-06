@@ -1,5 +1,5 @@
-import ClockView from "@/components/clock-view";
 import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
+import BoutClock from "@/features/new-operator/components/bout-clock";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
 import JammerController from "@/features/new-operator/components/jammer-controller";
@@ -11,7 +11,6 @@ import useSuspenseLatestJam from "@/features/new-operator/hooks/use-latest-jam";
 import useSuspenseLatestTimeout from "@/features/new-operator/hooks/use-latest-timeout";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
 import BoutEditor from "@/features/operator/components/bout-editor";
-import { useSuspenseJam } from "@/hooks/use-jam";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { Bout, Team } from "@/types/bout";
@@ -86,50 +85,13 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
 
 const jammerStatusIconSize = "1rem";
 
-function BoutClock({ bout }: { bout: Bout }) {
-  const { data: ruleset } = useSuspenseGetRuleset({
-    rulesetName: bout.rulesetName,
-  });
-
-  const { data: activeJam } = useSuspenseJam({ uuid: bout.activeJamUuid });
-  const periodNum = Math.min(activeJam.period, 1) + 1;
-  let jamNum = activeJam.num + 1;
-  if (activeJam.period > 1) {
-    jamNum += bout.jamUuids[1].length;
-  }
-
-  return (
-    <Paper withBorder m="md">
-      <Grid
-        justify="space-between"
-        align="center"
-        p="sm"
-        ta="center"
-        fz="1.5rem"
-      >
-        <Grid.Col span={4}>
-          {/* TODO: Overtime display */}
-          <ClockView {...bout.clock} fz="1.5rem" />
-        </Grid.Col>
-        <Grid.Col span={4}>
-          P{periodNum} J{jamNum}
-        </Grid.Col>
-        <Grid.Col span={4}>
-          {activeJam.stopTimestamp == null ? (
-            <ClockView alarm={ruleset.jamDuration} {...activeJam} fz="1.5rem" />
-          ) : (
-            "-" // TODO: show jam stop reason
-          )}
-        </Grid.Col>
-      </Grid>
-    </Paper>
-  );
-}
-
 function OperatorBoutController({ bout }: { bout: Bout }) {
   return (
     <Stack>
-      <BoutClock bout={bout} />
+      <Stack justify="start" align="stretch" gap="0">
+        <BoutClock bout={bout} mb="0" />
+        {/* TODO: Event Clock */}
+      </Stack>
       <Divider />
       <Text p="md">Bout UUID!: {bout.uuid}</Text>
     </Stack>

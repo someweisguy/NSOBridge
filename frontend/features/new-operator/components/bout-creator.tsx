@@ -20,6 +20,7 @@ export interface BoutCreatorProps {
   onSuccess?: (bout: Bout) => void;
 }
 
+// TODO: docs
 export default function BoutCreator({
   activeSeries,
   rulesets,
