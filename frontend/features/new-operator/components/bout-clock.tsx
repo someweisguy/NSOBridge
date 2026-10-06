@@ -1,10 +1,34 @@
 import ClockView from "@/components/clock-view";
 import { useSuspenseJam } from "@/hooks/use-jam";
 import { useSuspenseGetRuleset } from "@/hooks/use-ruleset";
-import { Bout } from "@/types/bout";
-import { Grid, Paper, PaperProps } from "@mantine/core";
+import { Bout, BoutSubStateString } from "@/types/bout";
+import {
+  Collapse,
+  Divider,
+  Grid,
+  Group,
+  Paper,
+  PaperProps,
+  Stack,
+  Text,
+} from "@mantine/core";
 
-interface BoutClockProps extends PaperProps {
+const eventNames: Record<BoutSubStateString, string> = {
+  pregame: "Pregame",
+  halftime: "Halftime",
+  unofficial: "Unofficial",
+  lineup: "Lineup",
+  post_review: "Post-review",
+  post_timeout: "Post-timeout",
+  jam: "Jam",
+  timeout: "Timeout",
+  review: "Official Review",
+  team_timeout: "Team Timeout",
+  official_timeout: "Official Timeout",
+  final: "Final",
+};
+
+export interface BoutClockProps extends PaperProps {
   bout: Bout;
 }
 
@@ -24,13 +48,14 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
   }
 
   return (
-    <Paper withBorder m="md" {...props}>
+    <Paper shadow="false" {...props}>
       <Grid
         justify="space-between"
         align="center"
-        p="sm"
+        p="xs"
         ta="center"
         fz="1.5rem"
+        rowGap="0"
       >
         <Grid.Col span={4}>
           {/* TODO: Overtime display */}
@@ -47,6 +72,21 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
           )}
         </Grid.Col>
       </Grid>
+
+      <Collapse expanded={bout.state != "jam"} w="100%">
+        <Stack justify="start" align="stretch" gap="0">
+          <Divider mx="md" />
+          <Group
+            justify="center"
+            align="center"
+            p="xs"
+            // bg={"red"}
+          >
+            <Text ta="center">{eventNames[bout.subState] ?? "-"}</Text>
+            <ClockView formatter="lineup" {...activeJam} />
+          </Group>
+        </Stack>
+      </Collapse>
     </Paper>
   );
 }

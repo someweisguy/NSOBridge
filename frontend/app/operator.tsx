@@ -56,21 +56,6 @@ if (root != null) {
   );
 }
 
-// const eventNames: Record<BoutSubStateString, string> = {
-//   pregame: "Pregame",
-//   halftime: "Halftime",
-//   unofficial: "Unofficial",
-//   lineup: "Lineup",
-//   post_review: "Post-review",
-//   post_timeout: "Post-timeout",
-//   jam: "Jam",
-//   timeout: "Timeout",
-//   review: "Official Review",
-//   team_timeout: "Team Timeout",
-//   official_timeout: "Official Timeout",
-//   final: "Final",
-// };
-
 const appShellConfig = (disclosure: boolean): AppShellProps => ({
   layout: "alt",
   header: { height: 60 },
@@ -88,10 +73,7 @@ const jammerStatusIconSize = "1rem";
 function OperatorBoutController({ bout }: { bout: Bout }) {
   return (
     <Stack>
-      <Stack justify="start" align="stretch" gap="0">
-        <BoutClock bout={bout} mb="0" />
-        {/* TODO: Event Clock */}
-      </Stack>
+      <BoutClock bout={bout} />
       <Divider />
       <Text p="md">Bout UUID!: {bout.uuid}</Text>
     </Stack>
