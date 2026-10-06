@@ -329,7 +329,9 @@ export default function OperatorPage() {
             </Center>
           }
         >
-          <OperatorInterface bout={activeBout} />
+          <Group w="100%" justify="center">
+            <OperatorInterface bout={activeBout} />
+          </Group>
         </Suspense>
       </AppShell.Main>
     </AppShell>
