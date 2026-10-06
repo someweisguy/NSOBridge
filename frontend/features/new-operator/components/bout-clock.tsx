@@ -92,6 +92,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
             // TODO: set background color according to Bout State
           >
             <Text ta="center">{eventNames[bout.subState] ?? "-"}</Text>
+            {/* TODO: conditionally show ClockView */}
             <ClockView formatter="lineup" {...activeJam} />
           </Group>
         </Stack>
