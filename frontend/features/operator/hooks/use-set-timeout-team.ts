@@ -1,6 +1,14 @@
 import { localAPI } from "@/lib/requests";
-import { AppMutationOptions, TimeoutUri } from "@/types/query";
+import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
+
+export interface UseSetTimeoutTeamProps extends AppMutationOptions<
+  void,
+  Error,
+  number | null
+> {
+  timeoutUuid: string;
+}
 
 /**
  * Sets the calling Team of the desired Timeout. Setting the calling team number to
@@ -9,14 +17,13 @@ import { useMutation } from "@tanstack/react-query";
  * @returns A Tanstack Mutation object which can fire the setTeam mutator.
  */
 export const useSetTimeoutTeam = ({
-  boutUuid,
-  timeoutNum,
+  timeoutUuid,
   ...options
-}: TimeoutUri & AppMutationOptions<void, Error, number | null>) =>
+}: UseSetTimeoutTeamProps) =>
   useMutation({
     mutationFn: (teamNum: number | null) =>
       localAPI.post<void>("timeout/team", {
-        query: { boutUuid, num: timeoutNum },
+        query: { timeoutUuid },
         body: teamNum,
       }),
     ...options,

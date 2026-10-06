@@ -1,7 +1,15 @@
 import { localAPI } from "@/lib/requests";
 import { StopReasonString } from "@/types/jam";
-import { AppMutationOptions, JamUri } from "@/types/query";
+import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
+
+export interface UseSetJamStopReasonProps extends AppMutationOptions<
+  void,
+  Error,
+  StopReasonString
+> {
+  jamUuid: string;
+}
 
 /**
  * Set the stop reason of the desired Jam.
@@ -9,15 +17,13 @@ import { useMutation } from "@tanstack/react-query";
  * @returns A Tanstack Mutation object which can fire the useSetJamStopReason mutator.
  */
 export const useSetJamStopReason = ({
-  boutUuid,
-  periodNum,
-  jamNum,
+  jamUuid,
   ...options
-}: JamUri & AppMutationOptions<void, unknown, StopReasonString>) =>
+}: UseSetJamStopReasonProps) =>
   useMutation({
     mutationFn: (reason: StopReasonString) =>
       localAPI.put<void>("jam/setStopReason", {
-        query: { boutUuid, periodNum, jamNum },
+        query: { jamUuid },
         body: JSON.stringify(reason),
       }),
     ...options,

@@ -1,6 +1,14 @@
 import { localAPI } from "@/lib/requests";
-import { AppMutationOptions, TimeoutUri } from "@/types/query";
+import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
+
+export interface UseSetTimeoutRetainedProps extends AppMutationOptions<
+  void,
+  Error,
+  boolean
+> {
+  timeoutUuid: string;
+}
 
 /**
  * Sets whether or not the desired Timeout is retained.
@@ -8,14 +16,13 @@ import { useMutation } from "@tanstack/react-query";
  * @returns A Tanstack Mutation object which can fire the setRetained mutator.
  */
 export const useSetTimeoutRetained = ({
-  boutUuid,
-  timeoutNum,
+  timeoutUuid,
   ...options
-}: TimeoutUri & AppMutationOptions<void, Error, boolean>) =>
+}: UseSetTimeoutRetainedProps) =>
   useMutation({
     mutationFn: (isRetained: boolean) =>
       localAPI.post<void>("timeout/retained", {
-        query: { boutUuid, num: timeoutNum }, // TODO: fix alias
+        query: { timeoutUuid },
         body: isRetained,
       }),
     ...options,
