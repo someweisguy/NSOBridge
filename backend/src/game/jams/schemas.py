@@ -27,7 +27,6 @@ class TeamJamSchema(ServerSchema):
 
     team_uuid: UUID = Field(validation_alias='_team_uuid')
 
-    team_num: int
     events: list[TripEventSchema]
 
 

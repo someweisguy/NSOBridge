@@ -69,7 +69,7 @@ class TimeoutSchema(ServerSchema):
 
     @computed_field
     @property
-    def team_num(self) -> int | None:
+    def team_uuid(self) -> UUID | None:
         """Get the Team number of the Team that called this Timeout, if any.
 
         Returns:
@@ -79,4 +79,4 @@ class TimeoutSchema(ServerSchema):
         """
         if self.team is None:
             return None
-        return self.team.num
+        return self.team.uuid

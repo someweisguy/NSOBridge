@@ -22,7 +22,7 @@ export default function BoutEditor({ bout }: EditMenuProps) {
     "jams",
     "timeouts",
     "penalties",
-    ...(bout ?? { teams: [] }).teams.map((team: Team) => "team-" + team.num),
+    ...(bout ?? { teams: [] }).teams.map((team: Team) => "team-" + team.uuid),
   ]);
 
   const deleteBout = useDeleteBout({ boutUuid: bout?.uuid ?? "" });
@@ -69,8 +69,8 @@ export default function BoutEditor({ bout }: EditMenuProps) {
             </Menu.Item> */}
             {bout?.teams.map((team: Team) => (
               <Menu.Item
-                key={team.num}
-                onClick={() => modalStack.open("team-" + team.num)}
+                key={team.uuid}
+                onClick={() => modalStack.open("team-" + team.uuid)}
               >
                 {team.name}
               </Menu.Item>
@@ -116,9 +116,9 @@ export default function BoutEditor({ bout }: EditMenuProps) {
         </Modal>
         {bout?.teams.map((team: Team) => (
           <Modal
-            key={team.num}
+            key={team.uuid}
             title={"Edit " + team.name}
-            {...modalStack.register("team-" + team.num)}
+            {...modalStack.register("team-" + team.uuid)}
           >
             <TeamEditor boutUuid={bout?.uuid ?? ""} {...team} />
           </Modal>

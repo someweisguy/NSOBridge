@@ -98,9 +98,9 @@ export interface Bout {
  */
 export interface Team {
   /**
-   * A unique number representing this Team in this Bout.
+   * The UUID identifying this Team.
    */
-  num: number;
+  uuid: string;
   /**
    * The name of this Team.
    */

@@ -37,7 +37,7 @@ export default function TripController({
   pointsPerTrip,
   ...props
 }: TripControllerProps) {
-  const teamJam = jam.teamJams.find((teamJam) => teamJam.teamNum == team.num);
+  const teamJam = jam.teamJams.find((teamJam) => teamJam.teamUuid == team.uuid);
   const teamJamNotInJam = teamJam == null;
   const teamJamHasNoTrips = teamJam?.events.length == 0;
 

@@ -33,10 +33,10 @@ export interface Timeout extends OneShot {
    */
   clockElapsed: number;
   /**
-   * The Team number of the Team which called this timeout or null if the calling team
+   * The UUID of the Team which called this timeout or null if the calling team
    * has not yet been determined.
    */
-  teamNum: number | null;
+  teamUuid: string | null;
   /**
    * True if this Timeout was called by the officials.
    */

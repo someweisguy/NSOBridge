@@ -33,7 +33,7 @@ export default function JammerController({
     teamJam.events.some((event) => event.lead),
   );
 
-  const teamJam = jam.teamJams.find((teamJam) => teamJam.teamNum == team.num);
+  const teamJam = jam.teamJams.find((teamJam) => teamJam.teamUuid == team.uuid);
   const disabled = teamJam == null;
   const lead = teamJam?.events.some((event) => event.lead) ?? false;
   const lost = teamJam?.events.some((event) => event.lost) ?? false;

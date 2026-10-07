@@ -53,10 +53,11 @@ class RulesetSchema(ServerSchema):
 class TeamSchema(ServerSchema):
     """Represent a Team as a JSON schema."""
 
+    uuid: UUID
+
     name: str
     league: str
     mnemonic: str
-    num: int
     bout_score: int
     jam_score: int
     timeouts_remaining: int

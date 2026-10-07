@@ -3,7 +3,7 @@ import { useState } from "react";
 
 interface TeamEditorProps {
   boutUuid: string;
-  num: number;
+  uuid: string;
   name: string;
   timeoutsRemaining: number;
   reviewsRemaining: number;

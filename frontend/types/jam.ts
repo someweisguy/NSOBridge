@@ -46,10 +46,6 @@ export interface TeamJam {
    */
   teamUuid: string;
   /**
-   * The unique number of the Team with which this TeamJam is associated.
-   */
-  teamNum: number;
-  /**
    * An array of Jammer Trip events that have occurred during this Jam.
    */
   events: TripEvent[];

@@ -101,7 +101,7 @@ function OperatorTeamJamController({
   });
 
   const teamJam = activeJam.teamJams.find(
-    (teamJam: TeamJam) => team.num == teamJam.teamNum,
+    (teamJam: TeamJam) => team.uuid == teamJam.teamUuid,
   );
   const lead = teamJam?.events.some((event) => event.lead) ?? false;
   const lost = teamJam?.events.some((event) => event.lost) ?? false;
@@ -125,7 +125,7 @@ function OperatorTeamJamController({
             timeoutIsActive={
               latestTimeout != null &&
               isRunning(latestTimeout) &&
-              latestTimeout.teamNum === team.num
+              latestTimeout.teamUuid === team.uuid
             }
             isReview={latestTimeout?.isReview ?? false}
             {...team}
@@ -199,7 +199,7 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
         <Suspense fallback={<Loader />}>
           {bout.teams.map((team: Team, i: number) => (
             <OperatorTeamJamController
-              key={team.num}
+              key={team.uuid}
               bout={bout}
               team={team}
               reverse={!!(i % 2)}
