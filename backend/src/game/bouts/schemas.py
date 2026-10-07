@@ -83,21 +83,6 @@ class BoutSchema(ServerSchema):
 
     @computed_field
     @property
-    def jam_counts(self) -> tuple[int, int, int]:
-        # TODO: remove me
-        """A tuple representing the number of jams in this Bout per Period.
-
-        Returns:
-            tuple[int, int, int]: the number of Jams in each Period of this Bout.
-
-        """
-        counts: dict[int, int] = {}
-        for jam in self.jams:
-            counts[jam.period] = counts.get(jam.period, 0) + 1
-        return counts.get(0, 0), counts.get(1, 0), counts.get(2, 0)
-
-    @computed_field
-    @property
     def jam_uuids(self) -> tuple[list[UUID], list[UUID], list[UUID]]:
         """A tuple listing all the Jams in this Bout, by period.
 
@@ -109,37 +94,6 @@ class BoutSchema(ServerSchema):
         for jam in self.jams:
             uuids[jam.period].append(jam.uuid)
         return uuids
-
-    @computed_field
-    @property
-    def jam_head(self) -> JamUri:
-        """A URI representing the current or most recently played Jam.
-
-        This Jam URI is sticky on Period thresholds. This is to ensure that the active
-        Jam URI is always the active Jam of the current Period.
-        """
-        period_num: int = self.jams[-1].period
-        if self.state == 'stopped' and period_num > 0:
-            period_num -= 1  # Haven't started the next Period yet
-
-        jam_num: int = 0
-        for jam in reversed([jam for jam in self.jams if jam.period == period_num]):
-            if jam.start_timestamp is not None:
-                jam_num = jam.num
-                break
-
-        return JamUri(period_num, jam_num)
-
-    @computed_field
-    @property
-    def timeout_count(self) -> int:
-        """Get the number of Timeouts in this Bout.
-
-        Returns:
-            list[int]: the number of timeouts in this Bout.
-
-        """
-        return len(self.timeouts)
 
     @computed_field
     @property
@@ -165,5 +119,14 @@ class BoutSchema(ServerSchema):
             UUID: The UUID of the active Jam.
 
         """
-        uri = self.jam_head
-        return self.jam_uuids[uri.period_num][uri.jam_num]
+        period_num: int = self.jams[-1].period
+        if self.state == 'stopped' and period_num > 0:
+            period_num -= 1  # Haven't started the next Period yet
+
+        jam_num: int = 0
+        for jam in reversed([jam for jam in self.jams if jam.period == period_num]):
+            if jam.start_timestamp is not None:
+                jam_num = jam.num
+                break
+
+        return self.jam_uuids[period_num][jam_num]

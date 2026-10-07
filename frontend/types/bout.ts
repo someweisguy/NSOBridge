@@ -77,27 +77,12 @@ export interface Bout {
    */
   teams: Team[];
   /**
-   * The number of Jams in this Bout, per Period. The "third Period" value is used to
-   * track the number of overtime Jams and is used to determine if this Bout is in
-   * overtime. It is guaranteed that there will always be at least one Jam in a Bout,
-   * even if it hasn't started.
-   */
-  jamCounts: [number, number, number]; // FIXME: remove
-  /**
    * The UUIDs of the Jams in this Bout, per period .The "third Period" value is used to
    * track the number of overtime Jams and is used to determine if this Bout is in
    * overtime. It is guaranteed that there will always be at least one Jam in a Bout,
    * even if it hasn't started.
    */
   jamUuids: [string[], string[], string[]];
-  /**
-   * The Period and Jam number of the latest played or current Jam.
-   */
-  jamHead: { periodNum: number; jamNum: number };
-  /**
-   * The number of Timeouts that have been called in this Bout.
-   */
-  timeoutCount: number; // FIXME: remove
   /**
    * The UUIDs of the Timeouts that have been called in this Bout.
    */
