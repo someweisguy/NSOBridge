@@ -3,7 +3,7 @@ import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 export interface UseStartJamProps extends AppMutationOptions<void> {
-  boutUuid: string;
+  uuid: string;
 }
 
 /**
@@ -11,9 +11,8 @@ export interface UseStartJamProps extends AppMutationOptions<void> {
  *
  * @returns A Tanstack Mutation object which can fire the StartJam mutator.
  */
-export const useStartJam = ({ boutUuid, ...options }: UseStartJamProps) =>
+export const useStartJam = ({ uuid, ...options }: UseStartJamProps) =>
   useMutation({
-    mutationFn: () =>
-      localAPI.post<void>("bout/startJam", { query: { boutUuid } }),
+    mutationFn: () => localAPI.post<void>("bout/startJam", { query: { uuid } }),
     ...options,
   });

@@ -3,7 +3,7 @@ import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 interface UseStopTimeoutProps extends AppMutationOptions<void> {
-  boutUuid: string;
+  uuid: string;
 }
 
 /**
@@ -11,11 +11,11 @@ interface UseStopTimeoutProps extends AppMutationOptions<void> {
  *
  * @returns A Tanstack Mutation object which can fire the StopTimeout mutator.
  */
-export const useStopTimeout = ({ boutUuid, ...options }: UseStopTimeoutProps) =>
+export const useStopTimeout = ({ uuid, ...options }: UseStopTimeoutProps) =>
   useMutation({
     mutationFn: () =>
       localAPI.post<void>("bout/stopTimeout", {
-        query: { boutUuid },
+        query: { uuid },
       }),
     ...options,
   });

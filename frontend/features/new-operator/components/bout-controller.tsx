@@ -44,16 +44,16 @@ export default function BoutController({
   ...props
 }: BoutControllerProps) {
   // Handle start/stop Jam
-  const { mutate: startJam } = useStartJam({ boutUuid: bout.uuid });
-  const { mutate: stopJam } = useStopJam({ boutUuid: bout.uuid });
+  const { mutate: startJam } = useStartJam({ ...bout });
+  const { mutate: stopJam } = useStopJam({ ...bout });
   const startStopJam = useCallback(
     () => (bout.state == "jam" ? stopJam() : startJam()),
     [bout.state, startJam, stopJam],
   );
 
   // Handle start/stop Timeout
-  const { mutate: startTimeout } = useStartTimeout({ boutUuid: bout.uuid });
-  const { mutate: stopTimeout } = useStopTimeout({ boutUuid: bout.uuid });
+  const { mutate: startTimeout } = useStartTimeout({ ...bout });
+  const { mutate: stopTimeout } = useStopTimeout({ ...bout });
   const startStopTimeout = useCallback(
     () => (bout.state == "timeout" ? stopTimeout() : startTimeout()),
     [bout.state, startTimeout, stopTimeout],

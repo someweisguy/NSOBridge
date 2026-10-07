@@ -3,7 +3,7 @@ import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 export interface UseStopJamProps extends AppMutationOptions<void> {
-  boutUuid: string;
+  uuid: string;
 }
 
 /**
@@ -11,9 +11,8 @@ export interface UseStopJamProps extends AppMutationOptions<void> {
  *
  * @returns A Tanstack Mutation object which can fire the StopJam mutator.
  */
-export const useStopJam = ({ boutUuid, ...options }: UseStopJamProps) =>
+export const useStopJam = ({ uuid, ...options }: UseStopJamProps) =>
   useMutation({
-    mutationFn: () =>
-      localAPI.post<void>("bout/stopJam", { query: { boutUuid } }),
+    mutationFn: () => localAPI.post<void>("bout/stopJam", { query: { uuid } }),
     ...options,
   });

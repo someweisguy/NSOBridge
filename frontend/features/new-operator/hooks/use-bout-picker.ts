@@ -30,11 +30,11 @@ export default function useBoutPicker(
   // Query all the Bouts in the Series
   const { data: bouts } = useQueries({
     queries:
-      series?.boutUuids.map((boutUuid: string) => ({
-        queryKey: boutKeys.one(boutUuid),
+      series?.boutUuids.map((uuid: string) => ({
+        queryKey: boutKeys.one(uuid),
         queryFn: () =>
           localAPI.get<Bout>("bout", {
-            query: { boutUuid },
+            query: { uuid },
           }),
         enabled: series != null,
       })) ?? [],
