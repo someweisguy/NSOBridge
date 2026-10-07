@@ -188,6 +188,7 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
       withBorder
       orientation="horizontal"
       w="fit-content"
+      maw="100%"
       h="fit-content"
       m="md"
       shadow="lg"
@@ -195,8 +196,8 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
       <Card.Section withBorder>
         <OperatorBoutController bout={bout} />
       </Card.Section>
-      <Group justify="space-around" align="start" px="lg">
-        <Suspense fallback={<Loader />}>
+      <Suspense fallback={<Loader />}>
+        <Group grow justify="space-around" align="start" wrap="nowrap" px="lg">
           {bout.teams.map((team: Team, i: number) => (
             <OperatorTeamJamController
               key={team.uuid}
@@ -205,8 +206,8 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
               reverse={!!(i % 2)}
             />
           ))}
-        </Suspense>
-      </Group>
+        </Group>
+      </Suspense>
     </Card>
   );
 }
