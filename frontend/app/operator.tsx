@@ -73,7 +73,7 @@ const jammerStatusIconSize = "1rem";
 
 function OperatorBoutController({ bout }: { bout: Bout }) {
   return (
-    <Stack mb="lg">
+    <Stack mb="lg" w={225}>
       <Stack gap="0" w="100%">
         <BoutClock bout={bout} />
         <Divider />
