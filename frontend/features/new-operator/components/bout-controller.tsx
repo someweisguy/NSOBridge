@@ -50,6 +50,7 @@ export default function BoutController({
     () => (bout.state == "jam" ? stopJam() : startJam()),
     [bout.state, startJam, stopJam],
   );
+  const startStopJamText = bout.state == "jam" ? "Stop Jam" : "Start Jam";
 
   // Handle start/stop Timeout
   const { mutate: startTimeout } = useStartTimeout({ ...bout });
@@ -58,6 +59,8 @@ export default function BoutController({
     () => (bout.state == "timeout" ? stopTimeout() : startTimeout()),
     [bout.state, startTimeout, stopTimeout],
   );
+  const startStopTimeoutText =
+    bout.state == "timeout" ? "End Timeout" : "Call Timeout";
 
   // Handle start/stop Period
   const { mutate: startPeriod } = useBeginPeriod({ ...bout });
@@ -67,6 +70,8 @@ export default function BoutController({
     [bout.state, startPeriod, stopPeriod],
   );
   const canStartStopPeriod = ["stopped", "lineup"].includes(bout.state);
+  const startStopPeriodText =
+    bout.state == "stopped" ? "Begin Period" : "End Period";
 
   // Handle finalizing Bout
   const { mutate: finalizeBout } = useFinalizeBout({ ...bout });
@@ -76,7 +81,6 @@ export default function BoutController({
   return (
     <Fieldset legend="Bout Controls" {...props}>
       <Stack justify="start" align="stretch">
-        {/* TODO: Start/Stop Jam */}
         <Button
           variant="outline"
           color="teal"
@@ -90,9 +94,9 @@ export default function BoutController({
           }
           {...sharedButtonProps}
         >
-          Start Jam
+          {startStopJamText}
         </Button>
-        {/* TODO: Call/Finish Timeout */}
+
         <Button
           variant="outline"
           color="yellow"
@@ -100,9 +104,9 @@ export default function BoutController({
           rightSection={<IconAlarm {...buttonIconProps} />}
           {...sharedButtonProps}
         >
-          Call Timeout
+          {startStopTimeoutText}
         </Button>
-        {/* TODO: Begin/End Period */}
+
         <Button
           variant="default"
           onClick={() => startStopPeriod()}
@@ -116,10 +120,9 @@ export default function BoutController({
           }
           {...sharedButtonProps}
         >
-          Begin Period
+          {startStopPeriodText}
         </Button>
         <Collapse expanded={canFinalizeBout}>
-          {/* TODO: Finalize Bout */}
           <Divider pb="md" />
           <Button
             variant="filled"
