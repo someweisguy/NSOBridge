@@ -12,6 +12,8 @@ import {
   StackProps,
   Text,
 } from "@mantine/core";
+import { useMemo } from "react";
+import useLatestTimeout from "../hooks/use-latest-timeout";
 
 const eventNames: Record<BoutSubStateString, string> = {
   pregame: "Pregame",
@@ -53,6 +55,27 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
   if (activeJam.period > 1) {
     jamNum += bout.jamUuids[1].length;
   }
+  const { data: latestTimeout } = useLatestTimeout({ ...bout });
+
+  // Get the time since the last Jam or Timeout or null if neither have occurred
+  const lastEventTimestamp: string | null = useMemo(
+    () =>
+      activeJam.startTimestamp != null
+        ? new Date(
+            Math.max(
+              ...[
+                activeJam.startTimestamp,
+                activeJam.stopTimestamp,
+                latestTimeout?.startTimestamp,
+                latestTimeout?.stopTimestamp,
+              ]
+                .filter((val?: string | null) => val != null)
+                .map((val: string) => new Date(val).getTime()),
+            ),
+          ).toISOString()
+        : null,
+    [activeJam, latestTimeout],
+  );
 
   return (
     <Stack justify="center" align="stretch" gap="0" {...props}>
@@ -66,7 +89,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
       >
         <Grid.Col span={4}>
           {/* TODO: Overtime display */}
-          <ClockView {...bout.clock} fz="1.5rem" />
+          <ClockView formatter="bout" fz="1.5rem" {...bout.clock} />
         </Grid.Col>
         <Grid.Col span={4}>
           <Text textWrap="nowrap" fz="1.5rem">
@@ -75,9 +98,14 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
         </Grid.Col>
         <Grid.Col span={4}>
           {activeJam.stopTimestamp == null ? (
-            <ClockView alarm={ruleset.jamDuration} {...activeJam} fz="1.5rem" />
+            <ClockView
+              alarm={ruleset.jamDuration}
+              formatter="jam"
+              fz="1.5rem"
+              {...activeJam}
+            />
           ) : (
-            <Text>
+            <Text fw={200}>
               {stopReasons[activeJam.stopReason!] ?? stopReasons.other}
             </Text>
           )}
@@ -95,7 +123,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
           >
             <Text ta="center">{eventNames[bout.subState] ?? "-"}</Text>
             {/* TODO: conditionally show ClockView */}
-            <ClockView formatter="lineup" {...activeJam} />
+            <ClockView formatter="lineup" startTimestamp={lastEventTimestamp} />
           </Group>
         </Stack>
       </Collapse>
