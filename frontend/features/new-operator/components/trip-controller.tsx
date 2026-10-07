@@ -13,9 +13,9 @@ import {
   Text,
   TextProps,
 } from "@mantine/core";
-import { useHover, useMergedRef, useScroller } from "@mantine/hooks";
+import { useHover, useMergedRef, useReducedMotion } from "@mantine/hooks";
 import { IconTrash } from "@tabler/icons-react";
-import { useRef } from "react";
+import { RefObject, useEffect, useRef } from "react";
 import { useCreateTrip } from "../hooks/use-create-trip";
 
 const altTextStyle: TextProps = {
@@ -42,13 +42,20 @@ export default function TripController({
   const teamJamNotInJam = teamJam == null;
   const teamJamHasNoTrips = teamJam?.events.length == 0;
 
-  const { ref: scrollerRef } = useScroller();
-  const htmlRef = useRef<HTMLDivElement>(null);
-  const mergedRef = useMergedRef(scrollerRef, htmlRef);
-
+  const latestTripRef = useRef<HTMLDivElement>(null);
   const { mutate: createTrip } = useCreateTrip({ team });
 
-  // TODO: make scroller work
+  // Scroll to the latest Trip whenever the number of Trips increases
+  const reduceMotion = useReducedMotion();
+  const childrenCount = useRef<number>(0);
+  useEffect(() => {
+    const newChildrenCount: number = teamJam?.events.length ?? 0;
+    latestTripRef?.current?.scrollIntoView({
+      behavior: reduceMotion ? "instant" : "smooth",
+      inline: "center",
+    });
+    childrenCount.current = newChildrenCount;
+  }, [teamJam?.events.length, reduceMotion]);
 
   return (
     <Stack justify="start" align="stretch" maw="400px" px="xl">
@@ -63,7 +70,7 @@ export default function TripController({
           </Button>
         ))}
       </Group>
-      <Scroller ref={mergedRef} ta="center" w="100%" {...props}>
+      <Scroller ta="center" w="100%" {...props}>
         {teamJamNotInJam && (
           <Text {...altTextStyle}>This Team is not in the Jam</Text>
         )}
@@ -76,6 +83,7 @@ export default function TripController({
             .map((tripEvent: TripEvent, i: number) => (
               <JammerTrip
                 key={tripEvent.uuid}
+                ref={latestTripRef}
                 tripIndex={i}
                 pointsPerTrip={4} // TODO: pass a ruleset
                 {...tripEvent}
@@ -88,20 +96,22 @@ export default function TripController({
 }
 
 interface JammerTripProps extends TripEvent, CardProps {
-  // teamJamUri: TeamJamUri;
   tripIndex: number;
   pointsPerTrip: number;
+  ref?: RefObject<HTMLDivElement | null>;
 }
 
 function JammerTrip({
-  // teamJamUri,
   tripIndex,
   passes,
   pointsPerTrip,
   // uuid,
+  ref,
   ...props
 }: JammerTripProps) {
-  const { hovered, ref } = useHover();
+  const { hovered, ref: hoverRef } = useHover();
+  const mergedRef = useMergedRef(hoverRef, ref);
+
   // const setTripPasses = useSetTripEventPasses({
   //   eventUuid: uuid,
   //   ...teamJamUri,
@@ -111,7 +121,7 @@ function JammerTrip({
   return (
     <Card
       withBorder
-      ref={ref}
+      ref={mergedRef}
       miw="fit-content"
       px="0.25rem"
       py="0.5rem"
