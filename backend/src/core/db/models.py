@@ -150,7 +150,7 @@ class CacheableSQLModel(BaseSQLModel):
             CacheKey: the unique cache key of this model.
 
         """
-        return self.__table__, self.uuid
+        return str(self.__table__), self.uuid
 
 
 class DatabaseMemento(Memento):
