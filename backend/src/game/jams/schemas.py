@@ -25,8 +25,9 @@ class TripEventSchema(ServerSchema):
 class TeamJamSchema(ServerSchema):
     """Represent a TeamJam as a JSON schema."""
 
-    team_uuid: UUID = Field(validation_alias='_team_uuid')
+    uuid: UUID
 
+    team_uuid: UUID = Field(validation_alias='_team_uuid')
     events: list[TripEventSchema]
 
 
