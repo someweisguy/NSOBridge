@@ -12,7 +12,9 @@ import {
   IconAlarm,
   IconPlayerPause,
   IconPlayerPlay,
+  IconPlayerStop,
   IconProps,
+  IconRollerSkating,
 } from "@tabler/icons-react";
 import { useCallback } from "react";
 import { useBeginPeriod } from "../hooks/use-begin-period";
@@ -105,6 +107,13 @@ export default function BoutController({
           variant="default"
           onClick={() => startStopPeriod()}
           disabled={!canStartStopPeriod}
+          rightSection={
+            bout.state == "stopped" ? (
+              <IconRollerSkating {...buttonIconProps} />
+            ) : (
+              <IconPlayerStop {...buttonIconProps} />
+            )
+          }
           {...sharedButtonProps}
         >
           Begin Period
