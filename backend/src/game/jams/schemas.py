@@ -13,6 +13,7 @@ class TripEventSchema(ServerSchema):
     """Represent a TripEvent as a JSON schema."""
 
     uuid: UUID
+
     timestamp: datetime
     lead: bool
     lost: bool
@@ -22,6 +23,8 @@ class TripEventSchema(ServerSchema):
 
 class TeamJamSchema(ServerSchema):
     """Represent a TeamJam as a JSON schema."""
+
+    uuid: UUID
 
     team_num: int
     events: list[TripEventSchema]
