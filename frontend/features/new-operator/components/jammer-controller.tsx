@@ -1,6 +1,3 @@
-import { useTeamJamAddLead } from "@/features/operator/hooks/use-team-jam-add-lead";
-import { useTeamJamAddLost } from "@/features/operator/hooks/use-team-jam-add-lost";
-import { useTeamJamAddStarPass } from "@/features/operator/hooks/use-team-jam-add-star-pass";
 import { Team } from "@/types/bout";
 import { Jam } from "@/types/jam";
 import {
@@ -28,16 +25,9 @@ export default function JammerController({
   team,
   ...props
 }: JammerControllerProps) {
-  const teamJamUri = {
-    boutUuid: jam.boutUuid,
-    periodNum: jam.period,
-    jamNum: jam.num,
-    teamNum: team.num,
-  };
-
-  const setLead = useTeamJamAddLead({ ...teamJamUri });
-  const setLost = useTeamJamAddLost({ ...teamJamUri });
-  const setStarPass = useTeamJamAddStarPass({ ...teamJamUri });
+  // const setLead = useTeamJamAddLead({ ...teamJamUri });
+  // const setLost = useTeamJamAddLost({ ...teamJamUri });
+  // const setStarPass = useTeamJamAddStarPass({ ...teamJamUri });
 
   const leadIsDeclared = jam.teamJams.some((teamJam) =>
     teamJam.events.some((event) => event.lead),
@@ -62,7 +52,7 @@ export default function JammerController({
             label="Lead"
             checked={lead}
             disabled={leadIsDeclared && !lead}
-            onClick={() => setLead.mutate(!lead)}
+            // onClick={() => setLead.mutate(!lead)} // FIXME
             variant="outline"
             icon={({ ...others }) => <IconStarFilled {...others} />}
           />
@@ -70,14 +60,14 @@ export default function JammerController({
           <Checkbox
             label="Lost"
             checked={lost}
-            onClick={() => setLost.mutate(!lost)}
+            // onClick={() => setLost.mutate(!lost)}  // FIXME
             variant="outline"
           />
           <Divider orientation="vertical" />
           <Checkbox
             label="Star Pass"
             checked={starPass}
-            onClick={() => setStarPass.mutate(!starPass)}
+            // onClick={() => setStarPass.mutate(!starPass)} // FIXME
             variant="outline"
           />
         </Group>

@@ -1,31 +1,21 @@
 import { TripEvent } from "@/types/jam";
-import { TeamJamUri } from "@/types/query";
 import { ActionIcon, Card, CardProps, NumberInput } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
 import { IconTrash } from "@tabler/icons-react";
-import { useDeleteTripEvent } from "../hooks/use-delete-trip-event";
-import { useSetTripEventPasses } from "../hooks/use-set-trip-event-passes";
 
 interface JammerTripProps extends TripEvent, CardProps {
-  teamJamUri: TeamJamUri;
   tripIndex: number;
   pointsPerTrip: number;
 }
 
 export default function JammerTrip({
-  teamJamUri,
   tripIndex,
   passes,
   pointsPerTrip,
-  uuid,
+
   ...props
 }: JammerTripProps) {
   const { hovered, ref } = useHover();
-  const setTripPasses = useSetTripEventPasses({
-    eventUuid: uuid,
-    ...teamJamUri,
-  });
-  const deleteTrip = useDeleteTripEvent({ eventUuid: uuid, ...teamJamUri });
 
   return (
     <Card
@@ -54,7 +44,7 @@ export default function JammerTrip({
             <ActionIcon
               variant="transparent"
               color="red"
-              onClick={() => deleteTrip.mutate()}
+              // onClick={() => deleteTrip.mutate()}  // FIXME
             >
               <IconTrash size={16} />
             </ActionIcon>
@@ -62,7 +52,7 @@ export default function JammerTrip({
         }
         leftSectionWidth={24}
         rightSectionWidth={24}
-        onChange={(value) => setTripPasses.mutate(Number(value))}
+        // onChange={(value) => setTripPasses.mutate(Number(value))} // FIXME
         styles={{ input: { textAlign: "center", pointerEvents: "none" } }}
         onFocusCapture={(event) => event.currentTarget.blur()}
       />

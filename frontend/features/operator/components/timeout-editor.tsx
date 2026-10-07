@@ -1,4 +1,3 @@
-import { TimeoutUri } from "@/types/query";
 import {
   ActionIcon,
   Button,
@@ -13,14 +12,10 @@ import {
 } from "@mantine/core";
 import { IconPencil } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { useSetTimeoutRetained } from "../hooks/use-set-timeout-retained";
-import { useSetTimeoutTeam } from "../hooks/use-set-timeout-team";
-import { useSetTimeoutType } from "../hooks/use-set-timeout-type";
 
 const officialDataValue = ""; // Cannot be the string representation of a number!
 
 interface TimeoutEditorProps extends FieldsetProps {
-  timeoutUri: TimeoutUri;
   teamNum: number | null;
   teamIsOfficials: boolean;
   isReview: boolean;
@@ -29,7 +24,6 @@ interface TimeoutEditorProps extends FieldsetProps {
 }
 
 export default function TimeoutEditor({
-  timeoutUri,
   teamNum,
   teamIsOfficials,
   isReview,
@@ -54,11 +48,12 @@ export default function TimeoutEditor({
           ? String(teamNum)
           : null,
     );
-  }, [teamIsOfficials, teamNum, timeoutUri]);
+  }, [teamIsOfficials, teamNum]);
 
-  const setType = useSetTimeoutType(timeoutUri);
-  const setTeam = useSetTimeoutTeam(timeoutUri);
-  const setIsRetained = useSetTimeoutRetained(timeoutUri);
+  // FIXME
+  // const setType = useSetTimeoutType(timeoutUri);
+  // const setTeam = useSetTimeoutTeam(timeoutUri);
+  // const setIsRetained = useSetTimeoutRetained(timeoutUri);
 
   return (
     <Fieldset
@@ -79,7 +74,7 @@ export default function TimeoutEditor({
               { value: "review", label: "Official Review" },
             ]}
             value={isReview ? "review" : "timeout"}
-            onChange={(type: "timeout" | "review") => setType.mutate(type)}
+            // onChange={(type: "timeout" | "review") => setType.mutate(type)} // FIXME
           />
           {/* // TODO: Unhide and implement Timeout notes editor. */}
           <ActionIcon hidden disabled>
@@ -101,7 +96,7 @@ export default function TimeoutEditor({
           onChange={(value: string | number | null) => {
             const valueIsOfficials = value == officialDataValue;
             setOfficialReviewError(valueIsOfficials && isReview);
-            setTeam.mutate(valueIsOfficials ? null : Number(value));
+            // setTeam.mutate(valueIsOfficials ? null : Number(value));// FIXME
           }}
           error={officialReviewError}
           allowDeselect={false}
@@ -111,7 +106,7 @@ export default function TimeoutEditor({
             w="100%"
             size="xs"
             variant="default"
-            onClick={() => setIsRetained.mutate(!isRetained)}
+            // onClick={() => setIsRetained.mutate(!isRetained)} // FIXME
           >
             <Checkbox
               w="100%"

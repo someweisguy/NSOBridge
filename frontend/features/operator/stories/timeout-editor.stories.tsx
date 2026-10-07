@@ -10,8 +10,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    timeoutUri: { boutUuid: "", timeoutNum: 0 },
-
     teamNum: 0,
     teamIsOfficials: false,
     isReview: false,

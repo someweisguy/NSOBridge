@@ -1,10 +1,5 @@
-import { useSuspenseBout } from "@/features/bouts/hooks/use-bout";
-import { useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import { Button, Group, NumberInput, Stack, TextInput } from "@mantine/core";
 import { useState } from "react";
-import { useSetTeamReviewsRemaining } from "../hooks/use-set-num-reviews";
-import { useSetTeamTimeoutsRemaining } from "../hooks/use-set-num-timeouts";
-import { useSetTeamName } from "../hooks/use-set-team-name";
 
 interface TeamEditorProps {
   boutUuid: string;
@@ -16,29 +11,22 @@ interface TeamEditorProps {
 }
 
 export default function TeamEditor({
-  boutUuid,
-  num,
   name,
   timeoutsRemaining,
   reviewsRemaining,
-  onSuccess,
+  // onSuccess,
 }: TeamEditorProps) {
   const [teamName, setTeamName] = useState(name);
-  const setTeamNameHook = useSetTeamName({ boutUuid, teamNum: num, onSuccess });
+  // const setTeamNameHook = useSetTeamName({ boutUuid, teamNum: num, onSuccess });
 
-  const { data: bout } = useSuspenseBout({ boutUuid });
-  const { data: ruleset } = useSuspenseGetRuleset({
-    rulesetName: bout.rulesetName,
-  });
-
-  const setTeamTimeoutsRemaining = useSetTeamTimeoutsRemaining({
-    boutUuid,
-    teamNum: num,
-  });
-  const setTeamReviewsRemaining = useSetTeamReviewsRemaining({
-    boutUuid,
-    teamNum: num,
-  });
+  // const setTeamTimeoutsRemaining = useSetTeamTimeoutsRemaining({
+  //   boutUuid,
+  //   teamNum: num,
+  // });
+  // const setTeamReviewsRemaining = useSetTeamReviewsRemaining({
+  //   boutUuid,
+  //   teamNum: num,
+  // });
 
   return (
     <Stack gap="md">
@@ -52,21 +40,25 @@ export default function TeamEditor({
         <NumberInput
           label="Timeouts Remaining"
           value={timeoutsRemaining}
-          onChange={(num) => setTeamTimeoutsRemaining.mutate(Number(num))}
+          // onChange={(num) => setTeamTimeoutsRemaining.mutate(Number(num))}  // FIXME
           min={0}
-          max={ruleset.numTimeouts}
+          // max={ruleset.numTimeouts}  // FIXME
         />
         <NumberInput
           label="Reviews Remaining"
           value={reviewsRemaining}
-          onChange={(num) => setTeamReviewsRemaining.mutate(Number(num))}
+          // onChange={(num) => setTeamReviewsRemaining.mutate(Number(num))}  // FIXME
           min={0}
-          max={ruleset.numReviews}
+          // max={ruleset.numReviews}  // FIXME
         />
       </Group>
 
       <Group justify="flex-end">
-        <Button onClick={() => setTeamNameHook.mutate(teamName)}>Apply</Button>
+        <Button
+        // onClick={() => setTeamNameHook.mutate(teamName)}  // FIXME
+        >
+          Apply
+        </Button>
       </Group>
     </Stack>
   );

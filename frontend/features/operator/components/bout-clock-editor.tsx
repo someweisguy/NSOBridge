@@ -6,26 +6,21 @@ import {
   IconStopwatch,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { useSetBoutClockIsRunning } from "../hooks/use-set-bout-clock-is-running";
-import { useSetBoutClockRemaining } from "../hooks/use-set-bout-clock-remaining";
 
 interface BoutClockEditorProps {
   boutUuid: string;
   isRunning: boolean;
 }
 
-export default function BoutClockEditor({
-  boutUuid,
-  isRunning,
-}: BoutClockEditorProps) {
+export default function BoutClockEditor({ isRunning }: BoutClockEditorProps) {
   const { ref, value } = useMask({
     mask: [/\d/, /\d/, ":", /[0-5]/, /\d/],
     slotChar: " ",
   });
-  const [inputMilliseconds, setInputMilliseconds] = useState(0);
+  const [, setInputMilliseconds] = useState(0);
 
-  const setBoutClockElapsed = useSetBoutClockRemaining({ boutUuid });
-  const setBoutClockIsRunning = useSetBoutClockIsRunning({ boutUuid });
+  // const setBoutClockElapsed = useSetBoutClockRemaining({ boutUuid });
+  // const setBoutClockIsRunning = useSetBoutClockIsRunning({ boutUuid });
 
   useEffect(() => {
     const [minutes, seconds] = value
@@ -47,7 +42,7 @@ export default function BoutClockEditor({
       <Group justify="space-between">
         <Button
           variant="subtle"
-          onClick={() => setBoutClockIsRunning.mutate(!isRunning)}
+          // onClick={() => setBoutClockIsRunning.mutate(!isRunning)}
           leftSection={
             isRunning ? (
               <IconPlayerPauseFilled size={16} />
@@ -58,7 +53,9 @@ export default function BoutClockEditor({
         >
           {isRunning ? "Pause Bout Clock" : "Start Bout Clock"}
         </Button>
-        <Button onClick={() => setBoutClockElapsed.mutate(inputMilliseconds)}>
+        <Button
+        // onClick={() => setBoutClockElapsed.mutate(inputMilliseconds)}
+        >
           Apply
         </Button>
       </Group>
