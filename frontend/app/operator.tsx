@@ -15,8 +15,7 @@ import BoutEditor from "@/features/operator/components/bout-editor";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { Bout, Team } from "@/types/bout";
-import { Jam, TeamJam } from "@/types/jam";
-import { Timeout } from "@/types/timeout";
+import { TeamJam } from "@/types/jam";
 import { isRunning } from "@/utils/time";
 import {
   AppShell,
@@ -86,19 +85,20 @@ function OperatorBoutController({ bout }: { bout: Bout }) {
 }
 
 function OperatorTeamJamController({
+  bout,
   team,
-  activeJam,
-  latestTimeout,
-  rulesetName,
   reverse,
 }: {
+  bout: Bout;
   team: Team;
-  activeJam: Jam;
-  latestTimeout: Timeout | undefined;
-  rulesetName: string;
   reverse: boolean;
 }) {
-  const { data: ruleset } = useSuspenseGetRuleset({ rulesetName });
+  const { data: activeJam } = useSuspenseActiveJam(bout);
+  const { data: latestTimeout } = useLatestTimeout(bout);
+  void useLatestJam(bout); // Prefetch to avoid UI blinking
+  const { data: ruleset } = useSuspenseGetRuleset({
+    rulesetName: bout.rulesetName,
+  });
 
   const teamJam = activeJam.teamJams.find(
     (teamJam: TeamJam) => team.num == teamJam.teamNum,
@@ -183,11 +183,6 @@ function OperatorTeamJamController({
 function OperatorInterface({ bout }: { bout: Bout | undefined }) {
   useSuspendIfNullable(bout);
 
-  // TODO: get active Jam in TeamJamController
-  const { data: activeJam } = useSuspenseActiveJam(bout);
-  const { data: latestTimeout } = useLatestTimeout(bout);
-  void useLatestJam(bout); // Prefetch latest Jam to avoid UI blinking
-
   return (
     <Card
       withBorder
@@ -201,16 +196,16 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
         <OperatorBoutController bout={bout} />
       </Card.Section>
       <Group justify="space-around" align="start" px="lg">
-        {bout.teams.map((team: Team, i: number) => (
-          <OperatorTeamJamController
-            key={team.num}
-            team={team}
-            activeJam={activeJam}
-            latestTimeout={latestTimeout}
-            reverse={!!(i % 2)}
-            {...bout}
-          />
-        ))}
+        <Suspense fallback={<Loader />}>
+          {bout.teams.map((team: Team, i: number) => (
+            <OperatorTeamJamController
+              key={team.num}
+              bout={bout}
+              team={team}
+              reverse={!!(i % 2)}
+            />
+          ))}
+        </Suspense>
       </Group>
     </Card>
   );
