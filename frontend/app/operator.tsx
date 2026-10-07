@@ -197,7 +197,14 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
         <OperatorBoutController bout={bout} />
       </Card.Section>
       <Suspense fallback={<Loader />}>
-        <Group grow justify="space-around" align="start" wrap="nowrap" px="lg">
+        <Group
+          grow
+          justify="space-around"
+          align="start"
+          wrap="nowrap"
+          px="lg"
+          gap="xl"
+        >
           {bout.teams.map((team: Team, i: number) => (
             <OperatorTeamJamController
               key={team.uuid}

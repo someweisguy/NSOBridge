@@ -51,8 +51,8 @@ export default function TripController({
   // TODO: make scroller work
 
   return (
-    <Stack>
-      <Group justify="space-between" align="center">
+    <Stack justify="start" align="stretch" maw="400px" px="xl">
+      <Group justify="space-between" align="center" wrap="nowrap">
         {Array.from({ length: pointsPerTrip + 1 }, (_, i) => (
           <Button
             key={i}
@@ -63,7 +63,7 @@ export default function TripController({
           </Button>
         ))}
       </Group>
-      <Scroller ref={mergedRef} ta="center" {...props}>
+      <Scroller ref={mergedRef} ta="center" w="100%" {...props}>
         {teamJamNotInJam && (
           <Text {...altTextStyle}>This Team is not in the Jam</Text>
         )}
@@ -112,7 +112,7 @@ function JammerTrip({
     <Card
       withBorder
       ref={ref}
-      w="fit-content"
+      miw="fit-content"
       px="0.25rem"
       py="0.5rem"
       {...props}
