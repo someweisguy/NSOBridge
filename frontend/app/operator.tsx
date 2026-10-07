@@ -1,5 +1,6 @@
 import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
 import BoutClock from "@/features/new-operator/components/bout-clock";
+import BoutController from "@/features/new-operator/components/bout-controller";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
 import JammerController from "@/features/new-operator/components/jammer-controller";
@@ -8,7 +9,7 @@ import Undoer from "@/features/new-operator/components/undoer";
 import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
 import useSuspenseLatestJam from "@/features/new-operator/hooks/use-latest-jam";
-import useSuspenseLatestTimeout from "@/features/new-operator/hooks/use-latest-timeout";
+import useLatestTimeout from "@/features/new-operator/hooks/use-latest-timeout";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
 import BoutEditor from "@/features/operator/components/bout-editor";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
@@ -46,7 +47,6 @@ import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
-import BoutController from "@/features/new-operator/components/bout-controller";
 const root: HTMLElement | null = document.getElementById("root");
 if (root != null) {
   document.title = "NSO Bridge";
@@ -95,7 +95,7 @@ function OperatorTeamJamController({
   team: Team;
   activeJam: Jam;
   latestJam: Jam;
-  latestTimeout: Timeout | null;
+  latestTimeout: Timeout | undefined;
   rulesetName: string;
   reverse: boolean;
 }) {
@@ -186,7 +186,7 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
 
   const { data: activeJam } = useSuspenseActiveJam(bout);
   const { data: latestJam } = useSuspenseLatestJam(bout);
-  const { data: latestTimeout } = useSuspenseLatestTimeout(bout);
+  const { data: latestTimeout } = useLatestTimeout(bout);
 
   return (
     <Card
