@@ -2,12 +2,14 @@ import { Team } from "@/types/bout";
 import { Jam, TripEvent } from "@/types/jam";
 import {
   ActionIcon,
+  Button,
   Card,
   CardProps,
   Group,
   NumberInput,
   Scroller,
   ScrollerProps,
+  Stack,
   Text,
   TextProps,
 } from "@mantine/core";
@@ -19,6 +21,7 @@ const altTextStyle: TextProps = {
   fz: "xs",
   ta: "center",
   fs: "italic",
+  fw: 250,
   c: "dimmed",
 };
 
@@ -43,26 +46,36 @@ export default function TripController({
   // TODO: make scroller work
 
   return (
-    <Scroller ref={mergedRef} ta="center" {...props}>
-      {teamJamNotInJam && (
-        <Text {...altTextStyle}>This Team is not in the Jam</Text>
-      )}
-      {teamJamHasNoTrips && (
-        <Text {...altTextStyle}>There are no Trips to display.</Text>
-      )}
-      <Group justify="start" align="center" gap="xs" wrap="nowrap">
-        {teamJam?.events
-          .filter((tripEvent) => tripEvent.passes != null)
-          .map((tripEvent: TripEvent, i: number) => (
-            <JammerTrip
-              key={tripEvent.uuid}
-              tripIndex={i}
-              pointsPerTrip={4} // TODO: pass a ruleset
-              {...tripEvent}
-            />
-          ))}
+    <Stack>
+      <Group justify="space-between" align="center">
+        {/* TODO: magic number */}
+        {Array.from({ length: 5 }, (_, i) => (
+          <Button key={i} variant={i == 4 ? "light" : "subtle"}>
+            {i}
+          </Button>
+        ))}
       </Group>
-    </Scroller>
+      <Scroller ref={mergedRef} ta="center" {...props}>
+        {teamJamNotInJam && (
+          <Text {...altTextStyle}>This Team is not in the Jam</Text>
+        )}
+        {teamJamHasNoTrips && (
+          <Text {...altTextStyle}>There are no Trips to display.</Text>
+        )}
+        <Group justify="start" align="center" gap="xs" wrap="nowrap">
+          {teamJam?.events
+            .filter((tripEvent) => tripEvent.passes != null)
+            .map((tripEvent: TripEvent, i: number) => (
+              <JammerTrip
+                key={tripEvent.uuid}
+                tripIndex={i}
+                pointsPerTrip={4} // TODO: pass a ruleset
+                {...tripEvent}
+              />
+            ))}
+        </Group>
+      </Scroller>
+    </Stack>
   );
 }
 
