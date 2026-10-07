@@ -36,14 +36,14 @@ GetBout: TypeAlias = Annotated[BaseBout, Depends(_get_bout)]
 
 
 async def _get_team(
-    bout: GetBout, team_num: Annotated[int, Query(alias='teamNum')]
+    bout: GetBout, team_uuid: Annotated[UUID, Query(alias='teamUuid')]
 ) -> Team:
-    try:
-        return bout.teams[team_num]
-    except KeyError as e:
+    team: Team | None = next((t for t in bout.teams if t.uuid == team_uuid), None)
+    if team is None:
         raise HTTPException(
-            HTTPStatus.NOT_FOUND, f'Could not find Team ({bout=} {team_num=})'
-        ) from e
+            HTTPStatus.NOT_FOUND, f'Could not find Team ({bout=} {team_uuid=})'
+        )
+    return team
 
 
 GetTeam: TypeAlias = Annotated[Team, Depends(_get_team)]
