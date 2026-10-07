@@ -3,7 +3,7 @@ import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 export interface UseEndPeriodProps extends AppMutationOptions<void> {
-  boutUuid: string;
+  uuid: string;
 }
 
 /**
@@ -11,9 +11,9 @@ export interface UseEndPeriodProps extends AppMutationOptions<void> {
  *
  * @returns A Tanstack Mutation object which can fire the EndPeriod mutator.
  */
-export const useEndPeriod = ({ boutUuid, ...options }: UseEndPeriodProps) =>
+export const useEndPeriod = ({ uuid, ...options }: UseEndPeriodProps) =>
   useMutation({
     mutationFn: () =>
-      localAPI.post<void>("bout/endPeriod", { query: { boutUuid } }),
+      localAPI.post<void>("bout/endPeriod", { query: { uuid } }),
     ...options,
   });

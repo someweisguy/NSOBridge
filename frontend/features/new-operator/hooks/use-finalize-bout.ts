@@ -3,7 +3,7 @@ import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
 export interface UseFinalizeBoutProps extends AppMutationOptions<void> {
-  boutUuid: string;
+  uuid: string;
 }
 
 /**
@@ -11,12 +11,8 @@ export interface UseFinalizeBoutProps extends AppMutationOptions<void> {
  *
  * @returns A Tanstack Mutation object which can fire the FinalizeBout mutator.
  */
-export const useFinalizeBout = ({
-  boutUuid,
-  ...options
-}: UseFinalizeBoutProps) =>
+export const useFinalizeBout = ({ uuid, ...options }: UseFinalizeBoutProps) =>
   useMutation({
-    mutationFn: () =>
-      localAPI.post<void>("bout/finalize", { query: { boutUuid } }),
+    mutationFn: () => localAPI.post<void>("bout/finalize", { query: { uuid } }),
     ...options,
   });

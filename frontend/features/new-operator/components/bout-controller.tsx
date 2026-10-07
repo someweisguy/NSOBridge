@@ -60,8 +60,8 @@ export default function BoutController({
   );
 
   // Handle start/stop Period
-  const { mutate: startPeriod } = useBeginPeriod({ boutUuid: bout.uuid });
-  const { mutate: stopPeriod } = useEndPeriod({ boutUuid: bout.uuid });
+  const { mutate: startPeriod } = useBeginPeriod({ ...bout });
+  const { mutate: stopPeriod } = useEndPeriod({ ...bout });
   const startStopPeriod = useCallback(
     () => (bout.state == "stopped" ? startPeriod() : stopPeriod()),
     [bout.state, startPeriod, stopPeriod],
@@ -69,7 +69,7 @@ export default function BoutController({
   const canStartStopPeriod = ["stopped", "lineup"].includes(bout.state);
 
   // Handle finalizing Bout
-  const { mutate: finalizeBout } = useFinalizeBout({ boutUuid: bout.uuid });
+  const { mutate: finalizeBout } = useFinalizeBout({ ...bout });
   const canFinalizeBout =
     bout.state == "stopped" && bout.jamUuids[1].length > 0; // TODO: magic number
 
