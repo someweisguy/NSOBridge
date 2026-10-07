@@ -8,7 +8,7 @@ import TripController from "@/features/new-operator/components/trip-controller";
 import Undoer from "@/features/new-operator/components/undoer";
 import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
-import useSuspenseLatestJam from "@/features/new-operator/hooks/use-latest-jam";
+import { useLatestJam } from "@/features/new-operator/hooks/use-latest-jam";
 import useLatestTimeout from "@/features/new-operator/hooks/use-latest-timeout";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
 import BoutEditor from "@/features/operator/components/bout-editor";
@@ -94,7 +94,6 @@ function OperatorTeamJamController({
 }: {
   team: Team;
   activeJam: Jam;
-  latestJam: Jam;
   latestTimeout: Timeout | undefined;
   rulesetName: string;
   reverse: boolean;
@@ -185,8 +184,8 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
   useSuspendIfNullable(bout);
 
   const { data: activeJam } = useSuspenseActiveJam(bout);
-  const { data: latestJam } = useSuspenseLatestJam(bout);
   const { data: latestTimeout } = useLatestTimeout(bout);
+  void useLatestJam(bout); // Prefetch latest Jam to avoid UI blinking
 
   return (
     <Card
@@ -206,7 +205,6 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
             key={team.num}
             team={team}
             activeJam={activeJam}
-            latestJam={latestJam}
             latestTimeout={latestTimeout}
             reverse={!!(i % 2)}
             {...bout}
