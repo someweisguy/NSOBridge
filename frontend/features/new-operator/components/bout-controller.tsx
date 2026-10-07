@@ -76,7 +76,7 @@ export default function BoutController({
   // Handle finalizing Bout
   const { mutate: finalizeBout } = useFinalizeBout({ ...bout });
   const canFinalizeBout =
-    bout.state == "stopped" && bout.jamUuids[1].length > 0; // TODO: magic number
+    bout.state == "stopped" && bout.jamUuids[1].length > 1; // TODO: magic number
 
   return (
     <Fieldset legend="Bout Controls" {...props}>
