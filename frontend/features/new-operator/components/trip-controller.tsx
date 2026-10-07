@@ -28,11 +28,13 @@ const altTextStyle: TextProps = {
 export interface TripControllerProps extends Omit<ScrollerProps, "children"> {
   jam: Jam;
   team: Team;
+  pointsPerTrip: number;
 }
 
 export default function TripController({
   jam,
   team,
+  pointsPerTrip,
   ...props
 }: TripControllerProps) {
   const teamJam = jam.teamJams.find((teamJam) => teamJam.teamNum == team.num);
@@ -48,9 +50,8 @@ export default function TripController({
   return (
     <Stack>
       <Group justify="space-between" align="center">
-        {/* TODO: magic number */}
-        {Array.from({ length: 5 }, (_, i) => (
-          <Button key={i} variant={i == 4 ? "light" : "subtle"}>
+        {Array.from({ length: pointsPerTrip + 1 }, (_, i) => (
+          <Button key={i} variant={i == pointsPerTrip ? "light" : "subtle"}>
             {i}
           </Button>
         ))}

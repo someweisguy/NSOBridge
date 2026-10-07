@@ -175,7 +175,7 @@ function OperatorTeamJamController({
         team={team}
         {...ruleset}
       />
-      <TripController jam={activeJam} team={team} w="100%" />
+      <TripController jam={activeJam} team={team} {...ruleset} w="100%" />
     </Stack>
   );
 }
