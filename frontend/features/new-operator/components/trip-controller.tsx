@@ -16,6 +16,7 @@ import {
 import { useHover, useMergedRef, useScroller } from "@mantine/hooks";
 import { IconTrash } from "@tabler/icons-react";
 import { useRef } from "react";
+import { useCreateTrip } from "../hooks/use-create-trip";
 
 const altTextStyle: TextProps = {
   fz: "xs",
@@ -45,13 +46,19 @@ export default function TripController({
   const htmlRef = useRef<HTMLDivElement>(null);
   const mergedRef = useMergedRef(scrollerRef, htmlRef);
 
+  const { mutate: createTrip } = useCreateTrip({ team });
+
   // TODO: make scroller work
 
   return (
     <Stack>
       <Group justify="space-between" align="center">
         {Array.from({ length: pointsPerTrip + 1 }, (_, i) => (
-          <Button key={i} variant={i == pointsPerTrip ? "light" : "subtle"}>
+          <Button
+            key={i}
+            variant={i == pointsPerTrip ? "light" : "subtle"}
+            onClick={() => createTrip(i)}
+          >
             {i}
           </Button>
         ))}

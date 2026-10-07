@@ -15,10 +15,23 @@ if TYPE_CHECKING:
     from sqlalchemy import Result, Select
 
 
-async def _get_bout(
+async def get_bout(
     user: GetUser,
     uuid: Annotated[UUID, Query()],
 ) -> BaseBout:
+    """Get the desired Bout.
+
+    Args:
+        user (GetUser): The User that is querying the database.
+        uuid (Annotated[UUID, Query): the UUID of the desired bout.
+
+    Raises:
+        HTTPException: if no Bout is found.
+
+    Returns:
+        BaseBout: the associated Bout in the database.
+
+    """
     statement: Select[BaseBout] = select(BaseBout).where(BaseBout.uuid == uuid)
     results: Result[BaseBout] = await user.session.execute(statement)
 
@@ -32,18 +45,41 @@ async def _get_bout(
     return bout
 
 
-GetBout: TypeAlias = Annotated[BaseBout, Depends(_get_bout)]
+GetBout: TypeAlias = Annotated[BaseBout, Depends(get_bout)]
 
 
-async def _get_team(
-    bout: GetBout, team_uuid: Annotated[UUID, Query(alias='teamUuid')]
+async def get_team(
+    user: GetUser, uuid: Annotated[UUID, Query(alias='teamUuid')]
 ) -> Team:
-    team: Team | None = next((t for t in bout.teams if t.uuid == team_uuid), None)
-    if team is None:
+    """Get the desired Team.
+
+    Args:
+        user (GetUser): The User that is querying the database.
+        uuid (Annotated[UUID, Query): the UUID of the desired Team..
+
+    Raises:
+        HTTPException: if no Team is found.
+
+    Returns:
+        Team: the associated Team in the database.
+
+    """
+    statement: Select[Team] = select(Team).where(Team.uuid == uuid)
+    results: Result[Team] = await user.session.execute(statement)
+
+    try:
+        team: Team = results.scalar_one()
+        if team.bout is None:
+            raise NoResultFound('This Team does not have a parent Bout.')
+    except NoResultFound as e:
         raise HTTPException(
-            HTTPStatus.NOT_FOUND, f'Could not find Team ({bout=} {team_uuid=})'
-        )
+            HTTPStatus.NOT_FOUND, f'Could not find Team ({uuid=})'
+        ) from e
+
+    # Load the parent Bout
+    await get_bout(user, team.bout.uuid)
+
     return team
 
 
-GetTeam: TypeAlias = Annotated[Team, Depends(_get_team)]
+GetTeam: TypeAlias = Annotated[Team, Depends(get_team)]

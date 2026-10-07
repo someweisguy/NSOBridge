@@ -293,9 +293,7 @@ class Team(BaseSQLModel):
     data like a team's score offset.
     """
 
-    _bout_uuid: Mapped[UUID | None] = mapped_column(
-        ForeignKey('bouts.uuid'), nullable=False
-    )
+    _bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'), nullable=False)
 
     num: Mapped[int] = mapped_column(default=0)
 
@@ -307,7 +305,7 @@ class Team(BaseSQLModel):
     timeouts_remaining: Mapped[int] = mapped_column(default=0)
     reviews_remaining: Mapped[int] = mapped_column(default=0)
 
-    bout: Mapped[BaseBout | None] = relationship(
+    bout: Mapped[BaseBout] = relationship(
         back_populates='teams',
         cascade=CASCADE_OTHER,
         lazy='selectin',

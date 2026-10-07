@@ -14,7 +14,7 @@ from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
 from .constants import RANDOM_TEAM_NAMES
-from .dependencies import GetBout, _get_bout
+from .dependencies import GetBout, get_bout
 from .models import REQUIRED_NUM_TEAMS, BaseBout
 from .schemas import BoutSchema, RulesetSchema
 
@@ -38,7 +38,7 @@ def _compute_all_rulesets() -> None:
 router: Final[APIRouter] = APIRouter(
     prefix='/bout', route_class=CacheAPIRoute, tags=[BOUTS_TAG]
 )
-router.add_api_route('', _get_bout, response_model=BoutSchema)
+router.add_api_route('', get_bout, response_model=BoutSchema)
 
 
 @router.put('', response_model=BoutSchema)
@@ -184,11 +184,11 @@ async def stop_timeout(bout: GetBout) -> BaseBout:
 
 @router.post('/addTrip', response_model=BoutSchema)
 async def add_trip(
-    bout: GetBout,
     team: GetTeam,
     passes: Annotated[int, Body()],
 ) -> BaseBout:
     """Add a Trip for the specified Team of the specified Jam."""
+    bout: BaseBout = team.bout
     bout.add_trip(team, datetime.now(), passes)
     return bout
 
