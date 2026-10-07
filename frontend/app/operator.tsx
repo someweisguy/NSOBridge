@@ -183,6 +183,7 @@ function OperatorTeamJamController({
 function OperatorInterface({ bout }: { bout: Bout | undefined }) {
   useSuspendIfNullable(bout);
 
+  // TODO: get active Jam in TeamJamController
   const { data: activeJam } = useSuspenseActiveJam(bout);
   const { data: latestTimeout } = useLatestTimeout(bout);
   void useLatestJam(bout); // Prefetch latest Jam to avoid UI blinking
