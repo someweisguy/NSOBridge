@@ -42,9 +42,9 @@ export interface Jam extends OneShot {
  */
 export interface TeamJam {
   /**
-   * The UUID which identifies this TeamJam.
+   * The UUID of the Team to which this TeamJam belongs.
    */
-  uuid: string;
+  teamUuid: string;
   /**
    * The unique number of the Team with which this TeamJam is associated.
    */

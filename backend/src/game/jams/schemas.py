@@ -4,6 +4,7 @@ from datetime import datetime
 from uuid import UUID
 
 from core.app import ServerSchema, register_model
+from pydantic import Field
 
 from .models import Jam
 from .types import StopReasonStr
@@ -24,7 +25,7 @@ class TripEventSchema(ServerSchema):
 class TeamJamSchema(ServerSchema):
     """Represent a TeamJam as a JSON schema."""
 
-    uuid: UUID
+    team_uuid: UUID = Field(validation_alias='_team_uuid')
 
     team_num: int
     events: list[TripEventSchema]
