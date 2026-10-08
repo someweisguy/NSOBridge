@@ -75,9 +75,9 @@ export default function TripController({
             <JammerTrip
               key={tripEvent.uuid}
               ref={latestTripRef}
+              tripIndex={i}
               enableEdit={editable}
               enableDelete={deletable}
-              tripIndex={i}
               pointsPerTrip={pointsPerTrip}
               w="4rem"
               h="3.5rem"
