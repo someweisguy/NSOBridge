@@ -176,8 +176,14 @@ function OperatorTeamJamController({
         team={team}
         {...ruleset}
       />
-      <TripAdder team={team} {...ruleset} />
-      <TripController w="22rem" jam={activeJam} team={team} {...ruleset} />
+      <TripAdder team={team} px="lg" w="100%" {...ruleset} />
+      <TripController
+        jam={activeJam}
+        team={team}
+        draggable={false}
+        w="22rem"
+        {...ruleset}
+      />
     </Stack>
   );
 }
