@@ -29,7 +29,8 @@ const altTextStyle: TextProps = {
 export interface TripControllerProps extends Omit<ScrollerProps, "children"> {
   jam: Jam;
   team: Team;
-
+  editable?: boolean;
+  deletable?: boolean;
   pointsPerTrip: number;
 }
 
@@ -37,6 +38,8 @@ export default function TripController({
   jam,
   team,
   pointsPerTrip,
+  editable = true,
+  deletable = true,
   ...props
 }: TripControllerProps) {
   const teamJam = jam.teamJams.find((teamJam) => teamJam.teamUuid == team.uuid);
@@ -70,6 +73,8 @@ export default function TripController({
           .filter((tripEvent) => tripEvent.passes != null)
           .map((tripEvent: TripEvent, i: number) => (
             <JammerTrip
+              enableEdit={editable}
+              enableDelete={deletable}
               key={tripEvent.uuid}
               ref={latestTripRef}
               tripIndex={i}
@@ -87,14 +92,18 @@ export default function TripController({
 interface JammerTripProps extends TripEvent, PaperProps {
   tripIndex: number;
   pointsPerTrip: number;
+  enableEdit?: boolean;
+  enableDelete?: boolean;
   ref?: RefObject<HTMLDivElement | null>;
 }
 
 function JammerTrip({
+  // uuid,
   tripIndex,
   passes,
   pointsPerTrip,
-  // uuid,
+  enableEdit = true,
+  enableDelete = true,
   ref,
   ...props
 }: JammerTripProps) {
@@ -121,9 +130,10 @@ function JammerTrip({
         value={passes ?? 0}
         allowDecimal={false}
         label={"Trip " + (tripIndex + 1)}
-        hideControls={!hovered}
+        hideControls={!hovered || !enableEdit}
         leftSection={
-          hovered && (
+          hovered &&
+          enableDelete && (
             <ActionIcon
               variant="transparent"
               color="red"
