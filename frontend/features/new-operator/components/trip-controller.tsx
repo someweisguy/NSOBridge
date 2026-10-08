@@ -46,7 +46,8 @@ export default function TripController({
 }: TripControllerProps) {
   const teamJam = jam.teamJams.find((teamJam) => teamJam.teamUuid == team.uuid);
   const teamJamNotInJam = teamJam == null;
-  const teamJamHasNoTrips = teamJam?.events.length == 0;
+  const teamJamHasNoTrips =
+    teamJam?.events.filter((event) => event.passes != null).length == 0;
 
   const latestTripRef = useRef<HTMLDivElement>(null);
 
