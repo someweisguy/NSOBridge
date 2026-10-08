@@ -73,14 +73,14 @@ export default function TripController({
           .filter((tripEvent) => tripEvent.passes != null)
           .map((tripEvent: TripEvent, i: number) => (
             <JammerTrip
-              enableEdit={editable}
-              enableDelete={deletable}
               key={tripEvent.uuid}
               ref={latestTripRef}
+              enableEdit={editable}
+              enableDelete={deletable}
               tripIndex={i}
               pointsPerTrip={pointsPerTrip}
-              w="4em"
-              h="3.5em"
+              w="4rem"
+              h="3.5rem"
               {...tripEvent}
             />
           ))}
