@@ -4,6 +4,7 @@ import BoutController from "@/features/new-operator/components/bout-controller";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
 import JammerController from "@/features/new-operator/components/jammer-controller";
+import TripAdder from "@/features/new-operator/components/trip-adder";
 import TripController from "@/features/new-operator/components/trip-controller";
 import Undoer from "@/features/new-operator/components/undoer";
 import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
@@ -175,7 +176,8 @@ function OperatorTeamJamController({
         team={team}
         {...ruleset}
       />
-      <TripController jam={activeJam} team={team} {...ruleset} w="100%" />
+      <TripAdder team={team} {...ruleset} />
+      <TripController w="22rem" jam={activeJam} team={team} {...ruleset} />
     </Stack>
   );
 }
