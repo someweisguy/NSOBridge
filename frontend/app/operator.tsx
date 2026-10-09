@@ -1,23 +1,20 @@
-import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
 import BoutClock from "@/features/new-operator/components/bout-clock";
 import BoutController from "@/features/new-operator/components/bout-controller";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
 import JammerController from "@/features/new-operator/components/jammer-controller";
+import TeamScore from "@/features/new-operator/components/team-score";
 import TripAdder from "@/features/new-operator/components/trip-adder";
 import TripController from "@/features/new-operator/components/trip-controller";
 import Undoer from "@/features/new-operator/components/undoer";
 import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
 import { useLatestJam } from "@/features/new-operator/hooks/use-latest-jam";
-import useLatestTimeout from "@/features/new-operator/hooks/use-latest-timeout";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
 import BoutEditor from "@/features/operator/components/bout-editor";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { Bout, Team } from "@/types/bout";
-import { TeamJam } from "@/types/jam";
-import { isRunning } from "@/utils/time";
 import {
   AppShell,
   AppShellProps,
@@ -25,24 +22,15 @@ import {
   Card,
   Center,
   Divider,
-  Flex,
-  Grid,
   Group,
   Loader,
   NavLink,
-  Paper,
-  px,
   Stack,
-  Text,
   Title,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
-import {
-  IconExternalLink,
-  IconStarFilled,
-  IconStarOff,
-} from "@tabler/icons-react";
+import { IconExternalLink } from "@tabler/icons-react";
 import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
@@ -69,8 +57,6 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
   padding: "md",
 });
 
-const jammerStatusIconSize = "1rem";
-
 function OperatorBoutController({ bout }: { bout: Bout }) {
   return (
     <Stack mb="lg" w={225}>
@@ -95,80 +81,14 @@ function OperatorTeamJamController({
   reverse: boolean;
 }) {
   const { data: activeJam } = useSuspenseActiveJam(bout);
-  const { data: latestTimeout } = useLatestTimeout(bout);
   void useLatestJam(bout); // Prefetch to avoid UI blinking
   const { data: ruleset } = useSuspenseGetRuleset({
     rulesetName: bout.rulesetName,
   });
 
-  const teamJam = activeJam.teamJams.find(
-    (teamJam: TeamJam) => team.uuid == teamJam.teamUuid,
-  );
-  const lead = teamJam?.events.some((event) => event.lead) ?? false;
-  const lost = teamJam?.events.some((event) => event.lost) ?? false;
-  const starPass = teamJam?.events.some((event) => event.starPass) ?? false;
-  const initial =
-    teamJam?.events.some((event) => event.passes != null) ?? false;
-
   return (
     <Stack justify="start" align="center">
-      <Title ta="center" fz="h3">
-        {team.name}
-      </Title>
-      <Grid justify="space-around" align="last baseline" w="100%">
-        <Grid.Col
-          span={3}
-          align="center"
-          style={{ alignSelf: "center", placeItems: "center" }}
-          order={reverse ? 12 : 1}
-        >
-          <TimeoutsLeft
-            timeoutIsActive={
-              latestTimeout != null &&
-              isRunning(latestTimeout) &&
-              latestTimeout.teamUuid === team.uuid
-            }
-            isReview={latestTimeout?.isReview ?? false}
-            {...team}
-            {...ruleset}
-            h="4rem"
-          />
-        </Grid.Col>
-        <Grid.Col span={4} order={2}>
-          <Text fz="3rem" ta="center">
-            {team.boutScore + team.scoreOffset}
-          </Text>
-        </Grid.Col>
-        <Grid.Col span={3} order={reverse ? 1 : 12}>
-          <Flex
-            justify="start"
-            align="center"
-            direction="column-reverse"
-            gap="0"
-          >
-            <Paper
-              withBorder
-              fz="2rem"
-              w="3rem"
-              ta="center"
-              style={{ aspectRatio: "1/1" }}
-            >
-              {initial ? team.jamScore : "-"}
-            </Paper>
-            {starPass ? (
-              <Text fw="500" size={jammerStatusIconSize}>
-                SP
-              </Text>
-            ) : lost ? (
-              <IconStarOff size={px(jammerStatusIconSize)} />
-            ) : lead ? (
-              <IconStarFilled size={px(jammerStatusIconSize)} />
-            ) : (
-              <></>
-            )}
-          </Flex>
-        </Grid.Col>
-      </Grid>
+      <TeamScore bout={bout} team={team} reverse={reverse} />
       <JammerController
         justify="space-between"
         mx="md"
