@@ -19,7 +19,7 @@ export interface UseTeamJamAddTripProps extends AppMutationOptions<
 export const useCreateTrip = ({ team, ...options }: UseTeamJamAddTripProps) =>
   useMutation({
     mutationFn: (passes: number) =>
-      localAPI.post<void>("bout/addTrip", {
+      localAPI.post<void>("bout/trip", {
         query: { teamUuid: team.uuid },
         body: passes,
       }),

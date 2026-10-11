@@ -182,7 +182,7 @@ async def stop_timeout(bout: GetBout) -> BaseBout:
     return bout
 
 
-@router.post('/addTrip', response_model=BoutSchema)
+@router.post('/trip', response_model=BoutSchema)
 async def add_trip(
     team: GetTeam,
     passes: Annotated[int, Body()],
@@ -193,7 +193,7 @@ async def add_trip(
     return bout
 
 
-@router.post('/addLead', response_model=BoutSchema)
+@router.post('/lead', response_model=BoutSchema)
 async def set_lead(
     bout: GetBout,
     team: GetTeam,
@@ -204,7 +204,7 @@ async def set_lead(
     return bout
 
 
-@router.post('/addLost', response_model=BoutSchema)
+@router.post('/lost', response_model=BoutSchema)
 async def set_lost(
     bout: GetBout,
     team: GetTeam,
@@ -215,7 +215,7 @@ async def set_lost(
     return bout
 
 
-@router.post('/addStarPass', response_model=BoutSchema)
+@router.post('/starPass', response_model=BoutSchema)
 async def set_star_pass(
     bout: GetBout,
     team: GetTeam,
