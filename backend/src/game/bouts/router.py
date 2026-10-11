@@ -182,7 +182,7 @@ async def stop_timeout(bout: GetBout) -> BaseBout:
     return bout
 
 
-@router.post('/trip', response_model=BoutSchema)
+@router.post('/team/trip', response_model=BoutSchema)
 async def add_trip(
     team: GetTeam,
     passes: Annotated[int, Body()],
@@ -193,35 +193,35 @@ async def add_trip(
     return bout
 
 
-@router.post('/lead', response_model=BoutSchema)
+@router.post('/team/lead', response_model=BoutSchema)
 async def set_lead(
-    bout: GetBout,
     team: GetTeam,
     lead: Annotated[bool, Body()],
 ) -> BaseBout:
     """Set Lead for the specified Team of the specified Jam."""
+    bout: BaseBout = team.bout
     bout.add_lead(team, datetime.now(), lead)
     return bout
 
 
-@router.post('/lost', response_model=BoutSchema)
+@router.post('/team/lost', response_model=BoutSchema)
 async def set_lost(
-    bout: GetBout,
     team: GetTeam,
     lost: Annotated[bool, Body()],
 ) -> BaseBout:
     """Set Lost for the specified Team of the specified Jam."""
+    bout: BaseBout = team.bout
     bout.add_lost(team, datetime.now(), lost)
     return bout
 
 
-@router.post('/starPass', response_model=BoutSchema)
+@router.post('/team/starPass', response_model=BoutSchema)
 async def set_star_pass(
-    bout: GetBout,
     team: GetTeam,
     star_pass: Annotated[bool, Body(alias='starPass')],
 ) -> BaseBout:
     """Set a Star Pass for the specified Team of the specified Jam."""
+    bout: BaseBout = team.bout
     bout.add_star_pass(team, datetime.now(), star_pass)
     return bout
 

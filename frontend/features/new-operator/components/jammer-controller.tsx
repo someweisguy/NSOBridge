@@ -10,6 +10,9 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
+import { useCreateLead } from "../hooks/use-create-lead";
+import { useUpdateLost } from "../hooks/use-create-lost";
+import { useUpdateStarPass } from "../hooks/use-create-star-pass";
 
 const checkBoxTheme = createTheme({
   cursorType: "pointer", // Hovering over checkbox should change cursor
@@ -25,9 +28,9 @@ export default function JammerController({
   team,
   ...props
 }: JammerControllerProps) {
-  // const setLead = useTeamJamAddLead({ ...teamJamUri });
-  // const setLost = useTeamJamAddLost({ ...teamJamUri });
-  // const setStarPass = useTeamJamAddStarPass({ ...teamJamUri });
+  const { mutate: setLead } = useCreateLead({ team });
+  const { mutate: setLost } = useUpdateLost({ team });
+  const { mutate: setStarPass } = useUpdateStarPass({ team });
 
   const leadIsDeclared = jam.teamJams.some((teamJam) =>
     teamJam.events.some((event) => event.lead),
@@ -38,11 +41,6 @@ export default function JammerController({
   const lead = teamJam?.events.some((event) => event.lead) ?? false;
   const lost = teamJam?.events.some((event) => event.lost) ?? false;
   const starPass = teamJam?.events.some((event) => event.starPass) ?? false;
-  // const numTrips =
-  //   teamJam?.events.reduce<number>(
-  //     (sum: number, event: TripEvent) => sum + Number(event.passes != null),
-  //     0,
-  //   ) ?? 0;
 
   return (
     <MantineProvider theme={checkBoxTheme}>
@@ -52,7 +50,7 @@ export default function JammerController({
             label="Lead"
             checked={lead}
             disabled={leadIsDeclared && !lead}
-            // onClick={() => setLead.mutate(!lead)} // FIXME
+            onClick={() => setLead(!lead)}
             variant="outline"
             icon={({ ...others }) => <IconStarFilled {...others} />}
           />
@@ -60,14 +58,14 @@ export default function JammerController({
           <Checkbox
             label="Lost"
             checked={lost}
-            // onClick={() => setLost.mutate(!lost)}  // FIXME
+            onClick={() => setLost(!lost)}
             variant="outline"
           />
           <Divider orientation="vertical" />
           <Checkbox
             label="Star Pass"
             checked={starPass}
-            // onClick={() => setStarPass.mutate(!starPass)} // FIXME
+            onClick={() => setStarPass(!starPass)}
             variant="outline"
           />
         </Group>
