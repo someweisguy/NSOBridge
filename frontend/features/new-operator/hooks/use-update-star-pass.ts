@@ -22,7 +22,7 @@ export const useUpdateStarPass = ({
 }: UseUpdateStarPassProps) =>
   useMutation({
     mutationFn: (starPass: boolean) =>
-      localAPI.post<void>("bout/team/lead", {
+      localAPI.post<void>("bout/team/starPass", {
         query: { teamUuid: team.uuid },
         body: starPass,
       }),

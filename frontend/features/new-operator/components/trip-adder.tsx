@@ -1,6 +1,6 @@
 import { Team } from "@/types/bout";
 import { Button, Group, GroupProps } from "@mantine/core";
-import { useCreateTrip } from "../hooks/use-create-trip";
+import { useCreateTrip } from "../hooks/use-update-trip";
 
 export interface TripAdderProps extends Omit<GroupProps, "children"> {
   team: Team;

@@ -11,8 +11,8 @@ import {
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
 import { useCreateLead } from "../hooks/use-create-lead";
-import { useUpdateLost } from "../hooks/use-create-lost";
-import { useUpdateStarPass } from "../hooks/use-create-star-pass";
+import { useUpdateLost } from "../hooks/use-update-lost";
+import { useUpdateStarPass } from "../hooks/use-update-star-pass";
 
 const checkBoxTheme = createTheme({
   cursorType: "pointer", // Hovering over checkbox should change cursor
