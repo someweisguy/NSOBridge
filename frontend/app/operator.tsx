@@ -155,7 +155,8 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
  * This page should be designed to fit within a viewport that is 1280px by 585px.
  */
 export default function OperatorPage() {
-  const [opened, { toggle }] = useDisclosure(true);
+  // TODO: cache the navbar open state
+  const [opened, { toggle }] = useDisclosure(false);
 
   const [activeSeries] = useSeriesPicker();
   const [activeBout, setActiveBout, bouts] = useBoutPicker(activeSeries);
