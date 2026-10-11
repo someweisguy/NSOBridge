@@ -3,7 +3,7 @@ import { Team } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface useCreateLeadProps extends AppMutationOptions<
+export interface UseUPdateLeadProps extends AppMutationOptions<
   void,
   unknown,
   boolean
@@ -16,7 +16,7 @@ export interface useCreateLeadProps extends AppMutationOptions<
  *
  * @returns A Tanstack Mutation object which can fire the updateLead mutator.
  */
-export const useCreateLead = ({ team, ...options }: useCreateLeadProps) =>
+export const useUpdateLead = ({ team, ...options }: UseUPdateLeadProps) =>
   useMutation({
     mutationFn: (lead: boolean) =>
       localAPI.post<void>("bout/team/lead", {

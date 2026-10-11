@@ -10,7 +10,7 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
-import { useCreateLead } from "../hooks/use-create-lead";
+import { useUpdateLead } from "../hooks/use-update-lead";
 import { useUpdateLost } from "../hooks/use-update-lost";
 import { useUpdateStarPass } from "../hooks/use-update-star-pass";
 
@@ -28,7 +28,7 @@ export default function JammerController({
   team,
   ...props
 }: JammerControllerProps) {
-  const { mutate: setLead } = useCreateLead({ team });
+  const { mutate: setLead } = useUpdateLead({ team });
   const { mutate: setLost } = useUpdateLost({ team });
   const { mutate: setStarPass } = useUpdateStarPass({ team });
 
