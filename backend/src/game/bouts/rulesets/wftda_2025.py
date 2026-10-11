@@ -238,12 +238,12 @@ class Bout(BaseBout):
         event: TripEvent = TripEvent.create(timestamp, passes=passes)
 
         # Automatically set lead on the first 4-point trip
-        if not jam.lead_is_declared() and passes == self.ruleset.points_per_trip:
-            self.add_lead(team, timestamp, True)
-
-        # Lose eligibility on initial no-pass/no-penalty
-        if len(team_jam.events) == 0 and passes < self.ruleset.points_per_trip:
-            self.add_lost(team, timestamp, True)
+        if not jam.lead_is_declared():
+            if passes == self.ruleset.points_per_trip:
+                self.add_lead(team, timestamp, True)
+            else:
+                # Lose eligibility on initial no-pass/no-penalty
+                self.add_lost(team, timestamp, True)
 
         # Jammer cannot earn points on the initial pass
         if is_initial and not is_overtime:
