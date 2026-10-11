@@ -1,4 +1,6 @@
 import { useDeleteBout } from "@/features/bouts/hooks/use-delete-bout";
+import BoutClockEditor from "@/features/operator/components/bout-clock-editor";
+import TeamEditor from "@/features/operator/components/team-editor";
 import { Bout, Team } from "@/types/bout";
 import { Button, Menu, Modal, useModalsStack } from "@mantine/core";
 import {
@@ -7,8 +9,6 @@ import {
   IconTrash,
   IconUsers,
 } from "@tabler/icons-react";
-import BoutClockEditor from "./bout-clock-editor";
-import TeamEditor from "./team-editor";
 
 interface EditMenuProps {
   bout: Bout | undefined;

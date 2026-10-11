@@ -22,7 +22,7 @@ export const useSetJamStopReason = ({
 }: UseSetJamStopReasonProps) =>
   useMutation({
     mutationFn: (reason: StopReasonString) =>
-      localAPI.put<void>("jam/setStopReason", {
+      localAPI.put<void>("jam/stopReason", {
         query: { jamUuid },
         body: JSON.stringify(reason),
       }),

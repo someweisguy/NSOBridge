@@ -11,7 +11,7 @@ import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
 import { useLatestJam } from "@/features/new-operator/hooks/use-latest-jam";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
-import BoutEditor from "@/features/operator/components/bout-editor";
+import BoutEditor from "@/features/new-operator/components/bout-editor";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { Bout, Team } from "@/types/bout";
