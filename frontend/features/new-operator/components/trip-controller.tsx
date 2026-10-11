@@ -64,14 +64,17 @@ export default function TripController({
   }, [teamJam?.events.length, reduceMotion]);
 
   return (
-    <Scroller ta="center" {...props}>
+    <Scroller
+      ta={teamJamNotInJam || teamJamHasNoTrips ? "center" : "start"}
+      {...props}
+    >
       {teamJamNotInJam && (
         <Text {...altTextStyle}>This Team is not in the Jam</Text>
       )}
       {teamJamHasNoTrips && (
         <Text {...altTextStyle}>There are no Trips to display.</Text>
       )}
-      <Group grow justify="start" gap="xs" wrap="nowrap">
+      <Group grow justify="start" gap="xs" wrap="nowrap" w="100%">
         {teamJam?.events
           .filter((tripEvent) => tripEvent.passes != null)
           .map((tripEvent: TripEvent, i: number) => (
