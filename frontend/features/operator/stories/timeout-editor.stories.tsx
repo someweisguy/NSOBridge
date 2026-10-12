@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import TimeoutEditor from "../components/timeout-editor";
+import TimeoutEditor from "../../new-operator/components/timeout-editor";
 
 const meta: Meta<typeof TimeoutEditor> = {
   component: TimeoutEditor,

@@ -2,7 +2,7 @@ import { localAPI } from "@/lib/requests";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseSetTimeoutTypeProps extends AppMutationOptions<
+export interface UseUpdateTimeoutTypeProps extends AppMutationOptions<
   void,
   Error,
   "timeout" | "review"
@@ -13,15 +13,15 @@ export interface UseSetTimeoutTypeProps extends AppMutationOptions<
 /**
  * Sets the Timeout type, whether it is a timeout or official review.
  *
- * @returns A Tanstack Mutation object which can fire the setType mutator.
+ * @returns A Tanstack Mutation object which can fire the updateTimeoutType mutator.
  */
-export const useSetTimeoutType = ({
+export const useUpdateTimeoutType = ({
   timeoutUuid,
   ...options
-}: UseSetTimeoutTypeProps) =>
+}: UseUpdateTimeoutTypeProps) =>
   useMutation({
     mutationFn: (type: "timeout" | "review") =>
-      localAPI.post<void>("timeout/type", {
+      localAPI.put<void>("timeout/type", {
         query: { timeoutUuid },
         body: JSON.stringify(type),
       }),
