@@ -6,14 +6,13 @@ from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, Final
 
+from core.app import update_model
 from core.db import CacheAPIRoute, GetAsyncSession
 from fastapi import APIRouter, Body, HTTPException, Query
 from game.bouts.dependencies import GetTeam
 from game.series.dependencies import GetSeries
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
-
-from backend.src.core.app import update_model
 
 from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, get_bout
