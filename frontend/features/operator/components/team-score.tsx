@@ -1,4 +1,4 @@
-import TimeoutsLeft from "@/features/bouts/components/timeouts-left";
+import TimeoutsLeft from "@/components/timeouts-left";
 import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
 import { Bout, Team } from "@/types/bout";
 import { TeamJam } from "@/types/jam";

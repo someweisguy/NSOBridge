@@ -1,12 +1,12 @@
 import { useSyncDataContext } from "@/hooks/host/use-sync-context";
-import { Text, TextProps } from "@mantine/core";
-import { useEffect, useState } from "react";
 import defaultTimeStringFormatter, {
   jamTimeStringFormatter,
   lineupTimeStringFormatter,
   periodTimeStringFormatter,
   timeoutTimeStringFormatter,
-} from "../utils/time-string-formatters";
+} from "@/utils/time-string-formatters";
+import { Text, TextProps } from "@mantine/core";
+import { useEffect, useState } from "react";
 
 const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate
 
@@ -50,14 +50,11 @@ export interface ClockProps extends TextProps {
    * The format to use when formatting this Clock.
    */
   formatter?: keyof typeof timeFormatters;
-
-  prefix?: string;
 }
 
 /**
- * A basic Clock component. It can be used to display any of the several clocks that are
- * used in Roller Derby. This component is completely unstyled. It should be wrapped in
- * a text component or similar before being rendered.
+ * A basic Clock component. It can be used to display any of the several clocks
+ * that are used in Roller Derby.
  */
 export default function ClockView({
   startTimestamp,
@@ -67,7 +64,6 @@ export default function ClockView({
   serverOffset,
   freeze = false,
   formatter = "default",
-  prefix,
   ...props
 }: ClockProps) {
   const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
@@ -103,10 +99,6 @@ export default function ClockView({
   }
 
   return (
-    <Text {...props}>
-      {prefix}
-      {prefix == null ? "" : " "}
-      {timeFormatters[formatter](milliseconds, alarm)}
-    </Text>
+    <Text {...props}>{timeFormatters[formatter](milliseconds, alarm)}</Text>
   );
 }
