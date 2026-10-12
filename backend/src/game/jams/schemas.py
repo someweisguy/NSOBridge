@@ -3,11 +3,21 @@
 from datetime import datetime
 from uuid import UUID
 
-from core.app import ServerSchema, register_model
+from core.app import ClientSchema, ServerSchema, register_model
 from pydantic import Field
 
 from .models import Jam
 from .types import StopReasonStr
+
+
+class UpdateTripEventSchema(ClientSchema):
+    """The updatable fields in a TripEvent."""
+
+    timestamp: datetime | None = None
+    lead: bool | None = None
+    lost: bool | None = None
+    passes: int | None = None
+    star_pass: bool | None = None
 
 
 class TripEventSchema(ServerSchema):

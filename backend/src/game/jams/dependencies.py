@@ -18,7 +18,7 @@ async def get_jam(
     user: GetUser,
     uuid: Annotated[UUID, Query(alias='uuid')],
 ) -> Jam:
-    """Get the desired Jam by UUID.
+    """Get a Jam.
 
     Args:
         user (GetUser): the user who is performing this request.
@@ -52,12 +52,10 @@ GetJam: TypeAlias = Annotated[Jam, Depends(get_jam)]
 
 async def get_trip_event(
     user: GetUser,
-    trip_event_uuid: Annotated[UUID, Query(alias='tripEventUuid')],
+    uuid: Annotated[UUID, Query()],
 ) -> TripEvent:
-    """Get the desired Trip Event."""
-    statement: Select[TripEvent] = select(TripEvent).where(
-        TripEvent.uuid == trip_event_uuid
-    )
+    """Get a Trip Event."""
+    statement: Select[TripEvent] = select(TripEvent).where(TripEvent.uuid == uuid)
     results: Result[TripEvent] = await user.session.execute(statement)
 
     try:

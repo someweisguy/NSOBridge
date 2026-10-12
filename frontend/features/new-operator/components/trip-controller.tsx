@@ -16,7 +16,7 @@ import { useHover, useMergedRef, useReducedMotion } from "@mantine/hooks";
 import { IconTrash } from "@tabler/icons-react";
 import { RefObject, useEffect, useRef } from "react";
 import { useDeleteTrip } from "../hooks/use-delete-trip";
-import { useSetJamTripPasses } from "../hooks/use-set-trip-passes";
+import { useUpdateTripEvent } from "../hooks/use-update-trip-event";
 
 const deleteTripIconSize = 16;
 
@@ -116,9 +116,7 @@ function JammerTrip({
   const { hovered, ref: hoverRef } = useHover();
   const mergedRef = useMergedRef(hoverRef, ref);
 
-  const { mutate: setTripPasses } = useSetJamTripPasses({
-    tripEventUuid: uuid,
-  });
+  const { mutate: updateTripEvent } = useUpdateTripEvent(uuid);
   const { mutate: deleteTrip } = useDeleteTrip({ tripEventUuid: uuid });
 
   return (
@@ -150,7 +148,7 @@ function JammerTrip({
         }
         leftSectionWidth={24}
         rightSectionWidth={24}
-        onChange={(value) => setTripPasses(Number(value))}
+        onChange={(value) => updateTripEvent({ passes: Number(value) })}
         styles={{ input: { textAlign: "center", pointerEvents: "none" } }}
         onFocusCapture={(event) => event.currentTarget.blur()}
       />

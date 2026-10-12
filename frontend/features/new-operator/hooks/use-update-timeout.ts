@@ -6,9 +6,9 @@ import { useMutation } from "@tanstack/react-query";
 type EditableTimeout = Partial<Omit<Timeout, "uuid">>;
 
 /**
- * Sets the Timeout type, whether it is a timeout or official review.
+ * Update the Timeout.
  *
- * @returns A Tanstack Mutation object which can fire the updateTimeoutType mutator.
+ * @returns A Tanstack Mutation object which can fire the updateTimeout mutator.
  */
 export const useUpdateTimeout = (
   uuid: string,

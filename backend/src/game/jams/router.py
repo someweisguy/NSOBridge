@@ -2,12 +2,13 @@
 
 from typing import Annotated, Final
 
+from core.app import update_model
 from core.db import CacheAPIRoute
 from fastapi import APIRouter, Body
 
 from .dependencies import GetJam, GetTripEvent, get_jam
 from .models import Jam, TeamJam
-from .schemas import JamSchema
+from .schemas import JamSchema, UpdateTripEventSchema
 from .types import StopReasonStr
 
 JAMS_TAG = 'Jams'
@@ -28,21 +29,20 @@ async def set_stop_reason(
     return jam
 
 
-@router.put('/trip/passes', response_model=JamSchema)
-async def set_trip_passes(
-    trip_event: GetTripEvent,
-    passes: Annotated[int, Body()],
+@router.put('/tripEvent', response_model=JamSchema)
+async def update_trip(
+    trip_event: GetTripEvent, updates: Annotated[UpdateTripEventSchema, Body()]
 ) -> Jam:
-    """Set the value of the Trip Event."""
-    trip_event.passes = passes
+    """Update a Trip Event."""
+    update_model(trip_event, updates)
     return trip_event.team_jam.jam
 
 
-@router.delete('/trip', response_model=JamSchema)
+@router.delete('/tripEvent', response_model=JamSchema)
 async def delete_trip_event(
     trip_event: GetTripEvent,
 ) -> Jam:
-    """Delete the desired Trip Event."""
+    """Delete a Trip Event."""
     team_jam: TeamJam = trip_event.team_jam
     team_jam.events.remove(trip_event)
     return team_jam.jam
