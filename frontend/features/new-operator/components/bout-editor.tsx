@@ -1,6 +1,6 @@
 import { useDeleteBout } from "@/features/bouts/hooks/use-delete-bout";
 import TeamEditor from "@/features/new-operator/components/team-editor";
-import BoutClockEditor from "@/features/operator/components/bout-clock-editor";
+import BoutClockEditor from "@/features/new-operator/components/bout-clock-editor";
 import { Bout, Team } from "@/types/bout";
 import { Button, Menu, Modal, useModalsStack } from "@mantine/core";
 import {

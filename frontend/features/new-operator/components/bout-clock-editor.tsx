@@ -1,3 +1,4 @@
+import { Bout } from "@/types/bout";
 import { Button, Group, Stack, TextInput } from "@mantine/core";
 import { useMask } from "@mantine/hooks";
 import {
@@ -5,30 +6,29 @@ import {
   IconPlayerPlayFilled,
   IconStopwatch,
 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+import { useUpdateBoutClock } from "../hooks/use-update-bout-clock";
 
 interface BoutClockEditorProps {
-  boutUuid: string;
-  isRunning: boolean;
+  bout: Bout;
 }
 
-export default function BoutClockEditor({ isRunning }: BoutClockEditorProps) {
+export default function BoutClockEditor({ bout }: BoutClockEditorProps) {
   const { ref, value } = useMask({
     mask: [/\d/, /\d/, ":", /[0-5]/, /\d/],
     slotChar: " ",
   });
-  const [, setInputMilliseconds] = useState(0);
 
-  // const setBoutClockElapsed = useSetBoutClockRemaining({ boutUuid });
-  // const setBoutClockIsRunning = useSetBoutClockIsRunning({ boutUuid });
+  const { mutate: updateBoutClock } = useUpdateBoutClock(bout.uuid);
+  const isRunning = bout.clock.startTimestamp != null;
 
-  useEffect(() => {
+  // The number of milliseconds in the TextInput value
+  const remaining = useMemo(() => {
     const [minutes, seconds] = value
       .replace(/ /g, "0")
       .split(":")
       .map((val: string) => Number(val));
-
-    setInputMilliseconds((minutes * 60 + seconds) * 1000);
+    return (minutes * 60 + seconds) * 1000;
   }, [value]);
 
   return (
@@ -42,7 +42,7 @@ export default function BoutClockEditor({ isRunning }: BoutClockEditorProps) {
       <Group justify="space-between">
         <Button
           variant="subtle"
-          // onClick={() => setBoutClockIsRunning.mutate(!isRunning)}
+          onClick={() => updateBoutClock({ isRunning: !isRunning })}
           leftSection={
             isRunning ? (
               <IconPlayerPauseFilled size={16} />
@@ -53,11 +53,7 @@ export default function BoutClockEditor({ isRunning }: BoutClockEditorProps) {
         >
           {isRunning ? "Pause Bout Clock" : "Start Bout Clock"}
         </Button>
-        <Button
-        // onClick={() => setBoutClockElapsed.mutate(inputMilliseconds)}
-        >
-          Apply
-        </Button>
+        <Button onClick={() => updateBoutClock({ remaining })}>Apply</Button>
       </Group>
     </Stack>
   );
