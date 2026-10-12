@@ -1,4 +1,4 @@
-import { useGetAllSeries } from "@/hooks/use-series";
+import { useGetAllSeries } from "@/hooks/game/use-series";
 import { Series } from "@/types/series";
 import { useCallback, useState } from "react";
 

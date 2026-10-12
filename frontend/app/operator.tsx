@@ -10,12 +10,15 @@ import TripAdder from "@/features/new-operator/components/trip-adder";
 import TripController from "@/features/new-operator/components/trip-controller";
 import Undoer from "@/features/new-operator/components/undoer";
 import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
-import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
+import useBoutPicker from "@/hooks/game/use-bout-picker";
 import { useLatestJam } from "@/features/new-operator/hooks/use-latest-jam";
 import useLatestTimeout from "@/features/new-operator/hooks/use-latest-timeout";
-import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
+import useSeriesPicker from "@/hooks/game/use-series-picker";
 import JamStopReasonEditor from "@/features/new-operator/components/stop-reason-editor";
-import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
+import {
+  useGetAllRulesets,
+  useSuspenseGetRuleset,
+} from "@/hooks/game/use-ruleset";
 import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { Bout, Team } from "@/types/bout";
 import {

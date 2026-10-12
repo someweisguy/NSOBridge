@@ -1,6 +1,6 @@
 import ClockView from "@/components/clock-view";
-import { useSuspenseJam } from "@/hooks/use-jam";
-import { useSuspenseGetRuleset } from "@/hooks/use-ruleset";
+import { useSuspenseJam } from "@/hooks/game/use-jam";
+import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
 import { Bout, BoutSubStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
 import {

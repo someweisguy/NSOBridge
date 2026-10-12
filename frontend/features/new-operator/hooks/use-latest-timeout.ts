@@ -1,4 +1,4 @@
-import { useTimeout } from "@/hooks/use-timeout";
+import { useTimeout } from "@/hooks/game/use-timeout";
 import { Bout } from "@/types/bout";
 
 /**

@@ -1,4 +1,4 @@
-import { useJam, useSuspenseJam } from "@/hooks/use-jam";
+import { useJam, useSuspenseJam } from "@/hooks/game/use-jam";
 import { Bout } from "@/types/bout";
 
 /**

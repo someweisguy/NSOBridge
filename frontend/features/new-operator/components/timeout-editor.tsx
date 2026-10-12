@@ -1,4 +1,4 @@
-import { useSuspenseBout } from "@/features/bouts/hooks/use-bout";
+import { useSuspenseBout } from "@/hooks/game/use-bout";
 import { Team } from "@/types/bout";
 import { Timeout } from "@/types/timeout";
 import {
