@@ -13,10 +13,12 @@ from game.series.dependencies import GetSeries
 from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
+from backend.src.core.app import update_model
+
 from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, get_bout
 from .models import REQUIRED_NUM_TEAMS, BaseBout
-from .schemas import BoutSchema, RulesetSchema, UpdateBoutClockSchema
+from .schemas import BoutSchema, RulesetSchema, UpdateBoutClockSchema, UpdateTeamSchema
 
 if TYPE_CHECKING:
     from game.series.models import Series
@@ -253,63 +255,10 @@ async def update_bout_clock(bout: GetBout, updates: UpdateBoutClockSchema) -> Ba
     return bout
 
 
-@router.put(path='/setTeamName', response_model=BoutSchema)
-async def set_team_name(team: GetTeam, name: Annotated[str, Body()]) -> BaseBout:
-    """Set the desired Team's name."""
-    if team.bout is None:
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail='Bout relationship has not been defined',
-        )
-    team.name = name
-    return team.bout
-
-
-@router.put(path='/teamTimeoutsRemaining', response_model=BoutSchema)
-async def put_team_timeouts(
-    team: GetTeam, num_timeouts: Annotated[int, Body(alias='numTimeouts')]
-) -> BaseBout:
-    """Set the number of remaining Timeouts that a Team has."""
-    if team.bout is None:
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail='Bout relationship has not been defined',
-        )
-    if num_timeouts < 0:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail='Teams must have at least zero timeouts',
-        )
-    if num_timeouts > team.bout.ruleset.num_timeouts:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=f'This team may only have {team.bout.ruleset.num_timeouts} timeouts',
-        )
-    team.timeouts_remaining = num_timeouts
-    return team.bout
-
-
-@router.put(path='/teamReviewsRemaining', response_model=BoutSchema)
-async def put_team_reviews(
-    team: GetTeam, num_reviews: Annotated[int, Body(alias='numReviews')]
-) -> BaseBout:
-    """Set the number of remaining Official Reviews that a Team has."""
-    if team.bout is None:
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail='Bout relationship has not been defined',
-        )
-    if num_reviews < 0:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail='Teams must have at least zero reviews',
-        )
-    if num_reviews > team.bout.ruleset.num_timeouts:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=f'This team may only have {team.bout.ruleset.num_reviews} reviews',
-        )
-    team.reviews_remaining = num_reviews
+@router.put('/team', response_model=BoutSchema)
+async def update_bout_team(team: GetTeam, updates: UpdateTeamSchema) -> BaseBout:
+    """Update the Team."""
+    update_model(team, updates)
     return team.bout
 
 

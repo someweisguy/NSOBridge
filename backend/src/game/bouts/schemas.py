@@ -81,6 +81,17 @@ class UpdateBoutSchema(ClientSchema):
     start_countdown: datetime | None = None
 
 
+class UpdateTeamSchema(ClientSchema):
+    """Update a Team."""
+
+    name: str | None = None
+    league: str | None = None
+    mnemonic: str | None = None
+    timeouts_remaining: int | None = None
+    reviews_remaining: int | None = None
+    score_offset: int | None = None
+
+
 @register_model(BaseBout)
 class BoutSchema(ServerSchema):
     """Represent a Bout as a JSON schema."""
