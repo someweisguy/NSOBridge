@@ -1,6 +1,6 @@
 import { useDeleteBout } from "@/features/bouts/hooks/use-delete-bout";
-import TeamEditor from "@/features/new-operator/components/team-editor";
 import BoutClockEditor from "@/features/new-operator/components/bout-clock-editor";
+import TeamEditor from "@/features/new-operator/components/team-editor";
 import { Bout, Team } from "@/types/bout";
 import { Button, Menu, Modal, useModalsStack } from "@mantine/core";
 import {
@@ -124,10 +124,7 @@ export default function BoutEditor({ bout }: EditMenuProps) {
           </Modal>
         ))}
         <Modal title="Edit Period Clock" {...modalStack.register("clock")}>
-          <BoutClockEditor
-            boutUuid={bout?.uuid ?? ""}
-            isRunning={bout?.clock.startTimestamp != null}
-          />
+          <BoutClockEditor bout={bout!} />
         </Modal>
       </Modal.Stack>
     </Menu>
