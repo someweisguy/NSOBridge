@@ -94,9 +94,9 @@ export default function TimeoutEditor({
           onChange={(value: string | null) => {
             const valueIsOfficials = value == officialDataValue;
             if (valueIsOfficials) {
-              updateTimeout({ teamIsOfficials: true, teamUuid: null });
+              updateTimeout({ teamUuid: null });
             } else {
-              updateTimeout({ teamIsOfficials: false, teamUuid: value });
+              updateTimeout({ teamUuid: value });
             }
           }}
           // error={officialReviewError}

@@ -27,7 +27,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     _bout_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('bouts.uuid'), nullable=False
     )
-    team_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('teams.uuid'))
+    _team_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('teams.uuid'))
 
     num: Mapped[int] = mapped_column()
 
@@ -41,7 +41,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     _team: Mapped[Team | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
-        foreign_keys=[team_uuid],
+        foreign_keys=[_team_uuid],
         lazy='selectin',
     )
     bout: Mapped[BaseBout] = relationship(
@@ -87,9 +87,22 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        if self.team_uuid is None:
+        if self._team_uuid is None:
             return (self.bout,)
         return (self.bout, self._team)  # ty:ignore[invalid-return-type]
+
+    @property
+    def team_uuid(self) -> UUID | None:
+        """Get UUID of the Team that called this Timeout or None.
+
+        None is returned if the Timeout has not yet been assigned to a Team or if the
+        Officials called this timeout.
+
+        Returns:
+            UUID | None: the calling Team UUID or None.
+
+        """
+        return self._team_uuid
 
     @property
     def team(self) -> Team | None:
@@ -103,6 +116,22 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
         """
         return self._team
+
+    @team_uuid.setter
+    def team_uuid(self, uuid: UUID | None) -> None:
+        """Set the UUID of the calling Team of this Timeout.
+
+        When a Timeout is initialized, it is not clear if the timeout is called by a
+        Team or by the officials. Calling this method sets the model data such that it
+        is clear who called the Timeout.
+
+        Args:
+            uuid (UUID | None): the UUID of the calling Team of this Timeout or None if
+            this Timeout was called by the officials.
+
+        """
+        self._team_uuid = uuid
+        self._team_is_officials = uuid is None
 
     @team.setter
     def team(self, team: Team | int | None) -> None:
