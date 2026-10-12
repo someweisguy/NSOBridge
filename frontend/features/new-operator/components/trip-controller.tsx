@@ -15,7 +15,7 @@ import {
 import { useHover, useMergedRef, useReducedMotion } from "@mantine/hooks";
 import { IconTrash } from "@tabler/icons-react";
 import { RefObject, useEffect, useRef } from "react";
-import { useDeleteTrip } from "../hooks/use-delete-trip";
+import { useDeleteTripEvent } from "../hooks/use-delete-trip-event";
 import { useUpdateTripEvent } from "../hooks/use-update-trip-event";
 
 const deleteTripIconSize = 16;
@@ -117,7 +117,7 @@ function JammerTrip({
   const mergedRef = useMergedRef(hoverRef, ref);
 
   const { mutate: updateTripEvent } = useUpdateTripEvent(uuid);
-  const { mutate: deleteTrip } = useDeleteTrip({ tripEventUuid: uuid });
+  const { mutate: deleteTrip } = useDeleteTripEvent({ tripEventUuid: uuid });
 
   return (
     <Paper withBorder ref={mergedRef} {...props}>

@@ -1,6 +1,6 @@
 import { Team } from "@/types/bout";
 import { Button, Group, GroupProps } from "@mantine/core";
-import { useCreateTrip } from "../hooks/use-create-trip";
+import { useAddTrip } from "../hooks/use-add-trip";
 
 export interface TripAdderProps extends Omit<GroupProps, "children"> {
   team: Team;
@@ -12,7 +12,7 @@ export default function TripAdder({
   pointsPerTrip,
   ...props
 }: TripAdderProps) {
-  const { mutate: createTrip } = useCreateTrip({ team });
+  const { mutate: createTrip } = useAddTrip({ team });
   return (
     <Group justify="space-between" align="center" wrap="nowrap" {...props}>
       {Array.from({ length: pointsPerTrip + 1 }, (_, i) => (

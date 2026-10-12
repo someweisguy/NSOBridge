@@ -16,7 +16,7 @@ export interface UseTeamJamAddTripProps extends AppMutationOptions<
  *
  * @returns A Tanstack Mutation object which can fire the addJamTrip mutator.
  */
-export const useCreateTrip = ({ team, ...options }: UseTeamJamAddTripProps) =>
+export const useAddTrip = ({ team, ...options }: UseTeamJamAddTripProps) =>
   useMutation({
     mutationFn: (passes: number) =>
       localAPI.post<void>("bout/team/trip", {

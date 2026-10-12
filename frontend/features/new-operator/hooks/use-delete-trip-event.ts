@@ -16,7 +16,7 @@ export interface UseDeleteTripProps extends AppMutationOptions<
  * @returns A Tanstack Mutation object which can fire the useSetJamTripPasses
  * mutator.
  */
-export const useDeleteTrip = ({
+export const useDeleteTripEvent = ({
   tripEventUuid,
   ...options
 }: UseDeleteTripProps) =>
