@@ -10,9 +10,9 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
-import { useUpdateLead } from "../hooks/use-update-lead";
-import { useUpdateLost } from "../hooks/use-update-lost";
-import { useUpdateStarPass } from "../hooks/use-update-star-pass";
+import { useSetLead } from "../../../hooks/rule-actions/use-set-lead";
+import { useSetLost } from "../../../hooks/rule-actions/use-set-lost";
+import { useSetStarPass } from "../../../hooks/rule-actions/use-set-star-pass";
 
 const checkBoxTheme = createTheme({
   cursorType: "pointer", // Hovering over checkbox should change cursor
@@ -28,9 +28,9 @@ export default function JammerController({
   team,
   ...props
 }: JammerControllerProps) {
-  const { mutate: setLead } = useUpdateLead({ team });
-  const { mutate: setLost } = useUpdateLost({ team });
-  const { mutate: setStarPass } = useUpdateStarPass({ team });
+  const { mutate: setLead } = useSetLead({ team });
+  const { mutate: setLost } = useSetLost({ team });
+  const { mutate: setStarPass } = useSetStarPass({ team });
 
   const leadIsDeclared = jam.teamJams.some((teamJam) =>
     teamJam.events.some((event) => event.lead),

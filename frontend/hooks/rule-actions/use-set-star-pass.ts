@@ -3,7 +3,7 @@ import { Team } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseUpdateStarPassProps extends AppMutationOptions<
+export interface UseSetStarPassProps extends AppMutationOptions<
   void,
   unknown,
   boolean
@@ -14,15 +14,13 @@ export interface UseUpdateStarPassProps extends AppMutationOptions<
 /**
  * Adds or removes a Star Pass to the active Jam of the specified Team.
  *
- * @returns A Tanstack Mutation object which can fire the updateStarPass mutator.
+ * @returns A Tanstack Mutation object which can fire the setStarPass mutator.
  */
-export const useUpdateStarPass = ({
-  team,
-  ...options
-}: UseUpdateStarPassProps) =>
+export const useSetStarPass = ({ team, ...options }: UseSetStarPassProps) =>
   useMutation({
     mutationFn: (starPass: boolean) =>
       localAPI.post<void>("bout/team/starPass", {
+        // TODO: should this be bout/starPass?
         query: { teamUuid: team.uuid },
         body: starPass,
       }),

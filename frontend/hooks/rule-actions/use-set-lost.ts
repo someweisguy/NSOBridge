@@ -3,7 +3,7 @@ import { Team } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseUpdateLostProps extends AppMutationOptions<
+export interface UseSetLostProps extends AppMutationOptions<
   void,
   unknown,
   boolean
@@ -14,9 +14,9 @@ export interface UseUpdateLostProps extends AppMutationOptions<
 /**
  * Adds or removes lost lead status to the active Jam of the specified Team.
  *
- * @returns A Tanstack Mutation object which can fire the updateLost mutator.
+ * @returns A Tanstack Mutation object which can fire the setLost mutator.
  */
-export const useUpdateLost = ({ team, ...options }: UseUpdateLostProps) =>
+export const useSetLost = ({ team, ...options }: UseSetLostProps) =>
   useMutation({
     mutationFn: (lost: boolean) =>
       localAPI.post<void>("bout/team/lost", {

@@ -17,13 +17,13 @@ import {
   IconRollerSkating,
 } from "@tabler/icons-react";
 import { useCallback } from "react";
-import { useBeginPeriod } from "../hooks/use-begin-period";
-import { useEndPeriod } from "../hooks/use-end-period";
-import { useFinalizeBout } from "../hooks/use-finalize-bout";
-import { useStartJam } from "../hooks/use-start-jam";
-import { useStartTimeout } from "../hooks/use-start-timeout";
-import { useStopJam } from "../hooks/use-stop-jam";
-import { useStopTimeout } from "../hooks/use-stop-timeout";
+import { useBeginPeriod } from "../../../hooks/rule-actions/use-begin-period";
+import { useEndPeriod } from "../../../hooks/rule-actions/use-end-period";
+import { useFinalizeBout } from "../../../hooks/rule-actions/use-finalize-bout";
+import { useStartJam } from "../../../hooks/rule-actions/use-start-jam";
+import { useStartTimeout } from "../../../hooks/rule-actions/use-start-timeout";
+import { useStopJam } from "../../../hooks/rule-actions/use-stop-jam";
+import { useStopTimeout } from "../../../hooks/rule-actions/use-stop-timeout";
 
 const buttonIconProps: IconProps = {
   size: 16,
