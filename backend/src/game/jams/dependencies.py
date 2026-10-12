@@ -16,7 +16,7 @@ from .models import Jam, TripEvent
 
 async def get_jam(
     user: GetUser,
-    uuid: Annotated[UUID, Query()],
+    uuid: Annotated[UUID, Query(alias='uuid')],
 ) -> Jam:
     """Get the desired Jam by UUID.
 

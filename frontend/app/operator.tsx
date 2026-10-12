@@ -1,6 +1,7 @@
 import BoutClock from "@/features/new-operator/components/bout-clock";
 import BoutController from "@/features/new-operator/components/bout-controller";
 import BoutCreator from "@/features/new-operator/components/bout-creator";
+import BoutEditor from "@/features/new-operator/components/bout-editor";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
 import JammerController from "@/features/new-operator/components/jammer-controller";
 import TeamScore from "@/features/new-operator/components/team-score";
@@ -11,7 +12,7 @@ import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
 import { useLatestJam } from "@/features/new-operator/hooks/use-latest-jam";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
-import BoutEditor from "@/features/new-operator/components/bout-editor";
+import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
 import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
 import { Bout, Team } from "@/types/bout";
@@ -21,6 +22,7 @@ import {
   Burger,
   Card,
   Center,
+  Collapse,
   Divider,
   Group,
   Loader,
@@ -58,6 +60,7 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
 });
 
 function OperatorBoutController({ bout }: { bout: Bout }) {
+  const { data: activeJam } = useSuspenseActiveJam(bout);
   return (
     <Stack mb="lg" w={225}>
       <Stack gap="0" w="100%">
@@ -65,7 +68,10 @@ function OperatorBoutController({ bout }: { bout: Bout }) {
         <Divider />
       </Stack>
       <Stack justify="start" align="stretch" px="xs">
-        <BoutController bout={bout} />
+        <BoutController bout={bout} p="xs" />
+        <Collapse expanded={activeJam.stopTimestamp != null}>
+          <JamStopReasonEditor jam={activeJam} p="xs" />
+        </Collapse>
       </Stack>
     </Stack>
   );

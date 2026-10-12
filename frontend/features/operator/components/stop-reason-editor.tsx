@@ -1,24 +1,26 @@
-import { StopReasonString } from "@/types/jam";
+import { useUpdateJamStopReason } from "@/features/new-operator/hooks/use-update-jam-stop-reason";
+import { Jam, StopReasonString } from "@/types/jam";
 import { Fieldset, FieldsetProps, SegmentedControl } from "@mantine/core";
 
 interface JamStopReasonEditorProps extends FieldsetProps {
-  stopReason: StopReasonString | null;
+  jam: Jam;
 }
 
 /**
  * Display a control which allows users to set the reason that a Jam ended.
  */
 export default function JamStopReasonEditor({
-  stopReason,
+  jam,
   ...props
 }: JamStopReasonEditorProps) {
-  // const setStopReason = useSetJamStopReason(jamUri); // FIXME
+  const { mutate: setStopReason } = useUpdateJamStopReason({ jam });
 
   return (
     <Fieldset legend="Why did the jam end?" {...props}>
       <SegmentedControl
         size="xs"
         w="100%"
+
         data={[
           {
             value: "called",
@@ -37,10 +39,8 @@ export default function JamStopReasonEditor({
             label: "Other",
           },
         ]}
-        value={stopReason ?? "other"}
-        // onChange={(value: string) =>  // FIXME
-        //   setStopReason.mutate(value as StopReasonString)
-        // }
+        value={jam.stopReason ?? "other"}
+        onChange={(value: StopReasonString) => setStopReason(value)}
       />
     </Fieldset>
   );
