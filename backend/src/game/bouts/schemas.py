@@ -13,6 +13,8 @@ from game.skaters.schemas import SkaterSchema
 from game.timeouts.models import Timeout
 from pydantic import Field, SkipValidation, computed_field
 
+from backend.src.core.app import ClientSchema
+
 from .types import BoutStateStr, BoutSubStateStr
 
 
@@ -64,6 +66,19 @@ class TeamSchema(ServerSchema):
     reviews_remaining: int
     score_offset: int
     skaters: list[SkaterSchema]
+
+
+class UpdateBoutClockSchema(ClientSchema):
+    """Update a Bout's clock."""
+
+    is_running: bool | None = None
+    remaining: int | None = None
+
+
+class UpdateBoutSchema(ClientSchema):
+    """Update a Bout."""
+
+    start_countdown: datetime | None = None
 
 
 @register_model(BaseBout)

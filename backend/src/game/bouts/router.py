@@ -16,7 +16,7 @@ from sqlalchemy.orm.attributes import flag_dirty
 from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, get_bout
 from .models import REQUIRED_NUM_TEAMS, BaseBout
-from .schemas import BoutSchema, RulesetSchema
+from .schemas import BoutSchema, RulesetSchema, UpdateBoutClockSchema
 
 if TYPE_CHECKING:
     from game.series.models import Series
@@ -233,45 +233,23 @@ async def finalize(bout: GetBout) -> BaseBout:
     return bout
 
 
-@router.put(path='/setClockRemaining', response_model=BoutSchema)
-async def set_clock_remaining(
-    bout: GetBout, remaining: Annotated[int, Body(alias='remaining')]
-) -> BaseBout:
-    """Set the amount of time that is remaining on the Bout clock."""
-    if bout.clock.is_running():
-        bout.clock.start_timestamp = datetime.now()
-    remaining_timedelta = timedelta(milliseconds=remaining)
-    if bout.clock.alarm is not None:
-        remaining_timedelta = bout.clock.alarm - remaining_timedelta
-    bout.clock.elapsed = remaining_timedelta
-    flag_dirty(bout)  # Clock has no association with Bout
-    return bout
-
-
-@router.put(path='/setClockAlarm', response_model=BoutSchema)
-async def set_clock_alarm(
-    bout: GetBout, alarm: Annotated[int, Body(alias='alarm')]
-) -> BaseBout:
-    """Set the alarm time on the Bout clock."""
-    if bout.clock.alarm.total_seconds() != alarm / 1000:
-        bout.clock.alarm = timedelta(milliseconds=alarm)
-        flag_dirty(bout)  # Clock has no association with Bout
-    return bout
-
-
-@router.put(path='/setClockIsRunning', response_model=BoutSchema)
-async def set_clock_is_running(
-    bout: GetBout, is_running: Annotated[bool, Body(alias='isRunning')]
-) -> BaseBout:
-    """Pause or unpause the Bout clock."""
+@router.put('/clock', response_model=BoutSchema)
+async def update_bout_clock(bout: GetBout, updates: UpdateBoutClockSchema) -> BaseBout:
     now: datetime = datetime.now()
-    if bout.clock.is_running() != is_running:
-        if is_running:
+    if updates.is_running is not None and bout.clock.is_running() != updates.is_running:
+        if updates.is_running:
             bout.clock.start(now)
         else:
             bout.clock.stop(now)
         flag_dirty(bout)  # Clock has no association with Bout
-
+    if updates.remaining is not None:
+        if bout.clock.is_running():
+            bout.clock.start_timestamp = datetime.now()
+        remaining_timedelta = timedelta(milliseconds=updates.remaining)
+        if bout.clock.alarm is not None:
+            remaining_timedelta = bout.clock.alarm - remaining_timedelta
+        bout.clock.elapsed = remaining_timedelta
+        flag_dirty(bout)  # Clock has no association with Bout
     return bout
 
 
