@@ -8,8 +8,7 @@ from fastapi import APIRouter, Body
 
 from .dependencies import GetJam, GetTripEvent, get_jam
 from .models import Jam, TeamJam
-from .schemas import JamSchema, UpdateTripEventSchema
-from .types import StopReasonStr
+from .schemas import JamSchema, UpdateJamSchema, UpdateTripEventSchema
 
 JAMS_TAG = 'Jams'
 
@@ -19,13 +18,10 @@ router: Final[APIRouter] = APIRouter(
 router.add_api_route('', get_jam, response_model=JamSchema | None)
 
 
-@router.put('/stopReason', response_model=JamSchema)
-async def set_stop_reason(
-    jam: GetJam, stop_reason: Annotated[StopReasonStr, Body()]
-) -> Jam:
-    """Set the stop reason for the desired Jam."""
-    jam.stop_reason = stop_reason
-
+@router.put('', response_model=JamSchema)
+async def update_jam(jam: GetJam, updates: Annotated[UpdateJamSchema, Body()]) -> Jam:
+    """Update a Jam."""
+    update_model(jam, updates)
     return jam
 
 

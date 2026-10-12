@@ -41,6 +41,12 @@ class TeamJamSchema(ServerSchema):
     events: list[TripEventSchema]
 
 
+class UpdateJamSchema(ClientSchema):
+    """The updatable fields in a Jam."""
+
+    stop_reason: StopReasonStr | None = None
+
+
 @register_model(Jam)
 class JamSchema(ServerSchema):
     """Represent a Jam as a JSON schema."""
