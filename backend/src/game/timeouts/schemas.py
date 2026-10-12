@@ -5,7 +5,7 @@ from typing import Annotated
 from uuid import UUID
 
 from core.app import ClientSchema, ServerSchema, register_model, timedelta_serializer
-from game.bouts.models import BaseBout, Team
+from game.bouts.models import BaseBout
 from game.jams.models import Jam
 from pydantic import Field, SkipValidation, computed_field
 
@@ -35,7 +35,6 @@ class TimeoutSchema(ServerSchema):
 
     bout: Annotated[BaseBout, SkipValidation] = Field(exclude=True)
     jam: Annotated[Jam, SkipValidation] = Field(exclude=True)
-    team: Annotated[Team | None, SkipValidation] = Field(exclude=True)
 
     num: int
     start_timestamp: datetime | None
@@ -43,6 +42,7 @@ class TimeoutSchema(ServerSchema):
     clock_elapsed: Annotated[timedelta, timedelta_serializer] | None
 
     team_is_officials: bool
+    team_uuid: UUID | None
     is_review: bool
     details: str
     result: str
@@ -81,17 +81,3 @@ class TimeoutSchema(ServerSchema):
 
         """
         return self.jam.num
-
-    @computed_field
-    @property
-    def team_uuid(self) -> UUID | None:
-        """Get the Team number of the Team that called this Timeout, if any.
-
-        Returns:
-            int | None: the Team number of the calling Team or None if not yet
-            determined.
-
-        """
-        if self.team is None:
-            return None
-        return self.team.uuid

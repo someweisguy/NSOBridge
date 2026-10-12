@@ -62,12 +62,9 @@ class Jam(AbstractOneShotModel, CacheableSQLModel):
     __mapper_args__: dict[str, Any] = {
         'confirm_deleted_rows': False,
     }
-    __table_args__: tuple[Constraint | Index, ...] = (
-        AbstractOneShotModel.__table_args__
-        + (
-            UniqueConstraint('_bout_uuid', 'period', 'num'),
-            Index('idx_jam_cache_key', '_bout_uuid', 'period', 'num'),
-        )
+    __table_args__: tuple = AbstractOneShotModel.__table_args__ + (
+        UniqueConstraint('_bout_uuid', 'period', 'num'),
+        Index('idx_jam_cache_key', '_bout_uuid', 'period', 'num'),
     )
 
     @classmethod

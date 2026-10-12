@@ -12,11 +12,11 @@ type EditableTimeout = Partial<Omit<Timeout, "uuid">>;
  */
 export const useUpdateTimeout = (
   uuid: string,
-  options: AppMutationOptions<void, Error, EditableTimeout>,
+  options?: AppMutationOptions<void, Error, EditableTimeout>,
 ) =>
   useMutation({
     mutationFn: (timeout: EditableTimeout) =>
-      localAPI.put<void>("timeout/type", {
+      localAPI.put<void>("timeout", {
         query: { uuid },
         body: timeout,
       }),

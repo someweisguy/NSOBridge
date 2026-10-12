@@ -5,12 +5,14 @@ import BoutEditor from "@/features/new-operator/components/bout-editor";
 import BoutPicker from "@/features/new-operator/components/bout-picker";
 import JammerController from "@/features/new-operator/components/jammer-controller";
 import TeamScore from "@/features/new-operator/components/team-score";
+import TimeoutEditor from "@/features/new-operator/components/timeout-editor";
 import TripAdder from "@/features/new-operator/components/trip-adder";
 import TripController from "@/features/new-operator/components/trip-controller";
 import Undoer from "@/features/new-operator/components/undoer";
 import useSuspenseActiveJam from "@/features/new-operator/hooks/use-active-jam";
 import useBoutPicker from "@/features/new-operator/hooks/use-bout-picker";
 import { useLatestJam } from "@/features/new-operator/hooks/use-latest-jam";
+import useLatestTimeout from "@/features/new-operator/hooks/use-latest-timeout";
 import useSeriesPicker from "@/features/new-operator/hooks/use-series-picker";
 import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
 import { useGetAllRulesets, useSuspenseGetRuleset } from "@/hooks/use-ruleset";
@@ -61,6 +63,8 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
 
 function OperatorBoutController({ bout }: { bout: Bout }) {
   const { data: activeJam } = useSuspenseActiveJam(bout);
+  const { data: latestTimeout } = useLatestTimeout(bout);
+
   return (
     <Stack mb="lg" w={225}>
       <Stack gap="0" w="100%">
@@ -71,6 +75,9 @@ function OperatorBoutController({ bout }: { bout: Bout }) {
         <BoutController bout={bout} p="xs" />
         <Collapse expanded={activeJam.stopTimestamp != null}>
           <JamStopReasonEditor jam={activeJam} p="xs" />
+        </Collapse>
+        <Collapse expanded={bout.state == "timeout" && latestTimeout != null}>
+          <TimeoutEditor timeout={latestTimeout!} p="xs" />
         </Collapse>
       </Stack>
     </Stack>

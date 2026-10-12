@@ -10,7 +10,7 @@ from core.db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.models import AbstractOneShotModel
 from sqlalchemy import ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql.schema import Constraint, UniqueConstraint
+from sqlalchemy.sql.schema import UniqueConstraint
 
 if TYPE_CHECKING:
     from game.bouts.models import BaseBout, Team
@@ -24,10 +24,10 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     """
 
     _jam_uuid: Mapped[UUID] = mapped_column(ForeignKey('jams.uuid'))
-    _team_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('teams.uuid'))
     _bout_uuid: Mapped[UUID | None] = mapped_column(
         ForeignKey('bouts.uuid'), nullable=False
     )
+    team_uuid: Mapped[UUID | None] = mapped_column(ForeignKey('teams.uuid'))
 
     num: Mapped[int] = mapped_column()
 
@@ -41,7 +41,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     _team: Mapped[Team | None] = relationship(
         back_populates='timeouts',
         cascade=CASCADE_OTHER,
-        foreign_keys=[_team_uuid],
+        foreign_keys=[team_uuid],
         lazy='selectin',
     )
     bout: Mapped[BaseBout] = relationship(
@@ -57,7 +57,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
     )
 
     __tablename__: str = 'timeouts'
-    __table_args__: tuple[Constraint | Index, ...] = (
+    __table_args__: tuple = (
         UniqueConstraint('_bout_uuid', 'num'),
         Index('idx_timeout_cache_key', '_bout_uuid', 'num'),
     )
@@ -87,7 +87,7 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        if self._team_uuid is None:
+        if self.team_uuid is None:
             return (self.bout,)
         return (self.bout, self._team)  # ty:ignore[invalid-return-type]
 
