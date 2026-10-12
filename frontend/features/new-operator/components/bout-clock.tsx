@@ -31,9 +31,9 @@ const eventNames: Record<BoutSubStateString, string> = {
 };
 
 const stopReasons: Record<StopReasonString, string> = {
-  called: "Called",
+  called: "Call",
   elapsed: "Time",
-  injury: "Injury",
+  injury: "Inj.",
   other: "-",
 };
 
@@ -105,7 +105,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
               {...activeJam}
             />
           ) : (
-            <Text fw={200}>
+            <Text fw={200} tt="uppercase">
               {stopReasons[activeJam.stopReason!] ?? stopReasons.other}
             </Text>
           )}
