@@ -26,25 +26,6 @@ export default function TimeoutEditor({
   timeout,
   ...props
 }: TimeoutEditorProps) {
-  // const [officialReviewError, setOfficialReviewError] = useState(
-  //   teamIsOfficials && isReview,
-  // );
-  // useEffect(() => {
-  //   setOfficialReviewError(teamIsOfficials && isReview);
-  // }, [teamIsOfficials, isReview]);
-
-  // // Reset the select value whenever rendering this component for a new Timeout
-  // const [selectValue, setSelectValue] = useState<string | null>(null);
-  // useEffect(() => {
-  //   setSelectValue(
-  //     teamIsOfficials
-  //       ? officialDataValue
-  //       : teamNum != null
-  //         ? String(teamNum)
-  //         : null,
-  //   );
-  // }, [teamIsOfficials, teamNum]);
-
   const { data: bout } = useSuspenseBout({ uuid: timeout.boutUuid });
   const { mutate: updateTimeout } = useUpdateTimeout(timeout.uuid);
 
@@ -99,7 +80,7 @@ export default function TimeoutEditor({
               updateTimeout({ teamUuid: value });
             }
           }}
-          // error={officialReviewError}
+          error={timeout.isReview && timeout.teamIsOfficials}
           allowDeselect={false}
         />
         <Collapse expanded={timeout.isReview}>
