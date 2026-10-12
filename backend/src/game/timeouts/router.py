@@ -2,12 +2,13 @@
 
 from typing import Annotated, Final, Literal
 
+from core.app import update_model
 from core.db import CacheAPIRoute
 from fastapi import APIRouter, Body
 
 from .dependencies import GetTimeout, _get_timeout
 from .models import Timeout
-from .schemas import TimeoutSchema
+from .schemas import TimeoutSchema, UpdateTimeoutSchema
 
 TIMEOUTS_TAG = 'Timeouts'
 
@@ -17,6 +18,7 @@ router: Final[APIRouter] = APIRouter(
 router.add_api_route('', _get_timeout, response_model=TimeoutSchema | None)
 
 
+# FIXME: Remove
 @router.post('/type', response_model=TimeoutSchema)
 async def set_type(
     timeout: GetTimeout,
@@ -27,6 +29,7 @@ async def set_type(
     return timeout
 
 
+# FIXME: Remove
 @router.post('/team', response_model=TimeoutSchema)
 async def set_team(
     timeout: GetTimeout, team_num: Annotated[int | None, Body()] = None
@@ -36,6 +39,7 @@ async def set_team(
     return timeout
 
 
+# FIXME: Remove
 @router.post('/retained', response_model=TimeoutSchema)
 async def set_retained(
     timeout: GetTimeout, retained: Annotated[bool, Body()]
@@ -45,6 +49,7 @@ async def set_retained(
     return timeout
 
 
+# FIXME: Remove
 @router.put('/details', response_model=TimeoutSchema)
 async def set_details(timeout: GetTimeout, details: Annotated[str, Body()]) -> Timeout:
     """Add details about the specified Timeout."""
@@ -52,8 +57,18 @@ async def set_details(timeout: GetTimeout, details: Annotated[str, Body()]) -> T
     return timeout
 
 
+# FIXME: Remove
 @router.put('/result', response_model=TimeoutSchema)
 async def set_result(timeout: GetTimeout, result: Annotated[str, Body()]) -> Timeout:
     """Add results about the specified Timeout."""
     timeout.result = result
+    return timeout
+
+
+@router.put('/', response_model=TimeoutSchema)
+async def update_timeout(
+    timeout: GetTimeout, updates: Annotated[UpdateTimeoutSchema, Body()]
+) -> Timeout:
+    """Update the desired Timeout."""
+    update_model(timeout, updates)
     return timeout

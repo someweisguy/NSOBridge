@@ -4,12 +4,27 @@ from datetime import datetime, timedelta
 from typing import Annotated
 from uuid import UUID
 
-from core.app import ServerSchema, register_model, timedelta_serializer
+from core.app import ClientSchema, ServerSchema, register_model, timedelta_serializer
 from game.bouts.models import BaseBout, Team
 from game.jams.models import Jam
 from pydantic import Field, SkipValidation, computed_field
 
 from .models import Timeout
+
+
+class UpdateTimeoutSchema(ClientSchema):
+    """The updatable fields in a Timeout."""
+
+    start_timestamp: datetime | None = None
+    stop_timestamp: datetime | None = None
+    clock_elapsed: Annotated[timedelta, timedelta_serializer] | None = None
+
+    team_uuid: UUID | None = None
+    team_is_officials: bool | None = None
+    is_review: bool | None = None
+    details: str | None = None
+    result: str | None = None
+    retained: bool | None = None
 
 
 @register_model(Timeout)

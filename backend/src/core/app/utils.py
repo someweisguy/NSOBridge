@@ -5,12 +5,12 @@ from __future__ import annotations
 import logging
 import time
 from http import HTTPStatus
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
-from .schemas import ErrorSchema
+from .schemas import ClientSchema, ErrorSchema
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -68,3 +68,19 @@ async def validation_error_handler(
     error: ErrorSchema = ErrorSchema(type=type(e).__name__, message=(str(e)))
     logging.warning(f'Received invalid input: {e!s}')
     return JSONResponse(error, status_code=HTTPStatus.UNPROCESSABLE_ENTITY)
+
+
+def update_model[T](model: T, updates: ClientSchema) -> int:
+    """Update the model according to the update schema.
+
+    Returns:
+        int: the number of fields that were updated.
+
+    """
+    num_updates: int = 0
+    updates: dict[str, Any] = updates.model_dump(exclude_unset=True)
+    for key, value in updates:
+        if hasattr(model, key) and getattr(model, key) != value:
+            setattr(model, key, value)
+            num_updates += 1
+    return num_updates

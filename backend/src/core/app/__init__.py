@@ -21,6 +21,7 @@ from .types import CacheableProtocol, CacheKey, Memento
 from .utils import (
     endpoint_profiling_middleware,
     generic_error_handler,
+    update_model,
     validation_error_handler,
 )
 
@@ -51,5 +52,6 @@ __all__ = (
     'register_model',
     'send_all',
     'timedelta_serializer',
+    'update_model',
     'ws',
 )
