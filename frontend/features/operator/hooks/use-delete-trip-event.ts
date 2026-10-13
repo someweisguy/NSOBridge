@@ -7,7 +7,7 @@ export interface UseDeleteTripProps extends AppMutationOptions<
   unknown,
   void
 > {
-  tripEventUuid: string;
+  uuid: string;
 }
 
 /**
@@ -16,14 +16,11 @@ export interface UseDeleteTripProps extends AppMutationOptions<
  * @returns A Tanstack Mutation object which can fire the useSetJamTripPasses
  * mutator.
  */
-export const useDeleteTripEvent = ({
-  tripEventUuid,
-  ...options
-}: UseDeleteTripProps) =>
+export const useDeleteTripEvent = ({ uuid, ...options }: UseDeleteTripProps) =>
   useMutation({
     mutationFn: () =>
-      localAPI.delete<void>("jam/trip", {
-        query: { tripEventUuid },
+      localAPI.delete<void>("jam/tripEvent", {
+        query: { uuid },
       }),
     ...options,
   });

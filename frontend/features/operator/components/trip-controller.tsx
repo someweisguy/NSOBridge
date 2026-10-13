@@ -117,7 +117,7 @@ function JammerTrip({
   const mergedRef = useMergedRef(hoverRef, ref);
 
   const { mutate: updateTripEvent } = useUpdateTripEvent(uuid);
-  const { mutate: deleteTrip } = useDeleteTripEvent({ tripEventUuid: uuid });
+  const { mutate: deleteTrip } = useDeleteTripEvent({ uuid });
 
   return (
     <Paper withBorder ref={mergedRef} {...props}>
