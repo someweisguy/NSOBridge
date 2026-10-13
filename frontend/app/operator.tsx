@@ -128,6 +128,7 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
                 team={team}
                 draggable={false}
                 w="22rem"
+                h="4rem"
                 {...ruleset}
               />
             </Stack>
