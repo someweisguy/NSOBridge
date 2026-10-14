@@ -7,7 +7,7 @@ import {
   IconStopwatch,
 } from "@tabler/icons-react";
 import { useMemo } from "react";
-import { useUpdateBoutClock } from "../hooks/use-update-bout-clock";
+import { useUpdateBoutClock } from "../../bout-editor/hooks/use-update-bout-clock";
 
 interface BoutClockEditorProps {
   bout: Bout;

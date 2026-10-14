@@ -1,18 +1,18 @@
-import BoutClock from "@/features/operator/components/bout-clock";
-import BoutController from "@/features/operator/components/bout-controller";
-import BoutCreator from "@/features/operator/components/bout-creator";
-import BoutEditor from "@/features/operator/components/bout-editor";
-import BoutPicker from "@/features/operator/components/bout-picker";
-import JammerController from "@/features/operator/components/jammer-controller";
-import JamStopReasonEditor from "@/features/operator/components/stop-reason-editor";
-import TeamScore from "@/features/operator/components/team-score";
-import TimeoutEditor from "@/features/operator/components/timeout-editor";
-import TripAdder from "@/features/operator/components/trip-adder";
-import TripController from "@/features/operator/components/trip-controller";
-import Undoer from "@/features/operator/components/undoer";
-import useSuspenseActiveJam from "@/features/operator/hooks/use-active-jam";
-import { useLatestJam } from "@/features/operator/hooks/use-latest-jam";
-import useLatestTimeout from "@/features/operator/hooks/use-latest-timeout";
+import BoutClock from "@/features/bout-controller/components/bout-clock";
+import BoutDirector from "@/features/bout-controller/components/bout-director";
+import BoutCreator from "@/features/bout-editor/components/bout-creator";
+import BoutEditor from "@/features/bout-editor/components/bout-editor";
+import BoutPicker from "@/features/bout-editor/components/bout-picker";
+import JammerController from "@/features/team-jam-controller/components/jammer-controller";
+import JamStopReasonEditor from "@/features/bout-controller/components/stop-reason-editor";
+import TeamScore from "@/features/team-jam-controller/components/team-score";
+import TimeoutEditor from "@/features/bout-controller/components/timeout-editor";
+import TripAdder from "@/features/team-jam-controller/components/trip-adder";
+import TripController from "@/features/team-jam-controller/components/trip-controller";
+import Undoer from "@/features/bout-editor/components/undoer";
+import useSuspenseActiveJam from "@/hooks/game/use-active-jam";
+import { useLatestJam } from "@/hooks/game/use-latest-jam";
+import useLatestTimeout from "@/hooks/game/use-latest-timeout";
 import useBoutPicker from "@/hooks/game/use-bout-picker";
 import {
   useGetAllRulesets,
@@ -91,7 +91,7 @@ function OperatorInterface({ bout }: { bout: Bout | undefined }) {
             <Divider />
           </Stack>
           <Stack justify="start" align="stretch" px="xs">
-            <BoutController bout={bout} p="xs" />
+            <BoutDirector bout={bout} p="xs" />
             <Collapse expanded={activeJam.stopTimestamp != null}>
               <JamStopReasonEditor jam={activeJam} p="xs" />
             </Collapse>

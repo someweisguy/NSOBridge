@@ -1,7 +1,7 @@
 import { Team } from "@/types/bout";
 import { Button, Group, NumberInput, Stack, TextInput } from "@mantine/core";
 import { useState } from "react";
-import { useUpdateBoutTeam } from "../hooks/use-update-bout-team";
+import { useUpdateBoutTeam } from "../../bout-editor/hooks/use-update-bout-team";
 
 interface TeamEditorProps {
   team: Team;

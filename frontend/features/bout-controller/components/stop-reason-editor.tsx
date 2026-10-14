@@ -1,4 +1,4 @@
-import { useUpdateJam } from "@/features/operator/hooks/use-update-jam";
+import { useUpdateJam } from "@/features/bout-controller/hooks/use-update-jam";
 import { Jam, StopReasonString } from "@/types/jam";
 import { Fieldset, FieldsetProps, SegmentedControl } from "@mantine/core";
 

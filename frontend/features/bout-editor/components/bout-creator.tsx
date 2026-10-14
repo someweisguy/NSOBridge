@@ -1,4 +1,4 @@
-import { useCreateBout } from "@/features/bouts/hooks/use-create-bout";
+import { useCreateBout } from "@/features/bout-editor/hooks/use-create-bout";
 import { Bout } from "@/types/bout";
 import { Ruleset } from "@/types/ruleset";
 import { Series } from "@/types/series";

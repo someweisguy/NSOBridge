@@ -13,7 +13,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useMemo } from "react";
-import useLatestTimeout from "../hooks/use-latest-timeout";
+import useLatestTimeout from "../../../hooks/game/use-latest-timeout";
 
 const eventNames: Record<BoutSubStateString, string> = {
   pregame: "Pregame",

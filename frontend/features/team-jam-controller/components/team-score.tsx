@@ -5,8 +5,8 @@ import { TeamJam } from "@/types/jam";
 import { isRunning } from "@/utils/time";
 import { Flex, Grid, GridProps, Paper, px, Text, Title } from "@mantine/core";
 import { IconStarFilled, IconStarOff } from "@tabler/icons-react";
-import useSuspenseActiveJam from "../hooks/use-active-jam";
-import useLatestTimeout from "../hooks/use-latest-timeout";
+import useSuspenseActiveJam from "../../../hooks/game/use-active-jam";
+import useLatestTimeout from "../../../hooks/game/use-latest-timeout";
 
 const jammerStatusIconSize = "1rem";
 
