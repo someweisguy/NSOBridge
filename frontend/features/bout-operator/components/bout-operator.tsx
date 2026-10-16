@@ -32,7 +32,11 @@ export default function BoutController({
           p="xs"
         />
         <Collapse expanded={activeJam.stopTimestamp != null}>
-          <JamStopReasonEditor jam={activeJam} p="xs" />
+          <JamStopReasonEditor
+            uuid={activeJam.uuid}
+            stopReason={activeJam.stopReason}
+            p="xs"
+          />
         </Collapse>
         <Collapse expanded={bout.state == "timeout" && latestTimeout != null}>
           <TimeoutEditor timeout={latestTimeout!} p="xs" />

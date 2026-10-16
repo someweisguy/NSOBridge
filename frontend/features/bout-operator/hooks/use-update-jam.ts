@@ -5,15 +5,20 @@ import { useMutation } from "@tanstack/react-query";
 
 type EditableJam = Partial<Omit<Jam, "uuid">>;
 
+interface UseUpdateJamOptions extends AppMutationOptions<
+  void,
+  Error,
+  EditableJam
+> {
+  uuid: string;
+}
+
 /**
  * Update the Jam.
  *
  * @returns A Tanstack Mutation object which can fire the updateJam mutator.
  */
-export const useUpdateJam = (
-  uuid: string,
-  options?: AppMutationOptions<void, Error, EditableJam>,
-) =>
+export const useUpdateJam = ({ uuid, ...options }: UseUpdateJamOptions) =>
   useMutation({
     mutationFn: (jam: EditableJam) =>
       localAPI.put<void>("jam", {
