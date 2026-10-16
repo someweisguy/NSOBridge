@@ -1,4 +1,5 @@
 import { useCreateBout } from "@/features/bout-editor/hooks/use-create-bout";
+import { useGetAllRulesets } from "@/hooks/game/use-ruleset";
 import { Bout } from "@/types/bout";
 import { Ruleset } from "@/types/ruleset";
 import { Series } from "@/types/series";
@@ -16,25 +17,19 @@ import { useEffect, useState } from "react";
 
 export interface BoutCreatorProps {
   activeSeries: Series | undefined;
-  rulesets: Ruleset[] | undefined;
   onSuccess?: (bout: Bout) => void;
 }
 
 // TODO: docs
 export default function BoutCreator({
   activeSeries,
-  rulesets,
   onSuccess,
 }: BoutCreatorProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
-  // Get a list of acceptable ruleset names
-  const [rulesetNames, setRulesetNames] = useState<string[] | undefined>(
-    undefined,
-  );
-  useEffect(() => {
-    setRulesetNames(rulesets?.map((ruleset: Ruleset) => ruleset.name));
-  }, [rulesets]);
+  const { data: rulesetNames } = useGetAllRulesets<string[]>({
+    select: (rulesets: Ruleset[]) => rulesets.map((ruleset) => ruleset.name),
+  });
 
   // Set the selected Ruleset name
   const [selectedRulesetName, setSelectedRulesetName] = useState<string | null>(

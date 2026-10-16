@@ -5,7 +5,6 @@ import BoutPicker from "@/features/bout-editor/components/bout-picker";
 import Undoer from "@/features/bout-editor/components/undoer";
 import TeamJamOperator from "@/features/team-jam-controller/components/team-jam-operator";
 import useBoutPicker from "@/hooks/game/use-bout-picker";
-import { useGetAllRulesets } from "@/hooks/game/use-ruleset";
 import useSeriesPicker from "@/hooks/game/use-series-picker";
 import { Team } from "@/types/bout";
 import {
@@ -61,7 +60,6 @@ export default function OperatorPage() {
 
   const [activeSeries] = useSeriesPicker();
   const [activeBout, setActiveBout, bouts] = useBoutPicker(activeSeries);
-  const { data: rulesets } = useGetAllRulesets();
 
   return (
     <AppShell {...appShellConfig(opened)}>
@@ -78,7 +76,6 @@ export default function OperatorPage() {
               onChange={setActiveBout}
             />
             <BoutCreator
-              rulesets={rulesets}
               activeSeries={activeSeries}
               onSuccess={setActiveBout}
             />
