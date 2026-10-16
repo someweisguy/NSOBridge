@@ -293,7 +293,7 @@ class Team(BaseSQLModel):
     data like a team's score offset.
     """
 
-    _bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'), nullable=False)
+    bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'), nullable=False)
 
     num: Mapped[int] = mapped_column(default=0)
 
@@ -309,7 +309,7 @@ class Team(BaseSQLModel):
         back_populates='teams',
         cascade=CASCADE_OTHER,
         lazy='selectin',
-        foreign_keys=[_bout_uuid],
+        foreign_keys=[bout_uuid],
     )
     skaters: Mapped[list[Skater]] = relationship(
         back_populates='team',
@@ -331,7 +331,7 @@ class Team(BaseSQLModel):
     )
 
     __tablename__: str = 'teams'
-    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_bout_uuid', 'num'),)
+    __table_args__: tuple[Constraint, ...] = (UniqueConstraint('bout_uuid', 'num'),)
 
     @classmethod
     def create(cls, name: str, num: int) -> Team:

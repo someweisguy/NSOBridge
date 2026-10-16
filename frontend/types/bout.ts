@@ -102,6 +102,10 @@ export interface Team {
    */
   uuid: string;
   /**
+   * The UUID of the Bout to which this Team belongs.
+   */
+  boutUuid: string;
+  /**
    * The name of this Team.
    */
   name: string;

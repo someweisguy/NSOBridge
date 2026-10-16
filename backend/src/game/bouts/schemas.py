@@ -54,6 +54,7 @@ class TeamSchema(ServerSchema):
     """Represent a Team as a JSON schema."""
 
     uuid: UUID
+    bout_uuid: UUID
 
     name: str
     league: str
