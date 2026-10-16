@@ -37,6 +37,13 @@ export default function TeamJamOperator({
         (teamJam: TeamJam) => team.uuid == teamJam.teamUuid,
       ),
   });
+  const { data: leadIsDeclared } = useSuspenseJam({
+    uuid: bout.activeJamUuid,
+    select: (activeJam: Jam) =>
+      activeJam.teamJams.some((teamJam) =>
+        teamJam.events.some((event) => event.lead),
+      ),
+  });
 
   const initial = teamJam?.events.some((t) => t.passes != null) ?? false;
   const jammerState: "lead" | "lost" | "starPass" | null = useMemo(() => {
@@ -78,11 +85,12 @@ export default function TeamJamOperator({
         reverse={reverse}
       />
       <JammerController
+        team={team}
+        jammerState={jammerState}
+        leadIsDeclared={leadIsDeclared}
+        disabled={teamJam == null}
         justify="space-between"
         mx="md"
-        jam={activeJam}
-        team={team}
-        {...ruleset}
       />
       <TripAdder team={team} px="lg" w="100%" {...ruleset} />
       <TripController

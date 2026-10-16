@@ -1,5 +1,4 @@
 import { Team } from "@/types/bout";
-import { Jam } from "@/types/jam";
 import {
   Checkbox,
   createTheme,
@@ -19,32 +18,30 @@ const checkBoxTheme = createTheme({
 });
 
 interface JammerControllerProps extends GroupProps {
-  jam: Jam;
   team: Team;
+  jammerState: "lead" | "lost" | "starPass" | null;
+  leadIsDeclared: boolean;
+  disabled: boolean;
 }
 
 export default function JammerController({
-  jam,
   team,
+  jammerState,
+  leadIsDeclared,
+  disabled,
   ...props
 }: JammerControllerProps) {
   const { mutate: setLead } = useSetLead({ team });
   const { mutate: setLost } = useSetLost({ team });
   const { mutate: setStarPass } = useSetStarPass({ team });
 
-  const leadIsDeclared = jam.teamJams.some((teamJam) =>
-    teamJam.events.some((event) => event.lead),
-  );
-
-  const teamJam = jam.teamJams.find((teamJam) => teamJam.teamUuid == team.uuid);
-  const disabled = teamJam == null;
-  const lead = teamJam?.events.some((event) => event.lead) ?? false;
-  const lost = teamJam?.events.some((event) => event.lost) ?? false;
-  const starPass = teamJam?.events.some((event) => event.starPass) ?? false;
+  const lead = jammerState == "lead";
+  const lost = jammerState == "lost";
+  const starPass = jammerState == "starPass";
 
   return (
-    <MantineProvider theme={checkBoxTheme}>
-      <Fieldset variant="unstyled" disabled={disabled}>
+    <Fieldset variant="unstyled" disabled={disabled}>
+      <MantineProvider theme={checkBoxTheme}>
         <Group justify="center" gap="md" {...props}>
           <Checkbox
             label="Lead"
@@ -69,7 +66,7 @@ export default function JammerController({
             variant="outline"
           />
         </Group>
-      </Fieldset>
-    </MantineProvider>
+      </MantineProvider>
+    </Fieldset>
   );
 }
