@@ -1,8 +1,12 @@
 import useSuspenseActiveJam from "@/hooks/game/use-active-jam";
-import { useLatestJam } from "@/hooks/game/use-latest-jam";
+import { useSuspenseJam } from "@/hooks/game/use-jam";
+import useLatestTimeout from "@/hooks/game/use-latest-timeout";
 import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
 import { Bout, Team } from "@/types/bout";
+import { Jam, TeamJam } from "@/types/jam";
+import { isRunning } from "@/utils/time";
 import { Stack, StackProps } from "@mantine/core";
+import { useMemo } from "react";
 import JammerController from "./jammer-controller";
 import TeamScore from "./team-score";
 import TripAdder from "./trip-adder";
@@ -20,15 +24,59 @@ export default function TeamJamOperator({
   reverse = false,
   ...props
 }: TeamJamOperatorProps) {
-  const { data: activeJam } = useSuspenseActiveJam(bout);
-  void useLatestJam(bout); // Prefetch to avoid UI blinking
   const { data: ruleset } = useSuspenseGetRuleset({
     rulesetName: bout.rulesetName,
   });
 
+  const { data: latestTimeout } = useLatestTimeout(bout);
+  const { data: activeJam } = useSuspenseActiveJam(bout);
+  const { data: teamJam } = useSuspenseJam({
+    uuid: bout.activeJamUuid,
+    select: (activeJam: Jam) =>
+      activeJam.teamJams.find(
+        (teamJam: TeamJam) => team.uuid == teamJam.teamUuid,
+      ),
+  });
+
+  const initial = teamJam?.events.some((t) => t.passes != null) ?? false;
+  const jammerState: "lead" | "lost" | "starPass" | null = useMemo(() => {
+    if (teamJam?.events.some((event) => event.starPass)) {
+      return "starPass";
+    } else if (teamJam?.events.some((event) => event.lost)) {
+      return "lost";
+    } else if (teamJam?.events.some((event) => event.lead)) {
+      return "lead";
+    }
+    return null;
+  }, [teamJam?.events]);
+
+  const timeoutType: "timeout" | "review" | null = useMemo(() => {
+    if (
+      latestTimeout == null ||
+      !isRunning(latestTimeout) ||
+      latestTimeout.teamUuid != team.uuid
+    ) {
+      return null;
+    }
+    return latestTimeout.isReview ? "review" : "timeout";
+  }, [latestTimeout, team.uuid]);
+
   return (
     <Stack justify="start" align="center" {...props}>
-      <TeamScore bout={bout} team={team} reverse={reverse} />
+      <TeamScore
+        name={team.name}
+        boutScore={team.boutScore}
+        scoreOffset={team.scoreOffset}
+        jamScore={team.jamScore}
+        timeoutsRemaining={team.timeoutsRemaining}
+        reviewsRemaining={team.reviewsRemaining}
+        timeout={timeoutType}
+        jammerState={jammerState}
+        jammerInitial={initial}
+        numTimeouts={ruleset.numTimeouts}
+        numReviews={ruleset.numReviews}
+        reverse={reverse}
+      />
       <JammerController
         justify="space-between"
         mx="md"
