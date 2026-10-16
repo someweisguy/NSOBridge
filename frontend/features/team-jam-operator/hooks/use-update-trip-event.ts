@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 
 type EditableTripEvent = Partial<Omit<TripEvent, "uuid">>;
 
-export interface UseUpdateTripEventOptions extends AppMutationOptions<
+interface UseUpdateTripEventOptions extends AppMutationOptions<
   void,
   Error,
   EditableTripEvent

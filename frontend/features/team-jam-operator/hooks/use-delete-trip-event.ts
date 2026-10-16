@@ -2,11 +2,7 @@ import { localAPI } from "@/lib/requests";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseDeleteTripOptions extends AppMutationOptions<
-  void,
-  unknown,
-  void
-> {
+interface UseDeleteTripOptions extends AppMutationOptions<void, unknown, void> {
   uuid: string;
 }
 

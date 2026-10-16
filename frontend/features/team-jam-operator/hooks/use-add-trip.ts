@@ -2,7 +2,7 @@ import { localAPI } from "@/lib/requests";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseTeamJamAddTripOptions extends AppMutationOptions<
+interface UseTeamJamAddTripOptions extends AppMutationOptions<
   void,
   unknown,
   number

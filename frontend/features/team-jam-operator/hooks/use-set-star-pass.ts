@@ -2,7 +2,7 @@ import { localAPI } from "@/lib/requests";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseSetStarPassOptions extends AppMutationOptions<
+interface UseSetStarPassOptions extends AppMutationOptions<
   void,
   unknown,
   boolean

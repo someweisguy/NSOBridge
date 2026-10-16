@@ -2,11 +2,7 @@ import { localAPI } from "@/lib/requests";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseSetLostOptions extends AppMutationOptions<
-  void,
-  unknown,
-  boolean
-> {
+interface UseSetLostOptions extends AppMutationOptions<void, unknown, boolean> {
   teamUuid: string;
 }
 

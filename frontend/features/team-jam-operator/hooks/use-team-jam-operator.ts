@@ -7,6 +7,7 @@ import { Timeout } from "@/types/timeout";
 import { isRunning } from "@/utils/time";
 import { useMemo } from "react";
 
+// TODO: docs
 export const useTeamJamOperator = (team: Team) => {
   // Fetch Bout; should already be cached
   const { data: bout } = useSuspenseBout({ uuid: team.boutUuid });
