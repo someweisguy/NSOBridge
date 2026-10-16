@@ -111,7 +111,9 @@ export default function OperatorPage() {
               shadow="lg"
             >
               <Card.Section withBorder>
-                <BoutOperator bout={activeBout} />
+                <Suspense>
+                  <BoutOperator bout={activeBout} />
+                </Suspense>
               </Card.Section>
               <Suspense fallback={<Loader />}>
                 <Group
@@ -122,13 +124,15 @@ export default function OperatorPage() {
                   px="lg"
                   gap="xl"
                 >
-                  {activeBout.teams.map((team: Team, i: number) => (
-                    <TeamJamOperator
-                      key={team.uuid}
-                      team={team}
-                      reverse={!!(i % 2)}
-                    />
-                  ))}
+                  <Suspense>
+                    {activeBout.teams.map((team: Team, i: number) => (
+                      <TeamJamOperator
+                        key={team.uuid}
+                        team={team}
+                        reverse={!!(i % 2)}
+                      />
+                    ))}
+                  </Suspense>
                 </Group>
               </Suspense>
             </Card>
