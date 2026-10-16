@@ -1,9 +1,9 @@
-import useSuspenseActiveJam from "@/hooks/game/use-active-jam";
 import { useSuspenseJam } from "@/hooks/game/use-jam";
-import useLatestTimeout from "@/hooks/game/use-latest-timeout";
 import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
+import { useTimeout } from "@/hooks/game/use-timeout";
 import { Bout, Team } from "@/types/bout";
 import { Jam, TeamJam } from "@/types/jam";
+import { Timeout } from "@/types/timeout";
 import { isRunning } from "@/utils/time";
 import { Stack, StackProps } from "@mantine/core";
 import { useMemo } from "react";
@@ -13,7 +13,7 @@ import TripAdder from "./trip-adder";
 import TripController from "./trip-controller";
 
 export interface TeamJamOperatorProps extends StackProps {
-  bout: Bout;
+  bout: Bout; // TODO: replace with bout.activeJamUuid
   team: Team;
   reverse?: boolean;
 }
@@ -28,8 +28,7 @@ export default function TeamJamOperator({
     rulesetName: bout.rulesetName,
   });
 
-  const { data: latestTimeout } = useLatestTimeout(bout);
-  const { data: activeJam } = useSuspenseActiveJam(bout);
+  // Get information about the this Team's active TeamJam
   const { data: teamJam } = useSuspenseJam({
     uuid: bout.activeJamUuid,
     select: (activeJam: Jam) =>
@@ -44,8 +43,7 @@ export default function TeamJamOperator({
         teamJam.events.some((event) => event.lead),
       ),
   });
-
-  const initial = teamJam?.events.some((t) => t.passes != null) ?? false;
+  const jammerInitial = teamJam?.events.some((t) => t.passes != null) ?? false;
   const jammerState: "lead" | "lost" | "starPass" | null = useMemo(() => {
     if (teamJam?.events.some((event) => event.starPass)) {
       return "starPass";
@@ -57,16 +55,22 @@ export default function TeamJamOperator({
     return null;
   }, [teamJam?.events]);
 
-  const timeoutType: "timeout" | "review" | null = useMemo(() => {
-    if (
-      latestTimeout == null ||
-      !isRunning(latestTimeout) ||
-      latestTimeout.teamUuid != team.uuid
-    ) {
-      return null;
-    }
-    return latestTimeout.isReview ? "review" : "timeout";
-  }, [latestTimeout, team.uuid]);
+  // Get the relevant Timeout information
+  const { data: timeoutType } = useTimeout<"timeout" | "review" | null>({
+    uuid: bout.timeoutUuids[bout.timeoutUuids.length - 1],
+    enabled: bout.timeoutUuids.length > 0,
+    select: (latestTimeout: Timeout) => {
+      if (
+        latestTimeout == null ||
+        !isRunning(latestTimeout) ||
+        latestTimeout.teamUuid != team.uuid
+      ) {
+        // Timeout only matters if it is running and was called by this Team!
+        return null;
+      }
+      return latestTimeout.isReview ? "review" : "timeout";
+    },
+  });
 
   return (
     <Stack justify="start" align="center" {...props}>
@@ -77,9 +81,9 @@ export default function TeamJamOperator({
         jamScore={team.jamScore}
         timeoutsRemaining={team.timeoutsRemaining}
         reviewsRemaining={team.reviewsRemaining}
-        timeout={timeoutType}
+        timeout={timeoutType ?? null}
         jammerState={jammerState}
-        jammerInitial={initial}
+        jammerInitial={jammerInitial}
         numTimeouts={ruleset.numTimeouts}
         numReviews={ruleset.numReviews}
         reverse={reverse}
@@ -92,14 +96,19 @@ export default function TeamJamOperator({
         justify="space-between"
         mx="md"
       />
-      <TripAdder team={team} px="lg" w="100%" {...ruleset} />
-      <TripController
-        jam={activeJam}
+      <TripAdder
         team={team}
+        pointsPerTrip={ruleset.pointsPerTrip}
+        px="lg"
+        w="100%"
+      />
+      <TripController
+        teamIsInThisJam={teamJam != null}
+        tripEvents={teamJam?.events ?? []}
+        pointsPerTrip={ruleset.pointsPerTrip}
         draggable={false}
         w="22rem"
         h="4rem"
-        {...ruleset}
       />
     </Stack>
   );

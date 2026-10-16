@@ -1,5 +1,4 @@
-import { Team } from "@/types/bout";
-import { Jam, TripEvent } from "@/types/jam";
+import { TripEvent } from "@/types/jam";
 import {
   ActionIcon,
   Group,
@@ -29,65 +28,67 @@ const altTextStyle: TextProps = {
 };
 
 export interface TripControllerProps extends Omit<ScrollerProps, "children"> {
-  jam: Jam;
-  team: Team;
+  teamIsInThisJam: boolean;
+  tripEvents: TripEvent[];
   editable?: boolean;
   deletable?: boolean;
   pointsPerTrip: number;
 }
 
 export default function TripController({
-  jam,
-  team,
+  teamIsInThisJam,
   pointsPerTrip,
+  tripEvents,
   editable = true,
   deletable = true,
   ...props
 }: TripControllerProps) {
-  const teamJam = jam.teamJams.find((teamJam) => teamJam.teamUuid == team.uuid);
-  const teamJamNotInJam = teamJam == null;
-  const teamJamHasNoTrips =
-    teamJam?.events.filter((event) => event.passes != null).length == 0;
-
   const latestTripRef = useRef<HTMLDivElement>(null);
 
   // Scroll to the latest Trip whenever the number of Trips increases
   const reduceMotion = useReducedMotion();
   const childrenCount = useRef<number>(0);
   useEffect(() => {
-    const newChildrenCount: number = teamJam?.events.length ?? 0;
+    const newChildrenCount: number = tripEvents.length ?? 0;
     latestTripRef?.current?.scrollIntoView({
       behavior: reduceMotion ? "instant" : "smooth",
       inline: "center",
     });
     childrenCount.current = newChildrenCount;
-  }, [teamJam?.events.length, reduceMotion]);
+  }, [tripEvents.length, reduceMotion]);
+
+  const jammerInitial = tripEvents.length > 0;
 
   return (
     <Scroller
-      ta={teamJamNotInJam || teamJamHasNoTrips ? "center" : "start"}
+      ta={!teamIsInThisJam || !jammerInitial ? "center" : "start"}
       {...props}
     >
-      {teamJamNotInJam && (
+      {!teamIsInThisJam && (
         <Text {...altTextStyle}>This Team is not in the Jam</Text>
       )}
-      {teamJamHasNoTrips && (
+      {!jammerInitial && (
         <Text {...altTextStyle}>There are no Trips to display.</Text>
       )}
       <Group grow justify="start" gap="xs" wrap="nowrap" w="100%">
-        {teamJam?.events
+        {tripEvents
           .filter((tripEvent) => tripEvent.passes != null)
           .map((tripEvent: TripEvent, i: number) => (
             <JammerTrip
               key={tripEvent.uuid}
               ref={latestTripRef}
+              uuid={tripEvent.uuid}
+              timestamp={tripEvent.timestamp}
+              lead={tripEvent.lead}
+              lost={tripEvent.lost}
+              starPass={tripEvent.starPass}
+              passes={tripEvent.passes}
               tripIndex={i}
               enableEdit={editable}
               enableDelete={deletable}
               pointsPerTrip={pointsPerTrip}
               w="4rem"
               h="3.5rem"
-              {...tripEvent}
             />
           ))}
       </Group>
