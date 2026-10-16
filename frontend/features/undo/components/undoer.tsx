@@ -1,5 +1,5 @@
-import { useRedo } from "@/hooks/history/use-redo";
-import { useUndo } from "@/hooks/history/use-undo";
+import { useRedo } from "@/features/undo/hooks/use-redo";
+import { useUndo } from "@/features/undo/hooks/use-undo";
 import {
   ActionIcon,
   ActionIconProps,
