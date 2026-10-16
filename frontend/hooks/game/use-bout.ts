@@ -15,11 +15,11 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
  *
  * @returns a Tanstack useQuery object containing the desired Bout.
  */
-export const useBout = ({
+export const useBout = <T = Bout>({
   uuid,
   ...options
-}: CacheUuid & AppQueryOptions<Bout>) =>
-  useQuery<Bout>({
+}: CacheUuid & AppQueryOptions<Bout, T>) =>
+  useQuery<Bout, Error, T>({
     queryKey: boutKeys.one(uuid),
     queryFn: () => localAPI.get("bout", { query: { uuid } }),
     ...options,
