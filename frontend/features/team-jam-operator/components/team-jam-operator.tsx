@@ -13,6 +13,7 @@ export interface TeamJamOperatorProps extends StackProps {
   reverse?: boolean;
 }
 
+// TODO: docs
 export default function TeamJamOperator({
   team,
   reverse = false,
