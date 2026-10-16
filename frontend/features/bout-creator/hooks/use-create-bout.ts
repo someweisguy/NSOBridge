@@ -2,7 +2,6 @@ import queryClient from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
-import { boutKeys } from "@/utils/query-keys";
 import { useMutation } from "@tanstack/react-query";
 
 interface UseCreateBoutOptions {
@@ -32,11 +31,7 @@ export const useCreateBout = ({
 
   return useMutation(
     {
-      mutationFn: () =>
-        localAPI.put<Bout>("bout", { query }).then((bout: Bout) => {
-          queryClient.setQueryData(boutKeys.one(bout.uuid), bout);
-          return bout;
-        }),
+      mutationFn: () => localAPI.put<Bout>("bout", { query }),
       ...options,
     },
     queryClient,

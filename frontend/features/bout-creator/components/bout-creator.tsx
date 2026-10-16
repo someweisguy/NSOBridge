@@ -15,7 +15,10 @@ export interface BoutCreatorProps {
 }
 
 // TODO: docs
-export default function BoutCreator({ activeSeries }: BoutCreatorProps) {
+export default function BoutCreator({
+  activeSeries,
+  onSuccess,
+}: BoutCreatorProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const { data: rulesetNames } = useGetAllRulesets<string[]>({
@@ -33,7 +36,10 @@ export default function BoutCreator({ activeSeries }: BoutCreatorProps) {
         <BoutCreatorForm
           seriesUuid={activeSeries?.uuid}
           rulesetNames={rulesetNames}
-          onSuccess={close}
+          onSuccess={(bout: Bout) => {
+            close();
+            onSuccess?.(bout);
+          }}
         />
       </Modal>
     </>

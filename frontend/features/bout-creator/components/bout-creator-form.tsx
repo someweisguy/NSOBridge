@@ -21,7 +21,7 @@ export default function BoutCreatorForm({
     }
   }, [rulesetNames]);
 
-  const createBout = useCreateBout({
+  const { mutate: createBout } = useCreateBout({
     seriesUuid: seriesUuid ?? "",
     rulesetName: rulesetName!,
     onSuccess,
@@ -40,7 +40,7 @@ export default function BoutCreatorForm({
         autoSelectOnBlur
       />
       <Button
-        onClick={() => createBout.mutate()}
+        onClick={() => createBout()}
         disabled={seriesUuid == null || rulesetName == null}
       >
         Create
