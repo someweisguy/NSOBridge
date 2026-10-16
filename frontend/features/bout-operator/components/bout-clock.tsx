@@ -1,6 +1,5 @@
 import ClockView from "@/components/clock-view";
-import { useSuspenseJam } from "@/hooks/game/use-jam";
-import { Bout, BoutStateString, BoutSubStateString } from "@/types/bout";
+import { BoutStateString, BoutSubStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
 import { Clock } from "@/types/time";
 import {
@@ -12,8 +11,6 @@ import {
   StackProps,
   Text,
 } from "@mantine/core";
-import { useMemo } from "react";
-import useLatestTimeout from "../../../hooks/game/use-latest-timeout";
 
 const eventNames: Record<BoutSubStateString, string> = {
   pregame: "Pregame",
@@ -38,10 +35,13 @@ const stopReasons: Record<StopReasonString, string> = {
 };
 
 export interface BoutClockProps extends StackProps {
-  bout: Bout; // TODO: remove this argument
   boutClock: Clock;
   boutState: BoutStateString;
   boutSubState: BoutSubStateString;
+  periodNum: number;
+  jamNum: number;
+  jamStopReason: StopReasonString | null;
+  lastEventTimestamp: string | null;
   jamDuration: number;
 }
 
@@ -49,41 +49,16 @@ export interface BoutClockProps extends StackProps {
  * Render the time information relevant to the Bout.
  */
 export default function BoutClock({
-  bout, // TODO: remove this argument
   boutClock,
   boutState,
   boutSubState,
+  periodNum,
+  jamNum,
+  jamStopReason,
+  lastEventTimestamp,
   jamDuration,
   ...props
 }: BoutClockProps) {
-  const { data: activeJam } = useSuspenseJam({ uuid: bout.activeJamUuid });
-  const periodNum = Math.min(activeJam.period, 1) + 1;
-  let jamNum = activeJam.num + 1;
-  if (activeJam.period > 1) {
-    jamNum += bout.jamUuids[1].length;
-  }
-  const { data: latestTimeout } = useLatestTimeout({ ...bout });
-
-  // Get the time since the last Jam or Timeout or null if neither have occurred
-  const lastEventTimestamp: string | null = useMemo(
-    () =>
-      activeJam.startTimestamp != null
-        ? new Date(
-            Math.max(
-              ...[
-                activeJam.startTimestamp,
-                activeJam.stopTimestamp,
-                latestTimeout?.startTimestamp,
-                latestTimeout?.stopTimestamp,
-              ]
-                .filter((val?: string | null) => val != null)
-                .map((val: string) => new Date(val).getTime()),
-            ),
-          ).toISOString()
-        : null,
-    [activeJam, latestTimeout],
-  );
-
   return (
     <Stack justify="center" align="stretch" gap="0" {...props}>
       <Grid
@@ -100,20 +75,20 @@ export default function BoutClock({
         </Grid.Col>
         <Grid.Col span={4}>
           <Text textWrap="nowrap" fz="1.5rem">
-            P{periodNum} J{jamNum}
+            P{periodNum + 1} J{jamNum + 1}
           </Text>
         </Grid.Col>
         <Grid.Col span={4}>
-          {activeJam.stopTimestamp == null ? (
+          {boutState == "jam" ? (
             <ClockView
+              startTimestamp={lastEventTimestamp}
               alarm={jamDuration}
               formatter="jam"
               fz="1.5rem"
-              {...activeJam}
             />
           ) : (
             <Text fw={200} tt="uppercase">
-              {stopReasons[activeJam.stopReason!] ?? stopReasons.other}
+              {stopReasons[jamStopReason!]}
             </Text>
           )}
         </Grid.Col>

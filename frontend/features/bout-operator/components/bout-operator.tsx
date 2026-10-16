@@ -10,6 +10,7 @@ import {
   Stack,
   StackProps,
 } from "@mantine/core";
+import { useMemo } from "react";
 import BoutClock from "./bout-clock";
 import BoutPhaseController from "./bout-phase-controller";
 import JamStopReasonEditor from "./stop-reason-editor";
@@ -36,6 +37,32 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
       })),
   });
 
+  const periodNum = Math.min(activeJam.period, 1);
+  let jamNum = activeJam.num;
+  if (activeJam.period > 1) {
+    jamNum += bout.jamUuids[1].length;
+  }
+
+  // Get the time since the last Jam or Timeout or null if neither have occurred
+  const lastEventTimestamp: string | null = useMemo(
+    () =>
+      activeJam.startTimestamp != null
+        ? new Date(
+            Math.max(
+              ...[
+                activeJam.startTimestamp,
+                activeJam.stopTimestamp,
+                latestTimeout?.startTimestamp,
+                latestTimeout?.stopTimestamp,
+              ]
+                .filter((val?: string | null) => val != null)
+                .map((val: string) => new Date(val).getTime()),
+            ),
+          ).toISOString()
+        : null,
+    [activeJam, latestTimeout],
+  );
+
   const showJamStopReasonEditor = activeJam.stopTimestamp != null;
   const showTimeoutEditor = bout.state == "timeout" && latestTimeout != null;
 
@@ -43,10 +70,13 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
     <Stack mb="lg" w={225} {...props}>
       <Stack gap="0" w="100%">
         <BoutClock
-          bout={bout}
           boutClock={bout.clock}
           boutState={bout.state}
           boutSubState={bout.subState}
+          periodNum={periodNum}
+          jamNum={jamNum}
+          jamStopReason={activeJam.stopReason}
+          lastEventTimestamp={lastEventTimestamp}
           jamDuration={ruleset.jamDuration}
         />
         <Divider />
