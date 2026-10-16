@@ -60,8 +60,6 @@ async def create_bout(
 
     # Create the Bout
     bout: BaseBout = BaseBout.create(ruleset_name, series, *team_names)
-
-    bout._series_uuid = series.uuid  # FIXME: No using private vars
     session.add(bout)
 
     # Expunge and merge the Bout to allow the subclass to call setup()
@@ -83,8 +81,6 @@ async def create_bout(
     await series.awaitable_attrs.bouts
     series.bouts.append(bout)
     series.active_bout = bout
-
-    flag_dirty(series)  # Include Series in cache updates
 
     return bout
 
