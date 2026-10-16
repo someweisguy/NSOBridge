@@ -1,28 +1,19 @@
 import { useCreateBout } from "@/features/bout-creator/hooks/use-create-bout";
 import { Bout } from "@/types/bout";
-import { Ruleset } from "@/types/ruleset";
-import { Series } from "@/types/series";
 import { Button, Group, Select } from "@mantine/core";
 import { useEffect, useState } from "react";
 
 interface BoutCreatorProps {
-  series: Series | undefined;
-  rulesets: Ruleset[] | undefined;
+  seriesUuid: string | undefined;
+  rulesetNames: string[] | undefined;
   onSuccess?: (newBout: Bout) => void;
 }
 
 export default function BoutCreatorForm({
-  series,
-  rulesets,
+  seriesUuid,
+  rulesetNames,
   onSuccess,
 }: BoutCreatorProps) {
-  const [rulesetNames, setRulesetNames] = useState(
-    rulesets?.map((ruleset: Ruleset) => ruleset.name),
-  );
-  useEffect(() => {
-    setRulesetNames(rulesets?.map((ruleset: Ruleset) => ruleset.name));
-  }, [rulesets]);
-
   const [rulesetName, setRulesetName] = useState<string | null>(null);
   useEffect(() => {
     if (rulesetNames != null && rulesetNames.length > 0) {
@@ -31,8 +22,8 @@ export default function BoutCreatorForm({
   }, [rulesetNames]);
 
   const createBout = useCreateBout({
+    seriesUuid: seriesUuid ?? "",
     rulesetName: rulesetName!,
-    series: series,
     onSuccess,
   });
 
@@ -50,7 +41,7 @@ export default function BoutCreatorForm({
       />
       <Button
         onClick={() => createBout.mutate()}
-        disabled={series == null || rulesetName == null}
+        disabled={seriesUuid == null || rulesetName == null}
       >
         Create
       </Button>
