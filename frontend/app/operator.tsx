@@ -1,38 +1,22 @@
-import BoutClock from "@/features/bout-controller/components/bout-clock";
-import BoutDirector from "@/features/bout-controller/components/bout-director";
+import BoutController from "@/features/bout-controller/components/bout-controller";
 import BoutCreator from "@/features/bout-editor/components/bout-creator";
 import BoutEditor from "@/features/bout-editor/components/bout-editor";
 import BoutPicker from "@/features/bout-editor/components/bout-picker";
-import JammerController from "@/features/team-jam-controller/components/jammer-controller";
-import JamStopReasonEditor from "@/features/bout-controller/components/stop-reason-editor";
-import TeamScore from "@/features/team-jam-controller/components/team-score";
-import TimeoutEditor from "@/features/bout-controller/components/timeout-editor";
-import TripAdder from "@/features/team-jam-controller/components/trip-adder";
-import TripController from "@/features/team-jam-controller/components/trip-controller";
 import Undoer from "@/features/bout-editor/components/undoer";
-import useSuspenseActiveJam from "@/hooks/game/use-active-jam";
-import { useLatestJam } from "@/hooks/game/use-latest-jam";
-import useLatestTimeout from "@/hooks/game/use-latest-timeout";
+import TeamJamOperator from "@/features/team-jam-controller/components/team-jam-operator";
 import useBoutPicker from "@/hooks/game/use-bout-picker";
-import {
-  useGetAllRulesets,
-  useSuspenseGetRuleset,
-} from "@/hooks/game/use-ruleset";
+import { useGetAllRulesets } from "@/hooks/game/use-ruleset";
 import useSeriesPicker from "@/hooks/game/use-series-picker";
-import useSuspendIfNullable from "@/hooks/use-suspend-if-nullable";
-import { Bout, Team } from "@/types/bout";
+import { Team } from "@/types/bout";
 import {
   AppShell,
   AppShellProps,
   Burger,
   Card,
   Center,
-  Collapse,
-  Divider,
   Group,
   Loader,
   NavLink,
-  Stack,
   Title,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -63,81 +47,6 @@ const appShellConfig = (disclosure: boolean): AppShellProps => ({
   },
   padding: "md",
 });
-
-function OperatorInterface({ bout }: { bout: Bout | undefined }) {
-  useSuspendIfNullable(bout);
-
-  const { data: activeJam } = useSuspenseActiveJam(bout);
-  const { data: latestTimeout } = useLatestTimeout(bout);
-  void useLatestJam(bout); // Prefetch to avoid UI blinking
-  const { data: ruleset } = useSuspenseGetRuleset({
-    rulesetName: bout.rulesetName,
-  });
-
-  return (
-    <Card
-      withBorder
-      orientation="horizontal"
-      w="fit-content"
-      maw="100%"
-      h="fit-content"
-      m="md"
-      shadow="lg"
-    >
-      <Card.Section withBorder>
-        <Stack mb="lg" w={225}>
-          <Stack gap="0" w="100%">
-            <BoutClock bout={bout} />
-            <Divider />
-          </Stack>
-          <Stack justify="start" align="stretch" px="xs">
-            <BoutDirector bout={bout} p="xs" />
-            <Collapse expanded={activeJam.stopTimestamp != null}>
-              <JamStopReasonEditor jam={activeJam} p="xs" />
-            </Collapse>
-            <Collapse
-              expanded={bout.state == "timeout" && latestTimeout != null}
-            >
-              <TimeoutEditor timeout={latestTimeout!} p="xs" />
-            </Collapse>
-          </Stack>
-        </Stack>
-      </Card.Section>
-      <Suspense fallback={<Loader />}>
-        <Group
-          grow
-          justify="space-around"
-          align="start"
-          wrap="nowrap"
-          px="lg"
-          gap="xl"
-        >
-          {bout.teams.map((team: Team, i: number) => (
-            <Stack key={team.uuid} justify="start" align="center">
-              <TeamScore bout={bout} team={team} reverse={!!(i % 2)} />
-              <JammerController
-                justify="space-between"
-                mx="md"
-                jam={activeJam}
-                team={team}
-                {...ruleset}
-              />
-              <TripAdder team={team} px="lg" w="100%" {...ruleset} />
-              <TripController
-                jam={activeJam}
-                team={team}
-                draggable={false}
-                w="22rem"
-                h="4rem"
-                {...ruleset}
-              />
-            </Stack>
-          ))}
-        </Group>
-      </Suspense>
-    </Card>
-  );
-}
 
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
@@ -194,17 +103,46 @@ export default function OperatorPage() {
         />
       </AppShell.Navbar>
       <AppShell.Main h="100vh">
-        <Suspense
-          fallback={
-            <Center h="100%">
-              <Loader size="lg" />
-            </Center>
-          }
-        >
+        {activeBout != null ? (
           <Group w="100%" justify="center">
-            <OperatorInterface bout={activeBout} />
+            <Card
+              withBorder
+              orientation="horizontal"
+              w="fit-content"
+              maw="100%"
+              h="fit-content"
+              m="md"
+              shadow="lg"
+            >
+              <Card.Section withBorder>
+                <BoutController bout={activeBout} />
+              </Card.Section>
+              <Suspense fallback={<Loader />}>
+                <Group
+                  grow
+                  justify="space-around"
+                  align="start"
+                  wrap="nowrap"
+                  px="lg"
+                  gap="xl"
+                >
+                  {activeBout.teams.map((team: Team, i: number) => (
+                    <TeamJamOperator
+                      key={team.uuid}
+                      bout={activeBout}
+                      team={team}
+                      reverse={!!(i % 2)}
+                    />
+                  ))}
+                </Group>
+              </Suspense>
+            </Card>
           </Group>
-        </Suspense>
+        ) : (
+          <Center h="100%">
+            <Loader size="lg" />
+          </Center>
+        )}
       </AppShell.Main>
     </AppShell>
   );
