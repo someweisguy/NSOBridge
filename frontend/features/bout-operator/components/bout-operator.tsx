@@ -25,7 +25,12 @@ export default function BoutController({
         <Divider />
       </Stack>
       <Stack justify="start" align="stretch" px="xs">
-        <BoutPhaseController bout={bout} p="xs" />
+        <BoutPhaseController
+          boutUuid={bout.uuid}
+          boutState={bout.state}
+          showFinalizeBout={false} // TODO: figure out business logic for this
+          p="xs"
+        />
         <Collapse expanded={activeJam.stopTimestamp != null}>
           <JamStopReasonEditor jam={activeJam} p="xs" />
         </Collapse>
