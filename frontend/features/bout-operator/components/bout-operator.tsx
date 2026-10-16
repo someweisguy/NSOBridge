@@ -7,16 +7,16 @@ import BoutPhaseController from "./bout-phase-controller";
 import JamStopReasonEditor from "./stop-reason-editor";
 import TimeoutEditor from "./timeout-editor";
 
-export interface BoutControllerProps extends StackProps {
+export interface BoutOperatorProps extends StackProps {
   bout: Bout;
 }
 
-export default function BoutController({
-  bout,
-  ...props
-}: BoutControllerProps) {
+export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
   const { data: activeJam } = useSuspenseActiveJam(bout);
   const { data: latestTimeout } = useLatestTimeout(bout);
+
+  const showJamStopReasonEditor = activeJam.stopTimestamp != null;
+  const showTimeoutEditor = bout.state == "timeout" && latestTimeout != null;
 
   return (
     <Stack mb="lg" w={225} {...props}>
@@ -31,15 +31,23 @@ export default function BoutController({
           showFinalizeBout={false} // TODO: figure out business logic for this
           p="xs"
         />
-        <Collapse expanded={activeJam.stopTimestamp != null}>
+        <Collapse expanded={showJamStopReasonEditor}>
           <JamStopReasonEditor
             uuid={activeJam.uuid}
             stopReason={activeJam.stopReason}
             p="xs"
           />
         </Collapse>
-        <Collapse expanded={bout.state == "timeout" && latestTimeout != null}>
-          <TimeoutEditor timeout={latestTimeout!} p="xs" />
+        <Collapse expanded={showTimeoutEditor}>
+          <TimeoutEditor
+            p="xs"
+            timeoutUuid={latestTimeout!.uuid}
+            boutUuid={latestTimeout!.boutUuid}
+            isReview={latestTimeout!.isReview}
+            teamIsOfficials={latestTimeout!.teamIsOfficials}
+            teamUuid={latestTimeout!.teamUuid}
+            retained={latestTimeout!.retained}
+          />
         </Collapse>
       </Stack>
     </Stack>

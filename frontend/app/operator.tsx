@@ -1,7 +1,7 @@
 import BoutCreator from "@/features/bout-creator/components/bout-creator";
 import BoutEditor from "@/features/bout-editor/components/bout-editor";
 import BoutPicker from "@/features/bout-editor/components/bout-picker";
-import BoutController from "@/features/bout-operator/components/bout-operator";
+import BoutOperator from "@/features/bout-operator/components/bout-operator";
 import TeamJamOperator from "@/features/team-jam-operator/components/team-jam-operator";
 import Undoer from "@/features/undo/components/undoer";
 import useBoutPicker from "@/hooks/game/use-bout-picker";
@@ -111,7 +111,7 @@ export default function OperatorPage() {
               shadow="lg"
             >
               <Card.Section withBorder>
-                <BoutController bout={activeBout} />
+                <BoutOperator bout={activeBout} />
               </Card.Section>
               <Suspense fallback={<Loader />}>
                 <Group
