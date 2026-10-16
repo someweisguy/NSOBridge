@@ -1,9 +1,9 @@
-import BoutController from "@/features/bout-controller/components/bout-controller";
 import BoutCreator from "@/features/bout-creator/components/bout-creator";
 import BoutEditor from "@/features/bout-editor/components/bout-editor";
 import BoutPicker from "@/features/bout-editor/components/bout-picker";
+import BoutController from "@/features/bout-operator/components/bout-operator";
+import TeamJamOperator from "@/features/team-jam-operator/components/team-jam-operator";
 import Undoer from "@/features/undo/components/undoer";
-import TeamJamOperator from "@/features/team-jam-controller/components/team-jam-operator";
 import useBoutPicker from "@/hooks/game/use-bout-picker";
 import useSeriesPicker from "@/hooks/game/use-series-picker";
 import { Team } from "@/types/bout";

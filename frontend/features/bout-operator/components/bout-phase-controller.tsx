@@ -35,11 +35,15 @@ const sharedButtonProps: ButtonProps = {
   justify: "space-between",
 };
 
-export interface BoutDirectorProps extends FieldsetProps {
+export interface BoutPhaseControllerProps extends FieldsetProps {
   bout: Bout;
 }
 
-export default function BoutDirector({ bout, ...props }: BoutDirectorProps) {
+// TODO: docs
+export default function BoutPhaseController({
+  bout,
+  ...props
+}: BoutPhaseControllerProps) {
   // Handle start/stop Jam
   const { mutate: startJam } = useStartJam({ ...bout });
   const { mutate: stopJam } = useStopJam({ ...bout });

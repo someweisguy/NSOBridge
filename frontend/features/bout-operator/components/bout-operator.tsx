@@ -3,7 +3,7 @@ import useLatestTimeout from "@/hooks/game/use-latest-timeout";
 import { Bout } from "@/types/bout";
 import { Collapse, Divider, Stack, StackProps } from "@mantine/core";
 import BoutClock from "./bout-clock";
-import BoutDirector from "./bout-director";
+import BoutPhaseController from "./bout-phase-controller";
 import JamStopReasonEditor from "./stop-reason-editor";
 import TimeoutEditor from "./timeout-editor";
 
@@ -25,7 +25,7 @@ export default function BoutController({
         <Divider />
       </Stack>
       <Stack justify="start" align="stretch" px="xs">
-        <BoutDirector bout={bout} p="xs" />
+        <BoutPhaseController bout={bout} p="xs" />
         <Collapse expanded={activeJam.stopTimestamp != null}>
           <JamStopReasonEditor jam={activeJam} p="xs" />
         </Collapse>
