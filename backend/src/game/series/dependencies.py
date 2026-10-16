@@ -19,16 +19,16 @@ if TYPE_CHECKING:
 
 async def _get_series(
     user: GetUser,
-    uuid: Annotated[UUID, Query()],
+    series_uuid: Annotated[UUID, Query(alias='seriesUuid')],
 ) -> Series:
-    statement: Select[Series] = select(Series).where(Series.uuid == uuid)
+    statement: Select[Series] = select(Series).where(Series.uuid == series_uuid)
     results: Result[Series] = await user.session.execute(statement)
 
     try:
         series: Series = results.scalar_one()
     except NoResultFound as e:
         raise HTTPException(
-            HTTPStatus.NOT_FOUND, f'Could not find Series ({uuid=})'
+            HTTPStatus.NOT_FOUND, f'Could not find Series ({series_uuid=})'
         ) from e
 
     return series
