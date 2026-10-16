@@ -25,8 +25,14 @@ export default function TeamJamOperator({
     rulesetName: bout.rulesetName,
   });
 
-  const { teamJam, leadIsDeclared, jammerInitial, jammerState, timeoutType } =
-    useTeamJamOperator(team);
+  const {
+    teamJam,
+    teamIsInThisJam,
+    leadIsDeclared,
+    jammerInitial,
+    jammerState,
+    timeoutType,
+  } = useTeamJamOperator(team);
 
   return (
     <Stack justify="start" align="center" {...props}>
@@ -37,7 +43,7 @@ export default function TeamJamOperator({
         jamScore={team.jamScore}
         timeoutsRemaining={team.timeoutsRemaining}
         reviewsRemaining={team.reviewsRemaining}
-        timeout={timeoutType ?? null}
+        timeout={timeoutType}
         jammerState={jammerState}
         jammerInitial={jammerInitial}
         numTimeouts={ruleset.numTimeouts}
@@ -59,7 +65,7 @@ export default function TeamJamOperator({
         w="100%"
       />
       <TripController
-        teamIsInThisJam={teamJam != null}
+        teamIsInThisJam={teamIsInThisJam}
         tripEvents={teamJam?.events ?? []}
         pointsPerTrip={ruleset.pointsPerTrip}
         draggable={false}

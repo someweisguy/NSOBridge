@@ -58,9 +58,10 @@ export const useTeamJamOperator = (team: Team) => {
 
   return {
     teamJam,
+    teamIsInThisJam: teamJam != null,
     leadIsDeclared,
     jammerInitial,
     jammerState,
-    timeoutType,
+    timeoutType: timeoutType ?? null,
   };
 };
