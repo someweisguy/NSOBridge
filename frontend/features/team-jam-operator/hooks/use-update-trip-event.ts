@@ -5,16 +5,26 @@ import { useMutation } from "@tanstack/react-query";
 
 type EditableTripEvent = Partial<Omit<TripEvent, "uuid">>;
 
+export interface UseUpdateTripEventOptions extends AppMutationOptions<
+  void,
+  Error,
+  EditableTripEvent
+> {
+  uuid: string;
+}
+
 /**
  * Update a TripEvent.
+ *
+ * This hook does not trigger any rule-based side effects.
  *
  * @returns A Tanstack Mutation object which can fire the updateTripEvent
  * mutator.
  */
-export const useUpdateTripEvent = (
-  uuid: string,
-  options?: AppMutationOptions<void, Error, EditableTripEvent>,
-) =>
+export const useUpdateTripEvent = ({
+  uuid,
+  ...options
+}: UseUpdateTripEventOptions) =>
   useMutation({
     mutationFn: (tripEvent: EditableTripEvent) =>
       localAPI.put<void>("jam/tripEvent", {

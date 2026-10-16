@@ -1,26 +1,31 @@
 import { localAPI } from "@/lib/requests";
-import { Team } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseTeamJamAddTripProps extends AppMutationOptions<
+export interface UseTeamJamAddTripOptions extends AppMutationOptions<
   void,
   unknown,
   number
 > {
-  team: Team;
+  teamUuid: string;
 }
 
 /**
- * Adds a jam trip to the TeamJam.
+ * Adds a jam trip to the TeamJam, triggering side-effects.
+ *
+ * This mutation may trigger side-effects depending on the ruleset in use by
+ * this Bout.
  *
  * @returns A Tanstack Mutation object which can fire the addJamTrip mutator.
  */
-export const useAddTrip = ({ team, ...options }: UseTeamJamAddTripProps) =>
+export const useAddTrip = ({
+  teamUuid,
+  ...options
+}: UseTeamJamAddTripOptions) =>
   useMutation({
     mutationFn: (passes: number) =>
       localAPI.post<void>("bout/team/trip", {
-        query: { teamUuid: team.uuid },
+        query: { teamUuid },
         body: passes,
       }),
     ...options,

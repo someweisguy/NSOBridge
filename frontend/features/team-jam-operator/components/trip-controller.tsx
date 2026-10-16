@@ -117,7 +117,7 @@ function JammerTrip({
   const { hovered, ref: hoverRef } = useHover();
   const mergedRef = useMergedRef(hoverRef, ref);
 
-  const { mutate: updateTripEvent } = useUpdateTripEvent(uuid);
+  const { mutate: updateTripEvent } = useUpdateTripEvent({ uuid });
   const { mutate: deleteTrip } = useDeleteTripEvent({ uuid });
 
   return (

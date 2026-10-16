@@ -1,4 +1,3 @@
-import { Team } from "@/types/bout";
 import {
   Checkbox,
   createTheme,
@@ -18,22 +17,22 @@ const checkBoxTheme = createTheme({
 });
 
 interface JammerControllerProps extends GroupProps {
-  team: Team;
+  teamUuid: string;
   jammerState: "lead" | "lost" | "starPass" | null;
   leadIsDeclared: boolean;
   disabled: boolean;
 }
 
 export default function JammerController({
-  team,
+  teamUuid,
   jammerState,
   leadIsDeclared,
   disabled,
   ...props
 }: JammerControllerProps) {
-  const { mutate: setLead } = useSetLead({ team });
-  const { mutate: setLost } = useSetLost({ team });
-  const { mutate: setStarPass } = useSetStarPass({ team });
+  const { mutate: setLead } = useSetLead({ teamUuid });
+  const { mutate: setLost } = useSetLost({ teamUuid });
+  const { mutate: setStarPass } = useSetStarPass({ teamUuid });
 
   const lead = jammerState == "lead";
   const lost = jammerState == "lost";

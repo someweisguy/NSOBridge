@@ -2,7 +2,7 @@ import { localAPI } from "@/lib/requests";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseDeleteTripProps extends AppMutationOptions<
+export interface UseDeleteTripOptions extends AppMutationOptions<
   void,
   unknown,
   void
@@ -16,7 +16,10 @@ export interface UseDeleteTripProps extends AppMutationOptions<
  * @returns A Tanstack Mutation object which can fire the useSetJamTripPasses
  * mutator.
  */
-export const useDeleteTripEvent = ({ uuid, ...options }: UseDeleteTripProps) =>
+export const useDeleteTripEvent = ({
+  uuid,
+  ...options
+}: UseDeleteTripOptions) =>
   useMutation({
     mutationFn: () =>
       localAPI.delete<void>("jam/tripEvent", {

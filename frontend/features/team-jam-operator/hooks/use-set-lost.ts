@@ -1,14 +1,13 @@
 import { localAPI } from "@/lib/requests";
-import { Team } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseSetLostProps extends AppMutationOptions<
+export interface UseSetLostOptions extends AppMutationOptions<
   void,
   unknown,
   boolean
 > {
-  team: Team;
+  teamUuid: string;
 }
 
 /**
@@ -16,11 +15,11 @@ export interface UseSetLostProps extends AppMutationOptions<
  *
  * @returns A Tanstack Mutation object which can fire the setLost mutator.
  */
-export const useSetLost = ({ team, ...options }: UseSetLostProps) =>
+export const useSetLost = ({ teamUuid, ...options }: UseSetLostOptions) =>
   useMutation({
     mutationFn: (lost: boolean) =>
       localAPI.post<void>("bout/team/lost", {
-        query: { teamUuid: team.uuid },
+        query: { teamUuid },
         body: lost,
       }),
     ...options,

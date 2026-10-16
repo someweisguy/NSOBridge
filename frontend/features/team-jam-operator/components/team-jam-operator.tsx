@@ -44,7 +44,7 @@ export default function TeamJamOperator({
         reverse={reverse}
       />
       <JammerController
-        team={team}
+        teamUuid={team.uuid}
         jammerState={jammerState}
         leadIsDeclared={leadIsDeclared}
         disabled={teamJam == null}
@@ -52,7 +52,7 @@ export default function TeamJamOperator({
         mx="md"
       />
       <TripAdder
-        team={team}
+        teamUuid={team.uuid}
         pointsPerTrip={ruleset.pointsPerTrip}
         px="lg"
         w="100%"

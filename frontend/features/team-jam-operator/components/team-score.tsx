@@ -50,11 +50,6 @@ export default function TeamScore({
       >
         <TimeoutsLeft
           timeoutIsActive={timeout != null}
-          // timeoutIsActive={
-          //   latestTimeout != null &&
-          //   isRunning(latestTimeout) &&
-          //   latestTimeout.teamUuid === team.uuid
-          // }
           isReview={timeout == "review"}
           h="4rem"
           timeoutsRemaining={timeoutsRemaining}

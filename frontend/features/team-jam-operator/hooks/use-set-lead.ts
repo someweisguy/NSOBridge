@@ -1,14 +1,13 @@
 import { localAPI } from "@/lib/requests";
-import { Team } from "@/types/bout";
 import { AppMutationOptions } from "@/types/query";
 import { useMutation } from "@tanstack/react-query";
 
-export interface UseSetLeadProps extends AppMutationOptions<
+export interface UseSetLeadOptions extends AppMutationOptions<
   void,
   unknown,
   boolean
 > {
-  team: Team;
+  teamUuid: string;
 }
 
 /**
@@ -16,11 +15,11 @@ export interface UseSetLeadProps extends AppMutationOptions<
  *
  * @returns A Tanstack Mutation object which can fire the setLead mutator.
  */
-export const useSetLead = ({ team, ...options }: UseSetLeadProps) =>
+export const useSetLead = ({ teamUuid, ...options }: UseSetLeadOptions) =>
   useMutation({
     mutationFn: (lead: boolean) =>
       localAPI.post<void>("bout/team/lead", {
-        query: { teamUuid: team.uuid },
+        query: { teamUuid },
         body: lead,
       }),
     ...options,
