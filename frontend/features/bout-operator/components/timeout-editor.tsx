@@ -1,5 +1,3 @@
-import { useBout } from "@/hooks/game/use-bout";
-import { Bout, Team } from "@/types/bout";
 import {
   ActionIcon,
   Button,
@@ -20,32 +18,23 @@ const officialDataValue = ""; // Cannot be the string representation of a number
 
 interface TimeoutEditorProps extends FieldsetProps {
   timeoutUuid: string | undefined;
-  boutUuid: string | undefined;
   isReview: boolean | undefined;
   teamIsOfficials: boolean | undefined;
   teamUuid: string | null | undefined;
   retained: boolean | undefined;
+  teams: ComboboxData<string> | undefined;
 }
 
 // TODO: docs
 export default function TimeoutEditor({
   timeoutUuid,
-  boutUuid,
   isReview,
   teamIsOfficials,
   teamUuid,
   retained,
+  teams,
   ...props
 }: TimeoutEditorProps) {
-  const { data: teams, isPending } = useBout<ComboboxData<string>>({
-    uuid: boutUuid ?? "",
-    enabled: boutUuid != null,
-    select: (bout: Bout) =>
-      bout.teams.map((team: Team) => ({
-        value: team.uuid,
-        label: team.name,
-      })),
-  });
   const { mutate: updateTimeout } = useUpdateTimeout(timeoutUuid ?? "");
 
   return (
@@ -80,7 +69,7 @@ export default function TimeoutEditor({
           size="xs"
           placeholder="Select a calling team..."
           data={teams}
-          loading={isPending}
+          loading={teams === undefined}
           value={teamUuid ?? ""}
           onChange={(value: string | null) => {
             const valueIsOfficials = value == officialDataValue;

@@ -1,8 +1,15 @@
 import useSuspenseActiveJam from "@/hooks/game/use-active-jam";
+import { useBout } from "@/hooks/game/use-bout";
 import useLatestTimeout from "@/hooks/game/use-latest-timeout";
 import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
-import { Bout } from "@/types/bout";
-import { Collapse, Divider, Stack, StackProps } from "@mantine/core";
+import { Bout, Team } from "@/types/bout";
+import {
+  Collapse,
+  ComboboxData,
+  Divider,
+  Stack,
+  StackProps,
+} from "@mantine/core";
 import BoutClock from "./bout-clock";
 import BoutPhaseController from "./bout-phase-controller";
 import JamStopReasonEditor from "./stop-reason-editor";
@@ -20,6 +27,14 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
 
   const { data: activeJam } = useSuspenseActiveJam(bout);
   const { data: latestTimeout } = useLatestTimeout(bout);
+  const { data: teams } = useBout<ComboboxData<string>>({
+    uuid: bout.uuid,
+    select: (bout: Bout) =>
+      bout.teams.map((team: Team) => ({
+        value: team.uuid,
+        label: team.name,
+      })),
+  });
 
   const showJamStopReasonEditor = activeJam.stopTimestamp != null;
   const showTimeoutEditor = bout.state == "timeout" && latestTimeout != null;
@@ -53,11 +68,11 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
         <Collapse expanded={showTimeoutEditor}>
           <TimeoutEditor
             timeoutUuid={latestTimeout?.uuid}
-            boutUuid={latestTimeout?.boutUuid}
             isReview={latestTimeout?.isReview}
             teamIsOfficials={latestTimeout?.teamIsOfficials}
             teamUuid={latestTimeout?.teamUuid}
             retained={latestTimeout?.retained}
+            teams={teams}
             p="xs"
           />
         </Collapse>
