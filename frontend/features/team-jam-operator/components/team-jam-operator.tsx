@@ -1,5 +1,6 @@
+import { useSuspenseBout } from "@/hooks/game/use-bout";
 import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
-import { Bout, Team } from "@/types/bout";
+import { Team } from "@/types/bout";
 import { Stack, StackProps } from "@mantine/core";
 import { useTeamJamOperator } from "../hooks/use-team-jam-operator";
 import JammerController from "./jammer-controller";
@@ -8,23 +9,23 @@ import TripAdder from "./trip-adder";
 import TripController from "./trip-controller";
 
 export interface TeamJamOperatorProps extends StackProps {
-  bout: Bout; // TODO: replace with bout.activeJamUuid
   team: Team;
   reverse?: boolean;
 }
 
 export default function TeamJamOperator({
-  bout,
   team,
   reverse = false,
   ...props
 }: TeamJamOperatorProps) {
+  // TODO: get ruleset by Bout UUID, add ruleset as Table in database
+  const { data: bout } = useSuspenseBout({ uuid: team.boutUuid });
   const { data: ruleset } = useSuspenseGetRuleset({
     rulesetName: bout.rulesetName,
   });
 
   const { teamJam, leadIsDeclared, jammerInitial, jammerState, timeoutType } =
-    useTeamJamOperator(bout, team);
+    useTeamJamOperator(team);
 
   return (
     <Stack justify="start" align="center" {...props}>

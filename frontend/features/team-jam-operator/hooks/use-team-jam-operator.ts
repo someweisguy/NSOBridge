@@ -1,12 +1,16 @@
+import { useSuspenseBout } from "@/hooks/game/use-bout";
 import { useSuspenseJam } from "@/hooks/game/use-jam";
 import { useTimeout } from "@/hooks/game/use-timeout";
-import { Bout, Team } from "@/types/bout";
+import { Team } from "@/types/bout";
 import { Jam, TeamJam } from "@/types/jam";
 import { Timeout } from "@/types/timeout";
 import { isRunning } from "@/utils/time";
 import { useMemo } from "react";
 
-export const useTeamJamOperator = (bout: Bout, team: Team) => {
+export const useTeamJamOperator = (team: Team) => {
+  // Fetch Bout; should already be cached
+  const { data: bout } = useSuspenseBout({ uuid: team.boutUuid });
+
   // Get information about the this Team's active TeamJam
   const { data: teamJam } = useSuspenseJam({
     uuid: bout.activeJamUuid,

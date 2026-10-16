@@ -125,7 +125,6 @@ export default function OperatorPage() {
                   {activeBout.teams.map((team: Team, i: number) => (
                     <TeamJamOperator
                       key={team.uuid}
-                      bout={activeBout}
                       team={team}
                       reverse={!!(i % 2)}
                     />
