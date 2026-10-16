@@ -21,10 +21,7 @@ import {
 export const useTimeout = <T = Timeout>({
   uuid,
   ...options
-}: CacheUuid & AppQueryOptions<Timeout | T>): UseQueryResult<
-  Timeout | T,
-  Error
-> =>
+}: CacheUuid & AppQueryOptions<Timeout, T>): UseQueryResult<T, Error> =>
   useQuery({
     queryKey: timeoutKeys.one(uuid),
     queryFn: () => localAPI.get<Timeout>("timeout", { query: { uuid } }),
