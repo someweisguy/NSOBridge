@@ -31,11 +31,11 @@ export const useBout = ({
  *
  * @returns a Tanstack useSuspenseQuery object containing the desired Bout.
  */
-export const useSuspenseBout = ({
+export const useSuspenseBout = <T = Bout>({
   uuid,
   ...options
-}: CacheUuid & AppSuspenseQueryOptions<Bout>) =>
-  useSuspenseQuery<Bout>({
+}: CacheUuid & AppSuspenseQueryOptions<Bout, T>) =>
+  useSuspenseQuery<Bout, Error, T>({
     queryKey: boutKeys.one(uuid),
     queryFn: () =>
       localAPI.get<Bout>("bout", {
