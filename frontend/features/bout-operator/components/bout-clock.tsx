@@ -1,8 +1,8 @@
 import ClockView from "@/components/clock-view";
 import { useSuspenseJam } from "@/hooks/game/use-jam";
-import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
-import { Bout, BoutSubStateString } from "@/types/bout";
+import { Bout, BoutStateString, BoutSubStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
+import { Clock } from "@/types/time";
 import {
   Collapse,
   Divider,
@@ -38,17 +38,24 @@ const stopReasons: Record<StopReasonString, string> = {
 };
 
 export interface BoutClockProps extends StackProps {
-  bout: Bout;
+  bout: Bout; // TODO: remove this argument
+  boutClock: Clock;
+  boutState: BoutStateString;
+  boutSubState: BoutSubStateString;
+  jamDuration: number;
 }
 
 /**
  * Render the time information relevant to the Bout.
  */
-export default function BoutClock({ bout, ...props }: BoutClockProps) {
-  const { data: ruleset } = useSuspenseGetRuleset({
-    rulesetName: bout.rulesetName,
-  });
-
+export default function BoutClock({
+  bout, // TODO: remove this argument
+  boutClock,
+  boutState,
+  boutSubState,
+  jamDuration,
+  ...props
+}: BoutClockProps) {
   const { data: activeJam } = useSuspenseJam({ uuid: bout.activeJamUuid });
   const periodNum = Math.min(activeJam.period, 1) + 1;
   let jamNum = activeJam.num + 1;
@@ -89,7 +96,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
       >
         <Grid.Col span={4}>
           {/* TODO: Overtime display */}
-          <ClockView formatter="bout" fz="1.5rem" {...bout.clock} />
+          <ClockView formatter="bout" fz="1.5rem" {...boutClock} />
         </Grid.Col>
         <Grid.Col span={4}>
           <Text textWrap="nowrap" fz="1.5rem">
@@ -99,7 +106,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
         <Grid.Col span={4}>
           {activeJam.stopTimestamp == null ? (
             <ClockView
-              alarm={ruleset.jamDuration}
+              alarm={jamDuration}
               formatter="jam"
               fz="1.5rem"
               {...activeJam}
@@ -112,7 +119,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
         </Grid.Col>
       </Grid>
 
-      <Collapse expanded={bout.state != "jam"} w="100%">
+      <Collapse expanded={boutState != "jam"} w="100%">
         <Stack justify="start" align="stretch" gap="0">
           <Divider mx="md" />
           <Group
@@ -121,7 +128,7 @@ export default function BoutClock({ bout, ...props }: BoutClockProps) {
             p="xs"
             // TODO: set background color according to Bout State
           >
-            <Text ta="center">{eventNames[bout.subState] ?? "-"}</Text>
+            <Text ta="center">{eventNames[boutSubState] ?? "-"}</Text>
             {/* TODO: conditionally show ClockView */}
             <ClockView formatter="lineup" startTimestamp={lastEventTimestamp} />
           </Group>

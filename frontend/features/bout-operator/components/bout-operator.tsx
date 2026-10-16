@@ -1,5 +1,6 @@
 import useSuspenseActiveJam from "@/hooks/game/use-active-jam";
 import useLatestTimeout from "@/hooks/game/use-latest-timeout";
+import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
 import { Bout } from "@/types/bout";
 import { Collapse, Divider, Stack, StackProps } from "@mantine/core";
 import BoutClock from "./bout-clock";
@@ -12,6 +13,11 @@ export interface BoutOperatorProps extends StackProps {
 }
 
 export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
+  // TODO: get ruleset by Bout UUID, add ruleset as Table in database
+  const { data: ruleset } = useSuspenseGetRuleset({
+    rulesetName: bout.rulesetName,
+  });
+
   const { data: activeJam } = useSuspenseActiveJam(bout);
   const { data: latestTimeout } = useLatestTimeout(bout);
 
@@ -21,7 +27,13 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
   return (
     <Stack mb="lg" w={225} {...props}>
       <Stack gap="0" w="100%">
-        <BoutClock bout={bout} />
+        <BoutClock
+          bout={bout}
+          boutClock={bout.clock}
+          boutState={bout.state}
+          boutSubState={bout.subState}
+          jamDuration={ruleset.jamDuration}
+        />
         <Divider />
       </Stack>
       <Stack justify="start" align="stretch" px="xs">
