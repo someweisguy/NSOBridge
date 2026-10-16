@@ -1,4 +1,4 @@
-import { useSuspenseBout } from "@/hooks/game/use-bout";
+import { useBout } from "@/hooks/game/use-bout";
 import { Bout, Team } from "@/types/bout";
 import {
   ActionIcon,
@@ -19,14 +19,15 @@ import { useUpdateTimeout } from "../hooks/use-update-timeout";
 const officialDataValue = ""; // Cannot be the string representation of a number!
 
 interface TimeoutEditorProps extends FieldsetProps {
-  timeoutUuid: string;
-  boutUuid: string;
-  isReview: boolean;
-  teamIsOfficials: boolean;
-  teamUuid: string | null;
-  retained: boolean;
+  timeoutUuid: string | undefined;
+  boutUuid: string | undefined;
+  isReview: boolean | undefined;
+  teamIsOfficials: boolean | undefined;
+  teamUuid: string | null | undefined;
+  retained: boolean | undefined;
 }
 
+// TODO: docs
 export default function TimeoutEditor({
   timeoutUuid,
   boutUuid,
@@ -36,15 +37,16 @@ export default function TimeoutEditor({
   retained,
   ...props
 }: TimeoutEditorProps) {
-  const { data: teams } = useSuspenseBout<ComboboxData<string>>({
-    uuid: boutUuid,
+  const { data: teams, isPending } = useBout<ComboboxData<string>>({
+    uuid: boutUuid ?? "",
+    enabled: boutUuid != null,
     select: (bout: Bout) =>
       bout.teams.map((team: Team) => ({
         value: team.uuid,
         label: team.name,
       })),
   });
-  const { mutate: updateTimeout } = useUpdateTimeout(timeoutUuid);
+  const { mutate: updateTimeout } = useUpdateTimeout(timeoutUuid ?? "");
 
   return (
     <Fieldset
@@ -78,6 +80,7 @@ export default function TimeoutEditor({
           size="xs"
           placeholder="Select a calling team..."
           data={teams}
+          loading={isPending}
           value={teamUuid ?? ""}
           onChange={(value: string | null) => {
             const valueIsOfficials = value == officialDataValue;
@@ -90,11 +93,12 @@ export default function TimeoutEditor({
           error={isReview && teamIsOfficials}
           allowDeselect={false}
         />
-        <Collapse expanded={isReview}>
+        <Collapse expanded={isReview ?? false}>
           <Button
             w="100%"
             size="xs"
             variant="default"
+            disabled={retained == null}
             onClick={() => updateTimeout({ retained: !retained })}
           >
             <Checkbox
@@ -102,6 +106,7 @@ export default function TimeoutEditor({
               size="xs"
               label="Review is retained?"
               labelPosition="left"
+              disabled={retained == null}
               checked={retained}
               styles={{
                 input: { cursor: "pointer" },

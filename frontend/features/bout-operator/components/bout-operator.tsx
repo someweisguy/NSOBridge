@@ -52,13 +52,13 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
         </Collapse>
         <Collapse expanded={showTimeoutEditor}>
           <TimeoutEditor
+            timeoutUuid={latestTimeout?.uuid}
+            boutUuid={latestTimeout?.boutUuid}
+            isReview={latestTimeout?.isReview}
+            teamIsOfficials={latestTimeout?.teamIsOfficials}
+            teamUuid={latestTimeout?.teamUuid}
+            retained={latestTimeout?.retained}
             p="xs"
-            timeoutUuid={latestTimeout!.uuid}
-            boutUuid={latestTimeout!.boutUuid}
-            isReview={latestTimeout!.isReview}
-            teamIsOfficials={latestTimeout!.teamIsOfficials}
-            teamUuid={latestTimeout!.teamUuid}
-            retained={latestTimeout!.retained}
           />
         </Collapse>
       </Stack>
