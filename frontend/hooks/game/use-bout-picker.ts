@@ -53,7 +53,7 @@ export default function useBoutPicker(
   const [activeBoutUuid, setActiveBoutUuid] = useState<string | null>(null);
   const { data: activeBout } = useBout({
     uuid: activeBoutUuid ?? series?.activeBoutUuid ?? "",
-    enabled: series != null,
+    enabled: series?.activeBoutUuid != null,
   });
 
   // Handle when activeBout is deleted
