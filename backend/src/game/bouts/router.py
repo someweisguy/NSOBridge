@@ -62,6 +62,11 @@ async def create_bout(
     bout: BaseBout = BaseBout.create(ruleset_name, series, *team_names)
     session.add(bout)
 
+    # Ensure the series always has an active Bout
+    series: Series = await session.merge(series)
+    if await series.awaitable_attrs.active_bout is None:
+        series.active_bout = bout
+
     # Expunge and merge the Bout to allow the subclass to call setup()
     # It's a weird hack, but it appears to be the only way to allow the object to be
     # loaded as the correct subclass.
@@ -75,11 +80,6 @@ async def create_bout(
             f'Cannot create bout with unknown ruleset: {ruleset_name}'
         ) from e
     bout.setup()
-
-    # Ensure the series always has an active Bout
-    series: Series = await session.merge(series)
-    if await series.awaitable_attrs.active_bout is None:
-        series.active_bout = bout
 
     return bout
 
