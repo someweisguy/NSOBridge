@@ -69,13 +69,17 @@ async def create_bout(
         await session.flush()
         session.expunge(bout)
         bout = await session.merge(bout)
-        await session.merge(series)
     except AssertionError as e:
         # SQLAlchemy raises AssertionError on invalid polymorphic identity
         raise ValueError(
             f'Cannot create bout with unknown ruleset: {ruleset_name}'
         ) from e
     bout.setup()
+
+    # Ensure the series always has an active Bout
+    series: Series = await session.merge(series)
+    if await series.awaitable_attrs.active_bout is None:
+        series.active_bout = bout
 
     return bout
 
