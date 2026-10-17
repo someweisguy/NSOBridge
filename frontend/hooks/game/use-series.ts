@@ -43,16 +43,14 @@ export const useSuspenseGetAllSeries = <T = Series[]>(
   useSuspenseQuery({
     queryKey: seriesKeys.all,
     queryFn: () =>
-      localAPI
-        .get<Series[]>("series/allSeries")
-        .then<Series[]>((allSeries: Series[]) => {
-          for (const series of allSeries) {
-            if (series.uuid != null) {
-              queryClient.setQueryData(seriesKeys.one(series.uuid), series);
-            }
+      localAPI.get<Series[]>("series").then<Series[]>((allSeries: Series[]) => {
+        for (const series of allSeries) {
+          if (series.uuid != null) {
+            queryClient.setQueryData(seriesKeys.one(series.uuid), series);
           }
-          return allSeries;
-        }),
+        }
+        return allSeries;
+      }),
     ...options,
   });
 
@@ -69,15 +67,13 @@ export const useGetAllSeries = <T = Series[]>(
   useQuery({
     queryKey: seriesKeys.all,
     queryFn: () =>
-      localAPI
-        .get<Series[]>("series/allSeries")
-        .then<Series[]>((allSeries: Series[]) => {
-          for (const series of allSeries) {
-            if (series.uuid != null) {
-              queryClient.setQueryData(seriesKeys.one(series.uuid), series);
-            }
+      localAPI.get<Series[]>("series").then<Series[]>((allSeries: Series[]) => {
+        for (const series of allSeries) {
+          if (series.uuid != null) {
+            queryClient.setQueryData(seriesKeys.one(series.uuid), series);
           }
-          return allSeries;
-        }),
+        }
+        return allSeries;
+      }),
     ...options,
   });

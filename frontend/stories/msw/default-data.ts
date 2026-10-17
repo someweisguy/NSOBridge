@@ -1,6 +1,5 @@
 import {
   ALL_RULESET_API,
-  ALL_SERIES_API,
   BOUT_API,
   JAM_API,
   RULESET_API,
@@ -9,7 +8,7 @@ import {
 import { getHandlerFactory } from "@/utils/mock-api";
 
 export const defaultDataHandlers = [
-  getHandlerFactory(ALL_SERIES_API, [
+  getHandlerFactory(SERIES_API, [
     {
       uuid: "fa2debd1-57a7-4c66-9cd5-fbbcf2c533df",
       name: "Default Series",
