@@ -1,5 +1,5 @@
 import { useSuspenseBout } from "@/hooks/game/use-bout";
-import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
+import { useSuspenseRuleset } from "@/hooks/game/use-ruleset";
 import { Team } from "@/types/bout";
 import { Stack, StackProps } from "@mantine/core";
 import { useTeamJamOperator } from "../hooks/use-team-jam-operator";
@@ -21,7 +21,7 @@ export default function TeamJamOperator({
 }: TeamJamOperatorProps) {
   // TODO: get ruleset by Bout UUID, add ruleset as Table in database
   const { data: bout } = useSuspenseBout({ uuid: team.boutUuid });
-  const { data: ruleset } = useSuspenseGetRuleset({
+  const { data: ruleset } = useSuspenseRuleset({
     rulesetName: bout.rulesetName,
   });
 

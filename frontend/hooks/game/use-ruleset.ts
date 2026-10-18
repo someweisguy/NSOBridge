@@ -14,7 +14,7 @@ import {
  *
  * @returns a Tanstack useQuery object containing the desired Ruleset.
  */
-export const useGetRuleset = <T = null>({
+export const useRuleset = <T = null>({
   rulesetName,
   ...options
 }: { rulesetName: string } & AppQueryOptions<Ruleset | T>) =>
@@ -33,7 +33,7 @@ export const useGetRuleset = <T = null>({
  *
  * @returns a Tanstack useSuspenseQuery object containing the desired Ruleset.
  */
-export const useSuspenseGetRuleset = ({
+export const useSuspenseRuleset = ({
   rulesetName,
   ...options
 }: { rulesetName: string } & AppSuspenseQueryOptions<Ruleset>) =>
@@ -53,7 +53,7 @@ export const useSuspenseGetRuleset = ({
  *
  * @returns a Tanstack useeQuery object containing an array of all Rulesets.
  */
-export const useGetAllRulesets = <T = Ruleset[]>(
+export const useAllRulesets = <T = Ruleset[]>(
   options?: AppQueryOptions<Ruleset[], T>,
 ): UseQueryResult<T, Error> =>
   useQuery<Ruleset[], Error, T>({
@@ -75,7 +75,7 @@ export const useGetAllRulesets = <T = Ruleset[]>(
  *
  * @returns a Tanstack useSuspenseQuery object containing an array of all Rulesets.
  */
-export const useSuspenseGetAllRulesets = <T = Ruleset[]>(
+export const useSuspenseAllRulesets = <T = Ruleset[]>(
   options?: AppSuspenseQueryOptions<Ruleset[], T>,
 ) =>
   useSuspenseQuery<Ruleset[], Error, T>({

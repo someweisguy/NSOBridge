@@ -1,4 +1,4 @@
-import { useSuspenseGetRuleset } from "@/hooks/game/use-ruleset";
+import { useSuspenseRuleset } from "@/hooks/game/use-ruleset";
 import { Bout } from "@/types/bout";
 import { Collapse, Divider, Stack, StackProps } from "@mantine/core";
 import { useBoutOperator } from "../hooks/use-bout-operator";
@@ -14,7 +14,7 @@ export interface BoutOperatorProps extends StackProps {
 // TODO: docs
 export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
   // TODO: get ruleset by Bout UUID, add ruleset as Table in database
-  const { data: ruleset } = useSuspenseGetRuleset({
+  const { data: ruleset } = useSuspenseRuleset({
     rulesetName: bout.rulesetName,
   });
 

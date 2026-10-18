@@ -1,7 +1,7 @@
 import ClockEditor from "@/features/bout-editor/components/clock-editor";
 import TeamEditor from "@/features/bout-editor/components/team-editor";
 import { useDeleteBout } from "@/features/bout-editor/hooks/use-delete-bout";
-import { useGetRuleset } from "@/hooks/game/use-ruleset";
+import { useRuleset } from "@/hooks/game/use-ruleset";
 import { Bout, Team } from "@/types/bout";
 import { Button, Menu, Modal, useModalsStack } from "@mantine/core";
 import {
@@ -18,7 +18,7 @@ interface EditMenuProps {
 // TODO: docs
 export default function BoutEditor({ bout }: EditMenuProps) {
   // TODO: get ruleset by Bout UUID, add ruleset as Table in database
-  const { data: ruleset } = useGetRuleset({
+  const { data: ruleset } = useRuleset({
     rulesetName: bout?.rulesetName ?? "",
     enabled: bout?.rulesetName != null,
   });

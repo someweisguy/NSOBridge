@@ -54,7 +54,7 @@ export const useSuspenseSeries = <T = Series>({
  *
  * @returns a Tanstack useQuery object containing an array of all Series.
  */
-export const useGetAllSeries = <T = Series[]>(
+export const useAllSeries = <T = Series[]>(
   options?: AppQueryOptions<Series[], T>,
 ): UseQueryResult<T, Error> =>
   useQuery({
@@ -79,7 +79,7 @@ export const useGetAllSeries = <T = Series[]>(
  * @returns a Tanstack useSuspenseQuery object containing an array of all
  * Series.
  */
-export const useSuspenseGetAllSeries = <T = Series[]>(
+export const useSuspenseAllSeries = <T = Series[]>(
   options?: AppSuspenseQueryOptions<Series[], T>,
 ) =>
   useSuspenseQuery({

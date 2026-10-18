@@ -51,7 +51,7 @@ export const useSuspenseBout = <T = Bout>({
  *
  * @returns a Tanstack useQuery object containing an array of all Bouts.
  */
-export const useGetAllBouts = (options?: AppQueryOptions<Bout[]>) =>
+export const useAllBouts = (options?: AppQueryOptions<Bout[]>) =>
   useQuery<Bout[]>(
     {
       queryKey: boutKeys.all,
@@ -76,7 +76,7 @@ export const useGetAllBouts = (options?: AppQueryOptions<Bout[]>) =>
  *
  * @returns a Tanstack useSuspenseQuery object containing an array of all Bouts.
  */
-export const useSuspenseGetAllBouts = <T = Bout[]>(
+export const useSuspenseAllBouts = <T = Bout[]>(
   options?: AppSuspenseQueryOptions<Bout[], T>,
 ) =>
   useSuspenseQuery<Bout[], Error, T>(

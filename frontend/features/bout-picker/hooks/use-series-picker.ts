@@ -1,4 +1,4 @@
-import { useGetAllSeries, useSeries } from "@/hooks/game/use-series";
+import { useAllSeries, useSeries } from "@/hooks/game/use-series";
 import { Series } from "@/types/series";
 import { useCallback, useEffect, useState } from "react";
 
@@ -20,7 +20,7 @@ export type UseSeriesPickerReturn = [
  * @returns [activeSeries, setActiveSeries, allSeries]
  */
 export default function useSeriesPicker(): UseSeriesPickerReturn {
-  const { data: allSeries } = useGetAllSeries();
+  const { data: allSeries } = useAllSeries();
 
   const [activeSeriesUuid, setActiveSeriesUuid] = useState<string>("");
   const { data: activeSeries } = useSeries({
