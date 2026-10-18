@@ -1,6 +1,7 @@
-import { useDeleteBout } from "@/features/bout-editor/hooks/use-delete-bout";
 import BoutClockEditor from "@/features/bout-editor/components/bout-clock-editor";
 import TeamEditor from "@/features/bout-editor/components/team-editor";
+import { useDeleteBout } from "@/features/bout-editor/hooks/use-delete-bout";
+import { useGetRuleset } from "@/hooks/game/use-ruleset";
 import { Bout, Team } from "@/types/bout";
 import { Button, Menu, Modal, useModalsStack } from "@mantine/core";
 import {
@@ -15,6 +16,12 @@ interface EditMenuProps {
 }
 
 export default function BoutEditor({ bout }: EditMenuProps) {
+  // TODO: get ruleset by Bout UUID, add ruleset as Table in database
+  const { data: ruleset } = useGetRuleset({
+    rulesetName: bout?.rulesetName ?? "",
+    enabled: bout?.rulesetName != null,
+  });
+
   const modalStack = useModalsStack([
     "bout",
     "clock",
@@ -28,7 +35,12 @@ export default function BoutEditor({ bout }: EditMenuProps) {
   const deleteBout = useDeleteBout({ boutUuid: bout?.uuid ?? "" });
 
   return (
-    <Menu withArrow shadow="md" width={200} disabled={bout == null}>
+    <Menu
+      withArrow
+      shadow="md"
+      width={200}
+      disabled={bout == null || ruleset == null}
+    >
       <Menu.Target>
         <Button
           disabled={bout == null}
@@ -120,7 +132,14 @@ export default function BoutEditor({ bout }: EditMenuProps) {
             title={"Edit " + team.name}
             {...modalStack.register("team-" + team.uuid)}
           >
-            <TeamEditor team={team} />
+            <TeamEditor
+              uuid={team.uuid}
+              name={team.name}
+              timeoutsRemaining={team.timeoutsRemaining}
+              reviewsRemaining={team.reviewsRemaining}
+              numTimeouts={ruleset?.numTimeouts ?? 0}
+              numReviews={ruleset?.numTimeouts ?? 0}
+            />
           </Modal>
         ))}
         <Modal title="Edit Period Clock" {...modalStack.register("clock")}>

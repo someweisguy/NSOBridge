@@ -1,19 +1,29 @@
-import { Team } from "@/types/bout";
+import { Bout } from "@/types/bout";
 import { Button, Group, NumberInput, Stack, TextInput } from "@mantine/core";
 import { useState } from "react";
 import { useUpdateBoutTeam } from "../../bout-editor/hooks/use-update-bout-team";
 
 interface TeamEditorProps {
-  team: Team;
-  onSuccess?: (data: unknown, newTeamName: string) => void;
+  uuid: string;
+  name: string;
+  timeoutsRemaining: number;
+  reviewsRemaining: number;
+  numTimeouts: number;
+  numReviews: number;
+  onSuccess?: (bout: Bout) => void;
 }
 
 export default function TeamEditor({
-  team,
-  // onSuccess,
+  uuid,
+  name,
+  timeoutsRemaining,
+  reviewsRemaining,
+  numTimeouts,
+  numReviews,
+  onSuccess,
 }: TeamEditorProps) {
-  const [teamName, setTeamName] = useState(team.name);
-  const { mutate: updateBoutTeam } = useUpdateBoutTeam(team.uuid);
+  const [teamName, setTeamName] = useState(name);
+  const { mutate: updateBoutTeam } = useUpdateBoutTeam(uuid, { onSuccess });
 
   return (
     <Stack gap="md">
@@ -26,17 +36,17 @@ export default function TeamEditor({
         {/* TODO: Prevent network requests when the min/max is reached */}
         <NumberInput
           label="Timeouts Remaining"
-          value={team.timeoutsRemaining}
+          value={timeoutsRemaining}
           onChange={(num) => updateBoutTeam({ timeoutsRemaining: Number(num) })}
           min={0}
-          // max={ruleset.numTimeouts}  // FIXME
+          max={numTimeouts}
         />
         <NumberInput
           label="Reviews Remaining"
-          value={team.reviewsRemaining}
+          value={reviewsRemaining}
           onChange={(num) => updateBoutTeam({ reviewsRemaining: Number(num) })}
           min={0}
-          // max={ruleset.numReviews}  // FIXME
+          max={numReviews}
         />
       </Group>
 
