@@ -15,6 +15,7 @@ interface EditMenuProps {
   bout: Bout | undefined;
 }
 
+// TODO: docs
 export default function BoutEditor({ bout }: EditMenuProps) {
   // TODO: get ruleset by Bout UUID, add ruleset as Table in database
   const { data: ruleset } = useGetRuleset({
