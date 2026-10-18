@@ -1,4 +1,4 @@
-import BoutClockEditor from "@/features/bout-editor/components/bout-clock-editor";
+import ClockEditor from "@/features/bout-editor/components/clock-editor";
 import TeamEditor from "@/features/bout-editor/components/team-editor";
 import { useDeleteBout } from "@/features/bout-editor/hooks/use-delete-bout";
 import { useGetRuleset } from "@/hooks/game/use-ruleset";
@@ -140,7 +140,7 @@ export default function BoutEditor({ bout }: EditMenuProps) {
           </Modal>
         ))}
         <Modal title="Edit Period Clock" {...modalStack.register("clock")}>
-          <BoutClockEditor uuid={bout!.uuid} clock={bout!.clock} />
+          <ClockEditor uuid={bout!.uuid} clock={bout!.clock} />
         </Modal>
       </Modal.Stack>
     </Menu>

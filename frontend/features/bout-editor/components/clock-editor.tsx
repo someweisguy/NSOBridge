@@ -8,14 +8,15 @@ import {
   IconStopwatch,
 } from "@tabler/icons-react";
 import { useMemo } from "react";
-import { useUpdateBoutClock } from "../../bout-editor/hooks/use-update-bout-clock";
+import { useUpdateBoutClock } from "../hooks/use-update-bout-clock";
 
 interface BoutClockEditorProps {
   uuid: string;
   clock: Clock;
 }
 
-export default function BoutClockEditor({ uuid, clock }: BoutClockEditorProps) {
+// TODO: docs
+export default function ClockEditor({ uuid, clock }: BoutClockEditorProps) {
   const { ref, value } = useMask({
     mask: [/\d/, /\d/, ":", /[0-5]/, /\d/],
     slotChar: " ",
