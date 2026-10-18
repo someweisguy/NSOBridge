@@ -67,7 +67,7 @@ export default function useBoutPicker(
   // Only allow valid Bouts to become the activeBout
   const handleSetActiveBout = useCallback(
     (bout: Bout) => {
-      if (!series?.boutUuids.some((uuid: string) => bout.uuid == uuid)) {
+      if (bout.seriesUuid != series?.uuid) {
         throw new Error("Invalid Bout selected: " + bout.uuid);
       }
       setActiveBoutUuid(bout.uuid);

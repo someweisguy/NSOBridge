@@ -1,6 +1,6 @@
-import { useGetAllSeries } from "@/hooks/game/use-series";
+import { useGetAllSeries, useSeries } from "@/hooks/game/use-series";
 import { Series } from "@/types/series";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type UseSeriesPickerReturn = [
   Series | undefined,
@@ -22,12 +22,18 @@ export type UseSeriesPickerReturn = [
 export default function useSeriesPicker(): UseSeriesPickerReturn {
   const { data: allSeries } = useGetAllSeries();
 
-  const [activeSeriesUuid, setActiveSeriesUuid] = useState<string | null>(null);
-  const { data: activeSeries } = useGetAllSeries({
-    select: (allSeries: Series[]) =>
-      allSeries.find((series: Series) => series.uuid == activeSeriesUuid) ??
-      allSeries[0],
+  const [activeSeriesUuid, setActiveSeriesUuid] = useState<string>("");
+  const { data: activeSeries } = useSeries({
+    uuid: activeSeriesUuid,
+    enabled: activeSeriesUuid != "",
   });
+
+  useEffect(() => {
+    if (allSeries != null && activeSeriesUuid == "") {
+      // Set the default series
+      setActiveSeriesUuid(allSeries[0].uuid);
+    }
+  }, [activeSeriesUuid, allSeries]);
 
   // Only allow valid Series to become the activeSeries
   const handleSetActiveSeries = useCallback(

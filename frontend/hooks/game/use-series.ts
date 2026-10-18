@@ -14,11 +14,28 @@ import {
 } from "@tanstack/react-query";
 
 /**
- * Gets all the Series from the server. Each individual Series is automatically cached
+ * Gets a Series from the server. Each individual Series is automatically cached
+ * after it is fetched. This hook is a wrapper for call to TanStack Query's
+ * `useQuery` function.
+ *
+ * @returns a Tanstack useQuery object containing a Series.
+ */
+export const useSeries = <T = Series>({
+  uuid,
+  ...options
+}: CacheUuid & AppQueryOptions<Series, T>): UseQueryResult<T, Error> =>
+  useQuery({
+    queryKey: seriesKeys.one(uuid),
+    queryFn: () => localAPI.get<Series>("series", { query: { uuid } }),
+    ...options,
+  });
+
+/**
+ * Gets a Series from the server. Each individual Series is automatically cached
  * after it is fetched. This hook is a wrapper for call to TanStack Query's
  * `useSuspenseQuery` function.
  *
- * @returns a Tanstack useSuspenseQuery object containing an array of all Series.
+ * @returns a Tanstack useSuspenseQuery object containing a Series.
  */
 export const useSuspenseSeries = <T = Series>({
   uuid,
@@ -31,11 +48,12 @@ export const useSuspenseSeries = <T = Series>({
   });
 
 /**
- * Gets all the Series from the server. Each individual Series is automatically cached
- * after it is fetched. This hook is a wrapper for call to TanStack Query's
- * `useSuspenseQuery` function.
+ * Gets all the Series from the server. Each individual Series is automatically
+ * cached after it is fetched. This hook is a wrapper for call to TanStack
+ * Query `useSuspenseQuery` function.
  *
- * @returns a Tanstack useSuspenseQuery object containing an array of all Series.
+ * @returns a Tanstack useSuspenseQuery object containing an array of all
+ * Series.
  */
 export const useSuspenseGetAllSeries = <T = Series[]>(
   options?: AppSuspenseQueryOptions<Series[], T>,
@@ -55,9 +73,9 @@ export const useSuspenseGetAllSeries = <T = Series[]>(
   });
 
 /**
- * Gets all the Series from the server. Each individual Series is automatically cached
- * after it is fetched. This hook is a wrapper for call to TanStack Query's
- * `useQuery` function.
+ * Gets all the Series from the server. Each individual Series is automatically
+ * cached after it is fetched. This hook is a wrapper for call to TanStack
+ * Query's `useQuery` function.
  *
  * @returns a Tanstack useQuery object containing an array of all Series.
  */
