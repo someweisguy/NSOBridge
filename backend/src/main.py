@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
     """
     logging.info(f'App started{" in debug mode" if app.debug else ""}')
 
-    # Load the API
+    # Load the API and install the cache update handler service
     for router in [core.app.api_router, *core.users.routers, *game.routers]:
         router.route_class = CacheAPIRoute
         app.include_router(router, prefix=API_PREFIX)
