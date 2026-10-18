@@ -1,11 +1,11 @@
 import BoutCreator from "@/features/bout-creator/components/bout-creator";
 import BoutEditor from "@/features/bout-editor/components/bout-editor";
-import BoutPicker from "@/features/bout-editor/components/bout-picker";
+import BoutPicker from "@/features/bout-picker/components/bout-picker";
 import BoutOperator from "@/features/bout-operator/components/bout-operator";
 import TeamJamOperator from "@/features/team-jam-operator/components/team-jam-operator";
 import Undoer from "@/features/undo/components/undoer";
-import useBoutPicker from "@/hooks/game/use-bout-picker";
-import useSeriesPicker from "@/hooks/game/use-series-picker";
+import useBoutPicker from "@/features/bout-picker/hooks/use-bout-picker";
+import useSeriesPicker from "@/features/bout-picker/hooks/use-series-picker";
 import { Team } from "@/types/bout";
 import {
   AppShell,

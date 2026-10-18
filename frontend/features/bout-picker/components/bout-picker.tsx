@@ -1,6 +1,15 @@
 import { Bout } from "@/types/bout";
 import { Select, SelectProps } from "@mantine/core";
 
+export interface BoutPickerProps extends Omit<
+  SelectProps,
+  "data" | "loading" | "value" | "onChange"
+> {
+  activeBout: Bout | undefined;
+  bouts: Bout[] | undefined;
+  onChange: (bout: Bout) => void;
+}
+
 /**
  * Render a Bout Picker interface.
  *
@@ -12,11 +21,7 @@ export default function BoutPicker({
   bouts,
   onChange,
   ...props
-}: {
-  activeBout: Bout | undefined;
-  bouts: Bout[] | undefined;
-  onChange: (bout: Bout) => void;
-} & Omit<SelectProps, "data" | "loading" | "value" | "onChange">) {
+}: BoutPickerProps) {
   return (
     <Select
       data={
