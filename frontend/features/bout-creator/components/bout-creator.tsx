@@ -1,7 +1,6 @@
 import { useGetAllRulesets } from "@/hooks/game/use-ruleset";
 import { Bout } from "@/types/bout";
 import { Ruleset } from "@/types/ruleset";
-import { Series } from "@/types/series";
 import { ActionIcon, Modal, px, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
@@ -10,13 +9,13 @@ import BoutCreatorForm from "./bout-creator-form";
 const iconSize = 16;
 
 export interface BoutCreatorProps {
-  activeSeries: Series | undefined;
+  activeSeriesUuid: string | undefined;
   onSuccess?: (bout: Bout) => void;
 }
 
 // TODO: docs
 export default function BoutCreator({
-  activeSeries,
+  activeSeriesUuid,
   onSuccess,
 }: BoutCreatorProps) {
   const [opened, { open, close }] = useDisclosure(false);
@@ -34,7 +33,7 @@ export default function BoutCreator({
       </Tooltip>
       <Modal title="Create New Bout" opened={opened} onClose={close}>
         <BoutCreatorForm
-          seriesUuid={activeSeries?.uuid}
+          seriesUuid={activeSeriesUuid}
           rulesetNames={rulesetNames}
           onSuccess={(bout: Bout) => {
             close();

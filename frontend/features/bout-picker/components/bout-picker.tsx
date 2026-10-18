@@ -5,7 +5,7 @@ export interface BoutPickerProps extends Omit<
   SelectProps,
   "data" | "loading" | "value" | "onChange"
 > {
-  activeBout: Bout | undefined;
+  activeBoutUuid: string | undefined;
   bouts: Bout[] | undefined;
   onChange: (bout: Bout) => void;
 }
@@ -17,7 +17,7 @@ export interface BoutPickerProps extends Omit<
  *
  */
 export default function BoutPicker({
-  activeBout,
+  activeBoutUuid,
   bouts,
   onChange,
   ...props
@@ -32,7 +32,7 @@ export default function BoutPicker({
             label: b.teams.map((t) => t.name).join(" vs. "),
           })) ?? []
       }
-      value={activeBout?.uuid}
+      value={activeBoutUuid}
       allowDeselect={false}
       onChange={(boutUuid: string | null) => {
         const bout: Bout | undefined = bouts?.find(
@@ -42,7 +42,7 @@ export default function BoutPicker({
           onChange(bout);
         }
       }}
-      loading={activeBout == null || bouts?.length == 0}
+      loading={activeBoutUuid == null || bouts?.length == 0}
       {...props}
     />
   );

@@ -1,11 +1,11 @@
 import BoutCreator from "@/features/bout-creator/components/bout-creator";
 import BoutEditor from "@/features/bout-editor/components/bout-editor";
-import BoutPicker from "@/features/bout-picker/components/bout-picker";
 import BoutOperator from "@/features/bout-operator/components/bout-operator";
-import TeamJamOperator from "@/features/team-jam-operator/components/team-jam-operator";
-import Undoer from "@/features/undo/components/undoer";
+import BoutPicker from "@/features/bout-picker/components/bout-picker";
 import useBoutPicker from "@/features/bout-picker/hooks/use-bout-picker";
 import useSeriesPicker from "@/features/bout-picker/hooks/use-series-picker";
+import TeamJamOperator from "@/features/team-jam-operator/components/team-jam-operator";
+import Undoer from "@/features/undo/components/undoer";
 import { Team } from "@/types/bout";
 import {
   AppShell,
@@ -72,11 +72,11 @@ export default function OperatorPage() {
           <Group justify="right" wrap="nowrap">
             <BoutPicker
               bouts={bouts}
-              activeBout={activeBout}
+              activeBoutUuid={activeBout?.uuid}
               onChange={setActiveBout}
             />
             <BoutCreator
-              activeSeries={activeSeries}
+              activeSeriesUuid={activeSeries?.uuid}
               onSuccess={setActiveBout}
             />
             <BoutEditor bout={activeBout} />
