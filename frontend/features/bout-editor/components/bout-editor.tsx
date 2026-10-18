@@ -123,9 +123,6 @@ export default function BoutEditor({ bout }: EditMenuProps) {
       </Menu.Dropdown>
 
       <Modal.Stack>
-        <Modal title="Edit Bout Information" {...modalStack.register("bout")}>
-          Edit Bout...
-        </Modal>
         {bout?.teams.map((team: Team) => (
           <Modal
             key={team.uuid}
@@ -143,7 +140,7 @@ export default function BoutEditor({ bout }: EditMenuProps) {
           </Modal>
         ))}
         <Modal title="Edit Period Clock" {...modalStack.register("clock")}>
-          <BoutClockEditor bout={bout!} />
+          <BoutClockEditor uuid={bout!.uuid} clock={bout!.clock} />
         </Modal>
       </Modal.Stack>
     </Menu>

@@ -1,4 +1,5 @@
-import { Bout } from "@/types/bout";
+import { Clock } from "@/types/time";
+import { isRunning } from "@/utils/time";
 import { Button, Group, Stack, TextInput } from "@mantine/core";
 import { useMask } from "@mantine/hooks";
 import {
@@ -10,17 +11,17 @@ import { useMemo } from "react";
 import { useUpdateBoutClock } from "../../bout-editor/hooks/use-update-bout-clock";
 
 interface BoutClockEditorProps {
-  bout: Bout;
+  uuid: string;
+  clock: Clock;
 }
 
-export default function BoutClockEditor({ bout }: BoutClockEditorProps) {
+export default function BoutClockEditor({ uuid, clock }: BoutClockEditorProps) {
   const { ref, value } = useMask({
     mask: [/\d/, /\d/, ":", /[0-5]/, /\d/],
     slotChar: " ",
   });
 
-  const { mutate: updateBoutClock } = useUpdateBoutClock(bout.uuid);
-  const isRunning = bout.clock.startTimestamp != null;
+  const { mutate: updateBoutClock } = useUpdateBoutClock(uuid);
 
   // The number of milliseconds in the TextInput value
   const remaining = useMemo(() => {
@@ -42,16 +43,16 @@ export default function BoutClockEditor({ bout }: BoutClockEditorProps) {
       <Group justify="space-between">
         <Button
           variant="subtle"
-          onClick={() => updateBoutClock({ isRunning: !isRunning })}
+          onClick={() => updateBoutClock({ isRunning: !isRunning(clock) })}
           leftSection={
-            isRunning ? (
+            isRunning(clock) ? (
               <IconPlayerPauseFilled size={16} />
             ) : (
               <IconPlayerPlayFilled size={16} />
             )
           }
         >
-          {isRunning ? "Pause Bout Clock" : "Start Bout Clock"}
+          {isRunning(clock) ? "Pause Bout Clock" : "Start Bout Clock"}
         </Button>
         <Button onClick={() => updateBoutClock({ remaining })}>Apply</Button>
       </Group>
