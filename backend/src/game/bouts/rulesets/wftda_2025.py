@@ -333,10 +333,8 @@ class Bout(BaseBout):
             )
 
         # Cull all Jams and Timeouts that have not started
-        self.jams: list[Jam] = [
-            jam for jam in self.jams if jam.start_timestamp is not None
-        ]
-        self.timeouts: list[Timeout] = [
+        self.jams = [jam for jam in self.jams if jam.start_timestamp is not None]
+        self.timeouts = [
             timeout for timeout in self.timeouts if timeout.start_timestamp is not None
         ]
 

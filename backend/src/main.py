@@ -46,6 +46,7 @@ async def lifespan(app: FastAPI):
 
     # Load the API
     for router in [core.app.api_router, *core.users.routers, *game.routers]:
+        router.route_class = CacheAPIRoute
         app.include_router(router, prefix=API_PREFIX)
     app.mount('/assets', core.app.ASSETS)
     app.mount('/ws', core.app.ws)
@@ -95,7 +96,6 @@ async def lifespan(app: FastAPI):
 
 
 app: Final[FastAPI] = FastAPI(
-    route_class=CacheAPIRoute,
     lifespan=lifespan,
     title='NSO Bridge',
     summary='A scoreboard and statistics server for roller derby.',
