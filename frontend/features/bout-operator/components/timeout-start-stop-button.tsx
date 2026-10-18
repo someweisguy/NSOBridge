@@ -13,6 +13,7 @@ export interface TimeoutStartStopButtonProps extends Omit<
   iconSize: MantineSize | (string & {}) | number;
 }
 
+// TODO: docs
 export default function TimeoutStartStopButton({
   boutUuid,
   timeoutIsRunning,

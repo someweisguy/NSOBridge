@@ -6,6 +6,7 @@ export interface TripAdderProps extends Omit<GroupProps, "children"> {
   pointsPerTrip: number;
 }
 
+// TODO: docs
 export default function TripAdder({
   teamUuid,
   pointsPerTrip,

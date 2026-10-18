@@ -5,6 +5,7 @@ import { Bout, Team } from "@/types/bout";
 import { ComboboxData } from "@mantine/core";
 import { useMemo } from "react";
 
+// TODO: docs
 export const useBoutOperator = (bout: Bout) => {
   const { data: activeJam } = useSuspenseActiveJam(bout);
   const { data: latestTimeout } = useLatestTimeout(bout);

@@ -20,6 +20,7 @@ export interface TeamScoreProps extends GridProps {
   reverse?: boolean;
 }
 
+// TODO: docs
 export default function TeamScore({
   name,
   boutScore,

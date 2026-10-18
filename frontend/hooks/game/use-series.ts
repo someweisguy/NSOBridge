@@ -50,15 +50,14 @@ export const useSuspenseSeries = <T = Series>({
 /**
  * Gets all the Series from the server. Each individual Series is automatically
  * cached after it is fetched. This hook is a wrapper for call to TanStack
- * Query `useSuspenseQuery` function.
+ * Query's `useQuery` function.
  *
- * @returns a Tanstack useSuspenseQuery object containing an array of all
- * Series.
+ * @returns a Tanstack useQuery object containing an array of all Series.
  */
-export const useSuspenseGetAllSeries = <T = Series[]>(
-  options?: AppSuspenseQueryOptions<Series[], T>,
-) =>
-  useSuspenseQuery({
+export const useGetAllSeries = <T = Series[]>(
+  options?: AppQueryOptions<Series[], T>,
+): UseQueryResult<T, Error> =>
+  useQuery({
     queryKey: seriesKeys.all,
     queryFn: () =>
       localAPI.get<Series[]>("series").then<Series[]>((allSeries: Series[]) => {
@@ -75,14 +74,15 @@ export const useSuspenseGetAllSeries = <T = Series[]>(
 /**
  * Gets all the Series from the server. Each individual Series is automatically
  * cached after it is fetched. This hook is a wrapper for call to TanStack
- * Query's `useQuery` function.
+ * Query `useSuspenseQuery` function.
  *
- * @returns a Tanstack useQuery object containing an array of all Series.
+ * @returns a Tanstack useSuspenseQuery object containing an array of all
+ * Series.
  */
-export const useGetAllSeries = <T = Series[]>(
-  options?: AppQueryOptions<Series[], T>,
-): UseQueryResult<T, Error> =>
-  useQuery({
+export const useSuspenseGetAllSeries = <T = Series[]>(
+  options?: AppSuspenseQueryOptions<Series[], T>,
+) =>
+  useSuspenseQuery({
     queryKey: seriesKeys.all,
     queryFn: () =>
       localAPI.get<Series[]>("series").then<Series[]>((allSeries: Series[]) => {

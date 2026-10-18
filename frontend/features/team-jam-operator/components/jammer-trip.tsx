@@ -16,6 +16,7 @@ interface JammerTripProps extends TripEvent, PaperProps {
   ref?: RefObject<HTMLDivElement | null>;
 }
 
+// TODO: docs
 export default function JammerTrip({
   uuid,
   tripIndex,

@@ -9,6 +9,7 @@ interface BoutCreatorProps {
   onSuccess?: (newBout: Bout) => void;
 }
 
+// TODO: docs
 export default function BoutCreatorForm({
   seriesUuid,
   rulesetNames,

@@ -10,6 +10,7 @@ export interface JamStartStopButtonProps extends Omit<ButtonProps, "children"> {
   iconSize: MantineSize | (string & {}) | number;
 }
 
+// TODO: docs
 export default function JamStartStopButton({
   boutUuid,
   jamIsRunning,

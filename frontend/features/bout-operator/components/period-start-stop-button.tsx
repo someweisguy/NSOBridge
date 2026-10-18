@@ -13,6 +13,7 @@ export interface PeriodStartStopButtonProps extends Omit<
   iconSize: MantineSize | (string & {}) | number;
 }
 
+// TODO: docs
 export default function PeriodStartStopButton({
   boutUuid,
   periodIsRunning,

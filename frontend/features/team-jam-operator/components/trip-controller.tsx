@@ -20,6 +20,7 @@ export interface TripControllerProps extends Omit<ScrollerProps, "children"> {
   pointsPerTrip: number;
 }
 
+// TODO: docs
 export default function TripController({
   teamIsInThisJam,
   pointsPerTrip,

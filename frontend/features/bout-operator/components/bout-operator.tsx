@@ -11,6 +11,7 @@ export interface BoutOperatorProps extends StackProps {
   bout: Bout;
 }
 
+// TODO: docs
 export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
   // TODO: get ruleset by Bout UUID, add ruleset as Table in database
   const { data: ruleset } = useSuspenseGetRuleset({

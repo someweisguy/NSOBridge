@@ -13,6 +13,7 @@ interface TeamEditorProps {
   onSuccess?: (bout: Bout) => void;
 }
 
+// TODO: docs
 export default function TeamEditor({
   uuid,
   name,
