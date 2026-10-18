@@ -1,5 +1,5 @@
-import { useSuspenseBout } from "@/hooks/game/use-bout";
-import { useSuspenseRuleset } from "@/hooks/game/use-ruleset";
+import { useSuspenseBout } from "@/hooks/use-bout";
+import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { Team } from "@/types/bout";
 import { Stack, StackProps } from "@mantine/core";
 import { useTeamJamOperator } from "../hooks/use-team-jam-operator";

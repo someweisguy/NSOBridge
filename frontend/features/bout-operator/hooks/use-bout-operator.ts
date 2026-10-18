@@ -1,6 +1,6 @@
-import useSuspenseActiveJam from "@/hooks/game/use-active-jam";
-import { useBout } from "@/hooks/game/use-bout";
-import useLatestTimeout from "@/hooks/game/use-latest-timeout";
+import useSuspenseActiveJam from "@/hooks/use-active-jam";
+import { useBout } from "@/hooks/use-bout";
+import useLatestTimeout from "@/hooks/use-latest-timeout";
 import { Bout, Team } from "@/types/bout";
 import { ComboboxData } from "@mantine/core";
 import { useMemo } from "react";

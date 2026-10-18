@@ -1,4 +1,4 @@
-import { useSuspenseRuleset } from "@/hooks/game/use-ruleset";
+import { useSuspenseRuleset } from "@/hooks/use-ruleset";
 import { Bout } from "@/types/bout";
 import { Collapse, Divider, Stack, StackProps } from "@mantine/core";
 import { useBoutOperator } from "../hooks/use-bout-operator";

@@ -1,7 +1,7 @@
 import ClockEditor from "@/features/bout-editor/components/clock-editor";
 import TeamEditor from "@/features/bout-editor/components/team-editor";
 import { useDeleteBout } from "@/features/bout-editor/hooks/use-delete-bout";
-import { useRuleset } from "@/hooks/game/use-ruleset";
+import { useRuleset } from "@/hooks/use-ruleset";
 import { Bout, Team } from "@/types/bout";
 import { Button, Menu, Modal, useModalsStack } from "@mantine/core";
 import {

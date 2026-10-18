@@ -1,4 +1,4 @@
-import { useSyncDataContext } from "@/hooks/host/use-sync-context";
+import { useSyncDataContext } from "@/hooks/use-sync-context";
 import defaultTimeStringFormatter, {
   jamTimeStringFormatter,
   lineupTimeStringFormatter,

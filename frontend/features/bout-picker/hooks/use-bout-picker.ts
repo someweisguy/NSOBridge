@@ -1,4 +1,4 @@
-import { useBout } from "@/hooks/game/use-bout";
+import { useBout } from "@/hooks/use-bout";
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import { Series } from "@/types/series";

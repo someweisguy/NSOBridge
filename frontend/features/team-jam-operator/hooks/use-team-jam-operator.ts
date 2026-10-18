@@ -1,6 +1,6 @@
-import { useSuspenseBout } from "@/hooks/game/use-bout";
-import { useSuspenseJam } from "@/hooks/game/use-jam";
-import { useTimeout } from "@/hooks/game/use-timeout";
+import { useSuspenseBout } from "@/hooks/use-bout";
+import { useSuspenseJam } from "@/hooks/use-jam";
+import { useTimeout } from "@/hooks/use-timeout";
 import { Team } from "@/types/bout";
 import { Jam, TeamJam } from "@/types/jam";
 import { Timeout } from "@/types/timeout";
