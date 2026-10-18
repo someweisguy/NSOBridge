@@ -5,7 +5,7 @@ import { boutKeys } from "@/utils/query-keys";
 import { useMutation } from "@tanstack/react-query";
 
 interface useDeleteBoutOptions {
-  boutUuid: string;
+  uuid: string;
 }
 
 /**
@@ -14,15 +14,15 @@ interface useDeleteBoutOptions {
  * @returns A Tanstack Mutation object which can fire the delete Bout mutator.
  */
 export const useDeleteBout = ({
-  boutUuid,
+  uuid,
   ...options
 }: useDeleteBoutOptions & AppMutationOptions<void>) => {
   return useMutation(
     {
       mutationFn: () =>
         localAPI
-          .delete<void>("bout", { query: { boutUuid } })
-          .then(() => invalidateCacheParents(boutKeys.one(boutUuid))),
+          .delete<void>("bout", { query: { uuid } })
+          .then(() => invalidateCacheParents(boutKeys.one(uuid))),
       ...options,
     },
     queryClient,

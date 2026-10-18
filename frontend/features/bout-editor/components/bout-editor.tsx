@@ -32,7 +32,7 @@ export default function BoutEditor({ bout }: EditMenuProps) {
     ...(bout?.teams.map((team: Team) => `team-${team.uuid}`) ?? []),
   ]);
 
-  const deleteBout = useDeleteBout({ boutUuid: bout?.uuid ?? "" });
+  const deleteBout = useDeleteBout({ uuid: bout?.uuid ?? "" });
 
   return (
     <Menu
