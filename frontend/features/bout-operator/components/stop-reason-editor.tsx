@@ -3,7 +3,7 @@ import { StopReasonString } from "@/types/jam";
 import { Fieldset, FieldsetProps, SegmentedControl } from "@mantine/core";
 
 interface JamStopReasonEditorProps extends FieldsetProps {
-  uuid: string;
+  jamUuid: string;
   stopReason: StopReasonString | null;
 }
 
@@ -11,11 +11,11 @@ interface JamStopReasonEditorProps extends FieldsetProps {
  * Display a control which allows users to set the reason that a Jam ended.
  */
 export default function JamStopReasonEditor({
-  uuid,
+  jamUuid,
   stopReason,
   ...props
 }: JamStopReasonEditorProps) {
-  const { mutate: updateJam } = useUpdateJam({ uuid });
+  const { mutate: updateJam } = useUpdateJam({ uuid: jamUuid });
 
   return (
     <Fieldset legend="Why did the jam end?" {...props}>

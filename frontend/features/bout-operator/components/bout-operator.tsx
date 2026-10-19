@@ -53,7 +53,7 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
         />
         <Collapse expanded={showJamStopReasonEditor}>
           <JamStopReasonEditor
-            uuid={activeJam.uuid}
+            jamUuid={activeJam.uuid}
             stopReason={activeJam.stopReason}
             p="xs"
           />
