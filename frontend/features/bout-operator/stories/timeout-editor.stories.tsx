@@ -10,7 +10,7 @@ const meta: Meta = {
     },
     teamUuid: {
       control: "inline-radio",
-      options: ["home", "away"],
+      options: ["home", "away", null],
     },
   },
 };
