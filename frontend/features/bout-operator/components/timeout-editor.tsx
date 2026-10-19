@@ -12,6 +12,7 @@ import {
   Stack,
 } from "@mantine/core";
 import { IconPencil } from "@tabler/icons-react";
+import { useCallback } from "react";
 import { useUpdateTimeout } from "../hooks/use-update-timeout";
 
 const officialDataValue = ""; // Cannot be the string representation of a number!
@@ -36,6 +37,18 @@ export default function TimeoutEditor({
   ...props
 }: TimeoutEditorProps) {
   const { mutate: updateTimeout } = useUpdateTimeout(timeoutUuid ?? "");
+
+  const selectOnChange = useCallback(
+    (value: string | null) => {
+      const valueIsOfficials = value == officialDataValue;
+      if (valueIsOfficials) {
+        updateTimeout({ teamUuid: null, teamIsOfficials: true });
+      } else {
+        updateTimeout({ teamUuid: value });
+      }
+    },
+    [updateTimeout],
+  );
 
   return (
     <Fieldset
@@ -68,17 +81,18 @@ export default function TimeoutEditor({
         <Select
           size="xs"
           placeholder="Select a calling team..."
-          data={teams}
+          data={[
+            {
+              label: "Officials",
+              value: officialDataValue,
+              disabled: isReview,
+            },
+            ...((teams as { label: string; value: string }[] | undefined) ??
+              []),
+          ]}
           loading={teams === undefined}
-          value={teamUuid ?? ""}
-          onChange={(value: string | null) => {
-            const valueIsOfficials = value == officialDataValue;
-            if (valueIsOfficials) {
-              updateTimeout({ teamUuid: null });
-            } else {
-              updateTimeout({ teamUuid: value });
-            }
-          }}
+          value={teamUuid ?? ""} // TODO: allow selecting officials
+          onChange={selectOnChange}
           error={isReview && teamIsOfficials}
           allowDeselect={false}
         />
