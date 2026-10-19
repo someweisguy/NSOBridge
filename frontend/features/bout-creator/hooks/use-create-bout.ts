@@ -31,7 +31,7 @@ export const useCreateBout = ({
 
   return useMutation(
     {
-      mutationFn: () => localAPI.put<Bout>("bout", { query }),
+      mutationFn: () => localAPI.post<Bout>("bout", { query }),
       ...options,
     },
     queryClient,

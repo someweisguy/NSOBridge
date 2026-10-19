@@ -42,7 +42,7 @@ router: Final[APIRouter] = APIRouter(
 router.add_api_route('', get_bout, response_model=BoutSchema)
 
 
-@router.put('', response_model=BoutSchema)
+@router.post('', response_model=BoutSchema)
 async def create_bout(
     session: GetAsyncSession,
     series: GetSeries,
