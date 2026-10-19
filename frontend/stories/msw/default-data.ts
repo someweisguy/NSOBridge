@@ -5,7 +5,7 @@ import {
   RULESET_API,
   SERIES_API,
 } from "@/configs/endpoints";
-import { getHandlerFactory } from "@/utils/mock-api";
+import { getHandlerFactory } from "@/utils/storybook";
 
 export const defaultDataHandlers = [
   getHandlerFactory(SERIES_API, [
