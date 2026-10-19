@@ -8,7 +8,7 @@ import BoutClock from "../components/bout-clock";
 
 const meta: Meta = {
   component: BoutClock,
-  title: "Bout Clock",
+  title: "Bout Operator/Bout Clock",
   argTypes: {
     jamStopReason: jamStopReasonArgType,
     boutState: boutStateArgType,
@@ -18,7 +18,7 @@ const meta: Meta = {
 
 type Story = StoryObj<typeof meta>;
 
-export const Bout: Story = {
+export const Jam: Story = {
   args: {
     boutClock: {
       startTimestamp: new Date(),
