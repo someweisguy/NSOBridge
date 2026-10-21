@@ -3,7 +3,7 @@ import BoutPicker from "../components/bout-picker";
 
 const meta: Meta = {
   component: BoutPicker,
-  title: "Bout Picker/Bout Picker",
+  title: "Bout Editor/Bout Picker",
   argTypes: {},
 };
 
