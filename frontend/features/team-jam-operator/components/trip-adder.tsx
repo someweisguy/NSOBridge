@@ -3,6 +3,7 @@ import { useAddTrip } from "../hooks/use-add-trip";
 
 export interface TripAdderProps extends Omit<GroupProps, "children"> {
   teamUuid: string;
+  // initial: boolean; // TODO: Add initial prop
   pointsPerTrip: number;
 }
 
