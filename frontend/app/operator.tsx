@@ -1,3 +1,4 @@
+import { appShellConfig } from "@/configs/app-shell";
 import BoutCreator from "@/features/bout-editor/components/bout-creator";
 import BoutEditor from "@/features/bout-editor/components/bout-editor";
 import BoutPicker from "@/features/bout-editor/components/bout-picker";
@@ -9,7 +10,6 @@ import Undoer from "@/features/undo/components/undoer";
 import { Team } from "@/types/bout";
 import {
   AppShell,
-  AppShellProps,
   Burger,
   Card,
   Group,
@@ -33,18 +33,6 @@ if (root != null) {
     </AppProvider>,
   );
 }
-
-const appShellConfig = (disclosure: boolean): AppShellProps => ({
-  layout: "alt",
-  header: { height: 60 },
-  footer: { height: 60 },
-  navbar: {
-    width: 300,
-    breakpoint: "sm",
-    collapsed: { desktop: !disclosure, mobile: !disclosure },
-  },
-  padding: "md",
-});
 
 /**
  * Display the main scoreboard operator page. This page is used to enter data into the
