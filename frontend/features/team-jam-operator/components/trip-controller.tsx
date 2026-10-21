@@ -18,6 +18,7 @@ export interface TripControllerProps extends Omit<ScrollerProps, "children"> {
   editable?: boolean;
   deletable?: boolean;
   pointsPerTrip: number;
+  // TODO: add children?
 }
 
 // TODO: docs
