@@ -3,13 +3,15 @@ import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import { Series } from "@/types/series";
 import { boutKeys } from "@/utils/query-keys";
+import { ComboboxData } from "@mantine/core";
 import { useQueries, UseQueryResult } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export type UseBoutPickerReturn = [
   Bout | undefined,
-  (bout: Bout) => void,
+  (boutUuid: string) => void,
   Bout[] | undefined,
+  ComboboxData<string>,
 ];
 
 /**
@@ -66,14 +68,24 @@ export default function useBoutPicker(
 
   // Only allow valid Bouts to become the activeBout
   const handleSetActiveBout = useCallback(
-    (bout: Bout) => {
-      if (bout.seriesUuid != series?.uuid) {
-        throw new Error("Invalid Bout selected: " + bout.uuid);
+    (boutUuid: string) => {
+      if (series?.boutUuids.includes(boutUuid)) {
+        setActiveBoutUuid(boutUuid);
       }
-      setActiveBoutUuid(bout.uuid);
     },
     [series],
   );
 
-  return [activeBout, handleSetActiveBout, bouts];
+  const boutPickerData: ComboboxData<string> = useMemo(
+    () =>
+      bouts
+        ?.filter((b) => b != null)
+        .map((b) => ({
+          value: b.uuid,
+          label: b.teams.map((t) => t.name).join(" vs. "),
+        })) ?? [],
+    [bouts],
+  );
+
+  return [activeBout, handleSetActiveBout, bouts, boutPickerData];
 }

@@ -10,7 +10,7 @@ const iconSize = 16;
 
 export interface BoutCreatorProps {
   activeSeriesUuid: string | undefined;
-  onSuccess?: (bout: Bout) => void;
+  onSuccess?: (boutUuid: string) => void;
 }
 
 // TODO: docs
@@ -37,7 +37,7 @@ export default function BoutCreator({
           rulesetNames={rulesetNames}
           onSuccess={(bout: Bout) => {
             close();
-            onSuccess?.(bout);
+            onSuccess?.(bout.uuid);
           }}
         />
       </Modal>

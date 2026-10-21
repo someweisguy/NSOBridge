@@ -1,13 +1,12 @@
-import { Bout } from "@/types/bout";
-import { Select, SelectProps } from "@mantine/core";
+import { ComboboxData, Select, SelectProps } from "@mantine/core";
 
 export interface BoutPickerProps extends Omit<
   SelectProps,
   "data" | "loading" | "value" | "onChange"
 > {
   activeBoutUuid: string | undefined;
-  bouts: Bout[] | undefined;
-  onChange: (bout: Bout) => void;
+  data: ComboboxData<string>;
+  onChange: (boutUuid: string) => void;
 }
 
 /**
@@ -18,31 +17,21 @@ export interface BoutPickerProps extends Omit<
  */
 export default function BoutPicker({
   activeBoutUuid,
-  bouts,
+  data,
   onChange,
   ...props
 }: BoutPickerProps) {
   return (
     <Select
-      data={
-        bouts
-          ?.filter((b) => b != null)
-          .map((b) => ({
-            value: b.uuid,
-            label: b.teams.map((t) => t.name).join(" vs. "),
-          })) ?? []
-      }
+      data={data}
       value={activeBoutUuid}
       allowDeselect={false}
       onChange={(boutUuid: string | null) => {
-        const bout: Bout | undefined = bouts?.find(
-          (bout: Bout) => bout.uuid == boutUuid,
-        );
-        if (bout != null) {
-          onChange(bout);
+        if (boutUuid != null) {
+          onChange(boutUuid);
         }
       }}
-      loading={activeBoutUuid == null || bouts?.length == 0}
+      loading={activeBoutUuid == null || data.length == 0}
       {...props}
     />
   );

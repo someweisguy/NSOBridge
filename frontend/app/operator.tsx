@@ -59,7 +59,8 @@ export default function OperatorPage() {
   const [opened, { toggle }] = useDisclosure(false);
 
   const [activeSeries] = useSeriesPicker();
-  const [activeBout, setActiveBout, bouts] = useBoutPicker(activeSeries);
+  const [activeBout, setActiveBoutUuid, , boutPickerData] =
+    useBoutPicker(activeSeries);
 
   return (
     <AppShell {...appShellConfig(opened)}>
@@ -71,13 +72,13 @@ export default function OperatorPage() {
           </Group>
           <Group justify="right" wrap="nowrap">
             <BoutPicker
-              bouts={bouts}
               activeBoutUuid={activeBout?.uuid}
-              onChange={setActiveBout}
+              data={boutPickerData}
+              onChange={setActiveBoutUuid}
             />
             <BoutCreator
               activeSeriesUuid={activeSeries?.uuid}
-              onSuccess={setActiveBout}
+              onSuccess={setActiveBoutUuid}
             />
             <BoutEditor bout={activeBout} />
             <Undoer gap="xs" variant="subtle" wrap="nowrap" />
