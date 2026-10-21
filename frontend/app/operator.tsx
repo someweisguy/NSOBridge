@@ -1,4 +1,4 @@
-import BoutCreator from "@/features/bout-creator/components/bout-creator";
+import BoutCreator from "@/features/bout-editor/components/bout-creator";
 import BoutEditor from "@/features/bout-editor/components/bout-editor";
 import BoutOperator from "@/features/bout-operator/components/bout-operator";
 import BoutPicker from "@/features/bout-picker/components/bout-picker";
