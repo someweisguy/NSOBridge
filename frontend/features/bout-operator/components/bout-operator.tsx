@@ -1,4 +1,4 @@
-import { useSuspenseRuleset } from "@/hooks/use-ruleset";
+import { useRuleset } from "@/hooks/use-ruleset";
 import { Bout } from "@/types/bout";
 import { Collapse, Divider, Stack, StackProps } from "@mantine/core";
 import { useBoutOperator } from "../hooks/use-bout-operator";
@@ -14,7 +14,7 @@ export interface BoutOperatorProps extends StackProps {
 // TODO: docs
 export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
   // TODO: get ruleset by Bout UUID, add ruleset as Table in database
-  const { data: ruleset } = useSuspenseRuleset({
+  const { data: ruleset } = useRuleset({
     rulesetName: bout.rulesetName,
   });
 
@@ -38,9 +38,9 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
           boutSubState={bout.subState}
           periodNum={periodNum}
           jamNum={jamNum}
-          jamStopReason={activeJam.stopReason}
+          jamStopReason={activeJam?.stopReason}
           lastEventTimestamp={lastEventTimestamp}
-          jamDuration={ruleset.jamDuration}
+          jamDuration={ruleset?.jamDuration}
         />
         <Divider />
       </Stack>
@@ -53,8 +53,8 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
         />
         <Collapse expanded={showJamStopReasonEditor}>
           <JamStopReasonEditor
-            jamUuid={activeJam.uuid}
-            stopReason={activeJam.stopReason}
+            jamUuid={activeJam?.uuid}
+            stopReason={activeJam?.stopReason}
             p="xs"
           />
         </Collapse>

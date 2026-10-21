@@ -1,5 +1,5 @@
 import { useBout } from "@/hooks/use-bout";
-import { useSuspenseJam } from "@/hooks/use-jam";
+import { useJam } from "@/hooks/use-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/types/bout";
 import { ComboboxData } from "@mantine/core";
@@ -13,7 +13,7 @@ export const useBoutOperator = ({
   activeJamUuid,
   timeoutUuids,
 }: Bout) => {
-  const { data: activeJam } = useSuspenseJam({ uuid: activeJamUuid });
+  const { data: activeJam } = useJam({ uuid: activeJamUuid });
   const { data: latestTimeout } = useTimeout({
     uuid: timeoutUuids[timeoutUuids.length - 1],
     enabled: timeoutUuids.length > 0,
@@ -28,21 +28,21 @@ export const useBoutOperator = ({
       })),
   });
 
-  const periodNum = Math.min(activeJam.period, 1);
-  let jamNum = activeJam.num;
-  if (activeJam.period > 1) {
+  const periodNum = activeJam != null ? Math.min(activeJam.period, 1) : null;
+  let jamNum = activeJam?.num ?? null;
+  if (jamNum != null && activeJam!.period > 1) {
     jamNum += jamUuids[1].length;
   }
 
   // Get the time since the last Jam or Timeout or null if neither have occurred
   const lastEventTimestamp: string | null = useMemo(
     () =>
-      activeJam.startTimestamp != null
+      activeJam?.startTimestamp != null
         ? new Date(
             Math.max(
               ...[
-                activeJam.startTimestamp,
-                activeJam.stopTimestamp,
+                activeJam?.startTimestamp,
+                activeJam?.stopTimestamp,
                 latestTimeout?.startTimestamp,
                 latestTimeout?.stopTimestamp,
               ]
@@ -54,7 +54,7 @@ export const useBoutOperator = ({
     [activeJam, latestTimeout],
   );
 
-  const showJamStopReasonEditor = activeJam.stopTimestamp != null;
+  const showJamStopReasonEditor = activeJam?.stopTimestamp != null;
   const showTimeoutEditor = state == "timeout" && latestTimeout != null;
 
   return {

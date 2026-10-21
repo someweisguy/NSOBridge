@@ -99,7 +99,7 @@ export default function OperatorPage() {
         />
       </AppShell.Navbar>
       <AppShell.Main h="100vh">
-        <Group w="100%" justify="center">
+        <Group w="100%" h="100%" justify="center" align="start">
           {activeBout != null ? (
             <Card
               withBorder
@@ -111,9 +111,7 @@ export default function OperatorPage() {
               shadow="lg"
             >
               <Card.Section withBorder>
-                <Suspense fallback={<Loader size="xs" />}>
-                  <BoutOperator bout={activeBout} />
-                </Suspense>
+                <BoutOperator bout={activeBout} />
               </Card.Section>
               <Group
                 grow
@@ -136,7 +134,7 @@ export default function OperatorPage() {
               </Group>
             </Card>
           ) : (
-            <Loader size="lg" />
+            <Loader size="lg" style={{ alignSelf: "center" }} />
           )}
         </Group>
       </AppShell.Main>

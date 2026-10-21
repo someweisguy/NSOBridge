@@ -7,6 +7,7 @@ import {
   Divider,
   Grid,
   Group,
+  Loader,
   Stack,
   StackProps,
   Text,
@@ -38,11 +39,11 @@ export interface BoutClockProps extends StackProps {
   boutClock: Clock;
   boutState: BoutStateString;
   boutSubState: BoutSubStateString;
-  periodNum: number;
-  jamNum: number;
-  jamStopReason: StopReasonString | null;
+  periodNum: number | null;
+  jamNum: number | null;
+  jamStopReason: StopReasonString | null | undefined;
   lastEventTimestamp: string | null;
-  jamDuration: number;
+  jamDuration: number | undefined;
 }
 
 /**
@@ -59,40 +60,50 @@ export default function BoutClock({
   jamDuration,
   ...props
 }: BoutClockProps) {
+  const hasLoaded =
+    periodNum != null &&
+    jamNum != null &&
+    jamStopReason !== undefined &&
+    jamDuration !== undefined;
+
   return (
     <Stack justify="center" align="stretch" gap="0" {...props}>
-      <Grid
-        justify="space-between"
-        align="center"
-        p="xs"
-        ta="center"
-        fz="1.5rem"
-        rowGap="0"
-      >
-        <Grid.Col span={4}>
-          {/* TODO: Overtime display */}
-          <ClockView formatter="bout" fz="1.5rem" {...boutClock} />
-        </Grid.Col>
-        <Grid.Col span={4}>
-          <Text textWrap="nowrap" fz="1.5rem">
-            P{periodNum + 1} J{jamNum + 1}
-          </Text>
-        </Grid.Col>
-        <Grid.Col span={4}>
-          {boutState == "jam" ? (
-            <ClockView
-              startTimestamp={lastEventTimestamp}
-              alarm={jamDuration}
-              formatter="jam"
-              fz="1.5rem"
-            />
-          ) : (
-            <Text fw={200} tt="uppercase">
-              {stopReasons[jamStopReason!]}
+      {hasLoaded ? (
+        <Grid
+          justify="space-between"
+          align="center"
+          p="xs"
+          ta="center"
+          fz="1.5rem"
+          rowGap="0"
+        >
+          <Grid.Col span={4}>
+            {/* TODO: Overtime display */}
+            <ClockView formatter="bout" fz="1.5rem" {...boutClock} />
+          </Grid.Col>
+          <Grid.Col span={4}>
+            <Text textWrap="nowrap" fz="1.5rem">
+              P{periodNum + 1} J{jamNum + 1}
             </Text>
-          )}
-        </Grid.Col>
-      </Grid>
+          </Grid.Col>
+          <Grid.Col span={4}>
+            {boutState == "jam" ? (
+              <ClockView
+                startTimestamp={lastEventTimestamp}
+                alarm={jamDuration}
+                formatter="jam"
+                fz="1.5rem"
+              />
+            ) : (
+              <Text fw={200} tt="uppercase">
+                {stopReasons[jamStopReason ?? "other"]}
+              </Text>
+            )}
+          </Grid.Col>
+        </Grid>
+      ) : (
+        <Loader type="dots" size="xs" />
+      )}
 
       <Collapse expanded={boutState != "jam"} w="100%">
         <Stack justify="start" align="stretch" gap="0">
