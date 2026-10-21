@@ -1,5 +1,5 @@
-import ClockEditor from "@/features/bout-editor/components/clock-editor";
-import TeamEditor from "@/features/bout-editor/components/team-editor";
+import ClockEditorForm from "@/features/bout-editor/components/clock-editor-form";
+import TeamEditorForm from "@/features/bout-editor/components/team-editor-form";
 import { useDeleteBout } from "@/features/bout-editor/hooks/use-delete-bout";
 import { useRuleset } from "@/hooks/use-ruleset";
 import { Bout, Team } from "@/types/bout";
@@ -130,7 +130,7 @@ export default function BoutEditor({ bout }: EditMenuProps) {
             title={"Edit " + team.name}
             {...modalStack.register(`team-${team.uuid}`)}
           >
-            <TeamEditor
+            <TeamEditorForm
               uuid={team.uuid}
               name={team.name}
               timeoutsRemaining={team.timeoutsRemaining}
@@ -142,7 +142,7 @@ export default function BoutEditor({ bout }: EditMenuProps) {
         ))}
         {bout && (
           <Modal title="Edit Period Clock" {...modalStack.register("clock")}>
-            <ClockEditor boutUuid={bout.uuid} clock={bout.clock} />
+            <ClockEditorForm boutUuid={bout.uuid} clock={bout.clock} />
           </Modal>
         )}
       </Modal.Stack>

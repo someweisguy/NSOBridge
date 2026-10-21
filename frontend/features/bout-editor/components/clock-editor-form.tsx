@@ -10,13 +10,16 @@ import {
 import { useMemo } from "react";
 import { useUpdateBoutClock } from "../hooks/use-update-bout-clock";
 
-interface BoutClockEditorProps {
+interface BoutClockEditorFormProps {
   boutUuid: string;
   clock: Clock;
 }
 
 // TODO: docs
-export default function ClockEditor({ boutUuid, clock }: BoutClockEditorProps) {
+export default function ClockEditorForm({
+  boutUuid,
+  clock,
+}: BoutClockEditorFormProps) {
   const { ref, value } = useMask({
     mask: [/\d/, /\d/, ":", /[0-5]/, /\d/],
     slotChar: " ",

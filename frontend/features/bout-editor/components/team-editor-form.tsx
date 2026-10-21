@@ -1,9 +1,9 @@
 import { Bout } from "@/types/bout";
 import { Button, Group, NumberInput, Stack, TextInput } from "@mantine/core";
 import { useState } from "react";
-import { useUpdateBoutTeam } from "../../bout-editor/hooks/use-update-bout-team";
+import { useUpdateBoutTeam } from "../hooks/use-update-bout-team";
 
-interface TeamEditorProps {
+interface TeamEditorFormProps {
   uuid: string;
   name: string;
   timeoutsRemaining: number;
@@ -14,7 +14,7 @@ interface TeamEditorProps {
 }
 
 // TODO: docs
-export default function TeamEditor({
+export default function TeamEditorForm({
   uuid,
   name,
   timeoutsRemaining,
@@ -22,7 +22,7 @@ export default function TeamEditor({
   numTimeouts,
   numReviews,
   onSuccess,
-}: TeamEditorProps) {
+}: TeamEditorFormProps) {
   const [teamName, setTeamName] = useState(name);
   const { mutate: updateBoutTeam } = useUpdateBoutTeam(uuid, { onSuccess });
 

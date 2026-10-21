@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import TeamEditor from "../components/team-editor";
+import TeamEditorForm from "../components/team-editor-form";
 
 const meta: Meta = {
-  component: TeamEditor,
-  title: "Bout Editor/Team Editor",
+  component: TeamEditorForm,
+  title: "Bout Editor/Team Editor Form",
   argTypes: {},
 };
 

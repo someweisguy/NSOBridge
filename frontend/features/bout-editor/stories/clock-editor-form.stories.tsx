@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import ClockEditor from "../components/clock-editor";
+import ClockEditorForm from "../components/clock-editor-form";
 
 const meta: Meta = {
-  component: ClockEditor,
-  title: "Bout Editor/Clock Editor",
+  component: ClockEditorForm,
+  title: "Bout Editor/Clock Editor Form",
   argTypes: {},
 };
 
