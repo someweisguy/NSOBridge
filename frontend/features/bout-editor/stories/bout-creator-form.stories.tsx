@@ -3,7 +3,7 @@ import BoutCreatorForm from "../components/bout-creator-form";
 
 const meta: Meta = {
   component: BoutCreatorForm,
-  title: "Bout Creator/Bout Creator Form",
+  title: "Bout Editor/Bout Creator Form",
   argTypes: {},
 };
 

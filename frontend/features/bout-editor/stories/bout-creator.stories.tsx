@@ -3,7 +3,7 @@ import BoutCreator from "../components/bout-creator";
 
 const meta: Meta = {
   component: BoutCreator,
-  title: "Bout Creator/Bout Creator",
+  title: "Bout Editor/Bout Creator",
   argTypes: {},
 };
 
