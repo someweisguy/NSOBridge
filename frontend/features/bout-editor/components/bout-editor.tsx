@@ -142,7 +142,7 @@ export default function BoutEditor({ bout }: EditMenuProps) {
         ))}
         {bout && (
           <Modal title="Edit Period Clock" {...modalStack.register("clock")}>
-            <ClockEditor uuid={bout.uuid} clock={bout.clock} />
+            <ClockEditor boutUuid={bout.uuid} clock={bout.clock} />
           </Modal>
         )}
       </Modal.Stack>

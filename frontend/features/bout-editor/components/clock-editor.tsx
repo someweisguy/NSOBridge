@@ -11,18 +11,18 @@ import { useMemo } from "react";
 import { useUpdateBoutClock } from "../hooks/use-update-bout-clock";
 
 interface BoutClockEditorProps {
-  uuid: string;
+  boutUuid: string;
   clock: Clock;
 }
 
 // TODO: docs
-export default function ClockEditor({ uuid, clock }: BoutClockEditorProps) {
+export default function ClockEditor({ boutUuid, clock }: BoutClockEditorProps) {
   const { ref, value } = useMask({
     mask: [/\d/, /\d/, ":", /[0-5]/, /\d/],
     slotChar: " ",
   });
 
-  const { mutate: updateBoutClock } = useUpdateBoutClock(uuid);
+  const { mutate: updateBoutClock } = useUpdateBoutClock(boutUuid);
 
   // The number of milliseconds in the TextInput value
   const remaining = useMemo(() => {
