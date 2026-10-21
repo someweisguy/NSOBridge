@@ -24,6 +24,8 @@ import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./global.css";
 import AppProvider from "./provider";
+
+// Mount the page
 const root: HTMLElement | null = document.getElementById("root");
 if (root != null) {
   document.title = "NSO Bridge";
