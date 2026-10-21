@@ -1,16 +1,26 @@
-import useSuspenseActiveJam from "@/hooks/use-active-jam";
 import { useBout } from "@/hooks/use-bout";
-import useLatestTimeout from "@/hooks/use-latest-timeout";
+import { useSuspenseJam } from "@/hooks/use-jam";
+import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/types/bout";
 import { ComboboxData } from "@mantine/core";
 import { useMemo } from "react";
 
 // TODO: docs
-export const useBoutOperator = (bout: Bout) => {
-  const { data: activeJam } = useSuspenseActiveJam(bout);
-  const { data: latestTimeout } = useLatestTimeout(bout);
+export const useBoutOperator = ({
+  uuid,
+  jamUuids,
+  state,
+  activeJamUuid,
+  timeoutUuids,
+}: Bout) => {
+  const { data: activeJam } = useSuspenseJam({ uuid: activeJamUuid });
+  const { data: latestTimeout } = useTimeout({
+    uuid: timeoutUuids[timeoutUuids.length - 1],
+    enabled: timeoutUuids.length > 0,
+  });
+
   const { data: teams } = useBout<ComboboxData<string>>({
-    uuid: bout.uuid,
+    uuid,
     select: (bout: Bout) =>
       bout.teams.map((team: Team) => ({
         value: team.uuid,
@@ -21,7 +31,7 @@ export const useBoutOperator = (bout: Bout) => {
   const periodNum = Math.min(activeJam.period, 1);
   let jamNum = activeJam.num;
   if (activeJam.period > 1) {
-    jamNum += bout.jamUuids[1].length;
+    jamNum += jamUuids[1].length;
   }
 
   // Get the time since the last Jam or Timeout or null if neither have occurred
@@ -45,7 +55,7 @@ export const useBoutOperator = (bout: Bout) => {
   );
 
   const showJamStopReasonEditor = activeJam.stopTimestamp != null;
-  const showTimeoutEditor = bout.state == "timeout" && latestTimeout != null;
+  const showTimeoutEditor = state == "timeout" && latestTimeout != null;
 
   return {
     teams,

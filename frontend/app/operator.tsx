@@ -12,7 +12,6 @@ import {
   AppShellProps,
   Burger,
   Card,
-  Center,
   Group,
   Loader,
   NavLink,
@@ -100,8 +99,8 @@ export default function OperatorPage() {
         />
       </AppShell.Navbar>
       <AppShell.Main h="100vh">
-        {activeBout != null ? (
-          <Group w="100%" justify="center">
+        <Group w="100%" justify="center">
+          {activeBout != null ? (
             <Card
               withBorder
               orientation="horizontal"
@@ -112,37 +111,34 @@ export default function OperatorPage() {
               shadow="lg"
             >
               <Card.Section withBorder>
-                <Suspense>
+                <Suspense fallback={<Loader size="xs" />}>
                   <BoutOperator bout={activeBout} />
                 </Suspense>
               </Card.Section>
-              <Suspense fallback={<Loader />}>
-                <Group
-                  grow
-                  justify="space-around"
-                  align="start"
-                  wrap="nowrap"
-                  px="lg"
-                  gap="xl"
-                >
-                  <Suspense>
-                    {activeBout.teams.map((team: Team, i: number) => (
-                      <TeamJamOperator
-                        key={team.uuid}
-                        team={team}
-                        reverse={!!(i % 2)}
-                      />
-                    ))}
-                  </Suspense>
-                </Group>
-              </Suspense>
+              <Group
+                grow
+                justify="space-around"
+                align="start"
+                wrap="nowrap"
+                px="lg"
+                gap="xl"
+              >
+                {/* TODO: Suspense fallback should be Skeleton */}
+                <Suspense fallback={<Loader size="xs" />}>
+                  {activeBout.teams.map((team: Team, i: number) => (
+                    <TeamJamOperator
+                      key={team.uuid}
+                      team={team}
+                      reverse={!!(i % 2)}
+                    />
+                  ))}
+                </Suspense>
+              </Group>
             </Card>
-          </Group>
-        ) : (
-          <Center h="100%">
+          ) : (
             <Loader size="lg" />
-          </Center>
-        )}
+          )}
+        </Group>
       </AppShell.Main>
     </AppShell>
   );
