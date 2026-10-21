@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 export type UseSeriesPickerReturn = [
   Series | undefined,
   (series: Series) => void,
-  Series[] | undefined,
 ];
 
 /**
@@ -17,7 +16,7 @@ export type UseSeriesPickerReturn = [
  * `setActiveSeries` function sets the desired active Series. Only values found
  * within `allSeries` may be passed as an argument to `setActiveSeries`.
  *
- * @returns [activeSeries, setActiveSeries, allSeries]
+ * @returns [activeSeries, setActiveSeries]
  */
 export default function useSeriesPicker(): UseSeriesPickerReturn {
   const { data: allSeries } = useAllSeries();
@@ -46,5 +45,5 @@ export default function useSeriesPicker(): UseSeriesPickerReturn {
     [allSeries],
   );
 
-  return [activeSeries, handleSetActiveSeries, allSeries];
+  return [activeSeries, handleSetActiveSeries];
 }

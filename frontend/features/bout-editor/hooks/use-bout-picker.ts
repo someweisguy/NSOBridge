@@ -10,7 +10,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 export type UseBoutPickerReturn = [
   Bout | undefined,
   (boutUuid: string) => void,
-  Bout[] | undefined,
   ComboboxData<string>,
 ];
 
@@ -87,5 +86,5 @@ export default function useBoutPicker(
     [bouts],
   );
 
-  return [activeBout, handleSetActiveBout, bouts, boutPickerData];
+  return [activeBout, handleSetActiveBout, boutPickerData];
 }

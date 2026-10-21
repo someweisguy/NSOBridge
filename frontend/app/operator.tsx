@@ -1,9 +1,9 @@
 import BoutCreator from "@/features/bout-editor/components/bout-creator";
 import BoutEditor from "@/features/bout-editor/components/bout-editor";
-import BoutOperator from "@/features/bout-operator/components/bout-operator";
 import BoutPicker from "@/features/bout-editor/components/bout-picker";
 import useBoutPicker from "@/features/bout-editor/hooks/use-bout-picker";
 import useSeriesPicker from "@/features/bout-editor/hooks/use-series-picker";
+import BoutOperator from "@/features/bout-operator/components/bout-operator";
 import TeamJamOperator from "@/features/team-jam-operator/components/team-jam-operator";
 import Undoer from "@/features/undo/components/undoer";
 import { Team } from "@/types/bout";
@@ -58,7 +58,7 @@ export default function OperatorPage() {
   const [opened, { toggle }] = useDisclosure(false);
 
   const [activeSeries] = useSeriesPicker();
-  const [activeBout, setActiveBoutUuid, , boutPickerData] =
+  const [activeBout, setActiveBoutUuid, boutPickerData] =
     useBoutPicker(activeSeries);
 
   return (
