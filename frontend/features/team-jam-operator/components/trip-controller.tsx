@@ -48,13 +48,15 @@ export default function TripController({
       {!teamIsInThisJam && (
         <Text {...altTextStyle}>This Team is not in the Jam</Text>
       )}
-      {!jammerInitial && (
+      {!jammerInitial && teamIsInThisJam && (
         <Text {...altTextStyle}>There are no Trips to display.</Text>
       )}
-      <Group justify="start" gap="xs" wrap="nowrap" w="100%">
-        {children}
-        <div ref={endOfScrollerRef}></div>
-      </Group>
+      {teamIsInThisJam && jammerInitial && (
+        <Group justify="start" gap="xs" wrap="nowrap" w="100%">
+          {children}
+          <div ref={endOfScrollerRef}></div>
+        </Group>
+      )}
     </Scroller>
   );
 }
