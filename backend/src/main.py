@@ -12,7 +12,7 @@ import core.server
 import core.updates
 import core.users
 import game
-import game.bouts.rulesets
+import game.rules.rulesets
 from core.app import endpoint_profiling_middleware
 from core.db import CacheAPIRoute, create_tables, get_database_url, session_factory
 from core.updates import GithubReleaseSchema
