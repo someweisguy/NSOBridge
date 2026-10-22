@@ -1,7 +1,6 @@
 """FastAPI routes associated with Bouts."""
 
 import random
-from collections.abc import Sequence
 from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, Final
@@ -11,7 +10,6 @@ from core.db import CacheAPIRoute, GetAsyncSession
 from fastapi import APIRouter, Body, HTTPException, Query
 from game.bouts.dependencies import GetTeam
 from game.series.dependencies import GetSeries
-from sqlalchemy import Result, Select, select
 from sqlalchemy.orm.attributes import flag_dirty
 
 from .constants import RANDOM_TEAM_NAMES
@@ -102,29 +100,15 @@ async def delete_bout(session: GetAsyncSession, bout: GetBout) -> None:
     await session.delete(bout)
 
 
-@router.get('/ruleset')
+@router.get('/ruleset', response_model=RulesetSchema | set[RulesetSchema])
 async def get_ruleset(
-    ruleset_name: Annotated[str, Query(alias='rulesetName')],
-) -> RulesetSchema:
+    ruleset_name: Annotated[str | None, Query(alias='rulesetName')] = None,
+) -> RulesetSchema | set[RulesetSchema]:
     """Get the ruleset associated with a specific Bout."""
     _compute_all_rulesets()
+    if ruleset_name is None:
+        return ALL_RULESETS
     return next(ruleset for ruleset in ALL_RULESETS if ruleset.name == ruleset_name)
-
-
-@router.get('/allRulesets')
-async def get_all_rulesets() -> set[RulesetSchema]:
-    """Get all the ruleset names supported by the application."""
-    _compute_all_rulesets()
-    return ALL_RULESETS
-
-
-@router.get('/allBouts', response_model=list[BoutSchema])
-async def get_all_bouts(session: GetAsyncSession) -> Sequence[BaseBout]:
-    """Get all the Bouts in the database."""
-    statement: Select[BaseBout] = select(BaseBout)
-    results: Result[BaseBout] = await session.execute(statement)
-
-    return results.scalars().all()
 
 
 @router.post('/beginPeriod', response_model=BoutSchema)

@@ -59,12 +59,10 @@ export const useAllRulesets = <T = Ruleset[]>(
   useQuery<Ruleset[], Error, T>({
     queryKey: rulesetKeys.all,
     queryFn: () =>
-      localAPI
-        .get<Ruleset[]>("bout/allRulesets")
-        .then((rulesets: Ruleset[]) => {
-          // TODO: add all the rulesets to the cache individually
-          return rulesets.filter((ruleset) => ruleset != null);
-        }),
+      localAPI.get<Ruleset[]>("bout/ruleset").then((rulesets: Ruleset[]) => {
+        // TODO: add all the rulesets to the cache individually
+        return rulesets.filter((ruleset) => ruleset != null);
+      }),
     ...options,
   });
 
@@ -81,11 +79,9 @@ export const useSuspenseAllRulesets = <T = Ruleset[]>(
   useSuspenseQuery<Ruleset[], Error, T>({
     queryKey: rulesetKeys.all,
     queryFn: () =>
-      localAPI
-        .get<Ruleset[]>("bout/allRulesets")
-        .then((rulesets: Ruleset[]) => {
-          // TODO: add all the rulesets to the cache individually
-          return rulesets;
-        }),
+      localAPI.get<Ruleset[]>("bout/ruleset").then((rulesets: Ruleset[]) => {
+        // TODO: add all the rulesets to the cache individually
+        return rulesets;
+      }),
     ...options,
   });
