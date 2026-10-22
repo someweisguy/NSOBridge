@@ -1,6 +1,6 @@
 import { Group, Scroller, ScrollerProps, Text, TextProps } from "@mantine/core";
 import { useReducedMotion } from "@mantine/hooks";
-import { PropsWithChildren, useEffect, useRef } from "react";
+import { Children, PropsWithChildren, useEffect, useRef } from "react";
 
 const altTextStyle: TextProps = {
   fz: "xs",
@@ -24,15 +24,21 @@ export default function TripController({
   ...props
 }: TripControllerProps) {
   const endOfScrollerRef = useRef<HTMLDivElement>(null);
+  const numChildren = useRef<number>(0);
 
   // Scroll to the latest Trip whenever the number of Trips increases
   const reduceMotion = useReducedMotion();
   useEffect(() => {
-    endOfScrollerRef?.current?.scrollIntoView({
-      behavior: reduceMotion ? "instant" : "smooth",
-      inline: "center",
-    });
-  }, [reduceMotion]);
+    // Only scroll-to-end if number of children has increased
+    const numChildrenNew = Children.count(children);
+    if (numChildrenNew > numChildren.current) {
+      endOfScrollerRef?.current?.scrollIntoView({
+        behavior: reduceMotion ? "instant" : "smooth",
+        inline: "center",
+      });
+    }
+    numChildren.current = numChildrenNew;
+  }, [children, reduceMotion]);
 
   return (
     <Scroller
