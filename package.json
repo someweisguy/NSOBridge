@@ -92,8 +92,8 @@
   },
   "allowScripts": {
     "unrs-resolver@1.12.2": true,
-    "@swc/core@1.16.2": true,
     "esbuild@0.28.2": true,
-    "msw@2.15.0": true
+    "msw@2.15.0": true,
+    "@swc/core@1.16.18": true
   }
 }
