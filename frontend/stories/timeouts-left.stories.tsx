@@ -4,6 +4,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 const meta: Meta = {
   component: TimeoutsLeft,
   title: "Timeouts Left",
+  argTypes: {
+    h: {
+      control: "text",
+    },
+  },
 };
 
 type Story = StoryObj<typeof meta>;
@@ -16,7 +21,7 @@ export const Default: Story = {
     reviewsRemaining: 1,
     timeoutIsActive: false,
     isReview: false,
-    size: 24,
+    h: "5rem",
   },
 };
 
@@ -28,7 +33,7 @@ export const ActiveTimeout: Story = {
     reviewsRemaining: 1,
     timeoutIsActive: true,
     isReview: false,
-    size: 24,
+    h: "5rem",
   },
 };
 
@@ -40,7 +45,7 @@ export const ActiveReview: Story = {
     reviewsRemaining: 1,
     timeoutIsActive: true,
     isReview: true,
-    size: 24,
+    h: "5rem",
   },
 };
 
@@ -52,7 +57,7 @@ export const TimeoutsUsed: Story = {
     reviewsRemaining: 1,
     timeoutIsActive: false,
     isReview: false,
-    size: 24,
+    h: "5rem",
   },
 };
 

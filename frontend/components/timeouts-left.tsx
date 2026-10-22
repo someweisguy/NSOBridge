@@ -52,7 +52,7 @@ export default function TimeoutsLeft({
   const margin = useMemo(() => size / 8, [size]);
 
   return (
-    <Paper withBorder {...props}>
+    <Paper withBorder w="fit-content" {...props}>
       <Stack justify="space-around" align="center" gap="0" m={margin}>
         {Array.from({ length: numTimeouts }, (_, i) => (
           <IconCircleFilled
