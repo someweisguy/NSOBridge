@@ -8,7 +8,7 @@ import { useUpdateTripEvent } from "../hooks/use-update-trip-event";
 
 const deleteTripIconSize = 16;
 
-interface JammerTripProps extends TripEvent, PaperProps {
+export interface JammerTripProps extends TripEvent, PaperProps {
   tripIndex: number;
   pointsPerTrip: number;
   enableEdit?: boolean;
