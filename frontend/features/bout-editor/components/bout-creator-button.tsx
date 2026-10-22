@@ -8,16 +8,16 @@ import BoutCreatorForm from "./bout-creator-form";
 
 const iconSize = 16;
 
-export interface BoutCreatorProps {
+export interface BoutCreatorButtonProps {
   activeSeriesUuid: string | undefined;
   onSuccess?: (boutUuid: string) => void;
 }
 
 // TODO: docs
-export default function BoutCreator({
+export default function BoutCreatorButton({
   activeSeriesUuid,
   onSuccess,
-}: BoutCreatorProps) {
+}: BoutCreatorButtonProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const { data: rulesetNames } = useAllRulesets<string[]>({

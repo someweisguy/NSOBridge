@@ -1,5 +1,5 @@
 import { appShellConfig } from "@/configs/app-shell";
-import BoutCreator from "@/features/bout-editor/components/bout-creator";
+import BoutCreatorButton from "@/features/bout-editor/components/bout-creator-button";
 import BoutEditor from "@/features/bout-editor/components/bout-editor";
 import BoutPicker from "@/features/bout-editor/components/bout-picker";
 import useBoutPicker from "@/features/bout-editor/hooks/use-bout-picker";
@@ -65,7 +65,7 @@ export default function OperatorPage() {
               data={boutPickerData}
               onChange={setActiveBoutUuid}
             />
-            <BoutCreator
+            <BoutCreatorButton
               activeSeriesUuid={activeSeries?.uuid}
               onSuccess={setActiveBoutUuid}
             />
