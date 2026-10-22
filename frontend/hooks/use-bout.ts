@@ -1,4 +1,3 @@
-import queryClient from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
 import { Bout } from "@/types/bout";
 import {
@@ -43,55 +42,3 @@ export const useSuspenseBout = <T = Bout>({
       }),
     ...options,
   });
-
-/**
- * Gets all the Bouts from the server. Each individual Bout is automatically cached
- * after it is fetched. This hook is a wrapper for call to TanStack Query's `useQuery`
- * function.
- *
- * @returns a Tanstack useQuery object containing an array of all Bouts.
- */
-export const useAllBouts = (options?: AppQueryOptions<Bout[]>) =>
-  useQuery<Bout[]>(
-    {
-      queryKey: boutKeys.all,
-      queryFn: () =>
-        localAPI.get<Bout[]>("bout/allBouts").then((bouts) => {
-          for (const bout of bouts) {
-            if (bout.uuid != null) {
-              queryClient.setQueryData(boutKeys.one(bout.uuid), bout);
-            }
-          }
-          return bouts;
-        }),
-      ...options,
-    },
-    queryClient,
-  );
-
-/**
- * Gets all the Bouts from the server. Each individual Bout is automatically cached
- * after it is fetched. This hook is a wrapper for call to TanStack Query's
- * `useSuspenseQuery` function.
- *
- * @returns a Tanstack useSuspenseQuery object containing an array of all Bouts.
- */
-export const useSuspenseAllBouts = <T = Bout[]>(
-  options?: AppSuspenseQueryOptions<Bout[], T>,
-) =>
-  useSuspenseQuery<Bout[], Error, T>(
-    {
-      queryKey: boutKeys.all,
-      queryFn: () =>
-        localAPI.get<Bout[]>("bout/allBouts").then((bouts: Bout[]) => {
-          for (const bout of bouts) {
-            if (bout.uuid != null) {
-              queryClient.setQueryData(boutKeys.one(bout.uuid), bout);
-            }
-          }
-          return bouts;
-        }),
-      ...options,
-    },
-    queryClient,
-  );
