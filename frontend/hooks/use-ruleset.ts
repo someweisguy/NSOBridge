@@ -1,3 +1,4 @@
+import queryClient from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
 import { AppQueryOptions, AppSuspenseQueryOptions } from "@/types/query";
 import { Ruleset } from "@/types/ruleset";
@@ -9,8 +10,8 @@ import {
 } from "@tanstack/react-query";
 
 /**
- * Fetches the desired Ruleset from the server. This hook is a wrapper for call to
- * TanStack Query's `useQuery` function.
+ * Fetches the desired Ruleset from the server. This hook is a wrapper for call
+ * to TanStack Query's `useQuery` function.
  *
  * @returns a Tanstack useQuery object containing the desired Ruleset.
  */
@@ -28,8 +29,8 @@ export const useRuleset = <T = null>({
   });
 
 /**
- * Fetches the desired Ruleset from the server. This hook is a wrapper for call to
- * TanStack Query's `useSuspenseQuery` function.
+ * Fetches the desired Ruleset from the server. This hook is a wrapper for call
+ * to TanStack Query's `useSuspenseQuery` function.
  *
  * @returns a Tanstack useSuspenseQuery object containing the desired Ruleset.
  */
@@ -47,9 +48,9 @@ export const useSuspenseRuleset = ({
   });
 
 /**
- * Gets all the Rulesets from the server. Each individual Bout is automatically cached
- * after it is fetched. This hook is a wrapper for call to TanStack Query's
- * `useSuspenseQuery` function.
+ * Gets all the Rulesets from the server. Each individual Ruleset is
+ * automatically cached after it is fetched. This hook is a wrapper for call to
+ * TanStack Query's `useSuspenseQuery` function.
  *
  * @returns a Tanstack useeQuery object containing an array of all Rulesets.
  */
@@ -60,18 +61,21 @@ export const useAllRulesets = <T = Ruleset[]>(
     queryKey: rulesetKeys.all,
     queryFn: () =>
       localAPI.get<Ruleset[]>("bout/ruleset").then((rulesets: Ruleset[]) => {
-        // TODO: add all the rulesets to the cache individually
-        return rulesets.filter((ruleset) => ruleset != null);
+        rulesets.forEach((ruleset: Ruleset) =>
+          queryClient.setQueryData(rulesetKeys.one(ruleset.name), ruleset),
+        );
+        return rulesets;
       }),
     ...options,
   });
 
 /**
- * Gets all the Rulesets from the server. Each individual Bout is automatically cached
- * after it is fetched. This hook is a wrapper for call to TanStack Query's
- * `useSuspenseQuery` function.
+ * Gets all the Rulesets from the server. Each individual Ruleset is
+ * automatically cached after it is fetched. This hook is a wrapper for call to
+ * TanStack Query's `useSuspenseQuery` function.
  *
- * @returns a Tanstack useSuspenseQuery object containing an array of all Rulesets.
+ * @returns a Tanstack useSuspenseQuery object containing an array of all
+ * Rulesets.
  */
 export const useSuspenseAllRulesets = <T = Ruleset[]>(
   options?: AppSuspenseQueryOptions<Ruleset[], T>,
@@ -80,7 +84,9 @@ export const useSuspenseAllRulesets = <T = Ruleset[]>(
     queryKey: rulesetKeys.all,
     queryFn: () =>
       localAPI.get<Ruleset[]>("bout/ruleset").then((rulesets: Ruleset[]) => {
-        // TODO: add all the rulesets to the cache individually
+        rulesets.forEach((ruleset: Ruleset) =>
+          queryClient.setQueryData(rulesetKeys.one(ruleset.name), ruleset),
+        );
         return rulesets;
       }),
     ...options,
