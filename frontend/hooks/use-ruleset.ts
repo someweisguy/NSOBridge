@@ -16,14 +16,14 @@ import {
  * @returns a Tanstack useQuery object containing the desired Ruleset.
  */
 export const useRuleset = <T = null>({
-  boutUuid,
+  uuid,
   ...options
-}: { boutUuid: string } & AppQueryOptions<Ruleset | T>) =>
+}: { uuid: string } & AppQueryOptions<Ruleset | T>) =>
   useQuery<Ruleset | T>({
-    queryKey: rulesetKeys.one(boutUuid),
+    queryKey: rulesetKeys.one(uuid),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
-        query: { boutUuid },
+        query: { uuid },
       }),
     ...options,
   });
@@ -35,14 +35,14 @@ export const useRuleset = <T = null>({
  * @returns a Tanstack useSuspenseQuery object containing the desired Ruleset.
  */
 export const useSuspenseRuleset = ({
-  boutUuid,
+  uuid,
   ...options
-}: { boutUuid: string } & AppSuspenseQueryOptions<Ruleset>) =>
+}: { uuid: string } & AppSuspenseQueryOptions<Ruleset>) =>
   useSuspenseQuery<Ruleset>({
-    queryKey: rulesetKeys.one(boutUuid),
+    queryKey: rulesetKeys.one(uuid),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
-        query: { boutUuid },
+        query: { uuid },
       }),
     ...options,
   });

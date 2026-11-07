@@ -22,9 +22,7 @@ export default function TeamJamOperator({
   ...props
 }: TeamJamOperatorProps) {
   const { data: bout } = useSuspenseBout({ uuid: team.boutUuid });
-  const { data: ruleset } = useSuspenseRuleset({
-    boutUuid: bout.uuid,
-  });
+  const { data: ruleset } = useSuspenseRuleset({ uuid: bout.uuid });
 
   const {
     teamJam,

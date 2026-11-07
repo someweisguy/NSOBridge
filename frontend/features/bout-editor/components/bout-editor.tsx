@@ -18,7 +18,7 @@ interface EditMenuProps {
 // TODO: docs
 export default function BoutEditor({ bout }: EditMenuProps) {
   const { data: ruleset } = useRuleset({
-    boutUuid: bout?.uuid ?? "",
+    uuid: bout?.uuid ?? "",
     enabled: bout?.rulesetName != null,
   });
 
