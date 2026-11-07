@@ -30,3 +30,5 @@ class Ruleset(CacheableSQLModel):
 
     """The maximum number of official reviews which a team may have."""
     num_reviews: Mapped[int] = mapped_column(default=1)
+
+    __tablename__: str = 'rulesets'

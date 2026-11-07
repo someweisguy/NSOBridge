@@ -3,9 +3,11 @@
 from datetime import timedelta
 from typing import Annotated
 
-from core.app import ServerSchema, timedelta_serializer
+from core.app import ServerSchema, register_model, timedelta_serializer
+from game.rules.models import Ruleset
 
 
+@register_model(Ruleset)
 class RulesetSchema(ServerSchema):
     """Represent a Ruleset as a JSON schema.
 
