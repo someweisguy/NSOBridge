@@ -1,9 +1,13 @@
 """Ruleset data models."""
 
 from datetime import timedelta
+from typing import override
+from uuid import UUID
 
-from core.db import CacheableSQLModel
-from sqlalchemy.orm import Mapped, mapped_column
+from core.db import CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
+from game import BaseBout
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class Ruleset(CacheableSQLModel):
@@ -12,6 +16,8 @@ class Ruleset(CacheableSQLModel):
     This primary use of this model is to reduce the amount of magic numbers in the
     codebase.
     """
+
+    _bout_uuid: Mapped[UUID] = mapped_column(ForeignKey('bouts.uuid'))
 
     """The number of periods in a Bout, not including overtime."""
     num_periods: Mapped[int] = mapped_column(default=2)
@@ -31,4 +37,15 @@ class Ruleset(CacheableSQLModel):
     """The maximum number of official reviews which a team may have."""
     num_reviews: Mapped[int] = mapped_column(default=1)
 
+    bout: Mapped[BaseBout] = relationship(
+        back_populates='ruleset',
+        cascade=CASCADE_OTHER,
+        lazy='selectin',
+        foreign_keys=[_bout_uuid],
+    )
+
     __tablename__: str = 'rulesets'
+
+    @override
+    def get_parents(self) -> tuple[BaseSQLModel, ...]:
+        return (self.bout,)

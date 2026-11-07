@@ -4,11 +4,13 @@ import random
 from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, Final
+from uuid import uuid4
 
 from core.app import update_model
 from core.db import CacheAPIRoute, GetAsyncSession
 from fastapi import APIRouter, HTTPException, Query
 from game.bouts.dependencies import GetTeam
+from game.rules.models import Ruleset
 from game.series.dependencies import GetSeries
 from sqlalchemy.orm.attributes import flag_dirty
 
@@ -46,7 +48,9 @@ async def create_bout(
         )
 
     # Create the Bout
-    bout: BaseBout = BaseBout.create(ruleset_name, series, *team_names)
+    # TODO: lookup the default ruleset
+    ruleset = Ruleset(uuid=uuid4())
+    bout: BaseBout = BaseBout.create(ruleset_name, ruleset, series, *team_names)
     session.add(bout)
 
     # Ensure the series always has an active Bout

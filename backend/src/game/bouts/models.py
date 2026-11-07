@@ -9,7 +9,6 @@ from uuid import UUID, uuid4
 from core.db import CASCADE_CHILD, CASCADE_OTHER, BaseSQLModel, CacheableSQLModel
 from game.jams.models import TeamJam
 from game.models import Clock
-from game.rules.models import Ruleset
 from game.skaters.models import Skater
 from game.timeouts.models import Timeout
 from sqlalchemy import Constraint, ForeignKey, UniqueConstraint, column
@@ -21,6 +20,7 @@ from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol
 
 if TYPE_CHECKING:
     from game.jams.models import Jam
+    from game.rules.models import Ruleset
     from game.series.models import Series
 
 REQUIRED_NUM_TEAMS: Final[int] = 2
@@ -31,9 +31,6 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     """An abstract Bout without any associated ruleset."""
 
     _series_uuid: Mapped[UUID] = mapped_column(ForeignKey('series.uuid'), index=True)
-    _ruleset_uuid: Mapped[UUID] = mapped_column(
-        ForeignKey('rulesets.uuid', ondelete='RESTRICT')
-    )
     _clock_uuid: Mapped[UUID] = mapped_column(
         ForeignKey('clocks.uuid', ondelete='RESTRICT')
     )
@@ -53,9 +50,9 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
         foreign_keys=[_series_uuid],
     )
     ruleset: Mapped[Ruleset] = relationship(
+        back_populates='bout',
         cascade=CASCADE_CHILD,
         lazy='joined',
-        foreign_keys=[_ruleset_uuid],
     )
     clock: Mapped[Clock] = relationship(
         cascade=CASCADE_CHILD,
@@ -89,27 +86,27 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     __table_args__: tuple[Constraint, ...] = (UniqueConstraint('_series_uuid', 'num'),)
 
     @classmethod
-    def create(cls, ruleset_name: str, series: Series, *team_names: str) -> BaseBout:
+    def create(
+        cls, ruleset_name: str, ruleset: Ruleset, series: Series, *team_names: str
+    ) -> BaseBout:
         """Instantiate a Bout.
 
         Args:
             ruleset_name (str): the name of the ruleset to use. This must be one of the
             currently implemented rulesets.
+            ruleset (Ruleset): the initial ruleset constants used in this Bout.
             series (Series): the Series to which this Bout should belong.
             team_names (tuple[str, ...]): the teams which will compete in this Bout.
             The first team in the sequence is considered the home team.
 
         """
-        # TODO: Ruleset constants lookup based on ruleset name
-        ruleset_constants = Ruleset()
-
         # It's okay to instantiate this "abstract" class
         return BaseBout(
             _created_on=datetime.now(),
             uuid=uuid4(),
             series=series,
             ruleset_name=ruleset_name,
-            ruleset_constants=ruleset_constants,
+            ruleset=ruleset,
             clock=Clock.create(),
             teams=[Team.create(name, num) for num, name in enumerate(team_names)],
         )  # ty: ignore[call-non-callable]
