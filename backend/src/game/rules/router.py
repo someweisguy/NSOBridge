@@ -22,7 +22,7 @@ ALL_RULESETS: Final[set[Mapped[str]]] = set()
 """A list of all the unique rulesets in this application."""
 
 
-def _compute_all_rulesets() -> None:
+def _compute_all_rulesets_names() -> None:
     """Collect all the rulesets in the application."""
     if len(ALL_RULESETS) == 0:
         for subclass in BaseBout.__subclasses__():
