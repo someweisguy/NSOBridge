@@ -16,16 +16,6 @@ class RulesetSchema(ServerSchema):
     stored as constants which do not need to be written to file.
     """
 
-    def __hash__(self) -> int:
-        """Hash this schema.
-
-        Returns:
-            int: this schema's hash.
-
-        """
-        return hash(self.name)
-
-    name: str
     num_periods: int
     jam_duration: Annotated[timedelta, timedelta_serializer]
     lineup_duration: Annotated[timedelta, timedelta_serializer]
