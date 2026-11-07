@@ -25,12 +25,11 @@ from typing import Final
 
 from fastapi import APIRouter
 
-from game.rules import rulesets
-
 from .bouts.models import BaseBout, Team
 from .bouts.router import create_bout, router as bout_router
 from .debug.router import router as debug_router
 from .jams.router import router as jam_router
+from .rules import rulesets
 from .rules.router import router as rules_router
 from .series.models import Series
 from .series.router import router as series_router
@@ -39,7 +38,6 @@ from .timeouts.router import router as timeout_router
 
 routers: Final[tuple[APIRouter, ...]] = (
     bout_router,
-    debug_router,
     jam_router,
     rules_router,
     skater_router,
@@ -58,5 +56,6 @@ __all__ = (
     'Series',
     'Team',
     'create_bout',
+    'debug_router',
     'routers',
 )
