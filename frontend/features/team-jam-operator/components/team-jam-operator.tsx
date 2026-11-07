@@ -21,10 +21,9 @@ export default function TeamJamOperator({
   reverse = false,
   ...props
 }: TeamJamOperatorProps) {
-  // TODO: get ruleset by Bout UUID, add ruleset as Table in database
   const { data: bout } = useSuspenseBout({ uuid: team.boutUuid });
   const { data: ruleset } = useSuspenseRuleset({
-    rulesetName: bout.rulesetName,
+    boutUuid: bout.uuid,
   });
 
   const {

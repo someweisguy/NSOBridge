@@ -10,39 +10,39 @@ import {
 } from "@tanstack/react-query";
 
 /**
- * Fetches the desired Ruleset from the server. This hook is a wrapper for call
+ * Fetches the desired Bout Ruleset constants. This hook is a wrapper for call
  * to TanStack Query's `useQuery` function.
  *
  * @returns a Tanstack useQuery object containing the desired Ruleset.
  */
 export const useRuleset = <T = null>({
-  rulesetName,
+  boutUuid,
   ...options
-}: { rulesetName: string } & AppQueryOptions<Ruleset | T>) =>
+}: { boutUuid: string } & AppQueryOptions<Ruleset | T>) =>
   useQuery<Ruleset | T>({
-    queryKey: rulesetKeys.one(rulesetName),
+    queryKey: rulesetKeys.one(boutUuid),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
-        query: { rulesetName },
+        query: { boutUuid },
       }),
     ...options,
   });
 
 /**
- * Fetches the desired Ruleset from the server. This hook is a wrapper for call
+ * Fetches the desired Bout Ruleset constants. This hook is a wrapper for call
  * to TanStack Query's `useSuspenseQuery` function.
  *
  * @returns a Tanstack useSuspenseQuery object containing the desired Ruleset.
  */
 export const useSuspenseRuleset = ({
-  rulesetName,
+  boutUuid,
   ...options
-}: { rulesetName: string } & AppSuspenseQueryOptions<Ruleset>) =>
+}: { boutUuid: string } & AppSuspenseQueryOptions<Ruleset>) =>
   useSuspenseQuery<Ruleset>({
-    queryKey: rulesetKeys.one(rulesetName),
+    queryKey: rulesetKeys.one(boutUuid),
     queryFn: () =>
       localAPI.get<Ruleset>("bout/ruleset", {
-        query: { rulesetName },
+        query: { boutUuid },
       }),
     ...options,
   });
