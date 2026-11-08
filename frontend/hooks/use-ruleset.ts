@@ -1,4 +1,3 @@
-import queryClient from "@/lib/cache";
 import { localAPI } from "@/lib/requests";
 import { AppQueryOptions, AppSuspenseQueryOptions } from "@/types/query";
 import { Ruleset } from "@/types/ruleset";
@@ -48,46 +47,16 @@ export const useSuspenseRuleset = ({
   });
 
 /**
- * Gets all the Rulesets from the server. Each individual Ruleset is
- * automatically cached after it is fetched. This hook is a wrapper for call to
- * TanStack Query's `useSuspenseQuery` function.
+ * Gets all the Ruleset names from the server. This hook is a wrapper for call
+ * to TanStack Query's `useSuspenseQuery` function.
  *
- * @returns a Tanstack useeQuery object containing an array of all Rulesets.
+ * @returns a Tanstack useQuery object containing an array of all Ruleset names.
  */
-export const useAllRulesets = <T = Ruleset[]>(
-  options?: AppQueryOptions<Ruleset[], T>,
+export const useAllRulesetNames = <T = string[]>(
+  options?: AppQueryOptions<string[], T>,
 ): UseQueryResult<T, Error> =>
-  useQuery<Ruleset[], Error, T>({
-    queryKey: rulesetKeys.all,
-    queryFn: () =>
-      localAPI.get<Ruleset[]>("bout/ruleset").then((rulesets: Ruleset[]) => {
-        rulesets.forEach((ruleset: Ruleset) =>
-          queryClient.setQueryData(rulesetKeys.one(ruleset.name), ruleset),
-        );
-        return rulesets;
-      }),
-    ...options,
-  });
-
-/**
- * Gets all the Rulesets from the server. Each individual Ruleset is
- * automatically cached after it is fetched. This hook is a wrapper for call to
- * TanStack Query's `useSuspenseQuery` function.
- *
- * @returns a Tanstack useSuspenseQuery object containing an array of all
- * Rulesets.
- */
-export const useSuspenseAllRulesets = <T = Ruleset[]>(
-  options?: AppSuspenseQueryOptions<Ruleset[], T>,
-) =>
-  useSuspenseQuery<Ruleset[], Error, T>({
-    queryKey: rulesetKeys.all,
-    queryFn: () =>
-      localAPI.get<Ruleset[]>("bout/ruleset").then((rulesets: Ruleset[]) => {
-        rulesets.forEach((ruleset: Ruleset) =>
-          queryClient.setQueryData(rulesetKeys.one(ruleset.name), ruleset),
-        );
-        return rulesets;
-      }),
+  useQuery<string[], Error, T>({
+    queryKey: ["bouts", "rulesetNames"],
+    queryFn: () => localAPI.get<string[]>("bout/rulesetNames"),
     ...options,
   });

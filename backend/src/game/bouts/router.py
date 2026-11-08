@@ -120,4 +120,11 @@ async def update_bout_team(team: GetTeam, updates: UpdateTeamSchema) -> BaseBout
     return team.bout
 
 
+@router.get('/rulesetNames', response_model=list[str])
+def get_ruleset_names() -> list[str]:
+    """Collect all the rulesets in the application."""
+    # TODO: Figure out how to get all of the ruleset names
+    return ['WFTDA 2025']
+
+
 __all__ = ('router',)

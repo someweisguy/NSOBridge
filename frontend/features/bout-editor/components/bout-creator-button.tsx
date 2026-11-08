@@ -1,6 +1,5 @@
-import { useAllRulesets } from "@/hooks/use-ruleset";
+import { useAllRulesetNames } from "@/hooks/use-ruleset";
 import { Bout } from "@/types/bout";
-import { Ruleset } from "@/types/ruleset";
 import { ActionIcon, Modal, px, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
@@ -20,9 +19,7 @@ export default function BoutCreatorButton({
 }: BoutCreatorButtonProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
-  const { data: rulesetNames } = useAllRulesets<string[]>({
-    select: (rulesets: Ruleset[]) => rulesets.map((ruleset) => ruleset.name),
-  });
+  const { data: rulesetNames } = useAllRulesetNames<string[]>();
 
   return (
     <>
