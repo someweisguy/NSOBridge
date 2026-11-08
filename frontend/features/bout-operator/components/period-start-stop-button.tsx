@@ -25,10 +25,10 @@ export default function PeriodStartStopButton({
   const { mutate: startPeriod } = useBeginPeriod({ uuid: boutUuid });
   const { mutate: stopPeriod } = useEndPeriod({ uuid: boutUuid });
   const startStopPeriod = useCallback(
-    () => (periodIsRunning ? startPeriod() : stopPeriod()),
+    () => (periodIsRunning ? stopPeriod() : startPeriod()),
     [periodIsRunning, startPeriod, stopPeriod],
   );
-  const startStopPeriodText = periodIsRunning ? "Begin Period" : "End Period";
+  const startStopPeriodText = periodIsRunning ? "End Period" : "Begin Period";
 
   return (
     <Button
