@@ -11,6 +11,7 @@ from core.db import CacheAPIRoute, GetAsyncSession
 from fastapi import APIRouter, HTTPException, Query
 from game.bouts.dependencies import GetTeam
 from game.rules.models import Ruleset
+from game.rules.schemas import RulesetSchema
 from game.series.dependencies import GetSeries
 from sqlalchemy.orm.attributes import flag_dirty
 
@@ -120,11 +121,13 @@ async def update_bout_team(team: GetTeam, updates: UpdateTeamSchema) -> BaseBout
     return team.bout
 
 
-@router.get('/rulesetNames', response_model=list[str])
-def get_ruleset_names() -> list[str]:
+@router.get('/rulesetNames')
+def get_ruleset_names() -> dict[str, RulesetSchema]:
     """Collect all the rulesets in the application."""
-    # TODO: Figure out how to get all of the ruleset names
-    return ['WFTDA 2025']
+    all_rulesets: dict[str, RulesetSchema] = {}
+    for subclass in BaseBout.__subclasses__():
+        all_rulesets[subclass.DEFAULT_RULESET_NAME] = subclass.DEFAULT_RULESET
+    return all_rulesets
 
 
 __all__ = ('router',)
