@@ -122,7 +122,7 @@ async def update_bout_team(team: GetTeam, updates: UpdateTeamSchema) -> BaseBout
 
 
 @router.get('/defaultRuleset')
-def get_ruleset_names() -> dict[str, RulesetSchema]:
+def get_default_ruleset() -> dict[str, RulesetSchema]:
     """Collect all the rulesets in the application."""
     all_rulesets: dict[str, RulesetSchema] = {}
     for subclass in BaseBout.__subclasses__():

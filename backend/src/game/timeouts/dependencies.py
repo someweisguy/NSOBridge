@@ -12,10 +12,11 @@ from sqlalchemy.exc import NoResultFound
 from .models import Timeout
 
 
-async def _get_timeout(
+async def get_timeout(
     user: GetUser,
     uuid: Annotated[UUID, Query()],
 ) -> Timeout:
+    """Get a Timeout."""
     statement: Select[Timeout] = select(Timeout).where(Timeout.uuid == uuid)
     results: Result[Timeout] = await user.session.execute(statement)
 
@@ -27,4 +28,4 @@ async def _get_timeout(
     return timeout
 
 
-GetTimeout: TypeAlias = Annotated[Timeout, Depends(_get_timeout)]
+GetTimeout: TypeAlias = Annotated[Timeout, Depends(get_timeout)]
