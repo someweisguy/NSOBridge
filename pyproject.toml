@@ -82,5 +82,8 @@ force-single-line = false
 [tool.setuptools.packages.find]
 include = ["backend"]
 
+[tool.ty.environment]
+root = ["./backend/src"]
+
 [tool.ty.src]
 exclude = ["backend/*.spec"]

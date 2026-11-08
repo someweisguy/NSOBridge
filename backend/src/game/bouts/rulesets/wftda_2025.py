@@ -9,24 +9,20 @@ from typing import TYPE_CHECKING, Any, final, override
 
 from fastapi import HTTPException
 from game.bouts.models import REQUIRED_NUM_TEAMS, BaseBout
-from game.bouts.schemas import RulesetSchema
 from game.jams.models import Jam, TeamJam, TripEvent
+from game.rules.schemas import RulesetSchema
 from game.timeouts.models import Timeout
 
 if TYPE_CHECKING:
     from game.bouts.models import Team
-
-RULESET_NAME: str = 'WFTDA 2025'
 
 
 @final
 class Bout(BaseBout):
     """The mutator which describes the WFTDA 2025 ruleset."""
 
-    __mapper_args__: dict[str, Any] = {'polymorphic_identity': RULESET_NAME}
-
-    ruleset = RulesetSchema(
-        name=RULESET_NAME,
+    DEFAULT_RULESET_NAME: str = 'WFTDA 2025'
+    DEFAULT_RULESET: RulesetSchema = RulesetSchema(
         num_periods=2,
         jam_duration=timedelta(minutes=2),
         lineup_duration=timedelta(seconds=30),
@@ -35,9 +31,11 @@ class Bout(BaseBout):
         num_reviews=1,
     )
 
+    __mapper_args__: dict[str, Any] = {'polymorphic_identity': DEFAULT_RULESET_NAME}
+
     @override
     def setup(self) -> None:
-        logging.info(f'Setting up {self} using the {self.ruleset.name} ruleset.')
+        logging.info(f'Setting up {self} using the {self.ruleset_name} ruleset.')
         self.clock.alarm = timedelta(minutes=30)
         for team in self.teams:
             team.timeouts_remaining = self.ruleset.num_timeouts

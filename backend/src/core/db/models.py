@@ -86,7 +86,7 @@ class BaseSQLModel(DeclarativeBase, AsyncAttrs):
             return hash(self.uuid)
 
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        """Asynchronously get a tuple of this model's direct parents.
+        """Get a tuple of this model's direct parents.
 
         Returns:
             tuple[BaseSQLModel]: the immediate parents of this model.

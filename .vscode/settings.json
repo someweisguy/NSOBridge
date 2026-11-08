@@ -48,13 +48,28 @@
   },
   "cSpell.ignoreWords": [
     "MEIPASS",
+    "McCabe",
+    "aiosqlite",
+    "argparse",
     "codesign",
+    "colorlog",
     "datas",
+    "debugpy",
+    "fastapi",
     "hiddenimports",
     "hooksconfig",
     "hookspath",
+    "httpx",
+    "isort",
     "pathex",
+    "pycodestyle",
+    "pyinstaller",
+    "pyside",
+    "pytest",
+    "pythonpath",
     "selectinload",
+    "setuptools",
+    "sqlalchemy",
     "venv"
   ]
 }

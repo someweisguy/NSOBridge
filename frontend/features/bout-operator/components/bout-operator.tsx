@@ -13,10 +13,7 @@ export interface BoutOperatorProps extends StackProps {
 
 // TODO: docs
 export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
-  // TODO: get ruleset by Bout UUID, add ruleset as Table in database
-  const { data: ruleset } = useRuleset({
-    rulesetName: bout.rulesetName,
-  });
+  const { data: ruleset } = useRuleset({ uuid: bout.uuid });
 
   const {
     teams,

@@ -9,8 +9,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from game.bouts.models import Team
-
-    from .schemas import RulesetSchema
+    from game.rules.schemas import RulesetSchema
 
 
 # The various states that a Bout could be.
@@ -35,8 +34,8 @@ type BoutSubStateStr = Literal[
 class RulesetProtocol:
     """Handles ruleset events."""
 
-    ruleset: RulesetSchema
-    """The ruleset constants associated with this class."""
+    DEFAULT_RULESET_NAME: str
+    DEFAULT_RULESET: RulesetSchema
 
     @abstractmethod
     def setup(self) -> None:

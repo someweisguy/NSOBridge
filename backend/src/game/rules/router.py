@@ -4,25 +4,18 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Final
 
 from core.db import CacheAPIRoute
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body
 from game.bouts.dependencies import GetBout, GetTeam
 from game.bouts.models import BaseBout
-from game.bouts.schemas import BoutSchema, RulesetSchema
+from game.bouts.schemas import BoutSchema
+from game.rules.models import Ruleset
+
+from .schemas import RulesetSchema
 
 if TYPE_CHECKING:
     from game.timeouts.models import Timeout
 
 TAG = 'Rules'
-
-ALL_RULESETS: Final[set[RulesetSchema]] = set()
-"""A list of all the unique rulesets in this application."""
-
-
-def _compute_all_rulesets() -> None:
-    """Collect all the rulesets in the application."""
-    if len(ALL_RULESETS) == 0:
-        for subclass in BaseBout.__subclasses__():
-            ALL_RULESETS.add(subclass.ruleset)
 
 
 router: Final[APIRouter] = APIRouter(
@@ -30,15 +23,10 @@ router: Final[APIRouter] = APIRouter(
 )
 
 
-@router.get('/ruleset', response_model=RulesetSchema | set[RulesetSchema])
-async def get_ruleset(
-    ruleset_name: Annotated[str | None, Query(alias='rulesetName')] = None,
-) -> RulesetSchema | set[RulesetSchema]:
+@router.get('/ruleset', response_model=RulesetSchema)
+async def get_ruleset(bout: GetBout) -> Ruleset:
     """Get the ruleset associated with a specific Bout."""
-    _compute_all_rulesets()
-    if ruleset_name is None:
-        return ALL_RULESETS
-    return next(ruleset for ruleset in ALL_RULESETS if ruleset.name == ruleset_name)
+    return bout.ruleset
 
 
 @router.post('/beginPeriod', response_model=BoutSchema)

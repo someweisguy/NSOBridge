@@ -1,4 +1,4 @@
-import { useAllRulesets } from "@/hooks/use-ruleset";
+import { useDefaultRulesets } from "@/hooks/use-default-rulesets";
 import { Bout } from "@/types/bout";
 import { Ruleset } from "@/types/ruleset";
 import { ActionIcon, Modal, px, Tooltip } from "@mantine/core";
@@ -20,9 +20,8 @@ export default function BoutCreatorButton({
 }: BoutCreatorButtonProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
-  const { data: rulesetNames } = useAllRulesets<string[]>({
-    select: (rulesets: Ruleset[]) => rulesets.map((ruleset) => ruleset.name),
-  });
+  const { data: defaultRulesets } =
+    useDefaultRulesets<Record<string, Ruleset>[]>();
 
   return (
     <>
@@ -34,7 +33,7 @@ export default function BoutCreatorButton({
       <Modal title="Create New Bout" opened={opened} onClose={close}>
         <BoutCreatorForm
           seriesUuid={activeSeriesUuid}
-          rulesetNames={rulesetNames}
+          rulesetNames={Object.keys(defaultRulesets ?? {})}
           onSuccess={(bout: Bout) => {
             close();
             onSuccess?.(bout.uuid);

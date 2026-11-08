@@ -4,11 +4,14 @@ import random
 from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated, Final
+from uuid import uuid4
 
 from core.app import update_model
 from core.db import CacheAPIRoute, GetAsyncSession
 from fastapi import APIRouter, HTTPException, Query
 from game.bouts.dependencies import GetTeam
+from game.rules.models import Ruleset
+from game.rules.schemas import RulesetSchema
 from game.series.dependencies import GetSeries
 from sqlalchemy.orm.attributes import flag_dirty
 
@@ -46,7 +49,9 @@ async def create_bout(
         )
 
     # Create the Bout
-    bout: BaseBout = BaseBout.create(ruleset_name, series, *team_names)
+    # TODO: lookup the default ruleset
+    ruleset = Ruleset(uuid=uuid4())
+    bout: BaseBout = BaseBout.create(ruleset_name, ruleset, series, *team_names)
     session.add(bout)
 
     # Ensure the series always has an active Bout
@@ -114,6 +119,15 @@ async def update_bout_team(team: GetTeam, updates: UpdateTeamSchema) -> BaseBout
     """Update the Team."""
     update_model(team, updates)
     return team.bout
+
+
+@router.get('/defaultRuleset')
+def get_ruleset_names() -> dict[str, RulesetSchema]:
+    """Collect all the rulesets in the application."""
+    all_rulesets: dict[str, RulesetSchema] = {}
+    for subclass in BaseBout.__subclasses__():
+        all_rulesets[subclass.DEFAULT_RULESET_NAME] = subclass.DEFAULT_RULESET
+    return all_rulesets
 
 
 __all__ = ('router',)

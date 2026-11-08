@@ -1,5 +1,6 @@
 # Custom Dictionary Words
 ASGI
+asyncio
 autodocs
 bdrs
 cacheables
@@ -9,6 +10,8 @@ IGRF
 ondelete
 pixmap
 Pydantic
+Pyflakes
+Pylint
 selectin
 sessionmaker
 SOCK_DGRAM
@@ -16,5 +19,6 @@ someweisguy
 tabler
 Timeable
 transferrables
+uvicorn
 WFTDA
 wght

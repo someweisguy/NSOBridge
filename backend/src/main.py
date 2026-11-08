@@ -12,7 +12,7 @@ import core.server
 import core.updates
 import core.users
 import game
-import game.rules.rulesets
+import game.bouts.rulesets
 from core.app import endpoint_profiling_middleware
 from core.db import CacheAPIRoute, create_tables, get_database_url, session_factory
 from core.updates import GithubReleaseSchema
@@ -48,6 +48,8 @@ async def lifespan(app: FastAPI):
     for router in [core.app.api_router, *core.users.routers, *game.routers]:
         router.route_class = CacheAPIRoute
         app.include_router(router, prefix=API_PREFIX)
+    if app.debug:
+        app.include_router(game.debug_router, prefix=API_PREFIX)
     app.mount('/assets', core.app.ASSETS)
     app.mount('/ws', core.app.ws)
 
