@@ -47,16 +47,17 @@ export const useSuspenseRuleset = ({
   });
 
 /**
- * Gets all the Ruleset names from the server. This hook is a wrapper for call
- * to TanStack Query's `useSuspenseQuery` function.
+ * Gets all the default Rulesets from the server. This hook is a wrapper for a  
+ * call to TanStack Query's `useSuspenseQuery` function.
  *
- * @returns a Tanstack useQuery object containing an array of all Ruleset names.
+ * @returns a Tanstack useQuery object containing a mapping of Rulesets.
  */
-export const useAllRulesetNames = <T = string[]>(
-  options?: AppQueryOptions<string[], T>,
+export const useDefaultRulesets = <T = Record<string, Ruleset>[]>(
+  options?: AppQueryOptions<Record<string, Ruleset>[], T>,
 ): UseQueryResult<T, Error> =>
-  useQuery<string[], Error, T>({
-    queryKey: ["bouts", "rulesetNames"],
-    queryFn: () => localAPI.get<string[]>("bout/rulesetNames"),
+  useQuery<Record<string, Ruleset>[], Error, T>({
+    queryKey: ["bouts", "defaultRuleset"],
+    queryFn: () =>
+      localAPI.get<Record<string, Ruleset>[]>("bout/defaultRuleset"),
     ...options,
   });
