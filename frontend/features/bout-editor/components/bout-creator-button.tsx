@@ -1,4 +1,4 @@
-import { useDefaultRulesets } from "@/hooks/use-ruleset";
+import { useDefaultRulesets } from "@/hooks/use-default-rulesets";
 import { Bout } from "@/types/bout";
 import { Ruleset } from "@/types/ruleset";
 import { ActionIcon, Modal, px, Tooltip } from "@mantine/core";

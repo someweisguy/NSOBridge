@@ -2,11 +2,7 @@ import { localAPI } from "@/lib/requests";
 import { AppQueryOptions, AppSuspenseQueryOptions } from "@/types/query";
 import { Ruleset } from "@/types/ruleset";
 import { rulesetKeys } from "@/utils/query-keys";
-import {
-  useQuery,
-  UseQueryResult,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 /**
  * Fetches the desired Bout Ruleset constants. This hook is a wrapper for call
@@ -43,21 +39,5 @@ export const useSuspenseRuleset = ({
       localAPI.get<Ruleset>("bout/ruleset", {
         query: { uuid },
       }),
-    ...options,
-  });
-
-/**
- * Gets all the default Rulesets from the server. This hook is a wrapper for a  
- * call to TanStack Query's `useSuspenseQuery` function.
- *
- * @returns a Tanstack useQuery object containing a mapping of Rulesets.
- */
-export const useDefaultRulesets = <T = Record<string, Ruleset>[]>(
-  options?: AppQueryOptions<Record<string, Ruleset>[], T>,
-): UseQueryResult<T, Error> =>
-  useQuery<Record<string, Ruleset>[], Error, T>({
-    queryKey: ["bouts", "defaultRuleset"],
-    queryFn: () =>
-      localAPI.get<Record<string, Ruleset>[]>("bout/defaultRuleset"),
     ...options,
   });
