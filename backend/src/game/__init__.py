@@ -28,7 +28,6 @@ from fastapi import APIRouter
 from .bouts import rulesets
 from .bouts.models import BaseBout, Team
 from .bouts.router import create_bout, router as bout_router
-from .debug.router import router as debug_router
 from .jams.router import router as jam_router
 from .rules.router import router as rules_router
 from .series.models import Series
@@ -56,6 +55,5 @@ __all__ = (
     'Series',
     'Team',
     'create_bout',
-    'debug_router',
     'routers',
 )

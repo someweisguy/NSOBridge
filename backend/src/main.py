@@ -48,8 +48,6 @@ async def lifespan(app: FastAPI):
     for router in [core.app.api_router, *core.users.routers, *game.routers]:
         router.route_class = CacheAPIRoute
         app.include_router(router, prefix=API_PREFIX)
-    if app.debug:
-        app.include_router(game.debug_router, prefix=API_PREFIX)
     app.mount('/assets', core.app.ASSETS)
     app.mount('/ws', core.app.ws)
 
