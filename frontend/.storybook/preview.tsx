@@ -3,13 +3,18 @@ import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import type { Preview } from "@storybook/react-vite";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { http, passthrough } from "msw";
 import { initialize, mswLoader } from "msw-storybook-addon";
 import { MINIMAL_VIEWPORTS } from "storybook/viewport";
 import queryClient from "../lib/cache";
 
-initialize();
+initialize(); // mock-service-worker
+
+const BACKEND_URL = "http://127.0.0.1:8000";
 
 const preview: Preview = {
+  loaders: [mswLoader],
+  tags: ["autodocs"],
   decorators: [
     (Story) => (
       <MantineProvider>
@@ -23,6 +28,26 @@ const preview: Preview = {
     ),
   ],
   parameters: {
+    msw: {
+      handlers: [
+        http.all(`${BACKEND_URL}/*`, () => {
+          // Ignore all requests sent to the actual server
+          return passthrough();
+        }),
+        http.all("/api/*", async ({ request }) => {
+          const url = new URL(request.url);
+
+          // Forward the request to the desired port
+          const targetUrl = `${BACKEND_URL}${url.pathname}${url.search}`;
+          return fetch(targetUrl, {
+            method: request.method,
+            headers: request.headers,
+            body: request.body,
+            // duplex: "half",  // FIXME
+          });
+        }),
+      ],
+    },
     viewport: {
       options: {
         smallDesktop: {
@@ -47,8 +72,6 @@ const preview: Preview = {
     },
     deepControls: { enabled: true },
   },
-  loaders: [mswLoader],
-  tags: ["autodocs"],
 };
 
 export default preview;

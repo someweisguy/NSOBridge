@@ -18,6 +18,7 @@ from core.db import CacheAPIRoute, create_tables, get_database_url, session_fact
 from core.updates import GithubReleaseSchema
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 from game import Series, create_bout
 from semver import VersionInfo
 from sqlalchemy import Result, Select, select
@@ -199,6 +200,13 @@ if __name__ == '__main__':
     if args.debug:
         # Add a debug endpoint profile middleware - looks funky but it works!
         app.middleware('http')(endpoint_profiling_middleware)
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=['http://127.0.0.1:6006'],  # Allow storybook redirect
+            allow_credentials=True,  # Allow cookies and auth headers
+            allow_methods=['*'],  # Allow all standard HTTP verbs
+            allow_headers=['*'],  # Allow all headers
+        )
 
     # Run the application
     try:
