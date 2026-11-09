@@ -37,9 +37,9 @@ export default function PeriodStartStopButton({
       disabled={disabled}
       rightSection={
         periodIsRunning ? (
-          <IconRollerSkating size={px(iconSize)} />
-        ) : (
           <IconPlayerStop size={px(iconSize)} />
+        ) : (
+          <IconRollerSkating size={px(iconSize)} />
         )
       }
       {...props}
