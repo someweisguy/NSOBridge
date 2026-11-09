@@ -10,6 +10,7 @@ export const useBoutOperator = ({
   uuid,
   jamUuids,
   state,
+  subState,
   activeJamUuid,
   timeoutUuids,
 }: Bout) => {
@@ -56,6 +57,7 @@ export const useBoutOperator = ({
 
   const showJamStopReasonEditor = activeJam?.stopTimestamp != null;
   const showTimeoutEditor = state == "timeout" && latestTimeout != null;
+  const canFinalizeBout = subState == "unofficial";
 
   return {
     teams,
@@ -66,5 +68,6 @@ export const useBoutOperator = ({
     lastEventTimestamp,
     showJamStopReasonEditor,
     showTimeoutEditor,
+    canFinalizeBout,
   };
 };

@@ -24,6 +24,7 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
     latestTimeout,
     showJamStopReasonEditor,
     showTimeoutEditor,
+    canFinalizeBout,
   } = useBoutOperator(bout);
 
   return (
@@ -45,7 +46,7 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
         <BoutPhaseController
           boutUuid={bout.uuid}
           boutState={bout.state}
-          showFinalizeBout={false} // TODO: figure out business logic for this
+          showFinalizeBout={canFinalizeBout}
           p="xs"
         />
         <Collapse expanded={showJamStopReasonEditor}>
