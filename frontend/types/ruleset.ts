@@ -28,4 +28,8 @@ export interface Ruleset {
    * The number of Official Reviews that each Team may have at any given time.
    */
   numReviews: number;
+  /**
+   * The number of Periods in this Bout.
+   */
+  numPeriods: number;
 }
