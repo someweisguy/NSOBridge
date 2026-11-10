@@ -57,6 +57,7 @@ export default class API {
         params?.body instanceof Object
           ? JSON.stringify(params.body)
           : params?.body?.toString(),
+      credentials: "include", // Allow cross-origin cookies
     });
 
     // Check for (and raise) errors in the response
