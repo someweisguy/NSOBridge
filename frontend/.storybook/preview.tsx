@@ -39,7 +39,7 @@ const preview: Preview = {
           const url = new URL(request.url);
           url.port = SERVER_PORT.toString();
           return new HttpResponse(null, {
-            status: StatusCodes.PERMANENT_REDIRECT,
+            status: StatusCodes.TEMPORARY_REDIRECT,
             headers: {
               location: url.href,
             },
