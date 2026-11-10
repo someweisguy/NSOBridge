@@ -202,10 +202,10 @@ if __name__ == '__main__':
         app.middleware('http')(endpoint_profiling_middleware)
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=['*'],  # Allow storybook redirect
-            allow_credentials=True,  # Allow cookies and auth headers
-            allow_methods=['*'],  # Allow all standard HTTP verbs
-            allow_headers=['*'],  # Allow all headers
+            allow_origins=['*'],
+            allow_methods=['*'],
+            allow_headers=['*'],
+            allow_credentials=True,
         )
 
     # Run the application
