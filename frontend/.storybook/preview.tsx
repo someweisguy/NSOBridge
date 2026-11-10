@@ -3,12 +3,18 @@ import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import type { Preview } from "@storybook/react-vite";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { bypass, http } from "msw";
+import { StatusCodes } from "http-status-codes";
+import { http, HttpResponse } from "msw";
 import { initialize, mswLoader } from "msw-storybook-addon";
 import { MINIMAL_VIEWPORTS } from "storybook/viewport";
 import queryClient from "../lib/cache";
 
-initialize(); // mock-service-worker
+const SERVER_PORT = 8000;
+
+// mock-service-worker
+initialize({
+  onUnhandledRequest: "bypass",
+});
 
 const preview: Preview = {
   loaders: [mswLoader],
@@ -29,20 +35,15 @@ const preview: Preview = {
     msw: {
       handlers: [
         http.all("api/*", ({ request }) => {
-          const proxyUrl = new URL(request.url);
-
-          // Forward the request to the desired port
-          proxyUrl.port = "8000";
-
-          const proxyRequest = new Request(proxyUrl, {
-            method: request.method,
-            headers: request.headers,
-            body: request.body,
-            // duplex: "half",  // FIXME
+          // Automatically redirect to the running server
+          const url = new URL(request.url);
+          url.port = SERVER_PORT.toString();
+          return new HttpResponse(null, {
+            status: StatusCodes.PERMANENT_REDIRECT,
+            headers: {
+              location: url.href,
+            },
           });
-
-          // Send the request to the new port using bypass() to prevent handler loops
-          return fetch(bypass(proxyRequest));
         }),
       ],
     },
