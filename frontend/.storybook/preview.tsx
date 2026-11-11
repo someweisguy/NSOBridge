@@ -48,7 +48,6 @@ const preview: Preview = {
         ws
           .link("ws://127.0.0.1:6006/ws/")
           .addEventListener("connection", ({ client }) => {
-            console.log("Got WebSocket connection event");
             // Open a WebSocket connection to the backend and begin message forwarding
             const targetSocket = new WebSocket(`ws://${SERVER_URL.host}/ws/`);
             targetSocket.addEventListener("message", (event) => {
