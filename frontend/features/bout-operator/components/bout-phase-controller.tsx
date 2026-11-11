@@ -50,8 +50,7 @@ export default function BoutPhaseController({
   const { mutate: finalizeBout } = useFinalizeBout({ uuid: boutUuid });
 
   const canStartStopJam = boutState != "final";
-  const canStartStopPeriod =
-    ["stopped", "lineup"].includes(boutState) && canStopPeriod;
+  const canStartPeriod = boutState == "stopped";
   const canStartStopTimeout = !["stopped", "final"].includes(boutState);
 
   return (
@@ -78,7 +77,7 @@ export default function BoutPhaseController({
           boutUuid={boutUuid}
           periodIsRunning={boutState != "stopped"}
           canStartOvertime={boutSubState == "unofficial"}
-          disabled={!canStartStopPeriod}
+          disabled={!(canStartPeriod || canStopPeriod)}
           variant={
             boutState == "stopped" && boutSubState != "unofficial"
               ? "outline"

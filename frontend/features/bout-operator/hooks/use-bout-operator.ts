@@ -60,7 +60,9 @@ export const useBoutOperator = ({
   const showJamStopReasonEditor = activeJam?.stopTimestamp != null;
   const showTimeoutEditor = state == "timeout" && latestTimeout != null;
   const canFinalizeBout = subState == "unofficial";
-  const canStopPeriod = activeJam?.num != 0 || activeJam?.stopTimestamp != null;
+  const canStopPeriod =
+    state == "lineup" &&
+    (activeJam?.num != 0 || activeJam?.stopTimestamp != null);
   // TODO: disable the end period button if there is more than 30 seconds remaining
 
   return {
