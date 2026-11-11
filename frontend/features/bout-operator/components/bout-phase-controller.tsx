@@ -26,7 +26,15 @@ export interface BoutPhaseControllerProps extends FieldsetProps {
   showFinalizeBout: boolean;
 }
 
-// TODO: docs
+/**
+ * Control the current phase of the Bout. This component is analogous to blowing
+ * the whistle to start the Period, Jam, or to call Timeouts.
+ *
+ * The primary button is highlighted to indicate the most likely next phase in
+ * the Bout, i.e. when the Bout is in lineup starting the next Jam is more
+ * likely to occur than calling a Timeout so the "Start Jam" button is made
+ * the primary.
+ */
 export default function BoutPhaseController({
   boutUuid,
   boutState,
