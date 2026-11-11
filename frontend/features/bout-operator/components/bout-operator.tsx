@@ -48,6 +48,7 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
         <BoutPhaseController
           boutUuid={bout.uuid}
           boutState={bout.state}
+          boutSubState={bout.subState}
           showFinalizeBout={canFinalizeBout}
           p="xs"
         />

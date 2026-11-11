@@ -10,6 +10,7 @@ export interface PeriodStartStopButtonProps extends Omit<
 > {
   boutUuid: string;
   periodIsRunning: boolean;
+  canStartOvertime: boolean;
   iconSize: MantineSize | (string & {}) | number;
 }
 
@@ -17,6 +18,7 @@ export interface PeriodStartStopButtonProps extends Omit<
 export default function PeriodStartStopButton({
   boutUuid,
   periodIsRunning,
+  canStartOvertime,
   disabled,
   iconSize,
   ...props
@@ -28,7 +30,11 @@ export default function PeriodStartStopButton({
     () => (periodIsRunning ? stopPeriod() : startPeriod()),
     [periodIsRunning, startPeriod, stopPeriod],
   );
-  const startStopPeriodText = periodIsRunning ? "End Period" : "Begin Period";
+  const startStopPeriodText = periodIsRunning
+    ? "End Period"
+    : canStartOvertime
+      ? "Begin Overtime"
+      : "Begin Period";
 
   return (
     <Button

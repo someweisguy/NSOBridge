@@ -1,4 +1,4 @@
-import { BoutStateString } from "@/types/bout";
+import { BoutStateString, BoutSubStateString } from "@/types/bout";
 import {
   Button,
   ButtonProps,
@@ -25,6 +25,7 @@ const sharedButtonProps: ButtonProps & { iconSize: number } = {
 export interface BoutPhaseControllerProps extends FieldsetProps {
   boutUuid: string;
   boutState: BoutStateString;
+  boutSubState: BoutSubStateString;
   showFinalizeBout: boolean;
 }
 
@@ -40,6 +41,7 @@ export interface BoutPhaseControllerProps extends FieldsetProps {
 export default function BoutPhaseController({
   boutUuid,
   boutState,
+  boutSubState,
   showFinalizeBout,
   ...props
 }: BoutPhaseControllerProps) {
@@ -72,8 +74,13 @@ export default function BoutPhaseController({
         <PeriodStartStopButton
           boutUuid={boutUuid}
           periodIsRunning={boutState != "stopped"}
+          canStartOvertime={boutSubState == "unofficial"}
           disabled={!canStartStopPeriod}
-          variant={boutState == "stopped" ? "outline" : "default"}
+          variant={
+            boutState == "stopped" && boutSubState != "unofficial"
+              ? "outline"
+              : "default"
+          }
           {...sharedButtonProps}
         />
 
