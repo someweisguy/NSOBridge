@@ -15,11 +15,12 @@ import JamStartStopButton from "./jam-start-stop-button";
 import PeriodStartStopButton from "./period-start-stop-button";
 import TimeoutStartStopButton from "./timeout-start-stop-button";
 
-const sharedButtonProps: ButtonProps & { iconSize: number } = {
+const iconSize = 16;
+
+const sharedButtonProps: ButtonProps = {
   size: "xs",
   w: "100%",
   justify: "space-between",
-  iconSize: 16,
 };
 
 export interface BoutPhaseControllerProps extends FieldsetProps {
@@ -63,6 +64,7 @@ export default function BoutPhaseController({
           variant={
             ["lineup", "jam"].includes(boutState) ? "outline" : "default"
           }
+          iconSize={iconSize}
           {...sharedButtonProps}
         />
         <TimeoutStartStopButton
@@ -70,6 +72,7 @@ export default function BoutPhaseController({
           timeoutIsRunning={boutState == "timeout"}
           disabled={!canStartStopTimeout}
           variant={boutState == "timeout" ? "outline" : "default"}
+          iconSize={iconSize}
           {...sharedButtonProps}
         />
 
@@ -83,6 +86,7 @@ export default function BoutPhaseController({
               ? "outline"
               : "default"
           }
+          iconSize={iconSize}
           {...sharedButtonProps}
         />
 
@@ -93,9 +97,7 @@ export default function BoutPhaseController({
             color="red"
             onClick={() => finalizeBout()}
             disabled={!showFinalizeBout}
-            rightSection={
-              <IconFlagFilled size={px(sharedButtonProps.iconSize)} />
-            }
+            rightSection={<IconFlagFilled size={px(iconSize)} />}
             {...sharedButtonProps}
           >
             Finalize Bout
