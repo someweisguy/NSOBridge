@@ -44,6 +44,7 @@ export interface BoutClockProps extends StackProps {
   jamStopReason: StopReasonString | null | undefined;
   lastEventTimestamp: string | null;
   jamDuration: number | undefined;
+  showJamClock: boolean;
 }
 
 /**
@@ -58,6 +59,7 @@ export default function BoutClock({
   jamStopReason,
   lastEventTimestamp,
   jamDuration,
+  showJamClock,
   ...props
 }: BoutClockProps) {
   const hasLoaded =
@@ -87,7 +89,7 @@ export default function BoutClock({
             </Text>
           </Grid.Col>
           <Grid.Col span={4}>
-            {boutState == "jam" ? (
+            {boutState == "jam" || showJamClock ? (
               <ClockView
                 startTimestamp={lastEventTimestamp}
                 alarm={jamDuration}

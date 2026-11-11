@@ -40,6 +40,7 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
           jamStopReason={activeJam?.stopReason}
           lastEventTimestamp={lastEventTimestamp}
           jamDuration={ruleset?.jamDuration}
+          showJamClock={!showJamStopReasonEditor}
           h="6.5rem"
         />
         <Divider />
