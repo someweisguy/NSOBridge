@@ -10,6 +10,7 @@ import { useBoutClock } from "@/features/bout-operator/hooks/use-bout-clock";
 import TeamJamOperator from "@/features/team-jam-operator/components/team-jam-operator";
 import Undoer from "@/features/undo/components/undoer";
 import { useRuleset } from "@/hooks/use-ruleset";
+import { useSuspenseGetSyncData } from "@/hooks/use-suspense-get-sync-data";
 import { Team } from "@/types/bout";
 import {
   AppShell,
@@ -52,6 +53,8 @@ if (root != null) {
 export default function OperatorPage() {
   // TODO: cache the navbar open state
   const [opened, { toggle }] = useDisclosure(false);
+
+  void useSuspenseGetSyncData(); // TODO: correctly handle clock sync
 
   const [activeSeries] = useSeriesPicker();
   const [activeBout, setActiveBoutUuid, boutPickerData] =
