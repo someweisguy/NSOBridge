@@ -96,7 +96,7 @@ export default function OperatorPage() {
               orientation="horizontal"
               w="fit-content"
               maw="100%"
-              h="fit-content"
+              h="100%"
               m="md"
               shadow="lg"
             >
