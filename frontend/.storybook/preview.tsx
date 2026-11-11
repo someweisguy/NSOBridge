@@ -16,9 +16,6 @@ initialize({
   onUnhandledRequest: "bypass",
 });
 
-// Intercept WebSocket connections to the Storybook URL
-const originalLink = ws.link("ws://127.0.0.1:6006/ws/");
-
 const preview: Preview = {
   loaders: [mswLoader],
   tags: ["autodocs"],
@@ -48,35 +45,37 @@ const preview: Preview = {
             },
           });
         }),
-        originalLink.addEventListener("connection", ({ client, server }) => {
-          server.connect();
+        ws
+          .link("ws://127.0.0.1:6006/ws/")
+          .addEventListener("connection", ({ client }) => {
+            console.log("Got WebSocket connection event");
+            // Open a WebSocket connection to the backend and begin message forwarding
+            const targetSocket = new WebSocket(`ws://${SERVER_URL.host}/ws/`);
+            targetSocket.addEventListener("message", (event) => {
+              client.send(event.data as string);
+            });
+            client.addEventListener("message", (event) => {
+              event.preventDefault(); // Don't forward WS to Storybook
+              if (targetSocket.readyState === WebSocket.OPEN) {
+                targetSocket.send(event.data as string);
+              } else {
+                // Wait for the target socket to open and send the data
+                targetSocket.addEventListener(
+                  "open",
+                  () => targetSocket.send(event.data as string),
+                  { once: true },
+                );
+              }
+            });
 
-          // Open a WebSocket connection to the backend and begin message forwarding
-          const targetSocket = new WebSocket(`ws://${SERVER_URL.host}/ws/`);
-          targetSocket.addEventListener("message", (event) => {
-            client.send(event.data as string);
-          });
-          client.addEventListener("message", (event) => {
-            event.preventDefault(); // Don't forward WS to Storybook
-            if (targetSocket.readyState === WebSocket.OPEN) {
-              targetSocket.send(event.data as string);
-            } else {
-              targetSocket.addEventListener(
-                "open",
-                () => targetSocket.send(event.data as string),
-                { once: true },
-              );
-            }
-          });
-
-          // Synchronize Websocket close state
-          targetSocket.addEventListener("close", (event) => {
-            client.close(event.code, event.reason);
-          });
-          client.addEventListener("close", () => {
-            targetSocket.close();
-          });
-        }),
+            // Synchronize Websocket close state
+            targetSocket.addEventListener("close", (event) => {
+              client.close(event.code, event.reason);
+            });
+            client.addEventListener("close", () => {
+              targetSocket.close();
+            });
+          }),
       ],
     },
     viewport: {
