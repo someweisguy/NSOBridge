@@ -17,7 +17,7 @@ initialize({
 });
 
 // Intercept WebSocket connections to the Storybook URL
-const originalLink = ws.link(`ws://127.0.0.1:6006/ws/`);
+const originalLink = ws.link("ws://127.0.0.1:6006/ws/");
 
 const preview: Preview = {
   loaders: [mswLoader],
@@ -48,7 +48,9 @@ const preview: Preview = {
             },
           });
         }),
-        originalLink.addEventListener("connection", ({ client }) => {
+        originalLink.addEventListener("connection", ({ client, server }) => {
+          server.connect();
+
           // Open a WebSocket connection to the backend and begin message forwarding
           const targetSocket = new WebSocket(`ws://${SERVER_URL.host}/ws/`);
           targetSocket.addEventListener("message", (event) => {
