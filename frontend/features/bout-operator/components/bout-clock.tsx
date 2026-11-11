@@ -95,7 +95,7 @@ export default function BoutClock({
                 fz="1.5rem"
               />
             ) : (
-              <Text fw={200} tt="uppercase">
+              <Text fw={200} tt="uppercase" c="dimmed">
                 {stopReasons[jamStopReason ?? "other"]}
               </Text>
             )}
