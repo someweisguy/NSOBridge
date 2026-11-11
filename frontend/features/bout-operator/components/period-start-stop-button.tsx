@@ -32,7 +32,6 @@ export default function PeriodStartStopButton({
 
   return (
     <Button
-      variant="default"
       onClick={() => startStopPeriod()}
       disabled={disabled}
       rightSection={

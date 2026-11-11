@@ -33,8 +33,6 @@ export default function TimeoutStartStopButton({
 
   return (
     <Button
-      variant="outline"
-      color="yellow"
       onClick={() => startStopTimeout()}
       rightSection={<IconAlarm size={px(iconSize)} />}
       {...props}

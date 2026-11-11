@@ -28,8 +28,6 @@ export default function JamStartStopButton({
 
   return (
     <Button
-      variant="outline"
-      color="teal"
       onClick={() => startStopJam()}
       rightSection={
         jamIsRunning ? (

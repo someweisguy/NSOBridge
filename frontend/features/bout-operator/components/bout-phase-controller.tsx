@@ -46,12 +46,16 @@ export default function BoutPhaseController({
           boutUuid={boutUuid}
           jamIsRunning={boutState == "jam"}
           disabled={!canStartStopJam}
+          variant={
+            ["lineup", "jam"].includes(boutState) ? "outline" : "default"
+          }
           {...sharedButtonProps}
         />
         <TimeoutStartStopButton
           boutUuid={boutUuid}
           timeoutIsRunning={boutState == "timeout"}
           disabled={!canStartStopTimeout}
+          variant={boutState == "timeout" ? "outline" : "default"}
           {...sharedButtonProps}
         />
 
@@ -59,6 +63,7 @@ export default function BoutPhaseController({
           boutUuid={boutUuid}
           periodIsRunning={boutState != "stopped"}
           disabled={!canStartStopPeriod}
+          variant={boutState == "stopped" ? "outline" : "default"}
           {...sharedButtonProps}
         />
 
