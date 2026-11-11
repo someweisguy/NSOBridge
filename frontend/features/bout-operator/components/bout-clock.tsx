@@ -121,7 +121,7 @@ export default function BoutClock({
 
       <Collapse expanded={showBoutEvent} w="100%">
         <Stack justify="start" align="stretch" gap="0">
-          <Divider mx="md" />
+          <Divider mx="0.5rem" />
           <Group
             justify="center"
             align="center"
