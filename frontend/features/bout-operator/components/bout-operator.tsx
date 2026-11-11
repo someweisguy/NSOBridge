@@ -25,6 +25,7 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
     showJamStopReasonEditor,
     showTimeoutEditor,
     canFinalizeBout,
+    canStopPeriod,
   } = useBoutOperator(bout);
 
   return (
@@ -39,7 +40,6 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
           jamStopReason={activeJam?.stopReason}
           lastEventTimestamp={lastEventTimestamp}
           jamDuration={ruleset?.jamDuration}
-          // justify="start"
           h="6.5rem"
         />
         <Divider />
@@ -50,6 +50,7 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
           boutState={bout.state}
           boutSubState={bout.subState}
           showFinalizeBout={canFinalizeBout}
+          canStopPeriod={canStopPeriod}
           p="xs"
         />
         <Collapse expanded={showJamStopReasonEditor}>

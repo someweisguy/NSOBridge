@@ -27,6 +27,7 @@ export interface BoutPhaseControllerProps extends FieldsetProps {
   boutState: BoutStateString;
   boutSubState: BoutSubStateString;
   showFinalizeBout: boolean;
+  canStopPeriod: boolean;
 }
 
 /**
@@ -43,12 +44,14 @@ export default function BoutPhaseController({
   boutState,
   boutSubState,
   showFinalizeBout,
+  canStopPeriod,
   ...props
 }: BoutPhaseControllerProps) {
   const { mutate: finalizeBout } = useFinalizeBout({ uuid: boutUuid });
 
   const canStartStopJam = boutState != "final";
-  const canStartStopPeriod = ["stopped", "lineup"].includes(boutState);
+  const canStartStopPeriod =
+    ["stopped", "lineup"].includes(boutState) && canStopPeriod;
   const canStartStopTimeout = !["stopped", "final"].includes(boutState);
 
   return (
