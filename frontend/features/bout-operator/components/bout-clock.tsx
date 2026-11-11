@@ -38,7 +38,7 @@ const stopReasons: Record<StopReasonString, string> = {
 const overtimeText = "OT";
 
 export interface BoutClockProps extends StackProps {
-  boutClock: Clock;
+  boutClock: Clock | undefined;
   isInOvertime: boolean;
   periodNum: number | null;
   jamNum: number | null;
@@ -69,6 +69,7 @@ export default function BoutClock({
   ...props
 }: BoutClockProps) {
   const hasLoaded =
+    boutClock != null &&
     periodNum != null &&
     jamNum != null &&
     jamStopReason !== undefined &&

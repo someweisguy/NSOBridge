@@ -3,7 +3,6 @@ import { useJam } from "@/hooks/use-jam";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/types/bout";
 import { ComboboxData } from "@mantine/core";
-import { useMemo } from "react";
 
 // TODO: docs
 export const useBoutOperator = ({
@@ -29,34 +28,11 @@ export const useBoutOperator = ({
       })),
   });
 
-  const periodNum = activeJam != null ? Math.min(activeJam.period, 1) : null;
   let jamNum = activeJam?.num ?? null;
   if (jamNum != null && activeJam!.period > 1) {
     jamNum += jamUuids[1].length;
   }
 
-  // Get the time since the last Jam or Timeout or null if neither have occurred
-  const lastEventTimestamp: string | null = useMemo(
-    () =>
-      activeJam?.startTimestamp != null
-        ? new Date(
-            Math.max(
-              ...[
-                activeJam?.startTimestamp,
-                activeJam?.stopTimestamp,
-                latestTimeout?.startTimestamp,
-                latestTimeout?.stopTimestamp,
-              ]
-                .filter((val?: string | null) => val != null)
-                .map((val: string) => new Date(val).getTime()),
-            ),
-          ).toISOString()
-        : null,
-    [activeJam, latestTimeout],
-  );
-
-  const isInOvertime = jamUuids[2].includes(activeJamUuid); // TODO: magic number
-  const jamStartTimestamp = state == "jam" ? lastEventTimestamp : null;
   const showJamStopReasonEditor = activeJam?.stopTimestamp != null;
   const showTimeoutEditor = state == "timeout" && latestTimeout != null;
   const canFinalizeBout = subState == "unofficial";
@@ -68,12 +44,7 @@ export const useBoutOperator = ({
   return {
     teams,
     activeJam,
-    isInOvertime,
-    periodNum,
-    jamNum,
     latestTimeout,
-    jamStartTimestamp,
-    lastEventTimestamp,
     showJamStopReasonEditor,
     showTimeoutEditor,
     canFinalizeBout,

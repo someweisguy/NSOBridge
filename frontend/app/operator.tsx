@@ -4,17 +4,23 @@ import BoutEditor from "@/features/bout-editor/components/bout-editor";
 import BoutPicker from "@/features/bout-editor/components/bout-picker";
 import useBoutPicker from "@/features/bout-editor/hooks/use-bout-picker";
 import useSeriesPicker from "@/features/bout-editor/hooks/use-series-picker";
+import BoutClock from "@/features/bout-operator/components/bout-clock";
 import BoutOperator from "@/features/bout-operator/components/bout-operator";
+import { useBoutClock } from "@/features/bout-operator/hooks/use-bout-clock";
 import TeamJamOperator from "@/features/team-jam-operator/components/team-jam-operator";
 import Undoer from "@/features/undo/components/undoer";
+import { useRuleset } from "@/hooks/use-ruleset";
 import { Team } from "@/types/bout";
 import {
   AppShell,
   Burger,
   Card,
+  Divider,
   Group,
   Loader,
   NavLink,
+  ScrollArea,
+  Stack,
   Title,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -50,6 +56,21 @@ export default function OperatorPage() {
   const [activeSeries] = useSeriesPicker();
   const [activeBout, setActiveBoutUuid, boutPickerData] =
     useBoutPicker(activeSeries);
+
+  const {
+    activeJam,
+    isInOvertime,
+    periodNum,
+    jamNum,
+    jamStartTimestamp,
+    lastEventTimestamp,
+    showJamStopReasonEditor,
+  } = useBoutClock(activeBout);
+
+  const { data: ruleset } = useRuleset({
+    uuid: activeBout?.uuid ?? "",
+    enabled: activeBout != null,
+  });
 
   return (
     <AppShell {...appShellConfig(opened)}>
@@ -101,7 +122,30 @@ export default function OperatorPage() {
               shadow="lg"
             >
               <Card.Section withBorder>
-                <BoutOperator bout={activeBout} />
+                <Stack gap="0" h="100%">
+                  <BoutClock
+                    boutClock={activeBout?.clock}
+                    isInOvertime={isInOvertime}
+                    periodNum={periodNum}
+                    jamNum={jamNum}
+                    showJamClock={!showJamStopReasonEditor}
+                    jamStartTimestamp={jamStartTimestamp}
+                    jamStopReason={activeJam?.stopReason}
+                    jamDuration={ruleset?.jamDuration}
+                    showBoutEvent={activeBout?.state != "jam"}
+                    boutEvent={activeBout?.subState}
+                    boutEventStartTimestamp={lastEventTimestamp}
+                    h="6.5rem"
+                  />
+                  <Divider />
+                  <ScrollArea
+                    scrollbarSize={6}
+                    h="100%"
+                    verticalScrollbarPosition="left"
+                  >
+                    <BoutOperator bout={activeBout} py="xs" />
+                  </ScrollArea>
+                </Stack>
               </Card.Section>
               <Group
                 grow
