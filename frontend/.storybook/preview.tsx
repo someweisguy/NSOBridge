@@ -4,7 +4,7 @@ import "@mantine/core/styles.css";
 import type { Preview } from "@storybook/react-vite";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StatusCodes } from "http-status-codes";
-import { http, HttpResponse, WebSocketData, ws } from "msw";
+import { http, HttpResponse, ws } from "msw";
 import { initialize, mswLoader } from "msw-storybook-addon";
 import { MINIMAL_VIEWPORTS } from "storybook/viewport";
 import queryClient from "../lib/cache";
@@ -52,7 +52,7 @@ const preview: Preview = {
           // Open a WebSocket connection to the backend and begin message forwarding
           const targetSocket = new WebSocket(`ws://${SERVER_URL.host}/ws/`);
           targetSocket.addEventListener("message", (event) => {
-            client.send(event.data as WebSocketData);
+            client.send(event.data as string);
           });
           client.addEventListener("message", (event) => {
             event.preventDefault(); // Don't forward WS to Storybook
