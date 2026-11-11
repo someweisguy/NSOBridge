@@ -42,7 +42,7 @@ export const useBoutClock = (bout?: Bout) => {
 
   const isInOvertime = bout?.jamUuids[2].includes(bout?.activeJamUuid) ?? false; // TODO: magic number
   const jamStartTimestamp = bout?.state == "jam" ? lastEventTimestamp : null;
-  const showJamStopReasonEditor = activeJam?.stopTimestamp != null;
+  const showJamClock = activeJam?.stopTimestamp == null;
 
   return {
     activeJam,
@@ -51,6 +51,6 @@ export const useBoutClock = (bout?: Bout) => {
     jamNum,
     jamStartTimestamp,
     lastEventTimestamp,
-    showJamStopReasonEditor,
+    showJamClock,
   };
 };

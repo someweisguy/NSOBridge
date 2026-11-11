@@ -62,9 +62,9 @@ export default function OperatorPage() {
     isInOvertime,
     periodNum,
     jamNum,
+    showJamClock,
     jamStartTimestamp,
     lastEventTimestamp,
-    showJamStopReasonEditor,
   } = useBoutClock(activeBout);
 
   const { data: ruleset } = useRuleset({
@@ -128,7 +128,7 @@ export default function OperatorPage() {
                     isInOvertime={isInOvertime}
                     periodNum={periodNum}
                     jamNum={jamNum}
-                    showJamClock={!showJamStopReasonEditor}
+                    showJamClock={showJamClock}
                     jamStartTimestamp={jamStartTimestamp}
                     jamStopReason={activeJam?.stopReason}
                     jamDuration={ruleset?.jamDuration}
