@@ -29,7 +29,7 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
 
   return (
     <Stack mb="lg" w={225} {...props}>
-      <Stack gap="0" w="100%">
+      <Stack gap="0" w="100%" justify="start">
         <BoutClock
           boutClock={bout.clock}
           boutState={bout.state}
@@ -39,6 +39,8 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
           jamStopReason={activeJam?.stopReason}
           lastEventTimestamp={lastEventTimestamp}
           jamDuration={ruleset?.jamDuration}
+          // justify="start"
+          h="6.5rem"
         />
         <Divider />
       </Stack>
