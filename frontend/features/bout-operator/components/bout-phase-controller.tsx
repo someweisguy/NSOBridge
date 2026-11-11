@@ -6,8 +6,10 @@ import {
   Divider,
   Fieldset,
   FieldsetProps,
+  px,
   Stack,
 } from "@mantine/core";
+import { IconFlag } from "@tabler/icons-react";
 import { useFinalizeBout } from "../hooks/use-finalize-bout";
 import JamStartStopButton from "./jam-start-stop-button";
 import PeriodStartStopButton from "./period-start-stop-button";
@@ -82,6 +84,7 @@ export default function BoutPhaseController({
             color="red"
             onClick={() => finalizeBout()}
             disabled={!showFinalizeBout}
+            rightSection={<IconFlag size={px(sharedButtonProps.iconSize)} />}
             {...sharedButtonProps}
           >
             Finalize Bout
