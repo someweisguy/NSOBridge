@@ -42,7 +42,7 @@ export default function TimeoutEditor({
     (value: string | null) => {
       const valueIsOfficials = value == officialDataValue;
       if (valueIsOfficials) {
-        updateTimeout({ teamUuid: null, teamIsOfficials: true });
+        updateTimeout({ teamUuid: null });
       } else {
         updateTimeout({ teamUuid: value });
       }

@@ -19,7 +19,7 @@ class UpdateTimeoutSchema(ClientSchema):
     stop_timestamp: datetime | None = None
     clock_elapsed: Annotated[timedelta, timedelta_serializer] | None = None
 
-    team_is_officials: bool | None = None
+    # team_is_officials: bool | None = None
     team_uuid: UUID | None = None
     is_review: bool | None = None
     details: str | None = None

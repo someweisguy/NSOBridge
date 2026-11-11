@@ -3,7 +3,7 @@ import { AppMutationOptions } from "@/types/query";
 import { Timeout } from "@/types/timeout";
 import { useMutation } from "@tanstack/react-query";
 
-type EditableTimeout = Partial<Omit<Timeout, "uuid">>;
+type EditableTimeout = Partial<Omit<Timeout, "uuid" | "teamIsOfficials">>;
 
 /**
  * Update the Timeout.
