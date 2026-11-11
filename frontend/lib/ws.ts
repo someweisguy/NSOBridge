@@ -133,18 +133,23 @@ export default class Socket {
       const info: ServerData = await this.getServerInfo();
       clientNow = new Date();
       lastSyncPacket = info;
-      if (info.process == null) {
+      if (info.process == null || isNaN(Date.parse(info.process))) {
         throw new Error(
           "something went wrong when trying to synchronize the server time",
         );
       }
-      syncSamples.push(clientNow.getTime() - info.process.getTime());
+      syncSamples.push(clientNow.getTime() - Date.parse(info.process));
     } while (syncSamples.length < NUM_SYNC_SAMPLES);
 
     // Calculate the average round-trip time
     const rtt =
       syncSamples.reduce((acc, val) => acc + val) / syncSamples.length;
-    const serverTime = lastSyncPacket.server.getTime() + rtt / 2;
+    const serverTime = Date.parse(lastSyncPacket.server) + rtt / 2;
+    if (isNaN(serverTime)) {
+      throw new Error(
+        "something went wrong when trying to calculate the server time",
+      );
+    }
 
     return {
       offset: serverTime - clientNow.getTime(),

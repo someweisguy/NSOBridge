@@ -13,11 +13,11 @@ export interface ServerData {
    * server receives. If no process timestamp is sent by the client, this value is null.
    * To use Cristian's algorithm, it is required to send a process timestamp.
    */
-  process: Date | null;
+  process: string | null;
   /**
    * The server timestamp at the time that the WebSocket response packet is sent.
    */
-  server: Date;
+  server: string;
   /**
    * The server software version in the form of a semantic versioning string (x.y.z).
    */
