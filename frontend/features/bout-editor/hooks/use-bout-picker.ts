@@ -59,7 +59,8 @@ export default function useBoutPicker(
 
   // Handle when activeBout is deleted
   useEffect(() => {
-    if (!series?.boutUuids.find((boutUuid) => boutUuid == activeBoutUuid)) {
+    const boutUuids = series?.boutUuids ?? [];
+    if (!boutUuids.find((boutUuid) => boutUuid == activeBoutUuid)) {
       // Default to Series active Bout
       setActiveBoutUuid(series?.activeBoutUuid ?? null);
     }
@@ -68,7 +69,8 @@ export default function useBoutPicker(
   // Only allow valid Bouts to become the activeBout
   const handleSetActiveBout = useCallback(
     (boutUuid: string) => {
-      if (series?.boutUuids.includes(boutUuid)) {
+      const boutUuids = series?.boutUuids ?? [];
+      if (boutUuids.includes(boutUuid)) {
         setActiveBoutUuid(boutUuid);
       }
     },
