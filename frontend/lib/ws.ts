@@ -30,6 +30,7 @@ interface WebSocketSchema<K extends keyof API> {
  * to the desired destination.
  */
 export default class Socket {
+  private url: string;
   private ws: WebSocket;
   private allCallbacks = new Map<string, CallbackType[]>();
   private allResolutions = new Map<string, CallbackType[]>();
@@ -56,15 +57,17 @@ export default class Socket {
 
   /**
    * Connect to the desired WebSocket host.
-   *
-   * @param url the URL of the host.
    */
-  private connect(url: string) {
-    this.ws = new WebSocket(url);
+  private connect() {
+    if (this.ws != null) {
+      return;
+    }
+
+    this.ws = new WebSocket(this.url);
     this.ws.onopen = () => this.handleEvent("connect", true);
     this.ws.onclose = () => {
       this.handleEvent("connect", false);
-      setTimeout(() => this.connect(url), 1000);
+      setTimeout(() => this.connect(), 1000);
     };
     this.ws.onerror = () => this.ws.close();
     this.ws.onmessage = <K extends keyof API>(event: MessageEvent<string>) => {
@@ -74,7 +77,8 @@ export default class Socket {
   }
 
   constructor(url: string) {
-    this.connect(url);
+    // Lazy WebSocket connection is supported to allow Storybook functionality.
+    this.url = url;
   }
 
   /**
@@ -96,6 +100,8 @@ export default class Socket {
    * @returns a ServerData object.
    */
   async getServerInfo(): Promise<ServerData> {
+    this.connect();
+
     // Wait until the WebSocket is connected
     if (this.ws.readyState !== WebSocket.OPEN) {
       const connected = await this.receiveData("connect").catch(() => false);
@@ -117,6 +123,8 @@ export default class Socket {
    * @returns a SyncData object which contains the server time offset and error.
    */
   async getSyncData(): Promise<SyncData> {
+    this.connect();
+
     // Collect a number of round-trip time samples
     let clientNow: Date;
     let lastSyncPacket: ServerData;
