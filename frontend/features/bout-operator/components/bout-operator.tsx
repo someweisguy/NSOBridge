@@ -20,6 +20,8 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
     activeJam,
     periodNum,
     jamNum,
+    isInOvertime,
+    jamStartTimestamp,
     lastEventTimestamp,
     latestTimeout,
     showJamStopReasonEditor,
@@ -33,14 +35,16 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
       <Stack gap="0" w="100%" justify="start">
         <BoutClock
           boutClock={bout.clock}
-          boutState={bout.state}
-          boutSubState={bout.subState}
+          isInOvertime={isInOvertime}
           periodNum={periodNum}
           jamNum={jamNum}
-          jamStopReason={activeJam?.stopReason}
-          lastEventTimestamp={lastEventTimestamp}
-          jamDuration={ruleset?.jamDuration}
           showJamClock={!showJamStopReasonEditor}
+          jamStartTimestamp={jamStartTimestamp}
+          jamStopReason={activeJam?.stopReason}
+          jamDuration={ruleset?.jamDuration}
+          showBoutEvent={bout.state != "jam"}
+          boutEvent={bout.subState}
+          boutEventStartTimestamp={lastEventTimestamp}
           h="6.5rem"
         />
         <Divider />

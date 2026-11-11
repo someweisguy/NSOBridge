@@ -55,6 +55,8 @@ export const useBoutOperator = ({
     [activeJam, latestTimeout],
   );
 
+  const isInOvertime = jamUuids[2].includes(activeJamUuid); // TODO: magic number
+  const jamStartTimestamp = state == "jam" ? lastEventTimestamp : null;
   const showJamStopReasonEditor = activeJam?.stopTimestamp != null;
   const showTimeoutEditor = state == "timeout" && latestTimeout != null;
   const canFinalizeBout = subState == "unofficial";
@@ -64,9 +66,11 @@ export const useBoutOperator = ({
   return {
     teams,
     activeJam,
+    isInOvertime,
     periodNum,
     jamNum,
     latestTimeout,
+    jamStartTimestamp,
     lastEventTimestamp,
     showJamStopReasonEditor,
     showTimeoutEditor,

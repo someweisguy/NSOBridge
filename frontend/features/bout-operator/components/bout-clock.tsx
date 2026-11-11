@@ -1,5 +1,5 @@
 import ClockView from "@/components/clock-view";
-import { BoutStateString, BoutSubStateString } from "@/types/bout";
+import { BoutSubStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
 import { Clock } from "@/types/time";
 import {
@@ -35,16 +35,20 @@ const stopReasons: Record<StopReasonString, string> = {
   other: "-",
 };
 
+const overtimeText = "OT";
+
 export interface BoutClockProps extends StackProps {
   boutClock: Clock;
-  boutState: BoutStateString;
-  boutSubState: BoutSubStateString;
+  isInOvertime: boolean;
   periodNum: number | null;
   jamNum: number | null;
-  jamStopReason: StopReasonString | null | undefined;
-  lastEventTimestamp: string | null;
-  jamDuration: number | undefined;
   showJamClock: boolean;
+  jamStartTimestamp: string | null;
+  jamStopReason: StopReasonString | null | undefined;
+  showBoutEvent: boolean;
+  boutEvent: BoutSubStateString;
+  boutEventStartTimestamp: string | null;
+  jamDuration: number | undefined;
 }
 
 /**
@@ -52,14 +56,16 @@ export interface BoutClockProps extends StackProps {
  */
 export default function BoutClock({
   boutClock,
-  boutState,
-  boutSubState,
+  isInOvertime,
   periodNum,
   jamNum,
-  jamStopReason,
-  lastEventTimestamp,
-  jamDuration,
   showJamClock,
+  jamStopReason,
+  jamStartTimestamp,
+  jamDuration,
+  showBoutEvent,
+  boutEvent,
+  boutEventStartTimestamp,
   ...props
 }: BoutClockProps) {
   const hasLoaded =
@@ -80,8 +86,13 @@ export default function BoutClock({
           rowGap="0"
         >
           <Grid.Col span={4}>
-            {/* TODO: Overtime display */}
-            <ClockView formatter="bout" fz="1.5rem" {...boutClock} />
+            {isInOvertime ? (
+              <Text fz="1.5rem" tt="uppercase" fw={350}>
+                {overtimeText}
+              </Text>
+            ) : (
+              <ClockView formatter="bout" fz="1.5rem" {...boutClock} />
+            )}
           </Grid.Col>
           <Grid.Col span={4}>
             <Text textWrap="nowrap" fz="1.5rem">
@@ -89,9 +100,9 @@ export default function BoutClock({
             </Text>
           </Grid.Col>
           <Grid.Col span={4}>
-            {boutState == "jam" || showJamClock ? (
+            {showJamClock ? (
               <ClockView
-                startTimestamp={lastEventTimestamp}
+                startTimestamp={jamStartTimestamp}
                 alarm={jamDuration}
                 formatter="jam"
                 fz="1.5rem"
@@ -107,7 +118,7 @@ export default function BoutClock({
         <Loader type="dots" size="xs" />
       )}
 
-      <Collapse expanded={boutState != "jam"} w="100%">
+      <Collapse expanded={showBoutEvent} w="100%">
         <Stack justify="start" align="stretch" gap="0">
           <Divider mx="md" />
           <Group
@@ -116,9 +127,13 @@ export default function BoutClock({
             p="xs"
             // TODO: set background color according to Bout State
           >
-            <Text ta="center">{eventNames[boutSubState] ?? "-"}</Text>
-            {/* TODO: conditionally show ClockView */}
-            <ClockView formatter="lineup" startTimestamp={lastEventTimestamp} />
+            <Text ta="center">{eventNames[boutEvent] ?? "-"}</Text>
+            {boutEventStartTimestamp != null && (
+              <ClockView
+                formatter="lineup"
+                startTimestamp={boutEventStartTimestamp}
+              />
+            )}
           </Group>
         </Stack>
       </Collapse>
