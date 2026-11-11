@@ -135,7 +135,7 @@ export default function OperatorPage() {
                     showBoutEvent={activeBout?.state != "jam"}
                     boutEvent={activeBout?.subState}
                     boutEventStartTimestamp={lastEventTimestamp}
-                    h="6.5rem"
+                    h="9rem"
                   />
                   <Divider />
                   <ScrollArea
