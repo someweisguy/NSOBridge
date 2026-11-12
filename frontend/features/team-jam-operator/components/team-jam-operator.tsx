@@ -59,6 +59,7 @@ export default function TeamJamOperator({
       />
       <TripAdder
         teamUuid={team.uuid}
+        showInitial={!jammerInitial}
         pointsPerTrip={ruleset.pointsPerTrip}
         px="lg"
         w="100%"
