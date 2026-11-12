@@ -12,11 +12,12 @@ export interface TeamScoreProps extends GridProps {
   timeout: "timeout" | "review" | null;
   timeoutsRemaining: number;
   reviewsRemaining: number;
-  jammerState: "lead" | "lost" | "starPass" | null;
+  jammerLead: boolean;
+  jammerLost: boolean;
+  jammerStarPass: boolean;
   jammerInitial: boolean;
   numTimeouts: number;
   numReviews: number;
-
   reverse?: boolean;
 }
 
@@ -29,13 +30,23 @@ export default function TeamScore({
   timeout,
   timeoutsRemaining,
   reviewsRemaining,
-  jammerState,
+  jammerLead,
+  jammerLost,
+  jammerStarPass,
   jammerInitial,
   numTimeouts,
   numReviews,
   reverse = false,
   ...props
 }: TeamScoreProps) {
+  const jammerState = jammerStarPass
+    ? "starPass"
+    : jammerLost
+      ? "lost"
+      : jammerLead
+        ? "lead"
+        : null;
+
   return (
     <Grid justify="space-around" align="last baseline" w="100%" {...props}>
       <Grid.Col span={12}>
