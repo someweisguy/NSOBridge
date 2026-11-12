@@ -76,7 +76,12 @@ export default function TeamScore({
         </Text>
       </Grid.Col>
       <Grid.Col span={3} order={reverse ? 1 : 12}>
-        <Flex justify="start" align="center" direction="column-reverse">
+        <Flex
+          justify="end"
+          align="center"
+          direction="column-reverse"
+          h="5.5rem"
+        >
           <Paper
             withBorder
             fz="2rem"
