@@ -87,9 +87,9 @@ class Timeout(AbstractOneShotModel, CacheableSQLModel):
 
     @override
     def get_parents(self) -> tuple[BaseSQLModel, ...]:
-        if self._team_uuid is None:
+        if self._team is None:
             return (self.bout,)
-        return (self.bout, self._team)  # ty:ignore[invalid-return-type]
+        return (self.bout, self._team)
 
     @property
     def team_uuid(self) -> UUID | None:
