@@ -43,7 +43,6 @@ export default function TripController({
   return (
     <Scroller
       ta={!teamIsInThisJam || !jammerInitial ? "center" : "start"}
-
       {...props}
     >
       {!teamIsInThisJam && (
