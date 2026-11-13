@@ -18,7 +18,9 @@ const checkBoxTheme = createTheme({
 
 interface JammerControllerProps extends GroupProps {
   teamUuid: string;
-  jammerState: "lead" | "lost" | "starPass" | null;
+  jammerLead: boolean;
+  jammerLost: boolean;
+  jammerStarPass: boolean;
   leadIsDeclared: boolean;
   disabled: boolean;
 }
@@ -26,7 +28,9 @@ interface JammerControllerProps extends GroupProps {
 // TODO: docs
 export default function JammerController({
   teamUuid,
-  jammerState,
+  jammerLead,
+  jammerLost,
+  jammerStarPass,
   leadIsDeclared,
   disabled,
   ...props
@@ -35,34 +39,30 @@ export default function JammerController({
   const { mutate: setLost } = useSetLost({ teamUuid });
   const { mutate: setStarPass } = useSetStarPass({ teamUuid });
 
-  const lead = jammerState == "lead";
-  const lost = jammerState == "lost";
-  const starPass = jammerState == "starPass";
-
   return (
     <Fieldset variant="unstyled" disabled={disabled}>
       <MantineProvider theme={checkBoxTheme}>
         <Group justify="center" gap="md" {...props}>
           <Checkbox
             label="Lead"
-            checked={lead}
-            disabled={leadIsDeclared && !lead}
-            onClick={() => setLead(!lead)}
+            checked={jammerLead}
+            disabled={leadIsDeclared && !jammerLead}
+            onClick={() => setLead(!jammerLead)}
             variant="outline"
             icon={({ ...others }) => <IconStarFilled {...others} />}
           />
           <Divider orientation="vertical" />
           <Checkbox
             label="Lost"
-            checked={lost}
-            onClick={() => setLost(!lost)}
+            checked={jammerLost}
+            onClick={() => setLost(!jammerLost)}
             variant="outline"
           />
           <Divider orientation="vertical" />
           <Checkbox
             label="Star Pass"
-            checked={starPass}
-            onClick={() => setStarPass(!starPass)}
+            checked={jammerStarPass}
+            onClick={() => setStarPass(!jammerStarPass)}
             variant="outline"
           />
         </Group>

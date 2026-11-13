@@ -5,7 +5,6 @@ import { Team } from "@/types/bout";
 import { Jam, TeamJam } from "@/types/jam";
 import { Timeout } from "@/types/timeout";
 import { isRunning } from "@/utils/time";
-import { useMemo } from "react";
 
 // TODO: docs
 export const useTeamJamOperator = (team: Team) => {
@@ -28,16 +27,11 @@ export const useTeamJamOperator = (team: Team) => {
       ),
   });
   const jammerInitial = teamJam?.events.some((t) => t.passes != null) ?? false;
-  const jammerState: "lead" | "lost" | "starPass" | null = useMemo(() => {
-    if (teamJam?.events.some((event) => event.starPass)) {
-      return "starPass";
-    } else if (teamJam?.events.some((event) => event.lost)) {
-      return "lost";
-    } else if (teamJam?.events.some((event) => event.lead)) {
-      return "lead";
-    }
-    return null;
-  }, [teamJam?.events]);
+
+  const jammerLead = teamJam?.events.some((event) => event.lead) ?? false;
+  const jammerLost = teamJam?.events.some((event) => event.lost) ?? false;
+  const jammerStarPass =
+    teamJam?.events.some((event) => event.starPass) ?? false;
 
   // Get the relevant Timeout information
   const { data: timeoutType } = useTimeout<"timeout" | "review" | null>({
@@ -60,8 +54,10 @@ export const useTeamJamOperator = (team: Team) => {
     teamJam,
     teamIsInThisJam: teamJam != null,
     leadIsDeclared,
+    jammerLead,
+    jammerLost,
+    jammerStarPass,
     jammerInitial,
-    jammerState,
     timeoutType: timeoutType ?? null,
   };
 };

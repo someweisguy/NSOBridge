@@ -28,8 +28,10 @@ export default function TeamJamOperator({
     teamJam,
     teamIsInThisJam,
     leadIsDeclared,
+    jammerLead,
+    jammerLost,
+    jammerStarPass,
     jammerInitial,
-    jammerState,
     timeoutType,
   } = useTeamJamOperator(team);
 
@@ -43,7 +45,9 @@ export default function TeamJamOperator({
         timeoutsRemaining={team.timeoutsRemaining}
         reviewsRemaining={team.reviewsRemaining}
         timeout={timeoutType}
-        jammerState={jammerState}
+        jammerLead={jammerLead}
+        jammerLost={jammerLost}
+        jammerStarPass={jammerStarPass}
         jammerInitial={jammerInitial}
         numTimeouts={ruleset.numTimeouts}
         numReviews={ruleset.numReviews}
@@ -51,7 +55,9 @@ export default function TeamJamOperator({
       />
       <JammerController
         teamUuid={team.uuid}
-        jammerState={jammerState}
+        jammerLead={jammerLead}
+        jammerLost={jammerLost}
+        jammerStarPass={jammerStarPass}
         leadIsDeclared={leadIsDeclared}
         disabled={teamJam == null}
         justify="space-between"
@@ -59,6 +65,7 @@ export default function TeamJamOperator({
       />
       <TripAdder
         teamUuid={team.uuid}
+        showInitial={!jammerInitial}
         pointsPerTrip={ruleset.pointsPerTrip}
         px="lg"
         w="100%"

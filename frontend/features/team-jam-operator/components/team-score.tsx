@@ -2,7 +2,7 @@ import TimeoutsLeft from "@/components/timeouts-left";
 import { Flex, Grid, GridProps, Paper, px, Text, Title } from "@mantine/core";
 import { IconStarFilled, IconStarOff } from "@tabler/icons-react";
 
-const jammerStatusIconSize = "1rem";
+const jammerStatusIconSize = "1.5rem";
 
 export interface TeamScoreProps extends GridProps {
   name: string;
@@ -12,11 +12,12 @@ export interface TeamScoreProps extends GridProps {
   timeout: "timeout" | "review" | null;
   timeoutsRemaining: number;
   reviewsRemaining: number;
-  jammerState: "lead" | "lost" | "starPass" | null;
+  jammerLead: boolean;
+  jammerLost: boolean;
+  jammerStarPass: boolean;
   jammerInitial: boolean;
   numTimeouts: number;
   numReviews: number;
-
   reverse?: boolean;
 }
 
@@ -29,13 +30,23 @@ export default function TeamScore({
   timeout,
   timeoutsRemaining,
   reviewsRemaining,
-  jammerState,
+  jammerLead,
+  jammerLost,
+  jammerStarPass,
   jammerInitial,
   numTimeouts,
   numReviews,
   reverse = false,
   ...props
 }: TeamScoreProps) {
+  const jammerState = jammerStarPass
+    ? "starPass"
+    : jammerLost
+      ? "lost"
+      : jammerLead
+        ? "lead"
+        : null;
+
   return (
     <Grid justify="space-around" align="last baseline" w="100%" {...props}>
       <Grid.Col span={12}>
@@ -65,12 +76,18 @@ export default function TeamScore({
         </Text>
       </Grid.Col>
       <Grid.Col span={3} order={reverse ? 1 : 12}>
-        <Flex justify="start" align="center" direction="column-reverse" gap="0">
+        <Flex
+          justify="end"
+          align="center"
+          direction="column-reverse"
+          h="5.5rem"
+        >
           <Paper
             withBorder
             fz="2rem"
             w="3rem"
             ta="center"
+            m="0.25rem"
             style={{ aspectRatio: "1/1" }}
           >
             {jammerInitial ? jamScore : "-"}
