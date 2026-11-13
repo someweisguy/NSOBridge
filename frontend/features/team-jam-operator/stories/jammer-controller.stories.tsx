@@ -8,10 +8,6 @@ const meta: Meta = {
     teamUuid: {
       control: false,
     },
-    jammerState: {
-      control: "radio",
-      options: ["lead", "lost", "starPass", null],
-    },
   },
 };
 
@@ -20,8 +16,14 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     teamUuid: "",
-    jammerState: "lead",
-    leadIsDeclared: true,
+    jammerTripEvents: [],
+    teamIsInJam: true,
+    jammerLead: false,
+    jammerLost: false,
+    jammerStarPass: false,
+    jammerHasInitial: false,
+    pointsPerTrip: 4,
+    disableLeadCheckbox: false,
     disabled: false,
   },
 };

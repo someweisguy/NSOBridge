@@ -1,72 +1,88 @@
-import {
-  Checkbox,
-  createTheme,
-  Divider,
-  Fieldset,
-  Group,
-  GroupProps,
-  MantineProvider,
-} from "@mantine/core";
-import { IconStarFilled } from "@tabler/icons-react";
-import { useSetLead } from "../hooks/use-set-lead";
-import { useSetLost } from "../hooks/use-set-lost";
-import { useSetStarPass } from "../hooks/use-set-star-pass";
+import { TripEvent } from "@/types/jam";
+import { Divider, Fieldset, FieldsetProps, Stack } from "@mantine/core";
+import JammerStatusController from "./jammer-status-controller";
+import JammerTrip from "./jammer-trip";
+import TripAdder from "./trip-adder";
+import TripController from "./trip-controller";
 
-const checkBoxTheme = createTheme({
-  cursorType: "pointer", // Hovering over checkbox should change cursor
-});
-
-interface JammerControllerProps extends GroupProps {
+export interface JammerControllerProps extends FieldsetProps {
   teamUuid: string;
+  teamIsInJam: boolean;
   jammerLead: boolean;
   jammerLost: boolean;
   jammerStarPass: boolean;
-  leadIsDeclared: boolean;
-  disabled: boolean;
+  jammerHasInitial: boolean;
+  jammerTripEvents: TripEvent[];
+  pointsPerTrip: number;
+  disableLeadCheckbox: boolean;
 }
 
-// TODO: docs
 export default function JammerController({
   teamUuid,
+  teamIsInJam,
   jammerLead,
   jammerLost,
   jammerStarPass,
-  leadIsDeclared,
-  disabled,
+  jammerHasInitial,
+  jammerTripEvents,
+  pointsPerTrip,
+  disableLeadCheckbox,
+  disabled = false,
   ...props
 }: JammerControllerProps) {
-  const { mutate: setLead } = useSetLead({ teamUuid });
-  const { mutate: setLost } = useSetLost({ teamUuid });
-  const { mutate: setStarPass } = useSetStarPass({ teamUuid });
-
   return (
-    <Fieldset variant="unstyled" disabled={disabled}>
-      <MantineProvider theme={checkBoxTheme}>
-        <Group justify="center" gap="md" {...props}>
-          <Checkbox
-            label="Lead"
-            checked={jammerLead}
-            disabled={leadIsDeclared && !jammerLead}
-            onClick={() => setLead(!jammerLead)}
-            variant="outline"
-            icon={({ ...others }) => <IconStarFilled {...others} />}
-          />
-          <Divider orientation="vertical" />
-          <Checkbox
-            label="Lost"
-            checked={jammerLost}
-            onClick={() => setLost(!jammerLost)}
-            variant="outline"
-          />
-          <Divider orientation="vertical" />
-          <Checkbox
-            label="Star Pass"
-            checked={jammerStarPass}
-            onClick={() => setStarPass(!jammerStarPass)}
-            variant="outline"
-          />
-        </Group>
-      </MantineProvider>
+    <Fieldset px="0" pb="0" {...props}>
+      <Stack justify="space-between" align="center" gap="0">
+        <JammerStatusController
+          teamUuid={teamUuid}
+          jammerLead={jammerLead}
+          jammerLost={jammerLost}
+          jammerStarPass={jammerStarPass}
+          leadIsDeclared={disableLeadCheckbox}
+          disabled={disabled}
+          justify="space-between"
+          align="center"
+          p="sm"
+        />
+        <TripAdder
+          teamUuid={teamUuid}
+          showInitial={!jammerHasInitial}
+          pointsPerTrip={pointsPerTrip}
+          disabled={disabled}
+          px="lg"
+          py="xs"
+          w="100%"
+        />
+        <Divider w="100%" />
+        <TripController
+          teamIsInThisJam={teamIsInJam}
+          jammerInitial={jammerHasInitial}
+          draggable={false}
+          w="22rem"
+          h="4rem"
+          m="xs"
+        >
+          {jammerTripEvents
+            .filter((tripEvent) => tripEvent.passes != null)
+            .map((tripEvent: TripEvent, i: number) => (
+              <JammerTrip
+                enableEdit
+                enableDelete
+                key={tripEvent.uuid}
+                uuid={tripEvent.uuid}
+                timestamp={tripEvent.timestamp}
+                lead={tripEvent.lead}
+                lost={tripEvent.lost}
+                starPass={tripEvent.starPass}
+                passes={tripEvent.passes}
+                pointsPerTrip={pointsPerTrip}
+                tripIndex={i}
+                w="4rem"
+                h="3.5rem"
+              />
+            ))}
+        </TripController>
+      </Stack>
     </Fieldset>
   );
 }
