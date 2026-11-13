@@ -4,6 +4,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 const meta: Meta = {
   component: Scoreboard,
   title: "Pages/Scoreboard",
+  globals: {
+    viewport: {
+      value: "smallDesktop",
+    },
+  },
   parameters: {
     layout: "fullscreen",
   },
