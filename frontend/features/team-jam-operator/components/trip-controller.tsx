@@ -4,7 +4,7 @@ import { Children, PropsWithChildren, useEffect, useRef } from "react";
 
 const altTextStyle: TextProps = {
   fz: "xs",
-  ta: "center",
+
   fs: "italic",
   fw: 250,
   c: "dimmed",
@@ -43,6 +43,7 @@ export default function TripController({
   return (
     <Scroller
       ta={!teamIsInThisJam || !jammerInitial ? "center" : "start"}
+
       {...props}
     >
       {!teamIsInThisJam && (

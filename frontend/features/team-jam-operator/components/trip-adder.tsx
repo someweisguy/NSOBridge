@@ -5,6 +5,7 @@ export interface TripAdderProps extends Omit<GroupProps, "children"> {
   teamUuid: string;
   showInitial: boolean;
   pointsPerTrip: number;
+  disabled: boolean;
 }
 
 // TODO: docs
@@ -12,6 +13,7 @@ export default function TripAdder({
   teamUuid,
   showInitial,
   pointsPerTrip,
+  disabled,
   ...props
 }: TripAdderProps) {
   const { mutate: createTrip } = useAddTrip({ teamUuid });
@@ -20,10 +22,18 @@ export default function TripAdder({
     <Group justify="space-around" align="center" wrap="nowrap" {...props}>
       {showInitial ? (
         <>
-          <Button variant="subtle" onClick={() => createTrip(0)}>
+          <Button
+            variant="subtle"
+            disabled={disabled}
+            onClick={() => createTrip(0)}
+          >
             No Pass
           </Button>
-          <Button variant="light" onClick={() => createTrip(pointsPerTrip)}>
+          <Button
+            variant="light"
+            disabled={disabled}
+            onClick={() => createTrip(pointsPerTrip)}
+          >
             Initial
           </Button>
         </>
@@ -32,6 +42,7 @@ export default function TripAdder({
           <Button
             key={i}
             variant={i == pointsPerTrip ? "light" : "subtle"}
+            disabled={disabled}
             onClick={() => createTrip(i)}
           >
             {i}

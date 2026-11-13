@@ -50,6 +50,11 @@ export const useTeamJamOperator = (team: Team) => {
     },
   });
 
+  const { data: jamHasStarted } = useSuspenseJam({
+    uuid: bout.activeJamUuid,
+    select: (activeJam: Jam) => activeJam.startTimestamp != null,
+  });
+
   return {
     teamJam,
     teamIsInThisJam: teamJam != null,
@@ -59,5 +64,6 @@ export const useTeamJamOperator = (team: Team) => {
     jammerStarPass,
     jammerInitial,
     timeoutType: timeoutType ?? null,
+    jamHasStarted,
   };
 };
