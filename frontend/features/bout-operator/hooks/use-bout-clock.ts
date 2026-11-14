@@ -58,6 +58,7 @@ export const useBoutClock = (bout?: Bout) => {
     const numPeriods = ruleset?.numPeriods ?? NaN;
     switch (bout?.state) {
       case "stopped":
+        // TODO: add time-to-first-whistle event
         if (jamPeriod >= numPeriods) {
           return "unofficial";
         } else if (jamPeriod > 0) {
