@@ -1,5 +1,6 @@
 import { useBout } from "@/hooks/use-bout";
 import { useJam } from "@/hooks/use-jam";
+import { useRuleset } from "@/hooks/use-ruleset";
 import { useTimeout } from "@/hooks/use-timeout";
 import { Bout, Team } from "@/types/bout";
 import { ComboboxData } from "@mantine/core";
@@ -9,7 +10,6 @@ export const useBoutOperator = ({
   uuid,
   jamUuids,
   state,
-  subState,
   activeJamUuid,
   timeoutUuids,
 }: Bout) => {
@@ -28,6 +28,8 @@ export const useBoutOperator = ({
       })),
   });
 
+  const { data: ruleset } = useRuleset({ uuid });
+
   let jamNum = activeJam?.num ?? null;
   if (jamNum != null && activeJam!.period > 1) {
     jamNum += jamUuids[1].length;
@@ -35,7 +37,8 @@ export const useBoutOperator = ({
 
   const showJamStopReasonEditor = activeJam?.stopTimestamp != null;
   const showTimeoutEditor = state == "timeout" && latestTimeout != null;
-  const canFinalizeBout = subState == "unofficial";
+  const canFinalizeBout =
+    state == "stopped" && activeJam?.period == ruleset?.numPeriods;
   const canStopPeriod =
     state == "lineup" &&
     (activeJam?.num != 0 || activeJam?.stopTimestamp != null);

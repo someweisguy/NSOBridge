@@ -44,6 +44,7 @@ export function Scoreboard() {
     showJamClock,
     jamStartTimestamp,
     lastEventTimestamp,
+    boutEvent,
   } = useBoutClock(activeBout);
 
   const { data: ruleset } = useRuleset({
@@ -86,7 +87,7 @@ export function Scoreboard() {
             jamStopReason={activeJam?.stopReason}
             jamDuration={ruleset?.jamDuration}
             showBoutEvent={activeBout?.state != "jam"}
-            boutEvent={activeBout?.subState}
+            boutEvent={boutEvent}
             boutEventStartTimestamp={lastEventTimestamp}
             fz="10rem"
           />

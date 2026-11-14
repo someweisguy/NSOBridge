@@ -63,10 +63,6 @@ export interface Bout {
    */
   state: BoutStateString;
   /**
-   * The current sub-state of the Bout.
-   */
-  subState: BoutSubStateString;
-  /**
    * True if this Bout is currently running. A Bout is considered to be running when it
    * is not in pregame, halftime, or final. It is possible for a Bout to be running even
    * when the Period clock is stopped.

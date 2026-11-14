@@ -68,6 +68,7 @@ export default function OperatorPage() {
     showJamClock,
     jamStartTimestamp,
     lastEventTimestamp,
+    boutEvent,
   } = useBoutClock(activeBout);
 
   const { data: ruleset } = useRuleset({
@@ -136,7 +137,7 @@ export default function OperatorPage() {
                     jamStopReason={activeJam?.stopReason}
                     jamDuration={ruleset?.jamDuration}
                     showBoutEvent={activeBout?.state != "jam"}
-                    boutEvent={activeBout?.subState}
+                    boutEvent={boutEvent}
                     boutEventStartTimestamp={lastEventTimestamp}
                     h="9rem"
                   />

@@ -1,6 +1,6 @@
 import { useJam } from "@/hooks/use-jam";
 import { useTimeout } from "@/hooks/use-timeout";
-import { Bout } from "@/types/bout";
+import { Bout, BoutSubStateString } from "@/types/bout";
 import { useMemo } from "react";
 
 // TODO: docs
@@ -44,6 +44,8 @@ export const useBoutClock = (bout?: Bout) => {
   const jamStartTimestamp = bout?.state == "jam" ? lastEventTimestamp : null;
   const showJamClock = activeJam?.stopTimestamp == null;
 
+  const boutEvent: BoutSubStateString = "final";
+
   return {
     activeJam,
     isInOvertime,
@@ -52,5 +54,6 @@ export const useBoutClock = (bout?: Bout) => {
     jamStartTimestamp,
     lastEventTimestamp,
     showJamClock,
+    boutEvent,
   };
 };
