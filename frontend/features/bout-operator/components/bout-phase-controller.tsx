@@ -80,7 +80,7 @@ export default function BoutPhaseController({
           canStartOvertime={showFinalizeBout}
           disabled={!(canStartPeriod || canStopPeriod)}
           variant={
-            boutState == "stopped" && showFinalizeBout ? "outline" : "default"
+            boutState == "stopped" && !showFinalizeBout ? "outline" : "default"
           }
           iconSize={iconSize}
           {...sharedButtonProps}
