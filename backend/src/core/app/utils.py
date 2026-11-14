@@ -80,7 +80,7 @@ def update_model[T](model: T, updates: ClientSchema) -> int:
     num_updates: int = 0
     updates: dict[str, Any] = updates.model_dump(exclude_unset=True)
     for key, value in updates.items():
-        if hasattr(model, key) and getattr(model, key) != value:
+        if hasattr(model, key):
             setattr(model, key, value)
             num_updates += 1
     return num_updates
