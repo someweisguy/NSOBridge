@@ -16,7 +16,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.exc import DetachedInstanceError
 
-from .types import BoutStateStr, BoutSubStateStr, RulesetProtocol
+from .types import BoutStateStr, RulesetProtocol
 
 if TYPE_CHECKING:
     from game.jams.models import Jam
@@ -176,54 +176,6 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
             return 'lineup'
         else:
             return 'stopped'
-
-    @final
-    @property
-    def sub_state(self) -> BoutSubStateStr:  # noqa: C901, PLR0911, PLR0912
-        """Get the sub-state of the Bout.
-
-        The sub-state is used for more descriptive event states.
-        """
-        match self.state:
-            case 'lineup' as state:
-                active_jam: Jam = self.get_active_jam()
-                latest_timeout: Timeout | None = self.get_last_timeout()
-                if (
-                    latest_timeout is None
-                    or active_jam.num == 0
-                    or active_jam.stop_timestamp is None
-                    or latest_timeout.stop_timestamp is None
-                    or latest_timeout.stop_timestamp <= active_jam.stop_timestamp
-                ):
-                    return state
-                elif latest_timeout.is_review:
-                    return 'post_review'
-                else:
-                    return 'post_timeout'
-            case 'timeout':
-                running_timeout: Timeout | None = self.get_running_timeout()
-                if running_timeout is None or (
-                    not running_timeout.is_review
-                    and not running_timeout.team_is_officials
-                    and running_timeout.team is None
-                ):
-                    return 'timeout'
-                elif running_timeout.is_review:
-                    return 'review'
-                elif running_timeout.team is not None:
-                    return 'team_timeout'
-                else:
-                    return 'official_timeout'
-            case 'stopped':
-                latest_jam: Jam = self.jams[-1]
-                if latest_jam.period == 0:
-                    return 'pregame'
-                elif latest_jam.period == 1:
-                    return 'halftime'
-                else:
-                    return 'unofficial'
-            case default:
-                return default
 
     def get_team_jam_score(self, team_jam: TeamJam) -> int:
         """Calculate the score in the desired TeamJam.
