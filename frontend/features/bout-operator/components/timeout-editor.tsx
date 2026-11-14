@@ -91,7 +91,7 @@ export default function TimeoutEditor({
               []),
           ]}
           loading={teams === undefined}
-          value={teamUuid ?? ""} // TODO: allow selecting officials
+          value={teamUuid ?? (teamIsOfficials ? officialDataValue : null)}
           onChange={selectOnChange}
           error={isReview && teamIsOfficials}
           allowDeselect={false}
