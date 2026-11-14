@@ -13,7 +13,7 @@ from game.skaters.schemas import SkaterSchema
 from game.timeouts.models import Timeout
 from pydantic import Field, SkipValidation, computed_field
 
-from .types import BoutStateStr, BoutSubStateStr
+from .types import BoutStateStr
 
 
 @dataclass
@@ -76,7 +76,6 @@ class BoutSchema(ServerSchema):
     is_running: bool
     start_countdown: datetime | None
     state: BoutStateStr
-    sub_state: BoutSubStateStr
     teams: list[TeamSchema]
     jams: Annotated[list[Jam], SkipValidation] = Field(exclude=True)
     timeouts: Annotated[list[Timeout], SkipValidation] = Field(exclude=True)

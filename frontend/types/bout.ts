@@ -14,24 +14,6 @@ export type BoutStateString =
   "stopped" | "lineup" | "jam" | "timeout" | "final";
 
 /**
- * Describes the sub-state of the Bout. This is used for more descriptive event
- * states.
- */
-export type BoutSubStateString =
-  | "pregame"
-  | "halftime"
-  | "unofficial"
-  | "lineup"
-  | "post_review"
-  | "post_timeout"
-  | "jam"
-  | "timeout"
-  | "review"
-  | "team_timeout"
-  | "official_timeout"
-  | "final";
-
-/**
  * Represents a roller derby Bout - the game unit within this app.
  */
 export interface Bout {

@@ -1,5 +1,4 @@
 import ClockView from "@/components/clock-view";
-import { BoutSubStateString } from "@/types/bout";
 import { StopReasonString } from "@/types/jam";
 import { Clock } from "@/types/time";
 import {
@@ -13,7 +12,25 @@ import {
   Text,
 } from "@mantine/core";
 
-const eventNames: Record<BoutSubStateString, string> = {
+/**
+ * Describes the sub-state of the Bout. This is used for more descriptive event
+ * states.
+ */
+export type BoutEvent =
+  | "pregame"
+  | "halftime"
+  | "unofficial"
+  | "lineup"
+  | "post_review"
+  | "post_timeout"
+  | "jam"
+  | "timeout"
+  | "review"
+  | "team_timeout"
+  | "official_timeout"
+  | "final";
+
+const eventNames: Record<BoutEvent, string> = {
   pregame: "Pregame",
   halftime: "Halftime",
   unofficial: "Unofficial",
@@ -46,7 +63,7 @@ export interface BoutClockProps extends StackProps {
   jamStartTimestamp: string | null;
   jamStopReason: StopReasonString | null | undefined;
   showBoutEvent: boolean;
-  boutEvent: BoutSubStateString;
+  boutEvent: BoutEvent | null;
   boutEventStartTimestamp: string | null;
   jamDuration: number | undefined;
 }
@@ -128,7 +145,9 @@ export default function BoutClock({
             p="xs"
             // TODO: set background color according to Bout State
           >
-            <Text ta="center">{eventNames[boutEvent] ?? "-"}</Text>
+            <Text ta="center">
+              {boutEvent != null && eventNames[boutEvent]}
+            </Text>
             {boutEventStartTimestamp != null && (
               <ClockView
                 formatter="lineup"
