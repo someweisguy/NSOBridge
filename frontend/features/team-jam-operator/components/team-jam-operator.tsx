@@ -9,12 +9,14 @@ import TeamScore from "./team-score";
 export interface TeamJamOperatorProps extends StackProps {
   team: Team;
   reverse?: boolean;
+  disabled?: boolean;
 }
 
 // TODO: docs
 export default function TeamJamOperator({
   team,
   reverse = false,
+  disabled = false,
   ...props
 }: TeamJamOperatorProps) {
   const { data: bout } = useSuspenseBout({ uuid: team.boutUuid });
@@ -60,7 +62,7 @@ export default function TeamJamOperator({
         jammerTripEvents={teamJam?.events ?? []}
         pointsPerTrip={ruleset.pointsPerTrip}
         disableLeadCheckbox={leadIsDeclared && !jammerLead}
-        disabled={!jamHasStarted}
+        disabled={!jamHasStarted || disabled}
       />
     </Stack>
   );

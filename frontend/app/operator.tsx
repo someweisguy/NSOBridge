@@ -166,6 +166,7 @@ export default function OperatorPage() {
                       key={team.uuid}
                       team={team}
                       reverse={!!(i % 2)}
+                      disabled={activeBout?.state == "final"}
                     />
                   ))}
                 </Suspense>
