@@ -56,7 +56,7 @@ async def _get_user(
     # Get a commit message from the docstring of the endpoint method
     endpoint: Callable = request.scope['endpoint']
     if endpoint.__doc__ is not None:
-        commit_message: str = endpoint.__doc__
+        commit_message: str = endpoint.__doc__.splitlines()[0]
     else:
         name: str = getattr(endpoint, '__name__', 'Unknown Method')
         logging.warning(f'Endpoint `{name}` does not have docs')
