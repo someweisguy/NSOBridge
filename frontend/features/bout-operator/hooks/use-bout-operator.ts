@@ -38,7 +38,8 @@ export const useBoutOperator = ({
   const showJamStopReasonEditor = activeJam?.stopTimestamp != null;
   const showTimeoutEditor = state == "timeout" && latestTimeout != null;
   const canFinalizeBout =
-    state == "stopped" && activeJam?.period == ruleset?.numPeriods;
+    state == "stopped" &&
+    (activeJam?.period ?? NaN) + 1 >= (ruleset?.numPeriods ?? NaN);
   const canStopPeriod =
     state == "lineup" &&
     (activeJam?.num != 0 || activeJam?.stopTimestamp != null);
