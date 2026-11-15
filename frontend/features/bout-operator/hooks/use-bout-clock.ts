@@ -56,12 +56,16 @@ export const useBoutClock = (bout?: Bout) => {
     const timeoutPeriod = latestTimeout?.periodNum ?? NaN;
     const timeoutJamNum = latestTimeout?.jamNum ?? NaN;
     const numPeriods = ruleset?.numPeriods ?? NaN;
+    const latestPeriodNum =
+      (activeJam?.startTimestamp != null
+        ? activeJam.period + 1
+        : activeJam?.period) ?? NaN;
     switch (bout?.state) {
       case "stopped":
         // TODO: add time-to-first-whistle event
-        if (jamPeriod >= numPeriods) {
+        if (latestPeriodNum >= numPeriods) {
           return "unofficial";
-        } else if (jamPeriod > 0) {
+        } else if (latestPeriodNum > 0) {
           return "halftime";
         } else {
           return "pregame";
