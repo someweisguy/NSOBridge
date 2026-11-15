@@ -34,6 +34,7 @@ export interface JammerControllerProps extends FieldsetProps {
   disableLeadCheckbox: boolean;
 }
 
+// TODO: docs
 export default function JammerController({
   teamUuid,
   teamIsInJam,
