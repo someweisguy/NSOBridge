@@ -5,6 +5,7 @@ import {
   Group,
   px,
   TextInput,
+  Tooltip,
 } from "@mantine/core";
 import { useMask } from "@mantine/hooks";
 import { IconCheck, IconStopwatch } from "@tabler/icons-react";
@@ -39,25 +40,27 @@ export default function TimeToDerbyEditor({
           placeholder="mm:ss"
           rightSection={<IconStopwatch size={16} />}
         />
-        <ActionIcon
-          size="md"
-          variant="outline"
-          onClick={() => {
-            const now = new Date();
-            const [minutes, seconds] = value
-              .replace(/ /g, "0")
-              .split(":")
-              .map((val: string) => Number(val));
-            now.setMinutes(now.getMinutes() + minutes);
-            now.setSeconds(now.getSeconds() + seconds);
-            // TODO: ensure time is synchronized with server
+        <Tooltip disabled={isComplete} label="Input a time to derby value.">
+          <ActionIcon
+            size="md"
+            variant="outline"
+            onClick={() => {
+              const now = new Date();
+              const [minutes, seconds] = value
+                .replace(/ /g, "0")
+                .split(":")
+                .map((val: string) => Number(val));
+              now.setMinutes(now.getMinutes() + minutes);
+              now.setSeconds(now.getSeconds() + seconds);
+              // TODO: ensure time is synchronized with server
 
-            setTimeToDerby(now.toISOString());
-          }}
-          disabled={!isComplete}
-        >
-          <IconCheck size={px(iconSize)} />
-        </ActionIcon>
+              setTimeToDerby(now.toISOString());
+            }}
+            disabled={!isComplete}
+          >
+            <IconCheck size={px(iconSize)} />
+          </ActionIcon>
+        </Tooltip>
       </Group>
     </Fieldset>
   );
