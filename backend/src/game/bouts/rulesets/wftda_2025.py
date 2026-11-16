@@ -65,6 +65,7 @@ class Bout(BaseBout):
                 team.reviews_remaining = 1
 
         self.is_running = True
+        self.time_to_derby_timestamp = None
 
     @override
     def end_period(self, timestamp: datetime) -> None:
