@@ -38,7 +38,7 @@ export default function TimeToDerbyEditor({
         <TextInput
           ref={ref}
           placeholder="mm:ss"
-          rightSection={<IconStopwatch size={16} />}
+          rightSection={<IconStopwatch size={px(iconSize)} />}
         />
         <Tooltip disabled={isComplete} label="Input a time to derby value.">
           <ActionIcon
