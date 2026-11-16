@@ -147,7 +147,7 @@ export default function OperatorPage() {
                     h="100%"
                     verticalScrollbarPosition="left"
                   >
-                    <BoutOperator bout={activeBout} py="xs" />
+                    <BoutOperator bout={activeBout} w={225} py="xs" />
                   </ScrollArea>
                 </Stack>
               </Card.Section>

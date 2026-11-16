@@ -53,7 +53,7 @@ export default function BoutPhaseController({
   const canStartStopTimeout = !["stopped", "final"].includes(boutState);
 
   return (
-    <Fieldset legend="Bout Controls" {...props}>
+    <Fieldset variant="unstyled" {...props}>
       <Stack justify="start" align="stretch">
         <JamStartStopButton
           boutUuid={boutUuid}
