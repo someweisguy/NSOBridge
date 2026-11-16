@@ -38,7 +38,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
     _created_on: Mapped[datetime] = mapped_column(index=True)
 
     num: Mapped[int | None] = mapped_column(default=None, index=True)
-    start_countdown: Mapped[datetime | None] = mapped_column(default=None)
+    time_to_derby_timestamp: Mapped[datetime | None] = mapped_column(default=None)
     is_final: Mapped[bool] = mapped_column(default=False)
     is_running: Mapped[bool] = mapped_column(default=False)
     ruleset_name: Mapped[str] = mapped_column()

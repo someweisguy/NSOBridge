@@ -51,7 +51,7 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
           />
         </Collapse>
         <Collapse expanded={bout.state == "stopped"}>
-          <TimeToDerbyEditor derbyStartTimestamp={bout.startCountdown} />
+          <TimeToDerbyEditor boutUuid={bout.uuid} p="xs" />
         </Collapse>
       </Stack>
     </Stack>
