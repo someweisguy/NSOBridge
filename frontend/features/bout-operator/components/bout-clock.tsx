@@ -92,6 +92,8 @@ export default function BoutClock({
     jamStopReason !== undefined &&
     jamDuration !== undefined;
 
+  const boutIsStopped = ["pregame", "halftime"].includes(boutEvent ?? "");
+
   return (
     <Stack justify="center" align="stretch" gap="0" {...props}>
       {hasLoaded ? (
@@ -150,7 +152,7 @@ export default function BoutClock({
             </Text>
             {boutEventStartTimestamp != null && (
               <ClockView
-                formatter="lineup"
+                formatter={boutIsStopped ? "timeToDerby" : "lineup"}
                 startTimestamp={boutEventStartTimestamp}
               />
             )}

@@ -4,6 +4,7 @@ import defaultTimeStringFormatter, {
   lineupTimeStringFormatter,
   periodTimeStringFormatter,
   timeoutTimeStringFormatter,
+  timeToDerbyStringFormatter,
 } from "@/utils/time-string-formatters";
 import { Text, TextProps } from "@mantine/core";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ const timeFormatters = {
   jam: jamTimeStringFormatter,
   lineup: lineupTimeStringFormatter,
   timeout: timeoutTimeStringFormatter,
+  timeToDerby: timeToDerbyStringFormatter,
   default: defaultTimeStringFormatter,
 };
 

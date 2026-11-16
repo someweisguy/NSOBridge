@@ -29,21 +29,23 @@ export const useBoutClock = (bout?: Bout) => {
   // Get the time since the last Jam or Timeout or null if neither have occurred
   const lastEventTimestamp: string | null = useMemo(
     () =>
-      activeJam?.startTimestamp != null
-        ? new Date(
-            Math.max(
-              ...[
-                activeJam?.startTimestamp,
-                activeJam?.stopTimestamp,
-                latestTimeout?.startTimestamp,
-                latestTimeout?.stopTimestamp,
-              ]
-                .filter((val?: string | null) => val != null)
-                .map((val: string) => new Date(val).getTime()),
-            ),
-          ).toISOString()
-        : null,
-    [activeJam, latestTimeout],
+      bout?.state == "stopped"
+        ? bout.timeToDerbyTimestamp
+        : activeJam?.startTimestamp != null
+          ? new Date(
+              Math.max(
+                ...[
+                  activeJam?.startTimestamp,
+                  activeJam?.stopTimestamp,
+                  latestTimeout?.startTimestamp,
+                  latestTimeout?.stopTimestamp,
+                ]
+                  .filter((val?: string | null) => val != null)
+                  .map((val: string) => new Date(val).getTime()),
+              ),
+            ).toISOString()
+          : null,
+    [bout, activeJam, latestTimeout],
   );
 
   const isInOvertime = bout?.jamUuids[2].includes(bout?.activeJamUuid) ?? false; // TODO: magic number
@@ -62,7 +64,6 @@ export const useBoutClock = (bout?: Bout) => {
         : activeJam?.period) ?? NaN;
     switch (bout?.state) {
       case "stopped":
-        // TODO: add time-to-first-whistle event
         if (latestPeriodNum >= numPeriods) {
           return "unofficial";
         } else if (latestPeriodNum > 0) {
