@@ -21,12 +21,15 @@ export default function TimeToDerbyEditor({
   iconSize = 16,
   ...props
 }: TimeToDerbyEditorProps) {
-  const { ref, value } = useMask({
+  const { ref, value, isComplete, reset } = useMask({
     mask: [/\d/, /\d/, ":", /[0-5]/, /\d/],
     slotChar: " ",
   });
 
-  const { mutate: setTimeToDerby } = useSetTimeToDerby({ uuid: boutUuid });
+  const { mutate: setTimeToDerby } = useSetTimeToDerby({
+    uuid: boutUuid,
+    onSuccess: reset,
+  });
 
   return (
     <Fieldset legend={"Set Time to Derby"} {...props}>
@@ -51,6 +54,7 @@ export default function TimeToDerbyEditor({
 
             setTimeToDerby(now.toISOString());
           }}
+          disabled={!isComplete}
         >
           <IconCheck size={px(iconSize)} />
         </ActionIcon>
