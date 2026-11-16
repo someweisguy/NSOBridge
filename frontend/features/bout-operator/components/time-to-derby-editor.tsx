@@ -39,7 +39,17 @@ export default function TimeToDerbyEditor({
         <ActionIcon
           size="md"
           variant="outline"
-          onClick={() => setTimeToDerby(value)}
+          onClick={() => {
+            const now = new Date();
+            const [minutes, seconds] = value
+              .replace(/ /g, "0")
+              .split(":")
+              .map((val: string) => Number(val));
+            now.setMinutes(now.getMinutes() + minutes);
+            now.setSeconds(now.getSeconds() + seconds);
+
+            setTimeToDerby(now.toISOString());
+          }}
         >
           <IconCheck size={px(iconSize)} />
         </ActionIcon>

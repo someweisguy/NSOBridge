@@ -24,7 +24,7 @@ export const useSetTimeToDerby = ({
     mutationFn: (value: string) =>
       localAPI.put<void>("bout/timeToDerby", {
         query: { uuid },
-        body: value,
+        body: JSON.stringify(value),
       }),
     ...options,
   });
