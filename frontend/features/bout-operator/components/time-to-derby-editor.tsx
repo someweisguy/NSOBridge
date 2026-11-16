@@ -47,6 +47,7 @@ export default function TimeToDerbyEditor({
               .map((val: string) => Number(val));
             now.setMinutes(now.getMinutes() + minutes);
             now.setSeconds(now.getSeconds() + seconds);
+            // TODO: ensure time is synchronized with server
 
             setTimeToDerby(now.toISOString());
           }}
