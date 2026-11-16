@@ -18,9 +18,9 @@
       "eslint -c frontend/configs/eslint.config.js --fix"
     ],
     "*.py": [
-      "uvx ty check",
-      "uvx ruff check --fix",
-      "uvx ruff format ."
+      ".venv/Scripts/ty check",
+      ".venv/Scripts/ruff check --fix",
+      ".venv/Scripts/ruff format"
     ]
   },
   "prettier": {
