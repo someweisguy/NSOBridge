@@ -139,11 +139,7 @@ export default function JammerController({
                 enableDelete
                 key={tripEvent.uuid}
                 uuid={tripEvent.uuid}
-                timestamp={tripEvent.timestamp}
-                lead={tripEvent.lead}
-                lost={tripEvent.lost}
-                starPass={tripEvent.starPass}
-                passes={tripEvent.passes}
+                passes={tripEvent.passes!}
                 pointsPerTrip={pointsPerTrip}
                 tripIndex={i}
                 w="4rem"

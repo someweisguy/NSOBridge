@@ -1,4 +1,3 @@
-import { TripEvent } from "@/types/jam";
 import { ActionIcon, NumberInput, Paper, PaperProps, px } from "@mantine/core";
 import { useHover, useMergedRef } from "@mantine/hooks";
 import { IconTrash } from "@tabler/icons-react";
@@ -8,7 +7,9 @@ import { useUpdateTripEvent } from "../hooks/use-update-trip-event";
 
 const deleteTripIconSize = 16;
 
-export interface JammerTripProps extends TripEvent, PaperProps {
+export interface JammerTripProps extends PaperProps {
+  uuid: string;
+  passes: number;
   tripIndex: number;
   pointsPerTrip: number;
   enableEdit?: boolean;
