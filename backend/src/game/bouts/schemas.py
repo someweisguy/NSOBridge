@@ -1,6 +1,5 @@
 """Pydantic Bout schemas."""
 
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated
 from uuid import UUID
@@ -14,14 +13,6 @@ from game.timeouts.models import Timeout
 from pydantic import Field, SkipValidation, computed_field
 
 from .types import BoutStateStr
-
-
-@dataclass
-class JamUri:
-    """A utility dataclass to represent the Jam head in the BoutSchema."""
-
-    period_num: int
-    jam_num: int
 
 
 class TeamSchema(ServerSchema):
@@ -51,7 +42,7 @@ class UpdateBoutClockSchema(ClientSchema):
 class UpdateBoutSchema(ClientSchema):
     """Update a Bout."""
 
-    start_countdown: datetime | None = None
+    time_to_derby_timestamp: datetime | None = None
 
 
 class UpdateTeamSchema(ClientSchema):
@@ -74,7 +65,7 @@ class BoutSchema(ServerSchema):
     series_uuid: UUID | None
     clock: ClockSchema
     is_running: bool
-    start_countdown: datetime | None
+    time_to_derby_timestamp: datetime | None
     state: BoutStateStr
     teams: list[TeamSchema]
     jams: Annotated[list[Jam], SkipValidation] = Field(exclude=True)
