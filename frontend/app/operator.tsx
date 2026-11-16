@@ -151,26 +151,28 @@ export default function OperatorPage() {
                   </ScrollArea>
                 </Stack>
               </Card.Section>
-              <Group
-                grow
-                justify="space-around"
-                align="start"
-                wrap="nowrap"
-                px="lg"
-                gap="xl"
-              >
-                {/* TODO: Suspense fallback should be Skeleton */}
-                <Suspense fallback={<Loader size="xs" />}>
-                  {activeBout.teams.map((team: Team, i: number) => (
-                    <TeamJamOperator
-                      key={team.uuid}
-                      team={team}
-                      reverse={!!(i % 2)}
-                      disabled={activeBout?.state == "final"}
-                    />
-                  ))}
-                </Suspense>
-              </Group>
+              <ScrollArea scrollbarSize={6} h="100%" w="100%">
+                <Group
+                  grow
+                  justify="space-around"
+                  align="start"
+                  wrap="nowrap"
+                  px="lg"
+                  gap="xl"
+                >
+                  {/* TODO: Suspense fallback should be Skeleton */}
+                  <Suspense fallback={<Loader size="xs" />}>
+                    {activeBout.teams.map((team: Team, i: number) => (
+                      <TeamJamOperator
+                        key={team.uuid}
+                        team={team}
+                        reverse={!!(i % 2)}
+                        disabled={activeBout?.state == "final"}
+                      />
+                    ))}
+                  </Suspense>
+                </Group>
+              </ScrollArea>
             </Card>
           ) : (
             <Loader size="lg" style={{ alignSelf: "center" }} />
