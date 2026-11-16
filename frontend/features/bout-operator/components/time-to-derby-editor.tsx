@@ -3,6 +3,7 @@ import {
   Fieldset,
   FieldsetProps,
   Group,
+  px,
   TextInput,
 } from "@mantine/core";
 import { useMask } from "@mantine/hooks";
@@ -11,11 +12,13 @@ import { useSetTimeToDerby } from "../hooks/use-set-time-to-derby";
 
 interface TimeToDerbyEditorProps extends FieldsetProps {
   boutUuid: string;
+  iconSize?: string | number;
 }
 
 // TODO: docs
 export default function TimeToDerbyEditor({
   boutUuid,
+  iconSize = 16,
   ...props
 }: TimeToDerbyEditorProps) {
   const { ref, value } = useMask({
@@ -38,7 +41,7 @@ export default function TimeToDerbyEditor({
           variant="outline"
           onClick={() => setTimeToDerby(value)}
         >
-          <IconCheck size={16} />
+          <IconCheck size={px(iconSize)} />
         </ActionIcon>
       </Group>
     </Fieldset>
