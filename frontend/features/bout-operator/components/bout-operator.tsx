@@ -3,6 +3,7 @@ import { Collapse, Stack, StackProps } from "@mantine/core";
 import { useBoutOperator } from "../hooks/use-bout-operator";
 import BoutPhaseController from "./bout-phase-controller";
 import JamStopReasonEditor from "./stop-reason-editor";
+import TimeToDerbyEditor from "./time-to-derby-editor";
 import TimeoutEditor from "./timeout-editor";
 
 export interface BoutOperatorProps extends StackProps {
@@ -48,6 +49,9 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
             teams={teams}
             p="xs"
           />
+        </Collapse>
+        <Collapse expanded={bout.state == "stopped"}>
+          <TimeToDerbyEditor derbyStartTimestamp={bout.startCountdown} />
         </Collapse>
       </Stack>
     </Stack>

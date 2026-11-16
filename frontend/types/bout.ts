@@ -34,7 +34,7 @@ export interface Bout {
    * been set. This value is used to set the "time-to-derby" count-down during pregame
    * and halftime.
    */
-  startCountdown: Date | null;
+  startCountdown: string | null;
   /**
    * The Period clock. Keeps track of the amount of time that has elapsed in the current
    * half.
