@@ -26,6 +26,7 @@ export default function TimeToDerbyEditor({
   iconSize = 16,
   ...props
 }: TimeToDerbyEditorProps) {
+  // FIXME: allow more than one hour
   const { ref, value, isComplete, reset } = useMask({
     mask: [/\d/, /\d/, ":", /[0-5]/, /\d/],
     slotChar: " ",
