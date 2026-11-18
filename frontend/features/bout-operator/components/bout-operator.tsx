@@ -52,7 +52,11 @@ export default function BoutOperator({ bout, ...props }: BoutOperatorProps) {
           />
         </Collapse>
         <Collapse expanded={bout.state == "stopped"}>
-          <TimeToDerbyEditor boutUuid={bout.uuid} p="xs" />
+          <TimeToDerbyEditor
+            boutUuid={bout.uuid}
+            showClearButton={bout.timeToDerbyTimestamp != null}
+            p="xs"
+          />
         </Collapse>
       </Stack>
     </Stack>
