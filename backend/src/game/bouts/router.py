@@ -123,7 +123,7 @@ async def update_bout_team(team: GetTeam, updates: UpdateTeamSchema) -> BaseBout
 
 @router.put('/timeToDerby', response_model=BoutSchema)
 async def set_time_to_derby(
-    bout: GetBout, time_to_derby: Annotated[datetime, Body(alias='timeToDerby')]
+    bout: GetBout, time_to_derby: Annotated[datetime | None, Body(alias='timeToDerby')]
 ) -> BaseBout:
     """Update the time-to-derby."""
     if bout.state != 'stopped':
