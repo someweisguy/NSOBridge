@@ -9,6 +9,7 @@ import {
 } from "@mantine/core";
 import { useMask } from "@mantine/hooks";
 import { IconCheck, IconStopwatch, IconTrash } from "@tabler/icons-react";
+import { useCallback } from "react";
 import { useUpdateBout } from "../hooks/use-update-bout";
 
 interface TimeToDerbyEditorProps extends FieldsetProps {
@@ -31,56 +32,68 @@ export default function TimeToDerbyEditor({
     slotChar: " ",
   });
 
-  const { mutate: setTimeToDerby } = useUpdateBout({
+  const { mutate: updateBout } = useUpdateBout({
     uuid: boutUuid,
     onSuccess: reset,
   });
 
+  const handleSubmit = useCallback(() => {
+    let timeToDerbyTimestamp: string | null = null;
+    if (isComplete || !showClearButton) {
+      const now = new Date();
+      const [minutes, seconds] = value
+        .replace(/ /g, "0")
+        .split(":")
+        .map((val: string) => Number(val));
+      now.setMinutes(now.getMinutes() + minutes);
+      now.setSeconds(now.getSeconds() + seconds);
+      timeToDerbyTimestamp = now.toISOString();
+      // TODO: ensure time is synchronized with server
+    }
+    updateBout({ timeToDerbyTimestamp });
+  }, [showClearButton, isComplete, value, updateBout]);
+
   return (
     <Fieldset legend={"Set Time to Derby"} {...props}>
-      <Group justify="space-between" align="center" gap="xs" wrap="nowrap">
-        <TextInput
-          ref={ref}
-          placeholder="mm:ss"
-          defaultValue={defaultValue}
-          rightSection={<IconStopwatch size={px(iconSize)} />}
-        />
-        <Tooltip
-          disabled={isComplete}
-          label={
-            showClearButton
-              ? "Reset the time to derby."
-              : "Input a time to derby value."
+      <form
+        onSubmit={(event) => {
+          event.preventDefault(); // Don't refresh the page
+          if (isComplete) {
+            handleSubmit();
           }
-        >
-          <ActionIcon
-            size="md"
-            variant="outline"
-            onClick={() => {
-              let timeToDerbyTimestamp: string | null = null;
-              if (isComplete || !showClearButton) {
-                const now = new Date();
-                const [minutes, seconds] = value
-                  .replace(/ /g, "0")
-                  .split(":")
-                  .map((val: string) => Number(val));
-                now.setMinutes(now.getMinutes() + minutes);
-                now.setSeconds(now.getSeconds() + seconds);
-                timeToDerbyTimestamp = now.toISOString();
-                // TODO: ensure time is synchronized with server
-              }
-              setTimeToDerby({ timeToDerbyTimestamp });
-            }}
-            disabled={!isComplete && !showClearButton}
+        }}
+      >
+        <Group justify="space-between" align="center" gap="xs" wrap="nowrap">
+          <TextInput
+            ref={ref}
+            placeholder="mm:ss"
+            defaultValue={defaultValue}
+            rightSection={<IconStopwatch size={px(iconSize)} />}
+          />
+          <Tooltip
+            disabled={isComplete}
+            label={
+              showClearButton
+                ? "Reset the time to derby."
+                : "Input a time to derby value."
+            }
           >
-            {isComplete || !showClearButton ? (
-              <IconCheck size={px(iconSize)} />
-            ) : (
-              <IconTrash size={px(iconSize)} />
-            )}
-          </ActionIcon>
-        </Tooltip>
-      </Group>
+            <ActionIcon
+              size="md"
+              variant="outline"
+              type="submit"
+              onClick={handleSubmit}
+              disabled={!isComplete && !showClearButton}
+            >
+              {isComplete || !showClearButton ? (
+                <IconCheck size={px(iconSize)} />
+              ) : (
+                <IconTrash size={px(iconSize)} />
+              )}
+            </ActionIcon>
+          </Tooltip>
+        </Group>
+      </form>
     </Fieldset>
   );
 }
