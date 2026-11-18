@@ -43,6 +43,7 @@ class UpdateBoutSchema(ClientSchema):
     """Update a Bout."""
 
     time_to_derby_timestamp: datetime | None = None
+    # TODO: ruleset
 
 
 class UpdateTeamSchema(ClientSchema):

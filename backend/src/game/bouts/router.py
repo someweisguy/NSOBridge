@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from core.app import update_model
 from core.db import CacheAPIRoute, GetAsyncSession
-from fastapi import APIRouter, Body, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from game.bouts.dependencies import GetTeam
 from game.rules.models import Ruleset
 from game.rules.schemas import RulesetSchema
@@ -18,7 +18,12 @@ from sqlalchemy.orm.attributes import flag_dirty
 from .constants import RANDOM_TEAM_NAMES
 from .dependencies import GetBout, get_bout
 from .models import REQUIRED_NUM_TEAMS, BaseBout
-from .schemas import BoutSchema, UpdateBoutClockSchema, UpdateTeamSchema
+from .schemas import (
+    BoutSchema,
+    UpdateBoutClockSchema,
+    UpdateBoutSchema,
+    UpdateTeamSchema,
+)
 
 if TYPE_CHECKING:
     from game.series.models import Series
@@ -76,6 +81,13 @@ async def create_bout(
     return bout
 
 
+@router.put('', response_model=BoutSchema)
+async def update_bout(bout: GetBout, updates: UpdateBoutSchema) -> BaseBout:
+    """Update the Bout."""
+    update_model(bout, updates)
+    return bout
+
+
 @router.delete('')
 async def delete_bout(session: GetAsyncSession, bout: GetBout) -> None:
     series: Series = await bout.awaitable_attrs.series
@@ -119,20 +131,6 @@ async def update_bout_team(team: GetTeam, updates: UpdateTeamSchema) -> BaseBout
     """Update the Team."""
     update_model(team, updates)
     return team.bout
-
-
-@router.put('/timeToDerby', response_model=BoutSchema)
-async def set_time_to_derby(
-    bout: GetBout, time_to_derby: Annotated[datetime | None, Body(alias='timeToDerby')]
-) -> BaseBout:
-    """Update the time-to-derby."""
-    if bout.state != 'stopped':
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail='Time-to-derby may only be set if the Bout is stopped',
-        )
-    bout.time_to_derby_timestamp = time_to_derby
-    return bout
 
 
 @router.get('/defaultRuleset')
