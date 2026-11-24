@@ -109,7 +109,7 @@ class BaseBout(CacheableSQLModel, RulesetProtocol):
             ruleset=ruleset,
             clock=Clock.create(),
             teams=[Team.create(name, num) for num, name in enumerate(team_names)],
-        )  # ty: ignore[call-non-callable]
+        )  # ty: ignore[abstract-class-instantiation]
 
     def __str__(self) -> str:
         """Return a str representation of this Bout.
