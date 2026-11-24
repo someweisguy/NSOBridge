@@ -68,39 +68,45 @@ export default function ClockView({
   formatter = "default",
   ...props
 }: ClockProps) {
-  const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
+  const [value, setValue] = useState("");
   const syncDataContext = useSyncDataContext();
 
   useEffect(() => {
     if (freeze || startTimestamp == null) {
-      return; // Clock is stopped or manually frozen
+      return; // Clock is stopped
     }
 
-    setCurrentTimestamp(new Date());
-    const intervalId = setInterval(
-      () => setCurrentTimestamp(new Date()),
-      CLOCK_REFRESH_RATE,
-    );
+    const intervalId = setInterval(() => {
+      const now = new Date();
+      let milliseconds = elapsed;
+      const startMilliseconds = new Date(startTimestamp).getTime();
+      if (startTimestamp != null && stopTimestamp == null) {
+        // Clock is running
+        milliseconds += now.getTime() - startMilliseconds;
+      } else if (startTimestamp != null && stopTimestamp != null) {
+        // Clock is stopped; add difference between timestamps
+        milliseconds += new Date(stopTimestamp).getTime() - startMilliseconds;
+      }
+
+      if (startTimestamp != null) {
+        // Add the server offset only if the clock is running
+        milliseconds += serverOffset ?? syncDataContext?.offset ?? 0;
+      }
+
+      const formattedValue = timeFormatters[formatter](milliseconds);
+      setValue(formattedValue);
+    }, CLOCK_REFRESH_RATE);
     return () => clearInterval(intervalId);
-  }, [startTimestamp, freeze]);
+  }, [
+    startTimestamp,
+    stopTimestamp,
+    elapsed,
+    alarm,
+    freeze,
+    formatter,
+    serverOffset,
+    syncDataContext,
+  ]);
 
-  // Calculate the number of milliseconds that have elapsed since the last update
-  let milliseconds = elapsed;
-  if (startTimestamp != null && stopTimestamp == null) {
-    // Clock is running
-    milliseconds +=
-      currentTimestamp.getTime() - new Date(startTimestamp).getTime();
-  } else if (startTimestamp != null && stopTimestamp != null) {
-    // Clock is stopped but add the additional elapsed time to the accumulator
-    milliseconds +=
-      new Date(stopTimestamp).getTime() - new Date(startTimestamp).getTime();
-  }
-
-  if (startTimestamp != null) {
-    milliseconds += serverOffset ?? syncDataContext?.offset ?? 0;
-  }
-
-  return (
-    <Text {...props}>{timeFormatters[formatter](milliseconds, alarm)}</Text>
-  );
+  return <Text {...props}>{value}</Text>;
 }

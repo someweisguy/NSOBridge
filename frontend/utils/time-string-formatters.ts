@@ -1,4 +1,12 @@
 /**
+
+Bout clock - count-down time until alarm
+Jam clock - count-down time until alarm
+lineup/timeout - count-up, time since start
+ttd - count-down to timestamp
+ */
+
+/**
  * Format a number of milliseconds and an optional alarm value into a time
  * string. This is used for count-up and count-down timer displays.
  *
