@@ -13,6 +13,8 @@ export const Bout: Story = {
     startTimestamp: new Date(),
     elapsed: 0,
     alarm: 1800000,
+    freeze: false,
+    serverOffset: 0,
   },
 };
 export const Jam: Story = {
