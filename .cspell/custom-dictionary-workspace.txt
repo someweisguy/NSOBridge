@@ -5,6 +5,7 @@ autodocs
 bdrs
 cacheables
 Cristian
+DECISECOND
 getpid
 IGRF
 ondelete
