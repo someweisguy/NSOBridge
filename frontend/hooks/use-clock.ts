@@ -54,15 +54,6 @@ export default function useClock(
   freeze = false,
   refreshRate = CLOCK_REFRESH_RATE,
 ) {
-  useEffect(() => {
-    if (startTimestamp != null && isNaN(new Date(startTimestamp).getTime())) {
-      throw new Error("startTimestamp is not a value Date string.");
-    }
-    if (stopTimestamp != null && isNaN(new Date(stopTimestamp).getTime())) {
-      throw new Error("stopTimestamp is not a value Date string.");
-    }
-  }, [startTimestamp, stopTimestamp]);
-
   // Compute the clock value when the hook is called
   const [milliseconds, setMilliseconds] = useState(
     computeMilliseconds(
@@ -75,6 +66,11 @@ export default function useClock(
   );
 
   useEffect(() => {
+    if (freeze) {
+      // Never update state if the hook is frozen
+      return;
+    }
+
     // Compute the clock value when the props are refreshed
     setMilliseconds(
       computeMilliseconds(
@@ -86,7 +82,7 @@ export default function useClock(
       ),
     );
 
-    if (startTimestamp != null && stopTimestamp == null && !freeze) {
+    if (startTimestamp != null && stopTimestamp == null) {
       // Compute the clock value every `refreshRate` milliseconds
       const intervalId = setInterval(() => {
         setMilliseconds(
