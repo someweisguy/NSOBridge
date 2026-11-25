@@ -86,7 +86,7 @@ export const computeMilliseconds = (
   }
   if (alarm) {
     // Convert to a count-down timer
-    milliseconds -= alarm;
+    milliseconds = alarm - milliseconds;
   }
   return milliseconds;
 };
