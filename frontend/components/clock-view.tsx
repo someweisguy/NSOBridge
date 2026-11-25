@@ -6,7 +6,8 @@ import { useMemo } from "react";
 
 export interface ClockProps extends TextProps {
   /**
-   * The timestamp at which this Clock was started or `null` if it isn't running.
+   * The timestamp at which this Clock was started or `null` if it isn't
+   * running.
    */
   startTimestamp?: string | null;
   /**
@@ -18,8 +19,8 @@ export interface ClockProps extends TextProps {
    */
   elapsed?: number;
   /**
-   * The number of milliseconds on this Clock's alarm. Setting this parameter to a
-   * number turns this Clock into a count-down.
+   * The number of milliseconds on this Clock's alarm. Setting this parameter to
+   * a number turns this Clock into a count-down.
    */
   alarm?: number;
   /**
