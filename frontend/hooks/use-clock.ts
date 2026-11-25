@@ -10,17 +10,17 @@ export interface UseClockOptions {
    * The difference in time (in milliseconds) between the client's time-of-day
    * clock and the host's time-of-day clock.
    */
-  serverOffset: number;
+  serverOffset?: number;
   /**
    * True to freeze the output of the hook to prevent the parent component from
    * refreshing.
    */
-  freeze: boolean;
+  freeze?: boolean;
   /**
    * The amount of time in milliseconds to wait before refreshing the output
    * value.
    */
-  refreshRate: number;
+  refreshRate?: number;
 }
 
 /**
@@ -51,11 +51,11 @@ export default function useClock(
     elapsed = 0,
     alarm = 0,
   }: OneShot & Partial<Clock>,
-  {
-    serverOffset = 0,
-    freeze = false,
-    refreshRate = CLOCK_REFRESH_RATE,
-  }: UseClockOptions,
+  { serverOffset, freeze, refreshRate }: UseClockOptions = {
+    serverOffset: 0,
+    freeze: false,
+    refreshRate: CLOCK_REFRESH_RATE,
+  },
 ) {
   // Compute the clock value when the hook is called
   const [milliseconds, setMilliseconds] = useState(
