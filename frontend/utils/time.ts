@@ -48,3 +48,45 @@ export const getElapsed = (obj: OneShot | Timer): number => {
 
   return elapsed;
 };
+
+/**
+ * Compute the number of milliseconds between two timestamps. This is used to
+ * determine the amount of time remaining on a clock.
+ *
+ * @param startTimestamp the start timestamp. Defaults to `new Date()`.
+ * @param stopTimestamp the time at which the clock has stopped. Defaults to
+ * `new Date()` which indicates that the clock is still running.
+ * @param elapsed The number of milliseconds which have already elapsed in this
+ * clock. Defaults to `0`.
+ * @param alarm an optional number of milliseconds which must elapse before the
+ * clock is considered expired. Supplying a non-zero value turns the output into
+ * a count-down clock. Defaults to `0`.
+ * @param serverOffset The offset (in milliseconds) between the client's
+ * time-of-day clock and the host's time-of-day clock. This argument is only
+ * applied to the function output when the clock is running.
+ *
+ * @returns The number of milliseconds to be displayed for this clock.
+ */
+export const computeMilliseconds = (
+  startTimestamp: string | null,
+  stopTimestamp: string | null,
+  elapsed = 0,
+  alarm: number | null = null,
+  serverOffset = 0,
+) => {
+  const nowMillis = new Date().getTime();
+  let milliseconds = elapsed;
+  const startMilliseconds =
+    startTimestamp == null ? nowMillis : new Date(startTimestamp).getTime();
+  if (stopTimestamp == null) {
+    milliseconds += nowMillis - startMilliseconds;
+    milliseconds -= serverOffset; // Only if clock is running
+  } else {
+    milliseconds += new Date(stopTimestamp).getTime() - startMilliseconds;
+  }
+  if (alarm) {
+    // Convert to a count-down timer
+    milliseconds -= alarm;
+  }
+  return milliseconds;
+};

@@ -1,28 +1,27 @@
+import { Clock, OneShot } from "@/types/time";
+import { computeMilliseconds } from "@/utils/time";
 import { useEffect, useState } from "react";
 
-const CLOCK_REFRESH_RATE = 1000 / 60; // 60Hz refresh rate
+// The default refresh rates for the useClock hook (60Hz)
+const CLOCK_REFRESH_RATE = 1000 / 60;
 
-const computeMilliseconds = (
-  startTimestamp: string,
-  stopTimestamp: string | undefined,
-  elapsed = 0,
-  serverOffset: number,
-  alarm: number | null = null,
-) => {
-  let milliseconds = elapsed;
-  const startMilliseconds = new Date(startTimestamp).getTime();
-  if (stopTimestamp == null) {
-    milliseconds += new Date().getTime() - startMilliseconds;
-    milliseconds -= serverOffset; // Only if clock is running
-  } else {
-    milliseconds += new Date(stopTimestamp).getTime() - startMilliseconds;
-  }
-  if (alarm) {
-    // Convert to a count-down timer
-    milliseconds -= alarm;
-  }
-  return milliseconds;
-};
+export interface UseClockOptions {
+  /**
+   * The difference in time (in milliseconds) between the client's time-of-day
+   * clock and the host's time-of-day clock.
+   */
+  serverOffset: number;
+  /**
+   * True to freeze the output of the hook to prevent the parent component from
+   * refreshing.
+   */
+  freeze: boolean;
+  /**
+   * The amount of time in milliseconds to wait before refreshing the output
+   * value.
+   */
+  refreshRate: number;
+}
 
 /**
  * Get the number of milliseconds in a clock.
@@ -46,13 +45,17 @@ const computeMilliseconds = (
  * @returns the number of milliseconds to be shown on the clock.
  */
 export default function useClock(
-  startTimestamp: string,
-  stopTimestamp?: string,
-  elapsed = 0,
-  serverOffset = 0,
-  alarm?: number,
-  freeze = false,
-  refreshRate = CLOCK_REFRESH_RATE,
+  {
+    startTimestamp,
+    stopTimestamp,
+    elapsed = 0,
+    alarm = 0,
+  }: OneShot & Partial<Clock>,
+  {
+    serverOffset = 0,
+    freeze = false,
+    refreshRate = CLOCK_REFRESH_RATE,
+  }: UseClockOptions,
 ) {
   // Compute the clock value when the hook is called
   const [milliseconds, setMilliseconds] = useState(
@@ -60,8 +63,8 @@ export default function useClock(
       startTimestamp,
       stopTimestamp,
       elapsed,
-      serverOffset,
       alarm,
+      serverOffset,
     ),
   );
 
@@ -77,8 +80,8 @@ export default function useClock(
         startTimestamp,
         stopTimestamp,
         elapsed,
-        serverOffset,
         alarm,
+        serverOffset,
       ),
     );
 
@@ -90,8 +93,8 @@ export default function useClock(
             startTimestamp,
             stopTimestamp,
             elapsed,
-            serverOffset,
             alarm,
+            serverOffset,
           ),
         );
         return () => clearInterval(intervalId);
@@ -101,8 +104,8 @@ export default function useClock(
     startTimestamp,
     stopTimestamp,
     elapsed,
-    serverOffset,
     alarm,
+    serverOffset,
     freeze,
     refreshRate,
   ]);
