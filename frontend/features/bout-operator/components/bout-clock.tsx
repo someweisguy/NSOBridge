@@ -54,6 +54,9 @@ const stopReasons: Record<StopReasonString, string> = {
 
 const overtimeText = "OT";
 
+const countDownOverride = (ms: number) =>
+  ms < -2000 ? "0" : ms < 0 ? "0.0" : undefined;
+
 export interface BoutClockProps extends StackProps {
   boutClock: Clock | undefined;
   isInOvertime: boolean;
@@ -92,7 +95,7 @@ export default function BoutClock({
     jamStopReason !== undefined &&
     jamDuration !== undefined;
 
-  const boutIsStopped = ["pregame", "halftime"].includes(boutEvent ?? "");
+  // const boutIsStopped = ["pregame", "halftime"].includes(boutEvent ?? "");
 
   return (
     <Stack justify="center" align="stretch" gap="0" {...props}>
@@ -111,7 +114,11 @@ export default function BoutClock({
                 {overtimeText}
               </Text>
             ) : (
-              <ClockView formatter="bout" fz="1.5rem" {...boutClock} />
+              <ClockView
+                textOverride={countDownOverride}
+                fz="1.5rem"
+                {...boutClock}
+              />
             )}
           </Grid.Col>
           <Grid.Col span={4}>
@@ -124,7 +131,7 @@ export default function BoutClock({
               <ClockView
                 startTimestamp={jamStartTimestamp}
                 alarm={jamDuration}
-                formatter="jam"
+                textOverride={countDownOverride}
                 fz="1.5rem"
               />
             ) : (
@@ -151,10 +158,7 @@ export default function BoutClock({
               {boutEvent != null && eventNames[boutEvent]}
             </Text>
             {boutEventStartTimestamp != null && (
-              <ClockView
-                formatter={boutIsStopped ? "timeToDerby" : "lineup"}
-                startTimestamp={boutEventStartTimestamp}
-              />
+              <ClockView startTimestamp={boutEventStartTimestamp} options={{showFractionalSeconds}} />
             )}
           </Group>
         </Stack>

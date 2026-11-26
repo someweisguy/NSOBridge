@@ -1,8 +1,12 @@
 const MILLIS_PER_SECOND = 1000;
 const MILLIS_PER_MINUTE = MILLIS_PER_SECOND * 60;
 const MILLIS_PER_HOUR = MILLIS_PER_MINUTE * 60;
-
 const MILLIS_PER_DECISECOND = 100;
+
+export interface TimeFormatOptions {
+  showFractionalSeconds: boolean | "auto";
+  negativeSign: string | undefined;
+}
 
 /**
  * Format a number of milliseconds and an optional alarm value into a time
@@ -13,6 +17,10 @@ const MILLIS_PER_DECISECOND = 100;
  */
 export default function defaultTimeStringFormatter(
   milliseconds: number,
+  { showFractionalSeconds, negativeSign }: TimeFormatOptions = {
+    showFractionalSeconds: "auto",
+    negativeSign: "+",
+  },
 ): string {
   const isNegative = milliseconds < 0;
   milliseconds = Math.abs(milliseconds);
@@ -44,12 +52,15 @@ export default function defaultTimeStringFormatter(
   }
 
   // Render a negative sign
-  if (isNegative) {
-    output = "+" + output;
+  if (isNegative && negativeSign != null) {
+    output = negativeSign + output;
   }
 
   // Add a decimal point if there are less than 10 seconds remaining
-  if (milliseconds < 10 * MILLIS_PER_SECOND) {
+  if (
+    showFractionalSeconds === true ||
+    (showFractionalSeconds == "auto" && milliseconds < 10 * MILLIS_PER_SECOND)
+  ) {
     const f = String(
       Math.floor((milliseconds % MILLIS_PER_SECOND) / MILLIS_PER_DECISECOND),
     );

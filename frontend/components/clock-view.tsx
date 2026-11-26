@@ -1,6 +1,8 @@
 import useClock from "@/hooks/use-clock";
 import { useSyncDataContext } from "@/hooks/use-sync-context";
-import defaultTimeStringFormatter from "@/utils/time-string-formatters";
+import defaultTimeStringFormatter, {
+  TimeFormatOptions,
+} from "@/utils/time-string-formatters";
 import { Text, TextProps } from "@mantine/core";
 import { useMemo } from "react";
 
@@ -37,6 +39,10 @@ export interface ClockProps extends TextProps {
    * @returns a value to be displayed.
    */
   textOverride?: (milliseconds: number) => string | undefined;
+  /**
+   * Options to format the component text.
+   */
+  options?: TimeFormatOptions;
 }
 
 /**
@@ -50,6 +56,7 @@ export default function ClockView({
   alarm = 0,
   freeze = false,
   textOverride,
+  options,
   ...props
 }: ClockProps) {
   const syncDataContext = useSyncDataContext();
@@ -60,8 +67,9 @@ export default function ClockView({
 
   const value: string = useMemo(
     () =>
-      textOverride?.(milliseconds) ?? defaultTimeStringFormatter(milliseconds),
-    [milliseconds, textOverride],
+      textOverride?.(milliseconds) ??
+      defaultTimeStringFormatter(milliseconds, options),
+    [milliseconds, textOverride, options],
   );
 
   return <Text {...props}>{value}</Text>;
