@@ -2,7 +2,7 @@ const MILLIS_PER_SECOND = 1000;
 const MILLIS_PER_MINUTE = MILLIS_PER_SECOND * 60;
 const MILLIS_PER_HOUR = MILLIS_PER_MINUTE * 60;
 
-const MILLIS_PER_DECISECOND = 10;
+const MILLIS_PER_DECISECOND = 100;
 
 /**
  * Format a number of milliseconds and an optional alarm value into a time
@@ -52,7 +52,7 @@ export default function defaultTimeStringFormatter(
   if (milliseconds < 10 * MILLIS_PER_SECOND) {
     const f = String(
       Math.floor((milliseconds % MILLIS_PER_SECOND) / MILLIS_PER_DECISECOND),
-    ).padStart(2, "0");
+    );
     output = output + `.${f}`;
   }
 
