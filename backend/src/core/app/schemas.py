@@ -19,12 +19,8 @@ class AppSchema(BaseModel):
         for field_name in self.model_fields:
             value: Any = getattr(self, field_name)
             if isinstance(value, datetime):
-                # Assume naive timezones are UTC, convert all others
-                value: datetime = (
-                    value.replace(tzinfo=timezone.utc)
-                    if value.tzinfo is None
-                    else value.astimezone(timezone.utc)
-                )
+                # Assume all timezones are UTC
+                value: datetime = value.astimezone(timezone.utc)
                 setattr(self, field_name, value)
         return self
 
