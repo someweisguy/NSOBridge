@@ -27,6 +27,16 @@ export interface ClockProps extends TextProps {
    * True to freeze the clock at it current time.
    */
   freeze?: boolean;
+  /**
+   * An optional function to override the text of the component.
+   *
+   * If the value returned by the function is a string, this value will be
+   * displayed instead of the time.
+   *
+   * @param milliseconds the number of milliseconds calculated by the clock view.
+   * @returns a value to be displayed.
+   */
+  textOverride?: (milliseconds: number) => string | undefined;
 }
 
 /**
@@ -39,6 +49,7 @@ export default function ClockView({
   elapsed = 0,
   alarm = 0,
   freeze = false,
+  textOverride,
   ...props
 }: ClockProps) {
   const syncDataContext = useSyncDataContext();
@@ -47,9 +58,10 @@ export default function ClockView({
     { serverOffset: syncDataContext?.offset, freeze },
   );
 
-  const value = useMemo(
-    () => defaultTimeStringFormatter(milliseconds),
-    [milliseconds],
+  const value: string = useMemo(
+    () =>
+      textOverride?.(milliseconds) ?? defaultTimeStringFormatter(milliseconds),
+    [milliseconds, textOverride],
   );
 
   return <Text {...props}>{value}</Text>;
