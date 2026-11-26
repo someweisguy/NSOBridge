@@ -74,15 +74,14 @@ export const computeMilliseconds = (
   alarm: number | null = null,
   serverOffset = 0,
 ) => {
-  const nowMillis = new Date().getTime();
+  const nowMillis = new Date().getTime() - serverOffset;
   let milliseconds = elapsed;
-  const startMilliseconds =
+  const startMillis =
     startTimestamp == null ? nowMillis : new Date(startTimestamp).getTime();
   if (stopTimestamp == null) {
-    milliseconds += nowMillis - startMilliseconds;
-    milliseconds -= serverOffset; // Only if clock is running
+    milliseconds += nowMillis - startMillis;
   } else {
-    milliseconds += new Date(stopTimestamp).getTime() - startMilliseconds;
+    milliseconds += new Date(stopTimestamp).getTime() - startMillis;
   }
   if (alarm) {
     // Convert to a count-down timer
