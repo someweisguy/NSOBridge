@@ -1,11 +1,3 @@
-/**
-
-Bout clock - count-down time until alarm
-Jam clock - count-down time until alarm
-lineup/timeout - count-up, time since start
-ttd - count-down to timestamp
- */
-
 const MILLIS_PER_SECOND = 1000;
 const MILLIS_PER_MINUTE = MILLIS_PER_SECOND * 60;
 const MILLIS_PER_HOUR = MILLIS_PER_MINUTE * 60;
