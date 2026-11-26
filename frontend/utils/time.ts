@@ -74,18 +74,27 @@ export const computeMilliseconds = (
   alarm: number | null = null,
   serverOffset = 0,
 ) => {
-  const nowMillis = new Date().getTime() - serverOffset;
-  let milliseconds = elapsed;
+  const nowMillis = Date.now();
   const startMillis =
     startTimestamp == null ? nowMillis : new Date(startTimestamp).getTime();
-  if (stopTimestamp == null) {
-    milliseconds += nowMillis - startMillis;
-  } else {
-    milliseconds += new Date(stopTimestamp).getTime() - startMillis;
+  const stopMillis =
+    stopTimestamp == null ? nowMillis : new Date(stopTimestamp).getTime();
+
+  let milliseconds = stopMillis - startMillis + elapsed;
+
+  if (
+    (startTimestamp == null || stopTimestamp == null) &&
+    startTimestamp != null &&
+    stopTimestamp != null
+  ) {
+    // Apply the server offset only if the timer is running
+    milliseconds -= serverOffset;
   }
-  if (alarm) {
-    // Convert to a count-down timer
+
+  if (alarm != null) {
+    // Supplying an alarm value automatically converts output to a count-down
     milliseconds = alarm - milliseconds;
   }
+
   return milliseconds;
 };
