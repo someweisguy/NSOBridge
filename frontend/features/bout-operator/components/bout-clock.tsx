@@ -158,7 +158,10 @@ export default function BoutClock({
               {boutEvent != null && eventNames[boutEvent]}
             </Text>
             {boutEventStartTimestamp != null && (
-              <ClockView startTimestamp={boutEventStartTimestamp} options={{showFractionalSeconds}} />
+              <ClockView
+                startTimestamp={boutEventStartTimestamp}
+                options={{ showFractionalSeconds: false }}
+              />
             )}
           </Group>
         </Stack>

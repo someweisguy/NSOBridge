@@ -17,7 +17,7 @@ export interface TimeFormatOptions {
  */
 export default function defaultTimeStringFormatter(
   milliseconds: number,
-  { showFractionalSeconds, negativeSign }: TimeFormatOptions = {
+  { showFractionalSeconds, negativeSign }: Partial<TimeFormatOptions> = {
     showFractionalSeconds: "auto",
     negativeSign: "+",
   },

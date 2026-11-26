@@ -42,7 +42,7 @@ export interface ClockProps extends TextProps {
   /**
    * Options to format the component text.
    */
-  options?: TimeFormatOptions;
+  options?: Partial<TimeFormatOptions>;
 }
 
 /**
