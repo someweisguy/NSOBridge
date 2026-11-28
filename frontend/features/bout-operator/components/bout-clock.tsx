@@ -95,7 +95,7 @@ export default function BoutClock({
     jamStopReason !== undefined &&
     jamDuration !== undefined;
 
-  // const boutIsStopped = ["pregame", "halftime"].includes(boutEvent ?? "");
+  const boutIsStopped = ["pregame", "halftime"].includes(boutEvent ?? "");
 
   return (
     <Stack justify="center" align="stretch" gap="0" {...props}>
@@ -159,7 +159,8 @@ export default function BoutClock({
             </Text>
             {boutEventStartTimestamp != null && (
               <ClockView
-                startTimestamp={boutEventStartTimestamp}
+                startTimestamp={boutIsStopped ? null : boutEventStartTimestamp}
+                stopTimestamp={boutIsStopped ? boutEventStartTimestamp : null}
                 options={{ showFractionalSeconds: false }}
               />
             )}
