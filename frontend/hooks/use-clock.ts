@@ -90,6 +90,7 @@ export default function useClock(
       !(startTimestamp == null && stopTimestamp == null)
     ) {
       // Compute the clock value every `refreshRate` milliseconds
+      console.log("setting interval");
       const intervalId = setInterval(() => {
         setMilliseconds(
           computeMilliseconds(
@@ -100,8 +101,8 @@ export default function useClock(
             serverOffset,
           ),
         );
-        return () => clearInterval(intervalId);
       }, refreshRate);
+      return () => clearInterval(intervalId);
     }
   }, [
     startTimestamp,
